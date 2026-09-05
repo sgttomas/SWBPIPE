@@ -1,0 +1,5 @@
+FAIL: 4 literal home-dir absolute path finding(s) in 3099 live path-anchor surfaces
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/PREFLIGHT.json:4: /Users/ryan/.codex/worktrees/8728/chirality
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md:9: /Users/ryan/.codex/worktrees/8728/chirality
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md:14: /tmp/piping-w2-units-target
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md:24: /tmp/piping-w2-units-target;

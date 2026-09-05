@@ -1,0 +1,9 @@
+{
+  "created_at": "2026-09-05T19:28:27.301775+00:00",
+  "status": "EXACT_CLASSIFICATION_CANDIDATE_PASS",
+  "policy_sha256": "11e109fca1ca9ae803624a2c192588135b317e28be83f1bef29cc665bbf0d05e",
+  "exact_approval_fields_match": true,
+  "combined_extra_entries": 2,
+  "policy_issues": [],
+  "return_sha256": "d1b50a1c977d2d2d6ec1494a554269c38260d1ff8ffc65f7183296901301b765"
+}

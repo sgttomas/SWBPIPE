@@ -1,0 +1,12 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_path_anchors.py",
+    "--text"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 4.95,
+  "encoding": "base64",
+  "sha256": "a422ef7154ee6f2648d6a394c3be6dd137fae6193e1cff5f83797abba9a4dea7",
+  "data": "UEFTUzogbm8gbGl0ZXJhbCBob21lLWRpciBhYnNvbHV0ZSBwYXRocyBmb3VuZCBpbiAzMTMzIGxpdmUgcGF0aC1hbmNob3Igc3VyZmFjZXMK"
+}

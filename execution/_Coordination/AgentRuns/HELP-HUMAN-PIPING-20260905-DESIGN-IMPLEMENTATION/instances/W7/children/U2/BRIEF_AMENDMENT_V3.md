@@ -1,0 +1,2 @@
+# U2 contextual presentation remediation v3
+Visual fan-in found the default selected project inspector exposes irrelevant expanded support/creation forms. Same allowedwrites; wrap standalone creation forms and support configuration in concise native details, closed unless contextually relevant, preserving DOM/drafts/diagnostics and toolkit ancestor-opening route. Add focused disclosure test. Prior frozenreturn retained; amended source must receive new hashes/review.

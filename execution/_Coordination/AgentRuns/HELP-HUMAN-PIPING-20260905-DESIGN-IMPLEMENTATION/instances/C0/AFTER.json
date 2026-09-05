@@ -1,0 +1,11 @@
+{
+  "head": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "branch": "codex/piping-modeling-workspace",
+  "origin_main": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "status": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/\n?? projects/chirality-piping/plans/MAP_2026-09-05_product_design_scope_and_decisions.md\n?? projects/chirality-piping/plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md\n",
+  "preserved_original_untracked_files": 77,
+  "changed_original_untracked_files": [],
+  "old_branch_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "tracked_diff_stat": "",
+  "governance_paths_changed_upstream": []
+}

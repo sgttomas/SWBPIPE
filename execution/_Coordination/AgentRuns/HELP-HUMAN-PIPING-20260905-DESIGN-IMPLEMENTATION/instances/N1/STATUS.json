@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "closure": "bounded native verification complete; root fan-in/sweep pending",
+  "write_scope": "instances/N1 evidence and existing ignored build outputs only",
+  "blockers": [],
+  "source_after_unchanged": true,
+  "gui_exercised": false
+}

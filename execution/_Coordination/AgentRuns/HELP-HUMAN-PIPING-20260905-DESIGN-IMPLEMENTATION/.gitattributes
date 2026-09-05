@@ -1,0 +1,14 @@
+# Exact preserved execution bytes: patch context and terminal-output whitespace.
+# Keep text diffs visible; scope is limited to the hash inventory in C2 evidence.
+instances/W2/I1/PATCH.diff -whitespace
+instances/W2/I1/baseline-cargo.log -whitespace
+instances/W2/I1/final-cargo.log -whitespace
+instances/W7/children/U1/_run_records/copy-adapters-final.log -whitespace
+instances/W7/children/U1/_run_records/copy-adapters-pass.log -whitespace
+instances/W7/children/U1/_run_records/copy-adapters.log -whitespace
+instances/W7/children/U1/_run_records/support-disclosure-v2.log -whitespace
+instances/W7/children/U1/_run_records/targeted-initial.log -whitespace
+instances/W7/children/U1/_run_records/targeted-second.log -whitespace
+instances/W7/children/U1/_run_records/workspace-routes.log -whitespace
+instances/W7/snapshots/SOURCE_V1/DIFF.patch -whitespace
+instances/W7/snapshots/SOURCE_V2/DIFF.patch -whitespace

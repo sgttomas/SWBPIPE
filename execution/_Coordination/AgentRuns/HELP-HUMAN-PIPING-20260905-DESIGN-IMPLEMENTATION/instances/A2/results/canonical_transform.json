@@ -1,0 +1,936 @@
+{
+  "analytical_model": {
+    "id": "ANALYTICAL-DERIVED",
+    "name": "Derived analytical solver model",
+    "description": "Derived centerline/frame analytical view from physical model PHYS-1; contract DEL-13-04-0.1.",
+    "model_role": "analytical_solver_model",
+    "source_model_ref": {
+      "object_type": "Model",
+      "id": "PHYS-1"
+    },
+    "coordinate_system": {
+      "type": "cartesian",
+      "axes": [
+        "X",
+        "Y",
+        "Z"
+      ]
+    },
+    "nodes": [
+      {
+        "id": "N-1",
+        "coordinates": {
+          "x": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "y": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "z": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "degrees_of_freedom": {
+          "UX": "free",
+          "UY": "free",
+          "UZ": "free",
+          "RX": "free",
+          "RY": "free",
+          "RZ": "free"
+        }
+      },
+      {
+        "id": "N-2",
+        "coordinates": {
+          "x": {
+            "value": 2.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "y": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "z": {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "degrees_of_freedom": {
+          "UX": "free",
+          "UY": "free",
+          "UZ": "free",
+          "RX": "free",
+          "RY": "free",
+          "RZ": "free"
+        }
+      }
+    ],
+    "elements": [
+      {
+        "id": "E-1",
+        "element_type": "straight_pipe",
+        "start_node_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "end_node_ref": {
+          "object_type": "Node",
+          "id": "N-2"
+        },
+        "material_ref": {
+          "object_type": "Material",
+          "id": "MAT-1"
+        },
+        "section_ref": {
+          "object_type": "Section",
+          "id": "SEC-1"
+        },
+        "local_coordinate_system": {
+          "type": "cartesian",
+          "axes": [
+            "X",
+            "Y",
+            "Z"
+          ],
+          "y_reference": [
+            0.0,
+            1.0,
+            0.0
+          ],
+          "provenance": {
+            "source_name": "orientation source",
+            "source_location": "fixtures/orientation_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "result_stations": [
+          {
+            "value": 0.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "value": 1.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "value": 2.0,
+            "unit": "m",
+            "dimension": "length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        ]
+      }
+    ],
+    "components": [],
+    "materials": [
+      {
+        "id": "MAT-1",
+        "name": "Invented material",
+        "properties": {
+          "elastic_modulus": {
+            "value": 1.0,
+            "unit": "Pa",
+            "dimension": "stress",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "shear_modulus": {
+            "value": 1.0,
+            "unit": "Pa",
+            "dimension": "stress",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "density": {
+            "value": 1.0,
+            "unit": "kg/m3",
+            "dimension": "density",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "provenance": {
+          "source_name": "material source",
+          "source_location": "fixtures/material_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "sections": [
+      {
+        "id": "SEC-1",
+        "section_type": "pipe",
+        "properties": {
+          "area": {
+            "value": 1.0,
+            "unit": "m2",
+            "dimension": "area",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "second_moment_area": {
+            "value": 1.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "second_moment_y": {
+            "value": 1.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "second_moment_z": {
+            "value": 1.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "torsion_constant": {
+            "value": 1.0,
+            "unit": "m4",
+            "dimension": "second_moment_area",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          "mass_per_length": {
+            "value": 1.0,
+            "unit": "kg/m",
+            "dimension": "mass_per_length",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "provenance": {
+          "source_name": "section source",
+          "source_location": "fixtures/section_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "supports": [
+      {
+        "id": "SUP-1",
+        "support_type": "anchor",
+        "target_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "directions": [
+          "UX",
+          "UY",
+          "UZ",
+          "RX",
+          "RY",
+          "RZ"
+        ],
+        "properties": {
+          "linear_stiffness": {
+            "value": 1.0,
+            "unit": "N/m",
+            "dimension": "linear_stiffness",
+            "provenance": {
+              "source_name": "quantity source",
+              "source_location": "fixtures/quantity_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        },
+        "provenance": {
+          "source_name": "support source",
+          "source_location": "fixtures/support_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "load_cases": [
+      {
+        "id": "LC-1",
+        "name": "Invented load case",
+        "load_type": "weight",
+        "loads": [
+          {
+            "load_record_type": "element_uniform_distributed_force",
+            "target_ref": {
+              "object_type": "Element",
+              "id": "E-1"
+            },
+            "span": {
+              "start_fraction": {
+                "value": 0.0,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "quantity source",
+                  "source_location": "fixtures/quantity_source",
+                  "source_license": "public_permissive",
+                  "contributor": "DEL-13-04 test",
+                  "contributor_certification": "invented non-engineering transform fixture",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "pending"
+                }
+              },
+              "end_fraction": {
+                "value": 1.0,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "provenance": {
+                  "source_name": "quantity source",
+                  "source_location": "fixtures/quantity_source",
+                  "source_license": "public_permissive",
+                  "contributor": "DEL-13-04 test",
+                  "contributor_certification": "invented non-engineering transform fixture",
+                  "redistribution_status": "public_permissive",
+                  "review_status": "pending"
+                }
+              }
+            },
+            "direction": "Y",
+            "quantity": {
+              "value": 1.0,
+              "unit": "N/m",
+              "dimension": "force_per_length",
+              "provenance": {
+                "source_name": "quantity source",
+                "source_location": "fixtures/quantity_source",
+                "source_license": "public_permissive",
+                "contributor": "DEL-13-04 test",
+                "contributor_certification": "invented non-engineering transform fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "provenance": {
+              "source_name": "load source",
+              "source_location": "fixtures/load_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "load_record_type": "element_point_force",
+            "target_ref": {
+              "object_type": "Element",
+              "id": "E-1"
+            },
+            "station_fraction": {
+              "value": 0.5,
+              "unit": "1",
+              "dimension": "dimensionless",
+              "provenance": {
+                "source_name": "quantity source",
+                "source_location": "fixtures/quantity_source",
+                "source_license": "public_permissive",
+                "contributor": "DEL-13-04 test",
+                "contributor_certification": "invented non-engineering transform fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "direction": "Y",
+            "quantity": {
+              "value": 2.0,
+              "unit": "N",
+              "dimension": "force",
+              "provenance": {
+                "source_name": "quantity source",
+                "source_location": "fixtures/quantity_source",
+                "source_license": "public_permissive",
+                "contributor": "DEL-13-04 test",
+                "contributor_certification": "invented non-engineering transform fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "provenance": {
+              "source_name": "point force source",
+              "source_location": "fixtures/point_force_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          },
+          {
+            "load_record_type": "nodal_moment",
+            "target_ref": {
+              "object_type": "Node",
+              "id": "N-2"
+            },
+            "direction": "RZ",
+            "quantity": {
+              "value": 3.0,
+              "unit": "N*m",
+              "dimension": "moment",
+              "provenance": {
+                "source_name": "quantity source",
+                "source_location": "fixtures/quantity_source",
+                "source_license": "public_permissive",
+                "contributor": "DEL-13-04 test",
+                "contributor_certification": "invented non-engineering transform fixture",
+                "redistribution_status": "public_permissive",
+                "review_status": "pending"
+              }
+            },
+            "provenance": {
+              "source_name": "nodal moment source",
+              "source_location": "fixtures/nodal_moment_source",
+              "source_license": "public_permissive",
+              "contributor": "DEL-13-04 test",
+              "contributor_certification": "invented non-engineering transform fixture",
+              "redistribution_status": "public_permissive",
+              "review_status": "pending"
+            }
+          }
+        ],
+        "provenance": {
+          "source_name": "load case source",
+          "source_location": "fixtures/load_case_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "combinations": [],
+    "results": [],
+    "diagnostics": [],
+    "unresolved_assumptions": [
+      {
+        "id": "assumption:invented-unresolved-routing",
+        "statement": "Invented route clearance remains unresolved pending user design input.",
+        "status": "unresolved",
+        "affected_refs": [
+          {
+            "object_type": "Model",
+            "id": "model:invented-physical-source"
+          }
+        ],
+        "provenance": {
+          "source_name": "assumption source",
+          "source_location": "fixtures/assumption_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "traceability_links": [
+      {
+        "id": "TRACE-PTA-Element-E-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Element",
+          "id": "E-1"
+        },
+        "target_ref": {
+          "object_type": "Element",
+          "id": "E-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:E-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-LoadCase-LC-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "LoadCase",
+          "id": "LC-1"
+        },
+        "target_ref": {
+          "object_type": "LoadCase",
+          "id": "LC-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:LC-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-Material-MAT-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Material",
+          "id": "MAT-1"
+        },
+        "target_ref": {
+          "object_type": "Material",
+          "id": "MAT-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:MAT-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-Node-N-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "target_ref": {
+          "object_type": "Node",
+          "id": "N-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:N-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-Node-N-2",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Node",
+          "id": "N-2"
+        },
+        "target_ref": {
+          "object_type": "Node",
+          "id": "N-2"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:N-2",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-Section-SEC-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Section",
+          "id": "SEC-1"
+        },
+        "target_ref": {
+          "object_type": "Section",
+          "id": "SEC-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:SEC-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      {
+        "id": "TRACE-PTA-Support-SUP-1",
+        "trace_type": "physical_to_analytical",
+        "source_ref": {
+          "object_type": "Support",
+          "id": "SUP-1"
+        },
+        "target_ref": {
+          "object_type": "Support",
+          "id": "SUP-1"
+        },
+        "diagnostics": [],
+        "provenance": {
+          "source_name": "DEL-13-04 physical-to-analytical transform contract",
+          "source_location": "physical-model:SUP-1",
+          "source_license": "public_permissive",
+          "contributor": "OpenPipeStress transform contract",
+          "contributor_certification": "schema contract implementation without engineering authority claims",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    ],
+    "design_knowledge_refs": [],
+    "constraint_refs": [],
+    "equipment_interface_refs": [],
+    "operation_refs": [],
+    "model_state_refs": [],
+    "analysis_run_refs": [],
+    "comparison_refs": [],
+    "handoff_package_refs": [],
+    "external_reference_refs": [],
+    "provenance": {
+      "source_name": "DEL-13-04 physical-to-analytical transform contract",
+      "source_location": "physical-model:PHYS-1",
+      "source_license": "public_permissive",
+      "contributor": "OpenPipeStress transform contract",
+      "contributor_certification": "schema contract implementation without engineering authority claims",
+      "redistribution_status": "public_permissive",
+      "review_status": "pending"
+    }
+  },
+  "diagnostics": [],
+  "traceability_links": [
+    {
+      "id": "TRACE-PTA-Element-E-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Element",
+        "id": "E-1"
+      },
+      "target_ref": {
+        "object_type": "Element",
+        "id": "E-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:E-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-LoadCase-LC-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1"
+      },
+      "target_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:LC-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-Material-MAT-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Material",
+        "id": "MAT-1"
+      },
+      "target_ref": {
+        "object_type": "Material",
+        "id": "MAT-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:MAT-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-Node-N-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-1"
+      },
+      "target_ref": {
+        "object_type": "Node",
+        "id": "N-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:N-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-Node-N-2",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-2"
+      },
+      "target_ref": {
+        "object_type": "Node",
+        "id": "N-2"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:N-2",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-Section-SEC-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Section",
+        "id": "SEC-1"
+      },
+      "target_ref": {
+        "object_type": "Section",
+        "id": "SEC-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:SEC-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    },
+    {
+      "id": "TRACE-PTA-Support-SUP-1",
+      "trace_type": "physical_to_analytical",
+      "source_ref": {
+        "object_type": "Support",
+        "id": "SUP-1"
+      },
+      "target_ref": {
+        "object_type": "Support",
+        "id": "SUP-1"
+      },
+      "diagnostics": [],
+      "provenance": {
+        "source_name": "DEL-13-04 physical-to-analytical transform contract",
+        "source_location": "physical-model:SUP-1",
+        "source_license": "public_permissive",
+        "contributor": "OpenPipeStress transform contract",
+        "contributor_certification": "schema contract implementation without engineering authority claims",
+        "redistribution_status": "public_permissive",
+        "review_status": "pending"
+      }
+    }
+  ],
+  "has_blocking_findings": false
+}

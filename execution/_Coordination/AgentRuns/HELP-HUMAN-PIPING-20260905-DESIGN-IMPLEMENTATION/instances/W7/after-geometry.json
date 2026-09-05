@@ -1,0 +1,1087 @@
+{
+  "substrate": "Chromium source preview; browser-memory storage and bundled fixture result are not native backend evidence",
+  "evidence": [
+    {
+      "state": "default",
+      "note": "Public invented fixture, no new values or edits.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "discovery",
+      "note": "Transient command discovery; geometry should retain bounds.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": {
+            "x": 172,
+            "y": 145,
+            "width": 680,
+            "height": 540,
+            "top": 145,
+            "right": 852,
+            "bottom": 685,
+            "left": 172,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 538,
+            "scrollHeight": 1401
+          }
+        }
+      }
+    },
+    {
+      "state": "empty",
+      "note": "Empty browser-memory project; no supplied engineering defaults.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "routing",
+      "note": "Explicit existing endpoint routing form; automatic bends/connections are not claimed.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 940,
+            "height": 550,
+            "top": 147,
+            "right": 982,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 220,
+            "width": 673,
+            "height": 476,
+            "top": 220,
+            "right": 716,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 476,
+            "scrollHeight": 476
+          },
+          ".workspace-pane-inspector": {
+            "x": 988,
+            "y": 147,
+            "width": 30,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 988,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "selected-pipe",
+      "note": "Name is text, geometry uses supplied quantities.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 2317
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "direct-support",
+      "note": "Direct Support command opens and focuses the creation form; no model mutation.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 3956
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "support",
+      "note": "Existing support configuration, no default engineering choice applied.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 550,
+            "scrollHeight": 550
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 550,
+            "top": 147,
+            "right": 752,
+            "bottom": 697,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 548
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 459,
+            "top": 237,
+            "right": 751,
+            "bottom": 696,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 459,
+            "scrollHeight": 459
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 550,
+            "top": 147,
+            "right": 1018,
+            "bottom": 697,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 548,
+            "scrollHeight": 4141
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "loads",
+      "note": "Existing public fixture load editor in bounded drawer.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 324,
+            "scrollHeight": 324
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 324,
+            "top": 147,
+            "right": 752,
+            "bottom": 471,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 322
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 233,
+            "top": 237,
+            "right": 751,
+            "bottom": 470,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 233,
+            "scrollHeight": 233
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 4141
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 6,
+            "y": 477,
+            "width": 1012,
+            "height": 220,
+            "top": 477,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 218,
+            "scrollHeight": 218
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "results",
+      "note": "Bundled unedited fixture results, browser_fixture_no_backend_job; no claim of native solve.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 285.609375,
+            "top": 147,
+            "right": 1018,
+            "bottom": 432.609375,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 286,
+            "scrollHeight": 286
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 285.609375,
+            "top": 147,
+            "right": 752,
+            "bottom": 432.609375,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 284,
+            "scrollHeight": 284
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 195,
+            "top": 237,
+            "right": 751,
+            "bottom": 432,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 195,
+            "scrollHeight": 195
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 285.609375,
+            "top": 147,
+            "right": 1018,
+            "bottom": 432.609375,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 284,
+            "scrollHeight": 4141
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 6,
+            "y": 438.609375,
+            "width": 1012,
+            "height": 194.390625,
+            "top": 438.609375,
+            "right": 1018,
+            "bottom": 633,
+            "left": 6,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 192,
+            "scrollHeight": 192
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "field-error",
+      "note": "Invalid numeric draft; model not changed.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 486,
+            "top": 147,
+            "right": 1018,
+            "bottom": 633,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 486,
+            "scrollHeight": 486
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 486,
+            "top": 147,
+            "right": 752,
+            "bottom": 633,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 484,
+            "scrollHeight": 484
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 395,
+            "top": 237,
+            "right": 751,
+            "bottom": 632,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 395,
+            "scrollHeight": 395
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 486,
+            "top": 147,
+            "right": 1018,
+            "bottom": 633,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 484,
+            "scrollHeight": 3590
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 0,
+            "y": 0,
+            "width": 0,
+            "height": 0,
+            "top": 0,
+            "right": 0,
+            "bottom": 0,
+            "left": 0,
+            "display": "none",
+            "visibility": "visible",
+            "clientHeight": 0,
+            "scrollHeight": 0
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "batch-review",
+      "note": "Two-step self-weight batch validation against real local Wasm; explicit invented data; no acceptance from validation.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 324,
+            "scrollHeight": 324
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 324,
+            "top": 147,
+            "right": 752,
+            "bottom": 471,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 322
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 233,
+            "top": 237,
+            "right": 751,
+            "bottom": 470,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 233,
+            "scrollHeight": 233
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 3956
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 6,
+            "y": 477,
+            "width": 1012,
+            "height": 220,
+            "top": 477,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 218,
+            "scrollHeight": 218
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    },
+    {
+      "state": "batch-undone",
+      "note": "Explicit batch application then one undo restored prior model.",
+      "geometry": {
+        "window": {
+          "width": 1024,
+          "height": 768
+        },
+        "body": {
+          "scrollWidth": 1024,
+          "clientWidth": 1024
+        },
+        "boxes": {
+          ".modeling-workspace": {
+            "x": 6,
+            "y": 147,
+            "width": 1012,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 6,
+            "display": "grid",
+            "visibility": "visible",
+            "clientHeight": 324,
+            "scrollHeight": 324
+          },
+          ".workspace-pane-viewport": {
+            "x": 42,
+            "y": 147,
+            "width": 710,
+            "height": 324,
+            "top": 147,
+            "right": 752,
+            "bottom": 471,
+            "left": 42,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 322
+          },
+          "canvas": {
+            "x": 43,
+            "y": 237,
+            "width": 708,
+            "height": 233,
+            "top": 237,
+            "right": 751,
+            "bottom": 470,
+            "left": 43,
+            "display": "block",
+            "visibility": "visible",
+            "clientHeight": 233,
+            "scrollHeight": 233
+          },
+          ".workspace-pane-inspector": {
+            "x": 758,
+            "y": 147,
+            "width": 260,
+            "height": 324,
+            "top": 147,
+            "right": 1018,
+            "bottom": 471,
+            "left": 758,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 322,
+            "scrollHeight": 3956
+          },
+          ".viewport-editor-intents": null,
+          ".workspace-dock": {
+            "x": 6,
+            "y": 477,
+            "width": 1012,
+            "height": 220,
+            "top": 477,
+            "right": 1018,
+            "bottom": 697,
+            "left": 6,
+            "display": "flex",
+            "visibility": "visible",
+            "clientHeight": 218,
+            "scrollHeight": 218
+          },
+          ".workspace-status-bar": null,
+          ".toolkit-commands": null
+        }
+      }
+    }
+  ],
+  "errors": []
+}

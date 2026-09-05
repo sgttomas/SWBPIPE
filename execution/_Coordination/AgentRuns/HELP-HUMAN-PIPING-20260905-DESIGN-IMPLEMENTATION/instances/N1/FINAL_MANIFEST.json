@@ -1,0 +1,19 @@
+{
+  "classification": "immutable bounded native verification evidence snapshot; derivative, no lifecycle acceptance",
+  "files": {
+    "BRIEF.md": "c06091713f6827d31eb474cc4af573e92c8dc80ea85500b7f621cd06c22a90e3",
+    "PREFLIGHT.json": "08814e78fef89459d846cc59be978e9d80c2a60ca727c7ed4ae8ec9f738521ff",
+    "RETURN.md": "1c330ea3fad3651da122ba3c3b973f61e0573c565af6ea8583fbe8115b99a1ba",
+    "STATUS.json": "4c639c88973c7befad52bb97836094cec99f1a65ec88d01b1081d1529763738f",
+    "_run_records/build_v1/BUILD_LOG_BYTES.json": "28419dc07a782ceea396cdec877764e06b47e926d561983bcb0960c7fab69fd5",
+    "_run_records/build_v1/BUILD_RESULT.json": "638abfa84cd3c7b6a09512bacdf452232b213f59e7318ecfd23c51a7a9156261",
+    "_run_records/build_v1/BUNDLE_VERIFICATION.json": "5042b25cc1458634a65186d237bd4726c9748438d2b24322973cdade2273a3f5",
+    "_run_records/build_v1/CODESIGN_INSPECT.log": "335bc242ded0290825baed5b606fbcfd8fdc42dcc8fda1602e2b403b4814c4c2",
+    "_run_records/build_v1/SELF_TEST.stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "_run_records/build_v1/SELF_TEST.stdout.json": "6efe9276f2e74200d9af54f0c306faddf004a55e8bb656389a5a14d9aa60ea56",
+    "_run_records/build_v1/SOURCE_AFTER.json": "e9352e0ba6d9401e5b31fa70bb693dd8478d0329a5c9851f9b9a1a4eac61b343",
+    "_run_records/build_v1/SOURCE_BEFORE.json": "b3bb4abd1e749e4f9c3e8ac0053c2023d5c305e145c380f4111ac7490334bb63",
+    "_run_records/build_v1/verify_bundle.py": "483807dd793f815c5a076fe492e4208b566d2684bb3d7a8e39664d4b763e76ae",
+    "_run_records/preflight/PREFLIGHT.json": "a8a02617d9f7706c2db36c99e5f054fcbca1ebca849d582751c0b4373a8e554d"
+  }
+}

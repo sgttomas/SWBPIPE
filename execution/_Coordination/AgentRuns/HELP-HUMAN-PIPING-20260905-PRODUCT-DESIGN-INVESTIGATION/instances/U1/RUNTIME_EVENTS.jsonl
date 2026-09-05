@@ -1,0 +1,4 @@
+{"instance": "U1", "event": "start", "at": "2026-09-05T18:04:11.638069+00:00"}
+{"instance": "U1a", "event": "terminal_return_received", "status": "COMPLETE_FOR_PARENT_REVIEW", "accepted": true}
+{"instance": "U1b", "event": "terminal_return_received", "status": "COMPLETE_FOR_PARENT_REVIEW", "accepted": true}
+{"instance": "U1", "event": "finish", "at": "2026-09-05T18:11:20.420699+00:00", "status": "COMPLETE_ACCEPTED_FOR_AGENT0_FANIN"}

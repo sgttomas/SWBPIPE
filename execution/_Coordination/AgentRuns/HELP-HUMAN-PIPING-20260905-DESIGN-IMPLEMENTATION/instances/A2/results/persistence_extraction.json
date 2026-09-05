@@ -1,0 +1,16 @@
+{
+  "source_sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+  "sections": [
+    {
+      "start_line": 556,
+      "end_line": 818,
+      "sha256": "d1118678ac1582f569299620ff0b4f90eb96159e01eab37ff5314e16b1d80fcc"
+    },
+    {
+      "start_line": 842,
+      "end_line": 1083,
+      "sha256": "64cfa34d8a00ff3a47f9e71b5aeb4022d0a847ca0c5b5e3b07a35fc5274365c9"
+    }
+  ],
+  "generated_sha256": "724fac45b23fc5eb533dc32cc0bbdb012494a18582f8c04ef3ff01bffa6bdb57"
+}

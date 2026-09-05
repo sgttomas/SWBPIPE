@@ -1,0 +1,7 @@
+{
+  "authorized_scope": "append Receipt-131 only; preserve all prior bytes",
+  "prior_length_bytes": 245198,
+  "prior_sha256": "d077bf650c4c5d1b33f3505d5cca37986fa91a053c099fc1ea6bdc16759422e4",
+  "appended_receipt_sha256": "958563a2b3611505268500f206ca8e45b75cbd907080fb27fb741ea603e965e9",
+  "status": "draft pending N1 sealed and W7 final manager returns"
+}

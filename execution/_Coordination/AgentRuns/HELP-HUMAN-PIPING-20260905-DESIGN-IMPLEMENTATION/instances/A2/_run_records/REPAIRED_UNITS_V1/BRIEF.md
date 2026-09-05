@@ -1,0 +1,2 @@
+# Postrepair units witness
+Parent HELP_HUMAN authorized direct Agent2 follow-on. Write only this separate packet and isolated temporary build outputs; preserve all baseline A2 evidence unchanged. Rebuild existing scratch driver against W2-frozen actual product core SHA887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce and execute exact three baseline UNITS_V1 m/mm/in fixtures. Record outputs, hashes, comparison, commands; no other suites or product changes. Same actual native-function boundary and prior transport limitations apply.

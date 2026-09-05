@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { Box, CircleDot, SlidersHorizontal, Layers, Pencil, MousePointer2, ClipboardCheck, Search, X } from "lucide-react";
 import {
   capabilityAvailability,
   toolkitCapabilities,
@@ -18,6 +19,16 @@ export function ToolkitPalette({ context, onChoose }: Props) {
   const [query, setQuery] = useState("");
   const toggle = useRef<HTMLButtonElement>(null);
   const search = useRef<HTMLInputElement>(null);
+  const dialog = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    search.current?.focus();
+    function dismiss(event: PointerEvent) {
+      if (event.target instanceof Node && !dialog.current?.contains(event.target) && !toggle.current?.contains(event.target)) close();
+    }
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, [open]);
   const matches = toolkitCapabilities.filter((item) =>
     `${item.label} ${item.group} ${item.description}`.toLowerCase().includes(query.trim().toLowerCase())
   );
@@ -50,10 +61,20 @@ export function ToolkitPalette({ context, onChoose }: Props) {
           if (!open) requestAnimationFrame(() => search.current?.focus());
         }}
       >
-        Toolkit
+        <Search size={16} aria-hidden="true" /> Toolkit
       </button>
       {open ? (
-        <div id="toolkit-commands" className="toolkit-commands">
+        <>
+        <div className="toolkit-backdrop" aria-hidden="true" onPointerDown={close} />
+        <div id="toolkit-commands" className="toolkit-commands" ref={dialog} role="dialog" aria-label="Find a modeling tool" aria-modal="true" onKeyDown={(event) => {
+          if (event.key !== "Tab") return;
+          const focusable = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input, summary') ?? []);
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+          if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+        }}>
+          <div className="toolkit-search-header">
           <label>
             Find a tool
             <input
@@ -65,7 +86,8 @@ export function ToolkitPalette({ context, onChoose }: Props) {
               placeholder="Pipe, wind, material…"
             />
           </label>
-          <button type="button" onClick={close}>Close toolkit</button>
+          <button type="button" onClick={close} aria-label="Close toolkit"><X size={18} aria-hidden="true" /></button>
+          </div>
           <div className="toolkit-command-groups">
             {toolkitGroups.map((group) => {
               const entries = matches.filter((entry) => entry.group === group);
@@ -75,6 +97,7 @@ export function ToolkitPalette({ context, onChoose }: Props) {
                   <h3>{group}</h3>
                   {entries.map((entry) => {
                     const availability = capabilityAvailability(entry, context);
+                    const Icon = { Build: Box, Supports: CircleDot, Properties: SlidersHorizontal, Loads: Layers, Edit: Pencil, "Select and View": MousePointer2, Review: ClipboardCheck }[entry.group];
                     return (
                       <div className="toolkit-command" key={entry.id}>
                         <button
@@ -88,16 +111,11 @@ export function ToolkitPalette({ context, onChoose }: Props) {
                             onChoose(entry);
                           }}
                         >
-                          {entry.label}
+                          <Icon size={15} aria-hidden="true" />{entry.label}
                         </button>
-                        <small id={`toolkit-help-${entry.id}`}>
-                          <strong>
-                            {entry.status === "supported" ? "Available"
-                              : entry.status === "partial" ? "Partial"
-                              : entry.status === "gated" ? "Project gate" : "Planned"}.
-                          </strong>{" "}
-                          {availability.reason}
-                        </small>
+                        {availability.enabled ? (
+                          <details className="toolkit-command-help"><summary>Details</summary><small id={`toolkit-help-${entry.id}`}>{availability.reason}</small></details>
+                        ) : <small id={`toolkit-help-${entry.id}`}>{availability.reason}</small>}
                       </div>
                     );
                   })}
@@ -111,6 +129,7 @@ export function ToolkitPalette({ context, onChoose }: Props) {
             <ul>{toolkitRoadmap.map((label) => <li key={label}>{label}</li>)}</ul>
           </details>
         </div>
+        </>
       ) : null}
     </section>
   );

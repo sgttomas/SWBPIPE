@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "evidence-sweep",
+    "harness-self-check",
+    "piping-pytest"
+  ],
+  "paths": [
+    "core/product_physics/src/lib.rs",
+    "fixtures/product_preview/invented_dec092_temperature_g_request.json"
+  ],
+  "reasons": {
+    "evidence-sweep": [
+      "core/product_physics/src/lib.rs"
+    ],
+    "piping-pytest": [
+      "core/product_physics/src/lib.rs"
+    ]
+  },
+  "schema": "chirality-affected-checks/v1"
+}

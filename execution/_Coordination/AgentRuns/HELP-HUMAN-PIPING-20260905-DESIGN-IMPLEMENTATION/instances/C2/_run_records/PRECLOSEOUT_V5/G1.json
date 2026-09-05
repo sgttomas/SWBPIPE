@@ -1,0 +1,9 @@
+{
+  "name": "G1",
+  "exit_code": 0,
+  "elapsed_seconds": 0.03,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_root_harness_adapter.py"
+  ]
+}

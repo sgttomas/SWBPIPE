@@ -1,0 +1,12 @@
+{
+  "schema": "piping.change.precloseout.v1",
+  "created_at": "2026-09-05T19:21:31.462894+00:00",
+  "parent": "/root",
+  "runtime_instance": "/root/sync_main",
+  "role": "CHANGE",
+  "status": "PROPOSAL_READY",
+  "files": {
+    "RETURN.md": "cc5b9467ac9a6c1c2367334ad81b5af2d36f8c762c523b24c6ca552d0c0c5538",
+    "SEALED_BRIEF.md": "a23eb8a61903bb67dfb8ff6a8b270b107e6b42f399872105f2b96d4a6293dea1"
+  }
+}

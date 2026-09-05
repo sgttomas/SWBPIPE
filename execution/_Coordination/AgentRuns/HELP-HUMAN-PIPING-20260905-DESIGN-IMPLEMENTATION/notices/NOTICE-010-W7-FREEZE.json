@@ -1,0 +1,15 @@
+{
+  "id": "NOTICE-010-W7-FREEZE",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "scope_disposition": "W7 host ResizeObserver repair approved within existing PipeViewport presentation boundary",
+  "status": "13 source files frozen and under fresh review",
+  "acceptance_limit": "Source freeze is not review acceptance",
+  "remaining": [
+    "Fresh W7 review",
+    "Integrated review",
+    "Native build verification",
+    "Clean DEC-025 sweep"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "instance": "C1",
+  "runtime_id": "/root/implementation_coordination",
+  "parent": "/root",
+  "role": "ephemeral Agent 2 recorder",
+  "model": "unavailable",
+  "status": "source-commit control packet frozen; no writes until C2 source commit and DEC-025 terminal",
+  "delegation": "none",
+  "enforcement": "instruction+config asserted",
+  "receipt": "Receipt-131",
+  "prior_receipt_bytes_preserved": true
+}

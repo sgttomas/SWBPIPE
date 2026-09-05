@@ -1,0 +1,52 @@
+{
+  "id": "LAUNCH-003",
+  "date": "2026-09-05",
+  "recorded_by": "/root/implementation_coordination",
+  "parent": "/root",
+  "type": "actual_native_launch_receipts",
+  "plan_basis": "snapshots/PLAN_V2/MANIFEST.json",
+  "plan_basis_sha256": "df1cc011e302b2b71214bf3578ccfc5d7606e9c10051769e115f28ef64a90894",
+  "root_basis_verdict": "V2 ready verified by parent",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable",
+  "instances": [
+    {
+      "id": "W7",
+      "runtime_id": "/root/workspace_manager",
+      "role": "Agent 1 WORKING_ITEMS",
+      "package": "PKG-07",
+      "status": "launched per parent receipt",
+      "activation": "exact narrowed PLAN_V2 activation",
+      "write_scope": [
+        "apps/desktop/src UI and tests",
+        "selected PKG-07 local records",
+        "instances/W7"
+      ],
+      "delegation": "Agent 2 author and fresh read-only 100% frozen-diff software-code-review",
+      "exclusions": [
+        "Git mutation",
+        "core writes",
+        "shared root record writes"
+      ]
+    },
+    {
+      "id": "A2",
+      "runtime_id": "/root/architecture_witnesses",
+      "role": "direct bounded Agent 2",
+      "status": "launched per parent receipt",
+      "objective": "stage 1B concrete executable units/native canonical identity/persistence witnesses",
+      "write_scope": [
+        "instances/A2 scripts and evidence",
+        "temporary scratch only"
+      ],
+      "product_source": "read-only",
+      "delegation": "none"
+    }
+  ],
+  "claim_limits": [
+    "repository software bounded implementation/review method packs used",
+    "no independent full usability acceptance",
+    "frozen PLAN_V1 and PLAN_V2 preserved"
+  ]
+}

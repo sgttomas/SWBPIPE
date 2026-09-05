@@ -1,0 +1,767 @@
+{
+  "adapter_contract_id": "DEL-13-04-internal-analytical-solver-boundary-adapter-0.1",
+  "model_ref": {
+    "object_type": "Model",
+    "id": "ANALYTICAL-DERIVED"
+  },
+  "source_model_ref": {
+    "object_type": "Model",
+    "id": "PHYS-1"
+  },
+  "nodes": [
+    {
+      "node_id": "N-1",
+      "node_index": 0,
+      "coordinates": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coordinate_units": {
+        "x": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "unit": "m",
+          "dimension": "length"
+        }
+      },
+      "coordinate_quantities": {
+        "x": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "degrees_of_freedom": {
+        "UX": "free",
+        "UY": "free",
+        "UZ": "free",
+        "RX": "free",
+        "RY": "free",
+        "RZ": "free"
+      },
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-1"
+      }
+    },
+    {
+      "node_id": "N-2",
+      "node_index": 1,
+      "coordinates": [
+        2.0,
+        0.0,
+        0.0
+      ],
+      "coordinate_units": {
+        "x": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "unit": "m",
+          "dimension": "length"
+        }
+      },
+      "coordinate_quantities": {
+        "x": {
+          "value": 2.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "degrees_of_freedom": {
+        "UX": "free",
+        "UY": "free",
+        "UZ": "free",
+        "RX": "free",
+        "RY": "free",
+        "RZ": "free"
+      },
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-2"
+      }
+    }
+  ],
+  "straight_pipe_connectivity": [
+    {
+      "element_id": "E-1",
+      "element_index": 0,
+      "node_i_id": "N-1",
+      "node_i_index": 0,
+      "node_j_id": "N-2",
+      "node_j_index": 1,
+      "material_id": "MAT-1",
+      "section_id": "SEC-1",
+      "local_coordinate_system": {
+        "type": "cartesian",
+        "axes": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "y_reference": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "provenance": {
+          "source_name": "orientation source",
+          "source_location": "fixtures/orientation_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      "derived_axis_x": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "y_reference": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "solver_orientation_status": "governed_y_reference_ready",
+      "source_ref": {
+        "object_type": "Element",
+        "id": "E-1"
+      }
+    }
+  ],
+  "property_bindings": [
+    {
+      "binding_id": "BIND-STRAIGHT-PIPE-E-1",
+      "element_id": "E-1",
+      "element_index": 0,
+      "material_id": "MAT-1",
+      "section_id": "SEC-1",
+      "material_properties": {
+        "elastic_modulus": {
+          "value": 1.0,
+          "unit": "Pa",
+          "dimension": "stress",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "shear_modulus": {
+          "value": 1.0,
+          "unit": "Pa",
+          "dimension": "stress",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "section_properties": {
+        "area": {
+          "value": 1.0,
+          "unit": "m2",
+          "dimension": "area",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "second_moment_y": {
+          "value": 1.0,
+          "unit": "m4",
+          "dimension": "second_moment_area",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "second_moment_z": {
+          "value": 1.0,
+          "unit": "m4",
+          "dimension": "second_moment_area",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "torsion_constant": {
+          "value": 1.0,
+          "unit": "m4",
+          "dimension": "second_moment_area",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "mass_per_length": {
+          "value": 1.0,
+          "unit": "kg/m",
+          "dimension": "mass_per_length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "source_ref": {
+        "object_type": "Element",
+        "id": "E-1"
+      }
+    }
+  ],
+  "support_targets": [
+    {
+      "support_id": "SUP-1",
+      "support_type": "anchor",
+      "target_type": "Node",
+      "target_id": "N-1",
+      "target_index": 0,
+      "directions": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "properties": {
+        "linear_stiffness": {
+          "value": 1.0,
+          "unit": "N/m",
+          "dimension": "linear_stiffness",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "source_ref": {
+        "object_type": "Support",
+        "id": "SUP-1"
+      }
+    }
+  ],
+  "load_case_records": [
+    {
+      "load_case_id": "LC-1",
+      "load_case_index": 0,
+      "name": "Invented load case",
+      "load_type": "weight",
+      "load_count": 3,
+      "solver_application_status": "solver_ready",
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1"
+      }
+    }
+  ],
+  "load_applications": [
+    {
+      "load_case_id": "LC-1",
+      "load_case_index": 0,
+      "load_index": 0,
+      "load_record_type": "element_uniform_distributed_force",
+      "target_type": "Element",
+      "target_id": "E-1",
+      "target_index": 0,
+      "direction": "Y",
+      "quantity": {
+        "value": 1.0,
+        "unit": "N/m",
+        "dimension": "force_per_length",
+        "provenance": {
+          "source_name": "quantity source",
+          "source_location": "fixtures/quantity_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:0"
+      },
+      "span": {
+        "start_fraction": {
+          "value": 0.0,
+          "unit": "1",
+          "dimension": "dimensionless",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "end_fraction": {
+          "value": 1.0,
+          "unit": "1",
+          "dimension": "dimensionless",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      }
+    },
+    {
+      "load_case_id": "LC-1",
+      "load_case_index": 0,
+      "load_index": 1,
+      "load_record_type": "element_point_force",
+      "target_type": "Element",
+      "target_id": "E-1",
+      "target_index": 0,
+      "direction": "Y",
+      "quantity": {
+        "value": 2.0,
+        "unit": "N",
+        "dimension": "force",
+        "provenance": {
+          "source_name": "quantity source",
+          "source_location": "fixtures/quantity_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:1"
+      },
+      "station_fraction": {
+        "value": 0.5,
+        "unit": "1",
+        "dimension": "dimensionless",
+        "provenance": {
+          "source_name": "quantity source",
+          "source_location": "fixtures/quantity_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      }
+    },
+    {
+      "load_case_id": "LC-1",
+      "load_case_index": 0,
+      "load_index": 2,
+      "load_record_type": "nodal_moment",
+      "target_type": "Node",
+      "target_id": "N-2",
+      "target_index": 1,
+      "direction": "RZ",
+      "quantity": {
+        "value": 3.0,
+        "unit": "N*m",
+        "dimension": "moment",
+        "provenance": {
+          "source_name": "quantity source",
+          "source_location": "fixtures/quantity_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:2"
+      }
+    }
+  ],
+  "adapter_dto_records": [
+    {
+      "dto_id": "dto:load_application:LC-1:0",
+      "dto_kind": "load_application",
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:0"
+      },
+      "target_ref": {
+        "object_type": "AdapterDTO",
+        "id": "dto:load_application:LC-1:0"
+      },
+      "payload_hash_ref": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "AdapterDTO",
+          "id": "dto:load_application:LC-1:0"
+        },
+        "value": "94f0e4b3e567186768cc329d863ea70584b036807081b8316d64e39a265be03e"
+      },
+      "result_trace_anchor": {
+        "ref_type": "adapter_dto",
+        "ref_id": "dto:load_application:LC-1:0"
+      },
+      "solver_input_trace_anchor": {
+        "ref_type": "solver_input",
+        "ref_id": "solver_input:load_application:LC-1:0"
+      },
+      "source_chain": [
+        {
+          "trace_id": "trace:analytical-load-to-adapter-dto:LC-1:0",
+          "trace_type": "analytical_model_to_adapter_dto",
+          "source_ref": {
+            "object_type": "LoadCase",
+            "id": "LC-1:load:0"
+          },
+          "target_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:0"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        },
+        {
+          "trace_id": "trace:adapter-dto-to-solver-input:LC-1:0",
+          "trace_type": "adapter_dto_to_solver_input",
+          "source_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:0"
+          },
+          "target_ref": {
+            "ref_type": "solver_input",
+            "ref_id": "solver_input:load_application:LC-1:0"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress physical-to-analytical adapter",
+        "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+        "source_license": "project",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    },
+    {
+      "dto_id": "dto:load_application:LC-1:1",
+      "dto_kind": "load_application",
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:1"
+      },
+      "target_ref": {
+        "object_type": "AdapterDTO",
+        "id": "dto:load_application:LC-1:1"
+      },
+      "payload_hash_ref": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "AdapterDTO",
+          "id": "dto:load_application:LC-1:1"
+        },
+        "value": "75932dab07392059352d8d0a91ef75a977401e2846c5a47019aea1a967a4ebeb"
+      },
+      "result_trace_anchor": {
+        "ref_type": "adapter_dto",
+        "ref_id": "dto:load_application:LC-1:1"
+      },
+      "solver_input_trace_anchor": {
+        "ref_type": "solver_input",
+        "ref_id": "solver_input:load_application:LC-1:1"
+      },
+      "source_chain": [
+        {
+          "trace_id": "trace:analytical-load-to-adapter-dto:LC-1:1",
+          "trace_type": "analytical_model_to_adapter_dto",
+          "source_ref": {
+            "object_type": "LoadCase",
+            "id": "LC-1:load:1"
+          },
+          "target_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:1"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        },
+        {
+          "trace_id": "trace:adapter-dto-to-solver-input:LC-1:1",
+          "trace_type": "adapter_dto_to_solver_input",
+          "source_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:1"
+          },
+          "target_ref": {
+            "ref_type": "solver_input",
+            "ref_id": "solver_input:load_application:LC-1:1"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress physical-to-analytical adapter",
+        "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+        "source_license": "project",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    },
+    {
+      "dto_id": "dto:load_application:LC-1:2",
+      "dto_kind": "load_application",
+      "source_ref": {
+        "object_type": "LoadCase",
+        "id": "LC-1:load:2"
+      },
+      "target_ref": {
+        "object_type": "AdapterDTO",
+        "id": "dto:load_application:LC-1:2"
+      },
+      "payload_hash_ref": {
+        "algorithm": "sha256",
+        "canonicalization": "JCS",
+        "payload_ref": {
+          "object_type": "AdapterDTO",
+          "id": "dto:load_application:LC-1:2"
+        },
+        "value": "2c3657626e89b1af768dda97dfd5e9804f8f6f0fd9468103c114864efb76d5df"
+      },
+      "result_trace_anchor": {
+        "ref_type": "adapter_dto",
+        "ref_id": "dto:load_application:LC-1:2"
+      },
+      "solver_input_trace_anchor": {
+        "ref_type": "solver_input",
+        "ref_id": "solver_input:load_application:LC-1:2"
+      },
+      "source_chain": [
+        {
+          "trace_id": "trace:analytical-load-to-adapter-dto:LC-1:2",
+          "trace_type": "analytical_model_to_adapter_dto",
+          "source_ref": {
+            "object_type": "LoadCase",
+            "id": "LC-1:load:2"
+          },
+          "target_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:2"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        },
+        {
+          "trace_id": "trace:adapter-dto-to-solver-input:LC-1:2",
+          "trace_type": "adapter_dto_to_solver_input",
+          "source_ref": {
+            "ref_type": "adapter_dto",
+            "ref_id": "dto:load_application:LC-1:2"
+          },
+          "target_ref": {
+            "ref_type": "solver_input",
+            "ref_id": "solver_input:load_application:LC-1:2"
+          },
+          "provenance": {
+            "source_name": "OpenPipeStress physical-to-analytical adapter",
+            "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+            "source_license": "project",
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "pending"
+          }
+        }
+      ],
+      "provenance": {
+        "source_name": "OpenPipeStress physical-to-analytical adapter",
+        "source_location": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+        "source_license": "project",
+        "contributor": "OpenPipeStress",
+        "contributor_certification": "deterministic adapter DTO trace evidence; no solver behavior or public API expansion",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    }
+  ],
+  "load_case_diagnostics": [],
+  "diagnostics": [],
+  "has_blocking_findings": false
+}

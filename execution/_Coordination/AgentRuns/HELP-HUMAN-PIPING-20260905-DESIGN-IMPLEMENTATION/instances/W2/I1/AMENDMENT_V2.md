@@ -1,0 +1,2 @@
+# Brief amendment V2
+C2 portability review: replace host temporary path in live brief with {TASK_TMP_ROOT} and host instruction-root interpolation with {REPO_ROOT}; actual values in STATUS.json. No objective, source ownership, commands, or acceptance change. Prior BRIEF SHA256 33b66ea263c9d459258246f12a1268ebd1001e76d5771f083c64b27216fcb22c; prior runtime declaration SHA256 b6608aabf13b1b0e2f0d363dac71c05c2cb55247014e15b45cbce89fa9c5caad. No accepted snapshot rewritten.

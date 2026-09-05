@@ -1,0 +1,42 @@
+{
+  "generic_rows_compared": 758,
+  "generic_rows_equal_after_removing_nonlinear_supports": 758,
+  "generic_rows_changed": [],
+  "compared_kinds": [
+    "displacement_magnitude",
+    "element_local_axial_force",
+    "element_local_axial_normal_stress",
+    "element_local_bending_moment_y",
+    "element_local_bending_moment_z",
+    "element_local_bending_normal_stress_y",
+    "element_local_bending_normal_stress_z",
+    "element_local_shear_force_y",
+    "element_local_shear_force_z",
+    "element_local_torsional_moment",
+    "element_local_torsional_shear_stress",
+    "global_nodal_displacement_x",
+    "global_nodal_displacement_y",
+    "global_nodal_displacement_z",
+    "global_nodal_rotation_x",
+    "global_nodal_rotation_y",
+    "global_nodal_rotation_z",
+    "open_formula_stress_summary",
+    "pipe_section_pressure_hoop_stress",
+    "reaction_resultant"
+  ],
+  "first_displacement": {
+    "location_ref": "node:N-110",
+    "result_ref": "result:disp:node-N-110",
+    "unit": "mm",
+    "value": 0.406023
+  },
+  "revised_displacement": {
+    "location_ref": "node:N-110",
+    "result_ref": "result:disp:node-N-110",
+    "unit": "mm",
+    "value": 1.370329
+  },
+  "same_run_id_after_changed_geometry": true,
+  "same_model_ref_after_changed_geometry": true,
+  "baseline_binary_sha256": "8af1e4ef2e1423c9fc4cac234eaa0b00352b0e7b9f6f31fb4f5d2019bcd232d7"
+}

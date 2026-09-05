@@ -1,0 +1,7 @@
+{
+  "status": "PASS",
+  "coverage": "100_percent_frozen_two_file_diff",
+  "actionable_findings": [],
+  "model": "not_exposed",
+  "read_only": true
+}

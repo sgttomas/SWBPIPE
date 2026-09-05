@@ -1,0 +1,50 @@
+{
+  "status": "IMPLEMENTED_VERIFIED_REVIEW_PENDING",
+  "role": "TASK",
+  "skill": "software-bounded-implementation",
+  "parent": "W2",
+  "instance": "I1",
+  "delegation_class": "delegated-harness-native",
+  "non_delegation_evidence": "instruction+config asserted",
+  "model": "unknown",
+  "source_sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "fixture_sha256": "13dabab7b4e19c1d2639b450914669915065d9418eb5b380d49e83a37492d868",
+  "changed_product_paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json"
+  ],
+  "baseline_tests": {
+    "passed": 124,
+    "failed": 0
+  },
+  "initial_tests": {
+    "passed": 123,
+    "failed": 4,
+    "diagnosis": "DEC-092 fixture lacked length metadata; V3 authorized source-backed metre declaration"
+  },
+  "final_tests": {
+    "passed": 127,
+    "failed": 0
+  },
+  "mutation_tests_expected_failure": 2,
+  "write_scope": "PASS",
+  "diff_check": "PASS",
+  "closure": "not_closed",
+  "derivative_package": true,
+  "accepted_upstream": [
+    "A2/UNITS_V1",
+    "W2/PLAN_V1"
+  ],
+  "remaining": [
+    "fresh full-diff review",
+    "root A2 witness rerun",
+    "parent integrated checks and DEC025",
+    "parent PKG09 fixture-consumer coordination notice"
+  ],
+  "evidence": [
+    "TASK_RUN.md",
+    "PATCH.diff",
+    "final-cargo.log",
+    "MANIFEST.json"
+  ]
+}

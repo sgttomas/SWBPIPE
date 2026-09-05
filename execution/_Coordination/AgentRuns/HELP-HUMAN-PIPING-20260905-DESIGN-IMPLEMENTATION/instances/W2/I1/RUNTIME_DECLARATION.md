@@ -1,0 +1,1 @@
+Runtime declaration by W2: CHIRALITY_INSTRUCTION_ROOT={REPO_ROOT}, resolved with git rev-parse --show-toplevel; TASK_TMP_ROOT resolves from the host temporary directory. Actual repo instruction packages govern. No change to source scope or acceptance. Delivered before product writes. Actual execution metadata is in STATUS.json.

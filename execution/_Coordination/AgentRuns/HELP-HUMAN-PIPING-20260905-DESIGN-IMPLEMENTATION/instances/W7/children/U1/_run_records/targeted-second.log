@@ -1,0 +1,1575 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+·····················x·····················stderr | src/App.test.tsx > OpenPipeStress desktop preview > discloses the deformation overlay fallback in the viewport status line
+An update to PipeViewport inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+··xx······stderr | src/App.test.tsx > OpenPipeStress desktop preview > round trips local create, save, and open project controls without external file copies
+An update to GuardedRemoval inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+························································stderr | src/App.test.tsx > existing toolkit v2 > continues two explicit pipe drafts through existing endpoints and cancellation clears transient inputs
+An update to PipeViewport inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > existing toolkit v2 bound section > shows the shared section and prevents independent diameter or wall edits
+An update to PropertyInspector inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to SectionAssignment inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+········stderr | src/App.test.tsx > Tier3 shared batch and proposed context > restores unknown context, validates without acceptance, applies once and saves exact original metadata coherently
+An update to AppSession inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PcfExportPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to CaepipeMbfExportPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+····stderr | src/App.test.tsx > Tier3 adversarial batch publication > rolls back a later failed step, then previews and commits two exact mixed-author members with one undo
+An update to AppSession inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PcfExportPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to CaepipeMbfExportPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+·····
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > exposes materials, components, load cases, and combinations in the model workspace
+TestingLibraryElementError: Unable to find an element with the text: New value (Pa, model metadata). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<section[39m
+  [33maria-label[39m=[32m"Editor operation intent"[39m
+  [33mclass[39m=[32m"editor-intent"[39m
+  [33mdata-testid[39m=[32m"editor-intent-panel"[39m
+[36m>[39m
+  [36m<h3>[39m
+    [36m<svg[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mclass[39m=[32m"lucide lucide-pencil"[39m
+      [33mfill[39m=[32m"none"[39m
+      [33mheight[39m=[32m"14"[39m
+      [33mstroke[39m=[32m"currentColor"[39m
+      [33mstroke-linecap[39m=[32m"round"[39m
+      [33mstroke-linejoin[39m=[32m"round"[39m
+      [33mstroke-width[39m=[32m"2"[39m
+      [33mviewBox[39m=[32m"0 0 24 24"[39m
+      [33mwidth[39m=[32m"14"[39m
+      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+    [36m>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"m15 5 4 4"[39m
+      [36m/>[39m
+    [36m</svg>[39m
+    [0m Edit [0m
+    [0melastic modulus[0m
+  [36m</h3>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"editor-intent-controls"[39m
+  [36m>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mProperty[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Property to edit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-field"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"label"[39m
+        [36m>[39m
+          [0mName[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"elastic_modulus.value"[39m
+        [36m>[39m
+          [0mElastic modulus[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"shear_modulus.value"[39m
+        [36m>[39m
+          [0mShear modulus[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"thermal_expansion_coefficient.value"[39m
+        [36m>[39m
+          [0mThermal expansion[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"provenance"[39m
+        [36m>[39m
+          [0mProvenance[0m
+        [36m</option>[39m
+      [36m</select>[39m
+    [36m</label>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Display quantity"[39m
+      [33mclass[39m=[32m"inspector-context-card"[39m
+      [33mdata-testid[39m=[32m"inspector-dual-unit-display"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mCurrent value[0m
+      [36m</span>[39m
+      [36m<strong[39m
+        [33mdata-testid[39m=[32m"inspector-dual-unit-converted"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mdata-display-status[39m=[32m"entered"[39m
+        [36m>[39m
+          [0m200000000000[0m
+          [0m [0m
+          [0mPa[0m
+        [36m</span>[39m
+      [36m</strong>[39m
+      [36m<small>[39m
+        [0mEntered: [0m
+        [0m200000000000[0m
+        [0m [0m
+        [0mPa[0m
+      [36m</small>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mUnit details[0m
+        [36m</summary>[39m
+        [36m<small>[39m
+          [0mDisplay basis: Pa, model metadata[0m
+        [36m</small>[39m
+        [36m<small>[39m
+          [0mDisplay only — storage stays entered-units-preserved.[0m
+        [36m</small>[39m
+      [36m</details>[39m
+    [36m</section>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mNew [0m
+        [0melastic modulus[0m
+        [0m (Pa)[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"New elastic modulus"[39m
+        [33mdata-testid[39m=[32m"editor-intent-value"[39m
+        [33minputmode[39m=[32m"decimal"[39m
+        [33mvalue[39m=[32m"200000000000"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mUnit[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Proposed editor unit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-unit"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"Pa"[39m
+        [36m>[39m
+          [0mPa, model metadata[0m
+        [36m</option>[39m
+      [36m</select>[39m
+      [36m<datalist[39m
+        [33mid[39m=[32m"mass-unit-options"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"Pa"[39m
+        [36m>[39m
+          [0mPa, model metadata[0m
+        [36m</option>[39m
+      [36m</datalist>[39m
+    [36m</label>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"queue-editor-intent"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Add this change to the review queue"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-list-plus"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M11 12H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 6H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 18H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 9v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M21 12h-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mQueue change[0m
+    [36m</button>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"validate-editor-intent-inline"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Validate without applying"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-search-check"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m8 11 2 2 4-4"[39m
+        [36m/>[39m
+        [36m<circle[39m
+          [33mcx[39m=[32m"11"[39m
+          [33mcy[39m=[32m"11"[39m
+          [33mr[39m=[32m"8"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m21 21-4.3-4.3"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mValidate[0m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<details[39m
+    [33mclass[39m=[32m"inspector-details"[39m
+  [36m>[39m
+    [36m<summary>[39m
+      [0mOperation details[0m
+    [36m</summary>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mReason for change[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Editor intent rationale"[39m
+        [33mdata-testid[39m=[32m"editor-intent-rationale"[39m
+        [33mvalue[39m=[32m"user_entered_preview_change"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<article[39m
+      [33mclass[39m=[32m"editor-intent-preview"[39m
+      [33mdata-testid[39m=[32m"editor-operation-preview"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"editor-intent-meta"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOperation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mop:editor-intent-material:invented-carbon-steel-elastic_modulus.value; modify; proposed[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mTarget[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mMaterial; material:invented-carbon-steel[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mChange[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mset_field; Elastic modulus; elastic_modulus.value; before=200000000000; after={"value":200000000000,"unit":"Pa"}[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mUnit basis[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mstress; unit=Pa; unit metadata required; entered unit captured explicitly[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-validation"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mValidation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mnot_run; not_run; model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; not_generated; not_applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-audit-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mAudit boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-professional-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mProfessional boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRequires human review; no compliance claim; no approval claim[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mRationale[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0muser_entered_preview_change[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</article>[39m
+    [36m<p[39m
+      [33mclass[39m=[32m"muted"[39m
+      [33mdata-testid[39m=[32m"editor-intent-queue-empty"[39m
+    [36m>[39m
+      [0mNo changes queued.[0m
+    [36m</p>[39m
+  [36m</details>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"muted editor-inline-validation"[39m
+    [33mdata-testid[39m=[32m"editor-intent-inline-validation-empty"[39m
+  [36m>[39m
+    [0mValidate to check this change before applying it.[0m
+  [36m</p>[39m
+[36m</section>[39m
+
+Ignored nodes: comments, script, style
+[36m<section[39m
+  [33maria-label[39m=[32m"Editor operation intent"[39m
+  [33mclass[39m=[32m"editor-intent"[39m
+  [33mdata-testid[39m=[32m"editor-intent-panel"[39m
+[36m>[39m
+  [36m<h3>[39m
+    [36m<svg[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mclass[39m=[32m"lucide lucide-pencil"[39m
+      [33mfill[39m=[32m"none"[39m
+      [33mheight[39m=[32m"14"[39m
+      [33mstroke[39m=[32m"currentColor"[39m
+      [33mstroke-linecap[39m=[32m"round"[39m
+      [33mstroke-linejoin[39m=[32m"round"[39m
+      [33mstroke-width[39m=[32m"2"[39m
+      [33mviewBox[39m=[32m"0 0 24 24"[39m
+      [33mwidth[39m=[32m"14"[39m
+      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+    [36m>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"m15 5 4 4"[39m
+      [36m/>[39m
+    [36m</svg>[39m
+    [0m Edit [0m
+    [0melastic modulus[0m
+  [36m</h3>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"editor-intent-controls"[39m
+  [36m>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mProperty[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Property to edit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-field"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"label"[39m
+        [36m>[39m
+          [0mName[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"elastic_modulus.value"[39m
+        [36m>[39m
+          [0mElastic modulus[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"shear_modulus.value"[39m
+        [36m>[39m
+          [0mShear modulus[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"thermal_expansion_coefficient.value"[39m
+        [36m>[39m
+          [0mThermal expansion[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"provenance"[39m
+        [36m>[39m
+          [0mProvenance[0m
+        [36m</option>[39m
+      [36m</select>[39m
+    [36m</label>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Display quantity"[39m
+      [33mclass[39m=[32m"inspector-context-card"[39m
+      [33mdata-testid[39m=[32m"inspector-dual-unit-display"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mCurrent value[0m
+      [36m</span>[39m
+      [36m<strong[39m
+        [33mdata-testid[39m=[32m"inspector-dual-unit-converted"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mdata-display-status[39m=[32m"entered"[39m
+        [36m>[39m
+          [0m200000000000[0m
+          [0m [0m
+          [0mPa[0m
+        [36m</span>[39m
+      [36m</strong>[39m
+      [36m<small>[39m
+        [0mEntered: [0m
+        [0m200000000000[0m
+        [0m [0m
+        [0mPa[0m
+      [36m</small>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mUnit details[0m
+        [36m</summary>[39m
+        [36m<small>[39m
+          [0mDisplay basis: Pa, model metadata[0m
+        [36m</small>[39m
+        [36m<small>[39m
+          [0mDisplay only — storage stays entered-units-preserved.[0m
+        [36m</small>[39m
+      [36m</details>[39m
+    [36m</section>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mNew [0m
+        [0melastic modulus[0m
+        [0m (Pa)[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"New elastic modulus"[39m
+        [33mdata-testid[39m=[32m"editor-intent-value"[39m
+        [33minputmode[39m=[32m"decimal"[39m
+        [33mvalue[39m=[32m"200000000000"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mUnit[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Proposed editor unit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-unit"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"Pa"[39m
+        [36m>[39m
+          [0mPa, model metadata[0m
+        [36m</option>[39m
+      [36m</select>[39m
+      [36m<datalist[39m
+        [33mid[39m=[32m"mass-unit-options"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"Pa"[39m
+        [36m>[39m
+          [0mPa, model metadata[0m
+        [36m</option>[39m
+      [36m</datalist>[39m
+    [36m</label>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"queue-editor-intent"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Add this change to the review queue"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-list-plus"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M11 12H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 6H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 18H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 9v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M21 12h-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mQueue change[0m
+    [36m</button>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"validate-editor-intent-inline"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Validate without applying"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-search-check"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m8 11 2 2 4-4"[39m
+        [36m/>[39m
+        [36m<circle[39m
+          [33mcx[39m=[32m"11"[39m
+          [33mcy[39m=[32m"11"[39m
+          [33mr[39m=[32m"8"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m21 21-4.3-4.3"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mValidate[0m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<details[39m
+    [33mclass[39m=[32m"inspector-details"[39m
+  [36m>[39m
+    [36m<summary>[39m
+      [0mOperation details[0m
+    [36m</summary>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mReason for change[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Editor intent rationale"[39m
+        [33mdata-testid[39m=[32m"editor-intent-rationale"[39m
+        [33mvalue[39m=[32m"user_entered_preview_change"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<article[39m
+      [33mclass[39m=[32m"editor-intent-preview"[39m
+      [33mdata-testid[39m=[32m"editor-operation-preview"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"editor-intent-meta"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOperation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mop:editor-intent-material:invented-carbon-steel-elastic_modulus.value; modify; proposed[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mTarget[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mMaterial; material:invented-carbon-steel[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mChange[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mset_field; Elastic modulus; elastic_modulus.value; before=200000000000; after={"value":200000000000,"unit":"Pa"}[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mUnit basis[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mstress; unit=Pa; unit metadata required; entered unit captured explicitly[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-validation"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mValidation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mnot_run; not_run; model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; not_generated; not_applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-audit-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mAudit boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-professional-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mProfessional boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRequires human review; no compliance claim; no approval claim[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mRationale[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0muser_entered_preview_change[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</article>[39m
+    [36m<p[39m
+      [33mclass[39m=[32m"muted"[39m
+      [33mdata-testid[39m=[32m"editor-intent-queue-empty"[39m
+    [36m>[39m
+      [0mNo changes queued.[0m
+    [36m</p>[39m
+  [36m</details>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"muted editor-inline-validation"[39m
+    [33mdata-testid[39m=[32m"editor-intent-inline-validation-empty"[39m
+  [36m>[39m
+    [0mValidate to check this change before applying it.[0m
+  [36m</p>[39m
+[36m</section>[39m
+ ❯ waitForWrapper ../../node_modules/@testing-library/dom/dist/wait-for.js:163:27
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:86:33
+ ❯ src/App.test.tsx:4687:33
+    4685|     );
+    4686|     expect(
+    4687|       await within(intentPanel).findByText(
+       |                                 ^
+    4688|         "New value (Pa, model metadata)",
+    4689|       ),
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > queues node coordinate edits with an explicit unit payload
+TestingLibraryElementError: Unable to find an element with the text: New value (m, model metadata). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<section[39m
+  [33maria-label[39m=[32m"Editor operation intent"[39m
+  [33mclass[39m=[32m"editor-intent"[39m
+  [33mdata-testid[39m=[32m"editor-intent-panel"[39m
+[36m>[39m
+  [36m<h3>[39m
+    [36m<svg[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mclass[39m=[32m"lucide lucide-pencil"[39m
+      [33mfill[39m=[32m"none"[39m
+      [33mheight[39m=[32m"14"[39m
+      [33mstroke[39m=[32m"currentColor"[39m
+      [33mstroke-linecap[39m=[32m"round"[39m
+      [33mstroke-linejoin[39m=[32m"round"[39m
+      [33mstroke-width[39m=[32m"2"[39m
+      [33mviewBox[39m=[32m"0 0 24 24"[39m
+      [33mwidth[39m=[32m"14"[39m
+      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+    [36m>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"m15 5 4 4"[39m
+      [36m/>[39m
+    [36m</svg>[39m
+    [0m Edit [0m
+    [0my position[0m
+  [36m</h3>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"editor-intent-controls"[39m
+  [36m>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mProperty[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Property to edit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-field"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"label"[39m
+        [36m>[39m
+          [0mName[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"position.x"[39m
+        [36m>[39m
+          [0mX position[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"position.y"[39m
+        [36m>[39m
+          [0mY position[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"position.z"[39m
+        [36m>[39m
+          [0mZ position[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"provenance"[39m
+        [36m>[39m
+          [0mProvenance[0m
+        [36m</option>[39m
+      [36m</select>[39m
+    [36m</label>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Display quantity"[39m
+      [33mclass[39m=[32m"inspector-context-card"[39m
+      [33mdata-testid[39m=[32m"inspector-dual-unit-display"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mCurrent value[0m
+      [36m</span>[39m
+      [36m<strong[39m
+        [33mdata-testid[39m=[32m"inspector-dual-unit-converted"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mdata-display-status[39m=[32m"entered"[39m
+        [36m>[39m
+          [0m0[0m
+          [0m [0m
+          [0mm[0m
+        [36m</span>[39m
+      [36m</strong>[39m
+      [36m<small>[39m
+        [0mEntered: [0m
+        [0m0[0m
+        [0m [0m
+        [0mm[0m
+      [36m</small>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mUnit details[0m
+        [36m</summary>[39m
+        [36m<small>[39m
+          [0mDisplay basis: m, model metadata[0m
+        [36m</small>[39m
+        [36m<small>[39m
+          [0mDisplay only — storage stays entered-units-preserved.[0m
+        [36m</small>[39m
+      [36m</details>[39m
+    [36m</section>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mNew [0m
+        [0my position[0m
+        [0m (m)[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"New y position"[39m
+        [33mdata-testid[39m=[32m"editor-intent-value"[39m
+        [33minputmode[39m=[32m"decimal"[39m
+        [33mvalue[39m=[32m"0"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mUnit[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Proposed editor unit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-unit"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"m"[39m
+        [36m>[39m
+          [0mm, model metadata[0m
+        [36m</option>[39m
+      [36m</select>[39m
+      [36m<datalist[39m
+        [33mid[39m=[32m"mass-unit-options"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"m"[39m
+        [36m>[39m
+          [0mm, model metadata[0m
+        [36m</option>[39m
+      [36m</datalist>[39m
+    [36m</label>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"queue-editor-intent"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Add this change to the review queue"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-list-plus"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M11 12H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 6H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 18H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 9v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M21 12h-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mQueue change[0m
+    [36m</button>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"validate-editor-intent-inline"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Validate without applying"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-search-check"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m8 11 2 2 4-4"[39m
+        [36m/>[39m
+        [36m<circle[39m
+          [33mcx[39m=[32m"11"[39m
+          [33mcy[39m=[32m"11"[39m
+          [33mr[39m=[32m"8"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m21 21-4.3-4.3"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mValidate[0m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<details[39m
+    [33mclass[39m=[32m"inspector-details"[39m
+  [36m>[39m
+    [36m<summary>[39m
+      [0mOperation details[0m
+    [36m</summary>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mReason for change[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Editor intent rationale"[39m
+        [33mdata-testid[39m=[32m"editor-intent-rationale"[39m
+        [33mvalue[39m=[32m"user_entered_preview_change"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<article[39m
+      [33mclass[39m=[32m"editor-intent-preview"[39m
+      [33mdata-testid[39m=[32m"editor-operation-preview"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"editor-intent-meta"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOperation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mop:editor-intent-node:N-110-position.y; modify; proposed[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mTarget[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mNode; node:N-110[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mChange[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mset_field; Y position; position.y; before=0; after={"value":0,"unit":"m"}[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mUnit basis[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mlength; unit=m; unit metadata required; entered unit captured explicitly[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-validation"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mValidation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mnot_run; not_run; model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; not_generated; not_applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-audit-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mAudit boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-professional-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mProfessional boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRequires human review; no compliance claim; no approval claim[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mRationale[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0muser_entered_preview_change[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</article>[39m
+    [36m<p[39m
+      [33mclass[39m=[32m"muted"[39m
+      [33mdata-testid[39m=[32m"editor-intent-queue-empty"[39m
+    [36m>[39m
+      [0mNo changes queued.[0m
+    [36m</p>[39m
+  [36m</details>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"muted editor-inline-validation"[39m
+    [33mdata-testid[39m=[32m"editor-intent-inline-validation-empty"[39m
+  [36m>[39m
+    [0mValidate to check this change before applying it.[0m
+  [36m</p>[39m
+[36m</section>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/App.test.tsx:6712:27
+    6710|     );
+    6711|     expect(
+    6712|       within(intentPanel).getByText("New value (m, model metadata)"),
+       |                           ^
+    6713|     ).toBeInTheDocument();
+    6714|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > queues load-case primitive magnitude inspector edits with an explicit unit payload
+TestingLibraryElementError: Unable to find an element with the text: New value (N/m, model metadata). This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+[36m<section[39m
+  [33maria-label[39m=[32m"Editor operation intent"[39m
+  [33mclass[39m=[32m"editor-intent"[39m
+  [33mdata-testid[39m=[32m"editor-intent-panel"[39m
+[36m>[39m
+  [36m<h3>[39m
+    [36m<svg[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mclass[39m=[32m"lucide lucide-pencil"[39m
+      [33mfill[39m=[32m"none"[39m
+      [33mheight[39m=[32m"14"[39m
+      [33mstroke[39m=[32m"currentColor"[39m
+      [33mstroke-linecap[39m=[32m"round"[39m
+      [33mstroke-linejoin[39m=[32m"round"[39m
+      [33mstroke-width[39m=[32m"2"[39m
+      [33mviewBox[39m=[32m"0 0 24 24"[39m
+      [33mwidth[39m=[32m"14"[39m
+      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+    [36m>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"m15 5 4 4"[39m
+      [36m/>[39m
+    [36m</svg>[39m
+    [0m Edit [0m
+    [0mfirst primitive magnitude[0m
+  [36m</h3>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"editor-intent-controls"[39m
+  [36m>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mProperty[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Property to edit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-field"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"label"[39m
+        [36m>[39m
+          [0mName[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"status"[39m
+        [36m>[39m
+          [0mStatus[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"kind"[39m
+        [36m>[39m
+          [0mKind[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"modulus_basis_ref"[39m
+        [36m>[39m
+          [0mModulus basis[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"modulus_basis_temperature.value"[39m
+        [36m>[39m
+          [0mModulus basis solve temperature[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.seismic.gravity_acceleration.value"[39m
+        [36m>[39m
+          [0mSeismic gravity acceleration[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.seismic.g_factor_x.value"[39m
+        [36m>[39m
+          [0mSeismic g-factor X[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.seismic.g_factor_y.value"[39m
+        [36m>[39m
+          [0mSeismic g-factor Y[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.seismic.g_factor_z.value"[39m
+        [36m>[39m
+          [0mSeismic g-factor Z[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.wind.pressure.value"[39m
+        [36m>[39m
+          [0mWind pressure[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.wind.shape_factor.value"[39m
+        [36m>[39m
+          [0mWind shape factor[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.wind.direction"[39m
+        [36m>[39m
+          [0mWind direction[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"equivalent_static.wind.exposed_pipe_refs"[39m
+        [36m>[39m
+          [0mWind exposed spans[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"primitive_loads.0.magnitude.value"[39m
+        [36m>[39m
+          [0mFirst primitive magnitude[0m
+        [36m</option>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"provenance"[39m
+        [36m>[39m
+          [0mProvenance[0m
+        [36m</option>[39m
+      [36m</select>[39m
+    [36m</label>[39m
+    [36m<section[39m
+      [33maria-label[39m=[32m"Display quantity"[39m
+      [33mclass[39m=[32m"inspector-context-card"[39m
+      [33mdata-testid[39m=[32m"inspector-dual-unit-display"[39m
+    [36m>[39m
+      [36m<span>[39m
+        [0mCurrent value[0m
+      [36m</span>[39m
+      [36m<strong[39m
+        [33mdata-testid[39m=[32m"inspector-dual-unit-converted"[39m
+      [36m>[39m
+        [36m<span[39m
+          [33mdata-display-status[39m=[32m"entered"[39m
+        [36m>[39m
+          [0m-190[0m
+          [0m [0m
+          [0mN/m[0m
+        [36m</span>[39m
+      [36m</strong>[39m
+      [36m<small>[39m
+        [0mEntered: [0m
+        [0m-190[0m
+        [0m [0m
+        [0mN/m[0m
+      [36m</small>[39m
+      [36m<details>[39m
+        [36m<summary>[39m
+          [0mUnit details[0m
+        [36m</summary>[39m
+        [36m<small>[39m
+          [0mDisplay basis: N/m, model metadata[0m
+        [36m</small>[39m
+        [36m<small>[39m
+          [0mDisplay only — storage stays entered-units-preserved.[0m
+        [36m</small>[39m
+      [36m</details>[39m
+    [36m</section>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mNew [0m
+        [0mfirst primitive magnitude[0m
+        [0m (N/m)[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"New first primitive magnitude"[39m
+        [33mdata-testid[39m=[32m"editor-intent-value"[39m
+        [33minputmode[39m=[32m"decimal"[39m
+        [33mvalue[39m=[32m"-190"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mUnit[0m
+      [36m</span>[39m
+      [36m<select[39m
+        [33maria-label[39m=[32m"Proposed editor unit"[39m
+        [33mdata-testid[39m=[32m"editor-intent-unit"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"N/m"[39m
+        [36m>[39m
+          [0mN/m, model metadata[0m
+        [36m</option>[39m
+      [36m</select>[39m
+      [36m<datalist[39m
+        [33mid[39m=[32m"mass-unit-options"[39m
+      [36m>[39m
+        [36m<option[39m
+          [33mvalue[39m=[32m"N/m"[39m
+        [36m>[39m
+          [0mN/m, model metadata[0m
+        [36m</option>[39m
+      [36m</datalist>[39m
+    [36m</label>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"queue-editor-intent"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Add this change to the review queue"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-list-plus"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M11 12H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 6H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M16 18H3"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M18 9v6"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"M21 12h-6"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mQueue change[0m
+    [36m</button>[39m
+    [36m<button[39m
+      [33mdata-testid[39m=[32m"validate-editor-intent-inline"[39m
+      [33mdisabled[39m=[32m""[39m
+      [33mtitle[39m=[32m"Validate without applying"[39m
+      [33mtype[39m=[32m"button"[39m
+    [36m>[39m
+      [36m<svg[39m
+        [33maria-hidden[39m=[32m"true"[39m
+        [33mclass[39m=[32m"lucide lucide-search-check"[39m
+        [33mfill[39m=[32m"none"[39m
+        [33mheight[39m=[32m"14"[39m
+        [33mstroke[39m=[32m"currentColor"[39m
+        [33mstroke-linecap[39m=[32m"round"[39m
+        [33mstroke-linejoin[39m=[32m"round"[39m
+        [33mstroke-width[39m=[32m"2"[39m
+        [33mviewBox[39m=[32m"0 0 24 24"[39m
+        [33mwidth[39m=[32m"14"[39m
+        [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+      [36m>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m8 11 2 2 4-4"[39m
+        [36m/>[39m
+        [36m<circle[39m
+          [33mcx[39m=[32m"11"[39m
+          [33mcy[39m=[32m"11"[39m
+          [33mr[39m=[32m"8"[39m
+        [36m/>[39m
+        [36m<path[39m
+          [33md[39m=[32m"m21 21-4.3-4.3"[39m
+        [36m/>[39m
+      [36m</svg>[39m
+      [0mValidate[0m
+    [36m</button>[39m
+  [36m</div>[39m
+  [36m<details[39m
+    [33mclass[39m=[32m"inspector-details"[39m
+  [36m>[39m
+    [36m<summary>[39m
+      [0mOperation details[0m
+    [36m</summary>[39m
+    [36m<label>[39m
+      [36m<span>[39m
+        [0mReason for change[0m
+      [36m</span>[39m
+      [36m<input[39m
+        [33maria-label[39m=[32m"Editor intent rationale"[39m
+        [33mdata-testid[39m=[32m"editor-intent-rationale"[39m
+        [33mvalue[39m=[32m"user_entered_preview_change"[39m
+      [36m/>[39m
+    [36m</label>[39m
+    [36m<article[39m
+      [33mclass[39m=[32m"editor-intent-preview"[39m
+      [33mdata-testid[39m=[32m"editor-operation-preview"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"editor-intent-meta"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mOperation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mop:editor-intent-load:L-100-primitive_loads.0.magnitude.value; modify; proposed[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mTarget[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mLoad; load:L-100[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mChange[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mupdate_load; First primitive magnitude; primitive_loads.0.magnitude.value; before=-190; after={"value":-190,"unit":"N/m"}[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mUnit basis[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mforce_per_length; unit=N/m; unit metadata required; entered unit captured explicitly[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-validation"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mValidation[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mnot_run; not_run; model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview; not_generated; not_applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-audit-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mAudit boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+          [33mdata-testid[39m=[32m"editor-intent-professional-boundary"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mProfessional boundary[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0mRequires human review; no compliance claim; no approval claim[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33mclass[39m=[32m"editor-intent-fact"[39m
+        [36m>[39m
+          [36m<span>[39m
+            [0mRationale[0m
+          [36m</span>[39m
+          [36m<strong>[39m
+            [0muser_entered_preview_change[0m
+          [36m</strong>[39m
+        [36m</div>[39m
+      [36m</div>[39m
+    [36m</article>[39m
+    [36m<p[39m
+      [33mclass[39m=[32m"muted"[39m
+      [33mdata-testid[39m=[32m"editor-intent-queue-empty"[39m
+    [36m>[39m
+      [0mNo changes queued.[0m
+    [36m</p>[39m
+  [36m</details>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"muted editor-inline-validation"[39m
+    [33mdata-testid[39m=[32m"editor-intent-inline-validation-empty"[39m
+  [36m>[39m
+    [0mValidate to check this change before applying it.[0m
+  [36m</p>[39m
+[36m</section>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/App.test.tsx:6759:27
+    6757|     );
+    6758|     expect(
+    6759|       within(intentPanel).getByText("New value (N/m, model metadata)"),
+       |                           ^
+    6760|     ).toBeInTheDocument();
+    6761|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed | 3 passed (4)
+      Tests  3 failed | 123 passed (126)
+   Start at  13:31:16
+   Duration  122.13s (transform 1.49s, setup 290ms, import 2.09s, tests 156.03s, environment 1.02s)
+

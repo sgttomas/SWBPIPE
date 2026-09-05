@@ -1,0 +1,65 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 3
+  },
+  "counts": {
+    "category": {
+      "fixture_metadata": 1
+    },
+    "event_type": {
+      "FINISH": 3,
+      "REMEDIATION": 1,
+      "START": 3
+    },
+    "outcome": {
+      "INFO": 1,
+      "PASS": 3,
+      "STARTED": 3
+    },
+    "reason_code": {
+      "SOURCE_BACKED_UNITS_OMISSION": 1
+    }
+  },
+  "events": 7,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 563.322,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "I1",
+      "package_id": "PKG-02",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "W2-I1"
+    },
+    {
+      "duration_seconds": 196.145,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R1",
+      "package_id": "PKG-02",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "W2-R1"
+    },
+    {
+      "duration_seconds": 812.463,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "W2",
+      "package_id": "PKG-02",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "W2-main"
+    }
+  ],
+  "sessions": 3,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

@@ -693,7 +693,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(screen.getByTestId("toggle-inspector")).toHaveAttribute(
       "aria-expanded",
-      "false",
+      "true",
     );
     expect(screen.getByTestId("agent-workbench-panel")).toBeInTheDocument();
     expect(screen.getByTestId("agent-focus-selection")).toHaveTextContent(
@@ -714,6 +714,7 @@ describe("OpenPipeStress desktop preview", () => {
       "collapsed",
     );
 
+    fireEvent.click(screen.getByTestId("operation-tab-details"));
     const drawer = screen.getByTestId("review-apply-drawer");
     expect(drawer.className).not.toContain("open");
     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
@@ -4684,7 +4685,7 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(
       await within(intentPanel).findByText(
-        "Proposed value (Pa, model metadata)",
+        /^New .*\(Pa\)$/,
       ),
     ).toBeInTheDocument();
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -4745,7 +4746,7 @@ describe("OpenPipeStress desktop preview", () => {
       within(intentPanel).getByTestId("editor-intent-queue").textContent,
     ).toContain("no accepted model change");
     expect(
-      within(intentPanel).getByRole("button", { name: /Queue review intent/i }),
+      within(intentPanel).getByRole("button", { name: /Queue change/i }),
     ).not.toBeDisabled();
     expect(
       within(inspector).getByRole("heading", {
@@ -4796,9 +4797,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(inspector.textContent).toContain(
       "invented_example_user_entered_bend_values_no_code_table",
     );
-    expect(inspector.textContent).toContain(
-      "No missing selected fields detected",
-    );
+    expect(within(inspector).queryByTestId("inspector-required-flags")).not.toBeInTheDocument();
 
     fireEvent.click(
       within(tree).getByRole("button", {
@@ -6668,7 +6667,7 @@ describe("OpenPipeStress desktop preview", () => {
     const intentPanel = screen.getByLabelText("Editor operation intent");
     expect(
       within(intentPanel).getByTestId("editor-intent-queue-empty").textContent,
-    ).toContain("No transient editor intents queued");
+    ).toContain("No changes queued.");
     await waitFor(() =>
       expect(
         screen.getByTestId("property-unit-catalog-status").textContent,
@@ -6708,7 +6707,7 @@ describe("OpenPipeStress desktop preview", () => {
       "m",
     );
     expect(
-      within(intentPanel).getByText("Proposed value (m, model metadata)"),
+      within(intentPanel).getByText(/^New .*\(m\)$/),
     ).toBeInTheDocument();
 
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -6755,7 +6754,7 @@ describe("OpenPipeStress desktop preview", () => {
       "N/m",
     );
     expect(
-      within(intentPanel).getByText("Proposed value (N/m, model metadata)"),
+      within(intentPanel).getByText(/^New .*\(N\/m\)$/),
     ).toBeInTheDocument();
 
     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
@@ -8348,7 +8347,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("0 pending operations; applied_operations=0");
     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
     expect(
-      within(controls).getByText("Invented Utility Loop Preview"),
+      screen.getByText("Invented Utility Loop Preview", { selector: ".titlebar p" }),
     ).toBeInTheDocument();
     await waitFor(() =>
       expect(
@@ -8856,7 +8855,7 @@ describe("OpenPipeStress desktop preview", () => {
         "Created blank local model document without fixture entities or external file copies.",
       ),
     );
-    expect(within(controls).getByText("Blank Local Model")).toBeInTheDocument();
+    expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
     expect(screen.getByTestId("status-pill-mechanics").textContent).toContain(
       "MODEL_INCOMPLETE",
     );
@@ -9030,6 +9029,9 @@ describe("OpenPipeStress desktop preview", () => {
       ),
     );
 
+    fireEvent.click(screen.getByTestId("workspace-review"));
+    fireEvent.click(screen.getByTestId("operation-tab-details"));
+    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
     fireEvent.click(
       screen.getByRole("button", { name: /Generate review proposal/i }),
     );
@@ -12693,6 +12695,9 @@ describe("OpenPipeStress desktop preview", () => {
     ).toBe(false);
     */
 
+    fireEvent.click(screen.getByTestId("workspace-review"));
+    fireEvent.click(screen.getByTestId("operation-tab-details"));
+    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
     fireEvent.click(
       screen.getByRole("button", { name: /Generate review proposal/i }),
     );
@@ -13494,6 +13499,9 @@ describe("OpenPipeStress desktop preview", () => {
       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
     ).toBeInTheDocument();
 
+    fireEvent.click(screen.getByTestId("workspace-review"));
+    fireEvent.click(screen.getByTestId("operation-tab-details"));
+    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
     fireEvent.click(
       screen.getByRole("button", { name: /Generate review proposal/i }),
     );
@@ -15860,6 +15868,8 @@ describe("Tier3 shared batch and proposed context", () => {
 });
 
 async function importOfflineForTest(batch: unknown, key: number) {
+  fireEvent.click(screen.getByTestId("workspace-review"));
+  fireEvent.click(screen.getByTestId("operation-tab-agent"));
   fireEvent.change(screen.getByLabelText("Proposal batch JSON"), { target: { value: JSON.stringify(batch) } });
   fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
   await screen.findByTestId(`apply-batch-operation-batch-${key}`);
@@ -15976,5 +15986,78 @@ describe("Tier3 display in the actual application", () => {
     expect(deltas.textContent).not.toBe(entered);
     fireEvent.change(screen.getByLabelText("Display units"), { target: { value: "entered" } });
     expect(deltas.textContent).toBe(entered);
+  });
+});
+
+
+describe("persistent modeling workspace", () => {
+  it.each([
+    ["toolbar", "project"], ["toolbar", "node:N-140"], ["toolbar", "pipe:P-120"],
+    ["Insert menu", "project"], ["Insert menu", "node:N-140"], ["Insert menu", "pipe:P-120"],
+  ])("opens Support creation from %s with %s selected", async (route, selectedId) => {
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    if (selectedId !== "project") fireEvent.click(screen.getByTestId(`viewport-select-${selectedId}`));
+    const target = screen.getByTestId("create-support-id");
+    const disclosure = target.closest("details");
+    expect(disclosure).not.toHaveAttribute("open");
+    const viewport = screen.getByTestId("viewport-canvas");
+    const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
+    if (route === "toolbar") fireEvent.click(screen.getByTestId("command-support"));
+    else {
+      fireEvent.click(screen.getByTestId("menu-insert"));
+      fireEvent.click(screen.getByTestId("menu-item-insert.support"));
+    }
+    expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
+    expect(disclosure).toHaveAttribute("open");
+    expect(target).toHaveFocus();
+    expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Support tool armed");
+    expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
+    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
+  });
+  it("reveals the destination of each contextual creation and review route", async () => {
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    for (const [command, testId, elementId, tab] of [
+      ["build.node", "viewport-create-node-id", "", ""],
+      ["build.pipe", "viewport-create-pipe-id", "", ""],
+      ["build.component", "create-component-kind", "", ""],
+      ["properties.material", "create-material-id", "", ""],
+      ["properties.section", "create-section-id", "", ""],
+      ["build.split", "", "geometry-tools", "geometry"],
+      ["supports.boundary", "", "boundary-authoring", "supports"],
+      ["properties.hanger-library", "", "hanger-selection", "supports"],
+      ["loads.self-weight", "", "self-weight-plan", "weight"],
+      ["review.agent", "", "offline-proposal-intake", "agent"],
+      ["properties.libraries", "workspace-section-libraries", "", ""],
+      ["view.units", "", "display-unit-preference", ""],
+    ]) {
+      fireEvent.click(screen.getByTestId("toolkit-entry"));
+      fireEvent.click(screen.getByTestId(`toolkit-${command}`));
+      const target = elementId ? document.getElementById(elementId) : screen.getByTestId(testId);
+      expect(target, command).toHaveFocus();
+      for (let ancestor = target?.parentElement; ancestor; ancestor = ancestor.parentElement) {
+        if (ancestor instanceof HTMLDetailsElement) expect(ancestor.open, command).toBe(true);
+        expect(ancestor.hidden, command).toBe(false);
+      }
+      if (tab) expect(screen.getByTestId(`operation-tab-${tab}`), command).toHaveAttribute("aria-pressed", "true");
+      expect(screen.queryByRole("dialog", { name: "Find a modeling tool" })).not.toBeInTheDocument();
+    }
+  });
+  it("routes task navigation and searchable geometry tools while preserving the viewport", async () => {
+    render(<App />);
+    await screen.findByTestId("workspace-toolbar");
+    const viewport = screen.getByTestId("viewport-canvas");
+    fireEvent.click(screen.getByTestId("workspace-task-loads"));
+    expect(screen.getByTestId("workspace-section-loads")).not.toHaveClass("inactive");
+    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
+    fireEvent.click(screen.getByTestId("toolkit-entry"));
+    fireEvent.click(screen.getByTestId("toolkit-edit.copy"));
+    expect(screen.getByTestId("operation-tab-geometry")).toHaveAttribute("aria-pressed", "true");
+    expect(document.getElementById("geometry-tools")).toHaveFocus();
+    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+    expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
+    expect(screen.getByTestId("workspace-select")).toHaveFocus();
+    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
   });
 });

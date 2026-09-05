@@ -1,0 +1,33 @@
+{
+  "id": "ACCEPT_C2_CLASSIFICATION_ONLY",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1 /root/implementation_coordination",
+  "user_direction": "Then carry on now with implementation according to the plan and map. Act in the Agent 0 role. First sync your worktree with origin/main.",
+  "basis": "Root read instances/C2/RETURN.md and accepted its exact classification-only proposal under existing project mechanism",
+  "disposition": "APPROVED exact one-entry historical_role_override classification repair",
+  "scope_extension": {
+    "instance": "C2",
+    "runtime_id": "/root/sync_main",
+    "allowed_writes": [
+      "{WORKING_ROOT}/validation/portability_policy.json exact one approved entry",
+      "instances/C2 own records"
+    ],
+    "prohibited": [
+      "rewrite prior evidence",
+      "other policy changes",
+      "Git mutation before writers frozen"
+    ]
+  },
+  "exact_entry": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/SOURCE_INDEX.md",
+    "sha256": "149b0fee636b2193dc1854c005725bd543b774b09b1b0a3f38651391fb63845c",
+    "entry_type": "historical_role_override",
+    "role": "EVIDENCE",
+    "reason": "Immutable completed product-design investigation source index preserves machine-local source locations actually inspected; historical research evidence, not live executable direction."
+  },
+  "authority_text_requirement": "Cite this actual root acceptance artifact and user implementation direction; do not claim a separate Owner policy approval",
+  "verification": "Include configuration in final fresh review; preserve all 77 pre-existing files byte for byte",
+  "authority_limit": "Existing project classification mechanism, not new owner policy; immutable historical evidence remains derivative and nonauthoritative",
+  "application_status": "Approved for C2 writer; this disposition does not claim applied"
+}

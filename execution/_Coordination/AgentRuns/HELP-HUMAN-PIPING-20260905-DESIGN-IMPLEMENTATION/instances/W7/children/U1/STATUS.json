@@ -1,0 +1,15 @@
+{
+  "instance": "U1",
+  "role": "TASK Agent 2",
+  "actual_model": "unknown",
+  "status": "READY_FOR_MANAGER_VERIFICATION",
+  "source_frozen": true,
+  "source_manifest": "SOURCE_FREEZE.json",
+  "return": "RETURN.md",
+  "full_verification_owner": "W7",
+  "remaining": [
+    "Latest combined desktop-test/build",
+    "Host-resize regression evidence",
+    "Fresh independent review"
+  ]
+}

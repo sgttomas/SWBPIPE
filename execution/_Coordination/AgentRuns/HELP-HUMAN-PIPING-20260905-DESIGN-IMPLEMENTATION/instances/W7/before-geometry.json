@@ -1,0 +1,42 @@
+{
+  ".modeling-workspace": {
+    "x": 8,
+    "y": 203.375,
+    "width": 1008,
+    "height": 460.625,
+    "top": 203.375,
+    "right": 1016,
+    "bottom": 664,
+    "left": 8
+  },
+  ".workspace-pane-viewport": {
+    "x": 52,
+    "y": 203.375,
+    "width": 590,
+    "height": 460.625,
+    "top": 203.375,
+    "right": 642,
+    "bottom": 664,
+    "left": 52
+  },
+  "canvas": {
+    "x": 53,
+    "y": 750.546875,
+    "width": 588,
+    "height": 520,
+    "top": 750.546875,
+    "right": 641,
+    "bottom": 1270.546875,
+    "left": 53
+  },
+  ".toolkit-commands": {
+    "x": 63.1875,
+    "y": 234.5625,
+    "width": 567.625,
+    "height": 460.796875,
+    "top": 234.5625,
+    "right": 630.8125,
+    "bottom": 695.359375,
+    "left": 63.1875
+  }
+}

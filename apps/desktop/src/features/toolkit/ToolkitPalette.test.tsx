@@ -27,6 +27,19 @@ describe("human toolkit", () => {
     expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
     expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
   });
+  it("contains keyboard focus in discovery and dismisses to its trigger", () => {
+    render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
+    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
+    const search = screen.getByRole("searchbox");
+    expect(search).toHaveFocus();
+    fireEvent.keyDown(search, { key: "Tab", shiftKey: true });
+    expect(screen.getByText("Deferred roadmap")).toHaveFocus();
+    fireEvent.keyDown(document.activeElement!, { key: "Tab" });
+    expect(search).toHaveFocus();
+    fireEvent.pointerDown(document.body);
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
+  });
   it("requires appropriate selection and available history before dispatch", () => {
     const remove = toolkitCapabilities.find((entry) => entry.id === "edit.remove")!;
     expect(capabilityAvailability(remove, context).enabled).toBe(false);

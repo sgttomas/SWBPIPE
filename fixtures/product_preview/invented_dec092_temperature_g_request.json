@@ -3,7 +3,8 @@
     "schema_version": "0.1.0",
     "document_kind": "openpipestress.product_preview.model",
     "project": {
-      "id": "project:invented-dec092-temperature-g-torsion"
+      "id": "project:invented-dec092-temperature-g-torsion",
+      "units": { "length": "m" }
     },
     "analysis_status": {
       "mechanics": "ready_for_preview_diagnostics",

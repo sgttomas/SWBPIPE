@@ -89,6 +89,30 @@
       "role": "EVIDENCE",
       "reason": "Immutable N5 verification record captures its external verification root and inventory as historical evidence, not live instruction.",
       "authority": "Owner-approved runner-binding closeout portability amendment; representation-only normalization and accepted N5 verification remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/SOURCE_INDEX.md",
+      "sha256": "149b0fee636b2193dc1854c005725bd543b774b09b1b0a3f38651391fb63845c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed product-design investigation source index preserves machine-local source locations actually inspected; historical research evidence, not live executable direction.",
+      "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_CLASSIFICATION_ONLY.json (SHA-256 2098bc6f56524f8a338eb28b456cb7b84632a112e5c6a1297ea51ae1755c822c)."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/FINDING.md",
+      "sha256": "71d186231d0eee7fdaf6c50f088e821482c93b58e97bc5509d0e21cce95c66af",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable accepted units witness finding records two temporary-path command lines actually executed; historical runtime evidence, not live executable direction. Exact-hash classification preserves witness bytes.",
+      "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_UNITS_FINDING_CLASSIFICATION.json (SHA-256 54ea1b28944b42f43b25f6bc333d79c2ab265404d26ed7e9b4f88ab7ace8a5e8)."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md",
+      "sha256": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed W2 implementation execution return preserves actual resolved runtime paths and commands; historical execution evidence, not live executable direction.",
+      "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_W2_EXECUTION_RETURN_CLASSIFICATION.json (SHA-256 f5477a0a21e3496f971936280e20d099dad706a8ef603b868fcf79ff3dfa666c)."
     }
   ],
   "control_path_exceptions": [

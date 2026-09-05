@@ -1,0 +1,10 @@
+{
+  "status": "frozen pending next parent acceptance",
+  "files": {
+    "dispositions/ACCEPT_W2_BOUNDED_REPAIR.json": "f0e0fe2125e1a6c0270428b00faa575e14f110f433060a2bb3af3f450b7c7cc9",
+    "dispositions/ACCEPT_A2_REPAIRED_UNITS.json": "455d2f7a258a0d5e9f26dbc5e80424eef8216554296dcc25871617b5e9c4bee3",
+    "notices/NOTICE-009-W2-CONSUMERS.json": "fbb9350b743a3de7c1b8783388dec5483011a7284289a8056f35012aa590b8fc",
+    "notices/NOTICE-010-W7-FREEZE.json": "94746b567f257d5206f7167decb8336b584b5705e3fcd66c0f30ed8d440535d8",
+    "instances/C1/STATUS.json": "5458a2ab06c6b430da98f06a6c9d15933d1733491fa07efc549bff205ac60fce"
+  }
+}

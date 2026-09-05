@@ -1,0 +1,2404 @@
+{
+  "status": "HOLD_NO_GIT_MUTATION_PRELIMINARY_MEMBERSHIP",
+  "created_at": "2026-09-05T19:50:50.625034+00:00",
+  "branch": "codex/piping-modeling-workspace",
+  "base": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "source_config_test_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+    "projects/chirality-piping/validation/portability_policy.json",
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx"
+  ],
+  "preserved_input_plans": [
+    "projects/chirality-piping/plans/MAP_2026-09-05_product_design_scope_and_decisions.md",
+    "projects/chirality-piping/plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md"
+  ],
+  "permitted_runroots": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/"
+  ],
+  "permitted_local_state_roots": [
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/"
+  ],
+  "loop_receipt": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+  "out_of_scope_candidates": [],
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "size_bytes": 3639,
+      "sha256": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "size_bytes": 736,
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "size_bytes": 661368,
+      "sha256": "a9a05bb5c15aa0fcbd82f52501bda982fe1d2d949db264b0cd50e22e07f58fcc"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "size_bytes": 131041,
+      "sha256": "72f1d67875de11108c696a0923463a4d4c6f8216d391c84b3da1c94ab4ca9a66"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "size_bytes": 45695,
+      "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "size_bytes": 118237,
+      "sha256": "697df27e88d87e7004c0a331c4905857573b90c428f62310aaf15f3a1fb42022"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "size_bytes": 6901,
+      "sha256": "9b2c28c7fd4c2757949416d0b061fd5d7a43b147b4395ab4eabb56237b435d95"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "size_bytes": 3969,
+      "sha256": "9930b8713be803bd71c596410afe4dae17b1106fadee35927447fe80ed467eaf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "size_bytes": 5553,
+      "sha256": "83920a7d8f87175e0f4b42b95b17f50253a41dd0e6c2fe76083ef786b65e1a7e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "size_bytes": 98509,
+      "sha256": "286823e90c3594d8fa893261698036a545674975ed12cb3b19c57dd6817d1c9b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+      "size_bytes": 1239,
+      "sha256": "42d0dd797d331ae84599fe42a61f9cf33f30c16fc92192327081377e0e1fe873"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx",
+      "size_bytes": 2617,
+      "sha256": "5c3d907734f75b7f98d0016d0a5c7859cb463253e087544c67b5a464e4ed6420"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "size_bytes": 72746,
+      "sha256": "d1c86d2121565b5124d7e4da6e495fac890033584152cc5b1319b990a52bc966"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "size_bytes": 627819,
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/MEMORY.md",
+      "size_bytes": 147627,
+      "sha256": "dff27849b368a658b13464d5ecb16099333a6b9bab8c734802ada7c31fe8d269"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_STATUS.md",
+      "size_bytes": 4674,
+      "sha256": "8f87690699bd75be44f20d552adfd4a465f77355d1545a3c896d04e068bc0c76"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_run_records/WORKING_ITEMS_RUN_2026-09-05_NATIVE_COORDINATE_UNITS.md",
+      "size_bytes": 3646,
+      "sha256": "74e3313e9bd35fe4a8eac0451a186b582cc3b358181ff963a29a5626a2f13cff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/WORKING_ITEMS_RUN_2026-09-05_WORKSPACE_DESIGN.md",
+      "size_bytes": 4271,
+      "sha256": "f2c99f1e069b462c4bed386336f312456fc3059a966e45f05ed3bdb17a58b6fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_run_records/WORKING_ITEMS_RUN_2026-09-05_WORKSPACE_DESIGN.md",
+      "size_bytes": 4342,
+      "sha256": "d0fbb45e76e7efeddbce0e231aa7f879eaa7a1584e4f213de5eb8e0b93b63dfb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/.gitattributes",
+      "size_bytes": 908,
+      "sha256": "63887a7680ee03f26049b9729fbe78865fefeb85317d61669c346494539f8270"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/OPEN_QUESTIONS.md",
+      "size_bytes": 2443,
+      "sha256": "542512a4e50ddeaf42e43105fd217a3fcb12295572b8cb282a1ddb6e9bcd6e44"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/ORCHESTRATION_PLAN.md",
+      "size_bytes": 12576,
+      "sha256": "ca0087df6359023bcebe43020a3cf2aeade3cd357c27acc06d4b746fbb6733ec"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/WORK_GRAPH.json",
+      "size_bytes": 8361,
+      "sha256": "aafedb19fc2698bc5cfc35d930728d36c2b786580f4abacda2b6baa38112d6f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_A2_FINAL_BOUNDED_WITNESSES.json",
+      "size_bytes": 1367,
+      "sha256": "19e5fdf71d379250f905d10f8ef441a8570cbcbcaf933ba666f9c2b2643d6402"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_A2_REPAIRED_UNITS.json",
+      "size_bytes": 750,
+      "sha256": "455d2f7a258a0d5e9f26dbc5e80424eef8216554296dcc25871617b5e9c4bee3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_A2_UNITS_V1.json",
+      "size_bytes": 755,
+      "sha256": "fee8b0dab84d6e61ffa41350b471143421535ebbcb641393e6fdc06833ac8224"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_CLASSIFICATION_ONLY.json",
+      "size_bytes": 1975,
+      "sha256": "2098bc6f56524f8a338eb28b456cb7b84632a112e5c6a1297ea51ae1755c822c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_EXACT_EVIDENCE_ATTRIBUTES.json",
+      "size_bytes": 761,
+      "sha256": "ee0fa2f1ede9efc6dcabe39178372583428a9174303609792e6879432b6f0f93"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_UNITS_FINDING_CLASSIFICATION.json",
+      "size_bytes": 1920,
+      "sha256": "54ea1b28944b42f43b25f6bc333d79c2ab265404d26ed7e9b4f88ab7ace8a5e8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_W2_EXECUTION_RETURN_CLASSIFICATION.json",
+      "size_bytes": 1889,
+      "sha256": "f5477a0a21e3496f971936280e20d099dad706a8ef603b868fcf79ff3dfa666c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_I2_COMBINED_REVIEW.json",
+      "size_bytes": 1148,
+      "sha256": "d8faad62510ddd6dbf0e396913503f125678f3fc4312b8c83b7b953620f2edea"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_W2_BOUNDED_REPAIR.json",
+      "size_bytes": 798,
+      "sha256": "f0e0fe2125e1a6c0270428b00faa575e14f110f433060a2bb3af3f450b7c7cc9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_W2_FIXTURE_UNITS_METADATA.json",
+      "size_bytes": 1212,
+      "sha256": "860eecb760a352a782fba1e0623674b5e891f4bfac4198744aee041b41653b9a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_W2_LOCAL_STATE_UPDATE.json",
+      "size_bytes": 503,
+      "sha256": "b48cb3773234e55af6487abd1d6feafecd9f02f72124754c116ddea622f47d89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_W7_NATIVE_MINIMUM_WINDOW.json",
+      "size_bytes": 874,
+      "sha256": "a456c645ee8895de3bdb2d416d5de6a6bc99c94f42fe510d6b93a98723b9b1c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_W7_TECHNICAL_SOURCE_V2.json",
+      "size_bytes": 921,
+      "sha256": "4ac6dcbd503620731dbcf05c6618827340a5ba14ad216b009543869f3745dd52"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/RELEASE_N1_NATIVE_BUILD.json",
+      "size_bytes": 802,
+      "sha256": "0785565d8de0c97969300b05e34be530ca181eae79422940b9c08f7b0a1f9d56"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/BRIEF.md",
+      "size_bytes": 1696,
+      "sha256": "bd7a6b1b3f8539e74bd1e144a30cdda096bb00aa77be6daf1a683537b87c2ed0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/FINAL_MANIFEST.json",
+      "size_bytes": 9016,
+      "sha256": "91dc0aac184ecc537410c71819a0769c5c159dd8f769cc9dc2bd2702a1218a5a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/FINDINGS.md",
+      "size_bytes": 12275,
+      "sha256": "bc6569b48c83f32454d63b3049977fdf231cf1ce5f8264e100bf233b68cf929a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/RETURN.md",
+      "size_bytes": 1672,
+      "sha256": "fc0914bf167390d24bed7364bad8b3666d5b817ae7f0a634dc7c3233eb74c73f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/STATUS.json",
+      "size_bytes": 487,
+      "sha256": "2d9600bcfb002384c7d5309ddfde158b33913e522deb4501b0eb9d144a284660"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/COMMANDS.md",
+      "size_bytes": 3773,
+      "sha256": "f3914687d2823883f6a3abe2a38e8eae13d8af8b687dd885a179f89ce1d9c2bc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/BRIEF.md",
+      "size_bytes": 552,
+      "sha256": "65019f764025c2c3e6878b63d37dc895d0ee1e2f8a1730f484c5bc6489d702c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/COMPARISON.json",
+      "size_bytes": 2430,
+      "sha256": "ced4087119f0bef7005a4d0e0282784bf933d1b5aac28416de05ddaf73704d18"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/Cargo.lock",
+      "size_bytes": 9428,
+      "sha256": "9be0ff77fd86fda63b26b7705959168382e5cb828c4e432ee82d174714fa6be1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/MANIFEST.json",
+      "size_bytes": 1640,
+      "sha256": "730e2f7ac617a18d9227f04dd70356e87e3339a9713903592c7f5d3fbb6cdce8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/REPLAY.py",
+      "size_bytes": 647,
+      "sha256": "25422d1e7492a0a00079b801d529249e42b0f314f06a46bdf8eb6a092826d154"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/RETURN.md",
+      "size_bytes": 2049,
+      "sha256": "3e393684f5986c20874e343de6d5fa3f894d3f0ee0808f5a6017af9806ba4fb8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/native_in.json",
+      "size_bytes": 41033,
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/native_m.json",
+      "size_bytes": 41033,
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/native_mm.json",
+      "size_bytes": 41033,
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/native_witness.rs",
+      "size_bytes": 594,
+      "sha256": "f9d805448b08ea1db09ebccf458a1425cc953e9b38a70d9b93a458a5486c2ae3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/product_physics.rs",
+      "size_bytes": 627819,
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/SOURCE_READS.json",
+      "size_bytes": 8539,
+      "sha256": "9036e1bde56fbe1c089bfad3d291042677ee7ceeee96baad36838d211b992798"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/persistence-Cargo.lock",
+      "size_bytes": 7117,
+      "sha256": "020848d1a63d25df48d033d024b744bc8fe659621fceb6b8d2f0f09164ce1547"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/python-dependencies.txt",
+      "size_bytes": 277,
+      "sha256": "dd4922c062bb4f7c479ace4ea45a40432c77d661852e17a63491dc047339c40d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/canonical_witness.py",
+      "size_bytes": 2311,
+      "sha256": "5fbb89e6416ac048ed62f1867ea0c485719d99dafd751e5d36901092c1289192"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/canonical_analytical.json",
+      "size_bytes": 26726,
+      "sha256": "6d574e2ed6d27b3ea6f3b96c4db472dd3135b5735dc8f631629322ba4f01723e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_linear_in.json",
+      "size_bytes": 3703,
+      "sha256": "ebf926782836f1a7628972971ee7e2cef2b10001993ab81ea098b8ee6b6281c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_linear_m.json",
+      "size_bytes": 3676,
+      "sha256": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_linear_mm.json",
+      "size_bytes": 3680,
+      "sha256": "ab709ba3609b316c2119a42cccaf815c98c869eece6f04bcf31f357656b96b77"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_linear_revised.json",
+      "size_bytes": 3676,
+      "sha256": "d9644b730c3b160e59ce1c10cbcdb9b707a9cd1b3c529ab7f8e42227fdfa7f9e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_nonlinear.json",
+      "size_bytes": 20238,
+      "sha256": "fb374cc68aaa3e2db9fce70251c4d90e4a3084c989ff4caa28180597433b2b3c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/fixtures/invented_nonlinear_removed.json",
+      "size_bytes": 19196,
+      "sha256": "1794783989b2b741442d9c45102051bd977d831a225fe289e7622d657cea7afb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/native_witness.rs",
+      "size_bytes": 594,
+      "sha256": "f9d805448b08ea1db09ebccf458a1425cc953e9b38a70d9b93a458a5486c2ae3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/persistence_main.rs",
+      "size_bytes": 2707,
+      "sha256": "e2cd57fc577fad298a52280862b56015862c8e0d332b87690b665b4c967aa487"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/prepare_persistence.py",
+      "size_bytes": 1455,
+      "sha256": "a26263b84c415db746b0dee25095467373272d74aeebd10c82689e6c673452a3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/prepare_witness.py",
+      "size_bytes": 1947,
+      "sha256": "f0e56401e10312d0e240cf2deda463555a7384a8f2eda0e2624727ccfe5e2e51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/canonical_adapter.json",
+      "size_bytes": 25823,
+      "sha256": "b3255276cf637c66bd50fd5929ccd23ec340823096f706bb94dd527278468b6e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/canonical_rejected.json",
+      "size_bytes": 290,
+      "sha256": "a1400c5db3d72cf8c7db1c7d07e6c966022ea4b40fc15e19392117baa8dc9e7b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/canonical_summary.json",
+      "size_bytes": 9960,
+      "sha256": "36ecb599e33beeea3d3f7a689d7647708c4512ad9ba4474578e6f95f90b5e265"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/canonical_transform.json",
+      "size_bytes": 33667,
+      "sha256": "c535d2cfacf7859ced97960a3a0233669fd7dae289b4fbad58a7ef3c959147b1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/identity_and_nonlinear_summary.json",
+      "size_bytes": 1367,
+      "sha256": "14003221a9d0496a88406a957689dae9586f968f89b814555b05dd993b723489"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/native_in.json",
+      "size_bytes": 41501,
+      "sha256": "c0b77b92ee11f24c9b4240881796fd5cc67439829ec2fb2781ed8d6be3543980"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/native_m.json",
+      "size_bytes": 41033,
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/native_mm.json",
+      "size_bytes": 41508,
+      "sha256": "7242e9eb5148a87dd7e9fe56d71880cab5f4f2945a39b182d1a00606ac8c4acf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/native_revised.json",
+      "size_bytes": 41035,
+      "sha256": "4c844092d01456b23272ebe7d4bb7503042e3d484cf180b774972d787851ebaf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/nonlinear.json",
+      "size_bytes": 593741,
+      "sha256": "600b450a4f37ab2fcf00d320d66250463d031451ccab0af1e3c6f51d978d71d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/nonlinear_removed.json",
+      "size_bytes": 550743,
+      "sha256": "07af96ea7ae125f55650e97f7b165a18d6d2f7f9266f444d69ead07589e69188"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/persistence.json",
+      "size_bytes": 1767,
+      "sha256": "122f34bf5ac8e9d94384f2bfcd3498767a096c93882df84799feb4f1df291bb3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/persistence_extraction.json",
+      "size_bytes": 489,
+      "sha256": "1a7bfb936a85d41895d42ae031fecd496ee53095bccc1b1efe1894cd3a555d50"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/run_extra_witnesses.py",
+      "size_bytes": 1952,
+      "sha256": "33cd90c57899631ba3a4d83a806286558ab2e182b2322b81e021f021c570dabe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/Cargo.lock",
+      "size_bytes": 9428,
+      "sha256": "9be0ff77fd86fda63b26b7705959168382e5cb828c4e432ee82d174714fa6be1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/ENVIRONMENT.json",
+      "size_bytes": 159,
+      "sha256": "8f682dc0fb38b77aa283197d7e210a3bc33a3ea21f54ec848ad4d083d9bcc05b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/FINDING.md",
+      "size_bytes": 2396,
+      "sha256": "71d186231d0eee7fdaf6c50f088e821482c93b58e97bc5509d0e21cce95c66af"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/MANIFEST.json",
+      "size_bytes": 3579,
+      "sha256": "d38ffc1f05860b1b9076301a0c056df24ba3a72583919db8dc4a3eff1e7bb763"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/fixtures/invented_linear_in.json",
+      "size_bytes": 3703,
+      "sha256": "ebf926782836f1a7628972971ee7e2cef2b10001993ab81ea098b8ee6b6281c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/fixtures/invented_linear_m.json",
+      "size_bytes": 3676,
+      "sha256": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/fixtures/invented_linear_mm.json",
+      "size_bytes": 3680,
+      "sha256": "ab709ba3609b316c2119a42cccaf815c98c869eece6f04bcf31f357656b96b77"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/native_witness.rs",
+      "size_bytes": 594,
+      "sha256": "f9d805448b08ea1db09ebccf458a1425cc953e9b38a70d9b93a458a5486c2ae3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/prepare_witness.py",
+      "size_bytes": 1947,
+      "sha256": "f0e56401e10312d0e240cf2deda463555a7384a8f2eda0e2624727ccfe5e2e51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/results/native_in.json",
+      "size_bytes": 41501,
+      "sha256": "c0b77b92ee11f24c9b4240881796fd5cc67439829ec2fb2781ed8d6be3543980"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/results/native_m.json",
+      "size_bytes": 41033,
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/results/native_mm.json",
+      "size_bytes": 41508,
+      "sha256": "7242e9eb5148a87dd7e9fe56d71880cab5f4f2945a39b182d1a00606ac8c4acf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "size_bytes": 264689,
+      "sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/apps/desktop/src/App.tsx",
+      "size_bytes": 127208,
+      "sha256": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "size_bytes": 29850,
+      "sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "size_bytes": 530814,
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "size_bytes": 617829,
+      "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C0/AFTER.json",
+      "size_bytes": 822,
+      "sha256": "89028bda4d297108f678043e4577d4ca94b5c8c81281924c8b768e41e7503608"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C0/BEFORE.json",
+      "size_bytes": 17375,
+      "sha256": "f5ba1040888e79e044d20dca3cef0a1fb637a1341a7e27fb9d52a9859da3adfe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C0/RETURN.md",
+      "size_bytes": 2498,
+      "sha256": "2d9b9a6ce4709f993e7fa413633ba93a73b02b112e858dd0662f7538c8f87c50"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C0/SEALED_BRIEF.md",
+      "size_bytes": 2026,
+      "sha256": "64991175f38c11df80863f660681cd5318e2b7ef04ebffc814c344f950efaabe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C0/SNAPSHOT.json",
+      "size_bytes": 710,
+      "sha256": "e38b61ff7508d0502a2f14396863cd67fc248c102b0824825c790c9f853e0ee8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C1/FREEZE_20260905_W2_ACCEPTANCE.json",
+      "size_bytes": 630,
+      "sha256": "0c5a100cec5aa64f45f8e4fe0eb426e5e33fc3fbac3e50c6af23929fefdf792f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C1/LAUNCH_BRIEF.md",
+      "size_bytes": 1207,
+      "sha256": "2b6358462342223b24fd8e9793a64561e5fa1a5376bdf4474295e1a5ab09f091"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C1/STATUS.json",
+      "size_bytes": 391,
+      "sha256": "5458a2ab06c6b430da98f06a6c9d15933d1733491fa07efc549bff205ac60fce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN.md",
+      "size_bytes": 8141,
+      "sha256": "cc5b9467ac9a6c1c2367334ad81b5af2d36f8c762c523b24c6ca552d0c0c5538"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN_V2.md",
+      "size_bytes": 3346,
+      "sha256": "d4699428914480f99a85e23c6dda7af695864ffffd4a612672a4aaaea59461ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN_V3.md",
+      "size_bytes": 1506,
+      "sha256": "cb59f030b711b13f03bc689afff7935b9651625d9b860ae2e1fef936c6731687"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN_V4.md",
+      "size_bytes": 1178,
+      "sha256": "d1b50a1c977d2d2d6ec1494a554269c38260d1ff8ffc65f7183296901301b765"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN_V5.md",
+      "size_bytes": 9213,
+      "sha256": "4971e3db19e3218ae050a693981d089d831bd06b9144aaee68efb5e827fa9131"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/RETURN_V6.md",
+      "size_bytes": 2589,
+      "sha256": "edf71b5129e7bce0f48fd6a0726c338e3f60f0e83df2edab6d7d5f3edef93003"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SEALED_BRIEF.md",
+      "size_bytes": 1431,
+      "sha256": "a23eb8a61903bb67dfb8ff6a8b270b107e6b42f399872105f2b96d4a6293dea1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SNAPSHOT.json",
+      "size_bytes": 404,
+      "sha256": "bfb61d5fbc4037d8b31cf4be5bb37aa697416fd56adfe25296ab57e6e7e96c56"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SNAPSHOT_V2.json",
+      "size_bytes": 641,
+      "sha256": "7101a31d1ef93d3925ec2976d5038189f848e70627694cdb2ca7169605854ea0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SNAPSHOT_V3.json",
+      "size_bytes": 1112,
+      "sha256": "3d8788ba97a980311f9635c8ac2a94f389e3ec76023850d638ea5c05aa639ae1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SNAPSHOT_V4.json",
+      "size_bytes": 373,
+      "sha256": "3cbf7ec2d6992daa1ac6970ff4e072f032569541aeee9413509c4a8fa08f734f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/SNAPSHOT_V6.json",
+      "size_bytes": 4469,
+      "sha256": "9d99ca0fa7f63ecc885007ecc082bc9ae8328fad890c9a1ec8fa7f78b335da2b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/ARTIFACT_INVENTORY.json",
+      "size_bytes": 6109,
+      "sha256": "939728144f9d93f1937b85f74b628b0dae35cfc96c0ead0479e07ad17b6823cf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G0.json",
+      "size_bytes": 201,
+      "sha256": "9e482c61782be947e6c45f350f3619df20f3acd9a9b9930a61ff87a7823582f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G0.txt",
+      "size_bytes": 468,
+      "sha256": "b6d4bc3e7e4631dd42f9891a2691d33de7800ae24a03b6798254cf22d4765374"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G1.json",
+      "size_bytes": 195,
+      "sha256": "7a4cd9d1ac348bc5333c5784ae50466b0758213d33c4e8771bbd39ad331762b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G1.txt",
+      "size_bytes": 605,
+      "sha256": "daf326fa1b4952050e196cf0f6a96b102316ae57944f2e20334d908ebd1b3b07"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G2.json",
+      "size_bytes": 197,
+      "sha256": "febdd59d30e28c70fe90e4015ebdb94484c106dc979bdae72b647f8f685edd03"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G2.txt",
+      "size_bytes": 579,
+      "sha256": "3b6f5f2a147434bbcbd0de6e0569e27d74e8af43fb71b3a1639aa4d084040598"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G3.json",
+      "size_bytes": 199,
+      "sha256": "d0a7094ea38eea8a98ab1f319a60d0a2c093ff144037b5f433676597fc1b8235"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G3.txt",
+      "size_bytes": 187,
+      "sha256": "27a30f2ca903dab59b086f7b2adf028aabb4cec9234eae5c714e6606d408e731"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G4_corpus.json",
+      "size_bytes": 210,
+      "sha256": "2e2a8e9d390b930bbd7dc86f0a853a0e66f02950f601e6382d65a4e28802add7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/G4_corpus.txt",
+      "size_bytes": 4900,
+      "sha256": "1eac7426628d2da7621db058831964c235a2772c2a44b7fcc16313f4ba7d3ab1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/RAW_WHITESPACE_INVENTORY.json",
+      "size_bytes": 2469,
+      "sha256": "82ad1395e6d3bbb8934c814ef061695d00f45cc319bead07bd1f60cbde584dab"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/RAW_WHITESPACE_INVENTORY_FINAL.json",
+      "size_bytes": 3210,
+      "sha256": "8cf0fe4302c2f185cf1d9a6032ea9aa02bebf9cae5b1aff16ba2bd8e6b0c0b7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/affected_selection.json",
+      "size_bytes": 209,
+      "sha256": "7874e2b6386e70cf1c9fc4ed1cbbcbd8fab24ff9704057393f55acb9621911d4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/affected_selection.txt",
+      "size_bytes": 59902,
+      "sha256": "7d368bbd013142a3a10d00f24be22375f101170976fd707cc0412005d45a2f54"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/candidate_whitespace.json",
+      "size_bytes": 218,
+      "sha256": "88dfad2c231c6b8ff1ab446b8ef54b95dc3eda4882604eae00d7508bae90970c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/candidate_whitespace.txt",
+      "size_bytes": 6641,
+      "sha256": "fce7c1e8314897f520c62fd7fac88b5a4dd02f0c36392ad4514440afd594ac33"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/path_anchors.json",
+      "size_bytes": 211,
+      "sha256": "18a5b3fb88185229bb3bbb445805a9977bfa8e3714d96dc9a02ee273d2ce7ace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/path_anchors.txt",
+      "size_bytes": 791,
+      "sha256": "59b3033a45f100305886659e02ae32f6cd3133cbb997453f43e7bfb3dc3ac17d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/path_anchors_repaired_raw.json",
+      "size_bytes": 411,
+      "sha256": "584d6b2a302ed4cb380538e28c1175e9a77ebf95196c4280aac066bbd187c6cb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/piping_pytest.json",
+      "size_bytes": 332,
+      "sha256": "ce3b625d9c14d7bb4e5d3417edf20552381c678af99f97b2b6edc99b3c5e6eb7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/piping_pytest.txt",
+      "size_bytes": 1265,
+      "sha256": "4ad8283908a4e22d26d7757f4ad53d1deae782b9e8885e2f53855e3733cd58d8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/practitioner_pytest.json",
+      "size_bytes": 280,
+      "sha256": "b6373df504f96ba3987b8ca9ee5c0eff66e114347a4d9c59a7ef645035624a00"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/practitioner_pytest_raw.json",
+      "size_bytes": 2575,
+      "sha256": "4812daee6371f762c237b2cbedd4c3637852a4adf8d693ca6dbcbac3e6a63392"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/practitioner_repaired_raw.json",
+      "size_bytes": 873,
+      "sha256": "e02e79b4c6c8b5ba82444f584ceda8fc887d35a7c5a82920063c59e1722c074f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/receipts.json",
+      "size_bytes": 200,
+      "sha256": "382b5e7eeb2dfb6cf9c9e92c2cae6ecfe3d1345d30791fa57098f4291362c3be"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/receipts.txt",
+      "size_bytes": 163,
+      "sha256": "0ede32893cfaa4f9f31b802356534ee906915ae4f4ac831ce371d8a578f70887"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/selfcheck.json",
+      "size_bytes": 208,
+      "sha256": "4c4bc1b8aeda51bf5b26bd28605069ec0d666ff8815b72e8f44e2d72ac4d18a9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/selfcheck.txt",
+      "size_bytes": 22386,
+      "sha256": "f74dcefaba3e8b51682da5f699153b461bf8b088889a9689a7e75273f04702f9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/selfcheck_repaired_raw.json",
+      "size_bytes": 28971,
+      "sha256": "489c04faba9c496c824694ebf0431406fc5643bd18a0360ab7768760f38aba5e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/validation_pytest_raw.json",
+      "size_bytes": 971,
+      "sha256": "86d2445134f327c2d7b3307fc057035a80909029643a9b51728c196d42bc55e4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/I2/RETURN.md",
+      "size_bytes": 2783,
+      "sha256": "533719d1c4b448990900717d12d6c825a6c92d38a537271f99e016ee1f736c25"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/I2/STATUS.json",
+      "size_bytes": 531,
+      "sha256": "3ad7c2392da1428c2b310b67ef27a8b402c05bb0cc95c8084422b43d2e02d3ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/BRIEF.md",
+      "size_bytes": 2168,
+      "sha256": "c06091713f6827d31eb474cc4af573e92c8dc80ea85500b7f621cd06c22a90e3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/FINAL_MANIFEST.json",
+      "size_bytes": 1650,
+      "sha256": "444b9772fe68f5f39a2a2cadd0ed04664f211ca0c78e516567deb661a78abc8d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/PREFLIGHT.json",
+      "size_bytes": 517,
+      "sha256": "08814e78fef89459d846cc59be978e9d80c2a60ca727c7ed4ae8ec9f738521ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/RETURN.md",
+      "size_bytes": 2798,
+      "sha256": "1c330ea3fad3651da122ba3c3b973f61e0573c565af6ea8583fbe8115b99a1ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/STATUS.json",
+      "size_bytes": 263,
+      "sha256": "4c639c88973c7befad52bb97836094cec99f1a65ec88d01b1081d1529763738f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/BUILD_LOG_BYTES.json",
+      "size_bytes": 21321,
+      "sha256": "28419dc07a782ceea396cdec877764e06b47e926d561983bcb0960c7fab69fd5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/BUILD_RESULT.json",
+      "size_bytes": 417,
+      "sha256": "638abfa84cd3c7b6a09512bacdf452232b213f59e7318ecfd23c51a7a9156261"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/BUNDLE_VERIFICATION.json",
+      "size_bytes": 7660,
+      "sha256": "5042b25cc1458634a65186d237bd4726c9748438d2b24322973cdade2273a3f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/CODESIGN_INSPECT.log",
+      "size_bytes": 1010,
+      "sha256": "335bc242ded0290825baed5b606fbcfd8fdc42dcc8fda1602e2b403b4814c4c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/SELF_TEST.stderr.log",
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/SELF_TEST.stdout.json",
+      "size_bytes": 1092,
+      "sha256": "6efe9276f2e74200d9af54f0c306faddf004a55e8bb656389a5a14d9aa60ea56"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/SOURCE_AFTER.json",
+      "size_bytes": 2868,
+      "sha256": "e9352e0ba6d9401e5b31fa70bb693dd8478d0329a5c9851f9b9a1a4eac61b343"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/SOURCE_BEFORE.json",
+      "size_bytes": 102977,
+      "sha256": "b3bb4abd1e749e4f9c3e8ac0053c2023d5c305e145c380f4111ac7490334bb63"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/build_v1/verify_bundle.py",
+      "size_bytes": 2882,
+      "sha256": "483807dd793f815c5a076fe492e4208b566d2684bb3d7a8e39664d4b763e76ae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/N1/_run_records/preflight/PREFLIGHT.json",
+      "size_bytes": 1760,
+      "sha256": "a8a02617d9f7706c2db36c99e5f054fcbca1ebca849d582751c0b4373a8e554d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/ACCEPTANCE_BASIS.md",
+      "size_bytes": 1484,
+      "sha256": "0c63e755e4d54e8b23abe1ff59693068c6b8a1ceece7c69e5fead5a01a26cf67"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/CONSUMER_NOTICE.md",
+      "size_bytes": 1158,
+      "sha256": "4edeefe27f7f738a35b7785f5a8025b10a608f1baddb3e1cf79b686da9929c18"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/HANDOFF_STATE.md",
+      "size_bytes": 1821,
+      "sha256": "4ff4c445b9ff68b97e3a7bf7225ba480392379b769095848744a1512576388d0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/AFTER.rs",
+      "size_bytes": 627819,
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/AMENDMENT_V2.md",
+      "size_bytes": 475,
+      "sha256": "f293acd15f3d682361498c091d6f307de527251d592b2d3ec47889f08a7c2e19"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/AMENDMENT_V3.md",
+      "size_bytes": 672,
+      "sha256": "ae4a4ebf9571b25ec6a26fce7970f7f90aefa079187fc41cfc45cef68dfc1f72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/BEFORE.rs",
+      "size_bytes": 617829,
+      "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/BRIEF.md",
+      "size_bytes": 2325,
+      "sha256": "5270637fd5e1e52c542181bad29fbdb209079906db931e5ffc2954a97d2785f1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/FIXTURE_AFTER.json",
+      "size_bytes": 5144,
+      "sha256": "13dabab7b4e19c1d2639b450914669915065d9418eb5b380d49e83a37492d868"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/FIXTURE_BEFORE.json",
+      "size_bytes": 5110,
+      "sha256": "5167f8487d107dd5404293809cbc22cb263c00853b53e227edaa113ac9cfe1c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/LEGACY_FIXTURE_DIAGNOSIS.md",
+      "size_bytes": 1760,
+      "sha256": "305cacba3b28cc8b78efe363876bc1430343c64edc09b9330d52b94baf018900"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/MANIFEST.json",
+      "size_bytes": 2504,
+      "sha256": "b0d8f5e36ff2976b5842e233847a428de9429340840d220a157698d4c5e619c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/PATCH.diff",
+      "size_bytes": 12113,
+      "sha256": "4e0a70d781c20562e0e38eef664aaa06396d61add747e08c772658731360bb86"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/RETURN.json",
+      "size_bytes": 1443,
+      "sha256": "03860ce2b0e4a8ee05a1937a08f4cbef447637ea8dbac6411e37f92022bf52f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/RUNTIME_DECLARATION.md",
+      "size_bytes": 330,
+      "sha256": "b369384e269de5beabf35d6ca26a000878fc32cf622cc6e88f9edd729e5a2161"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/STATUS.json",
+      "size_bytes": 192,
+      "sha256": "cb6cedd1ced3b191e5c9e557900b885a5e2441fc3442c4f99062d014d418e7d9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md",
+      "size_bytes": 5514,
+      "sha256": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/_run_records/TASK_RUN_2026-09-05_I1.md",
+      "size_bytes": 5514,
+      "sha256": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/after-cargo.log",
+      "size_bytes": 12585,
+      "sha256": "cea678d47b98afbb07804b5cb215cc2693604c981b368ed00449b1e6250bf899"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/baseline-cargo.log",
+      "size_bytes": 12631,
+      "sha256": "4480dd8b207a186aa2ed75462a25ae09d77f2bd2c23136afdcd694779766fd3a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/final-cargo.log",
+      "size_bytes": 10742,
+      "sha256": "7ca0b765bf2ae82a5fc9452a2f8f8b511ce428ebb06df67660581b47793ac11b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/mutation-authored_coordinate_units_preserve_preview_results_and_source.log",
+      "size_bytes": 2426,
+      "sha256": "015f123eee45b2f03b0a5b9589403ea4bfa74aceffeb9af8c7b810d927e57959"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/mutation-missing_or_invalid_project_length_units_block_preview.log",
+      "size_bytes": 882,
+      "sha256": "4627e2a3a7e8719781812c5b235ebe215f318826675499ee5776f2556dead6fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/mutation-results.json",
+      "size_bytes": 269,
+      "sha256": "0a22c135de0e4b64ed3110f4af7d07734ac64e9748b835f0069f83a8ffa56500"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/scope-check.json",
+      "size_bytes": 716,
+      "sha256": "55cfb18ea30f1dbe38436bc92f4f62059363cb88c1bc22f0dc33916e07eb2b21"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/selected-checks.json",
+      "size_bytes": 425,
+      "sha256": "903e3e47685a3a1c6734fc7b3df17cd0be4a018332bae834935474321785f657"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1_ACCEPTANCE.md",
+      "size_bytes": 528,
+      "sha256": "6acf69d97489587dac6f26ca5d899abbc86b78ca7e15d70c33cafc2ee137d4d2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/AUTHORITY.md",
+      "size_bytes": 545,
+      "sha256": "d712db1e2c31560cfb70cf56a47b43e8a7cf9ecdbf83e9fbdf0609302f702c58"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/MANIFEST.json",
+      "size_bytes": 800,
+      "sha256": "5c41dbbd3b649cba2cbd587ada8ebefe6181005dd22d430272bb1db5fa166e50"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/RETURN.json",
+      "size_bytes": 987,
+      "sha256": "5871ef7e39e0ab080241c10fb9013a6be503e602dbd94a0d9538b08d0cd8e8c7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/RUNTIME_EVENTS.jsonl",
+      "size_bytes": 1193,
+      "sha256": "c80ac7a948df1787d1af54bddad9048dca94c38048dabc20428e1429c61e9dc3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/RUNTIME_SUMMARY.json",
+      "size_bytes": 811,
+      "sha256": "4a7e377d8c9fab8efc325cb9bfd0ca5a3a7f83ac7f6b2a18caf882a3876c7533"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/snapshot/MEMORY.md",
+      "size_bytes": 147627,
+      "sha256": "dff27849b368a658b13464d5ecb16099333a6b9bab8c734802ada7c31fe8d269"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/snapshot/_STATUS.md",
+      "size_bytes": 4674,
+      "sha256": "8f87690699bd75be44f20d552adfd4a465f77355d1545a3c896d04e068bc0c76"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/LOCAL_STATE_UPDATE_V1/snapshot/_run_records/WORKING_ITEMS_RUN_2026-09-05_NATIVE_COORDINATE_UNITS.md",
+      "size_bytes": 3646,
+      "sha256": "74e3313e9bd35fe4a8eac0451a186b582cc3b358181ff963a29a5626a2f13cff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/PLAN_V1.md",
+      "size_bytes": 2398,
+      "sha256": "23a0be95ae468c66ffbe8fe9def56402cbd53842ddc493e7a612c87ee6a4ae55"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/R1/BRIEF.md",
+      "size_bytes": 1772,
+      "sha256": "f82a47a1a7875f6e6181f229b760321a3ed19980af7091559a4851de34129248"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/R1/BRIEF_DRAFT.md",
+      "size_bytes": 1345,
+      "sha256": "91b54c7307cd335fa05dde4430eebaa043d3bb1b58d4b8e4ffb23afb6a483a4c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/R1/RETURN.md",
+      "size_bytes": 1467,
+      "sha256": "43c71add2429ebde6108e961d4e7e7286d2c81e160af82d5487234ea45d6d1fb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/R1/STATUS.json",
+      "size_bytes": 149,
+      "sha256": "5ab8447d8b88eedd218c24a9c75d244577a738d15afafd7c9f72508582c4ee29"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/RETURN.md",
+      "size_bytes": 1174,
+      "sha256": "31ffb4509136467c9102da379cc0b5618e0107f757d376bcee5a8879e341dead"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/RUNTIME_EVENTS.jsonl",
+      "size_bytes": 3984,
+      "sha256": "45c2f49ac75ce30203e4665201baa10653b1e344e39abb63751370b905c918a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/RUNTIME_SUMMARY.json",
+      "size_bytes": 1425,
+      "sha256": "bbf6d980c7bb553f5d31dae115142d1e8a8bbbddcc1dd1e5e296db2edc3858d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/ACCEPTANCE_BASIS.md",
+      "size_bytes": 1484,
+      "sha256": "0c63e755e4d54e8b23abe1ff59693068c6b8a1ceece7c69e5fead5a01a26cf67"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/CONSUMER_NOTICE.md",
+      "size_bytes": 1158,
+      "sha256": "4edeefe27f7f738a35b7785f5a8025b10a608f1baddb3e1cf79b686da9929c18"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/HANDOFF_STATE.md",
+      "size_bytes": 1821,
+      "sha256": "4ff4c445b9ff68b97e3a7bf7225ba480392379b769095848744a1512576388d0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/I1/MANIFEST.json",
+      "size_bytes": 2504,
+      "sha256": "b0d8f5e36ff2976b5842e233847a428de9429340840d220a157698d4c5e619c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/I1_ACCEPTANCE.md",
+      "size_bytes": 528,
+      "sha256": "6acf69d97489587dac6f26ca5d899abbc86b78ca7e15d70c33cafc2ee137d4d2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/MANIFEST.json",
+      "size_bytes": 1346,
+      "sha256": "f464f57b592520c4f5c3096c82b5d8992950a1fa2b40be33a17aa85f7acbf945"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/PLAN_V1.md",
+      "size_bytes": 2398,
+      "sha256": "23a0be95ae468c66ffbe8fe9def56402cbd53842ddc493e7a612c87ee6a4ae55"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/R1/BRIEF.md",
+      "size_bytes": 1772,
+      "sha256": "f82a47a1a7875f6e6181f229b760321a3ed19980af7091559a4851de34129248"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/R1/RETURN.md",
+      "size_bytes": 1467,
+      "sha256": "43c71add2429ebde6108e961d4e7e7286d2c81e160af82d5487234ea45d6d1fb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/R1/STATUS.json",
+      "size_bytes": 149,
+      "sha256": "5ab8447d8b88eedd218c24a9c75d244577a738d15afafd7c9f72508582c4ee29"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/RETURN.md",
+      "size_bytes": 1174,
+      "sha256": "31ffb4509136467c9102da379cc0b5618e0107f757d376bcee5a8879e341dead"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/RUNTIME_EVENTS.jsonl",
+      "size_bytes": 3984,
+      "sha256": "45c2f49ac75ce30203e4665201baa10653b1e344e39abb63751370b905c918a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/snapshots/FINAL_V1/RUNTIME_SUMMARY.json",
+      "size_bytes": 1425,
+      "sha256": "bbf6d980c7bb553f5d31dae115142d1e8a8bbbddcc1dd1e5e296db2edc3858d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/BRIEF_AMENDMENT_WINDOW_V2.md",
+      "size_bytes": 326,
+      "sha256": "7075817e10f8cc802f799dea893e53d60072877ed06ce69e6ee1ef7eac45cd41"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/EXECUTION_NOTES.md",
+      "size_bytes": 1204,
+      "sha256": "b724b556d96db45bd2a465a45d71e4fedb3382dbc70654a83ccbd632fa4d4394"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/FAN_IN_ACCEPTANCE.md",
+      "size_bytes": 1022,
+      "sha256": "6b00a2d7ad2200b5157d233c626a329a7d7d17409a6542cdbec82a068287fa6b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/FINAL_SNAPSHOT.json",
+      "size_bytes": 30763,
+      "sha256": "a7c149dd7b10c908ca4adff2f874a8c8fd2b0e23651006d0eb3981e12b05fac8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/HANDOFF_STATE.md",
+      "size_bytes": 1589,
+      "sha256": "7f7b1c044bff20be66aaaddd9fca71625a2a981b4459fa4d3a3911557d8e861b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/PLAN_V1.md",
+      "size_bytes": 709,
+      "sha256": "f2e326a576de57468b361ae220e1f8e5e5f8bc2a5fb6d7de7a32e7e4031b7707"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/PLAN_V1_MANIFEST.json",
+      "size_bytes": 275,
+      "sha256": "bf379e2e56d6840db88c0e4b08e7d464ca0fea4b230429938523026b22554058"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/RETURN.md",
+      "size_bytes": 4243,
+      "sha256": "f8c76ef88162dc63364193137a8dd41d82e6dd4b256ec6da867ae475f50f48b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/RUNTIME_EVENTS.jsonl",
+      "size_bytes": 9569,
+      "sha256": "6e7c6893b495ead30f2bfc6614ecda441bd532fd4929eb233626a57c4beb8f5a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/RUNTIME_SUMMARY.json",
+      "size_bytes": 2752,
+      "sha256": "5087055e99105b8b39d55accddd46e1763c7ca878892f9b4c1409bcb44a2b528"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/TEST_PLAN.md",
+      "size_bytes": 1945,
+      "sha256": "a3efca990dd764a1024205353a565ab2955560d557ba8b34f56bd0b79bd70826"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/integrated-checks-v1.json",
+      "size_bytes": 3078,
+      "sha256": "a705f2f8a85a3a804a3f4fe591a6d304188edbb47db756d31f40cd0dfdba7d23"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/integrated-checks-v2.json",
+      "size_bytes": 3078,
+      "sha256": "099c0f01602a4183558ac34fc11ef3828f18e25415a5abf74bb53fa47725e998"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/layout-e2e-v2.log",
+      "size_bytes": 1280,
+      "sha256": "41038d280740472c22a406927fd9387eae24aee157d07bd9f76989d2b0f0b2be"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/layout-e2e-v3.log",
+      "size_bytes": 1280,
+      "sha256": "1715ee24c152eda578574b71c19e7daf3720bdf3bc7fe1f3f0796f86c3eda409"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-default.png",
+      "size_bytes": 171425,
+      "sha256": "9edcd03fd0793fd2e26334e7c4fd51462038a2c654c13b3e11d00db69404e48b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-discovery.png",
+      "size_bytes": 146573,
+      "sha256": "fb1666fdcec2d7c35df9bd6f9fa9210bc9cc835ec38bc99e653f34086ecc1e26"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-empty.png",
+      "size_bytes": 117390,
+      "sha256": "8c2421096e81243db997afeda081c49f89a104acb641c247f9d7c7603c970e00"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-failure.png",
+      "size_bytes": 172526,
+      "sha256": "cacda74972ce5eb756244163c17533497ecaab6f6f3d3a76d2810c6f3e995d74"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-field-error.png",
+      "size_bytes": 183194,
+      "sha256": "8b093789ee6b0ffc7c1dfdfa9bba8150a5a8c93e87c143495a60e6ff42eb2f5d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-geometry.json",
+      "size_bytes": 25019,
+      "sha256": "d5fca4fb9eaf46a9d8c89f506122dea280806a69cf5a2b44d4bc36981200d1e4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-loads.png",
+      "size_bytes": 175848,
+      "sha256": "df41de82ad8e323bfc23fe7e0448965af6b667d2fc1aad39a8bad99ff0491d98"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-result.json",
+      "size_bytes": 1255,
+      "sha256": "9856e986299057248dc6c3819dd2e41b1ca5319b1edab659c549fe057cc1cc5a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-results.png",
+      "size_bytes": 177289,
+      "sha256": "7c2689f5403bed20076dd9aac31417f74be907bbb078ecda04bbb71c867d550d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-routing.png",
+      "size_bytes": 143591,
+      "sha256": "5a5bec274f4eb0c7d88bc70f1558cec127a3faec1c2f080667d9c563ca789077"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-selected-pipe.png",
+      "size_bytes": 154336,
+      "sha256": "f9cd3d6e8fc4ad06408f1eedc47ae30b45a3437d27d8cc40c6234f1d1831dc47"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-support.png",
+      "size_bytes": 181483,
+      "sha256": "637341f3cea7b8727bc26060ff2886c1ae5053664b431876238063f19459ce94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-batch-review.png",
+      "size_bytes": 175037,
+      "sha256": "130ba65235e1b121d0ebc87ee4886f10a0c63fdf7df43c0858541167b18e1251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-batch-undone.png",
+      "size_bytes": 172207,
+      "sha256": "ce7bc5ac8bc3c83cc3bad3ea9475cdf536164740a063b38e3e607a77f57e9239"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-default.png",
+      "size_bytes": 141591,
+      "sha256": "7306870c785914611b4198ac3a5c9188495b036d5c18bead588b9a88a7fdf159"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-discovery.png",
+      "size_bytes": 128317,
+      "sha256": "130e2dba9a14666879e575a16fc40c123a05bb5e55a2ac58ef57b8c35d746c51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-empty.png",
+      "size_bytes": 92224,
+      "sha256": "3ad4a6320ae7328f49f3fee046ecf09bdcd7f5e407c4a03b6818de905cb80671"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-field-error.png",
+      "size_bytes": 166028,
+      "sha256": "925cc6af3efa0868a4272171c6cf1f5a81d44d70f2df6c040981b4f4113a2fce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-geometry.json",
+      "size_bytes": 26428,
+      "sha256": "212bae26fabd310f06e0342f202391e5b5190299bf2a32431b440f4cf3dc56a4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-loads.png",
+      "size_bytes": 162546,
+      "sha256": "62da45be90a22e1d3b8a105ff9b238a9c7367276da5f2fa8e59e66c7d3073d5a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-result.json",
+      "size_bytes": 239,
+      "sha256": "d714c5cea0822452ef2bdf54c8431a0ada31447fb17c7c52b3ad986465ca6ba3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-results.png",
+      "size_bytes": 166403,
+      "sha256": "22c40df07c202a284ff0fa04675734081ffb5d58eddcae9d9cfd61dd8de7a37b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-routing.png",
+      "size_bytes": 142559,
+      "sha256": "411258faad7521e0be3f49b5b1cbab36f48b2fdc53ef3a1daab23c1790b91b28"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-selected-pipe.png",
+      "size_bytes": 149109,
+      "sha256": "f5c7e1a4aca8a2c28829e46dde5226e4032ada1934bb5d0bcf9c2e631f3a9e0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-support.png",
+      "size_bytes": 155965,
+      "sha256": "765283941dd0fe76b1e3d7ba74661598107a2693da200ae8030e8ce5b85093d2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt3/FINDING.md",
+      "size_bytes": 463,
+      "sha256": "cd3412ff7f3325e4d44b695f435912492d80614cd8387a4a367d70bd8bbc0a18"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt3/after-default.png",
+      "size_bytes": 141591,
+      "sha256": "7306870c785914611b4198ac3a5c9188495b036d5c18bead588b9a88a7fdf159"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt3/after-discovery.png",
+      "size_bytes": 128317,
+      "sha256": "130e2dba9a14666879e575a16fc40c123a05bb5e55a2ac58ef57b8c35d746c51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt3/after-empty.png",
+      "size_bytes": 92703,
+      "sha256": "0b2b93f1627267a2c90d7c042a4260b873d49cbc0b1b1f7e2fdc78b19b9cfb89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt3/after-geometry.json",
+      "size_bytes": 7501,
+      "sha256": "ff2a14aa23636b99aab174ae6754f6c577cbfff0bf3cfd39967abe9d2a05210b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-batch-review.png",
+      "size_bytes": 175037,
+      "sha256": "130ba65235e1b121d0ebc87ee4886f10a0c63fdf7df43c0858541167b18e1251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-batch-undone.png",
+      "size_bytes": 172032,
+      "sha256": "3f329def085e48b1724acbf55154bbb2c8c83cda239ffccf297d5ff37c012cf7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-default.png",
+      "size_bytes": 141591,
+      "sha256": "7306870c785914611b4198ac3a5c9188495b036d5c18bead588b9a88a7fdf159"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-discovery.png",
+      "size_bytes": 128317,
+      "sha256": "130e2dba9a14666879e575a16fc40c123a05bb5e55a2ac58ef57b8c35d746c51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-empty.png",
+      "size_bytes": 92299,
+      "sha256": "d14ebb8b7ba240b480818da924b67a93ebce06ade6fe4e93f7354ad0b2ef7938"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-field-error.png",
+      "size_bytes": 165649,
+      "sha256": "c5776b38a1ea7442f376a4db49bcc5e3cc2fc41fdc987781e1fee4adefeb38ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-geometry.json",
+      "size_bytes": 26428,
+      "sha256": "2699606f35cce2cc011647a8cf8c548fa951300f2cb8a66a309b5901c0224f61"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-loads.png",
+      "size_bytes": 161566,
+      "sha256": "147dcd8522270e244e30f5bc8f4f2e774fb728d8d30ec19bc20d375668a03bdc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-result.json",
+      "size_bytes": 239,
+      "sha256": "d714c5cea0822452ef2bdf54c8431a0ada31447fb17c7c52b3ad986465ca6ba3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-results.png",
+      "size_bytes": 166407,
+      "sha256": "ad639906fb2a582354232b662e34314b45b1bf81b34f2bc66d12f45d79b16f58"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-routing.png",
+      "size_bytes": 142118,
+      "sha256": "bdd0556d2a76c2cbb396c3de379f3406232134c50aeff8142c6f1fe922c66d0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-selected-pipe.png",
+      "size_bytes": 148214,
+      "sha256": "d6561e9a690e077b52ad4e3e7c84958932eea4970147d81fb23ea08af20a6831"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-support.png",
+      "size_bytes": 157412,
+      "sha256": "2ae173552c914979ec89d30441d1dab9f84548a01c46ed3c99abffc8e71f9670"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-batch-review.png",
+      "size_bytes": 175037,
+      "sha256": "130ba65235e1b121d0ebc87ee4886f10a0c63fdf7df43c0858541167b18e1251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-batch-undone.png",
+      "size_bytes": 171235,
+      "sha256": "53af8bd605b33845e8268eee0079ecda8825ae2de704385cfb0952166c38b39c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-default.png",
+      "size_bytes": 141591,
+      "sha256": "7306870c785914611b4198ac3a5c9188495b036d5c18bead588b9a88a7fdf159"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-direct-support.png",
+      "size_bytes": 153040,
+      "sha256": "1e561dadbbdb83e186a79ec88cfffa68b9608dad279bb1c07dc93a198abff889"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-discovery.png",
+      "size_bytes": 128317,
+      "sha256": "130e2dba9a14666879e575a16fc40c123a05bb5e55a2ac58ef57b8c35d746c51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-empty.png",
+      "size_bytes": 92408,
+      "sha256": "54430002f80beaeea22009531bc6a8b92491b975ff1f823616b49b1cf907c737"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-field-error.png",
+      "size_bytes": 165196,
+      "sha256": "5817e5882166ffd41ad8b3e318613e5581047ada21c33597c44346cf591277d1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-geometry.json",
+      "size_bytes": 28789,
+      "sha256": "18b3a1455c911f4071510f67afb52d7fb5879d98ece7916f2ee2c19d27f19b9f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-loads.png",
+      "size_bytes": 153368,
+      "sha256": "e49d337b88cc52f4a6697d2845ca3b15ae4c2cb9acb56d54bb522027f8a48b6a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-result.json",
+      "size_bytes": 261,
+      "sha256": "2be5a77a6750ebbc64917b4e7a6a61d298ecdab904e525728adfeedda99302d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-results.png",
+      "size_bytes": 158605,
+      "sha256": "cfbf5f74c484cac1b5d445bd1fddcd195ccecaf275f8146cb805d573bac3ba73"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-routing.png",
+      "size_bytes": 142118,
+      "sha256": "bdd0556d2a76c2cbb396c3de379f3406232134c50aeff8142c6f1fe922c66d0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-selected-pipe.png",
+      "size_bytes": 148214,
+      "sha256": "d6561e9a690e077b52ad4e3e7c84958932eea4970147d81fb23ea08af20a6831"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/after-support.png",
+      "size_bytes": 152025,
+      "sha256": "9b69e0ad273dee0519a18432c5882e3cc212a7c2197ebea45066a75b79ace98a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/before-default.png",
+      "size_bytes": 161695,
+      "sha256": "89d80802d3ab4ceddf97659de452dca8fcbb3f36c69d1280be8b3753280d0a99"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/before-geometry.json",
+      "size_bytes": 737,
+      "sha256": "0d670c6b9e0e497b2e0cd895062ac947106c38c66dee24924b27d9b57a85defe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/before-toolkit.png",
+      "size_bytes": 172535,
+      "sha256": "c895ee3108913532e80cc1738190dd7c3de9312d11fefe886c64f987812f3598"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/capture-after.mjs",
+      "size_bytes": 7132,
+      "sha256": "116052d1f0f05d5a9d7eb1bd17f012cad4119461d2a59302765883b22f3476ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/capture-before.mjs",
+      "size_bytes": 856,
+      "sha256": "759cfc7dd9571951100a8a5931b32d6e2bc8f65c47ccc43d5edfa91f4b1d3ac7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/BRIEF.md",
+      "size_bytes": 2333,
+      "sha256": "c242b442e58e8fbcb9742637a5783b4098498c8bebfcccc8543347e44cf2309c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/BRIEF_AMENDMENT_V2.md",
+      "size_bytes": 516,
+      "sha256": "dea2789a13d67f8670fba072833763d5d2e3118ca83e278c9009860bd2546b4a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/RETURN.md",
+      "size_bytes": 1548,
+      "sha256": "0de7874dccc9bc8a158affbb944958a05d59326da1e38cbe608ff3ba483181c4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/RETURN_V2.md",
+      "size_bytes": 1708,
+      "sha256": "c199599be283f61818979c0410e8e38677b0f9aff838736b130b0493848f8ef8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/STATUS.json",
+      "size_bytes": 175,
+      "sha256": "13af32aa0a3adbfae7862978ada4fdec45142192712089deda07188c1c8f5db6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/R1/STATUS_V2.json",
+      "size_bytes": 199,
+      "sha256": "f665b24516060d42f2717fc2e4fd35e94d29abba6792abbeae10fee4ab46b07e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/AMENDMENT_V3.md",
+      "size_bytes": 529,
+      "sha256": "90cfc1288f8f9fa0899d67c604cf0093d75e00d1fa2a06edb61916e6c183631c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/AMENDMENT_V5.md",
+      "size_bytes": 371,
+      "sha256": "f2160261d55482794242b1dc81cd627ef7d4438af69437d4817ac29e7761e14e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/AMENDMENT_V6.md",
+      "size_bytes": 425,
+      "sha256": "8b7a1eb3a352f4b499c039a67f1ea1d3dbfaf72ab83c4ee24386313e5443fe13"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF.md",
+      "size_bytes": 3307,
+      "sha256": "ad6a1d13a578abc3005b46ee44f643f61ae111b9bfc71339b0408979e8a8b53a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF_AMENDMENT_V2.md",
+      "size_bytes": 483,
+      "sha256": "7fdf9bf1b63204a91cbf910490494b3c1a0ee60407f6c3c8b97d0c12e8500106"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF_AMENDMENT_V3.md",
+      "size_bytes": 508,
+      "sha256": "78b9fcc5f87ec28f15b8f6952cedadceb21f2c30bb22279717027c110563c9c0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF_AMENDMENT_V4.md",
+      "size_bytes": 402,
+      "sha256": "602185697cf0fd3a1741b7825d2d020f9bf6969a4ae1d45740c545439e2862b0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF_AMENDMENT_V5.md",
+      "size_bytes": 359,
+      "sha256": "f7e6d3a8bfa085a59d14b7194abc45226f0572b3da04df698e1afe6a72f12acc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/BRIEF_AMENDMENT_V6.md",
+      "size_bytes": 442,
+      "sha256": "5e31f1babb7f2e5ff018228bbe341ee59d99ca1fe77cdb9984b62ba4f09ae7a6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/RETURN.md",
+      "size_bytes": 4519,
+      "sha256": "c2b991376e491158de4e917d5edf7bd03f9d290c849d59487397dda2e8e46bb4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/RETURN_V2.md",
+      "size_bytes": 1632,
+      "sha256": "916b3712171392a310a9ced7fbd9b70dc5da1466547526e9206d056636550d0b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/SOURCE_FREEZE.json",
+      "size_bytes": 1171,
+      "sha256": "bb5e711ea4a7e9b4e00959f7afa861256deb8b1677c37e751f3d8c17852db52f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/SOURCE_FREEZE_V2.json",
+      "size_bytes": 1303,
+      "sha256": "dd28515e9d1dd14a608b5b446d94f0d93527d80803c57488a23ade1bdb39d470"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/STATUS.json",
+      "size_bytes": 386,
+      "sha256": "9c87014d0e79014536d4348ae00ffc4fd692659a96568f02cb498bc6f317430b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/STATUS_V2.json",
+      "size_bytes": 405,
+      "sha256": "67822655167ee4d2a34ac7d637333107d63ed568da1c67e5df051a068e086092"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/TASK_RUN_2026-09-05_U1.md",
+      "size_bytes": 2037,
+      "sha256": "a8b8f3d02664be067c514f14e04575ba5e7ef37f984cd0f4a53b91f5a24ba94b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters-final.log",
+      "size_bytes": 5867,
+      "sha256": "9b36e1b8e2cf3698459b20fecf05ae377a8f40f4b59cbe89a89a1eca022bc1bd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters-pass.log",
+      "size_bytes": 410,
+      "sha256": "94294b2c15bdd7639e4dd71bc848fabf177ecd17b4230f8d79baa48daf055fba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters.log",
+      "size_bytes": 52302,
+      "sha256": "3c0da4a66f904be1a6cc65e7a568a7639ed9792030aa35ca617cd4ddddb83df5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/support-disclosure-v2.log",
+      "size_bytes": 1429,
+      "sha256": "decc58f69301b2e67bcf14f8cefeac24e7ad0b0e6ef01954261540e1cddabfc4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/targeted-initial.log",
+      "size_bytes": 1294071,
+      "sha256": "0748a76f8c1c7006addfcce594100f60496bb3e185a06140c4cb93deaae71437"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/targeted-second.log",
+      "size_bytes": 57564,
+      "sha256": "bf10a7856aab0ba4dc29e9d2a35f66f8c09c8f726b1adaed63edab697bd70c74"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/workspace-routes.log",
+      "size_bytes": 422,
+      "sha256": "ffe0ddd0ea86d3407894ff432bf691336a07e71137b29a3ce05cf3b394cc38f4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/build-final.json",
+      "size_bytes": 2354,
+      "sha256": "aeb1219ba0ee15487ae4cd2815ce6f27b49a1a937214771e27457bba3b60a458"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/build-initial.json",
+      "size_bytes": 2354,
+      "sha256": "bda7c786ad6aad46897812b866cf9dd8351dbc663043e0957443d69f6da73e06"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/scope-validation-v2.json",
+      "size_bytes": 362,
+      "sha256": "65e2e34e4bbca00cb27addb882bc874f135e44555e96dcb152788c507774839e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/scope-validation.json",
+      "size_bytes": 4184,
+      "sha256": "ac4690736780c29014606956943ee1363e19b755d41e66460f3965ba835d07bf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/BRIEF.md",
+      "size_bytes": 2960,
+      "sha256": "f60d57ea1f8a6150ab5c1133cc11f63ec61222bdadc99420916e16898415c189"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/BRIEF_AMENDMENT_V2.md",
+      "size_bytes": 483,
+      "sha256": "62e3b43f8a30a5912e7ae6297c0ce802339f4a4a04bfcd632e03cfb3e66ee543"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/BRIEF_AMENDMENT_V3.md",
+      "size_bytes": 471,
+      "sha256": "b39c10bd9b0717fe3173b84e78728d5344d2896506bbb225e9be7e3665b33a2c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/BRIEF_AMENDMENT_V4.md",
+      "size_bytes": 433,
+      "sha256": "c0b2cd56b04ee3bb20b3ab29391ef8a377d771c4b256774d156f9ff95a3c53d3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/RETURN.md",
+      "size_bytes": 3725,
+      "sha256": "6fd1cc9c531354de309a998302205f32ef4107d9e8ed19eeef65030e06bc701d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/RETURN_V2.md",
+      "size_bytes": 2497,
+      "sha256": "ec98080ca13aec0f6eff522b65d161b1bd00f1433b97e295312008446d1c2c6e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/RETURN_V3.md",
+      "size_bytes": 2283,
+      "sha256": "bc9c1a6e47cdb8f632cace7dd1f86cde94d3254207d11759f936494138aeb036"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/STATUS.json",
+      "size_bytes": 436,
+      "sha256": "23715166d65ef3fe0fe6516767e342900caea19c938956719a4401e93cae7a5d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/STATUS_V2.json",
+      "size_bytes": 364,
+      "sha256": "16d87adbade826a5d00986a95858302e009aba6b6188a69a1b03e8dad318cace"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/STATUS_V3.json",
+      "size_bytes": 367,
+      "sha256": "eb75007b662447131ac828e6bde7f16c92fd00b880654a24eb67ba1d9f42bc4c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/_run_records/TASK_RUN_2026-09-05_U2.md",
+      "size_bytes": 2143,
+      "sha256": "a348eca3c3db67c978720d06ca9215bf063543b9892426ad3e1bbf2139cbed4b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/_run_records/TASK_RUN_2026-09-05_U2_V2.md",
+      "size_bytes": 1501,
+      "sha256": "119e47f4c07f10b7a5a07b1c034bf30869b65206e910aceb059edfccaed2c558"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/_run_records/TASK_RUN_2026-09-05_U2_V3.md",
+      "size_bytes": 1592,
+      "sha256": "27f8281233ed344d3b65085639c07db3c52c1fc35d6141c89ca425816d393ae3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U2/desktop-build.json",
+      "size_bytes": 2354,
+      "sha256": "821db19408e3f12b459e15cdc40c3a9ea44993adf944ee9458da297458332ceb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch",
+      "size_bytes": 89624,
+      "sha256": "d5a44d325e423a84782f7981cb1c3740573d8e314e1517df1c93911e7028868f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/MANIFEST.json",
+      "size_bytes": 2107,
+      "sha256": "e72cd358f105032562bc1ccb8b7f92244ab6d589999a56000b03a1058749a7f8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V2/DIFF.patch",
+      "size_bytes": 91402,
+      "sha256": "5519dffef63def83b43bc11f90dbd6e063f65621a503169c27fb719015cf164f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V2/MANIFEST.json",
+      "size_bytes": 2178,
+      "sha256": "c53fd038fd753ea39049b37de98343d6427abb11446439fd1b41b95703eda5f2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/source-scope-check.json",
+      "size_bytes": 1363,
+      "sha256": "dabb5129d998a1c468abf78a233543dafb4a01ff3783357a2c9e04c95bc38f5f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/window-config-check.json",
+      "size_bytes": 245,
+      "sha256": "d0bc36a938b12c42d59be15cf84f027f33f8ed4f6dacf1c38078cbe6f9401f06"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/LAUNCH-003.json",
+      "size_bytes": 1765,
+      "sha256": "4cbba9684555a53ab0ed301a7ca9d4139fc578a222a8e063d6472eca68a5fbeb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/LAUNCH-011-I2.json",
+      "size_bytes": 1051,
+      "sha256": "242f47c10a23cd1f173c10ddec45877f5bf46d7dbe84454e5aed115747ebed59"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-005.json",
+      "size_bytes": 1220,
+      "sha256": "a8f8f3d2de1195871f24bc6589814fda99cd152f40406885c2424e88c0753ea0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-006-PKG09-CONSUMER.json",
+      "size_bytes": 917,
+      "sha256": "553c341de1d40bf1610a9336aeebb8fdd4404036e3f3148c418b8b3ec5199ac1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-007-UI-REFINEMENT.json",
+      "size_bytes": 602,
+      "sha256": "cdc2047ea6385ee98eace9ec3d85141512627e8aec193b6e529977144e749b57"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-008-N1-AND-A2.json",
+      "size_bytes": 1845,
+      "sha256": "6cbc54f3566deda376da3bc8828663086d99ab05d3da0c43e7778d6df154cd55"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-009-W2-CONSUMERS.json",
+      "size_bytes": 1438,
+      "sha256": "fbb9350b743a3de7c1b8783388dec5483011a7284289a8056f35012aa590b8fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-010-W7-FREEZE.json",
+      "size_bytes": 484,
+      "sha256": "94746b567f257d5206f7167decb8336b584b5705e3fcd66c0f30ed8d440535d8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/notices/NOTICE-012-INTEGRATED-CHECKS.json",
+      "size_bytes": 720,
+      "sha256": "9f69b09d5a7f77f5c60bb8d7c4c5acf98d5c371da4a7b261564d6261350ae703"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/I2_ACCEPTED_V1/ACCEPTANCE.json",
+      "size_bytes": 788,
+      "sha256": "b44f49e174eb790fb4c91d954040a53f3bfb1ca7fc35f3a03c55638da14aaed9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/I2_ACCEPTED_V1/MANIFEST.json",
+      "size_bytes": 416,
+      "sha256": "dc6c9c81ef37a212982d5630f9f98d5f594b7b37974d7d203b61e7d3fa2bf0d1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/I2_ACCEPTED_V1/RETURN.md",
+      "size_bytes": 2783,
+      "sha256": "533719d1c4b448990900717d12d6c825a6c92d38a537271f99e016ee1f736c25"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/I2_ACCEPTED_V1/STATUS.json",
+      "size_bytes": 531,
+      "sha256": "3ad7c2392da1428c2b310b67ef27a8b402c05bb0cc95c8084422b43d2e02d3ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V1/MANIFEST.json",
+      "size_bytes": 1141,
+      "sha256": "9df8f87d3c0e09ae1c4d121bdcc3389b9e260fb3f407dc1ccce4e4aacbac97d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V1/OPEN_QUESTIONS.md",
+      "size_bytes": 1155,
+      "sha256": "fae142ef58ee169e6cfe00be26e86a528d79a11cd61fe4dc76d8dd3187428153"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V1/ORCHESTRATION_PLAN.md",
+      "size_bytes": 4710,
+      "sha256": "5fb989130212a0a44674ddfa2fd161cd3df2a1b3cf38437e7b80594f987a6ddf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V1/WORK_GRAPH.json",
+      "size_bytes": 2761,
+      "sha256": "ccda9cc34d942038e727070aef6564b4b9bf21f21e33216d4d1a2678d8e52927"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V2/MANIFEST.json",
+      "size_bytes": 601,
+      "sha256": "df1cc011e302b2b71214bf3578ccfc5d7606e9c10051769e115f28ef64a90894"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V2/OPEN_QUESTIONS.md",
+      "size_bytes": 1404,
+      "sha256": "1ba46b9945c897ab32ef07dd5a1c2b261d2ba4abb193e39c482001546e1395ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V2/ORCHESTRATION_PLAN.md",
+      "size_bytes": 6168,
+      "sha256": "7f3d559d2a06f5351715d6ffabeea047575b1076c31d9906f9bd7a2bc51de7ff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V2/WORK_GRAPH.json",
+      "size_bytes": 3367,
+      "sha256": "19f28bcb1c2ebfc4ffeb802b438eb096a6cc4b184fa304d77a1483970cf136fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V3/MANIFEST.json",
+      "size_bytes": 601,
+      "sha256": "e6e9fcd1c66b537562c7981f7a5956ce8c3b236a57369989017d7996427db20b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V3/OPEN_QUESTIONS.md",
+      "size_bytes": 1735,
+      "sha256": "ee5e181105114db5aacb631539fd88e29829bddad436dde63b6784333eb4d956"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V3/ORCHESTRATION_PLAN.md",
+      "size_bytes": 7700,
+      "sha256": "4be5342d57c850ce17def1a928b58967e6a0489ca7d1ae33179470a2cf9d5441"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V3/WORK_GRAPH.json",
+      "size_bytes": 4858,
+      "sha256": "0bc8c33610dae4c7d29b20d738b194dd15ca67fe0a2ab145ba449f334fd02e6b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V4/MANIFEST.json",
+      "size_bytes": 753,
+      "sha256": "e71007339a8c27ff735a6207ff3d1a651150ba95fa081692cd0612f90241a32f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V4/OPEN_QUESTIONS.md",
+      "size_bytes": 2094,
+      "sha256": "bdb68f87d8110b56f05fc9ae7f81ab9deec7cb2442c6498c528aaaa3ea439228"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V4/ORCHESTRATION_PLAN.md",
+      "size_bytes": 8937,
+      "sha256": "26c31315e81eafde5a63c8272cd1cf511e17b7e225efc6de31ac424bf177124d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V4/WORK_GRAPH.json",
+      "size_bytes": 5542,
+      "sha256": "6c2943ee62dc450c178d9a8730e93652c7c8f77af2efeab4695c479159124631"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V5/MANIFEST.json",
+      "size_bytes": 520,
+      "sha256": "792db0844b0c2f0c2e8deca69b00f310a8a7b5fd46bd696f25d3c98a49b7ea9b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V5/OPEN_QUESTIONS.md",
+      "size_bytes": 2443,
+      "sha256": "542512a4e50ddeaf42e43105fd217a3fcb12295572b8cb282a1ddb6e9bcd6e44"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V5/ORCHESTRATION_PLAN.md",
+      "size_bytes": 10733,
+      "sha256": "c08f52f5dc17d475f1ada6db932107f0832a79f14bad1753a28658a44660f455"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V5/WORK_GRAPH.json",
+      "size_bytes": 6967,
+      "sha256": "8a6b7fde940e3d7537121ad18cbba9822159c1169e856e886001ea1cbea0c468"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V6/MANIFEST.json",
+      "size_bytes": 517,
+      "sha256": "4737010651937b1a034bbbba2cbb8fbbe2498d491fdba306332f3e783a9db224"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V6/OPEN_QUESTIONS.md",
+      "size_bytes": 2443,
+      "sha256": "542512a4e50ddeaf42e43105fd217a3fcb12295572b8cb282a1ddb6e9bcd6e44"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V6/ORCHESTRATION_PLAN.md",
+      "size_bytes": 12576,
+      "sha256": "ca0087df6359023bcebe43020a3cf2aeade3cd357c27acc06d4b746fbb6733ec"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/snapshots/PLAN_V6/WORK_GRAPH.json",
+      "size_bytes": 8361,
+      "sha256": "aafedb19fc2698bc5cfc35d930728d36c2b786580f4abacda2b6baa38112d6f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/updates/UPDATE-002.json",
+      "size_bytes": 1813,
+      "sha256": "7a124dad6acf7444126663329d397babdd63e2754ba435941eed4c1c34237ecd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/updates/UPDATE-004.json",
+      "size_bytes": 2159,
+      "sha256": "3cd32532c9405ec14862a97b0e88a8d6155061fdf2c96c443379689bb4f6ed1a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/FAN_IN_ACCEPTANCE.md",
+      "size_bytes": 1054,
+      "sha256": "3974e79f4d409b5de17a9710fd3acf36730cb8ef539c912c6f6c365201dab00e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/FINAL_SNAPSHOT.json",
+      "size_bytes": 3928,
+      "sha256": "92c352cb787bdb1de1456a98eb2519c1e7fe50200a6e21afd9ff1eda0e8c2ea1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/HANDOFF_STATE.md",
+      "size_bytes": 1458,
+      "sha256": "8e3b4ad844ad633d3aa8e8ff7f02373bd827ecade5f6d9ad26b64b06432d7416"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/ORCHESTRATION_PLAN.md",
+      "size_bytes": 1125,
+      "sha256": "480b59d19e95b990ff49945e6d4fc35e5b1e64fa6678a581e00276e3915670c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/ROOT_VERIFICATION.md",
+      "size_bytes": 745,
+      "sha256": "a171745725fa5026f88512d87a0e56df4ee8b662d77d42a1542bd7034ce1653b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/WORK_GRAPH.json",
+      "size_bytes": 1188,
+      "sha256": "172697fe4dbcd0b76b0b681cded224819c54a1d37a93de6b2dd844ab06ba0c03"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/WORK_GRAPH_V1.json",
+      "size_bytes": 1092,
+      "sha256": "bdbc73df2cf100a11495b2b1d32feb078c27b43438f39c426163a303b6dbf878"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/A1/LAUNCH_BRIEF.md",
+      "size_bytes": 1968,
+      "sha256": "e7cfb7005b7eea7cc1c03c07dc9e76789d04fe570c91e2d514a03df568548a20"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/A1/RETURN.md",
+      "size_bytes": 1671,
+      "sha256": "cdf11e0e0e9e0396cfa244b6363e3319fb958de581e9182195cb8c87a3611678"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/A1/STATUS.json",
+      "size_bytes": 320,
+      "sha256": "2f6d11d1f75f7ed5484fff6a73f00868d7c97e7472a44dee9156649948d75f4b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/A1/VALIDATION.json",
+      "size_bytes": 660,
+      "sha256": "6793aee22e0f5435c6075c88991c367a8c41943feb1ac7eb55769d96e1df41da"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/R1/FULL_REVIEW_V1.md",
+      "size_bytes": 850,
+      "sha256": "62652771931eb8a38910e6880dfd8f99ea1bb125754643999403dbfcdbc910ed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/R1/INITIAL_ASSESSMENT.md",
+      "size_bytes": 1795,
+      "sha256": "5cd81fd4d274880c342644cb45507bfb0a30005017794bbd768b4d06b8109beb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/R1/LAUNCH_BRIEF.md",
+      "size_bytes": 974,
+      "sha256": "de82ed121a9eaf91d70f45994f50bf8a45aafd6fb15415a12a3db78e6fe5773f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/R1/RETURN.md",
+      "size_bytes": 759,
+      "sha256": "f4ce64b7e54bf44072c4e41ec44f7f857e1c2b7d88324ca796f26ea75af51cb5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/instances/R1/STATUS.json",
+      "size_bytes": 353,
+      "sha256": "bf1b8f399e1d3c7fddb1cd36a06ecbcbc46e053f4e46da451b5c3ccebf3e0721"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/snapshots/A1_FROZEN_V1/MANIFEST.json",
+      "size_bytes": 183,
+      "sha256": "9239cb28bf180f1b91f3b9414ae27b5cbcc97d66e64d0a6a5125862cdcdfa57b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-SCOPE-MAP/snapshots/A1_FROZEN_V1/MAP_2026-09-05_product_design_scope_and_decisions.md",
+      "size_bytes": 53511,
+      "sha256": "1d9c1d4961a1dd2dc8615e264e119194d052ee1c8c8bc08276968d7295cf7650"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/CONTROL_FREEZE.json",
+      "size_bytes": 1398,
+      "sha256": "3e1873c8f6f975d81501a867f47a883ddff6ff174fba37b4d702f367b1a5d515"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/FAN_IN_ACCEPTANCE.md",
+      "size_bytes": 2952,
+      "sha256": "6fbd92a71bf28ef0154c9dab458d14114a4c25983ca207d6679cd4cf39cec983"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/FINAL_SNAPSHOT.json",
+      "size_bytes": 7549,
+      "sha256": "a6be9276060ae2c6aff484c65736dee23cf3bb0b381e63444d8867c2624273dc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/HANDOFF_STATE.md",
+      "size_bytes": 3051,
+      "sha256": "62155080fe281896f11ab7dea0359050ab4db178e6fbb2aa0d38600cdea9e13b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/ORCHESTRATION_PLAN.md",
+      "size_bytes": 4879,
+      "sha256": "9d13f111a05fa2d9cf996d58ee4f09420598f6d92bcb442c6f2dead669d0a4b5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/RUNTIME_LAUNCHES.json",
+      "size_bytes": 1738,
+      "sha256": "d4042ee2b7b5abea700e21e2e2321aec081253ed706e5e19bf16f4617463c42b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/WORK_GRAPH.json",
+      "size_bytes": 4660,
+      "sha256": "0733e81f23e59db96967e130019e32d16d9865be0a88e079698bcbccd4e4100d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/A2.md",
+      "size_bytes": 2836,
+      "sha256": "cd18de71b6e557719d2ac2b2274cd9291b8d82bc9044569ec658cdfda90a3e5f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/H3.md",
+      "size_bytes": 2770,
+      "sha256": "bb8b86d07cf28833215fd4a99e38a3bb603e776fde82a4d6740092d6524e2701"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/R5.md",
+      "size_bytes": 2876,
+      "sha256": "766c5736d1a909b4ea4f3a08bdd79fcce4634fad8cee6dad73fa2e38665fad63"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/S4.md",
+      "size_bytes": 3185,
+      "sha256": "46df6dc7bc83e3d424c31a4f77ae930be978e2031d0e1cae1fefd4d42ac9ba71"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/U1.initial.md",
+      "size_bytes": 2933,
+      "sha256": "e80507b927b80b36e6185f1e76646147ea6d2dac4cdcbdced3afa9e08a22bb8d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/U1.md",
+      "size_bytes": 3437,
+      "sha256": "e16b328b67d0b2303e50dee192ae766941fab759d36a7946258ccc2348f72a73"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/BRIEF.md",
+      "size_bytes": 2836,
+      "sha256": "cd18de71b6e557719d2ac2b2274cd9291b8d82bc9044569ec658cdfda90a3e5f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/FINDINGS.md",
+      "size_bytes": 16007,
+      "sha256": "0beacf17698031fa6f3ccbe688ff982288353dec1beeb6e05a12c1910b302da2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/RETURN.md",
+      "size_bytes": 4364,
+      "sha256": "18d3dd763f37f029203adfe6b73ed38722f160104bf8100f2dcaec519c46441f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/SOURCE_INDEX.md",
+      "size_bytes": 37409,
+      "sha256": "149b0fee636b2193dc1854c005725bd543b774b09b1b0a3f38651391fb63845c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/STATUS.json",
+      "size_bytes": 1131,
+      "sha256": "6105e1c4c3cd6e48769b13fb523548e8bcc90edcc559d05b5768cd16bae49d41"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/H3/FINDINGS.md",
+      "size_bytes": 16194,
+      "sha256": "c60b6f604ff179785adbc7db58bfa620bb39012e626df05a69794a1ea449c709"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/H3/OUTPUT_HASHES.json",
+      "size_bytes": 256,
+      "sha256": "b99c4831c117951e0891abab7a499846d26a577bea786a2da25609a6ac12b1e6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/H3/RETURN.md",
+      "size_bytes": 4265,
+      "sha256": "eefd0961e6fcdb5a9cdbf43019602ad41e7dfada6bfd62e2ee597eff2da37d0a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/H3/STATUS.json",
+      "size_bytes": 964,
+      "sha256": "325513c8716afd83130368a6af24074d91f9246d2b84abeffe9116be156fc414"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/R5/FINDINGS.md",
+      "size_bytes": 5239,
+      "sha256": "819924d2b8866949319a2c430c43f80fbdbf84b10e16b41589effaf9fd2c8a34"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/R5/OUTPUT_HASHES.json",
+      "size_bytes": 260,
+      "sha256": "869cce4f59372862d2a3c0250ed1973f5dc12e14414ebe138b14791a344e846d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/R5/RETURN.md",
+      "size_bytes": 2034,
+      "sha256": "0a583763754c5721b5e17de755cff37617a3aa54f0735562daeb0ac26c64949c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/FINDINGS.md",
+      "size_bytes": 1686,
+      "sha256": "fecaa7445955e6219eac54759077d375c287ffcf7f397c25d613c60748734032"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/OUTPUT_HASHES.json",
+      "size_bytes": 731,
+      "sha256": "452ca7169978b4dd5af6d06a201bdde49ff81ccf9a88e77f318794dacbd07f95"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/RETURN.md",
+      "size_bytes": 3038,
+      "sha256": "31f20b7d383f44c29d05bff201bcd54a9f6f9a971bef57c14f8f6bd061cabc22"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/SOURCE_STATUS.json",
+      "size_bytes": 2812,
+      "sha256": "ff29c0ea66b53cb05521c38fdfc0027e9c6b2e0e570f90253093229868084be7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/STATUS.json",
+      "size_bytes": 1014,
+      "sha256": "4765eb3adfe52a1969bc28757b54d900bfbdace7024f2aaf2cce2257ebcb5cd8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/FINDINGS.md",
+      "size_bytes": 1547,
+      "sha256": "ff18287d29dc6775edcdccdbf17249178464b3f18f1545b810fbeef8a0e6b866"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/OUTPUT_HASHES.json",
+      "size_bytes": 610,
+      "sha256": "54809a4a86de041a0ab2113a49dbbd1f01479571868df4b51df7bf9db1a8362b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md",
+      "size_bytes": 32314,
+      "sha256": "ee8181a5d2e6a0d5f24a5c046c997a28d8eb32a560d24a48f00e2bc7af11af0f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/RETURN.md",
+      "size_bytes": 2483,
+      "sha256": "d818c712eeee7d729ad0cdd09d2a4ea99ac5e7569a4da156f527337e1a96fcfa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/SOURCE_STATUS.json",
+      "size_bytes": 2560,
+      "sha256": "ead334e534319b5f22ae3fba38b6d3107e31b1baac9033237acd3a7442442fa1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/S4/snapshots/S4_V1/STATUS.json",
+      "size_bytes": 762,
+      "sha256": "486c843d563207d233925d35e0d23cdb8e3fd6f3e3b0a889937ad7678610a80c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/FANIN.md",
+      "size_bytes": 2095,
+      "sha256": "b42a072d0226e2c5e8b3b50751a6382cd996f122f7406999d972899c040fe1ad"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/FINDINGS.md",
+      "size_bytes": 18885,
+      "sha256": "86d07bd3b7145fca9959614ab2f2ab7b40a533f0652e9f5dcf5b61ce5c7d53fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/FINDINGS_DRAFT.md",
+      "size_bytes": 15111,
+      "sha256": "b5de259e741fdcc249d89813b8d525d88f8f485251056f409d35599922a70f0b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/HANDOFF_STATE.md",
+      "size_bytes": 1418,
+      "sha256": "2177be94a71bd1259a96e9cb00bd5ae458427e5773cb16f361b52b8c159913e2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/INPUT_HASHES.json",
+      "size_bytes": 7414,
+      "sha256": "d855bcb815a6dd8f9f836003f1f730bbd7b1598b212fab29796d254e6f17d63f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/RETURN.md",
+      "size_bytes": 2168,
+      "sha256": "b1a3ad8ecf14a0dafe6cd884333ac1e357b22b74d733019d4e1fbe8c420417e0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/RUNTIME_EVENTS.jsonl",
+      "size_bytes": 437,
+      "sha256": "78254cf3805d06c64342a7d4b4e36a28bbcc0025ac5a293b58a80f8b504467c6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/RUNTIME_SUMMARY.json",
+      "size_bytes": 333,
+      "sha256": "ec87c09f7033ec3499268f8e20942b49604a83bb246870290d0bfd0f70fc2071"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/STATUS.json",
+      "size_bytes": 450,
+      "sha256": "4e636b24001dc462d3bc3f2ccab51c0ccc295f83eda72268d2095044708b506d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/WORK_GRAPH.md",
+      "size_bytes": 453,
+      "sha256": "2ed42935d927058cfde1a1d2bdc10e30a49a4684293e6f7eecee6306114c77fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1a/BRIEF.md",
+      "size_bytes": 2774,
+      "sha256": "d5bb0e19a5eb64baad64820054a84224a148035582fbe095d529d9464174a067"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1a/FINDINGS.md",
+      "size_bytes": 10270,
+      "sha256": "ed98596841b2a5637bcdf145a0c1f93e50a1ce5c63a29687b0a0f806f78e6c0a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1a/RETURN.md",
+      "size_bytes": 2432,
+      "sha256": "19566d9cab55f0346e34198d1a01045e96080aba0166725ea2aab9cbcdd88b7c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1a/SOURCES.json",
+      "size_bytes": 10204,
+      "sha256": "5e838dde62ff418ccf1be55f236a62b1b98cd8a8b61bc60749a97147e0c1177b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1a/STATUS.json",
+      "size_bytes": 689,
+      "sha256": "011aa4b53699252770be9c55e6b8dffd038719c4e9c14e753ce9123de679c595"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1b/BRIEF.md",
+      "size_bytes": 2610,
+      "sha256": "e049aa56cabe927ac0602846e843872081f4435970e0280794b4dcc3a6afdb9e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1b/FINDINGS.md",
+      "size_bytes": 9673,
+      "sha256": "9de4d91f1e27e354704c087885e0700e77ea51249fd346bdda4e1767228693bb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1b/RETURN.md",
+      "size_bytes": 3039,
+      "sha256": "ae08d306d28cbc355b22d03a87f0f948cf2e9b57662f01157a3cc684a2cd9f99"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1b/SOURCES.md",
+      "size_bytes": 5473,
+      "sha256": "47d65a3fa39030baeb0831c6775bace39662138870ddbc33a662e26aac145aeb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/children/U1b/STATUS.json",
+      "size_bytes": 760,
+      "sha256": "177a85af9bbe479a6d5cd4434a4045b865b636fbeb1bcaec99c31606e60c7ed5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/U1/snapshots/U1_ACCEPTED_V1/MANIFEST.json",
+      "size_bytes": 2048,
+      "sha256": "2da09db3e476d4d07ceb585602a53257aa35c1f8517502e46b4ba49c55adaeca"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+      "size_bytes": 5144,
+      "sha256": "13dabab7b4e19c1d2639b450914669915065d9418eb5b380d49e83a37492d868"
+    },
+    {
+      "path": "projects/chirality-piping/plans/MAP_2026-09-05_product_design_scope_and_decisions.md",
+      "size_bytes": 53518,
+      "sha256": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4"
+    },
+    {
+      "path": "projects/chirality-piping/plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md",
+      "size_bytes": 32740,
+      "sha256": "d62fd3354849a71049fbbb246a389b0d5f63138fdbcdbdb61e379b971d62bcf9"
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "size_bytes": 19671,
+      "sha256": "c3b807f30947f021a2b2258bbe5292f8ca4b5bb3f2aaa2e51c0d8f3ad8d3aabd"
+    }
+  ],
+  "total_bytes": 17716779,
+  "regenerate_before_stage": true
+}

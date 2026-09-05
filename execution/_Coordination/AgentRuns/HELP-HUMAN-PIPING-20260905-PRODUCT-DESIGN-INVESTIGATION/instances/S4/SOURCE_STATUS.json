@@ -1,0 +1,64 @@
+{
+  "checked_at": "2026-09-05T18:22:37.330795+00:00",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "inputs": {
+    "instances/U1/snapshots/U1_ACCEPTED_V1/MANIFEST.json": {
+      "sha256": "2da09db3e476d4d07ceb585602a53257aa35c1f8517502e46b4ba49c55adaeca",
+      "matches_accepted": true
+    },
+    "instances/U1/FINDINGS.md": {
+      "sha256": "86d07bd3b7145fca9959614ab2f2ab7b40a533f0652e9f5dcf5b61ce5c7d53fc",
+      "matches_accepted": true
+    },
+    "instances/H3/FINDINGS.md": {
+      "sha256": "c60b6f604ff179785adbc7db58bfa620bb39012e626df05a69794a1ea449c709",
+      "matches_accepted": true
+    },
+    "instances/H3/RETURN.md": {
+      "sha256": "eefd0961e6fcdb5a9cdbf43019602ad41e7dfada6bfd62e2ee597eff2da37d0a",
+      "matches_accepted": true
+    },
+    "instances/A2/FINDINGS.md": {
+      "sha256": "0beacf17698031fa6f3ccbe688ff982288353dec1beeb6e05a12c1910b302da2",
+      "matches_accepted": true
+    },
+    "instances/A2/RETURN.md": {
+      "sha256": "18d3dd763f37f029203adfe6b73ed38722f160104bf8100f2dcaec519c46441f",
+      "matches_accepted": true
+    },
+    "instances/A2/SOURCE_INDEX.md": {
+      "sha256": "149b0fee636b2193dc1854c005725bd543b774b09b1b0a3f38651391fb63845c",
+      "matches_accepted": true
+    }
+  },
+  "inspected_context": [
+    "AGENTS.md",
+    "projects/chirality-piping/AGENTS.md",
+    "ORCHESTRATION_PLAN.md",
+    "briefs/S4.md",
+    "FAN_IN_ACCEPTANCE.md",
+    "project docs/CONTRACT.md and selected Deliverables.csv rows",
+    "current decomposition/scope/DAG pointers and SCA009/DAG010 handoffs",
+    "U1 FINDINGS and U1a FINDINGS and U1b SOURCES",
+    "A2 FINDINGS SOURCE_INDEX RETURN",
+    "H3 FINDINGS RETURN",
+    "D58 ruling",
+    "SCA009 Vocabulary_Annex",
+    "June18 redesign historical plan",
+    "styles.css Toolkit rules",
+    "PropertyInspector DualUnitValue",
+    "OperationApplyPanel Apply button",
+    "PipeViewport pipeMesh"
+  ],
+  "external_sources": "Inherited accepted U1 primary research; no fresh S4 web access",
+  "native_observations": "Inherited parent evidence only; binary revision unverified",
+  "parent_dispositioned_correction": "A2 result mapping owner DEL-07-04 corrected in report to DEL-07-05, verified against Deliverables.csv. Parent authorized this correction without a new A2 notice. Accepted A2 bytes preserved.",
+  "local_links_checked": 24,
+  "broken_links": [],
+  "report_words": 3905,
+  "brief_sha256": "46df6dc7bc83e3d424c31a4f77ae930be978e2031d0e1cae1fefd4d42ac9ba71",
+  "report_sha256": "d62fd3354849a71049fbbb246a389b0d5f63138fdbcdbdb61e379b971d62bcf9",
+  "predecessor_report_sha256": "ee8181a5d2e6a0d5f24a5c046c997a28d8eb32a560d24a48f00e2bc7af11af0f",
+  "successor_reason": "Parent-directed stack rationale and durable review-status wording before R5",
+  "updated_at": "2026-09-05T18:23:09.514957+00:00"
+}

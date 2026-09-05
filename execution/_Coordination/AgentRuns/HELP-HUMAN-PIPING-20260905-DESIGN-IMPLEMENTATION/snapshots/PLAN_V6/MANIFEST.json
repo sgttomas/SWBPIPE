@@ -1,0 +1,10 @@
+{
+  "version": 6,
+  "status": "frozen_additive_parent_direction",
+  "previous_manifest_sha256": "792db0844b0c2f0c2e8deca69b00f310a8a7b5fd46bd696f25d3c98a49b7ea9b",
+  "files": {
+    "snapshots/PLAN_V6/OPEN_QUESTIONS.md": "542512a4e50ddeaf42e43105fd217a3fcb12295572b8cb282a1ddb6e9bcd6e44",
+    "snapshots/PLAN_V6/ORCHESTRATION_PLAN.md": "ca0087df6359023bcebe43020a3cf2aeade3cd357c27acc06d4b746fbb6733ec",
+    "snapshots/PLAN_V6/WORK_GRAPH.json": "aafedb19fc2698bc5cfc35d930728d36c2b786580f4abacda2b6baa38112d6f7"
+  }
+}

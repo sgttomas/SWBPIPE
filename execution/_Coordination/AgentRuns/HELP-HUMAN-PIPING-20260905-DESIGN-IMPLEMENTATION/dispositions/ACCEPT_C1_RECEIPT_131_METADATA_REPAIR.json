@@ -1,0 +1,23 @@
+{
+  "id": "ACCEPT_C1_RECEIPT_131_METADATA_REPAIR",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Exact metadata-only shortening of newly appended Receipt 131 before source commit",
+  "failed_checks": {
+    "RECEIPT_BYTE_LIMIT": "Body 4125 bytes exceeded 4096",
+    "DUPLICATED_MEASUREMENT": "Exact measurements duplicated in Checks",
+    "STATUS_OUTSIDE_ALLOWED_RECORD": "Governed status vocabulary in Checks"
+  },
+  "allowed_scope": "Only Receipt 131 and current-run coordination/snapshot records",
+  "preservation": "All earlier receipt bytes and PRECOMMIT_ACCEPTED_V1 remain unchanged; V1 retains full original Receipt 131 bytes",
+  "repair": "Concise check names/verdicts with owning artifact references; no repeated quantities or governed status in Checks",
+  "source_effect": "No product/configuration/other-owner/Git changes",
+  "validation_status": {
+    "receipt_validator": "PASS exit 0, versioned receipt contract satisfied",
+    "scoped_git_diff_check": "PASS exit 0",
+    "receipt_tail_bytes": 2330,
+    "prior_receipt_bytes": "unchanged verified"
+  },
+  "next_owner": "C2 refreshes staged receipt/control only and reruns failed gates/hash containment; DEC-025 has not started"
+}

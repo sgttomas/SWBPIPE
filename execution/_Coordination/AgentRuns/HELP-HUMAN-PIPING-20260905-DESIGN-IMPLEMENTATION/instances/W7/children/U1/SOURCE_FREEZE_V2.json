@@ -1,0 +1,22 @@
+{
+  "schema": "piping-ui-source-freeze/v1",
+  "instance": "U1",
+  "revision": 2,
+  "prior": "SOURCE_FREEZE.json",
+  "actual_model": "unknown; not exposed",
+  "files": {
+    "apps/desktop/src/App.tsx": "72f1d67875de11108c696a0923463a4d4c6f8216d391c84b3da1c94ab4ca9a66",
+    "apps/desktop/src/App.test.tsx": "a9a05bb5c15aa0fcbd82f52501bda982fe1d2d949db264b0cd50e22e07f58fcc",
+    "apps/desktop/src/styles.css": "d1c86d2121565b5124d7e4da6e495fac890033584152cc5b1319b990a52bc966",
+    "apps/desktop/src/features/toolkit/ToolkitPalette.tsx": "83920a7d8f87175e0f4b42b95b17f50253a41dd0e6c2fe76083ef786b65e1a7e",
+    "apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx": "9930b8713be803bd71c596410afe4dae17b1106fadee35927447fe80ed467eaf",
+    "apps/desktop/src/features/viewport/PipeViewport.tsx": "286823e90c3594d8fa893261698036a545674975ed12cb3b19c57dd6817d1c9b",
+    "apps/desktop/src/features/workspace/WorkspaceToolbar.tsx": "5c3d907734f75b7f98d0016d0a5c7859cb463253e087544c67b5a464e4ed6420",
+    "apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx": "42d0dd797d331ae84599fe42a61f9cf33f30c16fc92192327081377e0e1fe873"
+  },
+  "changed_since_prior": [
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/App.test.tsx"
+  ],
+  "source_status": "frozen after R1 Support route remediation"
+}

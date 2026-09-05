@@ -1,0 +1,23 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/piping-w2-units-target/debug/deps/open_pipe_stress_product_physics-d32292c12524eed2)
+
+running 1 test
+test tests::missing_or_invalid_project_length_units_block_preview ... FAILED
+
+failures:
+
+---- tests::missing_or_invalid_project_length_units_block_preview stdout ----
+
+thread 'tests::missing_or_invalid_project_length_units_block_preview' (32136985) panicked at src/lib.rs:14547:17:
+assertion `left == right` failed
+  left: "MECHANICS_SOLVED"
+ right: "MODEL_INCOMPLETE"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::missing_or_invalid_project_length_units_block_preview
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

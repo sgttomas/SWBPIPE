@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "core_sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "baseline_A2_manifest_sha256": "91dc0aac184ecc537410c71819a0769c5c159dd8f769cc9dc2bd2702a1218a5a",
+  "baseline_A2_file_count_verified_unchanged": 51,
+  "repaired_binary_sha256": "e4218a8ce045dbda161a5406aa098cccf62bc80aeba83611b02adef8b0a291e0",
+  "files": [
+    {
+      "path": "BRIEF.md",
+      "sha256": "65019f764025c2c3e6878b63d37dc895d0ee1e2f8a1730f484c5bc6489d702c2"
+    },
+    {
+      "path": "COMPARISON.json",
+      "sha256": "ced4087119f0bef7005a4d0e0282784bf933d1b5aac28416de05ddaf73704d18"
+    },
+    {
+      "path": "Cargo.lock",
+      "sha256": "9be0ff77fd86fda63b26b7705959168382e5cb828c4e432ee82d174714fa6be1"
+    },
+    {
+      "path": "REPLAY.py",
+      "sha256": "25422d1e7492a0a00079b801d529249e42b0f314f06a46bdf8eb6a092826d154"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "3e393684f5986c20874e343de6d5fa3f894d3f0ee0808f5a6017af9806ba4fb8"
+    },
+    {
+      "path": "native_in.json",
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "native_m.json",
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "native_mm.json",
+      "sha256": "9e409971370645a907d518022e51c16959d48d091799391cd39bb7e1a18ee2bb"
+    },
+    {
+      "path": "native_witness.rs",
+      "sha256": "f9d805448b08ea1db09ebccf458a1425cc953e9b38a70d9b93a458a5486c2ae3"
+    },
+    {
+      "path": "product_physics.rs",
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    }
+  ]
+}

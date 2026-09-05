@@ -1,0 +1,25 @@
+{
+  "allowed": [
+    "projects/chirality-piping/apps/desktop/src",
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json"
+  ],
+  "paths": [
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

@@ -1,0 +1,14 @@
+{
+  "id": "NOTICE-006-PKG09-CONSUMER",
+  "date": "2026-09-05",
+  "from": "HELP_HUMAN /root via C1 recorder",
+  "affected_owner": "PKG-09 consumer",
+  "kind": "coordination only, not authority",
+  "subject": "Explicit existing unit basis in invented DEC-092 product-preview fixture",
+  "target": "{WORKING_ROOT}/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+  "change": "W2 authorized only to add model.project.units.length = 'm'",
+  "accepted_basis": "validation/hand_calcs/mechanics/tp_dec092_temperature_indexed_shear_modulus_torsion.md lines 28\u201333 declares N-m-rad-K and L=4.0 m",
+  "reason": "Four existing tests need explicit declared basis; metadata omission repair only",
+  "follow_on": "W2 versions its brief, verifies affected tests, and includes fixture in fresh review; PKG-09 truth is unchanged",
+  "authority_artifact": "dispositions/ACCEPT_W2_FIXTURE_UNITS_METADATA.json"
+}

@@ -1,0 +1,13 @@
+{
+  "frozen_at": "2026-09-05T18:22:37.330795+00:00",
+  "report": {
+    "path": "plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md",
+    "sha256": "ee8181a5d2e6a0d5f24a5c046c997a28d8eb32a560d24a48f00e2bc7af11af0f"
+  },
+  "files": {
+    "SOURCE_STATUS.json": "ead334e534319b5f22ae3fba38b6d3107e31b1baac9033237acd3a7442442fa1",
+    "FINDINGS.md": "ff18287d29dc6775edcdccdbf17249178464b3f18f1545b810fbeef8a0e6b866",
+    "STATUS.json": "486c843d563207d233925d35e0d23cdb8e3fd6f3e3b0a889937ad7678610a80c",
+    "RETURN.md": "d818c712eeee7d729ad0cdd09d2a4ea99ac5e7569a4da156f527337e1a96fcfa"
+  }
+}

@@ -1,0 +1,2 @@
+# Root visual direction v4
+Root Agent0 requests concise plain status labels with rawstates reachableDetails; exactmaturityfooter retained. Distinct Node/Support/Load icons where available. Existing metadata and diagnosticsemantics preserved, no defaults/operations changes. Manager also requests unified Review badge include pendingbatches and Agent Review button actually switchreviewtab. Samewrites.

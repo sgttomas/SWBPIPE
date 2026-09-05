@@ -1,0 +1,11 @@
+# Handoff state — accepted precommit, clean sweep pending
+
+Accepted upstream authority: SOFTWARE_DECOMP revision 0.12; accepted SCA-009; approved DAG-010. Source basis: origin/main 7458e9c1eb9399ed259da464207d9a507acdea2e, branch codex/piping-modeling-workspace. Accepted report/map investigation evidence remains immutable and derivative; current orchestration and implementation packets also remain derivative, not decomposition truth.
+
+Closure verdict: bounded workspace/source and units repair technically accepted; N1 sealed compiled-backend evidence and W7 technical manager final accepted; W7 minimal four-file local-state supplement accepted after root diff review, manifest 2485a3e47deea8bdd6a2f05f20799e8e0915d2fd6a0beb7e68a64dc73661422e. All required technical/manager/local-state fan-in is accepted; writers and source-commit control packet are frozen. I2 combined 17-file full-diff PASS accepted with root-verified digest 9af383721ae28a2564d54aad2333f652c33bd779056c9498201eb19fb6419b8e. See PRECOMMIT_FAN_IN.md and explicit dispositions for exact accepted source/evidence bindings.
+
+Remaining execution gates: Clean committed-source DEC-025, staged whitespace, final metadata validation, and scoped publication checks. No writes during DEC-025. Source/config changes require new review and source-bound validation. No waived checks.
+
+Remaining product/owner work: MAP-031 immediate inline human Apply; complete typed editing widgets; canonical bridge producer ownership/PDU-023; state/run identity and history; nonlinear selected-solution recovery; independent human usability; other existing owner-held engineering/acceptance questions. These are not automatically activated by this tranche. No lifecycle, scope-change, client-hold, release, or professional-reliance promotion.
+
+Next owners: HELP_HUMAN has accepted bounded precommit fan-in and frozen inputs; CHANGE stages only accepted scope, commits the source, and coordinates required clean checks under root direction. Later evidence-only closure records actual source equality. This accepted precommit handoff does not authorize bypassing remaining gates. C1 makes no further writes until C2 source commit and DEC-025 terminal outcome.

@@ -1,0 +1,31 @@
+{
+  "schema": "w2-i1-evidence-manifest/v1",
+  "derivative_package": true,
+  "upstream_manifest_sha256": "d38ffc1f05860b1b9076301a0c056df24ba3a72583919db8dc4a3eff1e7bb763",
+  "source_sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "fixture_sha256": "13dabab7b4e19c1d2639b450914669915065d9418eb5b380d49e83a37492d868",
+  "files": {
+    "AFTER.rs": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+    "AMENDMENT_V2.md": "f293acd15f3d682361498c091d6f307de527251d592b2d3ec47889f08a7c2e19",
+    "AMENDMENT_V3.md": "ae4a4ebf9571b25ec6a26fce7970f7f90aefa079187fc41cfc45cef68dfc1f72",
+    "BEFORE.rs": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1",
+    "BRIEF.md": "5270637fd5e1e52c542181bad29fbdb209079906db931e5ffc2954a97d2785f1",
+    "FIXTURE_AFTER.json": "13dabab7b4e19c1d2639b450914669915065d9418eb5b380d49e83a37492d868",
+    "FIXTURE_BEFORE.json": "5167f8487d107dd5404293809cbc22cb263c00853b53e227edaa113ac9cfe1c9",
+    "LEGACY_FIXTURE_DIAGNOSIS.md": "305cacba3b28cc8b78efe363876bc1430343c64edc09b9330d52b94baf018900",
+    "PATCH.diff": "4e0a70d781c20562e0e38eef664aaa06396d61add747e08c772658731360bb86",
+    "RETURN.json": "03860ce2b0e4a8ee05a1937a08f4cbef447637ea8dbac6411e37f92022bf52f7",
+    "RUNTIME_DECLARATION.md": "b369384e269de5beabf35d6ca26a000878fc32cf622cc6e88f9edd729e5a2161",
+    "STATUS.json": "cb6cedd1ced3b191e5c9e557900b885a5e2441fc3442c4f99062d014d418e7d9",
+    "TASK_RUN.md": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d",
+    "_run_records/TASK_RUN_2026-09-05_I1.md": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d",
+    "after-cargo.log": "cea678d47b98afbb07804b5cb215cc2693604c981b368ed00449b1e6250bf899",
+    "baseline-cargo.log": "4480dd8b207a186aa2ed75462a25ae09d77f2bd2c23136afdcd694779766fd3a",
+    "final-cargo.log": "7ca0b765bf2ae82a5fc9452a2f8f8b511ce428ebb06df67660581b47793ac11b",
+    "mutation-authored_coordinate_units_preserve_preview_results_and_source.log": "015f123eee45b2f03b0a5b9589403ea4bfa74aceffeb9af8c7b810d927e57959",
+    "mutation-missing_or_invalid_project_length_units_block_preview.log": "4627e2a3a7e8719781812c5b235ebe215f318826675499ee5776f2556dead6fc",
+    "mutation-results.json": "0a22c135de0e4b64ed3110f4af7d07734ac64e9748b835f0069f83a8ffa56500",
+    "scope-check.json": "55cfb18ea30f1dbe38436bc92f4f62059363cb88c1bc22f0dc33916e07eb2b21",
+    "selected-checks.json": "903e3e47685a3a1c6734fc7b3df17cd0be4a018332bae834935474321785f657"
+  }
+}

@@ -1,0 +1,2 @@
+G0: materialized root packages/deliverables found: PKG-01_Product_Definition_Normative_Basis_and_Authority, PKG-02_Operative_Instruction_Surface_and_Runtime_Layers, PKG-03_Governed_Execution_Structure_and_Root_Containment, PKG-04_Developmental_Machinery_and_Change_Control, PKG-05_Evidence_Provenance_and_Audit, PKG-06_Self_Application_Variants_and_Release
+G0 PASS: G1-G4 registered and passing per execution/_harness/root_guards.yaml; materialization gate satisfied.

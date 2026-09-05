@@ -1,0 +1,25 @@
+{
+  "id": "NOTICE-009-W2-CONSUMERS",
+  "date": "2026-09-05",
+  "from": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "type": "routed consumer coordination; not authority",
+  "source": "instances/W2/snapshots/FINAL_V1/CONSUMER_NOTICE.md",
+  "source_sha256": "4edeefe27f7f738a35b7785f5a8025b10a608f1baddb3e1cf79b686da9929c18",
+  "source_status_calibration": "Source notice stated review pending at creation. Root subsequently accepted fresh R1 full-patch PASS and A2 repaired witness; source bytes remain immutable.",
+  "consumers": [
+    "PKG-04 native solve integration",
+    "PKG-13 physical-to-analytical boundary",
+    "PKG-07 model/result viewing",
+    "PKG-09 DEC-092 fixture"
+  ],
+  "change": "Product-physics compilation now retains and normalizes explicit authored m/mm/in coordinate units using DEC-018 registry; missing/invalid metadata blocks with existing UNIT_INPUT_INVALID. No authored model mutation or quantity/direction-vector double conversion.",
+  "fixture_change": "Only explicit length m metadata matching accepted 4m hand-calculation basis",
+  "follow_on": "Affected consumers use source-bound repaired evidence; integrated checks/native verification/DEC-025 remain before closeout",
+  "preserved_gates": [
+    "PDU-048 independent numeric suitability",
+    "PKG-02 B2/B3 full closure",
+    "Lifecycle/scope/DAG/hold decisions"
+  ],
+  "write_limit": "Runroot coordination only; no PKG-09 or other authority writes"
+}

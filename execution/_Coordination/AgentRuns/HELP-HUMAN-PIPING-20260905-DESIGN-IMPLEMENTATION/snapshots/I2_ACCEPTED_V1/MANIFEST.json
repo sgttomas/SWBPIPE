@@ -1,0 +1,8 @@
+{
+  "status": "immutable accepted bounded review evidence",
+  "files": {
+    "snapshots/I2_ACCEPTED_V1/ACCEPTANCE.json": "b44f49e174eb790fb4c91d954040a53f3bfb1ca7fc35f3a03c55638da14aaed9",
+    "snapshots/I2_ACCEPTED_V1/RETURN.md": "533719d1c4b448990900717d12d6c825a6c92d38a537271f99e016ee1f736c25",
+    "snapshots/I2_ACCEPTED_V1/STATUS.json": "3ad7c2392da1428c2b310b67ef27a8b402c05bb0cc95c8084422b43d2e02d3ce"
+  }
+}

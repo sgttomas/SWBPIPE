@@ -1,0 +1,122 @@
+{
+  "utc": "2026-09-05T19:49:09.122378+00:00",
+  "source_head": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "source_before_sha256": "b3bb4abd1e749e4f9c3e8ac0053c2023d5c305e145c380f4111ac7490334bb63",
+  "bound_input_count": 626,
+  "source_inputs_unchanged": true,
+  "bundle_path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app",
+  "binary_path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app/Contents/MacOS/openpipestress-desktop",
+  "binary_sha256": "c37d5f9e70f9727cf47323f44b765171ca38a14baefb577ebdb3a79136f23c68",
+  "assets": {
+    "bundle": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app",
+      "files": {
+        "Contents/Info.plist": "8b92a74515e09449981f77406bb260ac43c9331b5cd84a5c73de2864bc8044ce",
+        "Contents/MacOS/openpipestress-desktop": "c37d5f9e70f9727cf47323f44b765171ca38a14baefb577ebdb3a79136f23c68",
+        "Contents/Resources/icon.icns": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+      },
+      "inventory_sha256": "c86b10bac709df76cc9a8657a6024097f0dbf25eae7efb7d4d7af2d08135cbdc"
+    },
+    "frontend": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/dist",
+      "files": {
+        "assets/index-CkAcqY5w.css": "e912c50c3f9b0a7a103923c2a40a80845fbcfd82ecb4781e7e10d76f9989444b",
+        "assets/index-Db5olHyi.js": "26c679dd5c1171fe834425835e8036f0d573fc7fe7f25b63e151a2815023932d",
+        "assets/invented_agent_proposal-Bm57LVt-.js": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+        "assets/invented_demo_rule_pack-dhX9tvT1.js": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+        "assets/invented_design_knowledge-H12r-oKQ.js": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+        "assets/invented_mechanics_result-DftuaeNr.js": "d8ff1aaef6fbe6c74852f3d1377a392dc3f5a5384d737a2defdfc2d77492e4fc",
+        "assets/invented_preview_model-pJA3_nB8.js": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+        "assets/vendor-7OC5HNn7.js": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+        "assets/vendor-icons-Fcg__Luf.js": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c",
+        "assets/vendor-react-BT_8sX57.js": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+        "assets/vendor-tauri-DlQNAQKj.js": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+        "assets/vendor-three-C7YCSTwK.js": "74160b63cdc8eb80afb5e0289dc06e966135449097eef41daf960c66d0fcbce5",
+        "index.html": "8069983107915832e90af21dd395d9ce2616c918fee11d93154b9a226c93ba14",
+        "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+        "self-weight-engine/open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+        "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm": "4722bca8d1505ed682aa163901c9119a0fa78b4b5880bfad1fb3b23bad81e56a",
+        "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+        "wasm-engine/open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+        "wasm-engine/open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+        "wasm-engine/open_pipe_stress_operation_applier_bg.wasm": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+        "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f"
+      },
+      "inventory_sha256": "370b96c7916bb28722b8ee3544d7d09b842e3ec35f1f7535d0ba2ce56ed4d5a5"
+    },
+    "operation_wasm": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/public/wasm-engine",
+      "files": {
+        "open_pipe_stress_operation_applier.d.ts": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+        "open_pipe_stress_operation_applier.js": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+        "open_pipe_stress_operation_applier_bg.wasm": "91f47297b35131d18307e4f1a5bff2eccb0ebe7cd05b611d6e70488742f19cc8",
+        "open_pipe_stress_operation_applier_bg.wasm.d.ts": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f"
+      },
+      "inventory_sha256": "e987634c16ce03436bcfd256f9ac77a78afb263903b3db6e9fd60dac37fe3f06"
+    },
+    "self_weight_wasm": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/public/self-weight-engine",
+      "files": {
+        "open_pipe_stress_self_weight_wasm.d.ts": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+        "open_pipe_stress_self_weight_wasm.js": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+        "open_pipe_stress_self_weight_wasm_bg.wasm": "4722bca8d1505ed682aa163901c9119a0fa78b4b5880bfad1fb3b23bad81e56a",
+        "open_pipe_stress_self_weight_wasm_bg.wasm.d.ts": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+      },
+      "inventory_sha256": "eb81bca1c863dd6ac97e8f0fa3f1cc190abfe0ca41cd87f314fbe6b259ebb925"
+    }
+  },
+  "self_test": {
+    "command": [
+      "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app/Contents/MacOS/openpipestress-desktop",
+      "--self-test-saved-edited-load"
+    ],
+    "exit_code": 0,
+    "duration_seconds": 0.7028807080350816,
+    "evidence": {
+      "boundary": {
+        "network": false,
+        "private_data": false,
+        "protected_content": false,
+        "repository_write": false,
+        "telemetry": false
+      },
+      "fixture_class": "invented_public",
+      "operation": {
+        "after": 425,
+        "application_status": "applied_to_session_model",
+        "before": 350,
+        "professional_approval": false,
+        "target": "load:L-100/load:L-100-Y",
+        "unit": "N"
+      },
+      "persistence": {
+        "reopen_store_schema_version": 11,
+        "restored_unit": "N",
+        "restored_value": 425,
+        "storage": "isolated_file_backed_sqlite",
+        "store_migration": {
+          "document_status": "migrated",
+          "persistence_state": "persisted_with_ledger_record",
+          "store_schema_version": 11
+        },
+        "writer_connection_closed_before_restore": true
+      },
+      "project_id": "project:packaged-edited-load-smoke",
+      "route": "packaged_binary_saved_edited_load_self_test",
+      "solve": {
+        "edited_result_differs_from_baseline": true,
+        "mechanics": "MECHANICS_SOLVED",
+        "model_ref": "project:packaged-edited-load-smoke",
+        "result_rows": 830
+      },
+      "status": "PASS"
+    }
+  },
+  "signature_inspection_exit_code": 0,
+  "host": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+  "limits": [
+    "Compiled native backend self-test; no GUI interaction or usability proof.",
+    "Working-tree build, not release publication or lifecycle acceptance.",
+    "No association asserted with any previously running user app."
+  ]
+}

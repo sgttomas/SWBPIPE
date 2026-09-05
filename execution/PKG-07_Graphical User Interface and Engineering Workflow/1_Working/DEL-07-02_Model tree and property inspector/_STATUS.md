@@ -1,17 +1,18 @@
 # Status: DEL-07-02 Model tree and property inspector
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-21
+**Last Updated:** 2026-09-05
 
 ## Remaining
 - Add GUI entry/emission of the model-level modulus_basis_records table (schema model.schema.yaml; per-load-case modulus_basis_ref selection plus bend_pipe_ref/mill-tolerance/equivalent-static entry landed via TP-PMM-GUIEMIT-001 PR #156 and applier acceptance TP-APP-R5-FIELDRULES-001 PR #162) (source: Receipt 10 delta / model.schema.yaml)
 - Broaden app unit entry/pickers beyond the covered B-tail surfaces (residual hardening, select when it de-risks current-stage work) (source: PRD plan §3 Phase B-tail row / FR-002)
 - Backfill unit tests and factoring for LoadCaseManagerPanel, PipeViewport, PropertyInspector (see also DEL-07-01) (source: PRD plan §3 hardening row H3 / seam plan §9.4)
-- Complete broader canvas gestures and full model-tree/property-editor UX beyond landed selection/creation/drafting (source: PRD plan §4 FR-003/FR-013/FR-014 A3 residuals)
+- Complete broader canvas gestures and full model-tree/property-editor UX beyond landed selection/creation/drafting and the 2026-09-05 bounded workspace/typed-readout presentation (source: PRD plan §4 FR-003/FR-013/FR-014 A3 residuals)
 - Current toolkit adds rich support/hanger/nonlinear/family configuration, reference-guarded removal, explicit equipment/nozzle DOFs and real Rust-backed display readouts. Unsupported display dimensions retain entered values; drafts/model/evidence stay unchanged. Final N7 integrated review remains pending; these implementation records do not close broader UX, modulus-basis or independent validation residuals. See DEL-07-09 current coverage and routing records.
 - N7 F1/F3 repairs reject conflicting duplicate stiffness and noncanonical explicit family tokens; canonical UI family values and legacy omitted/null inference are preserved. F2 support/boundary readouts derive linear versus rotational dimension from the effective DOF; unsupported targets retain entered values. Postrepair desktop build / 43 files / 732 tests and host dist 1 test PASS; root N7 final rereview remains pending. See DEL-07-09 Palette_Operation_Routing.md N7 repair amendment; no lifecycle closure.
 
 ## History
+- 2026-09-05 - W7 completed bounded workspace presentation: contextual creation disclosures, typed text/reference/enum versus quantity readouts, property-specific labels, concise metadata disclosures, and direct Support command focus. Final desktop 45 files / 748 tests and build PASS; browser layout 2/2 and 12-state workflow PASS; fresh R1 full 13-file review PASS after the preserved Support-route repair. Evidence: `_run_records/WORKING_ITEMS_RUN_2026-09-05_WORKSPACE_DESIGN.md`. Remaining excludes only this landed presentation slice; broader gestures, complete property widgets, Queue-to-inline-Apply changes and existing engineering/independent-usability holds remain. State stays IN_PROGRESS; no lifecycle or professional acceptance.
 - 2026-08-21 - Vocabulary round 3 completed Inspector creation forms for tee, reducer, valve, flange, and expansion joint. Required connectivity roles initialize/reset empty for non-bend kinds; expansion joints require explicit geometry, 4-axis stiffness, units, pressure-thrust/source references, and provenance. Fresh N1/N2 reviews passed after one preserved repair cycle each; commits `8ca1984db45a9a8f6f3111a905b07c7d3da47c33` and `d1a8e20ae413be040b82428cdd0bdbef0809e8de`. Rows 14 and 15 are closed; existing Remaining items and IN_PROGRESS lifecycle are unchanged.
 - 2026-08-21 - Accepted the owner-amended N2 bend-only Property Inspector creation form and shared queued-target reservation evidence. Focused UI/build checks and fresh 100%-diff review passed; tee, reducer, valve, flange, and expansion-joint creation remain open. Existing Remaining items and lifecycle are unchanged.
 - 2026-04-30 - State set to OPEN (PREPARATION)

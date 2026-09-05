@@ -1,0 +1,147 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+    "id": "project:invented-loop-01",
+    "name": "Invented Utility Loop Preview",
+    "description": "Small invented centerline model for desktop integration review.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC",
+      "stress": "MPa"
+    }
+  },
+  "materials": [
+    {
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "elastic_modulus": {
+        "value": 200000000000,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example_no_material_standard"
+    }
+  ],
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:N-100",
+      "label": "Pump nozzle",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-110",
+      "label": "Low point elbow",
+      "position": {
+        "x": 2,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:P-100",
+      "label": "Pump discharge run",
+      "from": "node:N-100",
+      "to": "node:N-110",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:S-100",
+      "label": "Anchor at pump nozzle",
+      "node": "node:N-100",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_example"
+    }
+  ],
+  "components": [],
+  "load_cases": [
+    {
+      "id": "load:L-100",
+      "label": "Invented operating gravity and pressure preview",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:A2-invented",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-110"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 350,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination"
+    }
+  ],
+  "combinations": [],
+  "diagnostics": [
+    {
+      "code": "RULE_INPUTS_MISSING",
+      "severity": "warning",
+      "message": "Rule-check inputs are intentionally absent from this invented preview.",
+      "source": "fixtures/product_preview/invented_preview_model.json"
+    }
+  ]
+}

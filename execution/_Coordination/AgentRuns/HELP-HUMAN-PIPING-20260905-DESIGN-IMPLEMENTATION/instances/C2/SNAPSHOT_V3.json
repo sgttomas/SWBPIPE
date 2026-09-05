@@ -1,0 +1,20 @@
+{
+  "schema": "piping.change.classification.v1",
+  "created_at": "2026-09-05T19:27:58.402821+00:00",
+  "status": "CLASSIFICATION_CANDIDATE_PASS",
+  "acceptance_sha256": "54ea1b28944b42f43b25f6bc333d79c2ab265404d26ed7e9b4f88ab7ace8a5e8",
+  "verification": {
+    "before_sha256": "ce1b5bb906f8fb6833f0f3ab9939c1173f7dd6f4c1e74f2ccb9305731bf3daaa",
+    "after_sha256": "62df2c1497f92e7471233c7d0ca618c6c15ef52a0174eaaa74aed28f45b8178f",
+    "exact_combined_added_entries": 2,
+    "older_entries_unchanged": true,
+    "policy_issues": [],
+    "roles": {
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/SOURCE_INDEX.md": "EVIDENCE",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/FINDING.md": "EVIDENCE"
+    },
+    "preserved_original_files": 77,
+    "target_sha256": "71d186231d0eee7fdaf6c50f088e821482c93b58e97bc5509d0e21cce95c66af"
+  },
+  "return_sha256": "cb59f030b711b13f03bc689afff7935b9651625d9b860ae2e1fef936c6731687"
+}

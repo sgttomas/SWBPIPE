@@ -1,0 +1,13 @@
+{
+  "receipt_validator": {
+    "command": "python3 tools/validation/validate_piping_loop_receipts.py",
+    "exit_code": 0,
+    "result": "VALID; versioned receipt contract satisfied"
+  },
+  "scoped_diff_check": {
+    "command": "git diff --check -- Receipt 131 file and exact changed root control files",
+    "exit_code": 0
+  },
+  "prior_receipt_bytes_preserved": true,
+  "product_configuration_unchanged_by_C1": true
+}

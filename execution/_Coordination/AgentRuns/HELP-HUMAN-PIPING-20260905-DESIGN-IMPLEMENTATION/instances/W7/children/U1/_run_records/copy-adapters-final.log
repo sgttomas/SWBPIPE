@@ -1,0 +1,41 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop
+
+---------------stderr | src/App.test.tsx > OpenPipeStress desktop preview > exposes materials, components, load cases, and combinations in the model workspace
+An update to GuardedRemoval inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+x-----------------------··-------------------------------------------------------------------------------
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > exposes materials, components, load cases, and combinations in the model workspace
+AssertionError: expected 'Invented elbow markerAll propertiesID…' to contain 'No missing selected fields detected'
+
+Expected: "No missing selected fields detected"
+Received: "Invented elbow markerAll propertiesIDcomponent:C-110KindbendNodenode:N-110Bend radius0.45 mBend angle1.5707963268 radBend planeglobal_xy_previewGeometry sourceinvented_user_entered_preview_geometrySolver consumptionmechanics_geometry_onlyRule input consumptionuser_rule_pack_inputs_onlySIF user value1.15 noneFlexibility user value1.08 noneModifier sourceinvented_user_entered_preview_no_code_tableCompletenessBEND_GEOMETRY_INCOMPLETE:completeProvenanceinvented_example_user_entered_bend_values_no_code_table Edit namePropertyNameNodeBend radiusBend angleBend planeBend pipeSIF user valueFlexibility user valueProvenanceCurrent nameInvented elbow markerNew nameQueue changeValidateOperation detailsReason for changeOperationop:editor-intent-component:C-110-label; modify; proposedTargetComponent; component:C-110Changeset_field; Label; label; before=Invented elbow marker; after=Invented elbow markerUnit basisdimensionless; unit=none; component label onlyValidationnot_run; not_run; not_required_dimensionless; not_generated; not_appliedAudit boundaryRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until appliedProfessional boundaryRequires human review; no compliance claim; no approval claimRationaleuser_entered_preview_changeeditor-intent-1op:editor-intent-material:invented-carbon-steel-elastic_modulus.valueelastic_modulus.value: 200000000000 to {"value":210000000000,"unit":"Pa"}; status: not_applied; no accepted model changeValidate to check this change before applying it.Sources and unitsProvenanceSourceinvented_example_user_entered_bend_values_no_code_tableGeometry sourceinvented_user_entered_preview_geometryModifier sourceinvented_user_entered_preview_no_code_tableSolver consumptionmechanics_geometry_onlyUnit basisCatalogbrowser preview uses model metadata; no fallback catalogField unitsm, model metadata; Pa, model metadata; N/m, model metadata; 1/degC, model metadataRemove componentRemove Invented elbow marker (component:C-110). References from other records can block removal. No connected records will be removed automatically.Queue removal for reviewPreparing the current entity snapshot…The queued change must be validated and explicitly applied in Pending changes.New sectionSection IDNameTypepipeLength unitm, model metadataOutside diameter (m, model metadata)Wall thickness (m, model metadata)ProvenanceQueue sectionNew materialMaterial IDLabelModulus unitPa, model metadataElastic modulus (Pa, model metadata)Shear modulus (Pa, model metadata)Thermal expansion unit1/degC, model metadataThermal expansion (1/degC, model metadata)ProvenanceQueue materialNew supportSupport IDLabelNodePump nozzle (node:N-100)Low point elbow (node:N-110)Riser elbow (node:N-120)Rack turn (node:N-130)Terminal tie-in (node:N-140)UXUYUZRXRYRZLinear stiffness unitN/m, model metadataLinear stiffness (N/m, model metadata)ProvenanceQueue supportOperationop:create-support-support:S-1; create; proposedTargetSupport; support:S-1Changecreate_support; Explicit support; supports; before=not_present; after={"id":"support:S-1","label":"Support S-1","node":"node:N-100","restraints":["UX","UY","UZ"],"provenance":"user_entered_local_preview"}Unit basisdimensionless; unit=none; explicit user-entered support node and restraint tokensValidationnot_run; not_run; not_required_dimensionless; not_generated; not_appliedAudit boundaryRouted through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until appliedProfessional boundaryRequires human review; no compliance claim; no approval claimRationaleexplicit user-entered support for project:invented-loop-01; requires service validation before durable model change.New componentComponent IDLabelKindbendteereducervalveflangeexpansion_jointNodePump nozzle (node:N-100)Low point elbow (node:N-110)Riser elbow (node:N-120)Rack turn (node:N-130)Terminal tie-in (node:N-140)Realized pipeSelect connected pipePump discharge run (pipe:P-100)RadiusRadius unitm, model metadataAngleAngle unitrad, model metadataPlane orientationGeometry sourceProvenanceQueue bend"
+
+ ❯ src/App.test.tsx:4800:35
+    4798|       "invented_example_user_entered_bend_values_no_code_table",
+    4799|     );
+    4800|     expect(inspector.textContent).toContain(
+       |                                   ^
+    4801|       "No missing selected fields detected",
+    4802|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed | 117 skipped (120)
+   Start at  13:34:29
+   Duration  2.25s (transform 657ms, setup 41ms, import 783ms, tests 1.25s, environment 115ms)
+

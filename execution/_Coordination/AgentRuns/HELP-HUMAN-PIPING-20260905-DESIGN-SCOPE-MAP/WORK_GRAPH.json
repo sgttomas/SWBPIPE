@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "selection": "AGENT_0",
+  "parent": "/root",
+  "posture": "MIXED",
+  "nodes": [
+    {
+      "id": "A1",
+      "agent_id": "/root/scope_map_author",
+      "role": "Agent 2",
+      "writes": [
+        "plans/MAP_2026-09-05_product_design_scope_and_decisions.md",
+        "this runroot"
+      ]
+    },
+    {
+      "id": "R1",
+      "agent_id": "/root/scope_map_review",
+      "role": "Agent 2",
+      "writes": []
+    },
+    {
+      "id": "ROOT",
+      "role": "HELP_HUMAN Agent 0",
+      "activity": "authority check and fan-in"
+    }
+  ],
+  "edges": [
+    {
+      "from": "A1",
+      "to": "R1-final",
+      "condition": "frozen map ready"
+    },
+    {
+      "from": "R1-final",
+      "to": "ROOT-fan-in",
+      "condition": "no actionable findings"
+    },
+    {
+      "from": "ROOT-fan-in",
+      "to": "A1-record",
+      "condition": "exact parent acceptance supplied"
+    }
+  ],
+  "parallel": [
+    "A1 authoring",
+    "R1 independent scope assessment",
+    "ROOT authority check"
+  ],
+  "human_gates": "Later design or amendment decisions; no activation in this run",
+  "revision_note": "Runtime receipt supplied by parent resolves R1 ID; scope/order unchanged."
+}

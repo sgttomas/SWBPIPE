@@ -1,0 +1,9 @@
+{
+  "name": "G3",
+  "exit_code": 0,
+  "elapsed_seconds": 0.04,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_root_work_graph_dispatch.py"
+  ]
+}

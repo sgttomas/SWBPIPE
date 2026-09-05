@@ -1,0 +1,187 @@
+{
+  "version": 4,
+  "date": "2026-09-05",
+  "selection_authority": {
+    "implementation": "HUMAN",
+    "work_graph": "AGENT_0"
+  },
+  "posture": "MIXED",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable",
+  "basis": {
+    "git": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+    "decomposition": "revision 0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010"
+  },
+  "nodes": [
+    {
+      "id": "C0",
+      "role": "CHANGE",
+      "runtime_id": "/root/sync_main",
+      "status": "accepted_sync_PASS",
+      "write_scope": "instances/C0; exclusive Git when authorized"
+    },
+    {
+      "id": "C1",
+      "role": "ephemeral Agent 2 recorder",
+      "runtime_id": "/root/implementation_coordination",
+      "status": "active",
+      "write_scope": "root control records; instances/C1 only"
+    },
+    {
+      "id": "W7",
+      "role": "WORKING_ITEMS",
+      "package": "PKG-07",
+      "runtime_id": "/root/workspace_manager",
+      "status": "active",
+      "write_scope": "apps/desktop/src UI/tests; PKG-07 local records; own instance",
+      "return_contract": "validated package return, fresh full-diff review PASS, focused/registered/DEC-025 evidence and handoff",
+      "primary_deliverables": [
+        "DEL-07-01",
+        "DEL-07-02"
+      ],
+      "supporting_existing_integration": [
+        "DEL-07-03",
+        "DEL-07-04",
+        "DEL-07-05",
+        "DEL-07-08"
+      ],
+      "qualitative_verification": [
+        "DEL-07-06"
+      ],
+      "contract_only": [
+        "DEL-07-09"
+      ],
+      "preserved_holds": [
+        "PDU-045",
+        "PDU-046"
+      ],
+      "author_partition": [
+        "App/styles/Toolkit",
+        "inspector/tree"
+      ],
+      "review": "fresh read-only full frozen diff"
+    },
+    {
+      "id": "A2",
+      "role": "ephemeral Agent 2 witness",
+      "runtime_id": "/root/architecture_witnesses",
+      "status": "units reproduced, packet pending; identity/persistence witnesses ongoing",
+      "write_scope": "own instance scripts/evidence only",
+      "return_contract": "source-bound witness results, exact gaps, next owners, no product mutation",
+      "baseline": "frozen baseline"
+    },
+    {
+      "id": "LATER_INTEGRATION",
+      "status": "held_pending_witness_and_owners",
+      "runtime_id": null,
+      "write_scope": "none selected"
+    },
+    {
+      "id": "W2",
+      "runtime_id": "/root/units_manager",
+      "role": "Agent 1 WORKING_ITEMS",
+      "package": "PKG-02",
+      "primary_deliverable": "DEL-02-02",
+      "objective": "minimal product coordinate-boundary repair",
+      "initial_mode": "superseded by accepted units packet",
+      "source_write_gate": "satisfied by ACCEPT_A2_UNITS_V1",
+      "eventual_write_scope": [
+        "core/product_physics relevant units boundary and targeted tests",
+        "PKG-02 local records",
+        "instances/W2 subtree"
+      ],
+      "exclusions": [
+        "UI",
+        "schema",
+        "native Tauri",
+        "other packages unless root explicitly extends"
+      ],
+      "delegation": "Agent 2 author plus fresh read-only 100% frozen-diff review, then root integrated checks",
+      "existing_basis": [
+        "SOW-025",
+        "MAP-020 unit correctness"
+      ],
+      "new_scope_or_owner_criterion": false,
+      "status": "source writes released within bounded units scope"
+    },
+    {
+      "id": "C2",
+      "runtime_id": "/root/sync_main",
+      "role": "Agent 1 CHANGE",
+      "status": "approved exact classification writer; application pending",
+      "write_scope": [
+        "validation/portability_policy.json one exact entry",
+        "instances/C2 own records"
+      ],
+      "acceptance": "dispositions/ACCEPT_C2_CLASSIFICATION_ONLY.json",
+      "no_git_until": "writers frozen"
+    }
+  ],
+  "edges": [
+    {
+      "from": "C0",
+      "to": "W7",
+      "gate": "sync PASS + frozen PLAN_V1"
+    },
+    {
+      "from": "C0",
+      "to": "A2",
+      "gate": "sync PASS + frozen PLAN_V1"
+    },
+    {
+      "from": "A2",
+      "to": "LATER_INTEGRATION",
+      "gate": "accepted witness and required package owner selection"
+    },
+    {
+      "from": "W7",
+      "to": "C0",
+      "gate": "accepted implementation fan-in + required checks before later closeout"
+    },
+    {
+      "from": "A2",
+      "to": "W2",
+      "gate": "root accepts frozen units packet before W2 source writes; READ/PLAN allowed now",
+      "status": "satisfied",
+      "evidence": "dispositions/ACCEPT_A2_UNITS_V1.json"
+    }
+  ],
+  "concurrency": {
+    "allowed": [
+      "W7 with A2 with C1",
+      "W7 UI with W2 read/plan; later product units work only after gate and disjoint writes"
+    ],
+    "forbidden": [
+      "overlapping source/test/build writes"
+    ],
+    "heavy_builds": "serialize by root coordination"
+  },
+  "human_gates": [
+    "consequential product preferences",
+    "new normative acceptance targets",
+    "engineering method/contract changes",
+    "actual SCA candidates"
+  ],
+  "closure_fences": [
+    "no automatic PR merge",
+    "no lifecycle issuance",
+    "no inherited hold closure",
+    "no full native usability or engineering claim without convergence evidence"
+  ],
+  "updates": [
+    "updates/UPDATE-002.json",
+    "updates/UPDATE-004.json",
+    "dispositions/ACCEPT_A2_UNITS_V1.json",
+    "dispositions/ACCEPT_C2_CLASSIFICATION_ONLY.json"
+  ],
+  "layout_target": {
+    "width": 1024,
+    "height": 768,
+    "authority": "HUMAN",
+    "final_usability_acceptance": false
+  },
+  "stage": "R5"
+}

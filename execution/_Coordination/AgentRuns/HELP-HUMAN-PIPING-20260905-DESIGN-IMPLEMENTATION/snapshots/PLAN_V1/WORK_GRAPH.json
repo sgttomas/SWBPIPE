@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "date": "2026-09-05",
+  "selection_authority": {
+    "implementation": "HUMAN",
+    "work_graph": "AGENT_0"
+  },
+  "posture": "MIXED",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable",
+  "basis": {
+    "git": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+    "decomposition": "revision 0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010"
+  },
+  "nodes": [
+    {
+      "id": "C0",
+      "role": "CHANGE",
+      "runtime_id": "/root/sync_main",
+      "status": "accepted_sync_PASS",
+      "write_scope": "instances/C0; exclusive Git when authorized"
+    },
+    {
+      "id": "C1",
+      "role": "ephemeral Agent 2 recorder",
+      "runtime_id": "/root/implementation_coordination",
+      "status": "active",
+      "write_scope": "root control records; instances/C1 only"
+    },
+    {
+      "id": "W7",
+      "role": "WORKING_ITEMS",
+      "package": "PKG-07",
+      "runtime_id": null,
+      "status": "planned",
+      "write_scope": "apps/desktop/src UI/tests; PKG-07 local records; own instance",
+      "return_contract": "validated package return, fresh full-diff review PASS, focused/registered/DEC-025 evidence and handoff"
+    },
+    {
+      "id": "A2",
+      "role": "ephemeral Agent 2 witness",
+      "runtime_id": null,
+      "status": "planned",
+      "write_scope": "own instance scripts/evidence only",
+      "return_contract": "source-bound witness results, exact gaps, next owners, no product mutation"
+    },
+    {
+      "id": "LATER_INTEGRATION",
+      "status": "held_pending_witness_and_owners",
+      "runtime_id": null,
+      "write_scope": "none selected"
+    }
+  ],
+  "edges": [
+    {
+      "from": "C0",
+      "to": "W7",
+      "gate": "sync PASS + frozen PLAN_V1"
+    },
+    {
+      "from": "C0",
+      "to": "A2",
+      "gate": "sync PASS + frozen PLAN_V1"
+    },
+    {
+      "from": "A2",
+      "to": "LATER_INTEGRATION",
+      "gate": "accepted witness and required package owner selection"
+    },
+    {
+      "from": "W7",
+      "to": "C0",
+      "gate": "accepted implementation fan-in + required checks before later closeout"
+    }
+  ],
+  "concurrency": {
+    "allowed": [
+      "W7 with A2 with C1"
+    ],
+    "forbidden": [
+      "overlapping source/test/build writes"
+    ],
+    "heavy_builds": "serialize by root coordination"
+  },
+  "human_gates": [
+    "consequential product preferences",
+    "new normative acceptance targets",
+    "engineering method/contract changes",
+    "actual SCA candidates"
+  ],
+  "closure_fences": [
+    "no automatic PR merge",
+    "no lifecycle issuance",
+    "no inherited hold closure",
+    "no full native usability or engineering claim without convergence evidence"
+  ]
+}

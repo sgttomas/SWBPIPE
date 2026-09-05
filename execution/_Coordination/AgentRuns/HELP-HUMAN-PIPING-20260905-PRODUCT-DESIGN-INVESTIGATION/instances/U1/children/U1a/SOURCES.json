@@ -1,0 +1,179 @@
+{
+  "basis": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "sources": [
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+    },
+    {
+      "path": "projects/chirality-piping/plans/PLAN_2026-06-18_workspace_redesign_c5_7.md",
+      "sha256": "7fc3bf03448f90c55b7b0b5affc5f0a7b9651b4fbd53938282b4725fcc8957f3"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "6d181c362aa148a1e122d0b99d2cf6b34ae080e249868789906a7ff1e3eeafe6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "554469a251861b9fd0baa898dfc89649c49a4487f1640f999da0238232976934"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "sha256": "3f55094a378143d2fa7a5eaeccee541205daece4be82f0f605643df990866672"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+      "sha256": "234ce63780b27e89e55b22a5702af8de466c8179d4ae3146760537e3471fcfcd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "35b4e9160fe0993e8d7ecc08c97a42dfd700a043aee16fdf7091e14a78ef73da"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "5c303ed3a6700eae65207dbececa98a74c2b6d427a1ec20661ffec8ff2b757db"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/DisplayIntegration.test.tsx",
+      "sha256": "3a721dd992eb81c420ed4ed6eca8e9e3f76aad478651a95d5d8e949032932ae2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "fb297856894f023db8ea1a11f5dcad3787685909d1aa571e2a5610e3bc900b18"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/_LATEST.md",
+      "sha256": "bec89d13b8c56b77f803eaf6be7c188e3a1d478b927468811f05dab2c00aa30c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Handoff_State.md",
+      "sha256": "92df402801ebe6a451f5fb068c56703f70db7f29cadbfae5a5f557ff9e024d7f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/HANDOFF.md",
+      "sha256": "c5f84bb77fb3f4e21fac6a5ac22e0309d4309c803242869e42b1589cc0d27cc8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md",
+      "sha256": "e650371c6d0849b07a37d2bb618ebb8fc215fa971d9f9003abc3f17678368796"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "sha256": "15ad89aeaf7892df1bd6241984270307cede87d520869e50832ed0f83818d9d9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "1f60e58c6117f50c04bb55491ac1bd260880a90854bc7da2756bc6cbf4e89886"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md",
+      "sha256": "298be604a1fb039b0d0e0cb09f37bd9eb434a9372b0cad67678fe801b9d8d9fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "sha256": "a393a4d47ba3ad7056eda44bc722e7c3a9aef2ecf360f3c29b63d409f10a36a3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "f85a8e1a5e5baa5b7b1ffa407ac2935c26ea674b286d49ec6504449b6894088e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/ScopeOfWork.md",
+      "sha256": "6f015d8857c05496d44c3a956460ccd48f759f6bcb4b3a7950bbbe86550a0518"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_CONTEXT.md",
+      "sha256": "8387e0d80380386cbda25524acbd621f16ad2176bacdf237871048651883cbf3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-04_Missing-data warning and blocking UX/_STATUS.md",
+      "sha256": "68dbce491e299465a008027766761209f920d229bafb4786c8fee529fd5475a7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+      "sha256": "af413bb0a7429968f8943d152100092fa16541dc4236534229ba4b669ddba9dd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+      "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "sha256": "a1868f1ee972db40eaf0ae42cd73bd3c749e70e6979dffb5cbbdc0230a812b46"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md",
+      "sha256": "64436868120a3fa4d6694110680aaaf455fcecd0f75553295093d10e4828f51b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "sha256": "a3ef564379b14d756ef6c40c13302ad48ea95011f0c02dd7646a332246c03b64"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+      "sha256": "f19149afe287b28c3716ef647d414f9cad66fe86dde2bdccd812129ecbff6940"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_CONTEXT.md",
+      "sha256": "98905789a8df97324b033217015c0fc1d78e8bcdca9cda26eab9bd0f2d8756c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "sha256": "755e944ec0fa816ab999134276da23bd7ab695eb39610f7a7c5843db3b2537e5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+      "sha256": "ed7f09455774a79cc32a476551126c308772d0766fc94944c52d61e725848138"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+      "sha256": "4bf9bede3e5467fb6b03fe8eb42b3d0e9c6191fbca44469620cd436e741346d5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "sha256": "b5e7bca7e32b349f45380f549cb30f3cce3b439401cb0de277e010dd44a7b50d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e"
+    }
+  ],
+  "external_sources": [],
+  "inherited_observation": "BRIEF.md; native source version unproven; no child RUN verification"
+}

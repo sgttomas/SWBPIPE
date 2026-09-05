@@ -1,0 +1,17 @@
+{
+  "map_sha256": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4",
+  "map_rows": 44,
+  "decision_rows": 28,
+  "candidate_rows": 7,
+  "local_link_and_anchor_checks": 170,
+  "broken_links": [],
+  "undefined_reference_links": [],
+  "duplicate_ids": false,
+  "nonexisting_deliverable_ids": [
+    "DEL-07-10"
+  ],
+  "nonexisting_deliverable_disposition": "DEL-07-10 explicitly conditional annex example; no creation/assignment",
+  "product_tests": "not run; planning-only",
+  "status_memory_reads": "No _STATUS files read",
+  "repair": "MAP-044 annex section citation only; 170 targets unaffected, rechecked local path/internal/report targets"
+}

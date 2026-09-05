@@ -1,0 +1,11 @@
+{
+  "agent_id": "/root/scope_map_review",
+  "parent": "/root",
+  "model": "inherited; exact model unknown",
+  "role": "Agent 2 read-only",
+  "initial_assessment": "COMPLETE",
+  "final_map_review": "PASS_NO_ACTIONABLE_FINDINGS",
+  "writes": [],
+  "status": "COMPLETE",
+  "map_sha256": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4"
+}

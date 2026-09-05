@@ -1,0 +1,111 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 7
+  },
+  "counts": {
+    "category": {
+      "browser_layout": 1,
+      "visual_fanin": 1
+    },
+    "event_type": {
+      "CHECK": 2,
+      "FINISH": 7,
+      "START": 7
+    },
+    "outcome": {
+      "FAIL": 2,
+      "PASS": 7,
+      "STARTED": 7
+    },
+    "reason_code": {
+      "CANVAS_HOST_SIZE_MISMATCH": 1,
+      "CONTEXTUAL_FORMS": 1
+    }
+  },
+  "events": 16,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 1867.881,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "W7",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent1 WORKING_ITEMS",
+      "session_id": "/root/workspace_manager"
+    },
+    {
+      "duration_seconds": 369.856,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "U2",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/typed_inspector"
+    },
+    {
+      "duration_seconds": 949.828,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "U2",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/typed_inspector-v2"
+    },
+    {
+      "duration_seconds": 214.298,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "R1",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK software-code-review",
+      "session_id": "/root/workspace_manager/ui_review"
+    },
+    {
+      "duration_seconds": 352.991,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "R1",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/ui_review-v2"
+    },
+    {
+      "duration_seconds": 1316.476,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "U1",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/workspace_ui"
+    },
+    {
+      "duration_seconds": 150.222,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "U1",
+      "package_id": "PKG-07",
+      "remediations": 0,
+      "retries": 0,
+      "role": "Agent2 TASK",
+      "session_id": "/root/workspace_manager/workspace_ui-v2"
+    }
+  ],
+  "sessions": 7,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

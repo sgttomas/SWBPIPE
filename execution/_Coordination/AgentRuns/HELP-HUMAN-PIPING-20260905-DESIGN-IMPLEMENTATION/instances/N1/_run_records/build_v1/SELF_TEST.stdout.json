@@ -1,0 +1,39 @@
+{
+  "boundary": {
+    "network": false,
+    "private_data": false,
+    "protected_content": false,
+    "repository_write": false,
+    "telemetry": false
+  },
+  "fixture_class": "invented_public",
+  "operation": {
+    "after": 425,
+    "application_status": "applied_to_session_model",
+    "before": 350,
+    "professional_approval": false,
+    "target": "load:L-100/load:L-100-Y",
+    "unit": "N"
+  },
+  "persistence": {
+    "reopen_store_schema_version": 11,
+    "restored_unit": "N",
+    "restored_value": 425,
+    "storage": "isolated_file_backed_sqlite",
+    "store_migration": {
+      "document_status": "migrated",
+      "persistence_state": "persisted_with_ledger_record",
+      "store_schema_version": 11
+    },
+    "writer_connection_closed_before_restore": true
+  },
+  "project_id": "project:packaged-edited-load-smoke",
+  "route": "packaged_binary_saved_edited_load_self_test",
+  "solve": {
+    "edited_result_differs_from_baseline": true,
+    "mechanics": "MECHANICS_SOLVED",
+    "model_ref": "project:packaged-edited-load-smoke",
+    "result_rows": 830
+  },
+  "status": "PASS"
+}

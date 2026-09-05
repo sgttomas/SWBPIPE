@@ -1,0 +1,13 @@
+{
+  "name": "practitioner_pytest",
+  "exit_code": 1,
+  "elapsed_seconds": 24.77,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tools/practitioner_harness"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality"
+}

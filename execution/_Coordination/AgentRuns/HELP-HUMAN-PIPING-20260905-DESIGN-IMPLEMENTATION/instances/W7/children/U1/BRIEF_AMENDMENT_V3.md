@@ -1,0 +1,2 @@
+# Additive presentation scope v3
+Manager-authorized PipeViewport.tsx source presentation ordering/markup/concise labels and Details controls; independent scrolling right tool-options rail. Existing feature-local viewport tests may be updated for presentation behavior. No geometry/engine/form handlers or operations changed. Explicit warnings remain accessible, essentials visible. No concurrent writer owns file. This supports selected DEL07-01 editor UX residual and does not change engineering semantics.

@@ -1,0 +1,16 @@
+{
+  "role": "Ephemeral Agent 2",
+  "parent": "HELP_HUMAN Agent 0 /root",
+  "runtime_task": "/root/design_human_agent",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted",
+  "model": "unavailable (inherited; exact runtime model not exposed)",
+  "started_at": "2026-09-05T18:05:05.142100+00:00",
+  "status": "COMPLETE_FOR_INQUIRY_ONLY",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/H3.md",
+  "brief_sha256": "bb8b86d07cf28833215fd4a99e38a3bb603e776fde82a4d6740092d6524e2701",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/H3",
+  "completed_at": "2026-09-05T18:09:39.704431+00:00",
+  "findings_sha256": "c60b6f604ff179785adbc7db58bfa620bb39012e626df05a69794a1ea449c709"
+}

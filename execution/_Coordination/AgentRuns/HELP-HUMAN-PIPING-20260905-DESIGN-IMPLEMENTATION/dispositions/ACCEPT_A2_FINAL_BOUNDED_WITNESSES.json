@@ -1,0 +1,29 @@
+{
+  "id": "ACCEPT_A2_FINAL_BOUNDED_WITNESSES",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "ACCEPT_FOR_BOUNDED_WITNESS_EVIDENCE only",
+  "manifest_sha256": "91dc0aac184ecc537410c71819a0769c5c159dd8f769cc9dc2bd2702a1218a5a",
+  "verification": "Root verified all 51 members hash-match and read full FINDINGS with no overclaim",
+  "acceptance_limit": "Bounded witness evidence; does not close canonical bridge, identity/history, nonlinear selected-solution contracts, or engineering acceptance",
+  "additional_A2_scope": {
+    "target": "instances/A2/_run_records/REPAIRED_UNITS_V1 only",
+    "purpose": "Separate post-repair units witness",
+    "procedure": "Rebuild patched library, bind current full source hashes, rerun three exact frozen fixtures",
+    "preservation": "Baseline evidence files remain immutable",
+    "exclusions": "No other family retests required; no product mutations"
+  },
+  "W2_reported_status": {
+    "source_prefix": "887fb99...",
+    "fixture_prefix": "13dabab...",
+    "note": "Prefixes supplied by parent are not complete fingerprints; A2 binds full current hashes",
+    "crate_tests": "127 PASS",
+    "review": "fresh review pending"
+  },
+  "later_gates": [
+    "Bridge producer ownership",
+    "Run identity/history contract",
+    "Nonlinear selected-solution contract"
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "states": [
+    "default",
+    "discovery",
+    "empty",
+    "routing",
+    "selected-pipe",
+    "direct-support",
+    "support",
+    "loads",
+    "results",
+    "field-error",
+    "batch-review",
+    "batch-undone"
+  ],
+  "errors": []
+}

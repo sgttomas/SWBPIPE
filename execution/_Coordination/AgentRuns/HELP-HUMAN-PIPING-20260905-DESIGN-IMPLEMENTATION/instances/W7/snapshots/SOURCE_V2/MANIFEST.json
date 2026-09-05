@@ -1,0 +1,20 @@
+{
+  "base_commit": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "classification": "UI implementation freeze only; source and tests; no lifecycle acceptance",
+  "files": {
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2",
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "a9a05bb5c15aa0fcbd82f52501bda982fe1d2d949db264b0cd50e22e07f58fcc",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "72f1d67875de11108c696a0923463a4d4c6f8216d391c84b3da1c94ab4ca9a66",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx": "697df27e88d87e7004c0a331c4905857573b90c428f62310aaf15f3a1fb42022",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx": "9b2c28c7fd4c2757949416d0b061fd5d7a43b147b4395ab4eabb56237b435d95",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx": "9930b8713be803bd71c596410afe4dae17b1106fadee35927447fe80ed467eaf",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx": "83920a7d8f87175e0f4b42b95b17f50253a41dd0e6c2fe76083ef786b65e1a7e",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "286823e90c3594d8fa893261698036a545674975ed12cb3b19c57dd6817d1c9b",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx": "42d0dd797d331ae84599fe42a61f9cf33f30c16fc92192327081377e0e1fe873",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx": "5c3d907734f75b7f98d0016d0a5c7859cb463253e087544c67b5a464e4ed6420",
+    "projects/chirality-piping/apps/desktop/src/styles.css": "d1c86d2121565b5124d7e4da6e495fac890033584152cc5b1319b990a52bc966"
+  },
+  "supersedes": "SOURCE_V1 after R1 direct Support disclosure repair"
+}

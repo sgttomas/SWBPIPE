@@ -1,0 +1,17 @@
+{
+  "instance": "A2",
+  "parent": "/root",
+  "role": "Agent2 ephemeral",
+  "status": "complete_for_parent_review",
+  "baseline": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "model": "not_exposed",
+  "delegation_enforcement": "instruction+config_asserted",
+  "product_mutations": false,
+  "checks": {
+    "canonical_focused_functions_passed": 24,
+    "canonical_focused_functions_failed": 0,
+    "trace_links": 7,
+    "nonlinear_generic_rows_unchanged": 758
+  },
+  "holds_closed": []
+}

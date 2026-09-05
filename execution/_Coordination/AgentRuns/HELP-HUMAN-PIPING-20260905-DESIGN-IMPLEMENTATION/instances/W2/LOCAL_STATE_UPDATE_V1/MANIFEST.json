@@ -1,0 +1,13 @@
+{
+  "schema": "w2-local-state-update/v1",
+  "derivative_evidence": true,
+  "files": {
+    "AUTHORITY.md": "d712db1e2c31560cfb70cf56a47b43e8a7cf9ecdbf83e9fbdf0609302f702c58",
+    "RETURN.json": "5871ef7e39e0ab080241c10fb9013a6be503e602dbd94a0d9538b08d0cd8e8c7",
+    "RUNTIME_EVENTS.jsonl": "c80ac7a948df1787d1af54bddad9048dca94c38048dabc20428e1429c61e9dc3",
+    "RUNTIME_SUMMARY.json": "4a7e377d8c9fab8efc325cb9bfd0ca5a3a7f83ac7f6b2a18caf882a3876c7533",
+    "snapshot/MEMORY.md": "dff27849b368a658b13464d5ecb16099333a6b9bab8c734802ada7c31fe8d269",
+    "snapshot/_STATUS.md": "8f87690699bd75be44f20d552adfd4a465f77355d1545a3c896d04e068bc0c76",
+    "snapshot/_run_records/WORKING_ITEMS_RUN_2026-09-05_NATIVE_COORDINATE_UNITS.md": "74e3313e9bd35fe4a8eac0451a186b582cc3b358181ff963a29a5626a2f13cff"
+  }
+}

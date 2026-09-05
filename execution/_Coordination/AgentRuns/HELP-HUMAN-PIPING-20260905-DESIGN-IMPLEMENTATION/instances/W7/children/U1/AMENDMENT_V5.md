@@ -1,0 +1,1 @@
+Parent authorized additive v5: PipeViewport.tsx presentation-only ResizeObserver calls existing resize on host dimension changes and disconnects on cleanup; ignore zero host dimensions. Required because tool/dock layout resizes canvas host without window resize. No model or engineering geometry change. Manager owns e2e/workspace-layout.spec.ts regression verification.

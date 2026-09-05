@@ -1,0 +1,21 @@
+{
+  "id": "ACCEPT_W7_NATIVE_MINIMUM_WINDOW",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "basis": "Owner client-layout target 1024x768; N1 found native minWidth 1160",
+  "disposition": "Extend W7 write scope to exact native window minimum configuration only",
+  "target": "{WORKING_ROOT}/apps/desktop/src-tauri/tauri.conf.json",
+  "allowed_changes": {
+    "minWidth": 1024,
+    "minHeight": 768
+  },
+  "constraints": [
+    "No other native configuration changes",
+    "No identity or entitlement changes",
+    "Report native outer-chrome versus client-area bounds honestly"
+  ],
+  "required_acceptance": "Fresh independent review includes configuration delta",
+  "claim_limit": "Supports owner layout target; does not establish independent usability acceptance",
+  "application_status": "Authorized for W7; not applied by C1"
+}

@@ -1,0 +1,52 @@
+{
+  "first_close_reopen_exact": true,
+  "first_revision_currently_retrievable": false,
+  "migration": {
+    "migration_framework": "versioned_sqlite_user_version_migration_ledger",
+    "migration_status": "migrated_on_open_store_schema_v0_to_v11",
+    "migrations_applied_on_open": [
+      "store-v1-base-project-and-fts-tables",
+      "store-v2-editor-intents-column",
+      "store-v3-proposal-column",
+      "store-v4-selected-review-target-column",
+      "store-v5-mechanics-result-column",
+      "store-v6-analysis-run-column",
+      "store-v7-model-hash-column",
+      "store-v8-project-envelope-hash-column",
+      "store-v9-model-document-migration-ledger-column",
+      "store-v10-local-rule-packs-table",
+      "store-v11-local-libraries-table"
+    ],
+    "pending_migration_count": 0,
+    "store_schema_target_version": 11,
+    "store_schema_version": 11,
+    "store_schema_version_before_open": 0
+  },
+  "model_changed": true,
+  "project_rows_after_two_saves": 1,
+  "scope": "unchanged_native_private_storage_helpers_extracted_verbatim; bypasses_full_command_validation_and_UI; no_durable_history_claim",
+  "second_close_reopen_exact": true,
+  "stored_analysis_run": {
+    "model_state_ref": {
+      "id": "state:project:invented-loop-01:preview",
+      "object_type": "ModelState"
+    },
+    "run_id": "run:preview-linear-static-001",
+    "settings": {
+      "profile": "linear"
+    },
+    "witness": "invented_input_pass_through_not_schema_acceptance",
+    "witness_revision": 2
+  },
+  "tables": [
+    "local_libraries",
+    "local_project_fts",
+    "local_project_fts_config",
+    "local_project_fts_content",
+    "local_project_fts_data",
+    "local_project_fts_docsize",
+    "local_project_fts_idx",
+    "local_projects",
+    "local_rule_packs"
+  ]
+}

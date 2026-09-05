@@ -1,0 +1,322 @@
+{
+  "invented_fixture_only": true,
+  "source_unchanged": true,
+  "transform_blocking": false,
+  "adapter_blocking": false,
+  "traceability_count": 7,
+  "source_model_ref": {
+    "object_type": "Model",
+    "id": "PHYS-1"
+  },
+  "analytical_model_ref": {
+    "object_type": "Model",
+    "id": "ANALYTICAL-DERIVED"
+  },
+  "node_mappings": [
+    {
+      "node_id": "N-1",
+      "node_index": 0,
+      "coordinates": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "coordinate_units": {
+        "x": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "unit": "m",
+          "dimension": "length"
+        }
+      },
+      "coordinate_quantities": {
+        "x": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "degrees_of_freedom": {
+        "UX": "free",
+        "UY": "free",
+        "UZ": "free",
+        "RX": "free",
+        "RY": "free",
+        "RZ": "free"
+      },
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-1"
+      }
+    },
+    {
+      "node_id": "N-2",
+      "node_index": 1,
+      "coordinates": [
+        2.0,
+        0.0,
+        0.0
+      ],
+      "coordinate_units": {
+        "x": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "y": {
+          "unit": "m",
+          "dimension": "length"
+        },
+        "z": {
+          "unit": "m",
+          "dimension": "length"
+        }
+      },
+      "coordinate_quantities": {
+        "x": {
+          "value": 2.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "y": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        },
+        "z": {
+          "value": 0.0,
+          "unit": "m",
+          "dimension": "length",
+          "provenance": {
+            "source_name": "quantity source",
+            "source_location": "fixtures/quantity_source",
+            "source_license": "public_permissive",
+            "contributor": "DEL-13-04 test",
+            "contributor_certification": "invented non-engineering transform fixture",
+            "redistribution_status": "public_permissive",
+            "review_status": "pending"
+          }
+        }
+      },
+      "degrees_of_freedom": {
+        "UX": "free",
+        "UY": "free",
+        "UZ": "free",
+        "RX": "free",
+        "RY": "free",
+        "RZ": "free"
+      },
+      "source_ref": {
+        "object_type": "Node",
+        "id": "N-2"
+      }
+    }
+  ],
+  "connectivity": [
+    {
+      "element_id": "E-1",
+      "element_index": 0,
+      "node_i_id": "N-1",
+      "node_i_index": 0,
+      "node_j_id": "N-2",
+      "node_j_index": 1,
+      "material_id": "MAT-1",
+      "section_id": "SEC-1",
+      "local_coordinate_system": {
+        "type": "cartesian",
+        "axes": [
+          "X",
+          "Y",
+          "Z"
+        ],
+        "y_reference": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "provenance": {
+          "source_name": "orientation source",
+          "source_location": "fixtures/orientation_source",
+          "source_license": "public_permissive",
+          "contributor": "DEL-13-04 test",
+          "contributor_certification": "invented non-engineering transform fixture",
+          "redistribution_status": "public_permissive",
+          "review_status": "pending"
+        }
+      },
+      "derived_axis_x": [
+        1.0,
+        0.0,
+        0.0
+      ],
+      "y_reference": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "solver_orientation_status": "governed_y_reference_ready",
+      "source_ref": {
+        "object_type": "Element",
+        "id": "E-1"
+      }
+    }
+  ],
+  "checks": [
+    {
+      "test": "test_physical_to_analytical_transform.test_canonical_physical_source_fixture_validates_and_transforms_deterministically",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_transform_is_deterministic_traceable_and_preserves_source_model",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_missing_units_and_unsupported_physical_records_are_explicit_findings",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_transform_rejects_noncanonical_quantity_dimensions",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_straight_pipe_transform_preserves_solver_needed_records",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_supported_component_metadata_passes_through_when_referenced_by_valid_element",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_component_scalar_trace_is_not_emitted_for_invalid_quantity_metadata",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_pdu036_fixture_links_omission_warning_and_assumption_without_validation_promotion",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_unsupported_component_reference_blocks_element_without_analytical_approximation",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_non_axis_aligned_load_metadata_survives_transform",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_equivalent_static_generation_inputs_survive_transform_and_validate",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_equivalent_static_generation_rejects_defaulted_or_extra_fields",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_subspan_wind_exposed_spans_survive_transform_and_validate",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_subspan_wind_marking_rules_reject_invalid_documents",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_modulus_basis_references_survive_transform_and_validate",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_unresolved_load_quantity_dimension_blocks_transform_without_inference",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_physical_to_analytical_transform.test_transform_output_contains_no_prohibited_authority_claims",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_emits_deterministic_solver_boundary_dtos",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_does_not_infer_missing_solver_property_bindings",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_diagnoses_noncanonical_load_semantics_without_mapping_them",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_blocks_invalid_straight_pipe_y_reference_orientation",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_blocks_unordered_uniform_load_span_at_runtime",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_preserves_load_record_failures_as_result_boundary_diagnostics",
+      "outcome": "PASS"
+    },
+    {
+      "test": "test_analytical_solver_boundary_adapter.test_adapter_requires_analytical_solver_model_role",
+      "outcome": "PASS"
+    }
+  ]
+}

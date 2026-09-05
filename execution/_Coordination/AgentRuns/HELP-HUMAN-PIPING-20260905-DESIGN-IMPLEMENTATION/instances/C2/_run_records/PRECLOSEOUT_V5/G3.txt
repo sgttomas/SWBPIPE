@@ -1,0 +1,1 @@
+G3 PASS (CI mode): work graph work_graph.yaml is schema-valid (root-work-graph/v1); 6 node(s), active: none; declared write targets, disjointness/serialization, and M2 markers check out.

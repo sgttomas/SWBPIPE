@@ -1,0 +1,47 @@
+{
+  "id": "NOTICE-008-N1-AND-A2",
+  "date": "2026-09-05",
+  "source": "parent /root exact direction",
+  "recorded_by": "C1",
+  "N1": {
+    "runtime_id": "/root/native_verification",
+    "role": "direct bounded Agent 2",
+    "delegation": "none",
+    "status": "initial READ/PLAN completed; waiting for build release",
+    "write_scope": [
+      "instances/N1 evidence",
+      "ignored build outputs",
+      "temporary outputs"
+    ],
+    "exclusions": [
+      "source",
+      "configuration",
+      "Git",
+      "user app writes"
+    ],
+    "planned_verification": "Actual Tauri .app build and --self-test-saved-edited-load against isolated SQLite",
+    "build_gate": "W7 and W2 frozen reviews accepted, then exclusive build phase",
+    "packaging": "Existing unsigned packaging configuration; no identity or entitlement changes",
+    "claim_limit": "No GUI proof inferred"
+  },
+  "UI": {
+    "root_second_visual_candidate": "Accepted for verification only",
+    "browser_checks": "Eight-state checks ongoing",
+    "residual": "Queue change \u2192 Review/Apply remains; MAP-031 inline human Apply is not completed"
+  },
+  "A2": {
+    "content": "Root read final FINDINGS and accepted calibrated evidence content for later owner-contract routing",
+    "final_manifest_sha256": "91dc0aac184ecc537410c71819a0769c5c159dd8f769cc9dc2bd2702a1218a5a",
+    "manifest_verification": "Pending root deterministic hash verification",
+    "units_repair": "Already separately released"
+  },
+  "later_owner_contract_gates": [
+    "Canonical bridge producer home PDU-023",
+    "New run identity/history",
+    "Nonlinear selected-solution contract"
+  ],
+  "scope_limit": "No automatic additional source activation",
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable"
+}

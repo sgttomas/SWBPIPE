@@ -1,0 +1,25 @@
+# U1a return
+
+- Role: Agent 2 ephemeral generalist, instruction+config asserted nondelegation; no children or sibling messages.
+- Actual parent: U1 WORKING_ITEMS `/root/design_ux_manager`.
+- Actual runtime: `/root/design_ux_manager/current_ui_evidence`.
+- Delegation class: delegated-harness-native.
+- Actual model: unavailable in runtime metadata; no substitution observed.
+- Started: 2026-09-05T18:05:03.831492+00:00 (supervising parent record).
+- Finished: 2026-09-05T18:08:12.413034+00:00.
+- Status: COMPLETE_FOR_PARENT_REVIEW.
+- Source HEAD at initial and final inspection: f4b223dd115c4234e0182dcd752a885c3de175ce; no drift.
+- Accepted basis: SOFTWARE_DECOMP 0.12; SCA-009 accepted; DAG-010 approved.
+- Scope: PKG-07 DEL-07-01/02/04/05/06/07/08/09; SOW-020/021/022/023/036/055/076/077; OBJ-006/007/011/015/016.
+- Write scope: this U1a evidence directory only.
+- Brief SHA-256: d5bb0e19a5eb64baad64820054a84224a148035582fbe095d529d9464174a067.
+- FINDINGS.md SHA-256: ed98596841b2a5637bcdf145a0c1f93e50a1ce5c63a29687b0a0f806f78e6c0a.
+- SOURCES.json SHA-256: 5e838dde62ff418ccf1be55f236a62b1b98cd8a8b61bc60749a97147e0c1177b.
+- Actual execution: read-only shell source/spec/test inspection; writes to own evidence only. No UI, app/test execution, external research, Git/model/authority mutation, physics/protected-content use.
+- Findings: inline toolkit competes with canvas; inspector quantity card accepts text fields; operation-oriented UI spreads authoring across panels; June18 repeated concern requires current measurable and independent usability acceptance without assuming historical causation.
+- Limitations: inherited app observation has unproven native source version; exact later redesign decision sequence not reconstructed; tests inspected but not run; no independent usability validation. Separate Validate click is optional.
+- Audit: self-check of source links, scope and evidence labels completed; parent acceptance pending.
+- Closure verdict: inquiry complete only; derivative recommendation package, no lifecycle or engineering reliance claim.
+- Required reruns: build/version-bound native observation and task/geometry acceptance checks before relying on native defect hypotheses.
+- Remaining blockers: none for report fan-in; native provenance and independent usability basis remain implementation/validation gaps.
+- Next owner: U1 WORKING_ITEMS, then HELP_HUMAN for prioritization and future authorization.

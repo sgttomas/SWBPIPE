@@ -1,5 +1,5 @@
 import { QuantityReadout } from "../display-units";
-import { Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, X, Zap } from "lucide-react";
+import { Anchor, Box, CircleDot, Circle, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
 import { useEffect, useMemo, useState } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
@@ -214,7 +214,7 @@ function buildTree(model: PreviewModel): TreeModel {
           type: "section" as const,
           label: section.name,
           detail: section.id,
-          icon: <Box size={14} aria-hidden="true" />,
+          icon: <Circle size={14} aria-hidden="true" />,
           keywords: [
             section.id,
             section.name,
@@ -238,7 +238,7 @@ function buildTree(model: PreviewModel): TreeModel {
       }))
     },
     {
-      title: "Pipe Segments",
+      title: "Pipes",
       items: model.pipe_segments.map((pipe) => ({
         id: pipe.id,
         type: "pipe" as const,
@@ -255,7 +255,7 @@ function buildTree(model: PreviewModel): TreeModel {
         type: "support" as const,
         label: support.label,
         detail: support.id,
-        icon: <Box size={14} aria-hidden="true" />,
+        icon: <Anchor size={14} aria-hidden="true" />,
         keywords: [
           support.id,
           support.label,
@@ -278,7 +278,7 @@ function buildTree(model: PreviewModel): TreeModel {
         type: "component" as const,
         label: component.label,
         detail: component.id,
-        icon: <Box size={14} aria-hidden="true" />,
+        icon: <Waypoints size={14} aria-hidden="true" />,
         keywords: [
           component.id,
           component.label,
@@ -479,6 +479,7 @@ function TreeButton({ active, item, onClick }: { active: boolean; item: TreeItem
       className={`tree-row ${active ? "active" : ""}`}
       data-testid={`tree-row-${item.id}`}
       aria-pressed={active}
+      title={`${item.label}${item.detail ? ` (${item.detail})` : ""}`}
       onClick={onClick}
       type="button"
     >

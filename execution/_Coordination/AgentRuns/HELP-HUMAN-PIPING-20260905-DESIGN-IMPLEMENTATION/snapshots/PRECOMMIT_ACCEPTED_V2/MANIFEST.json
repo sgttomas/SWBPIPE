@@ -1,0 +1,31 @@
+{
+  "status": "accepted metadata-only precommit repair; clean DEC-025 pending",
+  "previous_manifest_sha256": "b4b627c2a8e1b5714a0d850dc3d117eb1f192512a0d61e91078127461e0b0341",
+  "files": {
+    "snapshots/PRECOMMIT_ACCEPTED_V2/CHECKS.json": "68caad1af35a3e875206ce9b7b11f6d6e7de4abe06e076064266389371072dff",
+    "snapshots/PRECOMMIT_ACCEPTED_V2/HANDOFF_STATE.md": "fd760ce22ccf2b9615bb4a78c29376d685170ccd49988c48a127a3ae2400ca66",
+    "snapshots/PRECOMMIT_ACCEPTED_V2/PRECOMMIT_FAN_IN.md": "ada35ea99099009b40d5c885ea216ecf5581efce7a11e3d19208a8098ec90683",
+    "snapshots/PRECOMMIT_ACCEPTED_V2/RECEIPT_131.md": "80dfdd03796265ba724727228411b31b76f369e018ff9414907f5eb33e83dee4",
+    "snapshots/PRECOMMIT_ACCEPTED_V2/REPAIR_ACCEPTANCE.json": "e60008f247eb1e7bb173898eb4a5ec5596bc665737f6e284d8abe10a03328845"
+  },
+  "external_binding": {
+    "path": "{WORKING_ROOT}/loop/LOOP_RECEIPTS.md",
+    "sha256": "4c823f111d47e24b0eaecd8175af7c565b64b976b135c71ef51d31f45be38433",
+    "prior_sha256": "d077bf650c4c5d1b33f3505d5cca37986fa91a053c099fc1ea6bdc16759422e4",
+    "prior_length_bytes": 245198
+  },
+  "checks": {
+    "receipt_validator": {
+      "command": "python3 tools/validation/validate_piping_loop_receipts.py",
+      "exit_code": 0,
+      "result": "VALID; versioned receipt contract satisfied"
+    },
+    "scoped_diff_check": {
+      "command": "git diff --check -- Receipt 131 file and exact changed root control files",
+      "exit_code": 0
+    },
+    "prior_receipt_bytes_preserved": true,
+    "product_configuration_unchanged_by_C1": true
+  },
+  "freeze_rule": "C1 frozen; no writes during forthcoming DEC-025"
+}

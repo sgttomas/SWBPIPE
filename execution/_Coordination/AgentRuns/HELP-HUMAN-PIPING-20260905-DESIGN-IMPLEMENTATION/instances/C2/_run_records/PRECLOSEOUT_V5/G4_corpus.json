@@ -1,0 +1,9 @@
+{
+  "name": "G4_corpus",
+  "exit_code": 0,
+  "elapsed_seconds": 0.12,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_instruction_tranche_manifest.py"
+  ]
+}

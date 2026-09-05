@@ -1,0 +1,2 @@
+# R1 re-review v2
+Read-only full13file SOURCE_V2 review supersedes failedSOURCE_V1 judgment only after verifying repair and no additional regressions. Same role/tools/no-writes. U1 v6 directSupport now routesfocusandopensNew support; six new toolbar/menu×selection tests, parentbrowser directsupport assertion. All13hashes mustmatch. Fullfinal desktop checksV2 and browserlayoutV3 running, willrelay. PriorreviewFAIL preserved. Parent owns harnesschecks separately. Return fullcoverage PASS/noactionableorfindings.

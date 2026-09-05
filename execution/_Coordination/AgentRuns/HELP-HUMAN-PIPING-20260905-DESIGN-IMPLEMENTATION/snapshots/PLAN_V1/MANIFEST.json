@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "status": "frozen_before_implementation_dispatch",
+  "derivative": true,
+  "parent_direction_recorded_by": "C1",
+  "files": {
+    "snapshots/PLAN_V1/OPEN_QUESTIONS.md": "fae142ef58ee169e6cfe00be26e86a528d79a11cd61fe4dc76d8dd3187428153",
+    "snapshots/PLAN_V1/ORCHESTRATION_PLAN.md": "5fb989130212a0a44674ddfa2fd161cd3df2a1b3cf38437e7b80594f987a6ddf",
+    "snapshots/PLAN_V1/WORK_GRAPH.json": "ccda9cc34d942038e727070aef6564b4b9bf21f21e33216d4d1a2678d8e52927"
+  },
+  "source_sha256": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "agents/AGENT_HELP_HUMAN.md": "0285715cbe41ac2c8b7bfd8b6dbd56ad1f0cbb1a970a4f7afed290fc30d1e981",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md": "d62fd3354849a71049fbbb246a389b0d5f63138fdbcdbdb61e379b971d62bcf9",
+    "projects/chirality-piping/plans/MAP_2026-09-05_product_design_scope_and_decisions.md": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4"
+  }
+}

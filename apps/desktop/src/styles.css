@@ -3245,3 +3245,127 @@ th {
 [data-display-status] small {
   font-size: 0.75em;
 }
+
+/* Modeling workspace, September 2026: viewport owns the remaining height.
+   Navigation never adds an unbounded content row. Creation forms and properties
+   scroll in rails; analysis/review uses one bounded dock. Minimum checked target
+   is 1024 × 768, an initial layout target rather than usability acceptance. */
+body { min-width: 760px; min-height: 540px; }
+.app-shell, .app-shell.native-menu { display: flex; flex-direction: column; height: 100dvh; min-height: 540px; overflow: hidden; }
+.titlebar { flex: 0 0 auto; min-height: 48px; padding: 7px 12px; gap: 12px; }
+.titlebar h1 { font-size: 16px; }
+.titlebar p { font-size: 11px; margin: 2px 0 0; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.titlebar-actions { gap: 5px; flex-wrap: nowrap; }
+.titlebar-actions button { font-size: 11px; padding: 5px 7px; }
+.display-preference-control { position: relative; }
+.display-preference-control > summary { cursor: pointer; font-size: 12px; padding: 6px; }
+.display-preference-control > :not(summary) { position: absolute; z-index: 55; top: 32px; right: 0; width: 300px; padding: 12px; color: #263331; background: #fff; border: 1px solid #b8c3bd; box-shadow: 0 8px 25px #162d3026; }
+.project-strip { position: relative; display: block; padding: 0 12px; min-height: 22px; flex: 0 0 auto; font-size: 11px; }
+.project-strip > summary { cursor: pointer; padding: 3px 0; }
+.project-strip[open] { max-height: 100px; overflow: auto; }
+.project-strip[open] > span { display: block; margin-block: 4px; overflow-wrap: anywhere; }
+.app-menu-bar { flex: 0 0 auto; padding: 0 8px; }
+.app-menu-trigger { min-height: 26px; font-size: 12px; padding: 3px 9px; }
+.workspace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: 0 0 auto; min-height: 44px; padding: 6px 10px; background: #f7f9f8; border-bottom: 1px solid #c8d0cb; }
+.workspace-task-nav, .workspace-edit-actions { display: flex; align-items: center; gap: 3px; }
+.workspace-toolbar button, .operation-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 30px; padding: 5px 8px; font-size: 12px; border: 1px solid transparent; border-radius: 5px; color: #31403d; background: transparent; white-space: nowrap; cursor: pointer; }
+.workspace-toolbar button:hover, .operation-tabs button:hover { background: #e5ece8; }
+.workspace-toolbar button[aria-pressed="true"], .operation-tabs button[aria-pressed="true"] { color: #fff; background: #285b50; border-color: #285b50; }
+.workspace-toolbar button:disabled { color: #798780; cursor: not-allowed; }
+.workspace-count { min-width: 18px; border-radius: 9px; padding: 1px 4px; color: #fff; background: #286453; font-size: 10px; }
+.workspace { flex: 1 1 0; min-width: 0; min-height: 0; padding: 6px; gap: 6px; overflow: hidden; }
+.modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: 215px; --pane-viewport-col: minmax(0, 1fr); --pane-inspector-col: 280px; grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col); gap: 6px; min-height: 0; flex: 1 1 0; }
+.modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
+.modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
+.workspace-pane { gap: 0; border: 1px solid #c8d0cb; border-radius: 6px; background: #fff; }
+.workspace-pane-toggle { min-height: 31px; border: 0; border-bottom: 1px solid #d6ded9; border-radius: 0; text-transform: none; font-size: 12px; letter-spacing: 0; }
+.workspace-pane-toggle-label { flex: 1; text-align: left; }
+.workspace-pane-tree > .panel, .workspace-pane-inspector > .panel { border: 0; border-radius: 0; padding: 10px; }
+.workspace-pane-viewport { overflow: hidden; }
+.workspace-pane-viewport > .viewport-shell { min-height: 0; height: 100%; border: 0; border-radius: 0; }
+.viewport-shell { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; }
+.viewport-toolbar { grid-row: 2; grid-column: 1; min-height: 30px; padding: 4px 8px; gap: 8px; flex-wrap: wrap; font-size: 11px; }
+.viewport-frame { grid-row: 3; grid-column: 1; min-height: 0; height: 100%; }
+.viewport-canvas { min-height: 0; height: 100%; }
+.viewport-canvas canvas { display: block; }
+.command-bar { grid-row: 1; grid-column: 1 / -1; min-width: 0; min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 5px 7px; border-top: 0; border-bottom: 1px solid #d6ded9; }
+.command-buttons { gap: 4px; flex-wrap: wrap; }
+.command-buttons button, .command-preview-button { font-size: 11px; min-height: 28px; padding: 4px 6px; }
+.command-active-tool { font-size: 11px; padding: 4px 6px; }
+.command-context { font-size: 11px; margin-left: auto; position: relative; }
+.command-context summary { cursor: pointer; }
+.command-context[open] > .command-context-content { position: absolute; top: 25px; right: 0; z-index: 12; width: 260px; padding: 10px; border: 1px solid #c8d0cb; background: #fff; box-shadow: 0 6px 20px #162d3026; }
+.command-context-content > span { display: block; margin: 6px 0; overflow-wrap: anywhere; }
+.viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) 265px; }
+.viewport-intents.active { grid-column: 2; grid-row: 2 / 4; min-width: 0; min-height: 0; max-height: none; overflow: auto; padding: 10px; border-top: 0; border-left: 1px solid #c8d0cb; background: #f7f9f8; }
+.viewport-intent-controls, .viewport-node-form, .viewport-pipe-form { display: flex; flex-direction: column; align-items: stretch; gap: 9px; min-width: 0; }
+.viewport-node-form:not(.active), .viewport-pipe-form:not(.active) { display: none; }
+.viewport-node-form label, .viewport-pipe-form label, .viewport-endpoint-field { min-width: 0; }
+.viewport-node-form input, .viewport-pipe-form input, .viewport-pipe-form select { width: 100%; min-width: 0; }
+.viewport-intent-list { margin-top: 8px; }
+.viewport-tool-heading { margin: 0 0 10px; font-size: 13px; font-weight: 650; }
+.viewport-technical-details { margin-top: 10px; font-size: 11px; }
+.viewport-technical-details summary { cursor: pointer; }
+.viewport-deformation-status { display: block; position: relative; max-width: 100%; font-size: 10px; }
+.viewport-deformation-status > summary { cursor: pointer; }
+.viewport-deformation-status[open] > div { position: absolute; top: 20px; left: 0; z-index: 12; width: 250px; padding: 10px; background: #fff; border: 1px solid #c8d0cb; box-shadow: 0 6px 20px #162d3026; }
+.viewport-toolbar > span:last-child { margin-left: auto; }
+.viewport-display-toggles { gap: 3px; }
+.viewport-display-toggles button { font-size: 10px; padding: 2px 5px; }
+.workspace-dock { flex: 0 0 clamp(180px, 30vh, 280px); max-height: 40%; min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
+.workspace-dock-header { min-height: 32px; padding: 4px 9px; }
+.workspace-dock-header h2 { font-size: 13px; }
+.workspace-dock-header button { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; }
+.workspace-dock-body { min-width: 0; min-height: 0; overflow: auto; padding: 8px; }
+.workspace-dock-section { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }
+.workspace-dock-section[data-testid="workspace-section-operations"] { display: block; }
+.workspace-dock-section.inactive, .workspace-dock-section[data-testid="workspace-section-operations"].inactive { display: none; }
+.operation-tabs { display: flex; flex-wrap: wrap; gap: 4px; position: sticky; top: -8px; z-index: 2; background: #f7f9f8; padding-bottom: 6px; border-bottom: 1px solid #d6ded9; }
+.operation-tool-page { min-width: 0; margin-top: 8px; }
+.operation-tool-page[hidden] { display: none; }
+.review-tool-page { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }
+.operation-apply-panel { min-height: 0; max-height: none; overflow: visible; }
+#geometry-tools, #boundary-authoring, #hanger-selection, #self-weight-plan, #offline-proposal-intake, #batch-review { min-width: 0; padding: 10px; margin-block: 0; }
+#offline-proposal-intake textarea { min-width: 0; width: 100%; }
+.status-bar { flex: 0 0 auto; min-height: 30px; padding: 3px 10px; gap: 6px; }
+.status-pill-group, .status-bar-actions { gap: 5px; }
+.status-pill { padding: 3px 5px; min-height: 24px; gap: 4px; font-size: 10px; }
+.status-drawer-button { min-height: 24px; padding: 3px 6px; font-size: 10px; }
+.status-drawer-button small { font-size: 9px; }
+.app-footer { flex: 0 0 auto; min-height: 21px; padding: 4px 10px; font-size: 10px; }
+.toolkit-palette { position: static; padding: 0; border: 0; }
+.toolkit-commands { position: fixed; z-index: 100; top: 145px; left: 50%; transform: translateX(-50%); width: min(680px, calc(100vw - 48px)); max-height: min(540px, calc(100dvh - 180px)); margin: 0; padding: 14px; overflow: auto; border: 1px solid #aabeb3; border-radius: 10px; background: #fff; color: #263331; box-shadow: 0 18px 65px #152e3545; }
+.toolkit-search-header { display: flex; gap: 10px; position: sticky; top: -14px; z-index: 1; background: #fff; padding-block: 5px 10px; border-bottom: 1px solid #d6ded9; }
+.toolkit-search-header label { display: flex; align-items: center; gap: 10px; flex: 1; font-size: 12px; }
+.toolkit-search-header input { min-width: 0; flex: 1; padding: 8px; border: 1px solid #b8c3bd; border-radius: 5px; }
+.toolkit-command-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 10px; }
+.toolkit-command-groups h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #65716c; margin: 8px 0; }
+.toolkit-command { padding-bottom: 7px; margin-bottom: 5px; border-bottom: 1px solid #edf2ef; gap: 2px; }
+.toolkit-command > button { justify-content: flex-start; width: 100%; white-space: normal; text-align: left; }
+.toolkit-command small, .toolkit-command-help { font-size: 11px; color: #59645f; }
+.toolkit-command-help summary { cursor: pointer; }
+@media (max-width: 1100px) {
+  .workspace-toolbar { gap: 4px; padding-inline: 7px; }
+  .workspace-toolbar button { padding-inline: 6px; gap: 4px; font-size: 11px; }
+  .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: 180px; --pane-inspector-col: 260px; }
+  .modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
+  .modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
+}
+.project-strip > summary { display: flex; align-items: baseline; gap: 12px; }
+.project-strip > summary [role="status"] { overflow-wrap: anywhere; }
+.project-details-label { margin-left: auto; text-decoration: underline; flex-shrink: 0; }
+.toolkit-backdrop { position: fixed; inset: 0; z-index: 99; background: #172f3010; }
+.inspector { font-size: 12px; line-height: 1.4; }
+.inspector h2, .inspector h3 { font-size: 13px; margin-block: 8px; }
+.inspector summary { cursor: pointer; padding-block: 5px; font-weight: 550; }
+.inspector label { font-size: 12px; }
+.inspector fieldset { min-width: 0; margin: 8px 0; padding: 9px; border: 1px solid #d6ded9; border-radius: 5px; }
+.inspector fieldset > label { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 7px 0; }
+.inspector input:not([type="checkbox"]):not([type="radio"]), .inspector select, .inspector textarea { min-width: 0; max-width: 100%; padding: 6px; border: 1px solid #b8c3bd; border-radius: 4px; font: inherit; color: #263331; background: #fff; }
+.inspector input[type="checkbox"], .inspector input[type="radio"] { flex: 0 0 auto; width: auto; min-width: 0; margin: 0; }
+.inspector button { font-size: 12px; }
+.inspector p { margin-block: 7px; }
+.status-pill { display: block; position: relative; }
+.status-pill > summary { cursor: pointer; display: flex; gap: 4px; align-items: center; }
+.status-pill[open] > div { position: absolute; bottom: 30px; left: 0; z-index: 30; min-width: 210px; max-width: 340px; padding: 10px; border: 1px solid #c8d0cb; border-radius: 5px; background: #fff; box-shadow: 0 -4px 20px #162d3026; }
+.status-pill[open] > div > strong, .status-pill[open] code { display: block; white-space: normal; overflow-wrap: anywhere; }

@@ -1,0 +1,20 @@
+{
+  "id": "NOTICE-005",
+  "date": "2026-09-05",
+  "source": "parent /root direction",
+  "recorded_by": "C1",
+  "type": "status_and_claim_calibration",
+  "C2": "Scope v3 one additional exact-hash EVIDENCE entry authorized in dispositions/ACCEPT_C2_UNITS_FINDING_CLASSIFICATION.json; application pending writer",
+  "W2": "Live brief paths repaired via amendment",
+  "W7": "Maturity-text gate acknowledgment pending",
+  "future_evidence": "Future agents directed to use _run_records evidence before freeze",
+  "A2_findings": {
+    "nonlinear": "Native-core full-preview linear versus nonlinear values diverge and source original-vector recovery verified; not yet accepted as a global nonlinear bug",
+    "canonical_adapter": "Determinism and seven trace mappings work; native wire incompatible",
+    "persistence": "SQLite helper latest-envelope roundtrip works; single current row does not provide history",
+    "schema_checks": "Six Python schema functions dependency-blocked; isolated virtual environment for jsonschema test dependencies setup authorized"
+  },
+  "scope_limit": "No new source activation beyond W2",
+  "enforcement": "native instruction+config asserted; not mechanism-proven",
+  "model": "unavailable"
+}

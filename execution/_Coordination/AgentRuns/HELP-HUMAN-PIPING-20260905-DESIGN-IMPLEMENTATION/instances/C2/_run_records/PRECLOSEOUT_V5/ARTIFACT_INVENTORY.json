@@ -1,0 +1,101 @@
+{
+  "status": "PROVISIONAL_WHILE_WRITERS_ACTIVE",
+  "source_config_test_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+    "projects/chirality-piping/validation/portability_policy.json",
+    "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx"
+  ],
+  "untracked_file_count": 407,
+  "untracked_bytes": 15340366,
+  "compiled_artifact_candidates": [],
+  "largest": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/targeted-initial.log",
+      "bytes": 1294071,
+      "sha256": "0748a76f8c1c7006addfcce594100f60496bb3e185a06140c4cb93deaae71437"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/product_physics.rs",
+      "bytes": 627819,
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/AFTER.rs",
+      "bytes": 627819,
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "bytes": 617829,
+      "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/BEFORE.rs",
+      "bytes": 617829,
+      "sha256": "66a25dcaf9c311fe9f4d2e26bf2ab14824b39add3a247f9ad8f80587707e95a1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/nonlinear.json",
+      "bytes": 593741,
+      "sha256": "600b450a4f37ab2fcf00d320d66250463d031451ccab0af1e3c6f51d978d71d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/results/nonlinear_removed.json",
+      "bytes": 550743,
+      "sha256": "07af96ea7ae125f55650e97f7b165a18d6d2f7f9266f444d69ead07589e69188"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "bytes": 530814,
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/source/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "bytes": 264689,
+      "sha256": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-field-error.png",
+      "bytes": 183194,
+      "sha256": "8b093789ee6b0ffc7c1dfdfa9bba8150a5a8c93e87c143495a60e6ff42eb2f5d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-support.png",
+      "bytes": 181483,
+      "sha256": "637341f3cea7b8727bc26060ff2886c1ae5053664b431876238063f19459ce94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-results.png",
+      "bytes": 177289,
+      "sha256": "7c2689f5403bed20076dd9aac31417f74be907bbb078ecda04bbb71c867d550d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt1/after-loads.png",
+      "bytes": 175848,
+      "sha256": "df41de82ad8e323bfc23fe7e0448965af6b667d2fc1aad39a8bad99ff0491d98"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt2/after-batch-review.png",
+      "bytes": 175037,
+      "sha256": "130ba65235e1b121d0ebc87ee4886f10a0c63fdf7df43c0858541167b18e1251"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/_run_records/visual_attempt4_source_v1/after-batch-review.png",
+      "bytes": 175037,
+      "sha256": "130ba65235e1b121d0ebc87ee4886f10a0c63fdf7df43c0858541167b18e1251"
+    }
+  ]
+}

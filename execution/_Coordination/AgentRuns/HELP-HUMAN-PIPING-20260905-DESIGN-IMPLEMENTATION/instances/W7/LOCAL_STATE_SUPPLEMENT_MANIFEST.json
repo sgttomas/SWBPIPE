@@ -1,0 +1,10 @@
+{
+  "supersedes": "Local-state-only portion of W7 RETURN; technical FINAL_SNAPSHOT unchanged",
+  "files": {
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md": "bef5d8d1e4f5b8cf275ff0d508bef2dc15f69c541238dc4a06bf5cd0e66d2ed0",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md": "e26158c85a100652f3b81b346e0197052fe89d5b7ba6e368472e564f7c964d1c",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md": "c299d79bcbae2af3c35f5b0e6b6cd598f2a015736d3b0fe8b234544666ad14c2",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md": "cb284a816f1b7b779cc85194807b648625bfaab0f60e4eba1f0edb058809282c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/LOCAL_STATE_SUPPLEMENT.md": "a39fbe1567f94b3f249db725bd0e144917b3a02160dfe9ccf4b675c06be29879"
+  }
+}

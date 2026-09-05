@@ -1,0 +1,5 @@
+# W7 local-state supplement
+
+Root requested completion of standing-loop Step 5 after accepting technical source handoff. Paired reads of DEL-07-01/02 _STATUS.md and MEMORY.md preceded edits. Exactly those four files were changed: Last Updated and history record the verified presentation slice; each broad UX Remaining row excludes only that landed slice. All other Remaining entries and IN_PROGRESS states are preserved. MEMORY records evidence, residuals and the independent usability/engineering boundaries. No ScopeOfWork, product, test, build, Git or lifecycle mutation occurred.
+
+This supplement supersedes only the earlier W7 statement that local state changes were limited to run records. FINAL_SNAPSHOT.json remains immutable with SHA256 a7c149dd7b10c908ca4adff2f874a8c8fd2b0e23651006d0eb3981e12b05fac8. SOURCE_V2 and technical review/check acceptance are unchanged. LOCAL_STATE_SUPPLEMENT_MANIFEST.json binds the four new local-state hashes and this supplement. Root may incorporate these records into the clean committed closeout; no W7 work remains.

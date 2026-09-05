@@ -1,0 +1,48 @@
+{
+  "status": "IMMUTABLE_FINAL_PLANNING_SNAPSHOT",
+  "closure": "COMPLETE_FOR_PLANNING_QUALITY_ONLY",
+  "map_sha256": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4",
+  "authority_changes": false,
+  "parent": "/root",
+  "agents": {
+    "A1": "/root/scope_map_author",
+    "R1": "/root/scope_map_review"
+  },
+  "execution_class": "delegated-harness-native; role/non-delegation instruction+config asserted",
+  "model_attribution": "inherited; exact runtime models unknown",
+  "inputs": {
+    "plans/MAP_2026-09-05_product_design_scope_and_decisions.md": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4",
+    "plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md": "d62fd3354849a71049fbbb246a389b0d5f63138fdbcdbdb61e379b971d62bcf9",
+    "execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+    "execution/_Decomposition/_LATEST.md": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87",
+    "execution/_ScopeChange/_LATEST.md": "bec89d13b8c56b77f803eaf6be7c188e3a1d478b927468811f05dab2c00aa30c",
+    "execution/_ScopeChange/SCA-009_2026-08-20_0000/Handoff_State.md": "92df402801ebe6a451f5fb068c56703f70db7f29cadbfae5a5f557ff9e024d7f",
+    "execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+    "execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+    "execution/_DAG/DAG-010/HANDOFF.md": "c5f84bb77fb3f4e21fac6a5ac22e0309d4309c803242869e42b1589cc0d27cc8",
+    "docs/_Registers/ScopeLedger.csv": "97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238",
+    "docs/_Registers/Deliverables.csv": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+    "docs/PRD.md": "9c3bccd8d2eb8e68c10e05d50bdd29619892196c98069a2587ba3a1ff4880793",
+    "docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "execution/_Coordination/_DECISIONS/D-58_RULING_2026-07-27.md": "b9c0c50e1fbd5d350a24f9d1a8d57eda22dfee1cb9a796e20d4ea3772c56b377"
+  },
+  "control_files": {
+    "FAN_IN_ACCEPTANCE.md": "3974e79f4d409b5de17a9710fd3acf36730cb8ef539c912c6f6c365201dab00e",
+    "HANDOFF_STATE.md": "8e3b4ad844ad633d3aa8e8ff7f02373bd827ecade5f6d9ad26b64b06432d7416",
+    "ORCHESTRATION_PLAN.md": "480b59d19e95b990ff49945e6d4fc35e5b1e64fa6678a581e00276e3915670c9",
+    "ROOT_VERIFICATION.md": "a171745725fa5026f88512d87a0e56df4ee8b662d77d42a1542bd7034ce1653b",
+    "WORK_GRAPH.json": "172697fe4dbcd0b76b0b681cded224819c54a1d37a93de6b2dd844ab06ba0c03",
+    "WORK_GRAPH_V1.json": "bdbc73df2cf100a11495b2b1d32feb078c27b43438f39c426163a303b6dbf878",
+    "instances/A1/LAUNCH_BRIEF.md": "e7cfb7005b7eea7cc1c03c07dc9e76789d04fe570c91e2d514a03df568548a20",
+    "instances/A1/RETURN.md": "cdf11e0e0e9e0396cfa244b6363e3319fb958de581e9182195cb8c87a3611678",
+    "instances/A1/STATUS.json": "2f6d11d1f75f7ed5484fff6a73f00868d7c97e7472a44dee9156649948d75f4b",
+    "instances/A1/VALIDATION.json": "6793aee22e0f5435c6075c88991c367a8c41943feb1ac7eb55769d96e1df41da",
+    "instances/R1/FULL_REVIEW_V1.md": "62652771931eb8a38910e6880dfd8f99ea1bb125754643999403dbfcdbc910ed",
+    "instances/R1/INITIAL_ASSESSMENT.md": "5cd81fd4d274880c342644cb45507bfb0a30005017794bbd768b4d06b8109beb",
+    "instances/R1/LAUNCH_BRIEF.md": "de82ed121a9eaf91d70f45994f50bf8a45aafd6fb15415a12a3db78e6fe5773f",
+    "instances/R1/RETURN.md": "f4ce64b7e54bf44072c4e41ec44f7f857e1c2b7d88324ca796f26ea75af51cb5",
+    "instances/R1/STATUS.json": "bf1b8f399e1d3c7fddb1cd36a06ecbcbc46e053f4e46da451b5c3ccebf3e0721",
+    "snapshots/A1_FROZEN_V1/MANIFEST.json": "9239cb28bf180f1b91f3b9414ae27b5cbcc97d66e64d0a6a5125862cdcdfa57b",
+    "snapshots/A1_FROZEN_V1/MAP_2026-09-05_product_design_scope_and_decisions.md": "1d9c1d4961a1dd2dc8615e264e119194d052ee1c8c8bc08276968d7295cf7650"
+  }
+}

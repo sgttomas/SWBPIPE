@@ -1,0 +1,23 @@
+{
+  "id": "ACCEPT_W7_TECHNICAL_SOURCE_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "ACCEPT_W7_TECHNICAL_SOURCE_V2",
+  "evidence": "Root read formal R1 RETURN_V2.md; PASS over 100% of 13 files, previous P2 closed",
+  "manifest_sha256": "c53fd038fd753ea39049b37de98343d6427abb11446439fd1b41b95703eda5f2",
+  "source_verification": "Root personally hashed all 13 live files; all match manifest",
+  "validation": [
+    "Final desktop 748 tests across 45 files PASS",
+    "Desktop build PASS",
+    "Browser 2/2 PASS",
+    "12 browser states with zero errors"
+  ],
+  "claim_limit": "Bounded technical source and browser evidence; not native usability acceptance",
+  "build_state": "W7 released exclusive build slot; no source writers",
+  "remaining": [
+    "N1 native verification",
+    "I2 combined review",
+    "Required clean DEC-025 and closeout gates"
+  ]
+}

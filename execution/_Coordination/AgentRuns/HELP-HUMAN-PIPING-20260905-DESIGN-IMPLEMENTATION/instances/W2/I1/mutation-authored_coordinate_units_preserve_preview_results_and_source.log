@@ -1,0 +1,24 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.85s
+     Running unittests src/lib.rs (/tmp/piping-w2-units-target/debug/deps/open_pipe_stress_product_physics-d32292c12524eed2)
+
+running 1 test
+test tests::authored_coordinate_units_preserve_preview_results_and_source ... FAILED
+
+failures:
+
+---- tests::authored_coordinate_units_preserve_preview_results_and_source stdout ----
+
+thread 'tests::authored_coordinate_units_preserve_preview_results_and_source' (32136964) panicked at src/lib.rs:14481:21:
+assertion `left == right` failed
+  left: Some(ResultMetadata { component: "linear_solver_mode", coordinate_system: "reduced_system", location: "load:L-100", basis: "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=5248613410.555341; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none", sign_convention: "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure" })
+ right: Some(ResultMetadata { component: "linear_solver_mode", coordinate_system: "reduced_system", location: "load:L-100", basis: "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; nonpositive_pivots=0; pivot_condition_ratio_proxy=2749.950256; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none", sign_convention: "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure" })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    tests::authored_coordinate_units_preserve_preview_results_and_source
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 126 filtered out; finished in 0.02s
+
+error: test failed, to rerun pass `--lib`

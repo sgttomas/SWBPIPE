@@ -1,0 +1,19 @@
+{
+  "id": "ACCEPT_N1_COMPILED_BACKEND_VERIFICATION",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept compiled backend/package verification",
+  "manifest_sha256": "444b9772fe68f5f39a2a2cadd0ed04664f211ca0c78e516567deb661a78abc8d",
+  "root_verification": "Read RETURN and verified all 14 FINAL_MANIFEST members",
+  "binary_sha256": "c37d5f9e70f9727cf47323f44b765171ca38a14baefb577ebdb3a79136f23c68",
+  "result": "Actual package and isolated native edited-load save/reopen/solve PASS; 626 input hashes unchanged",
+  "measurements": {
+    "build_seconds": 101.5,
+    "load_before_N": 350,
+    "load_after_N": 425,
+    "result_rows": 830
+  },
+  "claim_limit": "Compiled backend verification, not GUI usability acceptance",
+  "evidence_preservation": "Raw build bytes encoded before sealing; no attributes change"
+}

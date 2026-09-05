@@ -1,0 +1,23 @@
+{
+  "status": "LOCAL_STATE_UPDATED_VERIFIED",
+  "package": "PKG-02",
+  "deliverable": "DEL-02-02",
+  "lifecycle": "IN_PROGRESS",
+  "before_sha256": {
+    "_STATUS.md": "cce11d12cb8d9ef5eb003fc3c0bea503bca7aff1585d57b629f3f59f074d3291",
+    "MEMORY.md": "17c6ba40f1f23f818c4fbd479a6e1af1828f6e5d6c5764fa531fe4f28f7c6bd8"
+  },
+  "after_sha256": {
+    "_STATUS.md": "8f87690699bd75be44f20d552adfd4a465f77355d1545a3c896d04e068bc0c76",
+    "MEMORY.md": "dff27849b368a658b13464d5ecb16099333a6b9bab8c734802ada7c31fe8d269",
+    "_run_records/WORKING_ITEMS_RUN_2026-09-05_NATIVE_COORDINATE_UNITS.md": "74e3313e9bd35fe4a8eac0451a186b582cc3b358181ff963a29a5626a2f13cff"
+  },
+  "verification": [
+    "All6 receipt links resolve",
+    "Lifecycle unchanged and4 held PDU markers present",
+    "Product source frozen hash unchanged"
+  ],
+  "tests_repeated": false,
+  "previous_packets_unchanged": true,
+  "remaining": "Parent integrated closeout gates; existing broader deliverable residuals remain"
+}

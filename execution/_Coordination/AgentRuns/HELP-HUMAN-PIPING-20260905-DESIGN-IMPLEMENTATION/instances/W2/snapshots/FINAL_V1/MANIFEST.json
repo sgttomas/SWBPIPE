@@ -1,0 +1,20 @@
+{
+  "schema": "w2-final-snapshot/v1",
+  "closure": "bounded_repair_reviewed_parent_gates_pending",
+  "derivative_package": true,
+  "accepted_implementation_manifest": "b0d8f5e36ff2976b5842e233847a428de9429340840d220a157698d4c5e619c8",
+  "files": {
+    "PLAN_V1.md": "23a0be95ae468c66ffbe8fe9def56402cbd53842ddc493e7a612c87ee6a4ae55",
+    "ACCEPTANCE_BASIS.md": "0c63e755e4d54e8b23abe1ff59693068c6b8a1ceece7c69e5fead5a01a26cf67",
+    "I1_ACCEPTANCE.md": "6acf69d97489587dac6f26ca5d899abbc86b78ca7e15d70c33cafc2ee137d4d2",
+    "I1/MANIFEST.json": "b0d8f5e36ff2976b5842e233847a428de9429340840d220a157698d4c5e619c8",
+    "R1/BRIEF.md": "f82a47a1a7875f6e6181f229b760321a3ed19980af7091559a4851de34129248",
+    "R1/RETURN.md": "43c71add2429ebde6108e961d4e7e7286d2c81e160af82d5487234ea45d6d1fb",
+    "R1/STATUS.json": "5ab8447d8b88eedd218c24a9c75d244577a738d15afafd7c9f72508582c4ee29",
+    "CONSUMER_NOTICE.md": "4edeefe27f7f738a35b7785f5a8025b10a608f1baddb3e1cf79b686da9929c18",
+    "HANDOFF_STATE.md": "4ff4c445b9ff68b97e3a7bf7225ba480392379b769095848744a1512576388d0",
+    "RETURN.md": "31ffb4509136467c9102da379cc0b5618e0107f757d376bcee5a8879e341dead",
+    "RUNTIME_EVENTS.jsonl": "45c2f49ac75ce30203e4665201baa10653b1e344e39abb63751370b905c918a0",
+    "RUNTIME_SUMMARY.json": "bbf6d980c7bb553f5d31dae115142d1e8a8bbbddcc1dd1e5e296db2edc3858d3"
+  }
+}

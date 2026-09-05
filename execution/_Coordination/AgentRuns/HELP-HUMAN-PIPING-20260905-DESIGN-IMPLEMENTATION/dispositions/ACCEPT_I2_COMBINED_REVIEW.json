@@ -1,0 +1,25 @@
+{
+  "id": "ACCEPT_I2_COMBINED_REVIEW",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "ACCEPT I2 terminal PASS with no actionable findings for parent technical fan-in",
+  "review_scope": "100% combined 17-file frozen source/test/configuration diff including new files",
+  "combined_hash_map_sha256": "9af383721ae28a2564d54aad2333f652c33bd779056c9498201eb19fb6419b8e",
+  "return_sha256": "533719d1c4b448990900717d12d6c825a6c92d38a537271f99e016ee1f736c25",
+  "remaining_gates": [
+    "Native build",
+    "Clean DEC-025",
+    "Staged whitespace",
+    "Publication gates"
+  ],
+  "invalidation": "Any source/configuration change invalidates current fingerprint binding",
+  "authority_limit": "No lifecycle or engineering acceptance",
+  "root_independent_verification": {
+    "performed": true,
+    "live_files": 17,
+    "all_match_accepted_freeze": true,
+    "reconstructed_sorted_compact_hash_mapping_digest": "9af383721ae28a2564d54aad2333f652c33bd779056c9498201eb19fb6419b8e",
+    "record_note": "Supplement received after I2_ACCEPTED_V1 snapshot; earlier snapshot preserved unchanged."
+  }
+}

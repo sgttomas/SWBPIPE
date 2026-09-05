@@ -1,0 +1,11 @@
+{
+  "id": "ACCEPT_W2_LOCAL_STATE_UPDATE",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "basis": "Root read exact local state diff",
+  "disposition": "Accept DEL-02-02 status/memory and run-record update with no lifecycle promotion",
+  "manifest_sha256": "5c41dbbd3b649cba2cbd587ada8ebefe6181005dd22d430272bb1db5fa166e50",
+  "scope": "Exact DEL-02-02 status/memory/run records only",
+  "authority_limit": "Bounded progress evidence; no lifecycle promotion"
+}

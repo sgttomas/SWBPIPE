@@ -1,0 +1,12 @@
+[
+  {
+    "test": "authored_coordinate_units_preserve_preview_results_and_source",
+    "exit_code": 101,
+    "expected_failure": true
+  },
+  {
+    "test": "missing_or_invalid_project_length_units_block_preview",
+    "exit_code": 101,
+    "expected_failure": true
+  }
+]

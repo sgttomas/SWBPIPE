@@ -1,0 +1,17 @@
+{
+  "status": "FAIL",
+  "error": "TimeoutError: locator.fill: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#self-weight-plan').getByLabel('Self-weight case ID', { exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\"/>\u001b[22m\n\u001b[2m    - fill(\"load:layout-weight\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m    - waiting 20ms\u001b[22m\n\u001b[2m    2 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m      - element is not visible\u001b[22m\n\u001b[2m    - retrying fill action\u001b[22m\n\u001b[2m      - waiting 100ms\u001b[22m\n\u001b[2m    57 × waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m       - element is not visible\u001b[22m\n\u001b[2m     - retrying fill action\u001b[22m\n\u001b[2m       - waiting 500ms\u001b[22m\n",
+  "states": [
+    "default",
+    "discovery",
+    "empty",
+    "routing",
+    "selected-pipe",
+    "support",
+    "loads",
+    "results",
+    "field-error",
+    "failure"
+  ],
+  "errors": []
+}

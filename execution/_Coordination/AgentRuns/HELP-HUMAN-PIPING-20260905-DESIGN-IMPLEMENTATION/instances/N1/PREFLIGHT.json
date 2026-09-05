@@ -1,0 +1,6 @@
+{
+  "status": "READY_WAITING_PARENT_BUILD_RELEASE",
+  "evidence_path": "_run_records/preflight/PREFLIGHT.json",
+  "evidence_sha256": "a8a02617d9f7706c2db36c99e5f054fcbca1ebca849d582751c0b4373a8e554d",
+  "preservation_reason": "Exact executed preflight bytes contain observed host checkout metadata. Preserved unchanged under the historical execution-evidence subtree; this portable control pointer replaces the original location. Native build remains held pending parent source-freeze and exclusive-build release."
+}

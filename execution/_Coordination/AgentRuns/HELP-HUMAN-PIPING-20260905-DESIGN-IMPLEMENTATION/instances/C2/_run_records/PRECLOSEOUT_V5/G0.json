@@ -1,0 +1,9 @@
+{
+  "name": "G0",
+  "exit_code": 0,
+  "elapsed_seconds": 0.03,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_root_materialization_fence.py"
+  ]
+}

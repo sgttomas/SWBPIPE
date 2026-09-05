@@ -21,8 +21,12 @@ import {
   Play,
   Save,
   ShieldCheck,
-  Sparkles
+  Sparkles,
+  PanelLeft,
+  PanelRight,
+  X
 } from "lucide-react";
+import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
 import type React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
@@ -284,7 +288,7 @@ type MenuItemSpec =
 const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
   {
     id: "operations",
-    label: "Operation Apply",
+    label: "Review changes",
     description: "Queued structured operations, apply/undo/redo, diffs, and the operation review ledger"
   },
   {
@@ -300,13 +304,13 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
   },
   {
     id: "rule-packs",
-    label: "Rule Packs",
+    label: "Rules",
     description:
       "Private, local-only rule-pack manager: drafts, validation findings, checksum generation, and the local store"
   },
   {
     id: "solve",
-    label: "Solve",
+    label: "Analyze",
     description: "Run the mechanics preview, solve job audit, diagnostics, and missing-data review"
   },
   {
@@ -467,6 +471,10 @@ function AppSession() {
   useLayoutEffect(() => {
     if (!toolkitFocus) return;
     const target = toolkitFocus.elementId ? document.getElementById(toolkitFocus.elementId) : document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
+    // Reveal contextual details before transferring focus from command search.
+    for (let parent = target?.parentElement; parent; parent = parent.parentElement) {
+      if (parent instanceof HTMLDetailsElement) parent.open = true;
+    }
     target?.focus();
     target?.scrollIntoView?.({ block: "nearest" });
   }, [toolkitFocus]);
@@ -476,8 +484,9 @@ function AppSession() {
   // tree and property inspector start tucked away so the primary screen is the
   // 3D model plus a local review-only agent workbench. The detailed rails remain
   // available from View for targeted investigation.
-  const [treeCollapsed, setTreeCollapsed] = useState(true);
-  const [inspectorCollapsed, setInspectorCollapsed] = useState(true);
+  const [treeCollapsed, setTreeCollapsed] = useState(() => window.innerWidth <= 1100);
+  const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
+  const [operationTab, setOperationTab] = useState("review");
   const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
     ...INITIAL_R3_JOURNEY_STATE
   }));
@@ -881,6 +890,7 @@ function AppSession() {
       setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision }]);
       setBatchMessage("Batch queued for validation and explicit application.");
       setActiveSection("operations");
+      setOperationTab("review");
       setToolkitFocus({ testId: "", elementId: "batch-review" });
     } catch (error) {
       if (revision === modelRevision.current && epoch === requestEpochRef.current) {
@@ -1081,6 +1091,7 @@ function AppSession() {
     const [nextIntent] = editorIntents;
     if (!nextIntent) return;
     setActiveSection("operations");
+    setOperationTab("review");
     void handleApplyIntent(nextIntent);
   }
 
@@ -1431,9 +1442,8 @@ function AppSession() {
       return;
     }
     setActiveSection(null);
-    if (tool === "support") {
-      setInspectorCollapsed(false);
-    }
+    setInspectorCollapsed(tool !== "support");
+    if (tool === "support") setToolkitFocus({ testId: "create-support-id" });
   }
 
   function handleToolkitCommand(capability: ToolkitCapability) {
@@ -1449,6 +1459,11 @@ function AppSession() {
     const route = capabilityRoute(capability, context);
     if (!route) return;
     setArmedCreationTool(route.tool ?? null);
+    if (route.tool && route.surface === "viewport") setInspectorCollapsed(true);
+    if (route.surface === "operations") {
+      const tabs: Record<string, string> = { "geometry-tools": "geometry", "boundary-authoring": "supports", "hanger-selection": "supports", "self-weight-plan": "weight", "offline-proposal-intake": "agent" };
+      setOperationTab(tabs[route.elementId ?? ""] ?? "review");
+    }
     if (route.surface === "inspector") { setInspectorCollapsed(false); setActiveSection(null); }
     else if (route.surface === "tree") { setTreeCollapsed(false); setActiveSection(null); }
     else if (route.surface === "viewport") setActiveSection(null);
@@ -1611,6 +1626,15 @@ function AppSession() {
     <main
       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
       data-testid="desktop-preview-shell"
+      onKeyDown={(event) => {
+        if (event.key !== "Escape" || event.defaultPrevented) return;
+        setOpenMenu(null);
+        setArmedCreationTool(null);
+        setActiveSection(null);
+        setAuditDrawerOpen(false);
+        setIssuesDrawerOpen(false);
+        event.currentTarget.querySelector<HTMLButtonElement>('[data-testid="workspace-select"]')?.focus();
+      }}
     >
       <header className="titlebar">
         <div>
@@ -1618,8 +1642,8 @@ function AppSession() {
           <p>{projectSummary?.project_name ?? model.project.name}</p>
         </div>
         <div className="titlebar-actions" aria-label="Local project controls">
-          <div className="display-preference-control"><DisplayUnitSelector /></div>
-          <span className="titlebar-project-name">{projectSummary?.project_name ?? model.project.name}</span>
+          <details className="display-preference-control"><summary>Units</summary><DisplayUnitSelector /></details>
+
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
             <Database size={15} aria-hidden="true" />
             Create local
@@ -1643,8 +1667,8 @@ function AppSession() {
         </div>
       </header>
 
-      <section className="project-strip" aria-label="Project summary">
-        <span data-testid="local-project-message">{projectMessage}</span>
+      <details className="project-strip" aria-label="Project summary">
+        <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
         {projectIndex && projectIndex.length > 0 ? (
           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
@@ -1662,7 +1686,7 @@ function AppSession() {
             ))}
           </div>
         ) : null}
-      </section>
+      </details>
 
       {showInAppMenuBar ? (
         <MenuBar
@@ -1683,6 +1707,23 @@ function AppSession() {
         />
       ) : null}
 
+      <WorkspaceToolbar
+        activeSection={activeSection}
+        selecting={armedCreationTool === null}
+        pendingCount={editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0)}
+        canUndo={undoStack.length > 0 && !operationBusy}
+        canRedo={redoStack.length > 0 && !operationBusy}
+        onSelect={() => handleArmCreationTool(null)}
+        onSection={(section) => { setActiveSection(section); if (section === "operations") setOperationTab("review"); }}
+        onUndo={handleUndoSessionModelEdit}
+        onRedo={handleRedoSessionModelEdit}
+      >
+          <ToolkitPalette
+            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
+            onChoose={handleToolkitCommand}
+          />
+      </WorkspaceToolbar>
+
       <div className={activeSection ? "workspace" : "workspace dock-collapsed"}>
         <section
           className={`modeling-workspace${treeCollapsed ? " tree-collapsed" : ""}${
@@ -1701,7 +1742,7 @@ function AppSession() {
               title={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
               onClick={() => setTreeCollapsed((collapsed) => !collapsed)}
             >
-              <span className="workspace-pane-toggle-label">Model Tree</span>
+              <PanelLeft size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Model</span>
               <span className="workspace-pane-toggle-icon" aria-hidden="true">
                 {treeCollapsed ? "›" : "‹"}
               </span>
@@ -1709,10 +1750,6 @@ function AppSession() {
             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
           </div>
           <div className="workspace-pane workspace-pane-viewport">
-            <ToolkitPalette
-              context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
-              onChoose={handleToolkitCommand}
-            />
             <PipeViewport
               armedCreationTool={armedCreationTool}
               model={model}
@@ -1722,23 +1759,6 @@ function AppSession() {
               queuedIntents={editorIntents}
               result={result}
               selection={selection}
-            />
-          </div>
-          <div className="workspace-pane workspace-pane-agent">
-            <AgentWorkbenchPanel
-              appliedOperationCount={appliedOperations.length}
-              mechanicsReady={Boolean(result)}
-              model={model}
-              proposal={proposal}
-              queuedIntentCount={editorIntents.length}
-              running={running}
-              selection={selection}
-              selectedReviewTarget={selectedReviewTarget}
-              statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
-              onGenerateProposal={handleProposal}
-              onOpenOperations={() => setActiveSection("operations")}
-              onOpenResults={() => setActiveSection("results")}
-              onRunMechanics={handleRun}
             />
           </div>
           <div className="workspace-pane workspace-pane-inspector">
@@ -1751,7 +1771,7 @@ function AppSession() {
               title={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
               onClick={() => setInspectorCollapsed((collapsed) => !collapsed)}
             >
-              <span className="workspace-pane-toggle-label">Inspector</span>
+              <PanelRight size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Properties</span>
               <span className="workspace-pane-toggle-icon" aria-hidden="true">
                 {inspectorCollapsed ? "‹" : "›"}
               </span>
@@ -1777,7 +1797,7 @@ function AppSession() {
             <header className="workspace-dock-header" data-testid="workspace-dock-header">
               <h2>{WORKSPACE_SECTIONS.find((candidate) => candidate.id === activeSection)?.label ?? activeSection}</h2>
               <button type="button" data-testid="workspace-dock-close" onClick={() => setActiveSection(null)}>
-                Close panel
+                <X size={14} aria-hidden="true" /> Close
               </button>
             </header>
           ) : null}
@@ -1788,6 +1808,12 @@ function AppSession() {
               data-testid="workspace-section-operations"
               tabIndex={-1}
             >
+              <nav className="operation-tabs" aria-label="Editing and review tools">
+                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["details", "Details"]].map(([id, label]) => (
+                  <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
+                ))}
+              </nav>
+              <div className="operation-tool-page" hidden={operationTab !== "details"}>
               <section className="panel" aria-label="Stored proposed review context">
                 <h3>Stored proposed review context</h3>
                 <p data-testid="retained-context-summary">{retainedReviewContext.length} retained operation records. Acceptance unknown after reopening; these records do not prove the current model contains a change. Saved member metadata does not restore batch grouping, receipts or undo checkpoints.</p>
@@ -1802,6 +1828,8 @@ function AppSession() {
                   </details>
                 ))}
               </section>
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "supports"}>
               <HangerSelectionPanel
                 model={model}
                 selection={selection}
@@ -1809,6 +1837,8 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "weight"}>
               <SelfWeightPlanPanel
                 model={model}
                 selection={selection}
@@ -1816,6 +1846,23 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "agent"}>
+            <AgentWorkbenchPanel
+              appliedOperationCount={appliedOperations.length}
+              mechanicsReady={Boolean(result)}
+              model={model}
+              proposal={proposal}
+              queuedIntentCount={editorIntents.length}
+              running={running}
+              selection={selection}
+              selectedReviewTarget={selectedReviewTarget}
+              statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+              onGenerateProposal={handleProposal}
+              onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
+              onOpenResults={() => setActiveSection("results")}
+              onRunMechanics={handleRun}
+            />
               <OfflineProposalIntakePanel
                 model={model}
                 selection={selection}
@@ -1828,6 +1875,8 @@ function AppSession() {
                   provider_status: "Live provider is held; offline proposals require explicit human review."
                 }}
               />
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
               <GeometryToolsPanel
                 model={model}
                 selection={selection}
@@ -1835,6 +1884,8 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "supports"}>
               <BoundaryAuthoringPanel
                 model={model}
                 selection={selection}
@@ -1842,6 +1893,8 @@ function AppSession() {
                 busy={operationBusy}
                 requestEpoch={requestEpoch}
               />
+              </div>
+              <div className="operation-tool-page review-tool-page" hidden={operationTab !== "review"}>
               <BatchReviewPanel
                 onClear={handleClearReviewQueue}
                 batches={queuedBatches} outcomes={batchOutcomes} receipts={batchReceipts}
@@ -1863,6 +1916,8 @@ function AppSession() {
                 onUndo={handleUndoSessionModelEdit}
                 onRedo={handleRedoSessionModelEdit}
               />
+              </div>
+              <div className="operation-tool-page" hidden={operationTab !== "details"}>
               <section
                 className={reviewDetailsOpen ? "review-apply-drawer open" : "review-apply-drawer"}
                 aria-label="Review and apply detail views"
@@ -1872,10 +1927,6 @@ function AppSession() {
                   <div>
                     <span>Detail views</span>
                     <h2>Review evidence</h2>
-                    <p>
-                      Editor contract, operation diffs, review ledger, and agent proposal context stay available here
-                      without owning the default work surface.
-                    </p>
                   </div>
                   <button
                     type="button"
@@ -1911,6 +1962,7 @@ function AppSession() {
                   />
                 </div>
               </section>
+              </div>
             </section>
 
             <section
@@ -2621,11 +2673,20 @@ function IssuesHome({
 
 function StatusPill({ label, value, testId }: { label: string; value: string; testId: string }) {
   return (
-    <span className="status-pill" data-testid={testId} title={value}>
-      <strong>{label}</strong>
-      <code>{value}</code>
-    </span>
+    <details className="status-pill" data-testid={testId}>
+      <summary><strong>{label}</strong> {readableWorkspaceStatus(value)}</summary>
+      <div><strong>Recorded status</strong><code>{value}</code></div>
+    </details>
   );
+}
+
+function readableWorkspaceStatus(value: string): string {
+  const token = value.toLowerCase();
+  if (token === "human_review_required" || token === "not_provided") return "Review required";
+  if (token === "rule_inputs_incomplete" || token === "not_performed_user_rule_inputs_missing") return "Inputs needed";
+  if (token === "not_run" || token === "not_computed") return "Not run";
+  if (token === "computed_for_invented_demo") return "Demo computed";
+  return value.replace(/_/g, " ").toLowerCase();
 }
 
 function professionalStatusLabel(value: string) {

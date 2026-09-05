@@ -1,0 +1,24 @@
+{
+  "id": "ACCEPT_W2_FIXTURE_UNITS_METADATA",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1 /root/implementation_coordination",
+  "disposition": "Exact W2 scope extension for one existing fixture metadata omission",
+  "target": "{WORKING_ROOT}/fixtures/product_preview/invented_dec092_temperature_g_request.json",
+  "allowed_change": "Add only model.project.units.length = 'm'",
+  "basis": "Root read accepted validation/hand_calcs/mechanics/tp_dec092_temperature_indexed_shear_modulus_torsion.md lines 28\u201333: PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K and L=4.0 m, matching existing endpoint 4.0",
+  "reason": "Four existing tests require explicit declaration of their existing accepted length basis after units-boundary correction",
+  "constraints": [
+    "No numeric changes",
+    "No equation changes",
+    "No expected-result changes",
+    "No implicit fallback",
+    "No PKG-09 authority changes"
+  ],
+  "required_evidence": [
+    "W2 versioned brief includes fixture",
+    "Fresh independent review includes fixture delta",
+    "Shared PKG-09 consumer coordination notice in this runroot only"
+  ],
+  "application_status": "Authorized for W2; not applied by C1"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "ACCEPT_W2_BOUNDED_REPAIR",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "ACCEPT_W2_BOUNDED_REPAIR",
+  "accepted_packet": "instances/W2/snapshots/FINAL_V1/MANIFEST.json",
+  "manifest_sha256": "f464f57b592520c4f5c3096c82b5d8992950a1fa2b40be33a17aa85f7acbf945",
+  "verification": "Root read W2 RETURN and verified all 12 FINAL_V1 members",
+  "validation": [
+    "Fresh R1 PASS across 100% two-file patch",
+    "127 tests PASS",
+    "Mutation checks completed"
+  ],
+  "acceptance_limit": "Bounded technical acceptance only; no engineering or lifecycle closure",
+  "remaining": [
+    "Integrated review",
+    "Native build verification",
+    "Clean DEC-025 sweep"
+  ],
+  "consumer_routing": "notices/NOTICE-009-W2-CONSUMERS.json"
+}

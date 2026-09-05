@@ -1,0 +1,9 @@
+{
+  "agent_id": "/root/scope_map_author",
+  "parent": "/root",
+  "role": "Agent 2 ephemeral generalist",
+  "model": "inherited; exact runtime model unknown",
+  "status": "COMPLETE",
+  "role_enforcement": "instruction+config asserted",
+  "map_sha256": "1fd69d4a50bcafca414ca556a9981fd47eed307bd625981dde5ec39feeba88f4"
+}

@@ -1,0 +1,14 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tools/practitioner_harness"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 32.46,
+  "encoding": "base64",
+  "sha256": "9c198706987160d3b6864f73f655facb8d42c48ad065289e56a467c4f6609421",
+  "data": "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIFsgMjAlXQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gWyA0MSVdCi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiBbIDYxJV0KLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIFsgODIlXQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiAgICAgICAgICAgWzEwMCVdCjM1MCBwYXNzZWQgaW4gMzIuMjlzCg=="
+}

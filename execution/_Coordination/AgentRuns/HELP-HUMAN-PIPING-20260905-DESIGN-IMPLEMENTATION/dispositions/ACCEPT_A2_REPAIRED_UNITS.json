@@ -1,0 +1,17 @@
+{
+  "id": "ACCEPT_A2_REPAIRED_UNITS",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "ACCEPT_A2_REPAIRED_UNITS",
+  "accepted_packet": "instances/A2/_run_records/REPAIRED_UNITS_V1",
+  "manifest_sha256": "730e2f7ac617a18d9227f04dd70356e87e3339a9713903592c7f5d3fbb6cdce8",
+  "verification": "Root read repaired RETURN and verified all 10 packet members",
+  "result": "Original three frozen m/mm/in fixtures now return exactly equal full envelopes",
+  "acceptance_limit": "Bounded technical witness acceptance only; no engineering or lifecycle closure; not a packaged GUI transport test",
+  "remaining": [
+    "Integrated review",
+    "Native build verification",
+    "Clean DEC-025 sweep"
+  ]
+}

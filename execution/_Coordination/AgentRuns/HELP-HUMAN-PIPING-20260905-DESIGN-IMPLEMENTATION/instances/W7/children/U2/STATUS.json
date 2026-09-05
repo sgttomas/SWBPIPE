@@ -1,0 +1,13 @@
+{
+  "instance": "U2",
+  "parent": "W7",
+  "status": "SUCCESS",
+  "source_frozen": true,
+  "actual_model": "unknown",
+  "role_enforcement": "instruction-asserted",
+  "focused_tests": {"passed": 14, "failed": 0},
+  "intermediate_build": "PASS",
+  "source_scope_validation": "PASS-explicit-own-path-list",
+  "return": "RETURN.md",
+  "remaining": ["W7 final integration tests/build,1024x768 visual checks,independent frozen-diff review"]
+}

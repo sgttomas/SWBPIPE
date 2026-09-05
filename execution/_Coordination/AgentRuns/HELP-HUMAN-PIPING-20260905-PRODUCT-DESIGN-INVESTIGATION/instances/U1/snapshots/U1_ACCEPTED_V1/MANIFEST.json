@@ -1,0 +1,28 @@
+{
+  "snapshot_id": "U1_ACCEPTED_V1",
+  "frozen_at": "2026-09-05T18:11:20.420699+00:00",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "accepted_by": "U1 WORKING_ITEMS for Agent0 fan-in only",
+  "derivative": true,
+  "files": {
+    "FANIN.md": "b42a072d0226e2c5e8b3b50751a6382cd996f122f7406999d972899c040fe1ad",
+    "FINDINGS.md": "86d07bd3b7145fca9959614ab2f2ab7b40a533f0652e9f5dcf5b61ce5c7d53fc",
+    "HANDOFF_STATE.md": "2177be94a71bd1259a96e9cb00bd5ae458427e5773cb16f361b52b8c159913e2",
+    "INPUT_HASHES.json": "d855bcb815a6dd8f9f836003f1f730bbd7b1598b212fab29796d254e6f17d63f",
+    "RETURN.md": "b1a3ad8ecf14a0dafe6cd884333ac1e357b22b74d733019d4e1fbe8c420417e0",
+    "RUNTIME_EVENTS.jsonl": "78254cf3805d06c64342a7d4b4e36a28bbcc0025ac5a293b58a80f8b504467c6",
+    "RUNTIME_SUMMARY.json": "ec87c09f7033ec3499268f8e20942b49604a83bb246870290d0bfd0f70fc2071",
+    "STATUS.json": "4e636b24001dc462d3bc3f2ccab51c0ccc295f83eda72268d2095044708b506d",
+    "WORK_GRAPH.md": "2ed42935d927058cfde1a1d2bdc10e30a49a4684293e6f7eecee6306114c77fa",
+    "children/U1a/BRIEF.md": "d5bb0e19a5eb64baad64820054a84224a148035582fbe095d529d9464174a067",
+    "children/U1a/FINDINGS.md": "ed98596841b2a5637bcdf145a0c1f93e50a1ce5c63a29687b0a0f806f78e6c0a",
+    "children/U1a/RETURN.md": "19566d9cab55f0346e34198d1a01045e96080aba0166725ea2aab9cbcdd88b7c",
+    "children/U1a/SOURCES.json": "5e838dde62ff418ccf1be55f236a62b1b98cd8a8b61bc60749a97147e0c1177b",
+    "children/U1a/STATUS.json": "011aa4b53699252770be9c55e6b8dffd038719c4e9c14e753ce9123de679c595",
+    "children/U1b/BRIEF.md": "e049aa56cabe927ac0602846e843872081f4435970e0280794b4dcc3a6afdb9e",
+    "children/U1b/FINDINGS.md": "9de4d91f1e27e354704c087885e0700e77ea51249fd346bdda4e1767228693bb",
+    "children/U1b/RETURN.md": "ae08d306d28cbc355b22d03a87f0f948cf2e9b57662f01157a3cc684a2cd9f99",
+    "children/U1b/SOURCES.md": "47d65a3fa39030baeb0831c6775bace39662138870ddbc33a662e26aac145aeb",
+    "children/U1b/STATUS.json": "177a85af9bbe479a6d5cd4434a4045b865b636fbeb1bcaec99c31606e60c7ed5"
+  }
+}

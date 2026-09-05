@@ -1,0 +1,16 @@
+{
+  "id": "NOTICE-007-UI-REFINEMENT",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root exploratory visual review",
+  "recorded_by": "C1",
+  "observation": "Positive canvas recovery in exploratory visual review",
+  "direction_to": "W7",
+  "requested_refinements": [
+    "Remove primary generic rationale",
+    "Remove internal status plumbing from primary interface",
+    "Remove duplicate cards",
+    "Preserve exact queue/apply honesty"
+  ],
+  "scope": "Same existing UI scope; no engineering semantic change",
+  "claim_limit": "Exploratory review is not independent full usability acceptance"
+}

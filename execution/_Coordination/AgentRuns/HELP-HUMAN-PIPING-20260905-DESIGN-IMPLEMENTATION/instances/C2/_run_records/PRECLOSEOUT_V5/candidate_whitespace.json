@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_candidate_whitespace.py",
+    "--base-ref",
+    "7458e9c1eb9399ed259da464207d9a507acdea2e"
+  ],
+  "exit_code": 1
+}

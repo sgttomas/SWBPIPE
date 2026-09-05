@@ -1,0 +1,57 @@
+{
+  "id": "UPDATE-004",
+  "version": 3,
+  "recorded_by": "/root/implementation_coordination",
+  "parent_direction": "/root",
+  "basis": "PLAN_V2 plus actual launch receipts LAUNCH-003",
+  "reason": "A2 executable units witness READ+RUN reproduced scale defect; frozen packet pending",
+  "finding_claim": "Equivalent m/mm/in cases all report MECHANICS_SOLVED despite divergent results, per parent witness notice; source-bound packet acceptance pending",
+  "node_added": {
+    "id": "W2",
+    "runtime_id": "/root/units_manager",
+    "role": "Agent 1 WORKING_ITEMS",
+    "package": "PKG-02",
+    "primary_deliverable": "DEL-02-02",
+    "objective": "minimal product coordinate-boundary repair",
+    "initial_mode": "READ/PLAN ONLY",
+    "source_write_gate": "root acceptance of frozen A2 units packet",
+    "eventual_write_scope": [
+      "core/product_physics relevant units boundary and targeted tests",
+      "PKG-02 local records",
+      "instances/W2 subtree"
+    ],
+    "exclusions": [
+      "UI",
+      "schema",
+      "native Tauri",
+      "other packages unless root explicitly extends"
+    ],
+    "delegation": "Agent 2 author plus fresh read-only 100% frozen-diff review, then root integrated checks",
+    "existing_basis": [
+      "SOW-025",
+      "MAP-020 unit correctness"
+    ],
+    "new_scope_or_owner_criterion": false
+  },
+  "parallelism": {
+    "W7": "continues independent UI",
+    "A2": "finishes identity/persistence witnesses against frozen baseline",
+    "W2": "read/plan only until explicit acceptance gate"
+  },
+  "W7_partition": "Parent accepted one App/styles/Toolkit author and separate inspector/tree author, with fresh independent review",
+  "C2_precloseout": {
+    "runtime_id": "/root/sync_main",
+    "mode": "read-only precloseout",
+    "finding": "Prior SOURCE_INDEX exact-hash EVIDENCE-policy candidate classified valid",
+    "disposition": "pending root approval; not applied"
+  },
+  "preservation": [
+    "report",
+    "map",
+    "accepted authority",
+    "frozen PLAN_V1",
+    "frozen PLAN_V2"
+  ],
+  "enforcement": "delegated-harness-native; instruction+config asserted, not mechanism-proven",
+  "model": "unavailable"
+}

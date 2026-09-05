@@ -1,0 +1,24 @@
+{
+  "id": "RELEASE_N1_NATIVE_BUILD",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Release N1 exclusive build slot under original brief",
+  "instance": "N1",
+  "runtime_id": "/root/native_verification",
+  "satisfied_gates": [
+    "W7 accepted frozen source/review",
+    "W2 frozen review PASS",
+    "A2 repaired units PASS",
+    "No source writers; W7 build slot released"
+  ],
+  "allowed_activity": "Actual Tauri bundling and isolated saved-edited-load self-test only",
+  "preserved_exclusions": [
+    "No GUI interaction",
+    "No user-app writes",
+    "No source or configuration changes",
+    "No Git mutation",
+    "No identity/entitlement changes"
+  ],
+  "claim_limit": "Build/self-test results do not establish native GUI usability"
+}

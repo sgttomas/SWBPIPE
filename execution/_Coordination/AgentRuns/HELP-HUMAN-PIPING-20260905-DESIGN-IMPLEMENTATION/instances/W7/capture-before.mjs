@@ -1,0 +1,10 @@
+import { chromium } from "@playwright/test";
+import { writeFile } from 'node:fs/promises';
+const browser=await chromium.launch({headless:true});
+const page=await browser.newPage({viewport:{width:1024,height:768}});
+await page.goto('http://127.0.0.1:5178');await page.getByTestId('toolkit-entry').waitFor();
+await page.screenshot({path:new URL('before-default.png',import.meta.url).pathname});
+await page.getByTestId('toolkit-entry').click();
+await page.screenshot({path:new URL('before-toolkit.png',import.meta.url).pathname});
+await writeFile(new URL('before-geometry.json',import.meta.url),JSON.stringify(await page.evaluate(()=>Object.fromEntries(['.modeling-workspace','.workspace-pane-viewport','canvas','.toolkit-commands'].map(s=>{const r=document.querySelector(s)?.getBoundingClientRect();return[s,r?.toJSON()]}))),null,2));
+await browser.close();

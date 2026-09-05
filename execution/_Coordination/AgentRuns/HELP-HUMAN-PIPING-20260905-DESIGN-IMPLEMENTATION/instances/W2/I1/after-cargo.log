@@ -1,0 +1,177 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.73s
+     Running unittests src/lib.rs (/tmp/piping-w2-units-target/debug/deps/open_pipe_stress_product_physics-d32292c12524eed2)
+
+running 127 tests
+test tests::absent_mill_tolerance_slot_means_no_reduction ... ok
+test self_weight::tests::self_weight_rejects_unknown_request_options ... ok
+test nonlinear_context_passthrough_tests::assembled_loop_context_is_a_pure_passthrough ... ok
+test tests::base_material_values_are_used_when_no_modulus_basis_is_named ... ok
+test tests::constant_effort_applies_in_every_solved_load_case ... ok
+test self_weight::tests::self_weight_section_resolution_and_unselected_isolation ... ok
+test self_weight::tests::self_weight_invalid_quantities_fail_without_partial_plan ... ok
+test tests::constant_effort_user_limit_comparison_warns_from_user_data_only ... ok
+test tests::curved_bend_macro_element_anchored_thermal_produces_reactions ... ok
+test self_weight::tests::self_weight_signed_axes_shape_and_immutable_inputs ... ok
+test tests::constant_effort_missing_or_nonpositive_load_keeps_existing_blocking_and_no_defaults ... ok
+test tests::curved_bend_macro_element_multiplier_applies_sif_only ... ok
+test self_weight::tests::self_weight_selection_geometry_and_collisions ... ok
+test tests::curved_bend_macro_element_keeps_dense_sparse_parity ... ok
+test tests::constant_effort_direction_follows_declared_translational_dof_positive_axis ... ok
+test self_weight::tests::self_weight_alternate_units_and_all_mass_sources ... ok
+test tests::bend_component_user_multipliers_emit_stress_review_rows ... ok
+test tests::constant_effort_consumption_matches_superposition_identity ... ok
+test tests::combination_stress_summary_rows_are_skipped_with_diagnostics ... ok
+test tests::constant_effort_non_consuming_shapes_warn_without_force_or_blocking ... ok
+test tests::curved_bend_macro_element_review_row_states_assembled_consumption ... ok
+test tests::curved_bend_macro_element_consumes_arc_consistent_uniform_weight ... ok
+test tests::curved_bend_macro_element_thermal_free_expansion_is_stress_free ... ok
+test tests::curved_bend_macro_element_assembles_arc_stiffness_without_straight_chord ... ok
+test tests::curved_bend_macro_element_solves_assembled_nonlinear_loop ... ok
+test tests::curved_bend_macro_element_blocks_on_missing_or_inconsistent_geometry ... ok
+test tests::dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through ... FAILED
+test tests::duplicate_ids_block_with_diagnostic ... ok
+test tests::declared_solve_temperature_interpolates_e_and_alpha_with_provenance ... ok
+test tests::curved_bend_macro_span_pressure_shows_membrane_station_state ... ok
+test tests::empty_ids_block_with_diagnostic ... ok
+test tests::explicit_anchor_all_six_preserves_complete_restraint ... ok
+test tests::explicit_anchor_mixed_dofs_leave_uy_spring_and_other_dofs_free ... ok
+test tests::curved_bend_macro_span_pressure_reaches_nonlinear_loop_with_same_vector ... ok
+test tests::explicit_anchor_repair_preserves_named_and_implicit_family_fallbacks ... ok
+test tests::explicit_anchor_rx_only_preserves_partial_rotation_through_boundary ... ok
+test tests::exact_and_interpolated_basis_fields_are_mutually_exclusive ... ok
+test tests::displacement_component_rows_carry_signed_global_directions ... ok
+test tests::f3_explicit_six_dof_guide_keeps_family_and_reports_invalid_rotations ... ok
+test tests::f3_family_tokens_accept_exact_canonical_vocabulary ... ok
+test tests::branch_component_user_multipliers_emit_side_specific_stress_review_rows ... ok
+test tests::fixed_fixed_thermal_load_applies_axial_fixed_end_correction ... ok
+test tests::guide_preview_mapping_remains_guide_with_entered_dofs ... ok
+test tests::friction_preview_derives_normal_from_named_support_reaction ... ok
+test tests::friction_preview_surfaces_explicit_normal_evidence_without_combining_it ... ok
+test tests::gap_preview_closes_to_explicit_clearance_through_dense_loop ... ok
+test tests::curved_bend_macro_element_emits_arc_interior_station_results ... ok
+test tests::friction_preview_slides_and_converges_with_explicit_normal_evidence ... ok
+test tests::constant_effort_coexists_with_nonlinear_supports_and_nonlinear_field_precedence ... ok
+test tests::incompatible_material_unit_blocks_with_diagnostic ... ok
+test tests::invalid_combination_records_block_with_diagnostics ... ok
+test tests::invalid_load_unit_blocks_with_diagnostic ... ok
+test tests::invalid_subtraction_and_range_records_block_with_named_diagnostics ... ok
+test tests::expansion_joint_pressure_thrust_uses_user_effective_area_as_load_side_evidence ... ok
+test tests::expansion_joint_user_stiffness_emits_macro_element_review_rows ... ok
+test tests::mill_tolerance_reduces_derived_effective_wall_and_section_modulus ... ok
+test tests::interpolation_blocks_at_and_beyond_stored_range_edges ... ok
+test tests::envelope_keeps_status_boundaries_separate ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_row ... ok
+test tests::load_case_modulus_basis_selects_exact_user_entered_hot_point ... ok
+test tests::missing_all_primitive_loads_blocks_with_diagnostic ... ok
+test tests::lift_off_preview_releases_contact_through_dense_loop ... ok
+test tests::f3_canonical_spring_retains_elastic_stiffness ... ok
+test tests::missing_material_blocks_with_diagnostic ... ok
+test tests::missing_load_input_blocks_with_diagnostic ... ok
+test tests::missing_public_preview_provenance_blocks_with_diagnostic ... ok
+test tests::missing_pipe_orientation_blocks_with_diagnostic ... ok
+test tests::named_line_stop_reaches_solver_family_with_entered_dof ... ok
+test tests::named_vertical_support_reaches_solver_family_with_entered_dof ... ok
+test tests::modulus_basis_point_without_elastic_modulus_is_blocking ... ok
+test tests::mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state ... ok
+test tests::present_but_invalid_mill_tolerance_is_blocking ... ok
+test tests::pressure_thrust_applies_axial_fixed_end_correction_without_longitudinal_rows ... ok
+test tests::pressure_thrust_on_macro_span_assembles_complete_self_equilibrated_arc_system ... ok
+test tests::node_normalization_preserves_quantities_directions_and_authored_metadata ... ok
+test tests::pressure_load_direction_does_not_change_thrust_magnitude_or_sign ... ok
+test tests::seismic_generation_with_partial_insulation_pair_is_blocking ... ok
+test tests::seismic_generation_without_material_density_is_blocking ... ok
+test tests::legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged ... ok
+test tests::seismic_generation_without_user_gravity_is_blocking_not_defaulted ... ok
+test tests::seismic_equivalent_static_generation_matches_authored_distributed_load ... ok
+test tests::selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g ... FAILED
+test tests::selected_point_g_is_base_independent_and_selected_g_sensitive ... FAILED
+test tests::models_without_constant_effort_supports_are_untouched_by_the_consumption_path ... ok
+test tests::shared_section_blank_reference_identity_blocks_common_entry ... ok
+test tests::shared_section_equivalent_but_different_cache_representation_is_stale ... ok
+test tests::shared_section_local_mill_tolerance_must_leave_positive_wall ... ok
+test tests::missing_or_invalid_project_length_units_block_preview ... ok
+test tests::shared_section_matching_reference_resolves_and_preserves_local_inputs ... ok
+test tests::shared_section_stale_cache_blocks_common_solver_entry ... ok
+test tests::range_combination_records_each_operand_modulus_basis ... ok
+test tests::spring_hanger_missing_stiffness_blocks_without_defaulting ... ok
+test tests::subspan_wind_double_marking_same_pipe_is_blocking ... ok
+test tests::shared_section_wire_is_optional_and_retained ... ok
+test tests::operation_authored_primitive_categories_map_to_preview_mechanics ... ok
+test tests::subspan_wind_missing_span_fields_is_blocking ... ok
+test tests::shared_section_reference_failures_are_explicit ... ok
+test tests::subspan_wind_on_curved_bend_macro_span_is_blocking ... ok
+test tests::f3_invalid_family_blocks_every_payload_before_mechanics ... ok
+test tests::subspan_wind_generation_matches_hand_computed_lever_rule_nodal_forces ... ok
+test tests::subspan_wind_unknown_pipe_ref_is_blocking ... ok
+test tests::subspan_wind_invalid_fractions_are_blocking ... ok
+test tests::under_restrained_model_reports_solver_diagnostic ... ok
+test tests::temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block ... FAILED
+test tests::thermal_load_requires_explicit_material_expansion_coefficient ... ok
+test tests::subspan_wind_mixed_whole_and_partial_marking_superposes_on_distinct_pipes ... ok
+test tests::subspan_wind_overlapping_extents_are_blocking_but_disjoint_extents_solve ... ok
+test tests::unresolved_exact_modulus_basis_is_blocking_without_defaulting ... ok
+test tests::mixed_units_are_normalized_at_preview_mechanics_boundary ... ok
+test tests::mill_tolerance_units_are_normalized_at_preview_boundary ... ok
+test tests::thermal_load_direction_does_not_change_thermal_magnitude_or_sign ... ok
+test tests::wind_equivalent_static_generation_matches_authored_distributed_load ... ok
+test tests::wind_generation_without_marked_spans_is_blocking ... ok
+test tests::spring_hanger_user_inputs_emit_review_rows_without_catalog_defaults ... ok
+test tests::range_envelope_combination_selects_each_shipped_mode_deterministically ... ok
+test tests::generated_result_surface_matches_fallback_fixture_force_metadata ... ok
+test tests::valid_invented_model_exposes_endpoint_stress_components ... ok
+test tests::valid_invented_model_exposes_global_displacement_components ... ok
+test tests::valid_invented_model_exposes_element_force_components ... ok
+test tests::subtraction_combination_subtracts_solved_rows_with_signed_determinism ... ok
+test tests::valid_invented_model_exposes_explicit_load_combination_results ... ok
+test tests::valid_invented_model_solves_deterministically ... ok
+test tests::valid_invented_model_exposes_nonlinear_support_loop_evidence ... ok
+test tests::f3_real_hanger_nonlinear_and_dof_aliases_remain_supported ... ok
+test tests::displacement_component_rows_are_deterministic_across_runs ... ok
+test tests::f3_missing_and_null_family_preserve_existing_inference_and_payloads ... ok
+test tests::authored_coordinate_units_preserve_preview_results_and_source ... ok
+
+failures:
+
+---- tests::dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through stdout ----
+
+thread 'tests::dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through' (32133088) panicked at src/lib.rs:13426:9:
+assertion `left == right` failed
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- tests::selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g stdout ----
+
+thread 'tests::selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g' (32133150) panicked at src/lib.rs:13562:9:
+assertion failed: result.diagnostics.iter().any(|item|
+        {
+            item.code == "MODULUS_BASIS_INPUT_MISSING" &&
+                    item.severity == "blocking" &&
+                item.message.contains("never fall back to base G")
+        })
+
+---- tests::selected_point_g_is_base_independent_and_selected_g_sensitive stdout ----
+
+thread 'tests::selected_point_g_is_base_independent_and_selected_g_sensitive' (32133151) panicked at src/lib.rs:13507:9:
+assertion `left == right` failed
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+
+---- tests::temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block stdout ----
+
+thread 'tests::temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block' (32133170) panicked at src/lib.rs:13658:9:
+assertion `left == right` failed
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+
+
+failures:
+    tests::dec092_fixture_consumes_exact_and_interpolated_g_with_provenance_and_combination_carry_through
+    tests::selected_basis_blocks_missing_invalid_or_dimensionally_wrong_point_g
+    tests::selected_point_g_is_base_independent_and_selected_g_sensitive
+    tests::temperature_g_interpolation_uses_adjacent_points_and_duplicate_temperatures_still_block
+
+test result: FAILED. 123 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s
+
+error: test failed, to rerun pass `--lib`

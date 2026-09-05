@@ -1,0 +1,4 @@
+{
+  "exit_code": 101,
+  "stderr": "\nthread 'main' (32130335) panicked at src/main.rs:6:57:\ncalled `Result::unwrap()` on an `Err` value: Error(\"invalid type: map, expected a string\", line: 0, column: 0)\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+}

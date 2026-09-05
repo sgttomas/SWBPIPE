@@ -1,0 +1,38 @@
+Untracked text whitespace findings:
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/C2/_run_records/PRECLOSEOUT_V5/practitioner_pytest.txt:19: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/PATCH.diff:14: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/PATCH.diff:19: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/PATCH.diff:95: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/baseline-cargo.log:161: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/final-cargo.log:141: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters-final.log:41: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters-pass.log:10: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/copy-adapters.log:1453: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/support-disclosure-v2.log:34: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/targeted-initial.log:33666: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/targeted-second.log:1575: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/children/U1/_run_records/workspace-routes.log:10: blank line at end of file
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:32: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:63: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:82: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:91: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:114: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:124: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:134: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:143: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:284: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:294: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:338: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:352: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:358: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:549: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:552: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:565: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:656: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:885: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:899: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:945: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:955: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:1090: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W7/snapshots/SOURCE_V1/DIFF.patch:1104: trailing whitespace
+FAIL: candidate whitespace findings (untracked binary/symlink paths safely skipped: 37).

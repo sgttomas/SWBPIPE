@@ -1,0 +1,14 @@
+{
+  "id": "ACCEPT_A2_UNITS_V1",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1 /root/implementation_coordination",
+  "disposition": "ACCEPT_A2_UNITS_V1 / RELEASE_W2",
+  "evidence": "Root read FINDING and verified 16 hashes",
+  "manifest_sha256": "d38ffc1f05860b1b9076301a0c056df24ba3a72583919db8dc4a3eff1e7bb763",
+  "claim": "Reproduced native-core units defect supported by verified full unchanged frontend/native call chain",
+  "claim_limit": "Not a packaged-transport test",
+  "write_gate": "W2 source writes released within existing units-repair scope in PLAN_V3",
+  "authority_limit": "Existing correctness obligations only; no new owner acceptance criterion",
+  "git": "No Git mutation until writers frozen"
+}

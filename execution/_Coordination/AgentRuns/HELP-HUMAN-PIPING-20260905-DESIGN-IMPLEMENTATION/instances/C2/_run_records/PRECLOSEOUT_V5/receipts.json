@@ -1,0 +1,9 @@
+{
+  "name": "receipts",
+  "exit_code": 0,
+  "elapsed_seconds": 0.9,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/validation/validate_piping_loop_receipts.py"
+  ]
+}

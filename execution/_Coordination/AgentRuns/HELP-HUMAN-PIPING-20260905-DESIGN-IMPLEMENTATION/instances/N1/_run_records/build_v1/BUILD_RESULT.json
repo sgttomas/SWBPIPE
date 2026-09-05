@@ -1,0 +1,19 @@
+{
+  "command": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop",
+  "utc_finished": "2026-09-05T19:49:04.127150+00:00",
+  "duration_seconds": 101.50817908300087,
+  "exit_code": 0,
+  "env_overrides": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "signing_environment_keys_present": []
+}

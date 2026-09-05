@@ -1,0 +1,1636 @@
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json b/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json
+index 6ef569cec..f9c74e235 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json
++++ b/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json
+@@ -15,8 +15,8 @@
+         "title": "OpenPipeStress Technical Preview",
+         "width": 1440,
+         "height": 920,
+-        "minWidth": 1160,
+-        "minHeight": 760
++        "minWidth": 1024,
++        "minHeight": 768
+       }
+     ],
+     "security": {
+diff --git a/projects/chirality-piping/apps/desktop/src/App.test.tsx b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+index efda700f6..f54044579 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -693,7 +693,7 @@ describe("OpenPipeStress desktop preview", () => {
+     );
+     expect(screen.getByTestId("toggle-inspector")).toHaveAttribute(
+       "aria-expanded",
+-      "false",
++      "true",
+     );
+     expect(screen.getByTestId("agent-workbench-panel")).toBeInTheDocument();
+     expect(screen.getByTestId("agent-focus-selection")).toHaveTextContent(
+@@ -714,6 +714,7 @@ describe("OpenPipeStress desktop preview", () => {
+       "collapsed",
+     );
+ 
++    fireEvent.click(screen.getByTestId("operation-tab-details"));
+     const drawer = screen.getByTestId("review-apply-drawer");
+     expect(drawer.className).not.toContain("open");
+     fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+@@ -4684,7 +4685,7 @@ describe("OpenPipeStress desktop preview", () => {
+     );
+     expect(
+       await within(intentPanel).findByText(
+-        "Proposed value (Pa, model metadata)",
++        /^New .*\(Pa\)$/,
+       ),
+     ).toBeInTheDocument();
+     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+@@ -4745,7 +4746,7 @@ describe("OpenPipeStress desktop preview", () => {
+       within(intentPanel).getByTestId("editor-intent-queue").textContent,
+     ).toContain("no accepted model change");
+     expect(
+-      within(intentPanel).getByRole("button", { name: /Queue review intent/i }),
++      within(intentPanel).getByRole("button", { name: /Queue change/i }),
+     ).not.toBeDisabled();
+     expect(
+       within(inspector).getByRole("heading", {
+@@ -4796,9 +4797,7 @@ describe("OpenPipeStress desktop preview", () => {
+     expect(inspector.textContent).toContain(
+       "invented_example_user_entered_bend_values_no_code_table",
+     );
+-    expect(inspector.textContent).toContain(
+-      "No missing selected fields detected",
+-    );
++    expect(within(inspector).queryByTestId("inspector-required-flags")).not.toBeInTheDocument();
+ 
+     fireEvent.click(
+       within(tree).getByRole("button", {
+@@ -6668,7 +6667,7 @@ describe("OpenPipeStress desktop preview", () => {
+     const intentPanel = screen.getByLabelText("Editor operation intent");
+     expect(
+       within(intentPanel).getByTestId("editor-intent-queue-empty").textContent,
+-    ).toContain("No transient editor intents queued");
++    ).toContain("No changes queued.");
+     await waitFor(() =>
+       expect(
+         screen.getByTestId("property-unit-catalog-status").textContent,
+@@ -6708,7 +6707,7 @@ describe("OpenPipeStress desktop preview", () => {
+       "m",
+     );
+     expect(
+-      within(intentPanel).getByText("Proposed value (m, model metadata)"),
++      within(intentPanel).getByText(/^New .*\(m\)$/),
+     ).toBeInTheDocument();
+ 
+     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+@@ -6755,7 +6754,7 @@ describe("OpenPipeStress desktop preview", () => {
+       "N/m",
+     );
+     expect(
+-      within(intentPanel).getByText("Proposed value (N/m, model metadata)"),
++      within(intentPanel).getByText(/^New .*\(N\/m\)$/),
+     ).toBeInTheDocument();
+ 
+     fireEvent.change(within(intentPanel).getByTestId("editor-intent-value"), {
+@@ -8348,7 +8347,7 @@ describe("OpenPipeStress desktop preview", () => {
+     ).toContain("0 pending operations; applied_operations=0");
+     expect(screen.getByTestId("retained-context-summary")).toHaveTextContent("1 retained operation records");
+     expect(
+-      within(controls).getByText("Invented Utility Loop Preview"),
++      screen.getByText("Invented Utility Loop Preview", { selector: ".titlebar p" }),
+     ).toBeInTheDocument();
+     await waitFor(() =>
+       expect(
+@@ -8856,7 +8855,7 @@ describe("OpenPipeStress desktop preview", () => {
+         "Created blank local model document without fixture entities or external file copies.",
+       ),
+     );
+-    expect(within(controls).getByText("Blank Local Model")).toBeInTheDocument();
++    expect(screen.getByText("Blank Local Model", { selector: ".titlebar p" })).toBeInTheDocument();
+     expect(screen.getByTestId("status-pill-mechanics").textContent).toContain(
+       "MODEL_INCOMPLETE",
+     );
+@@ -9030,6 +9029,9 @@ describe("OpenPipeStress desktop preview", () => {
+       ),
+     );
+ 
++    fireEvent.click(screen.getByTestId("workspace-review"));
++    fireEvent.click(screen.getByTestId("operation-tab-details"));
++    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+     fireEvent.click(
+       screen.getByRole("button", { name: /Generate review proposal/i }),
+     );
+@@ -12693,6 +12695,9 @@ describe("OpenPipeStress desktop preview", () => {
+     ).toBe(false);
+     */
+ 
++    fireEvent.click(screen.getByTestId("workspace-review"));
++    fireEvent.click(screen.getByTestId("operation-tab-details"));
++    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+     fireEvent.click(
+       screen.getByRole("button", { name: /Generate review proposal/i }),
+     );
+@@ -13494,6 +13499,9 @@ describe("OpenPipeStress desktop preview", () => {
+       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
+     ).toBeInTheDocument();
+ 
++    fireEvent.click(screen.getByTestId("workspace-review"));
++    fireEvent.click(screen.getByTestId("operation-tab-details"));
++    fireEvent.click(screen.getByTestId("review-apply-drawer-toggle"));
+     fireEvent.click(
+       screen.getByRole("button", { name: /Generate review proposal/i }),
+     );
+@@ -15860,6 +15868,8 @@ describe("Tier3 shared batch and proposed context", () => {
+ });
+ 
+ async function importOfflineForTest(batch: unknown, key: number) {
++  fireEvent.click(screen.getByTestId("workspace-review"));
++  fireEvent.click(screen.getByTestId("operation-tab-agent"));
+   fireEvent.change(screen.getByLabelText("Proposal batch JSON"), { target: { value: JSON.stringify(batch) } });
+   fireEvent.click(screen.getByRole("button", { name: "Queue imported batch for review" }));
+   await screen.findByTestId(`apply-batch-operation-batch-${key}`);
+@@ -15978,3 +15988,76 @@ describe("Tier3 display in the actual application", () => {
+     expect(deltas.textContent).toBe(entered);
+   });
+ });
++
++
++describe("persistent modeling workspace", () => {
++  it.each([
++    ["toolbar", "project"], ["toolbar", "node:N-140"], ["toolbar", "pipe:P-120"],
++    ["Insert menu", "project"], ["Insert menu", "node:N-140"], ["Insert menu", "pipe:P-120"],
++  ])("opens Support creation from %s with %s selected", async (route, selectedId) => {
++    render(<App />);
++    await screen.findByTestId("workspace-toolbar");
++    if (selectedId !== "project") fireEvent.click(screen.getByTestId(`viewport-select-${selectedId}`));
++    const target = screen.getByTestId("create-support-id");
++    const disclosure = target.closest("details");
++    expect(disclosure).not.toHaveAttribute("open");
++    const viewport = screen.getByTestId("viewport-canvas");
++    const selectionBefore = screen.getByTestId("command-selection-readout").textContent;
++    if (route === "toolbar") fireEvent.click(screen.getByTestId("command-support"));
++    else {
++      fireEvent.click(screen.getByTestId("menu-insert"));
++      fireEvent.click(screen.getByTestId("menu-item-insert.support"));
++    }
++    expect(screen.getByTestId("toggle-inspector")).toHaveAttribute("aria-expanded", "true");
++    expect(disclosure).toHaveAttribute("open");
++    expect(target).toHaveFocus();
++    expect(screen.getByTestId("armed-creation-tool")).toHaveTextContent("Support tool armed");
++    expect(screen.getByTestId("command-selection-readout").textContent).toBe(selectionBefore);
++    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
++  });
++  it("reveals the destination of each contextual creation and review route", async () => {
++    render(<App />);
++    await screen.findByTestId("workspace-toolbar");
++    for (const [command, testId, elementId, tab] of [
++      ["build.node", "viewport-create-node-id", "", ""],
++      ["build.pipe", "viewport-create-pipe-id", "", ""],
++      ["build.component", "create-component-kind", "", ""],
++      ["properties.material", "create-material-id", "", ""],
++      ["properties.section", "create-section-id", "", ""],
++      ["build.split", "", "geometry-tools", "geometry"],
++      ["supports.boundary", "", "boundary-authoring", "supports"],
++      ["properties.hanger-library", "", "hanger-selection", "supports"],
++      ["loads.self-weight", "", "self-weight-plan", "weight"],
++      ["review.agent", "", "offline-proposal-intake", "agent"],
++      ["properties.libraries", "workspace-section-libraries", "", ""],
++      ["view.units", "", "display-unit-preference", ""],
++    ]) {
++      fireEvent.click(screen.getByTestId("toolkit-entry"));
++      fireEvent.click(screen.getByTestId(`toolkit-${command}`));
++      const target = elementId ? document.getElementById(elementId) : screen.getByTestId(testId);
++      expect(target, command).toHaveFocus();
++      for (let ancestor = target?.parentElement; ancestor; ancestor = ancestor.parentElement) {
++        if (ancestor instanceof HTMLDetailsElement) expect(ancestor.open, command).toBe(true);
++        expect(ancestor.hidden, command).toBe(false);
++      }
++      if (tab) expect(screen.getByTestId(`operation-tab-${tab}`), command).toHaveAttribute("aria-pressed", "true");
++      expect(screen.queryByRole("dialog", { name: "Find a modeling tool" })).not.toBeInTheDocument();
++    }
++  });
++  it("routes task navigation and searchable geometry tools while preserving the viewport", async () => {
++    render(<App />);
++    await screen.findByTestId("workspace-toolbar");
++    const viewport = screen.getByTestId("viewport-canvas");
++    fireEvent.click(screen.getByTestId("workspace-task-loads"));
++    expect(screen.getByTestId("workspace-section-loads")).not.toHaveClass("inactive");
++    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
++    fireEvent.click(screen.getByTestId("toolkit-entry"));
++    fireEvent.click(screen.getByTestId("toolkit-edit.copy"));
++    expect(screen.getByTestId("operation-tab-geometry")).toHaveAttribute("aria-pressed", "true");
++    expect(document.getElementById("geometry-tools")).toHaveFocus();
++    fireEvent.keyDown(document.activeElement!, { key: "Escape" });
++    expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
++    expect(screen.getByTestId("workspace-select")).toHaveFocus();
++    expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index e84278886..21f0122c8 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -21,8 +21,12 @@ import {
+   Play,
+   Save,
+   ShieldCheck,
+-  Sparkles
++  Sparkles,
++  PanelLeft,
++  PanelRight,
++  X
+ } from "lucide-react";
++import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
+ import type React from "react";
+ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+ import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
+@@ -284,7 +288,7 @@ type MenuItemSpec =
+ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string; description: string }> = [
+   {
+     id: "operations",
+-    label: "Operation Apply",
++    label: "Review changes",
+     description: "Queued structured operations, apply/undo/redo, diffs, and the operation review ledger"
+   },
+   {
+@@ -300,13 +304,13 @@ const WORKSPACE_SECTIONS: ReadonlyArray<{ id: WorkspaceSectionId; label: string;
+   },
+   {
+     id: "rule-packs",
+-    label: "Rule Packs",
++    label: "Rules",
+     description:
+       "Private, local-only rule-pack manager: drafts, validation findings, checksum generation, and the local store"
+   },
+   {
+     id: "solve",
+-    label: "Solve",
++    label: "Analyze",
+     description: "Run the mechanics preview, solve job audit, diagnostics, and missing-data review"
+   },
+   {
+@@ -467,6 +471,10 @@ function AppSession() {
+   useLayoutEffect(() => {
+     if (!toolkitFocus) return;
+     const target = toolkitFocus.elementId ? document.getElementById(toolkitFocus.elementId) : document.querySelector<HTMLElement>(`[data-testid="${toolkitFocus.testId}"]`);
++    // Reveal contextual details before transferring focus from command search.
++    for (let parent = target?.parentElement; parent; parent = parent.parentElement) {
++      if (parent instanceof HTMLDetailsElement) parent.open = true;
++    }
+     target?.focus();
+     target?.scrollIntoView?.({ block: "nearest" });
+   }, [toolkitFocus]);
+@@ -476,8 +484,9 @@ function AppSession() {
+   // tree and property inspector start tucked away so the primary screen is the
+   // 3D model plus a local review-only agent workbench. The detailed rails remain
+   // available from View for targeted investigation.
+-  const [treeCollapsed, setTreeCollapsed] = useState(true);
+-  const [inspectorCollapsed, setInspectorCollapsed] = useState(true);
++  const [treeCollapsed, setTreeCollapsed] = useState(() => window.innerWidth <= 1100);
++  const [inspectorCollapsed, setInspectorCollapsed] = useState(false);
++  const [operationTab, setOperationTab] = useState("review");
+   const [r3JourneyState, setR3JourneyState] = useState<R3JourneyState>(() => ({
+     ...INITIAL_R3_JOURNEY_STATE
+   }));
+@@ -881,6 +890,7 @@ function AppSession() {
+       setQueuedBatches((current) => [...current, { key, batch: submitted, basisModel, basisHash, basisRevision: revision }]);
+       setBatchMessage("Batch queued for validation and explicit application.");
+       setActiveSection("operations");
++      setOperationTab("review");
+       setToolkitFocus({ testId: "", elementId: "batch-review" });
+     } catch (error) {
+       if (revision === modelRevision.current && epoch === requestEpochRef.current) {
+@@ -1081,6 +1091,7 @@ function AppSession() {
+     const [nextIntent] = editorIntents;
+     if (!nextIntent) return;
+     setActiveSection("operations");
++    setOperationTab("review");
+     void handleApplyIntent(nextIntent);
+   }
+ 
+@@ -1431,9 +1442,8 @@ function AppSession() {
+       return;
+     }
+     setActiveSection(null);
+-    if (tool === "support") {
+-      setInspectorCollapsed(false);
+-    }
++    setInspectorCollapsed(tool !== "support");
++    if (tool === "support") setToolkitFocus({ testId: "create-support-id" });
+   }
+ 
+   function handleToolkitCommand(capability: ToolkitCapability) {
+@@ -1449,6 +1459,11 @@ function AppSession() {
+     const route = capabilityRoute(capability, context);
+     if (!route) return;
+     setArmedCreationTool(route.tool ?? null);
++    if (route.tool && route.surface === "viewport") setInspectorCollapsed(true);
++    if (route.surface === "operations") {
++      const tabs: Record<string, string> = { "geometry-tools": "geometry", "boundary-authoring": "supports", "hanger-selection": "supports", "self-weight-plan": "weight", "offline-proposal-intake": "agent" };
++      setOperationTab(tabs[route.elementId ?? ""] ?? "review");
++    }
+     if (route.surface === "inspector") { setInspectorCollapsed(false); setActiveSection(null); }
+     else if (route.surface === "tree") { setTreeCollapsed(false); setActiveSection(null); }
+     else if (route.surface === "viewport") setActiveSection(null);
+@@ -1611,6 +1626,15 @@ function AppSession() {
+     <main
+       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
+       data-testid="desktop-preview-shell"
++      onKeyDown={(event) => {
++        if (event.key !== "Escape" || event.defaultPrevented) return;
++        setOpenMenu(null);
++        setArmedCreationTool(null);
++        setActiveSection(null);
++        setAuditDrawerOpen(false);
++        setIssuesDrawerOpen(false);
++        event.currentTarget.querySelector<HTMLButtonElement>('[data-testid="workspace-select"]')?.focus();
++      }}
+     >
+       <header className="titlebar">
+         <div>
+@@ -1618,8 +1642,8 @@ function AppSession() {
+           <p>{projectSummary?.project_name ?? model.project.name}</p>
+         </div>
+         <div className="titlebar-actions" aria-label="Local project controls">
+-          <div className="display-preference-control"><DisplayUnitSelector /></div>
+-          <span className="titlebar-project-name">{projectSummary?.project_name ?? model.project.name}</span>
++          <details className="display-preference-control"><summary>Units</summary><DisplayUnitSelector /></details>
++
+           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
+             <Database size={15} aria-hidden="true" />
+             Create local
+@@ -1643,8 +1667,8 @@ function AppSession() {
+         </div>
+       </header>
+ 
+-      <section className="project-strip" aria-label="Project summary">
+-        <span data-testid="local-project-message">{projectMessage}</span>
++      <details className="project-strip" aria-label="Project summary">
++        <summary><span data-testid="local-project-message" role="status">{projectMessage}</span><span className="project-details-label">Details</span></summary>
+         <span data-testid="local-project-review-context">{projectReviewContext(editorIntents, proposal, appliedOperations.length)}</span>
+         {projectIndex && projectIndex.length > 0 ? (
+           <div className="project-index-picker" data-testid="project-index-picker" aria-label="Open listed project by id">
+@@ -1662,7 +1686,7 @@ function AppSession() {
+             ))}
+           </div>
+         ) : null}
+-      </section>
++      </details>
+ 
+       {showInAppMenuBar ? (
+         <MenuBar
+@@ -1683,6 +1707,23 @@ function AppSession() {
+         />
+       ) : null}
+ 
++      <WorkspaceToolbar
++        activeSection={activeSection}
++        selecting={armedCreationTool === null}
++        pendingCount={editorIntents.length + queuedBatches.reduce((count, entry) => count + (Array.isArray(entry.batch?.operations) ? entry.batch.operations.length : 1), 0)}
++        canUndo={undoStack.length > 0 && !operationBusy}
++        canRedo={redoStack.length > 0 && !operationBusy}
++        onSelect={() => handleArmCreationTool(null)}
++        onSection={(section) => { setActiveSection(section); if (section === "operations") setOperationTab("review"); }}
++        onUndo={handleUndoSessionModelEdit}
++        onRedo={handleRedoSessionModelEdit}
++      >
++          <ToolkitPalette
++            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
++            onChoose={handleToolkitCommand}
++          />
++      </WorkspaceToolbar>
++
+       <div className={activeSection ? "workspace" : "workspace dock-collapsed"}>
+         <section
+           className={`modeling-workspace${treeCollapsed ? " tree-collapsed" : ""}${
+@@ -1701,7 +1742,7 @@ function AppSession() {
+               title={treeCollapsed ? "Expand model tree" : "Collapse model tree"}
+               onClick={() => setTreeCollapsed((collapsed) => !collapsed)}
+             >
+-              <span className="workspace-pane-toggle-label">Model Tree</span>
++              <PanelLeft size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Model</span>
+               <span className="workspace-pane-toggle-icon" aria-hidden="true">
+                 {treeCollapsed ? "›" : "‹"}
+               </span>
+@@ -1709,10 +1750,6 @@ function AppSession() {
+             <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
+           </div>
+           <div className="workspace-pane workspace-pane-viewport">
+-            <ToolkitPalette
+-              context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
+-              onChoose={handleToolkitCommand}
+-            />
+             <PipeViewport
+               armedCreationTool={armedCreationTool}
+               model={model}
+@@ -1724,23 +1761,6 @@ function AppSession() {
+               selection={selection}
+             />
+           </div>
+-          <div className="workspace-pane workspace-pane-agent">
+-            <AgentWorkbenchPanel
+-              appliedOperationCount={appliedOperations.length}
+-              mechanicsReady={Boolean(result)}
+-              model={model}
+-              proposal={proposal}
+-              queuedIntentCount={editorIntents.length}
+-              running={running}
+-              selection={selection}
+-              selectedReviewTarget={selectedReviewTarget}
+-              statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
+-              onGenerateProposal={handleProposal}
+-              onOpenOperations={() => setActiveSection("operations")}
+-              onOpenResults={() => setActiveSection("results")}
+-              onRunMechanics={handleRun}
+-            />
+-          </div>
+           <div className="workspace-pane workspace-pane-inspector">
+             <button
+               type="button"
+@@ -1751,7 +1771,7 @@ function AppSession() {
+               title={inspectorCollapsed ? "Expand inspector" : "Collapse inspector"}
+               onClick={() => setInspectorCollapsed((collapsed) => !collapsed)}
+             >
+-              <span className="workspace-pane-toggle-label">Inspector</span>
++              <PanelRight size={16} aria-hidden="true" /><span className="workspace-pane-toggle-label">Properties</span>
+               <span className="workspace-pane-toggle-icon" aria-hidden="true">
+                 {inspectorCollapsed ? "‹" : "›"}
+               </span>
+@@ -1777,7 +1797,7 @@ function AppSession() {
+             <header className="workspace-dock-header" data-testid="workspace-dock-header">
+               <h2>{WORKSPACE_SECTIONS.find((candidate) => candidate.id === activeSection)?.label ?? activeSection}</h2>
+               <button type="button" data-testid="workspace-dock-close" onClick={() => setActiveSection(null)}>
+-                Close panel
++                <X size={14} aria-hidden="true" /> Close
+               </button>
+             </header>
+           ) : null}
+@@ -1788,6 +1808,12 @@ function AppSession() {
+               data-testid="workspace-section-operations"
+               tabIndex={-1}
+             >
++              <nav className="operation-tabs" aria-label="Editing and review tools">
++                {[["review", "Review changes"], ["geometry", "Geometry"], ["supports", "Supports"], ["weight", "Self weight"], ["agent", "Agent"], ["details", "Details"]].map(([id, label]) => (
++                  <button type="button" key={id} aria-pressed={operationTab === id} data-testid={`operation-tab-${id}`} onClick={() => setOperationTab(id)}>{label}</button>
++                ))}
++              </nav>
++              <div className="operation-tool-page" hidden={operationTab !== "details"}>
+               <section className="panel" aria-label="Stored proposed review context">
+                 <h3>Stored proposed review context</h3>
+                 <p data-testid="retained-context-summary">{retainedReviewContext.length} retained operation records. Acceptance unknown after reopening; these records do not prove the current model contains a change. Saved member metadata does not restore batch grouping, receipts or undo checkpoints.</p>
+@@ -1802,6 +1828,8 @@ function AppSession() {
+                   </details>
+                 ))}
+               </section>
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "supports"}>
+               <HangerSelectionPanel
+                 model={model}
+                 selection={selection}
+@@ -1809,6 +1837,8 @@ function AppSession() {
+                 busy={operationBusy}
+                 requestEpoch={requestEpoch}
+               />
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "weight"}>
+               <SelfWeightPlanPanel
+                 model={model}
+                 selection={selection}
+@@ -1816,6 +1846,23 @@ function AppSession() {
+                 busy={operationBusy}
+                 requestEpoch={requestEpoch}
+               />
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "agent"}>
++            <AgentWorkbenchPanel
++              appliedOperationCount={appliedOperations.length}
++              mechanicsReady={Boolean(result)}
++              model={model}
++              proposal={proposal}
++              queuedIntentCount={editorIntents.length}
++              running={running}
++              selection={selection}
++              selectedReviewTarget={selectedReviewTarget}
++              statusText={r3ExitJourneyStatus({ result, ruleCheckAggregate, projectSummary })}
++              onGenerateProposal={handleProposal}
++              onOpenOperations={() => { setActiveSection("operations"); setOperationTab("review"); }}
++              onOpenResults={() => setActiveSection("results")}
++              onRunMechanics={handleRun}
++            />
+               <OfflineProposalIntakePanel
+                 model={model}
+                 selection={selection}
+@@ -1828,6 +1875,8 @@ function AppSession() {
+                   provider_status: "Live provider is held; offline proposals require explicit human review."
+                 }}
+               />
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "geometry"}>
+               <GeometryToolsPanel
+                 model={model}
+                 selection={selection}
+@@ -1835,6 +1884,8 @@ function AppSession() {
+                 busy={operationBusy}
+                 requestEpoch={requestEpoch}
+               />
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "supports"}>
+               <BoundaryAuthoringPanel
+                 model={model}
+                 selection={selection}
+@@ -1842,6 +1893,8 @@ function AppSession() {
+                 busy={operationBusy}
+                 requestEpoch={requestEpoch}
+               />
++              </div>
++              <div className="operation-tool-page review-tool-page" hidden={operationTab !== "review"}>
+               <BatchReviewPanel
+                 onClear={handleClearReviewQueue}
+                 batches={queuedBatches} outcomes={batchOutcomes} receipts={batchReceipts}
+@@ -1863,6 +1916,8 @@ function AppSession() {
+                 onUndo={handleUndoSessionModelEdit}
+                 onRedo={handleRedoSessionModelEdit}
+               />
++              </div>
++              <div className="operation-tool-page" hidden={operationTab !== "details"}>
+               <section
+                 className={reviewDetailsOpen ? "review-apply-drawer open" : "review-apply-drawer"}
+                 aria-label="Review and apply detail views"
+@@ -1872,10 +1927,6 @@ function AppSession() {
+                   <div>
+                     <span>Detail views</span>
+                     <h2>Review evidence</h2>
+-                    <p>
+-                      Editor contract, operation diffs, review ledger, and agent proposal context stay available here
+-                      without owning the default work surface.
+-                    </p>
+                   </div>
+                   <button
+                     type="button"
+@@ -1911,6 +1962,7 @@ function AppSession() {
+                   />
+                 </div>
+               </section>
++              </div>
+             </section>
+ 
+             <section
+@@ -2621,13 +2673,22 @@ function IssuesHome({
+ 
+ function StatusPill({ label, value, testId }: { label: string; value: string; testId: string }) {
+   return (
+-    <span className="status-pill" data-testid={testId} title={value}>
+-      <strong>{label}</strong>
+-      <code>{value}</code>
+-    </span>
++    <details className="status-pill" data-testid={testId}>
++      <summary><strong>{label}</strong> {readableWorkspaceStatus(value)}</summary>
++      <div><strong>Recorded status</strong><code>{value}</code></div>
++    </details>
+   );
+ }
+ 
++function readableWorkspaceStatus(value: string): string {
++  const token = value.toLowerCase();
++  if (token === "human_review_required" || token === "not_provided") return "Review required";
++  if (token === "rule_inputs_incomplete" || token === "not_performed_user_rule_inputs_missing") return "Inputs needed";
++  if (token === "not_run" || token === "not_computed") return "Not run";
++  if (token === "computed_for_invented_demo") return "Demo computed";
++  return value.replace(/_/g, " ").toLowerCase();
++}
++
+ function professionalStatusLabel(value: string) {
+   if (value.toLowerCase() === "not_provided") {
+     return "HUMAN_REVIEW_REQUIRED";
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
+index dd313e961..7325d2e40 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx
+@@ -1,5 +1,5 @@
+ import { QuantityReadout } from "../display-units";
+-import { Box, CircleDot, GitBranch, ListTree, Search, SquareStack, Table2, X, Zap } from "lucide-react";
++import { Anchor, Box, CircleDot, Circle, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
+ import type React from "react";
+ import { useEffect, useMemo, useState } from "react";
+ import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
+@@ -214,7 +214,7 @@ function buildTree(model: PreviewModel): TreeModel {
+           type: "section" as const,
+           label: section.name,
+           detail: section.id,
+-          icon: <Box size={14} aria-hidden="true" />,
++          icon: <Circle size={14} aria-hidden="true" />,
+           keywords: [
+             section.id,
+             section.name,
+@@ -238,7 +238,7 @@ function buildTree(model: PreviewModel): TreeModel {
+       }))
+     },
+     {
+-      title: "Pipe Segments",
++      title: "Pipes",
+       items: model.pipe_segments.map((pipe) => ({
+         id: pipe.id,
+         type: "pipe" as const,
+@@ -255,7 +255,7 @@ function buildTree(model: PreviewModel): TreeModel {
+         type: "support" as const,
+         label: support.label,
+         detail: support.id,
+-        icon: <Box size={14} aria-hidden="true" />,
++        icon: <Anchor size={14} aria-hidden="true" />,
+         keywords: [
+           support.id,
+           support.label,
+@@ -278,7 +278,7 @@ function buildTree(model: PreviewModel): TreeModel {
+         type: "component" as const,
+         label: component.label,
+         detail: component.id,
+-        icon: <Box size={14} aria-hidden="true" />,
++        icon: <Waypoints size={14} aria-hidden="true" />,
+         keywords: [
+           component.id,
+           component.label,
+@@ -479,6 +479,7 @@ function TreeButton({ active, item, onClick }: { active: boolean; item: TreeItem
+       className={`tree-row ${active ? "active" : ""}`}
+       data-testid={`tree-row-${item.id}`}
+       aria-pressed={active}
++      title={`${item.label}${item.detail ? ` (${item.detail})` : ""}`}
+       onClick={onClick}
+       type="button"
+     >
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+index 489249312..cc27976c7 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx
+@@ -4,7 +4,7 @@ import { MaterialTemperatureForm } from "../material-temperature/MaterialTempera
+ import { WindExposureForm } from "../wind-exposure/WindExposureForm";
+ import { SectionAssignment } from "../toolkit/SectionAssignment";
+ import { GuardedRemoval } from "../toolkit/GuardedRemoval";
+-import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
++import { ListPlus, Pencil, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
+ import { useEffect, useMemo, useState } from "react";
+ import type {
+   EditorOperationIntent,
+@@ -107,6 +107,8 @@ export function PropertyInspector({
+     "N*m/rad"
+   );
+   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
++  const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
++  const requiredFlags = requiredFlagsForSelection(model, selection, properties);
+   const selectedFieldUnitOptions = selectedField
+     ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
+     : [];
+@@ -279,60 +281,55 @@ export function PropertyInspector({
+ 
+   return (
+     <div className="panel inspector" aria-label="Property inspector">
+-      <div className="panel-title">Properties</div>
+       <h2>{entityLabel(model, selection.id)}</h2>
+-      <dl>
++      <details className="inspector-details">
++        <summary>All properties</summary>
++        <dl>
+         {selectedPropertyRows(model, selection).map(([label, value]) => (
+           <div key={label}>
+             <dt>{label}</dt>
+             <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
+           </div>
+         ))}
+-      </dl>
+-      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in the section record; per-pipe supplements remain local.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
++        </dl>
++      </details>
++      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in Sections.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+       {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
+-      <section className="inspector-context-grid" aria-label="Inspector review context">
+-        <DualUnitValue
+-          value={selectedField?.before ?? "TBD"}
+-          unit={selectedField?.unit ?? "TBD"}
+-          basis={selectedFieldUnitBasis}
+-          dimension={selectedField?.dimension ?? "unknown"}
+-        />
+-        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
+-        <RequiredFlagList flags={requiredFlagsForSelection(model, selection, properties)} />
+-      </section>
+-      <UnitCatalogPanel
+-        route={unitCatalogRoute}
+-        bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
+-      />
++      {requiredFlags.length > 0 ? (
++        <section className="inspector-context-grid" aria-label="Inspector review context">
++          <RequiredFlagList flags={requiredFlags} />
++        </section>
++      ) : null}
+       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
+-        <h3>Review-only edit intent</h3>
++        {operationIntent ? <h3><Pencil size={14} aria-hidden="true" /> Edit {selectedFieldLabel.toLowerCase()}</h3> : null}
+         {operationIntent ? (
+           <>
+             <div className="editor-intent-controls">
+               <label>
+-                <span>Field</span>
++                <span>Property</span>
+                 <select
+-                  aria-label="Intent field"
++                  aria-label="Property to edit"
+                   data-testid="editor-intent-field"
+                   onChange={(event) => handleFieldChange(event.target.value)}
+                   value={selectedField?.fieldPath ?? ""}
+                 >
+                   {editableFields.map((field) => (
+                     <option key={field.fieldPath} value={field.fieldPath}>
+-                      {field.label}
++                      {propertyLabel(field)}
+                     </option>
+                   ))}
+                 </select>
+               </label>
++              {selectedField ? <SelectedFieldValue field={selectedField} basis={selectedFieldUnitBasis} /> : null}
+               <label>
+                 <span>
+-                  Proposed value
+-                  {selectedField?.unitEditable && selectedFieldUnitBasis ? ` (${selectedFieldUnitBasis.label})` : ""}
++                  New {selectedFieldLabel.toLowerCase()}
++                  {selectedField?.unitEditable ? ` (${proposedUnit || selectedField.unit})` : ""}
+                 </span>
+                 <input
+-                  aria-label="Proposed editor value"
++                  aria-label={`New ${selectedFieldLabel.toLowerCase()}`}
+                   data-testid="editor-intent-value"
++                  inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
+                   onChange={(event) => setProposedValue(event.target.value)}
+                   value={proposedValue}
+                 />
+@@ -358,24 +355,15 @@ export function PropertyInspector({
+                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
+                 </label>
+               ) : null}
+-              <label>
+-                <span>Rationale</span>
+-                <input
+-                  aria-label="Editor intent rationale"
+-                  data-testid="editor-intent-rationale"
+-                  onChange={(event) => setRationale(event.target.value)}
+-                  value={rationale}
+-                />
+-              </label>
+               <button
+                 data-testid="queue-editor-intent"
+                 disabled={!fieldChanged}
+                 onClick={handleQueueIntent}
+-                title="Queue as transient review-only operation"
++                title="Add this change to the review queue"
+                 type="button"
+               >
+                 <ListPlus size={14} aria-hidden="true" />
+-                Queue review intent
++                Queue change
+               </button>
+               <button
+                 data-testid="validate-editor-intent-inline"
+@@ -385,26 +373,52 @@ export function PropertyInspector({
+                 type="button"
+               >
+                 <SearchCheck size={14} aria-hidden="true" />
+-                Validate intent
++                Validate
+               </button>
+             </div>
+-            <OperationIntentPreview intent={operationIntent} />
++            <details className="inspector-details">
++              <summary>Operation details</summary>
++              <label>
++                <span>Reason for change</span>
++                <input
++                  aria-label="Editor intent rationale"
++                  data-testid="editor-intent-rationale"
++                  onChange={(event) => setRationale(event.target.value)}
++                  value={rationale}
++                />
++              </label>
++              <OperationIntentPreview intent={operationIntent} />
++              <IntentQueue intents={queuedIntents} />
++            </details>
+             <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
+-            <IntentQueue intents={queuedIntents} />
+           </>
+         ) : (
+           <p className="muted" data-testid="editor-intent-empty">
+-            Select an editable model entity to draft a structured operation intent.
++            Select a model entity to edit its properties.
+           </p>
+         )}
+       </section>
+-      <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
++      <details className="inspector-details">
++        <summary>Sources and units</summary>
++        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
++        <UnitCatalogPanel
++          route={unitCatalogRoute}
++          bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
++        />
++      </details>
++      {["support", "node", "project"].includes(selection.type) ? (
++        <details className="inspector-details" open={selection.type === "support"}>
++          <summary>{selection.type === "support" ? "Support configuration" : "New support configuration"}</summary>
++          <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
++        </details>
++      ) : null}
+       <MaterialTemperatureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+       <WindExposureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+       <SectionAssignment model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+       <GuardedRemoval model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+-      <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+-        <h3>Create section</h3>
++      <details className="inspector-details">
++        <summary>New section</summary>
++        <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
+         <div className="editor-intent-controls">
+           <label>
+             <span>Section ID</span>
+@@ -492,8 +506,10 @@ export function PropertyInspector({
+         </div>
+         {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
+       </section>
+-      <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
+-        <h3>Create material</h3>
++      </details>
++      <details className="inspector-details">
++        <summary>New material</summary>
++        <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
+         <div className="editor-intent-controls">
+           <label>
+             <span>Material ID</span>
+@@ -595,8 +611,10 @@ export function PropertyInspector({
+         </div>
+         {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
+       </section>
+-      <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
+-        <h3>Create support</h3>
++      </details>
++      <details className="inspector-details">
++        <summary>New support</summary>
++        <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
+         <div className="editor-intent-controls">
+           <label>
+             <span>Support ID</span>
+@@ -691,8 +709,10 @@ export function PropertyInspector({
+         </div>
+         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
+       </section>
+-      <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
+-        <h3>Create component</h3>
++      </details>
++      <details className="inspector-details">
++        <summary>New component</summary>
++        <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
+         <div className="editor-intent-controls">
+           <label>
+             <span>Component ID</span>
+@@ -855,6 +875,7 @@ export function PropertyInspector({
+         </div>
+         {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
+       </section>
++      </details>
+       {nodeDeleteIntent ? (
+         <section className="editor-intent" aria-label="Delete node intent" data-testid="delete-node-intent-panel">
+           <h3>Delete node</h3>
+@@ -920,7 +941,7 @@ function InlineValidationPreview({
+   if (!outcome) {
+     return (
+       <p className="muted editor-inline-validation" data-testid="editor-intent-inline-validation-empty">
+-        Validate this draft intent to preview structured-operation findings before queuing or applying it.
++        Validate to check this change before applying it.
+       </p>
+     );
+   }
+@@ -965,6 +986,7 @@ type EditableField = {
+   unit: string;
+   sourceNote: string;
+   unitEditable: boolean;
++  valueKind: "text" | "quantity";
+ };
+ 
+ type SupportDraft = {
+@@ -1112,7 +1134,7 @@ function IntentQueue({ intents = [] }: { intents?: EditorOperationIntent[] }) {
+   if (!intents.length) {
+     return (
+       <p className="muted" data-testid="editor-intent-queue-empty">
+-        No transient editor intents queued.
++        No changes queued.
+       </p>
+     );
+   }
+@@ -1143,15 +1165,34 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
+   );
+ }
+ 
++function SelectedFieldValue({ field, basis }: { field: EditableField; basis: UnitBasisDisplay | null }) {
++  if (field.valueKind === "quantity") {
++    return <DualUnitValue value={field.before} unit={field.unit} dimension={field.dimension} basis={basis} />;
++  }
++  return (
++    <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
++      <span>Current {propertyLabel(field).toLowerCase()}</span>
++      <strong>{field.before}</strong>
++    </section>
++  );
++}
++
++function propertyLabel(field: EditableField): string {
++  return field.label === "Label" ? "Name" : field.label;
++}
++
+ function DualUnitValue({ value, unit, dimension, basis }: { value: string; unit: string; dimension: string; basis: UnitBasisDisplay | null }) {
+   const numericValue = value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
+   return (
+     <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Display quantity">
+-      <span>Display quantity</span>
++      <span>Current value</span>
+       <strong data-testid="inspector-dual-unit-converted"><QuantityReadout quantity={{ value: numericValue, unit, dimension_id: dimension }} /></strong>
+       <small>Entered: {value} {unit}</small>
+-      <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
+-      <small>Display only — storage stays entered-units-preserved.</small>
++      <details>
++        <summary>Unit details</summary>
++        <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
++        <small>Display only — storage stays entered-units-preserved.</small>
++      </details>
+     </section>
+   );
+ }
+@@ -2218,7 +2259,10 @@ function scalarField(
+     unit,
+     sourceNote,
+     changeKind,
+-    unitEditable: false
++    unitEditable: false,
++    // Dimensionless numeric slots still need quantity diagnostics. Labels,
++    // references and enum tokens must remain text regardless of their content.
++    valueKind: fieldPath.endsWith(".value") ? "quantity" : "text"
+   };
+ }
+ 
+@@ -2241,7 +2285,8 @@ function quantityField(
+     unit,
+     sourceNote: "unit metadata required",
+     changeKind,
+-    unitEditable
++    unitEditable,
++    valueKind: "quantity"
+   };
+ }
+ 
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
+index 8fdda1618..acad56fe8 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.test.tsx
+@@ -27,6 +27,19 @@ describe("human toolkit", () => {
+     expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
+     expect(screen.queryByRole("searchbox")).not.toBeInTheDocument();
+   });
++  it("contains keyboard focus in discovery and dismisses to its trigger", () => {
++    render(<ToolkitPalette context={context} onChoose={vi.fn()} />);
++    fireEvent.click(screen.getByRole("button", { name: "Toolkit" }));
++    const search = screen.getByRole("searchbox");
++    expect(search).toHaveFocus();
++    fireEvent.keyDown(search, { key: "Tab", shiftKey: true });
++    expect(screen.getByText("Deferred roadmap")).toHaveFocus();
++    fireEvent.keyDown(document.activeElement!, { key: "Tab" });
++    expect(search).toHaveFocus();
++    fireEvent.pointerDown(document.body);
++    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
++    expect(screen.getByRole("button", { name: "Toolkit" })).toHaveFocus();
++  });
+   it("requires appropriate selection and available history before dispatch", () => {
+     const remove = toolkitCapabilities.find((entry) => entry.id === "edit.remove")!;
+     expect(capabilityAvailability(remove, context).enabled).toBe(false);
+diff --git a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx
+index 094c6d13a..bd126c936 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx
+@@ -1,4 +1,5 @@
+-import { useRef, useState } from "react";
++import { useEffect, useRef, useState } from "react";
++import { Box, CircleDot, SlidersHorizontal, Layers, Pencil, MousePointer2, ClipboardCheck, Search, X } from "lucide-react";
+ import {
+   capabilityAvailability,
+   toolkitCapabilities,
+@@ -18,6 +19,16 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+   const [query, setQuery] = useState("");
+   const toggle = useRef<HTMLButtonElement>(null);
+   const search = useRef<HTMLInputElement>(null);
++  const dialog = useRef<HTMLDivElement>(null);
++  useEffect(() => {
++    if (!open) return;
++    search.current?.focus();
++    function dismiss(event: PointerEvent) {
++      if (event.target instanceof Node && !dialog.current?.contains(event.target) && !toggle.current?.contains(event.target)) close();
++    }
++    document.addEventListener("pointerdown", dismiss);
++    return () => document.removeEventListener("pointerdown", dismiss);
++  }, [open]);
+   const matches = toolkitCapabilities.filter((item) =>
+     `${item.label} ${item.group} ${item.description}`.toLowerCase().includes(query.trim().toLowerCase())
+   );
+@@ -50,10 +61,20 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+           if (!open) requestAnimationFrame(() => search.current?.focus());
+         }}
+       >
+-        Toolkit
++        <Search size={16} aria-hidden="true" /> Toolkit
+       </button>
+       {open ? (
+-        <div id="toolkit-commands" className="toolkit-commands">
++        <>
++        <div className="toolkit-backdrop" aria-hidden="true" onPointerDown={close} />
++        <div id="toolkit-commands" className="toolkit-commands" ref={dialog} role="dialog" aria-label="Find a modeling tool" aria-modal="true" onKeyDown={(event) => {
++          if (event.key !== "Tab") return;
++          const focusable = Array.from(dialog.current?.querySelectorAll<HTMLElement>('button:not(:disabled), input, summary') ?? []);
++          const first = focusable[0];
++          const last = focusable[focusable.length - 1];
++          if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
++          if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
++        }}>
++          <div className="toolkit-search-header">
+           <label>
+             Find a tool
+             <input
+@@ -65,7 +86,8 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+               placeholder="Pipe, wind, material…"
+             />
+           </label>
+-          <button type="button" onClick={close}>Close toolkit</button>
++          <button type="button" onClick={close} aria-label="Close toolkit"><X size={18} aria-hidden="true" /></button>
++          </div>
+           <div className="toolkit-command-groups">
+             {toolkitGroups.map((group) => {
+               const entries = matches.filter((entry) => entry.group === group);
+@@ -75,6 +97,7 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+                   <h3>{group}</h3>
+                   {entries.map((entry) => {
+                     const availability = capabilityAvailability(entry, context);
++                    const Icon = { Build: Box, Supports: CircleDot, Properties: SlidersHorizontal, Loads: Layers, Edit: Pencil, "Select and View": MousePointer2, Review: ClipboardCheck }[entry.group];
+                     return (
+                       <div className="toolkit-command" key={entry.id}>
+                         <button
+@@ -88,16 +111,11 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+                             onChoose(entry);
+                           }}
+                         >
+-                          {entry.label}
++                          <Icon size={15} aria-hidden="true" />{entry.label}
+                         </button>
+-                        <small id={`toolkit-help-${entry.id}`}>
+-                          <strong>
+-                            {entry.status === "supported" ? "Available"
+-                              : entry.status === "partial" ? "Partial"
+-                              : entry.status === "gated" ? "Project gate" : "Planned"}.
+-                          </strong>{" "}
+-                          {availability.reason}
+-                        </small>
++                        {availability.enabled ? (
++                          <details className="toolkit-command-help"><summary>Details</summary><small id={`toolkit-help-${entry.id}`}>{availability.reason}</small></details>
++                        ) : <small id={`toolkit-help-${entry.id}`}>{availability.reason}</small>}
+                       </div>
+                     );
+                   })}
+@@ -111,6 +129,7 @@ export function ToolkitPalette({ context, onChoose }: Props) {
+             <ul>{toolkitRoadmap.map((label) => <li key={label}>{label}</li>)}</ul>
+           </details>
+         </div>
++        </>
+       ) : null}
+     </section>
+   );
+diff --git a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+index b39ee1573..293a8b319 100644
+--- a/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx
+@@ -1,5 +1,5 @@
+ import { QuantityReadout } from "../display-units";
+-import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
++import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
+ import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
+ import * as THREE from "three";
+ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+@@ -444,6 +444,7 @@ export function PipeViewport({
+ 
+     const resize = () => {
+       const { clientWidth, clientHeight } = host;
++      if (clientWidth <= 0 || clientHeight <= 0) return;
+       camera.aspect = clientWidth / clientHeight;
+       camera.updateProjectionMatrix();
+       renderer.setSize(clientWidth, clientHeight);
+@@ -451,6 +452,9 @@ export function PipeViewport({
+     };
+     resize();
+     window.addEventListener("resize", resize);
++    // Rails and the analysis dock resize the host without resizing the window.
++    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
++    resizeObserver?.observe(host);
+ 
+     let frame = 0;
+     const animate = () => {
+@@ -465,6 +469,7 @@ export function PipeViewport({
+     return () => {
+       cancelAnimationFrame(frame);
+       window.removeEventListener("resize", resize);
++      resizeObserver?.disconnect();
+       controls.removeEventListener("change", persistCameraState);
+       controls.dispose();
+       pickRef.current = null;
+@@ -630,14 +635,15 @@ export function PipeViewport({
+     <div className="viewport-shell">
+       <div className="viewport-toolbar">
+         <span>3D Centerline</span>
+-        <span
++        <details
+           className={`viewport-deformation-status ${deformation.state}`}
+           aria-label="Viewport deformation overlay status"
+           data-testid="viewport-deformation-status"
+         >
+-          <strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
+-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
+-        </span>
++          <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
++          <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
++          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small></div>
++        </details>
+         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
+           <button
+             type="button"
+@@ -762,7 +768,7 @@ export function PipeViewport({
+             onClick={() => armCreationTool("support")}
+             title="Arm support creation in the Inspector"
+           >
+-            <CircleDot size={15} aria-hidden="true" />
++            <Anchor size={15} aria-hidden="true" />
+             Support
+           </button>
+           <button
+@@ -784,10 +790,14 @@ export function PipeViewport({
+             onClick={() => armCreationTool("load")}
+             title="Arm load creation in the Load Cases panel"
+           >
+-            <CirclePlus size={15} aria-hidden="true" />
++            <MoveDown size={15} aria-hidden="true" />
+             Load
+           </button>
+         </div>
++        <span className="command-active-tool" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
++          {armedCreationTool ? `${armedCreationTool.charAt(0).toUpperCase()}${armedCreationTool.slice(1)} tool armed` : "Select"}
++        </span>
++        <details className="command-context"><summary>Selection &amp; navigation</summary><div className="command-context-content">
+         <button
+           type="button"
+           className="command-preview-button"
+@@ -798,21 +808,20 @@ export function PipeViewport({
+         >
+           Queue preview
+         </button>
+-        <span className="command-active-tool" data-testid="armed-creation-tool">
+-          {creationToolStatusLabel(armedCreationTool)}
+-        </span>
+         <span data-testid="command-selection-readout">
+           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
+         </span>
+         <span className="command-hint" data-testid="viewport-orbit-hint">
+           Drag to orbit · scroll to zoom · right-drag to pan
+         </span>
++        </div></details>
+       </section>
+       <section
+         className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
+         aria-label="Viewport editor intents"
+         data-testid="viewport-editor-intents"
+       >
++        <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
+         <div className="viewport-intent-controls">
+           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
+             <label>
+@@ -1263,12 +1272,13 @@ export function PipeViewport({
+               Queue {componentDraft.kind}
+             </button>
+           </div>
+-          <small data-testid="viewport-unit-catalog-status">
++          <details className="viewport-technical-details"><summary>Unit source</summary><small data-testid="viewport-unit-catalog-status">
+             {unitCatalogRoute?.route === "tauri_unit_catalog"
+               ? `DEC-018 unit catalog loaded; entries=${unitCatalogRoute.catalog.entry_count}`
+               : "browser preview uses model metadata for viewport length units"}
+-          </small>
++          </small></details>
+         </div>
++        <details className="viewport-technical-details"><summary>Pending changes ({visibleIntents.length})</summary>
+         <div className="viewport-intent-list" data-testid="viewport-intent-list">
+           {visibleIntents.length === 0 ? (
+             <p data-testid="viewport-intent-empty">
+@@ -1291,7 +1301,7 @@ export function PipeViewport({
+               </article>
+             ))
+           )}
+-        </div>
++        </div></details>
+       </section>
+     </div>
+   );
+diff --git a/projects/chirality-piping/apps/desktop/src/styles.css b/projects/chirality-piping/apps/desktop/src/styles.css
+index a48f00ee6..3d2c2853a 100644
+--- a/projects/chirality-piping/apps/desktop/src/styles.css
++++ b/projects/chirality-piping/apps/desktop/src/styles.css
+@@ -3245,3 +3245,127 @@ th {
+ [data-display-status] small {
+   font-size: 0.75em;
+ }
++
++/* Modeling workspace, September 2026: viewport owns the remaining height.
++   Navigation never adds an unbounded content row. Creation forms and properties
++   scroll in rails; analysis/review uses one bounded dock. Minimum checked target
++   is 1024 × 768, an initial layout target rather than usability acceptance. */
++body { min-width: 760px; min-height: 540px; }
++.app-shell, .app-shell.native-menu { display: flex; flex-direction: column; height: 100dvh; min-height: 540px; overflow: hidden; }
++.titlebar { flex: 0 0 auto; min-height: 48px; padding: 7px 12px; gap: 12px; }
++.titlebar h1 { font-size: 16px; }
++.titlebar p { font-size: 11px; margin: 2px 0 0; max-width: 250px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
++.titlebar-actions { gap: 5px; flex-wrap: nowrap; }
++.titlebar-actions button { font-size: 11px; padding: 5px 7px; }
++.display-preference-control { position: relative; }
++.display-preference-control > summary { cursor: pointer; font-size: 12px; padding: 6px; }
++.display-preference-control > :not(summary) { position: absolute; z-index: 55; top: 32px; right: 0; width: 300px; padding: 12px; color: #263331; background: #fff; border: 1px solid #b8c3bd; box-shadow: 0 8px 25px #162d3026; }
++.project-strip { position: relative; display: block; padding: 0 12px; min-height: 22px; flex: 0 0 auto; font-size: 11px; }
++.project-strip > summary { cursor: pointer; padding: 3px 0; }
++.project-strip[open] { max-height: 100px; overflow: auto; }
++.project-strip[open] > span { display: block; margin-block: 4px; overflow-wrap: anywhere; }
++.app-menu-bar { flex: 0 0 auto; padding: 0 8px; }
++.app-menu-trigger { min-height: 26px; font-size: 12px; padding: 3px 9px; }
++.workspace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex: 0 0 auto; min-height: 44px; padding: 6px 10px; background: #f7f9f8; border-bottom: 1px solid #c8d0cb; }
++.workspace-task-nav, .workspace-edit-actions { display: flex; align-items: center; gap: 3px; }
++.workspace-toolbar button, .operation-tabs button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; min-height: 30px; padding: 5px 8px; font-size: 12px; border: 1px solid transparent; border-radius: 5px; color: #31403d; background: transparent; white-space: nowrap; cursor: pointer; }
++.workspace-toolbar button:hover, .operation-tabs button:hover { background: #e5ece8; }
++.workspace-toolbar button[aria-pressed="true"], .operation-tabs button[aria-pressed="true"] { color: #fff; background: #285b50; border-color: #285b50; }
++.workspace-toolbar button:disabled { color: #798780; cursor: not-allowed; }
++.workspace-count { min-width: 18px; border-radius: 9px; padding: 1px 4px; color: #fff; background: #286453; font-size: 10px; }
++.workspace { flex: 1 1 0; min-width: 0; min-height: 0; padding: 6px; gap: 6px; overflow: hidden; }
++.modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: 215px; --pane-viewport-col: minmax(0, 1fr); --pane-inspector-col: 280px; grid-template-columns: var(--pane-tree-col) var(--pane-viewport-col) var(--pane-inspector-col); gap: 6px; min-height: 0; flex: 1 1 0; }
++.modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
++.modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
++.workspace-pane { gap: 0; border: 1px solid #c8d0cb; border-radius: 6px; background: #fff; }
++.workspace-pane-toggle { min-height: 31px; border: 0; border-bottom: 1px solid #d6ded9; border-radius: 0; text-transform: none; font-size: 12px; letter-spacing: 0; }
++.workspace-pane-toggle-label { flex: 1; text-align: left; }
++.workspace-pane-tree > .panel, .workspace-pane-inspector > .panel { border: 0; border-radius: 0; padding: 10px; }
++.workspace-pane-viewport { overflow: hidden; }
++.workspace-pane-viewport > .viewport-shell { min-height: 0; height: 100%; border: 0; border-radius: 0; }
++.viewport-shell { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr); overflow: hidden; }
++.viewport-toolbar { grid-row: 2; grid-column: 1; min-height: 30px; padding: 4px 8px; gap: 8px; flex-wrap: wrap; font-size: 11px; }
++.viewport-frame { grid-row: 3; grid-column: 1; min-height: 0; height: 100%; }
++.viewport-canvas { min-height: 0; height: 100%; }
++.viewport-canvas canvas { display: block; }
++.command-bar { grid-row: 1; grid-column: 1 / -1; min-width: 0; min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; padding: 5px 7px; border-top: 0; border-bottom: 1px solid #d6ded9; }
++.command-buttons { gap: 4px; flex-wrap: wrap; }
++.command-buttons button, .command-preview-button { font-size: 11px; min-height: 28px; padding: 4px 6px; }
++.command-active-tool { font-size: 11px; padding: 4px 6px; }
++.command-context { font-size: 11px; margin-left: auto; position: relative; }
++.command-context summary { cursor: pointer; }
++.command-context[open] > .command-context-content { position: absolute; top: 25px; right: 0; z-index: 12; width: 260px; padding: 10px; border: 1px solid #c8d0cb; background: #fff; box-shadow: 0 6px 20px #162d3026; }
++.command-context-content > span { display: block; margin: 6px 0; overflow-wrap: anywhere; }
++.viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) 265px; }
++.viewport-intents.active { grid-column: 2; grid-row: 2 / 4; min-width: 0; min-height: 0; max-height: none; overflow: auto; padding: 10px; border-top: 0; border-left: 1px solid #c8d0cb; background: #f7f9f8; }
++.viewport-intent-controls, .viewport-node-form, .viewport-pipe-form { display: flex; flex-direction: column; align-items: stretch; gap: 9px; min-width: 0; }
++.viewport-node-form:not(.active), .viewport-pipe-form:not(.active) { display: none; }
++.viewport-node-form label, .viewport-pipe-form label, .viewport-endpoint-field { min-width: 0; }
++.viewport-node-form input, .viewport-pipe-form input, .viewport-pipe-form select { width: 100%; min-width: 0; }
++.viewport-intent-list { margin-top: 8px; }
++.viewport-tool-heading { margin: 0 0 10px; font-size: 13px; font-weight: 650; }
++.viewport-technical-details { margin-top: 10px; font-size: 11px; }
++.viewport-technical-details summary { cursor: pointer; }
++.viewport-deformation-status { display: block; position: relative; max-width: 100%; font-size: 10px; }
++.viewport-deformation-status > summary { cursor: pointer; }
++.viewport-deformation-status[open] > div { position: absolute; top: 20px; left: 0; z-index: 12; width: 250px; padding: 10px; background: #fff; border: 1px solid #c8d0cb; box-shadow: 0 6px 20px #162d3026; }
++.viewport-toolbar > span:last-child { margin-left: auto; }
++.viewport-display-toggles { gap: 3px; }
++.viewport-display-toggles button { font-size: 10px; padding: 2px 5px; }
++.workspace-dock { flex: 0 0 clamp(180px, 30vh, 280px); max-height: 40%; min-height: 0; border: 1px solid #bccbc3; border-radius: 6px; overflow: hidden; background: #f7f9f8; }
++.workspace-dock-header { min-height: 32px; padding: 4px 9px; }
++.workspace-dock-header h2 { font-size: 13px; }
++.workspace-dock-header button { display: inline-flex; align-items: center; gap: 4px; min-height: 24px; }
++.workspace-dock-body { min-width: 0; min-height: 0; overflow: auto; padding: 8px; }
++.workspace-dock-section { grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }
++.workspace-dock-section[data-testid="workspace-section-operations"] { display: block; }
++.workspace-dock-section.inactive, .workspace-dock-section[data-testid="workspace-section-operations"].inactive { display: none; }
++.operation-tabs { display: flex; flex-wrap: wrap; gap: 4px; position: sticky; top: -8px; z-index: 2; background: #f7f9f8; padding-bottom: 6px; border-bottom: 1px solid #d6ded9; }
++.operation-tool-page { min-width: 0; margin-top: 8px; }
++.operation-tool-page[hidden] { display: none; }
++.review-tool-page { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 8px; }
++.operation-apply-panel { min-height: 0; max-height: none; overflow: visible; }
++#geometry-tools, #boundary-authoring, #hanger-selection, #self-weight-plan, #offline-proposal-intake, #batch-review { min-width: 0; padding: 10px; margin-block: 0; }
++#offline-proposal-intake textarea { min-width: 0; width: 100%; }
++.status-bar { flex: 0 0 auto; min-height: 30px; padding: 3px 10px; gap: 6px; }
++.status-pill-group, .status-bar-actions { gap: 5px; }
++.status-pill { padding: 3px 5px; min-height: 24px; gap: 4px; font-size: 10px; }
++.status-drawer-button { min-height: 24px; padding: 3px 6px; font-size: 10px; }
++.status-drawer-button small { font-size: 9px; }
++.app-footer { flex: 0 0 auto; min-height: 21px; padding: 4px 10px; font-size: 10px; }
++.toolkit-palette { position: static; padding: 0; border: 0; }
++.toolkit-commands { position: fixed; z-index: 100; top: 145px; left: 50%; transform: translateX(-50%); width: min(680px, calc(100vw - 48px)); max-height: min(540px, calc(100dvh - 180px)); margin: 0; padding: 14px; overflow: auto; border: 1px solid #aabeb3; border-radius: 10px; background: #fff; color: #263331; box-shadow: 0 18px 65px #152e3545; }
++.toolkit-search-header { display: flex; gap: 10px; position: sticky; top: -14px; z-index: 1; background: #fff; padding-block: 5px 10px; border-bottom: 1px solid #d6ded9; }
++.toolkit-search-header label { display: flex; align-items: center; gap: 10px; flex: 1; font-size: 12px; }
++.toolkit-search-header input { min-width: 0; flex: 1; padding: 8px; border: 1px solid #b8c3bd; border-radius: 5px; }
++.toolkit-command-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 10px; }
++.toolkit-command-groups h3 { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: #65716c; margin: 8px 0; }
++.toolkit-command { padding-bottom: 7px; margin-bottom: 5px; border-bottom: 1px solid #edf2ef; gap: 2px; }
++.toolkit-command > button { justify-content: flex-start; width: 100%; white-space: normal; text-align: left; }
++.toolkit-command small, .toolkit-command-help { font-size: 11px; color: #59645f; }
++.toolkit-command-help summary { cursor: pointer; }
++@media (max-width: 1100px) {
++  .workspace-toolbar { gap: 4px; padding-inline: 7px; }
++  .workspace-toolbar button { padding-inline: 6px; gap: 4px; font-size: 11px; }
++  .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: 180px; --pane-inspector-col: 260px; }
++  .modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
++  .modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
++}
++.project-strip > summary { display: flex; align-items: baseline; gap: 12px; }
++.project-strip > summary [role="status"] { overflow-wrap: anywhere; }
++.project-details-label { margin-left: auto; text-decoration: underline; flex-shrink: 0; }
++.toolkit-backdrop { position: fixed; inset: 0; z-index: 99; background: #172f3010; }
++.inspector { font-size: 12px; line-height: 1.4; }
++.inspector h2, .inspector h3 { font-size: 13px; margin-block: 8px; }
++.inspector summary { cursor: pointer; padding-block: 5px; font-weight: 550; }
++.inspector label { font-size: 12px; }
++.inspector fieldset { min-width: 0; margin: 8px 0; padding: 9px; border: 1px solid #d6ded9; border-radius: 5px; }
++.inspector fieldset > label { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin: 7px 0; }
++.inspector input:not([type="checkbox"]):not([type="radio"]), .inspector select, .inspector textarea { min-width: 0; max-width: 100%; padding: 6px; border: 1px solid #b8c3bd; border-radius: 4px; font: inherit; color: #263331; background: #fff; }
++.inspector input[type="checkbox"], .inspector input[type="radio"] { flex: 0 0 auto; width: auto; min-width: 0; margin: 0; }
++.inspector button { font-size: 12px; }
++.inspector p { margin-block: 7px; }
++.status-pill { display: block; position: relative; }
++.status-pill > summary { cursor: pointer; display: flex; gap: 4px; align-items: center; }
++.status-pill[open] > div { position: absolute; bottom: 30px; left: 0; z-index: 30; min-width: 210px; max-width: 340px; padding: 10px; border: 1px solid #c8d0cb; border-radius: 5px; background: #fff; box-shadow: 0 -4px 20px #162d3026; }
++.status-pill[open] > div > strong, .status-pill[open] code { display: block; white-space: normal; overflow-wrap: anywhere; }
+diff --git a/projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts b/projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts
+new file mode 100644
+index 000000000..0a087f956
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts
+@@ -0,0 +1,59 @@
++import { expect, test, type Page } from "@playwright/test";
++
++async function expectCanvasInWorkspace(page: Page) {
++  await expect.poll(async () => page.evaluate(() => {
++    const canvas = document.querySelector("canvas")?.getBoundingClientRect();
++    const host = document.querySelector('[data-testid="viewport-canvas"]')?.getBoundingClientRect();
++    return Boolean(canvas && host && Math.abs(canvas.width - host.width) < 2 && Math.abs(canvas.height - host.height) < 2);
++  })).toBe(true);
++  const measured = await page.evaluate(() => {
++    const canvas = document.querySelector("canvas")!.getBoundingClientRect();
++    const workspace = document.querySelector('[data-testid="modeling-workspace"]')!.getBoundingClientRect();
++    return { canvas: canvas.toJSON(), workspace: workspace.toJSON(), windowHeight: innerHeight,
++      horizontalOverflow: document.body.scrollWidth - document.body.clientWidth };
++  });
++  expect(measured.horizontalOverflow).toBe(0);
++  expect(measured.canvas.width).toBeGreaterThan(0);
++  expect(measured.canvas.height).toBeGreaterThan(0);
++  expect(measured.canvas.top).toBeGreaterThanOrEqual(measured.workspace.top);
++  expect(measured.canvas.bottom).toBeLessThanOrEqual(measured.workspace.bottom + 1);
++  expect(measured.canvas.bottom).toBeLessThanOrEqual(measured.windowHeight);
++  return measured.canvas;
++}
++
++test("workspace preserves the visible model during discovery, routing, property editing and analysis navigation", async ({ page }, testInfo) => {
++  // The compact lane exercises the owner-selected initial minimum; this is
++  // layout regression evidence, not independent usability acceptance.
++  if (testInfo.project.name.includes("compact")) await page.setViewportSize({ width: 1024, height: 768 });
++  await page.goto("/");
++  await expect(page.getByTestId("workspace-toolbar")).toBeVisible();
++  const before = await expectCanvasInWorkspace(page);
++  await page.getByTestId("toolkit-entry").click();
++  const during = await expectCanvasInWorkspace(page);
++  expect(during).toEqual(before);
++  await page.getByTestId("toolkit-build.pipe").click();
++  await expect(page.getByTestId("viewport-create-pipe-id")).toBeFocused();
++  await page.getByTestId("queue-explicit-pipe-intent").scrollIntoViewIfNeeded();
++  await expectCanvasInWorkspace(page);
++  await page.getByTestId("cancel-pipe-draft").click();
++  if (await page.getByTestId("toggle-tree").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-tree").click();
++  await page.getByTestId("tree-row-pipe:P-100").click();
++  if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
++  await page.getByTestId("toggle-tree").click();
++  await expect(page.getByTestId("inspector-text-value")).toContainText("Pump discharge run");
++  await expect(page.getByTestId("inspector-dual-unit-display")).toHaveCount(0);
++  await expectCanvasInWorkspace(page);
++  await page.getByTestId("command-support").click();
++  await expect(page.getByTestId("create-support-id")).toBeFocused();
++  await expect(page.getByTestId("create-support-intent-panel")).toBeVisible();
++  await expectCanvasInWorkspace(page);
++  for (const section of ["loads", "solve", "results"] as const) {
++    await page.getByTestId(`workspace-task-${section}`).click();
++    await expect(page.getByTestId(`workspace-section-${section}`)).toBeVisible();
++    await expectCanvasInWorkspace(page);
++  }
++  await page.getByTestId("toolkit-entry").click();
++  await page.keyboard.press("Escape");
++  await expect(page.getByTestId("toolkit-entry")).toBeFocused();
++  await expect(page.locator("#toolkit-commands")).toHaveCount(0);
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx b/projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx
+new file mode 100644
+index 000000000..199917f01
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx
+@@ -0,0 +1,128 @@
++import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { loadPreviewModel } from "../../services/previewService";
++import type { EditorOperationIntent, EntityRef, PreviewModel } from "../../types";
++import { DisplayUnitsProvider } from "../display-units";
++import { PropertyInspector } from "./PropertyInspector";
++import { ModelTree } from "./ModelTree";
++
++afterEach(cleanup);
++
++function inspect(model: PreviewModel, selection: EntityRef) {
++  const queued: EditorOperationIntent[] = [];
++  render(<DisplayUnitsProvider initialPreference="SI">
++    <PropertyInspector model={model} selection={selection} onQueueIntent={(intent) => queued.push(intent)} />
++  </DisplayUnitsProvider>);
++  return queued;
++}
++
++function chooseField(path: string) {
++  fireEvent.change(screen.getByTestId("editor-intent-field"), { target: { value: path } });
++}
++
++describe("typed property inspection", () => {
++  it("keeps creation forms collapsed, preserves their drafts and opens selected support configuration", async () => {
++    const model = await loadPreviewModel();
++    const props = { model, onQueueIntent: vi.fn() };
++    const view = render(<PropertyInspector {...props} selection={{ type: "project", id: model.project.id }} />);
++
++    for (const kind of ["section", "material", "support", "component"]) {
++      expect(screen.getByTestId(`create-${kind}-intent-panel`)).not.toBeVisible();
++    }
++    expect(screen.getByLabelText("Support configuration")).not.toBeVisible();
++
++    const summary = screen.getByText("New section", { selector: "summary" });
++    fireEvent.click(summary);
++    const name = screen.getByTestId("create-section-name");
++    expect(name).toBeVisible();
++    fireEvent.change(name, { target: { value: "Explicit draft section" } });
++    fireEvent.click(summary);
++    expect(name).not.toBeVisible();
++    fireEvent.click(summary);
++    expect(name).toBeVisible();
++    expect(name).toHaveValue("Explicit draft section");
++
++    model.supports[0].provenance = "";
++    view.rerender(<PropertyInspector {...props} selection={{ type: "support", id: model.supports[0].id }} />);
++    expect(screen.getByLabelText("Support configuration")).toBeVisible();
++    expect(screen.getByTestId("inspector-required-flags")).toBeVisible();
++    expect(screen.getByTestId("editor-intent-panel")).toBeVisible();
++  });
++
++  it("names the selected property and keeps rationale accessible without empty-status clutter", async () => {
++    const model = await loadPreviewModel();
++    inspect(model, { type: "pipe", id: model.pipe_segments[0].id });
++    expect(screen.getByRole("heading", { name: "Edit name" })).toBeVisible();
++    expect(screen.getByRole("textbox", { name: "New name" })).toBeVisible();
++    expect(screen.queryByTestId("inspector-required-flags")).not.toBeInTheDocument();
++    const rationale = screen.getByTestId("editor-intent-rationale");
++    expect(rationale).not.toBeVisible();
++    expect(rationale).toHaveValue("user_entered_preview_change");
++    fireEvent.click(screen.getByText("Operation details", { selector: "summary" }));
++    expect(rationale).toBeVisible();
++    chooseField("material");
++    expect(screen.getByRole("textbox", { name: "New material" })).toBeVisible();
++  });
++
++  it("keeps labels and references as text under a numeric display-unit preference", async () => {
++    const model = await loadPreviewModel();
++    const pipe = model.pipe_segments[0];
++    pipe.label = "00123";
++    const queued = inspect(model, { type: "pipe", id: pipe.id });
++    expect(screen.getByTestId("inspector-text-value")).toHaveTextContent("00123");
++    expect(screen.queryByTestId("inspector-dual-unit-display")).not.toBeInTheDocument();
++    expect(screen.queryByText(/quantity is not a finite numeric value/)).not.toBeInTheDocument();
++
++    chooseField("material");
++    expect(screen.getByTestId("inspector-text-value")).toHaveTextContent(pipe.material);
++    expect(screen.queryByTestId("inspector-dual-unit-display")).not.toBeInTheDocument();
++    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "material:explicit-reference" } });
++    fireEvent.click(screen.getByRole("button", { name: "Queue change" }));
++    expect(queued[0].change.after).toBe("material:explicit-reference");
++    expect(queued[0].change.unit).toBe("none");
++    expect(queued[0].validation.unit_validation).toBe("not_required_dimensionless");
++    expect(pipe.material).not.toBe("material:explicit-reference");
++  });
++
++  it("keeps enum tokens as text and dimensionless numeric slots as quantities", async () => {
++    const model = await loadPreviewModel();
++    inspect(model, { type: "load", id: model.load_cases[0].id });
++    chooseField("kind");
++    expect(screen.getByTestId("inspector-text-value")).toHaveTextContent(model.load_cases[0].kind);
++    expect(screen.queryByTestId("inspector-dual-unit-display")).not.toBeInTheDocument();
++    chooseField("equivalent_static.seismic.g_factor_x.value");
++    expect(screen.getByTestId("inspector-dual-unit-display")).toHaveTextContent("TBD");
++    expect(screen.queryByTestId("inspector-text-value")).not.toBeInTheDocument();
++  });
++
++  it("keeps invalid quantity diagnostics visible and queues entered unit-bearing values unchanged", async () => {
++    const model = await loadPreviewModel();
++    const node = model.nodes[0];
++    node.position.x = "TBD" as unknown as number;
++    const queued = inspect(model, { type: "node", id: node.id });
++    chooseField("position.x");
++    const current = screen.getByTestId("inspector-dual-unit-display");
++    expect(within(current).getByRole("status")).toHaveTextContent("quantity is not a finite numeric value");
++    expect(within(current).getByRole("status")).toBeVisible();
++    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "12.5" } });
++    fireEvent.click(screen.getByRole("button", { name: "Queue change" }));
++    expect(JSON.parse(queued[0].change.after)).toEqual({ value: 12.5, unit: model.project.units.length });
++    expect(queued[0].audit_boundary.direct_model_mutation_allowed).toBe(false);
++    expect(node.position.x).toBe("TBD");
++  });
++});
++
++describe("model browser", () => {
++  it("retains stable identity selection and ID filtering with concise group names", async () => {
++    const model = await loadPreviewModel();
++    const pipe = model.pipe_segments[0];
++    const onSelect = vi.fn();
++    render(<ModelTree model={model} selection={{ type: "project", id: model.project.id }} onSelect={onSelect} />);
++    expect(screen.getByRole("heading", { name: "Pipes" })).toBeInTheDocument();
++    fireEvent.change(screen.getByRole("searchbox"), { target: { value: pipe.id } });
++    const row = screen.getByTestId(`tree-row-${pipe.id}`);
++    expect(row).toHaveAttribute("title", `${pipe.label} (${pipe.id})`);
++    fireEvent.click(row);
++    expect(onSelect).toHaveBeenCalledWith({ type: "pipe", id: pipe.id });
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx b/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx
+new file mode 100644
+index 000000000..7f1d7a282
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.test.tsx
+@@ -0,0 +1,19 @@
++import { fireEvent, render, screen } from "@testing-library/react";
++import { describe, expect, it, vi } from "vitest";
++import { WorkspaceToolbar } from "./WorkspaceToolbar";
++
++describe("workspace task toolbar", () => {
++  it("keeps every main task and review reachable without an application menu", () => {
++    const onSection = vi.fn();
++    render(<WorkspaceToolbar activeSection={null} selecting pendingCount={3} canUndo={false} canRedo={false} onSelect={vi.fn()} onSection={onSection} onUndo={vi.fn()} onRedo={vi.fn()}><button>Toolkit</button></WorkspaceToolbar>);
++    for (const [task, value] of [["Model", null], ["Loads", "loads"], ["Analyze", "solve"], ["Results", "results"], ["Rules", "rule-packs"], ["Report", "report"]]) {
++      fireEvent.click(screen.getByRole("button", { name: task! }));
++      expect(onSection).toHaveBeenLastCalledWith(value);
++    }
++    fireEvent.click(screen.getByTestId("workspace-review"));
++    expect(onSection).toHaveBeenLastCalledWith("operations");
++    expect(screen.getByTestId("workspace-review")).toHaveTextContent("3");
++    expect(screen.getByRole("button", { name: "Undo model edit" })).toBeDisabled();
++    expect(screen.getByRole("button", { name: "Redo model edit" })).toBeDisabled();
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx b/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx
+new file mode 100644
+index 000000000..10b991295
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/workspace/WorkspaceToolbar.tsx
+@@ -0,0 +1,41 @@
++import type { ReactNode } from "react";
++import { Box, ChartNoAxesCombined, ClipboardCheck, FileText, Layers, MousePointer2, Play, ShieldCheck, Undo2, Redo2 } from "lucide-react";
++
++type Section = "operations" | "loads" | "libraries" | "rule-packs" | "solve" | "results" | "report" | "project" | "exports" | "evidence";
++type Props = {
++  activeSection: Section | null;
++  selecting: boolean;
++  pendingCount: number;
++  canUndo: boolean;
++  canRedo: boolean;
++  onSelect: () => void;
++  onSection: (section: Section | null) => void;
++  onUndo: () => void;
++  onRedo: () => void;
++  children: ReactNode;
++};
++
++/** Transient navigation only. Every editing command retains its existing service route. */
++export function WorkspaceToolbar({ activeSection, selecting, pendingCount, canUndo, canRedo, onSelect, onSection, onUndo, onRedo, children }: Props) {
++  return (
++    <div className="workspace-toolbar" data-testid="workspace-toolbar">
++      <nav className="workspace-task-nav" aria-label="Workspace tasks">
++        {([
++          [null, "Model", Box], ["loads", "Loads", Layers], ["solve", "Analyze", Play],
++          ["results", "Results", ChartNoAxesCombined], ["rule-packs", "Rules", ShieldCheck], ["report", "Report", FileText]
++        ] as const).map(([id, label, Icon]) => (
++          <button key={label} type="button" aria-pressed={activeSection === id} data-testid={`workspace-task-${id ?? "model"}`} onClick={() => onSection(id)}>
++            <Icon size={16} aria-hidden="true" />{label}
++          </button>
++        ))}
++      </nav>
++      <div className="workspace-edit-actions" role="group" aria-label="Editing tools">
++        <button type="button" data-testid="workspace-select" aria-pressed={selecting} onClick={onSelect} title="Select geometry; cancel the active creation tool"><MousePointer2 size={16} aria-hidden="true" />Select</button>
++        {children}
++        <button type="button" data-testid="workspace-undo" aria-label="Undo model edit" disabled={!canUndo} onClick={onUndo} title="Undo model edit"><Undo2 size={16} aria-hidden="true" /></button>
++        <button type="button" data-testid="workspace-redo" aria-label="Redo model edit" disabled={!canRedo} onClick={onRedo} title="Redo model edit"><Redo2 size={16} aria-hidden="true" /></button>
++        <button type="button" data-testid="workspace-review" aria-pressed={activeSection === "operations"} onClick={() => onSection("operations")} title="Validate and apply queued changes"><ClipboardCheck size={16} aria-hidden="true" />Review{pendingCount > 0 ? <span className="workspace-count">{pendingCount}</span> : null}</button>
++      </div>
++    </div>
++  );
++}

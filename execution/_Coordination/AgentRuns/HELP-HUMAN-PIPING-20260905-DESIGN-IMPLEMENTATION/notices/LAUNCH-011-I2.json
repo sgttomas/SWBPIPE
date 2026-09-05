@@ -1,0 +1,31 @@
+{
+  "id": "LAUNCH-011-I2",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "id_instance": "I2",
+  "runtime_id": "/root/integration_review",
+  "role": "direct Agent 2 TASK",
+  "skill": "software-code-review",
+  "basis": "Latest sealed brief supplied by root",
+  "tools": "read-only",
+  "AllowedWriteTargets": [],
+  "ApplyEdits": false,
+  "delegation": "none",
+  "initial_mode": "Independent W2 and policy-basis intake only",
+  "final_review_gate": "Root releases W7 and C2 final freeze",
+  "scope": "100% combined final frozen product source, tests, and configuration diff",
+  "output_contract": [
+    "Fresh independent full-diff review",
+    "Exact source hashes",
+    "Actionable findings or PASS with no actionable findings",
+    "Structured return for parent persistence in instances/I2"
+  ],
+  "claim_limits": [
+    "No engineering acceptance",
+    "No lifecycle closure"
+  ],
+  "delegation_class": "delegated-harness-native",
+  "enforcement": "instruction+config asserted; not mechanism-proven",
+  "model": "unavailable"
+}

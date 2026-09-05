@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "status": "frozen_additive_parent_update",
+  "previous_manifest_sha256": "9df8f87d3c0e09ae1c4d121bdcc3389b9e260fb3f407dc1ccce4e4aacbac97d7",
+  "files": {
+    "snapshots/PLAN_V2/OPEN_QUESTIONS.md": "1ba46b9945c897ab32ef07dd5a1c2b261d2ba4abb193e39c482001546e1395ff",
+    "snapshots/PLAN_V2/ORCHESTRATION_PLAN.md": "7f3d559d2a06f5351715d6ffabeea047575b1076c31d9906f9bd7a2bc51de7ff",
+    "snapshots/PLAN_V2/WORK_GRAPH.json": "19f28bcb1c2ebfc4ffeb802b438eb096a6cc4b184fa304d77a1483970cf136fc"
+  },
+  "update_sha256": "7a124dad6acf7444126663329d397babdd63e2754ba435941eed4c1c34237ecd"
+}

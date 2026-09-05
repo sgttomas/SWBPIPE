@@ -1,0 +1,1230 @@
+{
+  "accepted_model_state_mutated": false,
+  "diagnostics": [
+    {
+      "code": "RULE_CHECK_INPUTS_MISSING",
+      "id": "diagnostic:physics:rule-inputs-missing",
+      "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+      "severity": "warning",
+      "source": "core/product_physics"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "model_ref": "project:invented-loop-01",
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_approval_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_sealing_claim": false
+  },
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "solver:linear_static_preview",
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "metadata": {
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=410.73033; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:L-100",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      },
+      "unit": "mode_code",
+      "value": 1.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0.406023
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.406023
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-110",
+      "id": "result:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.000305
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "support:S-100",
+      "id": "result:reaction:support-S-100",
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "value": 782.623792
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:axial:end-j",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-y:end-j",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 350.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:shear-z:end-j",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": -350.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:torsion:end-j",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": -700.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-y:end-j",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:bending-z:end-j",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 175.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": -525.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": -350.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:force:pipe-P-100:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N",
+      "value": -175.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": -175.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:moment:pipe-P-100:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value is linearly interpolated from endpoint element-local resultants"
+      },
+      "unit": "N*m",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": -5.115894
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-j:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": -3.836921
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": -2.557947
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": -1.278974
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "interpolated_from_endpoint_resultants",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "unit": "MPa",
+      "value": 0.0
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100",
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "value": 5.115894
+    }
+  ],
+  "run_id": "run:preview-linear-static-001",
+  "schema_version": "0.1.0",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "summary": {
+    "component_pressure_thrust_load_count": 0,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "load_case_count": 1,
+    "max_displacement": {
+      "location_ref": "node:N-110",
+      "result_ref": "result:disp:node-N-110",
+      "unit": "mm",
+      "value": 0.406023
+    },
+    "max_open_formula_stress": {
+      "location_ref": "pipe:P-100",
+      "result_ref": "result:stress:pipe-P-100",
+      "unit": "MPa",
+      "value": 5.115894
+    },
+    "node_count": 2,
+    "segment_count": 1,
+    "spring_hanger_user_input_count": 0,
+    "support_count": 1
+  }
+}

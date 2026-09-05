@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "summaries": [
+    {
+      "unit": "m",
+      "fixture": "snapshots/UNITS_V1/fixtures/invented_linear_m.json",
+      "fixture_sha256": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8",
+      "mechanics": "MECHANICS_SOLVED",
+      "max_displacement": {
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110",
+        "unit": "mm",
+        "value": 0.406023
+      },
+      "diagnostics": [
+        {
+          "code": "RULE_CHECK_INPUTS_MISSING",
+          "id": "diagnostic:physics:rule-inputs-missing",
+          "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+          "severity": "warning",
+          "source": "core/product_physics"
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "unit": "mm",
+      "fixture": "snapshots/UNITS_V1/fixtures/invented_linear_mm.json",
+      "fixture_sha256": "ab709ba3609b316c2119a42cccaf815c98c869eece6f04bcf31f357656b96b77",
+      "mechanics": "MECHANICS_SOLVED",
+      "max_displacement": {
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110",
+        "unit": "mm",
+        "value": 0.406023
+      },
+      "diagnostics": [
+        {
+          "code": "RULE_CHECK_INPUTS_MISSING",
+          "id": "diagnostic:physics:rule-inputs-missing",
+          "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+          "severity": "warning",
+          "source": "core/product_physics"
+        }
+      ],
+      "exit_code": 0
+    },
+    {
+      "unit": "in",
+      "fixture": "snapshots/UNITS_V1/fixtures/invented_linear_in.json",
+      "fixture_sha256": "ebf926782836f1a7628972971ee7e2cef2b10001993ab81ea098b8ee6b6281c8",
+      "mechanics": "MECHANICS_SOLVED",
+      "max_displacement": {
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110",
+        "unit": "mm",
+        "value": 0.406023
+      },
+      "diagnostics": [
+        {
+          "code": "RULE_CHECK_INPUTS_MISSING",
+          "id": "diagnostic:physics:rule-inputs-missing",
+          "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+          "severity": "warning",
+          "source": "core/product_physics"
+        }
+      ],
+      "exit_code": 0
+    }
+  ],
+  "result_vectors_exactly_equal": true,
+  "envelopes_exactly_equal": true
+}

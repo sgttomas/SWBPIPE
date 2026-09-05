@@ -15,8 +15,8 @@
         "title": "OpenPipeStress Technical Preview",
         "width": 1440,
         "height": 920,
-        "minWidth": 1160,
-        "minHeight": 760
+        "minWidth": 1024,
+        "minHeight": 768
       }
     ],
     "security": {

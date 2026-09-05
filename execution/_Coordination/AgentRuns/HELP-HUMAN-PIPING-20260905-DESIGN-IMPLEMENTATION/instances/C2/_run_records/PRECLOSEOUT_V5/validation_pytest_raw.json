@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "-n",
+    "auto",
+    "--dist",
+    "loadscope",
+    "tools/validation"
+  ],
+  "exit_code": 0,
+  "elapsed_seconds": 4.63,
+  "encoding": "base64",
+  "sha256": "6184a3f7889e9d06467d859b4ec12754274d7f4277c07363b1f8f04d40ccac5f",
+  "data": "YnJpbmdpbmcgdXAgbm9kZXMuLi4KYnJpbmdpbmcgdXAgbm9kZXMuLi4KCi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiBbIDIyJV0KLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIFsgNDQlXQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gWyA2NyVdCi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiBbIDg5JV0KLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFsxMDAlXQozMjEgcGFzc2VkIGluIDQuNDdzCg=="
+}

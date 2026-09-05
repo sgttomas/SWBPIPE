@@ -1,0 +1,18 @@
+{
+  "instance": "U1",
+  "revision": 2,
+  "status": "READY_FOR_MANAGER_VERIFICATION",
+  "actual_model": "unknown",
+  "source_frozen": true,
+  "source_manifest": "SOURCE_FREEZE_V2.json",
+  "return": "RETURN_V2.md",
+  "focused_tests": {
+    "passed": 8,
+    "skipped": 118
+  },
+  "remaining": [
+    "manager browser direct Support check",
+    "combined appropriate final checks",
+    "fresh re-review"
+  ]
+}

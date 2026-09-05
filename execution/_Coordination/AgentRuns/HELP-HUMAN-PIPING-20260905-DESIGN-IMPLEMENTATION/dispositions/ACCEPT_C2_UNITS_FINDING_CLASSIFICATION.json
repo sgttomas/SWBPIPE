@@ -1,0 +1,30 @@
+{
+  "id": "ACCEPT_C2_UNITS_FINDING_CLASSIFICATION",
+  "date": "2026-09-05",
+  "scope_version": "C2 v3 additive",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1 /root/implementation_coordination",
+  "user_direction": "Then carry on now with implementation according to the plan and map. Act in the Agent 0 role. First sync your worktree with origin/main.",
+  "basis": "Root already read and accepted immutable UNITS_V1 packet, manifest d38ffc1f05860b1b9076301a0c056df24ba3a72583919db8dc4a3eff1e7bb763",
+  "disposition": "APPROVE one additional exact-hash EVIDENCE classification entry only",
+  "scope_extension": {
+    "instance": "C2",
+    "runtime_id": "/root/sync_main",
+    "allowed_writes": [
+      "{WORKING_ROOT}/validation/portability_policy.json one additional exact entry below",
+      "instances/C2 own records"
+    ]
+  },
+  "exact_entry": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/FINDING.md",
+    "sha256": "71d186231d0eee7fdaf6c50f088e821482c93b58e97bc5509d0e21cce95c66af",
+    "entry_type": "historical_role_override",
+    "role": "EVIDENCE",
+    "reason": "Immutable accepted units witness finding records two temporary-path command lines actually executed; historical runtime evidence, not live executable direction. Exact-hash classification preserves witness bytes."
+  },
+  "authority_requirement": "Cite this actual HELP_HUMAN root acceptance and user implementation direction; no separate Owner policy approval is asserted",
+  "authority_limit": "Existing historical_role_override mechanism; no new policy meaning or source activation",
+  "preservation": "Preserve frozen UNITS_V1 bytes and all prior accepted evidence",
+  "validation": "Include additional configuration entry in final fresh review",
+  "application_status": "Approved for C2 writer; not applied by C1"
+}

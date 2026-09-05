@@ -1,0 +1,43 @@
+{
+  "id": "UPDATE-002",
+  "version": 2,
+  "supersedes": "v1 only where explicitly narrowed below",
+  "recorded_by": "C1",
+  "source": "parent /root exact follow-up directions",
+  "activation": {
+    "primary": [
+      "DEL-07-01 broad viewport/editor UX",
+      "DEL-07-02 broad property/tree UX"
+    ],
+    "supporting": [
+      "DEL-07-03 existing integration",
+      "DEL-07-04 existing integration",
+      "DEL-07-05 existing integration",
+      "DEL-07-08 existing integration only; no new scope",
+      "DEL-07-06 qualitative accessibility verification only"
+    ],
+    "contract_only": [
+      "DEL-07-09"
+    ],
+    "preserved_holds": [
+      "PDU-045",
+      "PDU-046 independent human usability/contrast target holds"
+    ],
+    "dependencies": "Root-read relevant architecture bases SATISFIED; W7 verifies whole own selected graph",
+    "stage": "R5 per DEC-054/DEC-080; no newer ruling found by parent"
+  },
+  "human_ruling": {
+    "question_context": "minimum layout test window",
+    "verbatim_reply": "1024 × 768 for smaller windows",
+    "disposition": "Owner layout test target 1024x768",
+    "limits": "No final usability acceptance; 600x420 clear-canvas metric remains candidate; provisional 1200 suggestion superseded"
+  },
+  "step0": {
+    "latest_receipt": "130 menu/drawer repair",
+    "receipt_validator": "PASS",
+    "selfcheck": "exit 0; four inherited REVIEW plus one prior untracked SOURCE_INDEX portability REVIEW",
+    "status_inventory": "--dag DAG-010 PASS; initial fullpath argument failed usage/filepath then corrected",
+    "source_currency": "Report and map hashes unchanged after sync"
+  },
+  "design_direction": "Coherent native interface operating current supported operations; reversible and testable before expanded solver changes; no new method or authority accepted"
+}

@@ -1,0 +1,17 @@
+{
+  "name": "piping_pytest",
+  "exit_code": 0,
+  "elapsed_seconds": 11.99,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "-m",
+    "pytest",
+    "-q",
+    "tests",
+    "-n",
+    "auto",
+    "--dist",
+    "loadscope"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping"
+}

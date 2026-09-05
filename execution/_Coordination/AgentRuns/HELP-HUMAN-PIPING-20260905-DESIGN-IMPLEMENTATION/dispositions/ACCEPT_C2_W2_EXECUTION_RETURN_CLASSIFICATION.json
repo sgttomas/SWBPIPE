@@ -1,0 +1,29 @@
+{
+  "id": "ACCEPT_C2_W2_EXECUTION_RETURN_CLASSIFICATION",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1 /root/implementation_coordination",
+  "user_direction": "Then carry on now with implementation according to the plan and map. Act in the Agent 0 role. First sync your worktree with origin/main.",
+  "basis": "Root read completed immutable W2/I1/TASK_RUN.md; actual environment/input echoes and commands are historical execution evidence, not live direction",
+  "disposition": "Approve C2 third exact historical_role_override EVIDENCE entry only",
+  "exact_entry": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md",
+    "sha256": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d",
+    "entry_type": "historical_role_override",
+    "role": "EVIDENCE",
+    "reason": "Immutable completed W2 implementation execution return preserves actual resolved runtime paths and commands; historical execution evidence, not live executable direction."
+  },
+  "scope": {
+    "instance": "C2",
+    "runtime_id": "/root/sync_main",
+    "allowed_writes": [
+      "{WORKING_ROOT}/validation/portability_policy.json one additional exact entry above",
+      "instances/C2 own records"
+    ],
+    "preservation": "Preserve existing two tranche entries, all older policy entries, and immutable evidence bytes"
+  },
+  "authority_requirement": "Cite this actual root acceptance and user implementation direction; do not invent separate Owner policy approval",
+  "authority_limit": "Existing project classification mechanism only; no new policy meaning",
+  "application_status": "Approved before C2 writer; C1 has not applied it",
+  "N1_disposition": "Unsealed preflight being preserved under _run_records with portable pointer; no new policy needed"
+}

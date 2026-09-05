@@ -1,0 +1,12 @@
+{
+  "instance": "U2",
+  "parent": "W7",
+  "status": "SUCCESS",
+  "source_frozen": true,
+  "actual_model": "unknown",
+  "role_enforcement": "instruction-asserted",
+  "focused_tests": {"passed": 16, "failed": 0},
+  "return": "RETURN_V3.md",
+  "supersedes_source_freeze": "RETURN_V2.md",
+  "remaining": ["W7 final integration checks,visual checks,independent review"]
+}

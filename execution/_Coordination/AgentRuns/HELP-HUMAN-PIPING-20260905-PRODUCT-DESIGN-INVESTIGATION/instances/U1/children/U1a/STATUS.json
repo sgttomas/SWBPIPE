@@ -1,0 +1,15 @@
+{
+  "status": "COMPLETE_FOR_PARENT_REVIEW",
+  "parent": "U1",
+  "model": "unavailable",
+  "brief_sha256": "d5bb0e19a5eb64baad64820054a84224a148035582fbe095d529d9464174a067",
+  "runtime_id": "/root/design_ux_manager/current_ui_evidence",
+  "started_at": "2026-09-05T18:05:03.831492+00:00",
+  "completed_at": "2026-09-05T18:08:12.413034+00:00",
+  "source_sha": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "output_sha256": {
+    "FINDINGS.md": "ed98596841b2a5637bcdf145a0c1f93e50a1ce5c63a29687b0a0f806f78e6c0a",
+    "SOURCES.json": "5e838dde62ff418ccf1be55f236a62b1b98cd8a8b61bc60749a97147e0c1177b",
+    "RETURN.md": "19566d9cab55f0346e34198d1a01045e96080aba0166725ea2aab9cbcdd88b7c"
+  }
+}

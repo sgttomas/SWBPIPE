@@ -1,0 +1,10 @@
+{
+  "name": "selfcheck",
+  "exit_code": 0,
+  "elapsed_seconds": 6.99,
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/practitioner_harness/harness.py",
+    "self-check"
+  ]
+}

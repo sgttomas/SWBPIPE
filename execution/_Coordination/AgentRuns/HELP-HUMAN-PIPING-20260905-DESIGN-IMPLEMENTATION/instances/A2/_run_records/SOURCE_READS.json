@@ -1,0 +1,152 @@
+[
+  {
+    "path": "core/model_transform/physical_to_analytical/contract.py",
+    "sha256": "7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0",
+    "matches_baseline": true
+  },
+  {
+    "path": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+    "sha256": "3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990",
+    "matches_baseline": true
+  },
+  {
+    "path": "tests/test_physical_to_analytical_transform.py",
+    "sha256": "c1efb981edba3d960f8ba4565dcd039230f1eb83c7e661119b59c1b72b646abd",
+    "matches_baseline": true
+  },
+  {
+    "path": "tests/test_analytical_solver_boundary_adapter.py",
+    "sha256": "08b53482e9bc3acfb1dee53ce9c7f92d3e699086842def49754a5b06abfc612d",
+    "matches_baseline": true
+  },
+  {
+    "path": "fixtures/domain/invented_physical_source_of_truth_model.json",
+    "sha256": "519d022ef0863274f1d96a5360433a54b680338f255e8f30a8a1e9a709250d76",
+    "matches_baseline": true
+  },
+  {
+    "path": "fixtures/product_preview/invented_preview_model.json",
+    "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "matches_baseline": true
+  },
+  {
+    "path": "docs/CONTRACT.md",
+    "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "matches_baseline": true
+  },
+  {
+    "path": "docs/_Registers/Deliverables.csv",
+    "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+    "matches_baseline": true
+  },
+  {
+    "path": "requirements-dev.txt",
+    "sha256": "f8dfa6abb1ae5b48c157e8c92599098785d56340c1250a350187ce941cd25c47",
+    "matches_baseline": true
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_CONTEXT.md",
+    "sha256": "958786c78352e931527a0fb0512555a9403db9f9f9121ae925b4ba9af0d09d37",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_STATUS.md",
+    "sha256": "cce11d12cb8d9ef5eb003fc3c0bea503bca7aff1585d57b629f3f59f074d3291",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/MEMORY.md",
+    "sha256": "17c6ba40f1f23f818c4fbd479a6e1af1828f6e5d6c5764fa531fe4f28f7c6bd8",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_CONTEXT.md",
+    "sha256": "d19fd67b153e8cd42a880daab77db0da7271070e6446943144408bcfb7032851",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_STATUS.md",
+    "sha256": "78f7431537150d1a8b1325109cb8a60c1f1e6cfc88f3e60f277505b6631ce88f",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/MEMORY.md",
+    "sha256": "9f64f6558910e5d8df8264efee93f299253ba37a3f3a9c843de0826d7e1bb9b1",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_CONTEXT.md",
+    "sha256": "f3ed62a2b9902d969509dc26af92f52075c53bb8b8ddb98311e2a64a2c057ef9",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md",
+    "sha256": "e4aab10ecdc08479b3b37c7e22d3b68afac3b767db2967ffb6d88a9cf84bb5d5",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/MEMORY.md",
+    "sha256": "74fd88bebc0e179fd73ce7556f4358c6ac2baf6ac6ed428f52e2a8d01824c17a",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/_CONTEXT.md",
+    "sha256": "affef71646dda7adeb5d811778d58dab42b8304c4bcdfabb9674b576cf688f60",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/_STATUS.md",
+    "sha256": "71c645264285df83e337f72521a561d787b172cb769e664e9d928fb807afbaeb",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-01_Immutable model state records/MEMORY.md",
+    "sha256": "7db4f000912c21f67362e76e9c53971ba6ebf6f2a9278367ce3e4906be807f78",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_CONTEXT.md",
+    "sha256": "7fc80d884877e6ffad0be1c248d38940c1d22eb965870097a3000cc8b7bdcd96",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+    "sha256": "a303d95ca05250a25681302e83c34de3d03ffc315b329cdfa3744d33ec1ef0ba",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+    "sha256": "a443149d225010599250821db7d6a090ffa2a52c14a397bac6563f486a05ffbf",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md",
+    "sha256": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+    "sha256": "82251da858ea2c11f40f5eeb84565852be99785dcbd5913e314bea8c408a257b",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+    "sha256": "cf930c05e43710813283684b244580140de122f3d70e5e32b073d23e3029c3b5",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+    "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",
+    "sha256": "daac0266e706030750831e334b237b809ebec63bef0fe071d62c0dbf662c4f2a",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  },
+  {
+    "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+    "sha256": "e55f649b3affc48ba8014767f404291ffffaa924f682c01c9d046a8153677192",
+    "read_scope": "context scope/objective and current status paired with memory hold excerpts"
+  }
+]

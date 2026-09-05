@@ -1,0 +1,2 @@
+# Independent review repair v6
+R1 P2 direct Support and Insert route leaves creation disclosureclosed. SameApp/App.test writes. Reveal/focus create-support-id through existing toolkitFocus ancestor-opener when supportarmed. Preserve existingdraft/selection/operations. Directtoolbar+Insertmenu tests fromproject/node/pipe. Parentowns e2eupdate. Nootherproductchanges. PriorSOURCE_V1 and reviewFAIL immutable; newfreezeandre-review mandatory.

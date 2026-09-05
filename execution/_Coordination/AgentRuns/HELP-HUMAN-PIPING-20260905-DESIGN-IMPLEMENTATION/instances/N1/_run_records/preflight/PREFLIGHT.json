@@ -1,0 +1,37 @@
+{
+  "utc": "2026-09-05T19:32:24.501786+00:00",
+  "status": "READY_WAITING_PARENT_BUILD_RELEASE",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality",
+  "head": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "versions": {
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "targets": "aarch64-apple-darwin\nwasm32-unknown-unknown",
+    "wasm_bindgen": "wasm-bindgen 0.2.123"
+  },
+  "build_command": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app"
+  ],
+  "build_cwd": "projects/chirality-piping/apps/desktop",
+  "signing": "No signing identity configured; default local packaging only. No notarization.",
+  "native_minimum_at_preflight": {
+    "width": 1160,
+    "height": 760
+  },
+  "source_files": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/docs/BUILD_AND_RELEASE.md": "b0ea8de3a3338d8f0c767f898fbf2ab00d146eb6e9cf27c221430ea354a46066",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/main.rs": "03c5b9f8fc8812114d1a7db1b1e2c5c9f2ce6c7bbf0f000565fbb872e7a1d5ca",
+    "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json": "34bf0767368469fa91f860dc81764ef193432bc0dc91ce8485bb6b45e0e39834",
+    "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5"
+  }
+}

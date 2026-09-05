@@ -1,0 +1,23 @@
+Executable=/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview.app/Contents/MacOS/openpipestress-desktop
+Identifier=openpipestress_desktop-c3ca90eed1643d0a
+Format=app bundle with Mach-O thin (arm64)
+CodeDirectory v=20400 size=153512 flags=0x20002(adhoc,linker-signed) hashes=4793+0 location=embedded
+VersionPlatform=1
+VersionMin=720896
+VersionSDK=1705216
+Hash type=sha256 size=32
+CandidateCDHash sha256=8f6e0e860c89ff0d2f944cdcf628db7752742647
+CandidateCDHashFull sha256=8f6e0e860c89ff0d2f944cdcf628db7752742647170e6b5297cf7b037e106be5
+Hash choices=sha256
+CMSDigest=8f6e0e860c89ff0d2f944cdcf628db7752742647170e6b5297cf7b037e106be5
+CMSDigestType=2
+Executable Segment base=0
+Executable Segment limit=14286848
+Executable Segment flags=0x1
+Page size=4096
+CDHash=8f6e0e860c89ff0d2f944cdcf628db7752742647
+Signature=adhoc
+Info.plist=not bound
+TeamIdentifier=not set
+Sealed Resources=none
+Internal requirements=none

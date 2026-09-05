@@ -1,0 +1,268 @@
+diff --git a/projects/chirality-piping/core/product_physics/src/lib.rs b/projects/chirality-piping/core/product_physics/src/lib.rs
+index 0621e4c95..af9e02e69 100644
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -116,6 +116,10 @@ pub struct PreviewModel {
+ #[derive(Debug, Clone, Deserialize)]
+ pub struct Project {
+     pub id: String,
++    // Retain authored metadata, including malformed/missing values, so the
++    // solver boundary can report a structured unit-input diagnostic.
++    #[serde(default)]
++    pub units: serde_json::Value,
+ }
+ 
+ #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq)]
+@@ -3853,11 +3857,75 @@ fn resolve_shared_sections(model: &mut PreviewModel, diagnostics: &mut Vec<Diagn
+     }
+ }
+ 
++fn normalize_node_coordinates(model: &mut PreviewModel, diagnostics: &mut Vec<Diagnostic>) {
++    let diagnostic_id = "diagnostic:unit-input:project:length";
++    let affected_refs = vec![model.project.id.clone(), "project.units.length".to_string()];
++    let Some(symbol) = model
++        .project
++        .units
++        .get("length")
++        .and_then(serde_json::Value::as_str)
++    else {
++        diagnostics.push(diag(
++            diagnostic_id,
++            "UNIT_INPUT_INVALID",
++            "blocking",
++            "preview node coordinates require explicit project.units.length metadata",
++            affected_refs,
++        ));
++        return;
++    };
++    let from = match unit_by_symbol(symbol, Dimension::Length) {
++        Ok(unit) => unit,
++        Err(error) => {
++            diagnostics.push(diag(
++                diagnostic_id,
++                "UNIT_INPUT_INVALID",
++                "blocking",
++                format!("preview project.units.length must be an accepted length unit: {error}"),
++                affected_refs,
++            ));
++            return;
++        }
++    };
++    let Some(to) = canonical_unit(Dimension::Length) else {
++        diagnostics.push(unit_conversion_diag(
++            diagnostic_id,
++            "no canonical length unit is accepted",
++            affected_refs,
++        ));
++        return;
++    };
++    // Positions are stored in the project length unit. Direction vectors and
++    // explicit quantity records have separate semantics and are not scaled here.
++    for node in &mut model.nodes {
++        for coordinate in [
++            &mut node.position.x,
++            &mut node.position.y,
++            &mut node.position.z,
++        ] {
++            match convert_for_dimension(*coordinate, Dimension::Length, from, to) {
++                Ok(value) => *coordinate = value,
++                Err(error) => diagnostics.push(unit_conversion_diag(
++                    &format!(
++                        "diagnostic:unit-conversion:node:{}:position",
++                        stable_suffix(&node.id)
++                    ),
++                    error.to_string(),
++                    vec![node.id.clone(), "position".to_string()],
++                )),
++            }
++        }
++    }
++    model.project.units["length"] = to.definition().symbol.into();
++}
++
+ fn normalize_model_units(
+     model: &mut PreviewModel,
+     materials: &mut [MaterialInput],
+     diagnostics: &mut Vec<Diagnostic>,
+ ) {
++    normalize_node_coordinates(model, diagnostics);
+     for material in materials {
+         normalize_quantity(
+             &mut material.elastic_modulus,
+@@ -14350,6 +14418,162 @@ mod tests {
+         assert!(result.results.is_empty());
+     }
+ 
++    fn authored_coordinate_request(length_unit: &str) -> LinearStaticPreviewRequest {
++        let mut wire: serde_json::Value = serde_json::from_str(include_str!(
++            "../../../fixtures/product_preview/invented_preview_model.json"
++        ))
++        .unwrap();
++        wire["project"]["units"]["length"] = length_unit.into();
++        // Independent, invented equivalent encodings; the fixture already spans
++        // all three axes. Translation makes every coordinate non-origin.
++        let metres_per_unit = match length_unit {
++            "m" => 1.0,
++            "mm" => 0.001,
++            "in" => 0.0254,
++            _ => panic!("test encoding is not declared"),
++        };
++        for node in wire["nodes"].as_array_mut().unwrap() {
++            for (axis, translation) in [("x", 1.27), ("y", -2.54), ("z", 3.81)] {
++                node["position"][axis] =
++                    ((node["position"][axis].as_f64().unwrap() + translation) / metres_per_unit).into();
++            }
++        }
++        // Quantity records retain their own units, independently of coordinates.
++        for pipe in wire["pipe_segments"].as_array_mut().unwrap() {
++            for field in ["outside_diameter", "wall_thickness"] {
++                let quantity = &mut pipe["section"][field];
++                quantity["value"] = (quantity["value"].as_f64().unwrap() * 1000.0).into();
++                quantity["unit"] = "mm".into();
++            }
++        }
++        LinearStaticPreviewRequest {
++            model: serde_json::from_value(wire).unwrap(),
++            // Exercise the native caller's embedded-material path.
++            materials: Vec::new(),
++        }
++    }
++
++    #[test]
++    fn authored_coordinate_units_preserve_preview_results_and_source() {
++        for mode in [
++            PreviewSolverMode::default(),
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            let baseline = run_linear_static_preview_with_mode(authored_coordinate_request("m"), mode);
++            assert_eq!(baseline.status.mechanics, "MECHANICS_SOLVED");
++            for unit in ["m", "mm", "in"] {
++                let input = authored_coordinate_request(unit);
++                let source_before = format!("{input:?}");
++                let result = run_linear_static_preview_with_mode(input.clone(), mode);
++                assert_eq!(format!("{input:?}"), source_before);
++                assert_eq!(input.model.project.units["length"], unit);
++                assert!(!result.accepted_model_state_mutated);
++                assert_eq!(result.status, baseline.status);
++                assert_eq!(result.model_ref, baseline.model_ref);
++                assert_eq!(result.results.len(), baseline.results.len());
++                for (actual, expected) in result.results.iter().zip(&baseline.results) {
++                    assert_eq!(actual.id, expected.id);
++                    assert_eq!(actual.kind, expected.kind);
++                    assert_eq!(actual.unit, expected.unit);
++                    assert_eq!(actual.entity_ref, expected.entity_ref);
++                    assert_eq!(actual.basis_ref, expected.basis_ref);
++                    assert_eq!(actual.source_result_refs, expected.source_result_refs);
++                    assert_eq!(actual.metadata, expected.metadata);
++                    // Results are rounded to six decimals by the existing adapter.
++                    assert!(
++                        (actual.value - expected.value).abs() <= 1e-6 + expected.value.abs() * 1e-9,
++                        "{mode:?}/{unit}/{}: {} != {}",
++                        actual.id,
++                        actual.value,
++                        expected.value
++                    );
++                }
++                assert_eq!(
++                    serde_json::to_value(&result.summary).unwrap(),
++                    serde_json::to_value(&baseline.summary).unwrap()
++                );
++            }
++        }
++    }
++
++    #[test]
++    fn node_normalization_preserves_quantities_directions_and_authored_metadata() {
++        for unit in ["m", "mm", "in"] {
++            let source = authored_coordinate_request(unit).model;
++            let source_before = format!("{source:?}");
++            let mut working = source.clone();
++            let pipes_before = format!("{:?}", working.pipe_segments);
++            let materials_before = format!("{:?}", working.materials);
++            let loads_before = format!("{:?}", working.load_cases);
++            let mut expected_units = source.project.units.clone();
++            expected_units["length"] = "m".into();
++            let mut diagnostics = Vec::new();
++            normalize_node_coordinates(&mut working, &mut diagnostics);
++            assert!(diagnostics.is_empty());
++            assert_eq!(working.project.units, expected_units);
++            assert_eq!(format!("{:?}", working.pipe_segments), pipes_before);
++            assert_eq!(format!("{:?}", working.materials), materials_before);
++            assert_eq!(format!("{:?}", working.load_cases), loads_before);
++            assert_eq!(format!("{source:?}"), source_before);
++            let normalized_before = format!("{working:?}");
++            normalize_node_coordinates(&mut working, &mut diagnostics);
++            assert!(diagnostics.is_empty());
++            assert_eq!(format!("{working:?}"), normalized_before);
++            if unit == "m" {
++                assert_eq!(format!("{working:?}"), source_before);
++            }
++        }
++    }
++
++    #[test]
++    fn missing_or_invalid_project_length_units_block_preview() {
++        for mode in [
++            PreviewSolverMode::default(),
++            PreviewSolverMode::DenseScrutiny,
++        ] {
++            for units in [
++                serde_json::Value::Null,
++                serde_json::json!({}),
++                serde_json::json!({"length": null}),
++                serde_json::json!({"length": ""}),
++                serde_json::json!({"length": "furlong_unknown"}),
++                serde_json::json!({"length": "Pa"}),
++                serde_json::json!({"length": 1000}),
++                serde_json::json!("mm"),
++            ] {
++                let mut input = request();
++                input.model.project.units = units;
++                let result = run_linear_static_preview_with_mode(input, mode);
++                assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
++                assert!(result.results.is_empty());
++                assert!(result.diagnostics.iter().any(|item| {
++                    item.code == "UNIT_INPUT_INVALID"
++                        && item
++                            .affected_refs
++                            .contains(&"project.units.length".to_string())
++                }));
++            }
++            let mut wire: serde_json::Value = serde_json::from_str(include_str!(
++                "../../../fixtures/product_preview/invented_preview_model.json"
++            ))
++            .unwrap();
++            wire["project"].as_object_mut().unwrap().remove("units");
++            let result = run_linear_static_preview_with_mode(
++                LinearStaticPreviewRequest {
++                    model: serde_json::from_value(wire).unwrap(),
++                    materials: Vec::new(),
++                },
++                mode,
++            );
++            assert_eq!(result.status.mechanics, "MODEL_INCOMPLETE");
++            assert!(result.results.is_empty());
++            assert!(result
++                .diagnostics
++                .iter()
++                .any(|item| item.code == "UNIT_INPUT_INVALID"));
++        }
++    }
++
+     #[test]
+     fn mixed_units_are_normalized_at_preview_mechanics_boundary() {
+         let baseline = run_linear_static_preview(request());
+diff --git a/projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json b/projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json
+index 9ad1e717e..3a69019f6 100644
+--- a/projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json
++++ b/projects/chirality-piping/fixtures/product_preview/invented_dec092_temperature_g_request.json
+@@ -3,7 +3,8 @@
+     "schema_version": "0.1.0",
+     "document_kind": "openpipestress.product_preview.model",
+     "project": {
+-      "id": "project:invented-dec092-temperature-g-torsion"
++      "id": "project:invented-dec092-temperature-g-torsion",
++      "units": { "length": "m" }
+     },
+     "analysis_status": {
+       "mechanics": "ready_for_preview_diagnostics",

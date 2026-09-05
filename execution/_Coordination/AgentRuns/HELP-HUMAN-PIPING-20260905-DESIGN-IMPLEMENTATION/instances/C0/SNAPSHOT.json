@@ -1,0 +1,17 @@
+{
+  "schema": "piping.change.sync.v1",
+  "created_at": "2026-09-05T19:12:46.767977+00:00",
+  "parent": "/root",
+  "runtime_instance": "/root/sync_main",
+  "role": "CHANGE",
+  "delegation": "delegated-harness-native",
+  "enforcement": "instruction+config asserted",
+  "status": "PASS",
+  "base_sha": "7458e9c1eb9399ed259da464207d9a507acdea2e",
+  "files": {
+    "AFTER.json": "89028bda4d297108f678043e4577d4ca94b5c8c81281924c8b768e41e7503608",
+    "BEFORE.json": "f5ba1040888e79e044d20dca3cef0a1fb637a1341a7e27fb9d52a9859da3adfe",
+    "RETURN.md": "2d9b9a6ce4709f993e7fa413633ba93a73b02b112e858dd0662f7538c8f87c50",
+    "SEALED_BRIEF.md": "64991175f38c11df80863f660681cd5318e2b7ef04ebffc814c344f950efaabe"
+  }
+}

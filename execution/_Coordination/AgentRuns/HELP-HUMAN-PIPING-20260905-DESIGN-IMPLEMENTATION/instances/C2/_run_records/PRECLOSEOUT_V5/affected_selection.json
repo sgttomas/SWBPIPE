@@ -1,0 +1,10 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "tools/run_affected_tests.py",
+    "--base",
+    "7458e9c1eb9399ed259da464207d9a507acdea2e",
+    "--dry-run"
+  ],
+  "exit_code": 0
+}

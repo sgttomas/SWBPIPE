@@ -1,0 +1,18 @@
+{
+  "id": "ACCEPT_C2_EXACT_EVIDENCE_ATTRIBUTES",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Bounded C2 extension for exact current-run evidence attributes",
+  "target": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/.gitattributes",
+  "allowed_change": "Exact paths only with -whitespace for actual frozen raw logs and unified patches",
+  "constraints": [
+    "Preserve evidence bytes",
+    "Preserve text diffs",
+    "No glob patterns",
+    "No root .gitattributes changes",
+    "No other attribute semantics"
+  ],
+  "inventory": "C2 must provide exact path inventory and hashes",
+  "application_status": "Authorized for C2; no changes by C1"
+}

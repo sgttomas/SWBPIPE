@@ -1,0 +1,97 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION",
+  "created_at_utc": "2026-09-05T18:02:33.714009+00:00",
+  "parent": "/root",
+  "plan_sha256": "9d13f111a05fa2d9cf996d58ee4f09420598f6d92bcb442c6f2dead669d0a4b5",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted",
+  "status": "PLAN_FROZEN_AWAITING_ACTUAL_LAUNCHES",
+  "nodes": [
+    {
+      "id": "U1",
+      "parent": "/root",
+      "role": "WORKING_ITEMS / Agent 1",
+      "brief": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/U1.md",
+      "brief_sha256": "e16b328b67d0b2303e50dee192ae766941fab759d36a7946258ccc2348f72a73",
+      "write_scope": "{RUN_ROOT}/instances/U1/",
+      "depends_on": [],
+      "status": "PLANNED_NOT_LAUNCHED",
+      "runtime_id": null,
+      "model": "inherited; actual attribution unavailable until exposed",
+      "output_contract": "FINDINGS.md and RETURN.md in owned instance subtree; S4 also report",
+      "acceptance": "Parent verifies source binding, scope, citations, evidence calibration, outputs and blockers"
+    },
+    {
+      "id": "A2",
+      "parent": "/root",
+      "role": "Ephemeral specialist / Agent 2",
+      "brief": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/A2.md",
+      "brief_sha256": "cd18de71b6e557719d2ac2b2274cd9291b8d82bc9044569ec658cdfda90a3e5f",
+      "write_scope": "{RUN_ROOT}/instances/A2/",
+      "depends_on": [],
+      "status": "PLANNED_NOT_LAUNCHED",
+      "runtime_id": null,
+      "model": "inherited; actual attribution unavailable until exposed",
+      "output_contract": "FINDINGS.md and RETURN.md in owned instance subtree; S4 also report",
+      "acceptance": "Parent verifies source binding, scope, citations, evidence calibration, outputs and blockers"
+    },
+    {
+      "id": "H3",
+      "parent": "/root",
+      "role": "Ephemeral specialist / Agent 2",
+      "brief": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/H3.md",
+      "brief_sha256": "bb8b86d07cf28833215fd4a99e38a3bb603e776fde82a4d6740092d6524e2701",
+      "write_scope": "{RUN_ROOT}/instances/H3/",
+      "depends_on": [],
+      "status": "PLANNED_NOT_LAUNCHED",
+      "runtime_id": null,
+      "model": "inherited; actual attribution unavailable until exposed",
+      "output_contract": "FINDINGS.md and RETURN.md in owned instance subtree; S4 also report",
+      "acceptance": "Parent verifies source binding, scope, citations, evidence calibration, outputs and blockers"
+    },
+    {
+      "id": "S4",
+      "parent": "/root",
+      "role": "Ephemeral synthesis specialist / Agent 2",
+      "brief": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/S4.md",
+      "brief_sha256": "46df6dc7bc83e3d424c31a4f77ae930be978e2031d0e1cae1fefd4d42ac9ba71",
+      "write_scope": "{RUN_ROOT}/instances/S4/ and {WORKING_ROOT}/plans/REPORT_2026-09-05_piping_modeling_and_analysis_product_design.md",
+      "depends_on": [
+        "U1",
+        "A2",
+        "H3"
+      ],
+      "status": "PLANNED_NOT_LAUNCHED",
+      "runtime_id": null,
+      "model": "inherited; actual attribution unavailable until exposed",
+      "output_contract": "FINDINGS.md and RETURN.md in owned instance subtree; S4 also report",
+      "acceptance": "Parent verifies source binding, scope, citations, evidence calibration, outputs and blockers"
+    },
+    {
+      "id": "R5",
+      "parent": "/root",
+      "role": "Fresh read-only critic / Agent 2",
+      "brief": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/briefs/R5.md",
+      "brief_sha256": "766c5736d1a909b4ea4f3a08bdd79fcce4634fad8cee6dad73fa2e38665fad63",
+      "write_scope": "{RUN_ROOT}/instances/R5/ review artifacts only",
+      "depends_on": [
+        "S4"
+      ],
+      "status": "PLANNED_NOT_LAUNCHED",
+      "runtime_id": null,
+      "model": "inherited; actual attribution unavailable until exposed",
+      "output_contract": "FINDINGS.md and RETURN.md in owned instance subtree; S4 also report",
+      "acceptance": "Parent verifies source binding, scope, citations, evidence calibration, outputs and blockers"
+    }
+  ],
+  "conditional_successors": [
+    {
+      "from": "R5",
+      "to": "S4-repair",
+      "condition": "actionable review findings",
+      "then": "R5-recheck and final parent handoff",
+      "preserve_predecessor_hashes": true
+    }
+  ]
+}

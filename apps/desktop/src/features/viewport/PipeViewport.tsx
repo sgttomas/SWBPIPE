@@ -1,5 +1,5 @@
 import { QuantityReadout } from "../display-units";
-import { Box, CircleDot, CirclePlus, GitBranch } from "lucide-react";
+import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
@@ -444,6 +444,7 @@ export function PipeViewport({
 
     const resize = () => {
       const { clientWidth, clientHeight } = host;
+      if (clientWidth <= 0 || clientHeight <= 0) return;
       camera.aspect = clientWidth / clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(clientWidth, clientHeight);
@@ -451,6 +452,9 @@ export function PipeViewport({
     };
     resize();
     window.addEventListener("resize", resize);
+    // Rails and the analysis dock resize the host without resizing the window.
+    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
+    resizeObserver?.observe(host);
 
     let frame = 0;
     const animate = () => {
@@ -465,6 +469,7 @@ export function PipeViewport({
     return () => {
       cancelAnimationFrame(frame);
       window.removeEventListener("resize", resize);
+      resizeObserver?.disconnect();
       controls.removeEventListener("change", persistCameraState);
       controls.dispose();
       pickRef.current = null;
@@ -630,14 +635,15 @@ export function PipeViewport({
     <div className="viewport-shell">
       <div className="viewport-toolbar">
         <span>3D Centerline</span>
-        <span
+        <details
           className={`viewport-deformation-status ${deformation.state}`}
           aria-label="Viewport deformation overlay status"
           data-testid="viewport-deformation-status"
         >
-          <strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
-          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small>
-        </span>
+          <summary>{deformation.state === "available" ? "Deformation · normalized" : deformation.state === "blocked" ? "Deformation · blocked" : "Deformation · unavailable"}</summary>
+          <div><strong data-testid="viewport-deformation-summary">{deformation.maximum ? <>available; nodes={deformation.nodeCount}; max=<QuantityReadout quantity={{ ...deformation.maximum, dimension_id: "length" }} /></> : deformation.summary}</strong>
+          <small data-testid="viewport-deformation-boundary">{deformation.boundary}</small></div>
+        </details>
         <div className="viewport-display-toggles" role="group" aria-label="Viewport display toggles">
           <button
             type="button"
@@ -762,7 +768,7 @@ export function PipeViewport({
             onClick={() => armCreationTool("support")}
             title="Arm support creation in the Inspector"
           >
-            <CircleDot size={15} aria-hidden="true" />
+            <Anchor size={15} aria-hidden="true" />
             Support
           </button>
           <button
@@ -784,10 +790,14 @@ export function PipeViewport({
             onClick={() => armCreationTool("load")}
             title="Arm load creation in the Load Cases panel"
           >
-            <CirclePlus size={15} aria-hidden="true" />
+            <MoveDown size={15} aria-hidden="true" />
             Load
           </button>
         </div>
+        <span className="command-active-tool" data-testid="armed-creation-tool" title={creationToolStatusLabel(armedCreationTool)}>
+          {armedCreationTool ? `${armedCreationTool.charAt(0).toUpperCase()}${armedCreationTool.slice(1)} tool armed` : "Select"}
+        </span>
+        <details className="command-context"><summary>Selection &amp; navigation</summary><div className="command-context-content">
         <button
           type="button"
           className="command-preview-button"
@@ -798,21 +808,20 @@ export function PipeViewport({
         >
           Queue preview
         </button>
-        <span className="command-active-tool" data-testid="armed-creation-tool">
-          {creationToolStatusLabel(armedCreationTool)}
-        </span>
         <span data-testid="command-selection-readout">
           Selected {selection.type}: {selection.id}; {visibleIntents.length} queued
         </span>
         <span className="command-hint" data-testid="viewport-orbit-hint">
           Drag to orbit · scroll to zoom · right-drag to pan
         </span>
+        </div></details>
       </section>
       <section
         className={`viewport-intents${viewportIntentPanelActive ? " active" : " collapsed"}`}
         aria-label="Viewport editor intents"
         data-testid="viewport-editor-intents"
       >
+        <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
         <div className="viewport-intent-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
             <label>
@@ -1263,12 +1272,13 @@ export function PipeViewport({
               Queue {componentDraft.kind}
             </button>
           </div>
-          <small data-testid="viewport-unit-catalog-status">
+          <details className="viewport-technical-details"><summary>Unit source</summary><small data-testid="viewport-unit-catalog-status">
             {unitCatalogRoute?.route === "tauri_unit_catalog"
               ? `DEC-018 unit catalog loaded; entries=${unitCatalogRoute.catalog.entry_count}`
               : "browser preview uses model metadata for viewport length units"}
-          </small>
+          </small></details>
         </div>
+        <details className="viewport-technical-details"><summary>Pending changes ({visibleIntents.length})</summary>
         <div className="viewport-intent-list" data-testid="viewport-intent-list">
           {visibleIntents.length === 0 ? (
             <p data-testid="viewport-intent-empty">
@@ -1291,7 +1301,7 @@ export function PipeViewport({
               </article>
             ))
           )}
-        </div>
+        </div></details>
       </section>
     </div>
   );

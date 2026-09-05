@@ -1,0 +1,15 @@
+{
+  "status": "COMPLETE_FOR_PARENT_REVIEW",
+  "parent": "U1",
+  "model": "unavailable",
+  "brief_sha256": "e049aa56cabe927ac0602846e843872081f4435970e0280794b4dcc3a6afdb9e",
+  "runtime_id": "/root/design_ux_manager/external_precedents",
+  "started_at": "2026-09-05T18:05:03.831765+00:00",
+  "finished_at": "2026-09-05T18:08:36.195814+00:00",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "findings_sha256": "9de4d91f1e27e354704c087885e0700e77ea51249fd346bdda4e1767228693bb",
+  "sources_sha256": "47d65a3fa39030baeb0831c6775bace39662138870ddbc33a662e26aac145aeb",
+  "return_sha256": "ae08d306d28cbc355b22d03a87f0f948cf2e9b57662f01157a3cc684a2cd9f99",
+  "role": "Agent 2 ephemeral generalist",
+  "nondelegation": "instruction+config asserted"
+}

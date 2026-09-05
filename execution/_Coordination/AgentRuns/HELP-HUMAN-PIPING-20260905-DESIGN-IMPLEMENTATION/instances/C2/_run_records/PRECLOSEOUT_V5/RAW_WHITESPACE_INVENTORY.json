@@ -1,0 +1,62 @@
+{
+  "authority": "HELP_HUMAN /root exact-path -whitespace authorization in runtime message, 2026-09-05; C1 records actual direction separately",
+  "scope": "Only listed completed execution logs and frozen patch captures; no broad glob or binary/text-diff exemption",
+  "attributes_sha256": "a458ff80130d674279e734b6412ec8e2f81044a4d618a280eda39803439fd1c9",
+  "files": [
+    {
+      "path": "instances/W2/I1/PATCH.diff",
+      "sha256": "4e0a70d781c20562e0e38eef664aaa06396d61add747e08c772658731360bb86",
+      "size_bytes": 12113
+    },
+    {
+      "path": "instances/W2/I1/baseline-cargo.log",
+      "sha256": "4480dd8b207a186aa2ed75462a25ae09d77f2bd2c23136afdcd694779766fd3a",
+      "size_bytes": 12631
+    },
+    {
+      "path": "instances/W2/I1/final-cargo.log",
+      "sha256": "7ca0b765bf2ae82a5fc9452a2f8f8b511ce428ebb06df67660581b47793ac11b",
+      "size_bytes": 10742
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/copy-adapters-final.log",
+      "sha256": "9b36e1b8e2cf3698459b20fecf05ae377a8f40f4b59cbe89a89a1eca022bc1bd",
+      "size_bytes": 5867
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/copy-adapters-pass.log",
+      "sha256": "94294b2c15bdd7639e4dd71bc848fabf177ecd17b4230f8d79baa48daf055fba",
+      "size_bytes": 410
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/copy-adapters.log",
+      "sha256": "3c0da4a66f904be1a6cc65e7a568a7639ed9792030aa35ca617cd4ddddb83df5",
+      "size_bytes": 52302
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/support-disclosure-v2.log",
+      "sha256": "decc58f69301b2e67bcf14f8cefeac24e7ad0b0e6ef01954261540e1cddabfc4",
+      "size_bytes": 1429
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/targeted-initial.log",
+      "sha256": "0748a76f8c1c7006addfcce594100f60496bb3e185a06140c4cb93deaae71437",
+      "size_bytes": 1294071
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/targeted-second.log",
+      "sha256": "bf10a7856aab0ba4dc29e9d2a35f66f8c09c8f726b1adaed63edab697bd70c74",
+      "size_bytes": 57564
+    },
+    {
+      "path": "instances/W7/children/U1/_run_records/workspace-routes.log",
+      "sha256": "ffe0ddd0ea86d3407894ff432bf691336a07e71137b29a3ce05cf3b394cc38f4",
+      "size_bytes": 422
+    },
+    {
+      "path": "instances/W7/snapshots/SOURCE_V1/DIFF.patch",
+      "sha256": "d5a44d325e423a84782f7981cb1c3740573d8e314e1517df1c93911e7028868f",
+      "size_bytes": 89624
+    }
+  ]
+}

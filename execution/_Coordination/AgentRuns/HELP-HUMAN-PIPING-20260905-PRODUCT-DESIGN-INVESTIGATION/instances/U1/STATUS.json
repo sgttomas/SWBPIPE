@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETE_ACCEPTED_FOR_AGENT0_FANIN",
+  "role": "WORKING_ITEMS Agent1",
+  "parent": "/root",
+  "instance": "/root/design_ux_manager",
+  "started_at": "2026-09-05T18:04:11.638069+00:00",
+  "model": "unavailable",
+  "source_head": "f4b223dd115c4234e0182dcd752a885c3de175ce",
+  "finished_at": "2026-09-05T18:11:20.420699+00:00",
+  "child_count": 2,
+  "findings_sha256": "86d07bd3b7145fca9959614ab2f2ab7b40a533f0652e9f5dcf5b61ce5c7d53fc"
+}

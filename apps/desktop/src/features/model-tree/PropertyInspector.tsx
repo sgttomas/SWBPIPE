@@ -4,7 +4,7 @@ import { MaterialTemperatureForm } from "../material-temperature/MaterialTempera
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
-import { ListPlus, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
+import { ListPlus, Pencil, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type {
   EditorOperationIntent,
@@ -107,6 +107,8 @@ export function PropertyInspector({
     "N*m/rad"
   );
   const selectedField = editableFields.find((field) => field.fieldPath === selectedFieldPath) ?? editableFields[0];
+  const selectedFieldLabel = selectedField ? propertyLabel(selectedField) : "Property";
+  const requiredFlags = requiredFlagsForSelection(model, selection, properties);
   const selectedFieldUnitOptions = selectedField
     ? unitOptions(unitCatalogRoute, selectedField.dimension, selectedField.unit)
     : [];
@@ -279,60 +281,55 @@ export function PropertyInspector({
 
   return (
     <div className="panel inspector" aria-label="Property inspector">
-      <div className="panel-title">Properties</div>
       <h2>{entityLabel(model, selection.id)}</h2>
-      <dl>
+      <details className="inspector-details">
+        <summary>All properties</summary>
+        <dl>
         {selectedPropertyRows(model, selection).map(([label, value]) => (
           <div key={label}>
             <dt>{label}</dt>
             <dd>{value.quantities ? value.quantities.map((quantity, index) => <span key={index}>{quantity.label ? `${quantity.label}=` : ""}<QuantityReadout quantity={quantity} />{index < value.quantities!.length - 1 ? ", " : ""}</span>) : value.text}</dd>
           </div>
         ))}
-      </dl>
-      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in the section record; per-pipe supplements remain local.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
+        </dl>
+      </details>
+      {selectedPipe ? <p data-testid="pipe-section-basis">{selectedPipe.section_ref ? `Shared section: ${selectedPipe.section_ref}. Edit diameter and wall in Sections.` : "Local pipe section: diameter and wall belong to this pipe."}</p> : null}
       {selectedPipe && Boolean(selectedPipe.section.insulation_thickness) !== Boolean(selectedPipe.section.insulation_density) ? <p role="status" data-testid="mass-input-completeness">Insulation mass is incomplete: enter both thickness and density before solving. The missing quantity has not been supplied.</p> : null}
-      <section className="inspector-context-grid" aria-label="Inspector review context">
-        <DualUnitValue
-          value={selectedField?.before ?? "TBD"}
-          unit={selectedField?.unit ?? "TBD"}
-          basis={selectedFieldUnitBasis}
-          dimension={selectedField?.dimension ?? "unknown"}
-        />
-        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
-        <RequiredFlagList flags={requiredFlagsForSelection(model, selection, properties)} />
-      </section>
-      <UnitCatalogPanel
-        route={unitCatalogRoute}
-        bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
-      />
+      {requiredFlags.length > 0 ? (
+        <section className="inspector-context-grid" aria-label="Inspector review context">
+          <RequiredFlagList flags={requiredFlags} />
+        </section>
+      ) : null}
       <section className="editor-intent" aria-label="Editor operation intent" data-testid="editor-intent-panel">
-        <h3>Review-only edit intent</h3>
+        {operationIntent ? <h3><Pencil size={14} aria-hidden="true" /> Edit {selectedFieldLabel.toLowerCase()}</h3> : null}
         {operationIntent ? (
           <>
             <div className="editor-intent-controls">
               <label>
-                <span>Field</span>
+                <span>Property</span>
                 <select
-                  aria-label="Intent field"
+                  aria-label="Property to edit"
                   data-testid="editor-intent-field"
                   onChange={(event) => handleFieldChange(event.target.value)}
                   value={selectedField?.fieldPath ?? ""}
                 >
                   {editableFields.map((field) => (
                     <option key={field.fieldPath} value={field.fieldPath}>
-                      {field.label}
+                      {propertyLabel(field)}
                     </option>
                   ))}
                 </select>
               </label>
+              {selectedField ? <SelectedFieldValue field={selectedField} basis={selectedFieldUnitBasis} /> : null}
               <label>
                 <span>
-                  Proposed value
-                  {selectedField?.unitEditable && selectedFieldUnitBasis ? ` (${selectedFieldUnitBasis.label})` : ""}
+                  New {selectedFieldLabel.toLowerCase()}
+                  {selectedField?.unitEditable ? ` (${proposedUnit || selectedField.unit})` : ""}
                 </span>
                 <input
-                  aria-label="Proposed editor value"
+                  aria-label={`New ${selectedFieldLabel.toLowerCase()}`}
                   data-testid="editor-intent-value"
+                  inputMode={selectedField?.valueKind === "quantity" ? "decimal" : "text"}
                   onChange={(event) => setProposedValue(event.target.value)}
                   value={proposedValue}
                 />
@@ -358,24 +355,15 @@ export function PropertyInspector({
                   <datalist id="mass-unit-options">{selectedFieldUnitOptions.filter((option) => option.symbol && option.symbol !== "TBD").map((option) => <option key={option.symbol} value={option.symbol}>{option.label}</option>)}</datalist>
                 </label>
               ) : null}
-              <label>
-                <span>Rationale</span>
-                <input
-                  aria-label="Editor intent rationale"
-                  data-testid="editor-intent-rationale"
-                  onChange={(event) => setRationale(event.target.value)}
-                  value={rationale}
-                />
-              </label>
               <button
                 data-testid="queue-editor-intent"
                 disabled={!fieldChanged}
                 onClick={handleQueueIntent}
-                title="Queue as transient review-only operation"
+                title="Add this change to the review queue"
                 type="button"
               >
                 <ListPlus size={14} aria-hidden="true" />
-                Queue review intent
+                Queue change
               </button>
               <button
                 data-testid="validate-editor-intent-inline"
@@ -385,26 +373,52 @@ export function PropertyInspector({
                 type="button"
               >
                 <SearchCheck size={14} aria-hidden="true" />
-                Validate intent
+                Validate
               </button>
             </div>
-            <OperationIntentPreview intent={operationIntent} />
+            <details className="inspector-details">
+              <summary>Operation details</summary>
+              <label>
+                <span>Reason for change</span>
+                <input
+                  aria-label="Editor intent rationale"
+                  data-testid="editor-intent-rationale"
+                  onChange={(event) => setRationale(event.target.value)}
+                  value={rationale}
+                />
+              </label>
+              <OperationIntentPreview intent={operationIntent} />
+              <IntentQueue intents={queuedIntents} />
+            </details>
             <InlineValidationPreview intent={operationIntent} outcome={inlineValidationOutcome} />
-            <IntentQueue intents={queuedIntents} />
           </>
         ) : (
           <p className="muted" data-testid="editor-intent-empty">
-            Select an editable model entity to draft a structured operation intent.
+            Select a model entity to edit its properties.
           </p>
         )}
       </section>
-      <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+      <details className="inspector-details">
+        <summary>Sources and units</summary>
+        <ProvenanceBlock rows={entityProvenanceRows(model, selection)} />
+        <UnitCatalogPanel
+          route={unitCatalogRoute}
+          bases={[lengthBasis, stressBasis, supportStiffnessBasis, thermalExpansionBasis]}
+        />
+      </details>
+      {["support", "node", "project"].includes(selection.type) ? (
+        <details className="inspector-details" open={selection.type === "support"}>
+          <summary>{selection.type === "support" ? "Support configuration" : "New support configuration"}</summary>
+          <SupportConfigurationForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
+        </details>
+      ) : null}
       <MaterialTemperatureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
       <WindExposureForm model={model} selection={selection} queuedIntents={queuedIntents} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
       <SectionAssignment model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
       <GuardedRemoval model={model} selection={selection} onQueueIntent={onQueueIntent} operationBusy={operationBusy} />
-      <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
-        <h3>Create section</h3>
+      <details className="inspector-details">
+        <summary>New section</summary>
+        <section className="editor-intent" aria-label="Create section intent" data-testid="create-section-intent-panel">
         <div className="editor-intent-controls">
           <label>
             <span>Section ID</span>
@@ -492,8 +506,10 @@ export function PropertyInspector({
         </div>
         {sectionCreateIntent ? <OperationIntentPreview intent={sectionCreateIntent} /> : null}
       </section>
-      <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
-        <h3>Create material</h3>
+      </details>
+      <details className="inspector-details">
+        <summary>New material</summary>
+        <section className="editor-intent" aria-label="Create material intent" data-testid="create-material-intent-panel">
         <div className="editor-intent-controls">
           <label>
             <span>Material ID</span>
@@ -595,8 +611,10 @@ export function PropertyInspector({
         </div>
         {materialCreateIntent ? <OperationIntentPreview intent={materialCreateIntent} /> : null}
       </section>
-      <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
-        <h3>Create support</h3>
+      </details>
+      <details className="inspector-details">
+        <summary>New support</summary>
+        <section className="editor-intent" aria-label="Create support intent" data-testid="create-support-intent-panel">
         <div className="editor-intent-controls">
           <label>
             <span>Support ID</span>
@@ -691,8 +709,10 @@ export function PropertyInspector({
         </div>
         {supportCreateIntent ? <OperationIntentPreview intent={supportCreateIntent} /> : null}
       </section>
-      <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
-        <h3>Create component</h3>
+      </details>
+      <details className="inspector-details">
+        <summary>New component</summary>
+        <section className="editor-intent" aria-label="Create component intent" data-testid="create-component-intent-panel">
         <div className="editor-intent-controls">
           <label>
             <span>Component ID</span>
@@ -855,6 +875,7 @@ export function PropertyInspector({
         </div>
         {componentCreateIntent ? <OperationIntentPreview intent={componentCreateIntent} /> : null}
       </section>
+      </details>
       {nodeDeleteIntent ? (
         <section className="editor-intent" aria-label="Delete node intent" data-testid="delete-node-intent-panel">
           <h3>Delete node</h3>
@@ -920,7 +941,7 @@ function InlineValidationPreview({
   if (!outcome) {
     return (
       <p className="muted editor-inline-validation" data-testid="editor-intent-inline-validation-empty">
-        Validate this draft intent to preview structured-operation findings before queuing or applying it.
+        Validate to check this change before applying it.
       </p>
     );
   }
@@ -965,6 +986,7 @@ type EditableField = {
   unit: string;
   sourceNote: string;
   unitEditable: boolean;
+  valueKind: "text" | "quantity";
 };
 
 type SupportDraft = {
@@ -1112,7 +1134,7 @@ function IntentQueue({ intents = [] }: { intents?: EditorOperationIntent[] }) {
   if (!intents.length) {
     return (
       <p className="muted" data-testid="editor-intent-queue-empty">
-        No transient editor intents queued.
+        No changes queued.
       </p>
     );
   }
@@ -1143,15 +1165,34 @@ function IntentFact({ label, value, testId }: { label: string; value: string; te
   );
 }
 
+function SelectedFieldValue({ field, basis }: { field: EditableField; basis: UnitBasisDisplay | null }) {
+  if (field.valueKind === "quantity") {
+    return <DualUnitValue value={field.before} unit={field.unit} dimension={field.dimension} basis={basis} />;
+  }
+  return (
+    <section className="inspector-context-card" data-testid="inspector-text-value" aria-label="Current value">
+      <span>Current {propertyLabel(field).toLowerCase()}</span>
+      <strong>{field.before}</strong>
+    </section>
+  );
+}
+
+function propertyLabel(field: EditableField): string {
+  return field.label === "Label" ? "Name" : field.label;
+}
+
 function DualUnitValue({ value, unit, dimension, basis }: { value: string; unit: string; dimension: string; basis: UnitBasisDisplay | null }) {
   const numericValue = value.trim() !== "" && Number.isFinite(Number(value)) ? Number(value) : value;
   return (
     <section className="inspector-context-card" data-testid="inspector-dual-unit-display" aria-label="Display quantity">
-      <span>Display quantity</span>
+      <span>Current value</span>
       <strong data-testid="inspector-dual-unit-converted"><QuantityReadout quantity={{ value: numericValue, unit, dimension_id: dimension }} /></strong>
       <small>Entered: {value} {unit}</small>
-      <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
-      <small>Display only — storage stays entered-units-preserved.</small>
+      <details>
+        <summary>Unit details</summary>
+        <small>{basis ? `Display basis: ${basis.label}` : "Display basis unavailable"}</small>
+        <small>Display only — storage stays entered-units-preserved.</small>
+      </details>
     </section>
   );
 }
@@ -2218,7 +2259,10 @@ function scalarField(
     unit,
     sourceNote,
     changeKind,
-    unitEditable: false
+    unitEditable: false,
+    // Dimensionless numeric slots still need quantity diagnostics. Labels,
+    // references and enum tokens must remain text regardless of their content.
+    valueKind: fieldPath.endsWith(".value") ? "quantity" : "text"
   };
 }
 
@@ -2241,7 +2285,8 @@ function quantityField(
     unit,
     sourceNote: "unit metadata required",
     changeKind,
-    unitEditable
+    unitEditable,
+    valueKind: "quantity"
   };
 }
 

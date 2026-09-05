@@ -1,0 +1,14 @@
+{
+  "id": "NOTICE-012-INTEGRATED-CHECKS",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "I2": {
+    "status": "Finishing combined review over 17 files; PASS not yet returned",
+    "final_attributes_sha256": "63887a7680ee03f26049b9729fbe78865fefeb85317d61669c346494539f8270",
+    "policy_hash_prefix": "c3b807...",
+    "hash_limit": "Policy prefix supplied by parent is not a complete fingerprint; final review must bind full hash"
+  },
+  "C2": "Independent Python/harness checks allowed alongside N1 exclusive native build",
+  "recorder_next_scope": "Stand by for final handoff and exact loop receipt 131 write scope after N1/I2 complete; no receipt write authorized by this notice"
+}

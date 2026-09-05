@@ -1,0 +1,10 @@
+{
+  "version": 5,
+  "status": "frozen_additive_parent_dispositions",
+  "previous_manifest_sha256": "e71007339a8c27ff735a6207ff3d1a651150ba95fa081692cd0612f90241a32f",
+  "files": {
+    "snapshots/PLAN_V5/OPEN_QUESTIONS.md": "542512a4e50ddeaf42e43105fd217a3fcb12295572b8cb282a1ddb6e9bcd6e44",
+    "snapshots/PLAN_V5/ORCHESTRATION_PLAN.md": "c08f52f5dc17d475f1ada6db932107f0832a79f14bad1753a28658a44660f455",
+    "snapshots/PLAN_V5/WORK_GRAPH.json": "8a6b7fde940e3d7537121ad18cbba9822159c1169e856e886001ea1cbea0c468"
+  }
+}

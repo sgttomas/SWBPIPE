@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "only_changes": {
+    "minWidth": [
+      1160,
+      1024
+    ],
+    "minHeight": [
+      760,
+      768
+    ]
+  },
+  "default_dimensions_unchanged": [
+    1440,
+    920
+  ],
+  "security_and_packaging_unchanged": true
+}

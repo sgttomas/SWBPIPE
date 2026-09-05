@@ -1,0 +1,2 @@
+G2 PASS: surface-ownership register execution/_harness/surface_ownership.yaml is schema-valid (root-surface-ownership/v1); 7 entr(ies) declare write targets; 6 materialized PKG-*/DEL-* child(ren) all registered; decomposition='execution/_Decomposition/Chirality_Root_SOFTWARE_DECOMP_v1_0.md'.
+  INFO: identical write target 'runtime/**' declared by ['DEL-02-06_Generic_Runtime_Stewardship_and_Release_Assurance', 'PKG-02_Operative_Instruction_Surface_and_Runtime_Layers'] — recorded as a static fact only; this guard makes no concurrency claim (serialization is G3's question)
