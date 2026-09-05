@@ -1,0 +1,32 @@
+{
+  "recorded_at": "2026-09-05T14:40:32.015768+00:00",
+  "parent_direction": "HELP_HUMAN authorized evidence-only portability repair after hosted GEN8 failure",
+  "scope": "Only two active declared read paths normalized; exact original brief and input bytes preserved",
+  "source_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/BRIEF_RUNTIME_V1.json",
+  "original_sha256": "29d67f271a6ea09d3e48e89220267d04d5f1b3fe950b8aa3891d1caad72c18f1",
+  "active_sha256": "7aad3721194b9ea0e099e8b32160cb5ce9e6c5bacf8319869d5c5a2814fa08b7",
+  "relocation": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json",
+  "relocation_sha256": "ff03e9b20bcf72d01f8074949fab04714d78710bbd12ceb5f9ab509c574e11c9",
+  "field_mapping": [
+    {
+      "json_pointer": "/declared_reads/7",
+      "original_value_base64": "L3RtcC9waXBpbmctdWktZzQtbWFuaWZlc3QtcGxhbi5qc29u",
+      "portable_value": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json#piping-ui-g4-manifest-plan.json",
+      "input_sha256": "863a19bb3fd7b7415595ed4d2491d12636e53d467c0362a2718bca2dcc2e3a5d"
+    },
+    {
+      "json_pointer": "/declared_reads/8",
+      "original_value_base64": "L3RtcC9waXBpbmctdWktcHI3MTUtZzQtZmFpbGVkLmxvZw==",
+      "portable_value": "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json#piping-ui-pr715-g4-failed.log",
+      "input_sha256": "288f4cd7128d076f3aaa0a6cb7abc152f9dbc025edd7e41681c946aa44ffe19a"
+    }
+  ],
+  "prior_file_hashes": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/LOCAL_ACCEPTED_SNAPSHOT_V1.json": "eaf009021c23ed4085171b249a885a68f71095f0fd8e7cf14b61edf00aa756ff",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/HANDOFF_V1.md": "c92d4655ac55d4991980dd6ee7f5f09414d5931492bb82d0ea969e24c52b939c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/BRIEF_RUNTIME_V1.json": "29d67f271a6ea09d3e48e89220267d04d5f1b3fe950b8aa3891d1caad72c18f1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/LOCAL_VALIDATION_V1.json": "a8d1bd83a1b2b4ba4c27bba1382676c53f3db40b880bceb45d906a44bd2334c6"
+  },
+  "old_snapshot_resolution": "Historical snapshot BRIEF_RUNTIME hash continues to bind original_brief decoded bytes in ORIGINAL_ENCODED.json; original snapshot is unchanged. Active portable successor is separately bound here.",
+  "no_substantive_authorization_change": true
+}

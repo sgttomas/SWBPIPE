@@ -1,0 +1,41 @@
+{
+  "recorded_at": "2026-09-05T14:40:58.909515+00:00",
+  "checks": [
+    {
+      "name": "path_anchors",
+      "command": [
+        "python3",
+        "tools/validation/validate_path_anchors.py",
+        "--json"
+      ],
+      "exit": 0,
+      "raw_base64": "ewogICJyZXBvX3Jvb3QiOiAiL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eSIsCiAgImNoZWNrZWRfZmlsZV9jb3VudCI6IDI3NTEsCiAgImZpbmRpbmdfY291bnQiOiAwLAogICJmaW5kaW5ncyI6IFtdLAogICJzZW1hbnRpY19pbnZhcmlhbnRzIjogewogICAgInVuYWNrbm93bGVkZ2VkX2NvbnRyb2wiOiAwLAogICAgImFjdGl2ZV91bmNsYXNzaWZpZWQiOiAwLAogICAgInBvbGljeV9pc3N1ZXMiOiAwLAogICAgImFja25vd2xlZGdlZF9jb250cm9sIjogMTQKICB9Cn0K",
+      "sha256": "47ccf72c116ac23a6e45c0a9eff8b5128e5530ec40857493af78cbe26be26a16"
+    },
+    {
+      "name": "live_gen8",
+      "command": [
+        "python3",
+        "-m",
+        "pytest",
+        "-p",
+        "no:cacheprovider",
+        "-q",
+        "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants"
+      ],
+      "exit": 0,
+      "raw_base64": "LiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFsxMDAlXQoxIHBhc3NlZCBpbiA3LjM2cwo=",
+      "sha256": "0ea46564572be532062a9b31f017465b07d2b0afdb0c951f4214f3479a8c5681"
+    },
+    {
+      "name": "candidate_whitespace",
+      "command": [
+        "python3",
+        "tools/validation/validate_candidate_whitespace.py"
+      ],
+      "exit": 0,
+      "raw_base64": "UEFTUzogY2FuZGlkYXRlIHdoaXRlc3BhY2UgaXMgY2xlYW4gKHVudHJhY2tlZCBiaW5hcnkvc3ltbGluayBwYXRocyBzYWZlbHkgc2tpcHBlZDogMCkuCg==",
+      "sha256": "a00b9a30eee336ab8c6a2d855b0b5a833e1b79252149de5fde8d43d3be032a09"
+    }
+  ]
+}

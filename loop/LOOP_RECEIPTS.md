@@ -3074,3 +3074,11 @@
   - Checks: manifest corpus/schema, exact named-tranche coverage, whitespace, receipt and protected source/configuration equality: PASS. Actual committed-range added-manifests-only validation remains required before push; hosted CI remains required before merge.
   - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS for bounded derivative manifest packaging and CHANGE for serialized closeout; actual available model and native enforcement calibration are preserved in the owning AgentRuns records.
   - Gate-Outcome: `EXECUTED` — parent accepted a minimal derivative manifest recording prior authority after hosted G4 exposed the missing packaging. Precommit added-manifests-only BLOCK is preserved as expected; no new policy, product/configuration change, owner ruling or lifecycle promotion. User-authorized ordinary publication remains conditional on committed-range validation; owner merges.
+
+- **2026-09-05 — Receipt 129** (N9 active-control portability repair).
+  - Receipt-ID: `Receipt-129`
+  - Examined-Through: `4117a3d047ddf3474255b9091f95cea71195d135`
+  - Parent-Receipt: `Receipt-128`
+  - Pointers: PR #715; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ACCEPTED_LOCAL_REPAIR.json` and `RELOCATION_MAP.json`; same run `instances/N8_CHANGE/G4_PORTABILITY_CLOSEOUT_V1.md`.
+  - Model-Attribution: HELP_HUMAN supervised HELPS_HUMANS for exact-byte evidence relocation and CHANGE for serialized final-tree validation/publication; actual attribution and native enforcement limitations remain in the owning records.
+  - Gate-Outcome: `EXECUTED` — parent accepted the evidence-only repair of two active control paths, preserving original bytes and all product/configuration/manifest hashes. All hosted-equivalent local gates on the final tree and committed-range G4 remain required before publication; hosted exact-head checks remain required before merge. No lifecycle, source or authority change; owner merges.

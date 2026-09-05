@@ -1,0 +1,30 @@
+{
+  "recorded_at": "2026-09-05T14:41:36.186836+00:00",
+  "status": "READY_FOR_PARENT_FAN_IN",
+  "scope": "Only two brief declared_reads normalized; original bytes preserved by exact encoded relocation",
+  "manifest_sha256_unchanged": "fb78c268d3967d31345e599f69a995ffe306a56234c93e8a9aa9ba4a3ef438d2",
+  "source111_unchanged": true,
+  "config3_unchanged": true,
+  "prior_snapshots_and_validation_unchanged": true,
+  "authorization_fields_unchanged": true,
+  "original_brief_sha256": "29d67f271a6ea09d3e48e89220267d04d5f1b3fe950b8aa3891d1caad72c18f1",
+  "active_brief_sha256": "7aad3721194b9ea0e099e8b32160cb5ce9e6c5bacf8319869d5c5a2814fa08b7",
+  "old_snapshot_binding": "Decode ORIGINAL_ENCODED.json original_brief for previous snapshot hash; RELOCATION_MAP.json binds active successor",
+  "checks": "Actual full live path-anchor scan: 2751 surfaces, zero findings; exact live GEN8 test: 1 PASS; candidate whitespace PASS",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/CHECKS_ENCODED.json",
+      "sha256": "b01450cf947e6c2446cf61070b90eac000b7c9c8d8b1c1fd6f8c397bd43f03e7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json",
+      "sha256": "ff03e9b20bcf72d01f8074949fab04714d78710bbd12ceb5f9ab509c574e11c9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/RELOCATION_MAP.json",
+      "sha256": "b9b987daa1c4ffd1eca2cec0fd45638ce9558a11edefa7cb56f3e912dd3097d3"
+    }
+  ],
+  "next_owner": "HELP_HUMAN then CHANGE scoped commit/push under existing authorization; exact new-commit hosted CI remains required",
+  "no_git_mutations_or_network": true
+}

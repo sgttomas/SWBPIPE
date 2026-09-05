@@ -21,8 +21,8 @@
     "tools/validation/validate_instruction_tranche_manifest.py",
     "docs/governance_harness/tranche_manifests/",
     "existing parent run evidence",
-    "/tmp/piping-ui-g4-manifest-plan.json",
-    "/tmp/piping-ui-pr715-g4-failed.log"
+    "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json#piping-ui-g4-manifest-plan.json",
+    "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N9_G4_MANIFEST/PORTABILITY_REPAIR_V1/ORIGINAL_ENCODED.json#piping-ui-pr715-g4-failed.log"
   ],
   "tools": [
     "read",
