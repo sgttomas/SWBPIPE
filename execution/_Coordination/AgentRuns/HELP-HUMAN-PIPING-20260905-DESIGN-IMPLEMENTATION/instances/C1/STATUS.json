@@ -1,8 +1,8 @@
 {
   "instance": "C1",
   "runtime_id": "/root/implementation_coordination",
-  "model": "unavailable",
   "role": "bounded Agent 2 recorder",
-  "status": "frozen repair precommit inputs; NO WRITES until C2 new source commit and terminal full sweep",
+  "model": "unavailable",
+  "status": "final evidence-only technical closure recorded; all writes frozen for C2 publication",
   "enforcement": "instruction+config asserted; not mechanism-proven"
 }

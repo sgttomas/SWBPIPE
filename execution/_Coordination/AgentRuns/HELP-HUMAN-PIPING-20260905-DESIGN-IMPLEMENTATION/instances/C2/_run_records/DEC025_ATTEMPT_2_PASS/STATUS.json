@@ -1,0 +1,65 @@
+{
+  "status": "PASS_COMPLETE_CLEAN_FIVE_SURFACE_SWEEP",
+  "source_commit": "725a2f00f41a4d26de484764a9cc0968268c68cf",
+  "canonical_summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260905T205748Z_725a2f00f41a.json",
+  "summary_sha256": "dbf3d94916f7dab752edfd43e1d0559d4e275fcf18ab56972f2d28bd3fcbb856",
+  "schema_validation_errors": [],
+  "complete_sweep": true,
+  "clean_start": {
+    "commit_hash": "725a2f00f41a4d26de484764a9cc0968268c68cf",
+    "branch": "codex/piping-modeling-workspace",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "duration_seconds": 450.078,
+  "surfaces": [
+    {
+      "id": "cargo_crate_sweep",
+      "status": "pass",
+      "command_exit_codes": [
+        0
+      ]
+    },
+    {
+      "id": "python_pytest",
+      "status": "pass",
+      "command_exit_codes": [
+        0
+      ]
+    },
+    {
+      "id": "desktop_vitest",
+      "status": "pass",
+      "command_exit_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "desktop_playwright_e2e",
+      "status": "pass",
+      "command_exit_codes": [
+        0,
+        0
+      ]
+    },
+    {
+      "id": "desktop_production_build",
+      "status": "pass",
+      "command_exit_codes": [
+        0
+      ]
+    }
+  ],
+  "observed_counts": {
+    "python": 1011,
+    "vitest": 748,
+    "vitest_files": 45,
+    "source_playwright": 28,
+    "dist_playwright": 3
+  },
+  "execution": "Exact released command with venv Python on PATH, CARGO_NET_OFFLINE=true, PLAYWRIGHT_WORKERS=1; registered trace settings unchanged; exact host escalation; no selected or dirty-output flags.",
+  "prior_attempt": "Preserved FAILED_INTERRUPTED; this fresh full attempt supplies the current passing gate.",
+  "publication": "Not yet authorized by this return; await parent acceptance and evidence-only closeout release."
+}

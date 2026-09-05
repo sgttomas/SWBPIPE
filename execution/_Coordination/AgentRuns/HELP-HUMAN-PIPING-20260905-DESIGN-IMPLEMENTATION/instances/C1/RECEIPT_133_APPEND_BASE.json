@@ -1,0 +1,7 @@
+{
+  "prior_length_bytes": 249556,
+  "prior_sha256": "bc6eaeb90204d125496fe2f8cf2c532af1d9d05d489dd8feb3badc4a2a42ccf0",
+  "receipt_tail_bytes": 1978,
+  "receipt_tail_sha256": "4abc04edf6280f5b05401ad314a9c41edc49aa4817342fb514b9073dd53d2014",
+  "scope": "Append Receipt133 only; prior bytes preserved"
+}

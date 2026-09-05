@@ -1,0 +1,3 @@
+# Final technical fan-in acceptance
+
+Root accepts source-bound complete clean DEC-025 PASS together with previously accepted W7/W2/A2/N1/I2 bounded evidence. See dispositions/ACCEPT_COMPLETE_CLEAN_DEC025_V2.json and HANDOFF_STATE.md for exact fingerprints and limits. This closes only the first implementation tranche technically, with whole-plan and owner holds preserved. The swept source is 725a2f00f41a4d26de484764a9cc0968268c68cf; future evidence-container commits are not claimed swept. C2 performs final metadata/committed-range/upstream/publication checks separately. All reviewed source and original inputs are frozen. Prior precommit snapshots and failures remain immutable.

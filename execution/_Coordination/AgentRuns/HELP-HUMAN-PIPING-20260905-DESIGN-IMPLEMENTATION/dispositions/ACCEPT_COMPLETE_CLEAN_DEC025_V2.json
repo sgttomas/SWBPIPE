@@ -1,0 +1,28 @@
+{
+  "id": "ACCEPT_COMPLETE_CLEAN_DEC025_V2",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept source-bound complete clean registered DEC-025 PASS",
+  "swept_source_commit": "725a2f00f41a4d26de484764a9cc0968268c68cf",
+  "summary_path": "{WORKING_ROOT}/validation/evidence/sweeps/SWEEP_20260905T205748Z_725a2f00f41a.json",
+  "summary_sha256": "dbf3d94916f7dab752edfd43e1d0559d4e275fcf18ab56972f2d28bd3fcbb856",
+  "pass_packet": "instances/C2/_run_records/DEC025_ATTEMPT_2_PASS/MANIFEST.json",
+  "pass_manifest_sha256": "e667b4472b7535418fb209cd2451852e0330568e97a82eb8d53ee9ebd35048e3",
+  "root_verification": "Root read canonical complete clean summary and RETURN, verified manifest and all 5 members; all five statuses and commands PASS; clean whole-repository start",
+  "source_integrity": {
+    "reviewed_paths": 19,
+    "mapping_sha256": "218d841d4ea32f3a87b38b52716c79726590aa764cc09672a89a85951becc8f5",
+    "prior_inputs_unchanged": 77
+  },
+  "fan_in": "Includes previously accepted W7 final/local-state, W2 repair, A2 repaired witness, fresh N1 build V2 and I2 review",
+  "preservation": "All prior failed/interrupted attempts and accepted decomp0.12/SCA009/DAG010 basis retained",
+  "closure_limit": "First bounded tranche technical closure only; no lifecycle/scope/client-hold/engineering promotion",
+  "publication": "Forthcoming evidence-only commit must preserve all 19 reviewed paths and 77 prior inputs; its distinct SHA is not represented as swept",
+  "invalidation": "No new review necessary unless source/configuration changes",
+  "remaining": [
+    "Final evidence-only staging/metadata/committed-range checks",
+    "Upstream verification and scoped publication",
+    "Remaining plan and owner-held decisions"
+  ]
+}

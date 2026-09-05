@@ -1,0 +1,13 @@
+{
+  "status": "immutable complete clean sweep evidence",
+  "created_at": "2026-09-05T21:06:51.579584+00:00",
+  "source_commit": "725a2f00f41a4d26de484764a9cc0968268c68cf",
+  "summary_sha256": "dbf3d94916f7dab752edfd43e1d0559d4e275fcf18ab56972f2d28bd3fcbb856",
+  "files": {
+    "CONSOLE_BYTES.json": "c488895c478f20d67c72e52910f1c70e01a8c96538c3dd0fd12b4c12cf5790b9",
+    "PRECOMMIT_CHECK_BYTES.json": "7956822468f5ae17601b36c3fa4ead2d318f8395bedf344d7dd146cd045232f1",
+    "RETURN.md": "640217d69a9bdcb3fadc41b99b803cba7c5e73e269d82e1d91d7091b83682f20",
+    "SOURCE_EQUALITY.json": "b59fde176c0b5613a1653e578f0228add9ee7d3310ab9b6673fd892876d49474",
+    "STATUS.json": "c9bf73f75d50288dddf2c4f099cef123fbd2bc361eecdd242e3730ed8c7477c8"
+  }
+}
