@@ -1,0 +1,29 @@
+# P5 read-only schema compatibility diagnosis
+
+Verdict: the new station basis is outside the accepted canonical metadata vocabulary. The Python failures must not be disposed merely as stale literals. No repository file, schema, source or test was edited; all evidence here is /tmp-only. No build or app interaction ran.
+
+## Boundary trace
+
+Product ResultMetadata.basis is String (core/product_physics/src/lib.rs:698–704), so the preview DTO itself accepts freeform text. Canonical schemas/results.schema.yaml ResultMetadata requires component, coordinate_system, location, basis, sign_convention, disallows other properties, and closes basis to an enum at623–637. New straight_section_equilibrium_with_consistent_distributed_loads is absent.
+
+Headless result_envelope_binding.rs maps the changed station force/moment/stress kinds to QuantityResult families (87–107). metadata_gate_complete139–149 checks only nonempty/non-TBD, not enum membership; export_metadata216–222 copies all fields verbatim; values408–421 carries that metadata into the canonical document. result_export::ResultMetadata/is_complete also checks only nonempty/non-TBD (221–236), and metadata_json560–568 serializes verbatim. Existing typed structural checks therefore do not establish JSON Schema validity.
+
+Actual F2 headless_uniform.stdout was read without rerunning CLI. Its mechanics_envelope contains30 new-basis station rows (18 force/moment,12 stress); each fails Draft202012Validator on the canonical ResultMetadata definition solely for basis. ACTUAL_F2_OUTPUT_CHECK.json binds stdout SHA and detailed errors. Crucial limitation: F2 provisional stdout DOES NOT serialize canonical result_envelope_document: lib674–682 marks it library-only with serde(skip_serializing). Thus the actual serialized witness is preview metadata plus code-traced canonical producer propagation; do not claim this stdout contains an inline canonical document. The canonical library producer nevertheless constructs a schema-first document with the invalid metadata and its custom validators accept it.
+
+## Recommended compatible repair
+
+Use the existing broad recovered_from_local_element_stiffness category for straight station force/moment rows, and recovered_from_open_mechanics_stress_components for station stresses. Keep precise section-equilibrium and consistent-distributed-load recovery description in existing freeform sign_convention text alongside the sign/frame convention. Preserve all fields and numerical values; no schema enum addition or public field adoption.
+
+Why the force category is defensible: accepted baseline2be already computes end actions with recover_local_forces_from_global_model then corrected_local_forces_for_axial_effects (thermal/pressure corrections), and labels those outputs recovered_from_local_element_stiffness. The existing category is therefore a broad recovery-source category, not an assertion of bare Kd with no load correction. New sections are evaluated from those stiffness-recovered corrected end actions and explicit loads. The freeform convention must explicitly disclose this second equilibrium step, so the category is not presented as a precise algorithm description. Station stress category directly names its unchanged mechanical-stress-component derivation.
+
+Do not restore interpolated_from_endpoint_resultants: it is now false. assembled_solver_load_vector describes applied loads, not recovered internal actions. stress_recovery_summary is unsuitable for individual force/stress components. TBD would lose truthful recovery detail and cause the existing mandatory metadata gate to omit force/moment rows. None is a preferable compatibility fix.
+
+Root may select this internal categorization without D05 adoption because it reuses accepted fields/enums and retains descriptive detail. If root determines the existing force category is contractually restricted to bare endpoint stiffness recovery despite precedent, the honest alternative is an explicit additive canonical enum decision under D05; do not silently extend the schema.
+
+## Verification and residual scope
+
+Update obsolete assertions only after repairing vocabulary. Validate complete ResultMetadata for every changed straight station family, including fixture and generated library canonical document, rather than merely asserting the new hardcoded string. Separately assert sign convention accurately declares equilibrium, loading and cut side. Keep independent numerical tests and verify metadata-only change leaves numerical values unchanged. Regenerate fixture, freshly review changed producer/test/export paths and rerun source-bound required gates after F2 frozen checkpoint closes.
+
+There is a pre-existing wider preview-to-canonical gap: current preview fixture has594 metadata-field enum violations if all rows are checked,252 caused by new station basis; original2be fixture has342. These are NOT equivalent to exported invalid-row counts because adapter omits some kinds. However mapped nodal/nonlinear/component rows also carry noncanonical metadata, so fixing R11 alone does not prove whole-document conformance. Preserve this as a separate confirmed validation-gap concern and determine actual library-document coverage before any all-schema-valid claim. An adapter repair could validate canonical metadata and use the established explicit vocabulary-boundary disclosure path for unrepresentable content, but dropping previously exported invalid metadata/rows needs an explicit bounded integration decision; it is not authorized by this diagnosis. No new schema vocabulary should be adopted merely to absorb all preview freeform fields.
+
+Review gap acknowledged: P5 prior fresh review checked existing field preservation but missed closed canonical enum propagation. Its PASS remains historical evidence for its frozen candidate; this new finding reopens compatibility closure.

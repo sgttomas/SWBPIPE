@@ -426,7 +426,7 @@ def main():
     assert axial_midspan_metadata["component"] == "axial_force"
     assert axial_midspan_metadata["coordinate_system"] == "element_local"
     assert axial_midspan_metadata["location"] == "midspan"
-    assert axial_midspan_metadata["basis"] == "interpolated_from_endpoint_resultants"
+    assert axial_midspan_metadata["basis"] == "recovered_from_local_element_stiffness"
     assert shear_force_end_i["unit"] == "N"
     assert shear_force_end_i["metadata"]["component"] == "shear_force_y"
     assert shear_force_end_i["metadata"]["location"] == "end_i"
@@ -434,7 +434,7 @@ def main():
     assert shear_force_quarter["unit"] == "N"
     assert shear_force_quarter["metadata"]["component"] == "shear_force_z"
     assert shear_force_quarter["metadata"]["location"] == "quarter_1"
-    assert shear_force_quarter["metadata"]["basis"] == "interpolated_from_endpoint_resultants"
+    assert shear_force_quarter["metadata"]["basis"] == "recovered_from_local_element_stiffness"
     assert stress_summary["kind"] == "open_formula_stress_summary"
     assert "metadata" not in stress_summary
     assert torsional_stress_end_j["unit"] == "MPa"
@@ -451,7 +451,7 @@ def main():
     assert torsional_stress_midspan["metadata"]["location"] == "midspan"
     assert (
         torsional_stress_midspan["metadata"]["basis"]
-        == "interpolated_from_endpoint_resultants"
+        == "recovered_from_open_mechanics_stress_components"
     )
     assert pressure_hoop["unit"] == "MPa"
     assert pressure_hoop["metadata"]["component"] == "pressure_hoop_stress"
@@ -653,6 +653,57 @@ def test_result_trace_link_field_scalar_paths_are_paired():
         assert "target_field_path" in str(exc)
     else:
         raise AssertionError("unpaired result field-scalar trace path must be rejected")
+
+
+def test_preview_station_metadata_matches_complete_canonical_contract():
+    # This validates station metadata only, not the whole preview result envelope.
+    schema = load_schema(SCHEMA_PATH)
+    metadata_schema = schema_for_definition(schema, "ResultMetadata")
+    locations = {"quarter_1", "midspan", "quarter_3"}
+    force_moment = {
+        "axial_force", "shear_force_y", "shear_force_z",
+        "torsional_moment", "bending_moment_y", "bending_moment_z",
+    }
+    stress = {
+        "axial_normal_stress", "bending_normal_stress_y",
+        "bending_normal_stress_z", "torsional_shear_stress", "pressure_hoop_stress",
+    }
+    rows = [
+        row for row in load_product_preview_result()["results"]
+        if row.get("basis_ref", {}).get("ref_type") == "load_case"
+        and row.get("metadata", {}).get("location") in locations
+    ]
+    assert rows
+    seen = set()
+    for row in rows:
+        metadata = row["metadata"]
+        component = metadata["component"]
+        assert component in force_moment | stress, row["id"]
+        seen.add((component, metadata["location"]))
+        assert metadata["coordinate_system"] == (
+            "pipe_section" if component == "pressure_hoop_stress" else "element_local"
+        ), row["id"]
+        assert metadata["basis"] == (
+            "recovered_from_local_element_stiffness" if component in force_moment
+            else "recovered_from_open_mechanics_stress_components"
+        ), row["id"]
+        assert "section equilibrium" in metadata["sign_convention"], row["id"]
+        assert "consistent distributed-load fixed-end correction" in metadata["sign_convention"], row["id"]
+    assert seen == {(component, location) for component in force_moment | stress for location in locations}
+    # Validate all five fields, requiredness and closed enums/extra fields together.
+    collection_schema = {
+        "$schema": metadata_schema["$schema"], "$defs": metadata_schema["$defs"],
+        "type": "array", "items": {"$ref": "#/$defs/ResultMetadata"},
+    }
+    assert validate_instance(collection_schema, [row["metadata"] for row in rows])
+    invalid = deepcopy(rows[0]["metadata"])
+    invalid["basis"] = "straight_section_equilibrium_with_consistent_distributed_loads"
+    try:
+        validate_instance(metadata_schema, invalid)
+    except AssertionError as exc:
+        assert "basis" in str(exc)
+    else:
+        raise AssertionError("station metadata must reject undeclared recovery basis tokens")
 
 
 if __name__ == "__main__":

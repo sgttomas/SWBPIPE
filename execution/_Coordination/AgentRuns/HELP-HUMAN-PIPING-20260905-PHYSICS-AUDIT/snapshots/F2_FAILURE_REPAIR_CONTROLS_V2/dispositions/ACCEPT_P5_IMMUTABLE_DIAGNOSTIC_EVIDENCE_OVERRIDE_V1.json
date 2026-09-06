@@ -1,0 +1,10 @@
+{
+  "record_kind": "Semantic transcription of explicit root acceptance",
+  "target": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/diagnosis_snapshot/ACTUAL_F2_OUTPUT_CHECK.json",
+  "sha256": "24a2942ef162f3c4876668186b83496056ba0f755b03724f6f55c223423fcfaa",
+  "upstream_diagnosis_manifest_sha256": "e59d1312a05b38b90f1e0d546a15f1b0ad297ceeefbc5fa8befb3a7143bb3c2c",
+  "root_verification": "Root inspected diagnostic JSON, verified exact target hash and original immutable diagnosis binding.",
+  "semantic_basis": "Observed stdout inspection and validation results with historical input location, not executable instructions.",
+  "scope": "One exact historical_role_override EVIDENCE using existing parser eligibility; preserve target and original 17 CONTROL additions. No broader waiver or policy meaning change.",
+  "eligibility": "C1 independently verified active structurally UNCLASSIFIED target, exact hash and machine-path presence through existing parser."
+}

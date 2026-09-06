@@ -1,0 +1,15 @@
+{
+  "logical_manifest": "MANIFEST.json",
+  "logical_manifest_sha256": "3fc67be3aa81585a58986f55ecb090527f64220ee3dda20ced538cd156eb9058",
+  "logical_member_count": 30,
+  "replacements": [
+    {
+      "logical_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/FROZEN_DIFF.patch",
+      "physical_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/FROZEN_DIFF.patch.transport.json",
+      "encoding": "base64",
+      "data_field": "data",
+      "sha256": "9ae09dc01981a436d226b93211d92c6f3331274c15dd4b8c306e609fc90bd099",
+      "bytes": 188092
+    }
+  ]
+}

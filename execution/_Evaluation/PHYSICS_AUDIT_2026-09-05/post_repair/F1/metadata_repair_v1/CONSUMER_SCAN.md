@@ -1,0 +1,9 @@
+# Read-only remaining consumer scan
+
+One additional likely affected assertion outside current write scope: apps/desktop/e2e/r2-smoke.spec.ts:589 expects deformation maximum4.567557mm after the bundled mechanics preview. The exact old/new fixture rows identify combination C-OPER-ALT / node N-140 maximum4.567557→4.927109mm, under the previously verified viewport magnitude-selection rule. This is a stale fixture display assertion; requires root scope amendment before edit. No E2E test has been run or claimed passing.
+
+Searched tests/**/*.py, desktop/e2e and desktop/src test/spec files for all changed old fixture numeric literals with at least3 fractional digits; complete hits in READ_ONLY_CONSUMER_NUMERIC_SCAN.json. Only the two already-scoped Python friction literals and this E2E maximum matched. Also searched old/new recovery-basis tokens and known old diagnostic/comparison counts. Already-scoped Python station tests and App two basis assertions are expected to need metadata repair. test_results_schema.py:324 asserts that the historical interpolated enum remains allowed; preserve that schema-contract assertion (only individual fixture metadata expectations change).
+
+Read gui-workflow-validation.spec.ts fixture setup: it reads the result fixture dynamically and uses status/row shape; no same stale literal found. test_analysis_run_records.py binds dynamic fixture IDs/hashes and structural assertions; no identified stale scalar. Existing canonical TP-PHYS015 fixtures/tests are different immutable fixtures and are not regeneration targets.
+
+This bounded scan is static impact detection, not exhaustive runtime verification. No producer-dependent or other product file writes occurred. Metadata producer release remains held. Proposed E2E literal-only adaptation can be covered by its registered owning sweep after source freeze.

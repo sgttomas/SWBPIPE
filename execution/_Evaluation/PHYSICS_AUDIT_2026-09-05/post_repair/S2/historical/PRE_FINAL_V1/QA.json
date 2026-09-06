@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "baseline_entries": 44,
+  "disposition_entries": 44,
+  "all_ids_exactly_once": true,
+  "source_crosswalk_preserved": true,
+  "after_evidence_paths_exist": true,
+  "requirement_hashes_match": true,
+  "no_new_experiments": true,
+  "writes": "S2 audit and instance only",
+  "closure": "PRE_FINAL_GLOBAL_GATES_OPEN"
+}

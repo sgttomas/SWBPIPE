@@ -1,0 +1,64 @@
+{
+  "status": "Frozen C1 control and policy-review handoff; bounded checks passed, fresh F3 and global source verification pending",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/WORK_GRAPH.json",
+      "sha256": "ea2f2efb1c764afaa7fa2e4f4fe4b1931a48128c54f0e0baf43f34030466193c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/HANDOFF_STATE.md",
+      "sha256": "187dbd466d7260bdd1c5e2668e4b7b3bf97f1c28d13b1090b30f19db3b02353a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/briefs/F2_FINAL_VERIFICATION_V2.md",
+      "sha256": "5574f7e3f162199938c6efe7ca21b581332b8e7a81856b34117e4c3c26982be2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/dispositions/ACCEPT_F2_FAILURE_AND_AMEND_BOUNDED_REPAIRS_V1.json",
+      "sha256": "eb99122aaa4c3e16e548fca32c1e21d0e11343c8b2d01483a37685e5e61a94fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+      "sha256": "137c0dcf4919b9882e6b1690b6d5b0c1585716dbca1724d32964474d80e71dc0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json",
+      "sha256": "ba6e55464f4f37fdcccabcc493f06020e835262210bdc339e2bc433def68d692"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/dispositions/ACCEPT_P5_IMMUTABLE_DIAGNOSTIC_EVIDENCE_OVERRIDE_V1.json",
+      "sha256": "46a3a38d3523070f29306dd159297f18463accedd46469b68908b3519a24ad12"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/instances/C1/POLICY_FINAL_REVIEW_HANDOFF_V2.json",
+      "sha256": "a7ee63af8c3eba1671a0a2df6ce740780cba5034ccd412f27ea3c8b908322f08"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V2/instances/C1/PORTABILITY_CHECK_RETURN_V2.json",
+      "sha256": "ceef6275a69296e55c6d06cc494750bccce6f4c98859f66f338699e879ebd3f8"
+    }
+  ],
+  "external_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/PORTABILITY_REPAIR_V2/harness_pytest.json",
+      "sha256": "52232568599506c0e5ed724177aaa5a732940bcecf96338350babbd21809e053"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/PORTABILITY_REPAIR_V2/path_anchors.json",
+      "sha256": "1d9f6a5e2edb320de83861f0e41497b6af1cb71f1c625fff051ece0009fc02b2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/PORTABILITY_REPAIR_V2/harness_selfcheck.json",
+      "sha256": "9e8a4cd90a323fc0b9de0d8c4a0e45197322fd4d597cc7a66b73ca461c26cabd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/POLICY_FINAL_DIFF_V2.json",
+      "sha256": "926b3dd60e0ad0d6feef9a9d31e034ba518445c08e973938db50eab16d8c1c67"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/native_helper_review/MANIFEST.json",
+      "sha256": "76d49ed9956035fd462ec806e4ee9b6fc58d60ad9ea21e9bbf4591d61934c3ca"
+    }
+  ],
+  "policy_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d"
+}

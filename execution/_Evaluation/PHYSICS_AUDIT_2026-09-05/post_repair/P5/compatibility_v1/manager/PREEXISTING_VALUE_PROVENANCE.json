@@ -1,0 +1,22 @@
+{
+  "baseline": "0ab12975fb3162545c4f8d31060f279affd2402d",
+  "fixture_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+  "scope": "field-value provenance, not proof identical scenario row counts existed",
+  "checks": {
+    "linear": {
+      "violations": 158,
+      "invalid_field_values_present_in_precompat_fixture": 158,
+      "other_values": []
+    },
+    "nonlinear": {
+      "violations": 210,
+      "invalid_field_values_present_in_precompat_fixture": 210,
+      "other_values": []
+    },
+    "zero_pressure": {
+      "violations": 150,
+      "invalid_field_values_present_in_precompat_fixture": 150,
+      "other_values": []
+    }
+  }
+}

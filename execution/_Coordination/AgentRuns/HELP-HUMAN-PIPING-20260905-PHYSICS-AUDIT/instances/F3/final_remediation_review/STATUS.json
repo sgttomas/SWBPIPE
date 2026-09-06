@@ -1,0 +1,9 @@
+{
+  "verdict": "PASS",
+  "findings": [],
+  "root_acceptance": "Bounded F1 and C1 repairs accepted",
+  "reviewer": "/root/fixture_review",
+  "attribution": "Parent-relayed semantic transcription",
+  "model": "unexposed",
+  "transport_only_supplement": "pending"
+}

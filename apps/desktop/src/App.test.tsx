@@ -11645,7 +11645,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("midspan");
     expect(
       within(detail).getByTestId("selected-result-recovery-basis").textContent,
-    ).toContain("straight_section_equilibrium_with_consistent_distributed_loads");
+    ).toContain("recovered_from_local_element_stiffness");
     expect(
       within(detail).queryByTestId("endpoint-pair-table"),
     ).not.toBeInTheDocument();
@@ -11666,7 +11666,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("quarter_1");
     expect(
       within(detail).getByTestId("selected-result-recovery-basis").textContent,
-    ).toContain("straight_section_equilibrium_with_consistent_distributed_loads");
+    ).toContain("recovered_from_local_element_stiffness");
     expect(
       within(detail).queryByTestId("endpoint-pair-table"),
     ).not.toBeInTheDocument();

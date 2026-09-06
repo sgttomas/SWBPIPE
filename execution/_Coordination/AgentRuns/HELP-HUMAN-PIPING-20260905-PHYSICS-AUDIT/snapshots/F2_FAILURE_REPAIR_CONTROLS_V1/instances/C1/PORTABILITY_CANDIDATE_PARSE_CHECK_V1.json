@@ -1,0 +1,6 @@
+{
+  "candidate_sha256": "9f82588e8901fd29de51b2c361ae63a9263f7799a7f92830384ee4ae8a381f7e",
+  "entries_accepted": 16,
+  "issues": [],
+  "mode": "in-memory candidate syntax/hash validation only; no policy write and no approval inferred"
+}

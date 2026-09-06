@@ -880,6 +880,167 @@ mod tests {
     }
 
     #[test]
+    fn straight_station_library_document_metadata_uses_canonical_schema_categories() {
+        // Test the real library-only canonical document, not the preview DTO or
+        // CLI serialization (which deliberately omits this document).
+        let schema: Value =
+            serde_json::from_str(include_str!("../../../../schemas/results.schema.yaml"))
+                .expect("canonical schema uses strict JSON syntax");
+        let definition = &schema["$defs"]["ResultMetadata"];
+        let required = definition["required"].as_array().unwrap();
+        let properties = definition["properties"].as_object().unwrap();
+        assert_eq!(definition["additionalProperties"], false);
+        let mut zero_pressure = linear_only_preview_request();
+        for case in &mut zero_pressure.model.load_cases {
+            for load in &mut case.primitive_loads {
+                if load.dimension == "pressure" {
+                    load.magnitude.value = 0.0;
+                }
+            }
+        }
+        for (label, preview) in [
+            ("linear", linear_only_preview_request()),
+            ("nonlinear", nonlinear_bearing_preview_request()),
+            ("zero_pressure", zero_pressure),
+        ] {
+            let output = run_preview_in_memory(request(), preview);
+            let mechanics = output.mechanics_envelope.as_ref().expect("mechanics");
+            assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
+            let document = output
+                .result_envelope_document
+                .as_ref()
+                .expect("actual canonical document");
+            let values = envelope_object(document)["result_sets"][0]["values"]
+                .as_array()
+                .unwrap();
+            let mut primitive_components = std::collections::BTreeSet::new();
+            let mut combinations = 0;
+            for row in &mechanics.results {
+                let Some(metadata) = &row.metadata else {
+                    continue;
+                };
+                if !matches!(
+                    metadata.location.as_str(),
+                    "quarter_1" | "midspan" | "quarter_3"
+                ) || !matches!(
+                    metadata.coordinate_system.as_str(),
+                    "element_local" | "pipe_section"
+                ) {
+                    continue;
+                }
+                let canonical = values.iter().find(|value| value["result_id"].as_str() == Some(row.id.as_str()));
+                let preview_metadata = serde_json::to_value(metadata).unwrap();
+                let actual_metadata = if let Some(canonical) = canonical {
+                    &canonical["metadata"]
+                } else {
+                    // Existing export mapping omits longitudinal pressure stress.
+                    // Preserve and test its explicit disclosure; do not invent a
+                    // mapping to make this bounded metadata test pass.
+                    assert_eq!(row.kind, "pipe_section_pressure_longitudinal_stress");
+                    assert!(mapped_family_dimension(&row.kind, &row.unit).is_none());
+                    assert!(diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE).iter().any(|diagnostic| {
+                        diagnostic["message"].as_str().is_some_and(|message| message.contains(&format!("id={} ", row.id)))
+                    }));
+                    &preview_metadata
+                };
+                let actual = actual_metadata.as_object().expect("station metadata object");
+                for key in required {
+                    let key = key.as_str().unwrap();
+                    assert!(
+                        actual
+                            .get(key)
+                            .and_then(Value::as_str)
+                            .is_some_and(|value| !value.is_empty()),
+                        "{} missing {key}",
+                        row.id
+                    );
+                }
+                for (key, value) in actual {
+                    let rule = properties
+                        .get(key)
+                        .unwrap_or_else(|| panic!("unexpected metadata key {key}"));
+                    assert!(value.is_string(), "{}: {key} must be a string", row.id);
+                    if let Some(allowed) = rule.get("enum") {
+                        assert!(
+                            allowed.as_array().unwrap().contains(value),
+                            "{}: {key}={value} is outside canonical schema",
+                            row.id
+                        );
+                    }
+                }
+                if row
+                    .basis_ref
+                    .as_ref()
+                    .is_some_and(|basis| basis.ref_type == "combination")
+                {
+                    combinations += 1;
+                    assert_eq!(actual["basis"], "explicit_user_linear_combination");
+                    assert!(actual["sign_convention"]
+                        .as_str()
+                        .unwrap()
+                        .contains("explicit user linear combination"));
+                } else {
+                    primitive_components.insert(metadata.component.as_str());
+                    let stress = row.kind.contains("stress");
+                    assert_eq!(
+                        actual["basis"],
+                        if stress {
+                            "recovered_from_open_mechanics_stress_components"
+                        } else {
+                            "recovered_from_local_element_stiffness"
+                        }
+                    );
+                    let convention = actual["sign_convention"].as_str().unwrap();
+                    for detail in [
+                        "j-side section action",
+                        "element-local frame",
+                        "section equilibrium",
+                        "stiffness-recovered end actions",
+                        "consistent distributed-load fixed-end correction",
+                    ] {
+                        assert!(
+                            convention.contains(detail),
+                            "{} lacks {detail}: {convention}",
+                            row.id
+                        );
+                    }
+                    assert!(!convention.contains("interpolated"));
+                }
+            }
+            for component in [
+                "axial_force",
+                "shear_force_y",
+                "shear_force_z",
+                "torsional_moment",
+                "bending_moment_y",
+                "bending_moment_z",
+                "axial_normal_stress",
+                "bending_normal_stress_y",
+                "bending_normal_stress_z",
+                "torsional_shear_stress",
+                "pressure_hoop_stress",
+            ] {
+                assert!(
+                    primitive_components.contains(component),
+                    "missing exercised family {component}"
+                );
+            }
+            if label == "zero_pressure" {
+                assert!(primitive_components.contains("pressure_longitudinal_stress"));
+            }
+            assert!(combinations > 0);
+            // Optional test-only evidence export. Normal tests write nothing;
+            // the audit invocation supplies its explicitly bounded artifact dir.
+            if let Some(directory) = std::env::var_os("PIPING_P5_SCHEMA_WITNESS_DIR") {
+                let path = std::path::PathBuf::from(directory)
+                    .join(format!("{label}_canonical_document.json"));
+                std::fs::write(path, serde_json::to_vec_pretty(document).unwrap())
+                    .expect("write requested canonical evidence");
+            }
+        }
+    }
+
+    #[test]
     fn preview_runner_output_serialization_excludes_envelope_document() {
         let output = run_preview_in_memory(request(), nonlinear_bearing_preview_request());
         assert!(output.result_envelope_document.is_some());

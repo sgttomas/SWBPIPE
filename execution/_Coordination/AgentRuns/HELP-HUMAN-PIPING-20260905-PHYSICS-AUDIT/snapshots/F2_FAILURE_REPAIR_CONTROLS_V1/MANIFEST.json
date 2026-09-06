@@ -1,0 +1,46 @@
+{
+  "status": "Frozen C1 controls and review handoff; remaining independent P5 portability finding open",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/WORK_GRAPH.json",
+      "sha256": "3dc20bfa8fcaac9e6b67beb96dba48082f0957b183d382a833139cf91b162fa9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/HANDOFF_STATE.md",
+      "sha256": "b4123a2a4940134ce911743caeb206e134693dc74aaa108c021df7773a330df2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/briefs/F2_FINAL_VERIFICATION_V2.md",
+      "sha256": "5574f7e3f162199938c6efe7ca21b581332b8e7a81856b34117e4c3c26982be2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/dispositions/ACCEPT_F2_FAILURE_AND_AMEND_BOUNDED_REPAIRS_V1.json",
+      "sha256": "eb99122aaa4c3e16e548fca32c1e21d0e11343c8b2d01483a37685e5e61a94fc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+      "sha256": "137c0dcf4919b9882e6b1690b6d5b0c1585716dbca1724d32964474d80e71dc0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json",
+      "sha256": "ba6e55464f4f37fdcccabcc493f06020e835262210bdc339e2bc433def68d692"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/instances/C1/PORTABILITY_EXCEPTION_CANDIDATE_V1.json",
+      "sha256": "9f82588e8901fd29de51b2c361ae63a9263f7799a7f92830384ee4ae8a381f7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/instances/C1/PORTABILITY_CANDIDATE_PARSE_CHECK_V1.json",
+      "sha256": "3a03d77047c5831d793d26ea9d374c3a7dc39616a7b84cfa3fa63b1889d9e67e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/instances/C1/POLICY_FINAL_REVIEW_HANDOFF_V1.json",
+      "sha256": "6f9b420b30e3f420339949c10afb1209b4dc8db4f5c8526198910a3790975290"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_FAILURE_REPAIR_CONTROLS_V1/instances/C1/PORTABILITY_CHECK_RETURN_V1.json",
+      "sha256": "6184ef51de5fa2fcac06a10edf7d8db0cf3c29fd1531292fa5e669266a213232"
+    }
+  ],
+  "policy_sha256": "d16eb3e35bacb7f27f66659dea8e14e42411f8fd01edccbd645374b36a33d031"
+}

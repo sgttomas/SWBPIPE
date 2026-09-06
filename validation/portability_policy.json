@@ -113,6 +113,14 @@
       "role": "EVIDENCE",
       "reason": "Immutable completed W2 implementation execution return preserves actual resolved runtime paths and commands; historical execution evidence, not live executable direction.",
       "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_W2_EXECUTION_RETURN_CLASSIFICATION.json (SHA-256 f5477a0a21e3496f971936280e20d099dad706a8ef603b868fcf79ff3dfa666c)."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/diagnosis_snapshot/ACTUAL_F2_OUTPUT_CHECK.json",
+      "sha256": "24a2942ef162f3c4876668186b83496056ba0f755b03724f6f55c223423fcfaa",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed P5 diagnosis records observed F2 stdout inspection and canonical metadata validation, including the historical input evidence location; it contains results, not executable direction.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_P5_IMMUTABLE_DIAGNOSTIC_EVIDENCE_OVERRIDE_V1.json"
     }
   ],
   "control_path_exceptions": [
@@ -227,6 +235,142 @@
       "role": "CONTROL",
       "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
       "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/briefs/F2_FINAL_VERIFICATION_V1.md",
+      "sha256": "7f821d14d64bc91ea5125035f9936207727dfd9e1c18ef5cfdb66a4da80f95da",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable F2 original prepared brief preserves completed failed-verification instructions; portable F2_FINAL_VERIFICATION_V2.md supersedes it for any future root-released rerun.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json",
+      "sha256": "7b24e4bd77e99abf2f418fedd2a244fb9b4529d8bfd6022624d61ddc15953f27",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed E1 CSV transport-repair control preserves the original temporary evidence reference; E1 and fresh packaging review are accepted and this control authorizes no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/E1/BRIEF.md",
+      "sha256": "f76d79221d46a2e30b8cab0a84ec6c5afe147b8a474ad3312641bfa128fb807c",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed E1 CSV transport-repair control preserves the original temporary evidence reference; E1 and fresh packaging review are accepted and this control authorizes no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_A_BRIEF_V1.md",
+      "sha256": "70dfc5096a511f5e8ee7f148b1c23b2366e725ff3e86c1ead23771ba3beee3bd",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed P9 author/reviewer brief preserves the original bounded execution instructions; P9 final bounded packet is accepted and these historical briefs authorize no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_A_BRIEF_V2.md",
+      "sha256": "0b78c17b3c9e25aa71b06d612edf3ed575dd50f78030d831cfafd9ab39ef0212",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed P9 author/reviewer brief preserves the original bounded execution instructions; P9 final bounded packet is accepted and these historical briefs authorize no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_R2_BRIEF_V1.md",
+      "sha256": "d074c7eca8b3c5770d18474ddfa7703c109e56ef764a965c8927ae2634d297e9",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed P9 author/reviewer brief preserves the original bounded execution instructions; P9 final bounded packet is accepted and these historical briefs authorize no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_R_BRIEF_V1.md",
+      "sha256": "5b8e035f5d3a5c3dfbcb04e4c42b8dcce57a6dc2760a524727e43c271a7d79f4",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable completed P9 author/reviewer brief preserves the original bounded execution instructions; P9 final bounded packet is accepted and these historical briefs authorize no new execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_CRLF_REPAIR_V1/WORK_GRAPH.json",
+      "sha256": "c9b2f50018ff3c5aeda361c8b8633e063d49392e3515ddaa2b981d302401fef0",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_CRLF_REPAIR_V1/dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json",
+      "sha256": "7b24e4bd77e99abf2f418fedd2a244fb9b4529d8bfd6022624d61ddc15953f27",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_TRANSPORT_REPAIR_V2/WORK_GRAPH.json",
+      "sha256": "e93d4b8f07d7b0c4152c63909c521fb53ff25ec2169b7798b36ce7400a537ad4",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_PREPARED_V1/BRIEF.md",
+      "sha256": "7f821d14d64bc91ea5125035f9936207727dfd9e1c18ef5cfdb66a4da80f95da",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_PREPARED_V1/WORK_GRAPH.json",
+      "sha256": "5dde39666e95b0ee0470efae5a19bb973f030960e24c31c6100a1ca7b1ba06ae",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/P5_SOURCE_F1_RELEASE_V1/WORK_GRAPH.json",
+      "sha256": "9709b296e5fe3f0329cacb4329e73fb909ae803bf0557a7cf0a067e7d8c311bf",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/WORK_GRAPH.json",
+      "sha256": "0d6ba5bf640146911d61b1ffee64dc257cf353cf01c4f74ebe926541cd5de94e",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/SOURCE_READY_V1/WORK_GRAPH.json",
+      "sha256": "b9453514757059054e54c7768b4bc92985690764656149ef704af67428c9c282",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/SOURCE_READY_V2/WORK_GRAPH.json",
+      "sha256": "bb3cc2684f28a65b7209471346be80d343c53f7fe70632d984873d554051c5dc",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded phase-boundary control snapshot preserves its original sealed instructions and temporary-path history; current execution uses portable controls, not this snapshot.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/AUTHOR_BRIEF.md",
+      "sha256": "aa1497d0039962da3e463da9954aaea72f5fb2c99e4899cd7c71190e0f5d1740",
+      "entry_type": "control_path_exception",
+      "role": "CONTROL",
+      "reason": "Immutable superseded P5 compatibility author brief preserves its sealed original instructions; author acknowledged portable AUTHOR_BRIEF_V2.md and V1 authorizes no future execution.",
+      "authority": "Explicit Agent0 acceptance under the user-approved physics audit and bounded-repair program: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json"
     }
   ]
 }

@@ -1,0 +1,13 @@
+{
+  "command": [
+    "python3",
+    "tools/validation/validate_path_anchors.py",
+    "--json"
+  ],
+  "working_directory": "{REPO_ROOT}",
+  "exit_code": 0,
+  "stdout_sha256": "2c8ab0c18c2845ffd7c1497e0d131b537d00579faf9b68713ad52162c4dd4512",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_base64": "ewogICJyZXBvX3Jvb3QiOiAiL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eSIsCiAgImNoZWNrZWRfZmlsZV9jb3VudCI6IDM3NjcsCiAgImZpbmRpbmdfY291bnQiOiAwLAogICJmaW5kaW5ncyI6IFtdLAogICJzZW1hbnRpY19pbnZhcmlhbnRzIjogewogICAgInVuYWNrbm93bGVkZ2VkX2NvbnRyb2wiOiAwLAogICAgImFjdGl2ZV91bmNsYXNzaWZpZWQiOiAwLAogICAgInBvbGljeV9pc3N1ZXMiOiAwLAogICAgImFja25vd2xlZGdlZF9jb250cm9sIjogMzEKICB9Cn0K",
+  "stderr_base64": ""
+}

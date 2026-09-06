@@ -1,0 +1,450 @@
+{
+  "evidence_path": "/tmp/piping-physics-final-verification-f2/headless_uniform.stdout",
+  "stdout_sha256": "7408c72b67ee65a952870b1dd32c3a4cc4abf41dd823fc0ded16c2ee89a89878",
+  "payload_keys": [
+    "mechanics_envelope",
+    "runner_result"
+  ],
+  "canonical_document_serialized": false,
+  "reason": "PreviewRunnerOutput.result_envelope_document is serde(skip_serializing); generated library document maps metadata verbatim but not emitted by this CLI",
+  "new_basis_rows": 30,
+  "kinds": {
+    "element_local_axial_force": 3,
+    "element_local_shear_force_y": 3,
+    "element_local_shear_force_z": 3,
+    "element_local_torsional_moment": 3,
+    "element_local_bending_moment_y": 3,
+    "element_local_bending_moment_z": 3,
+    "element_local_axial_normal_stress": 3,
+    "element_local_bending_normal_stress_y": 3,
+    "element_local_bending_normal_stress_z": 3,
+    "element_local_torsional_shear_stress": 3
+  },
+  "canonical_metadata_validation": [
+    {
+      "row": "result:force:pipe-P-100:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:midspan:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:force:pipe-P-100:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:moment:pipe-P-100:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j)"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive normal stress follows the interpolated element-local axial resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local y bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the interpolated element-local z bending resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    },
+    {
+      "row": "result:stress:pipe-P-100:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "straight_section_equilibrium_with_consistent_distributed_loads",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive torsional shear stress follows the interpolated element-local torsional resultant at this station"
+      },
+      "validation_errors": [
+        "'straight_section_equilibrium_with_consistent_distributed_loads' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']"
+      ]
+    }
+  ],
+  "source_refs": [
+    "core/runner/headless/src/lib.rs:674-682",
+    "core/runner/headless/src/result_envelope_binding.rs:139-149,216-222,400-421",
+    "schemas/results.schema.yaml:623-637"
+  ]
+}

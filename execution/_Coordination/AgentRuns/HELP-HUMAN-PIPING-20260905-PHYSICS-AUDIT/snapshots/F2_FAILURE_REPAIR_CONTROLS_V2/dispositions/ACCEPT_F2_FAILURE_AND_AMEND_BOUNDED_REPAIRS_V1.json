@@ -1,0 +1,36 @@
+{
+  "record_kind": "Parent-directed additive failure acceptance and bounded repair amendment",
+  "attribution": "Semantic transcription of root direction; native instruction+config asserted, actual model unexposed",
+  "source_commit": "0ab12975fb3162545c4f8d31060f279affd2402d",
+  "F2": {
+    "actual_execution": "launched and terminal failed per root; runtime identifier not supplied to recorder",
+    "manifest": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95",
+    "root_verified_members": 251,
+    "disposition": "ACCEPT_IMMUTABLE_CHANGES_REQUIRED_FAILURE_HISTORY_ONLY",
+    "DEC025": "FAILED; cargo passed; Python failed; later registered surfaces not run",
+    "native": "bundle build passed; edited-load self-test failed",
+    "harness": "failed with newly introduced path findings; selfcheck exit zero is not semantic acceptance",
+    "headless": "bounded original witness evidence only, not complete final gate"
+  },
+  "correction_to_historical_return": "The new station basis token is incompatible with the closed canonical basis enum and is copied by the headless library producer. This is not merely a stale test literal. Root selected existing compatible broad categories with truthful detailed sign_convention; no enum expansion.",
+  "repairs": {
+    "P5": [
+      "core/product_physics/src/lib.rs metadata compatibility only, no numerical changes",
+      "core/runner/headless/src/result_envelope_binding.rs test module only"
+    ],
+    "F1": "Generated fixture and Python/TypeScript consumer synchronization only after producer freeze, under root exact scope; additional r2-smoke viewport maximum synchronization 4.567557 to 4.927109 mm is fixture-derived, all interactions/assertions retained.",
+    "N1": "apps/desktop/src-tauri/src/lib.rs self-test helper and related tests only, preserving save/reopen/identity/solve checks; root reports reaction delta -75 N and targeted native test passed, sealed packet/fresh review pending.",
+    "C1": "Current active controls become portable; 16 immutable control-path exceptions proposed under existing mechanism, no policy writes before exact root grant"
+  },
+  "F1_scan_manifest": "7f701092204dd0291e23ce9c495b2f199996d4d33daf10ca645972e0b31c7d42",
+  "holds": "D01-D06 remain; no public schema, physics policy, lifecycle, scope or engineering acceptance promotion",
+  "next_gates": [
+    "frozen bounded repairs",
+    "fresh source/configuration review",
+    "CHANGE new clean source commit",
+    "new unchanged full five-surface DEC025",
+    "actual native and headless verification",
+    "final report/evidence-only publication"
+  ],
+  "process_fault": "Parent temporary-path literal was propagated into C1 controls. Preserve original history; future active direction uses portable anchors. No broad waiver."
+}

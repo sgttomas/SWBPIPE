@@ -1,0 +1,16 @@
+{
+  "command": [
+    "/tmp/piping-design-verification-venv/bin/python",
+    "-m",
+    "pytest",
+    "tests/product_preview/test_product_preview_service.py",
+    "tests/test_results_schema.py",
+    "-q"
+  ],
+  "cwd": "projects/chirality-piping",
+  "returncode": 0,
+  "stdout_base64": "Li4uLi4uLi4uLi4uLiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFsxMDAlXQoxMyBwYXNzZWQgaW4gMC4yM3MK",
+  "stdout_sha256": "a015a63f4cf5259eaa3bb7e60983effd6ef64f648fc5bab9c9ae6ba0c1191660",
+  "stderr_base64": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

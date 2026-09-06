@@ -1,0 +1,14 @@
+[
+  {
+    "path": "{WORKING_ROOT}/core/product_physics/src/lib.rs",
+    "before_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+    "after_sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903"
+  },
+  {
+    "path": "{WORKING_ROOT}/core/runner/headless/src/result_envelope_binding.rs",
+    "before_sha256": "0ab28ce33829e198ac4f91e2136a1dca122f35a8cb024af276683c200e3697cd",
+    "after_sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+    "production_prefix_unchanged": true,
+    "production_prefix_sha256": "fcb936a0e0c9c068715d2006cfc8f4716ad830ea25b9150e542ffd47e164de49"
+  }
+]

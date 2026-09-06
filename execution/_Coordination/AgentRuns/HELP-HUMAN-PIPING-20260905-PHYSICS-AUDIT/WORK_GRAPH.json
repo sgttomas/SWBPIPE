@@ -1,5 +1,5 @@
 {
-  "version": 16,
+  "version": 20,
   "selection_authority": {
     "execution_scope_and_fanout": "HUMAN",
     "routing": "AGENT_0"
@@ -32,7 +32,7 @@
       "id": "C1",
       "role": "bounded Agent2 recorder",
       "runtime_id": "/root/implementation_coordination",
-      "status": "active control recording",
+      "status": "SOURCE_READY_V3 frozen; no further writes until explicit root release",
       "write_scope": "runroot root controls/briefs/snapshots/own C1 only"
     },
     {
@@ -94,7 +94,7 @@
     {
       "id": "REPAIR_MANAGERS",
       "role": "package WORKING_ITEMS",
-      "status": "P4/P5/P9 scopes activated; actual sessions awaiting dispatch",
+      "status": "P4/P9 completed; P5 bounded compatibility repair active",
       "write_scope": "none yet"
     },
     {
@@ -135,7 +135,7 @@
       "id": "P5",
       "role": "WORKING_ITEMS",
       "package": "PKG-05",
-      "status": "final bounded closure accepted; no source changes",
+      "status": "Bounded compatibility accepted after fresh review; source frozen",
       "repairs": [
         "R05",
         "R08",
@@ -151,7 +151,14 @@
       "product_input_sha256": "171a63860bb9d105e2336bb76be6a71b26032cca5795d55ba3556f8c08ba3d26",
       "compile_slots": 1,
       "accepted_source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
-      "final_manifest_sha256": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1"
+      "final_manifest_sha256": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1",
+      "current_source_fence": [
+        "core/product_physics/src/lib.rs metadata compatibility only, no numerical changes",
+        "core/runner/headless/src/result_envelope_binding.rs test module only"
+      ],
+      "candidate_source_sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "candidate_headless_test_sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+      "final_compatibility_manifest_sha256": "512c7164c91ee31f19d62b336ff1ba2e7f867162538e899e194e7775e40eae8d"
     },
     {
       "id": "P9",
@@ -173,7 +180,7 @@
       "id": "F1",
       "role": "future bounded direct Agent2",
       "runtime_id": "/root/fixture_regeneration",
-      "status": "finalV4fixture+consumer tests accepted/frozen",
+      "status": "Source/consumer repairs and lossless transport supplement accepted; frozen",
       "write_scope": [
         "fixtures/product_preview/invented_mechanics_result.json only product path",
         "instances/F1 evidence",
@@ -189,38 +196,41 @@
         "services/previewService.test.ts two fixture synchronizations",
         "App.test.tsx exact four fixture-dependent cases"
       ],
-      "manifest_sha256": "7b1cb7ba585bfa89ff2d6b9a218764557643f2ecb8b9f9e1f141f5c17abd4fb4"
+      "manifest_sha256": "7b1cb7ba585bfa89ff2d6b9a218764557643f2ecb8b9f9e1f141f5c17abd4fb4",
+      "additional_root_amendment": "apps/desktop/e2e/r2-smoke.spec.ts exact fixture-derived viewport maximum 4.567557 to 4.927109 mm; preserve interactions/assertions"
     },
     {
       "id": "F2",
-      "role": "future bounded direct Agent2 final verification",
+      "role": "bounded direct Agent2 final verification",
       "runtime_id": null,
-      "status": "HELD, not dispatched",
-      "brief": "briefs/F2_FINAL_VERIFICATION_V1.md",
+      "status": "Original failed execution preserved; rerun held for new clean source commit and explicit root release",
+      "brief": "briefs/F2_FINAL_VERIFICATION_V2.md",
       "write_scope": [
-        "declared /tmp/piping-physics-final-verification-* staging and ignored build outputs",
+        "declared {VERIFICATION_TMP_ROOT} staging and ignored build outputs",
         "after sweep terminal only instances/F2 and audit post_repair/F2"
       ],
       "source_writes": false,
       "delegation": "none",
       "resource_gate": "root-exclusive heavy build",
-      "DEC025": "exact full unchanged command, clean WHOLE committed repository, all five surfaces"
+      "DEC025": "exact full unchanged command, clean WHOLE committed repository, all five surfaces",
+      "checkpoint_manifest_sha256": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95"
     },
     {
       "id": "S2",
       "runtime_id": "/root/repair_report",
       "role": "direct Agent2 report synthesis",
-      "status": "pre-final accepted/all44mapped; F2pending",
+      "status": "Prepared refresh accepted as pending-cut report; final closure held",
       "write_scope": [
         "auditroot/post_repair/S2",
         "instances/S2"
-      ]
+      ],
+      "prepared_refresh_manifest_sha256": "4fd5bdf6da2d0385a92ae2f9b0be3805574ab27fecead4de8474b0465b9b2a96"
     },
     {
       "id": "CHANGE",
       "runtime_id": "/root/audit_change",
       "role": "Agent1 CHANGE",
-      "status": "SOURCE_READY_V2; root sourcecommit release next afterrestage/checks",
+      "status": "Ready for root review/release to commit exact SOURCE_READY_V3 inputs",
       "write_scope": [
         "instances/CHANGE",
         "auditroot/post_repair/CHANGE"
@@ -230,7 +240,7 @@
       "id": "F3",
       "runtime_id": "/root/fixture_review",
       "role": "freshTASKsoftware-code-review",
-      "status": "originalsource+packagingbackcheckPASSaccepted",
+      "status": "Required source and packaging review chains accepted; frozen",
       "write_scope": [],
       "source_mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d"
     },
@@ -256,6 +266,21 @@
         "instances/V1_TRANSPORT"
       ],
       "preservation": "110members+originalFINAL_MANIFEST losslessarchive; no semantic/sourcechange"
+    },
+    {
+      "id": "N1",
+      "role": "bounded direct Agent2 native verification helper",
+      "runtime_id": null,
+      "status": "Bounded helper amendment accepted after fresh F3 PASS; packaged/full gate pending",
+      "write_scope": [
+        "apps/desktop/src-tauri/src/lib.rs self-test helper and related tests",
+        "own instances/N1 and audit post_repair/N1",
+        "declared isolated temporary and ignored build outputs"
+      ],
+      "delegation": "none",
+      "source_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "manifest_sha256": "b6224f347209d354fb6d623c2ef386d918d078e02bdc29578c5212f18b46cc0d",
+      "fresh_review_manifest_sha256": "76d49ed9956035fd462ec806e4ee9b6fc58d60ad9ea21e9bbf4591d61934c3ca"
     }
   ],
   "edges": [
@@ -420,7 +445,7 @@
     "shared_heavy_resources": "serialize through root with isolated targets",
     "production_changes_during_baseline": "prohibited",
     "lightweight_rust_compile_cap": 2,
-    "shared_product_source": "P5 and P4 source frozen; F1 exact generated fixture only",
+    "shared_product_source": "All source and control writers frozen; CHANGE owns next Git mutation after root acceptance",
     "lightweight_compile_allocation": {
       "F1": 1,
       "idle": 1
@@ -469,9 +494,46 @@
     "notices/LAUNCH-011-E1-EVIDENCE-CRLF.json",
     "dispositions/RECORD_E1_COMPLETE_AND_RELEASE_V1_TRANSPORT.json",
     "notices/RESUME-012-V1-TRANSPORT-F3.json",
-    "dispositions/ACCEPT_F3_E1_V1_PACKAGING_BACKCHECK.json"
+    "dispositions/ACCEPT_F3_E1_V1_PACKAGING_BACKCHECK.json",
+    "dispositions/ACCEPT_F2_FAILURE_AND_AMEND_BOUNDED_REPAIRS_V1.json",
+    "briefs/F2_FINAL_VERIFICATION_V2.md",
+    "instances/C1/PORTABILITY_EXCEPTION_CANDIDATE_V1.json",
+    "dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+    "dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json",
+    "dispositions/ACCEPT_P5_IMMUTABLE_DIAGNOSTIC_EVIDENCE_OVERRIDE_V1.json",
+    "instances/C1/POLICY_FINAL_REVIEW_HANDOFF_V2.json",
+    "dispositions/ACCEPT_P5_F1_C1_REMEDIATION_AND_S2_PREPARED_V1.json",
+    "SOURCE_REVIEW_COVERAGE_V2.json",
+    "SOURCE_REVIEW_COVERAGE_V3.json",
+    "dispositions/ACCEPT_FINAL_REMEDIATION_SOURCE_READY_V3.json"
   ],
   "repair_posture": "MIXED",
   "repair_activation_status": "R01\u2013R11 explicitly activated after accepted wholebaseline/finalR1PASS",
-  "owner_holds": "D01\u2013D06"
+  "owner_holds": "D01\u2013D06",
+  "current_stage": "SOURCE_READY_V3: all bounded repairs and transport reviewed; CHANGE clean source commit next, F2 rerun held",
+  "tested_source_commit": "0ab12975fb3162545c4f8d31060f279affd2402d",
+  "portability_remediation": {
+    "policy_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
+    "historical_control_exceptions": 17,
+    "historical_evidence_overrides": 1,
+    "prior_entries_and_frozen_bytes_preserved": true,
+    "fresh_review": "F3 PASS accepted",
+    "initial_check_failure": "preserved",
+    "current_checks": "Path anchors zero findings; harness351PASS; selfcheckexit0 with four inherited REVIEW and no new REVIEW; fresh F3 pending"
+  },
+  "current_source_mapping_sha256": "e602705de62013341fe45f6ca6dfafc67be55aee45e77dc94974253d6d3da900",
+  "open_canonical_findings": [
+    {
+      "id": "P5-CANONICAL-METADATA-001",
+      "status": "OPEN",
+      "owning_coordination": "PKG10/PKG13",
+      "finding": "Existing mapped families emit metadata outside the canonical schema vocabulary."
+    },
+    {
+      "id": "P5-CANONICAL-REPRODUCIBILITY-002",
+      "status": "OPEN",
+      "owning_coordination": "PKG10/PKG13",
+      "finding": "Existing producer canonicalization identifier conflicts with the canonical enum."
+    }
+  ]
 }

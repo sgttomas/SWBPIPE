@@ -1,0 +1,7 @@
+{
+  "baseline": "0ab12975fb3162545c4f8d31060f279affd2402d",
+  "path": "{WORKING_ROOT}/core/runner/headless/src/lib.rs",
+  "source_sha256": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+  "baseline_bytes_equal_current": true,
+  "producer_literal_count": 5
+}

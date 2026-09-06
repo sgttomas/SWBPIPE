@@ -1,0 +1,55 @@
+{
+  "kind": "derivative_repair_evidence",
+  "source_bindings": {
+    "source_before": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+    "source_after": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+    "product_source_observed_after_tests": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+    "head_basis": "0ab12975fb3162545c4f8d31060f279affd2402d",
+    "targeted_final_exit": 0,
+    "rustfmt_output_empty": false,
+    "rustfmt_final_exit": 1,
+    "final_test_log": "postformat_targeted.stdout"
+  },
+  "files": [
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/BINDINGS.json",
+      "sha256": "7ab2eb2137be1bf8b4e26484a9b35bded74398baedc5809661363d61d1f007eb"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/DIFF.json",
+      "sha256": "f89e4e995e30add384690d28cad35d04d07d97a44eb84a5158f1b8159c7db2ba"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/LOGS.json",
+      "sha256": "27e30022d34aa8187a7b523db06ff81915fd96dbc63703e61bb825528cfc97d1"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/REPORT.md",
+      "sha256": "213a40dc9bb4eb3f423f27b843b479d02c9b8c11ade1ce71437c2fed6b0d1ccf"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/after.json",
+      "sha256": "67aa36d010e716df0d11c7d983322f44bd2f225ddd46d33097dd6cc5edd14e15"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/after_result.json",
+      "sha256": "fc316e15c4993885c7025a395bd0fcab5cd39cc3cddaae1c998093ca8844dc5c"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/before.json",
+      "sha256": "bb4d8dbb4ff450d00a36b21ab5507ebaafd9efefa3fa2c7e9f5065c5a9eef291"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/before_result.json",
+      "sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/N1/BRIEF.md",
+      "sha256": "268eb192c47ded66f0168b4b1e6668dc4a4ac6bad0a9f8403ad66b8ba9cc63ef"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/N1/RETURN.md",
+      "sha256": "43e0b48319c5eb89208fb13a471a378a3973f08012ba5569b90d4376399bfd9d"
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "verdict": "PASS",
+  "role": "fresh TASK software-code-review",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "86989de7d01a349c0c189309f56989f8d5c57dfa27516e854525457bdf88303f"
+    }
+  ]
+}

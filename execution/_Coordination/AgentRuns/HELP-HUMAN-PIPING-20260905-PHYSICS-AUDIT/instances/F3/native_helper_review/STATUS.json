@@ -1,0 +1,16 @@
+{
+  "run_status": "SUCCESS",
+  "verdict": "PASS",
+  "findings": [],
+  "reviewer": "/root/fixture_review",
+  "attribution": "Parent-relayed semantic transcription",
+  "actual_model": "unexposed",
+  "root_acceptance": "ACCEPT_BOUNDED_N1_HELPER_AMENDMENT",
+  "source_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+  "upstream_manifest_sha256": "b6224f347209d354fb6d623c2ef386d918d078e02bdc29578c5212f18b46cc0d",
+  "remaining": [
+    "P5/F1 fresh review",
+    "packaged verification",
+    "new complete clean DEC025"
+  ]
+}

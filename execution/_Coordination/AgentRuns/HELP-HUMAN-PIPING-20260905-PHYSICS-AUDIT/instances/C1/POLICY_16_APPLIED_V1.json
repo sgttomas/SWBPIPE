@@ -1,0 +1,11 @@
+{
+  "policy_path": "projects/chirality-piping/validation/portability_policy.json",
+  "policy_before_sha256": "c3b807f30947f021a2b2258bbe5292f8ca4b5bb3f2aaa2e51c0d8f3ad8d3aabd",
+  "policy_after_sha256": "19b85b9810c7d13513bc20981b3e3689a9199c08b64ef4c258b237541d6ee1fc",
+  "added_entries": 16,
+  "older_entries_equal": true,
+  "historical_targets_unchanged": true,
+  "acceptance": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+  "review": "fresh F3 review pending",
+  "seventeenth_P5": "conditional root authorization recorded; not applied until portable successor acknowledgment verified"
+}

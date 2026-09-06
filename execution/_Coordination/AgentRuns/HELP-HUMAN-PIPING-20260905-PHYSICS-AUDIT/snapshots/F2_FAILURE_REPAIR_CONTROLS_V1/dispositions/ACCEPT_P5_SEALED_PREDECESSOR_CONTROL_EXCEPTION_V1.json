@@ -1,0 +1,18 @@
+{
+  "record_kind": "Semantic transcription of root exact seventeenth-entry authorization",
+  "predecessor": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/AUTHOR_BRIEF.md",
+    "sha256": "aa1497d0039962da3e463da9954aaea72f5fb2c99e4899cd7c71190e0f5d1740"
+  },
+  "portable_successor": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/AUTHOR_BRIEF_V2.md",
+    "sha256": "1a7454a04b93f99de6b9fa73aa81851e35d5e5d70bebdb0f63cb4d926b8f9ba3"
+  },
+  "acknowledgment": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/AUTHOR_V2_ACK.md",
+    "sha256": "d9addd06cb121da8fdcd0d13f47dbb38fe8a52ce1b891903560794bc89205bf3",
+    "meaning": "Parent manager transcribed actual native author acknowledgment of portable successor"
+  },
+  "authority": "Root explicitly authorized this exact historical CONTROL exception conditional on predecessor hash, portable successor and actual ACK; C1 verified those conditions.",
+  "scope": "Append this exact path/hash only; preserve original bytes. No new execution under V1, no EVIDENCE override or schema/tool change."
+}

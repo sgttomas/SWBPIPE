@@ -1,0 +1,12 @@
+{
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/fixture_transport_review/RETURN.md",
+      "sha256": "167e8fbc9df99dabd55fb721c8a06da21ae3b9bbee986a0806be9875dda74d42"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/fixture_transport_review/STATUS.json",
+      "sha256": "8370e9bc06fc2a0424b35feb490ab3f939b7c0c2cf39ea1c705b10f42749867e"
+    }
+  ]
+}

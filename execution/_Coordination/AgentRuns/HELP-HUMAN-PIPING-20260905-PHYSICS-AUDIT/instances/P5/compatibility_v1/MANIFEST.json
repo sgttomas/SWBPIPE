@@ -1,0 +1,191 @@
+{
+  "status": "BOUNDED_PASS_WITH_EXPLICIT_OPEN_CANONICAL_FINDINGS",
+  "derivative": true,
+  "files": [
+    {
+      "path": "ACTIVATION.md",
+      "sha256": "7e669dfb7c9d9032b85f95be61185a881a5e5af2f4b194128044cf90f4fab30d",
+      "bytes": 610
+    },
+    {
+      "path": "AUTHOR_ACCEPTANCE.md",
+      "sha256": "cef6f383aa4c45394f45b748225d2d64f4d9d3d5aaed50c5a4c3c13195d9d9cd",
+      "bytes": 687
+    },
+    {
+      "path": "AUTHOR_BRIEF.md",
+      "sha256": "aa1497d0039962da3e463da9954aaea72f5fb2c99e4899cd7c71190e0f5d1740",
+      "bytes": 4396
+    },
+    {
+      "path": "AUTHOR_BRIEF_V2.md",
+      "sha256": "1a7454a04b93f99de6b9fa73aa81851e35d5e5d70bebdb0f63cb4d926b8f9ba3",
+      "bytes": 4746
+    },
+    {
+      "path": "AUTHOR_V2_ACK.md",
+      "sha256": "d9addd06cb121da8fdcd0d13f47dbb38fe8a52ce1b891903560794bc89205bf3",
+      "bytes": 368
+    },
+    {
+      "path": "PORTABILITY_AMENDMENT.md",
+      "sha256": "9ba197af047d44a5738d5a2830ea33382eceb5b0c38fc6837393b6575865535a",
+      "bytes": 428
+    },
+    {
+      "path": "PROCESS_NOTES.md",
+      "sha256": "f3359ddbf241f39cbe405124cbdedfe6fb6f84dfc20c188a59bd9c5804e427b2",
+      "bytes": 831
+    },
+    {
+      "path": "REVIEW_BRIEF.md",
+      "sha256": "5061c2fae6d160fb739e78ea09eb30cf5672b915a8e7cf0e0ab9d2f20d5f6470",
+      "bytes": 3055
+    },
+    {
+      "path": "RUNTIME_EVENTS.jsonl",
+      "sha256": "f640f33be86f4f6454202640b1e3187c681db2524b400660850df1d8c45ef08e",
+      "bytes": 4018
+    },
+    {
+      "path": "RUNTIME_SUMMARY.json",
+      "sha256": "e7c572a23f2a52af657b347149b8c0f7a1589ff8a370fbf2a587a2f3bb61090c",
+      "bytes": 1381
+    },
+    {
+      "path": "author/.gitignore",
+      "sha256": "b53ee26e6ff1da219b0563333a76d2c9ec19eec713d6ee54e11a1edacb0e9f3d",
+      "bytes": 8
+    },
+    {
+      "path": "author/BEFORE_headless.rs",
+      "sha256": "0ab28ce33829e198ac4f91e2136a1dca122f35a8cb024af276683c200e3697cd",
+      "bytes": 42636
+    },
+    {
+      "path": "author/BEFORE_product.rs",
+      "sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "bytes": 676762
+    },
+    {
+      "path": "author/FINAL_headless.rs",
+      "sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+      "bytes": 50359
+    },
+    {
+      "path": "author/FINAL_product.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "bytes": 677486
+    },
+    {
+      "path": "author/MANIFEST.json",
+      "sha256": "58880dee31ae54109d503272ed8b2f8f3d140d116fc3485be0e183c4b10be8dc",
+      "bytes": 3315
+    },
+    {
+      "path": "author/RETURN.md",
+      "sha256": "758e5d4e780d9f3b0889cb5626a69eb301bdaf5c615d218723c63fe9cfb39d2f",
+      "bytes": 5611
+    },
+    {
+      "path": "author/SELECTED_CHECKS.json",
+      "sha256": "537a299a082ac474f77b6caae67a288751744c9732a9a7af329c7f08e54cd2cd",
+      "bytes": 531
+    },
+    {
+      "path": "author/SOURCE_BINDINGS.json",
+      "sha256": "d01cf34096325640f53ec81e183da9a0791d3be572fae04cf41693c7c5b8b3b6",
+      "bytes": 658
+    },
+    {
+      "path": "author/WRITE_SCOPE.json",
+      "sha256": "c8abddbd828b9b2d041fe56ec84bb56de9992188f84f818bba0d3c386831cb53",
+      "bytes": 710
+    },
+    {
+      "path": "author/_run_records/TASK_RUN_COMPAT.md",
+      "sha256": "f947845d45f9610e7d3cc0d358440ffe5c0f615c1b48fba176042f5cd24da898",
+      "bytes": 2709
+    },
+    {
+      "path": "author/headless_PATCH.json",
+      "sha256": "d567cc8e43fd4b16b4ee712eb3016594f35af8873e3a2e54101f2199caf5e50c",
+      "bytes": 11181
+    },
+    {
+      "path": "author/headless_final_full.log.json",
+      "sha256": "5032cd8cc316c9fea08f0357cb9ad8e18590379cf47f741944988daaac986641",
+      "bytes": 6671
+    },
+    {
+      "path": "author/headless_final_targeted.log.json",
+      "sha256": "9ce5068f4630d4626de4ecad1fd9be96ad6e37eb4a3f5a9dd709cc96fde00ed6",
+      "bytes": 3059
+    },
+    {
+      "path": "author/headless_full.log.json",
+      "sha256": "1dc71687b680e54dead86b0885a7f45ad993def90caa7b3102b862ff8a73f02f",
+      "bytes": 10369
+    },
+    {
+      "path": "author/headless_terminal.log.json",
+      "sha256": "d8efff7ce411ee5a9219134f48ad666ab6b8a3aa34824e6a8672f6138dce23a0",
+      "bytes": 3053
+    },
+    {
+      "path": "author/linear_canonical_document.json",
+      "sha256": "c150b35c4ca35bc6145834510a33cf22269b540998fe7919fb177b8edfa686d3",
+      "bytes": 1091102
+    },
+    {
+      "path": "author/nonlinear_canonical_document.json",
+      "sha256": "ad121d3859d1159edae80f20175e649462a6d2c112a069c70743b87febf30be9",
+      "bytes": 1178681
+    },
+    {
+      "path": "author/product_PATCH.json",
+      "sha256": "6cfc8c7763a1bac5933a23018bb429ded1d4309ab8a6be951dbf4a29448798e4",
+      "bytes": 7437
+    },
+    {
+      "path": "author/product_full.log.json",
+      "sha256": "55801aada05bf904bedec34b460e3a674eb6cb6d19f42014ca758fc05d8aaac0",
+      "bytes": 19236
+    },
+    {
+      "path": "author/zero_pressure_canonical_document.json",
+      "sha256": "ecdfbb7e5cf1cb22a4e1776a31115d9991dde11a3f58f839d5e77e4744b0632d",
+      "bytes": 1126313
+    },
+    {
+      "path": "diagnosis_snapshot/ACTUAL_F2_OUTPUT_CHECK.json",
+      "sha256": "24a2942ef162f3c4876668186b83496056ba0f755b03724f6f55c223423fcfaa",
+      "bytes": 31912
+    },
+    {
+      "path": "diagnosis_snapshot/FIXTURE_METADATA_ANALYSIS.json",
+      "sha256": "a50245101a295d52a1a9abfa0b3ff8600d982d6a5e27de262784c6b2f62f9a2b",
+      "bytes": 265119
+    },
+    {
+      "path": "diagnosis_snapshot/MANIFEST.json",
+      "sha256": "e59d1312a05b38b90f1e0d546a15f1b0ad297ceeefbc5fa8befb3a7143bb3c2c",
+      "bytes": 568
+    },
+    {
+      "path": "diagnosis_snapshot/REPORT.md",
+      "sha256": "9ecfe82dbd847b1c4bc2ae5f5bfca7062f87d82bfb2f5080f21e8b32e6cf1e39",
+      "bytes": 5894
+    },
+    {
+      "path": "review/MANIFEST.json",
+      "sha256": "db22e5aff08e9f745fb905c0b8b39679c2a74942ea242499d08a344eb7313b35",
+      "bytes": 209
+    },
+    {
+      "path": "review/RETURN.md",
+      "sha256": "86989de7d01a349c0c189309f56989f8d5c57dfa27516e854525457bdf88303f",
+      "bytes": 3533
+    }
+  ]
+}

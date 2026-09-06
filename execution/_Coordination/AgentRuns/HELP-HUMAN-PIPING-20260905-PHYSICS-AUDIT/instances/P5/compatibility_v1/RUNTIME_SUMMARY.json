@@ -1,0 +1,60 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 3
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "CHECK": 1,
+      "FINISH": 3,
+      "START": 3
+    },
+    "outcome": {
+      "PASS": 4,
+      "STARTED": 3
+    },
+    "reason_code": {}
+  },
+  "events": 7,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 0.024,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5-COMPAT-AUTHOR",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P5-compat-author"
+    },
+    {
+      "duration_seconds": 85.583,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5-COMPAT-REVIEW",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P5-compat-review"
+    },
+    {
+      "duration_seconds": 612.285,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "P5",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "P5-compat-session"
+    }
+  ],
+  "sessions": 3,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

@@ -1,0 +1,10 @@
+{
+  "command": "python3 tools/validation/validate_path_anchors.py --json",
+  "exit_code": 0,
+  "checked_file_count": 3768,
+  "finding_count": 0,
+  "unacknowledged_control": 0,
+  "active_unclassified": 0,
+  "policy_issues": 0,
+  "acknowledged_control": 31
+}

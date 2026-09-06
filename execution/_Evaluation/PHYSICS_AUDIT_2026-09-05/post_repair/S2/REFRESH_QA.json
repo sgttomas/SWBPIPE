@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "historical_manifest_sha256": "96481d7e27b84e4b96cf0c5cdb1a609efeb0f11c16bca2a10c66e58f6829be3a",
+  "historical_members_verified": 7,
+  "baseline_disposition_bytes_unchanged": true,
+  "baseline_entries": 44,
+  "additional_candidate_entries": 2,
+  "accepted_candidates": false,
+  "final_sweep": "PENDING_NEW_CLEAN_SOURCE_RERUN",
+  "closure": "PRE_RERUN_NO_FINAL_CLOSURE"
+}

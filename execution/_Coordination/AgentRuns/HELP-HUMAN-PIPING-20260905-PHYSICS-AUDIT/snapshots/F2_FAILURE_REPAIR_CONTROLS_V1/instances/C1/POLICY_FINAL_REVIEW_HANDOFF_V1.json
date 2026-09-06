@@ -1,0 +1,20 @@
+{
+  "policy_path": "projects/chirality-piping/validation/portability_policy.json",
+  "policy_sha256": "d16eb3e35bacb7f27f66659dea8e14e42411f8fd01edccbd645374b36a33d031",
+  "change": "Append 17 exact CONTROL historical exceptions; no role overrides or previous entry modification",
+  "historical_targets_unchanged": true,
+  "previous_entries_equal": true,
+  "portable_active_controls": [
+    "WORK_GRAPH.json",
+    "briefs/F2_FINAL_VERIFICATION_V2.md",
+    "instances/P5/compatibility_v1/AUTHOR_BRIEF_V2.md"
+  ],
+  "candidate": "instances/C1/PORTABILITY_EXCEPTION_CANDIDATE_V1.json",
+  "acceptances": [
+    "dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+    "dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json"
+  ],
+  "full_diff": "instances/C1/_run_records/POLICY_FINAL_DIFF_V1.json",
+  "fresh_review": "Pending root-dispatched F3",
+  "actual_checks": "See own _run_records/PORTABILITY_REPAIR_V1 terminal results; full DEC025 remains pending"
+}

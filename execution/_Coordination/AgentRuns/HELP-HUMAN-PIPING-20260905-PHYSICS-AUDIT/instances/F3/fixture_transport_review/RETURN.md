@@ -1,0 +1,7 @@
+# F3 fixture patch transport review — PASS
+
+This is a faithful semantic transcription of the terminal return relayed and accepted by Agent0, not raw transport preservation. Reviewer `/root/fixture_review` continued the prior strict read-only TASK software-code-review context. Run status SUCCESS, verdict PASS, no actionable findings. The reviewer used hashing and in-memory decoding without writes, builds, tests or children. Native role/non-delegation were instruction/config asserted; the actual model remained unexposed.
+
+The original thirty-member logical manifest `3fc67be3aa81585a58986f55ecb090527f64220ee3dda20ced538cd156eb9058` is unchanged and all logical members validate. The decoded patch is exactly 188092 bytes with SHA256 `9ae09dc01981a436d226b93211d92c6f3331274c15dd4b8c306e609fc90bd099`. All thirty-four physical members validate against manifest `1e97c39b7c67537ecea297f544ed6bf2e41288334224c03f071b4d7f6d64cf1a`. The mapping and README explicitly explain logical materialization from the lossless wrapper.
+
+SOURCE_FREEZE is unchanged, so the prior complete content review remains valid. This changes only transport representation, not original patch bytes, source, tests, report conclusions or a whitespace rule. Agent0 independently checked decoded patch hash/size and the physical-manifest hash and accepted the bounded packaging amendment. Final integration and publication remain pending; no human ruling, engineering acceptance or full-gate PASS follows.

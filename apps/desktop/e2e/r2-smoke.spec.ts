@@ -586,7 +586,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=830");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.567557 mm");
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.927109 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
   );

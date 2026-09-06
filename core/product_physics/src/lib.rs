@@ -1637,8 +1637,8 @@ fn solve_load_case(
                 )
         } else {
             (
-                "straight_section_equilibrium_with_consistent_distributed_loads",
-                "positive value follows the j-side section action in the element-local frame (x toward end j)",
+                "recovered_from_local_element_stiffness",
+                "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction",
                 "element_local",
             )
         };
@@ -1754,7 +1754,11 @@ fn solve_load_case(
                 &stress.components,
                 pressure.is_some(),
                 include_pressure_longitudinal,
-                station_basis,
+                if macro_bend.is_some() {
+                    station_basis
+                } else {
+                    "recovered_from_open_mechanics_stress_components"
+                },
             );
         }
         let mut summary_values = [
@@ -8687,6 +8691,15 @@ fn append_station_stress_result(
     basis: &str,
     sign_convention: &str,
 ) {
+    let sign_convention = if basis == "recovered_from_open_mechanics_stress_components" {
+        format!(
+            "{}; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction",
+            sign_convention.replace("interpolated element-local", "section-equilibrium element-local")
+        )
+    } else {
+        // Preserve the existing curved-station convention verbatim.
+        sign_convention.to_string()
+    };
     results.push(ResultItem {
         id: id.to_string(),
         kind: kind.to_string(),
@@ -11776,7 +11789,7 @@ mod tests {
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "quarter_1"
                             && metadata.basis
-                                == "straight_section_equilibrium_with_consistent_distributed_loads"
+                                == "recovered_from_local_element_stiffness"
                     })
                     .unwrap_or(false)
         }));
@@ -11792,7 +11805,7 @@ mod tests {
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "midspan"
                             && metadata.basis
-                                == "straight_section_equilibrium_with_consistent_distributed_loads"
+                                == "recovered_from_local_element_stiffness"
                     })
                     .unwrap_or(false)
         }));
@@ -12071,7 +12084,7 @@ mod tests {
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "midspan"
                             && metadata.basis
-                                == "straight_section_equilibrium_with_consistent_distributed_loads"
+                                == "recovered_from_open_mechanics_stress_components"
                     })
                     .unwrap_or(false)
         }));
@@ -12087,7 +12100,7 @@ mod tests {
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "quarter_1"
                             && metadata.basis
-                                == "straight_section_equilibrium_with_consistent_distributed_loads"
+                                == "recovered_from_open_mechanics_stress_components"
                     })
                     .unwrap_or(false)
         }));
@@ -14630,7 +14643,7 @@ mod tests {
         assert_eq!(fixture_force_midspan["metadata"]["location"], "midspan");
         assert_eq!(
             fixture_force_midspan["metadata"]["basis"],
-            "straight_section_equilibrium_with_consistent_distributed_loads"
+            "recovered_from_local_element_stiffness"
         );
         let fixture_force_quarter =
             find_result(&fixture, "result:force:pipe-P-120:quarter-1:shear-y");
@@ -14646,7 +14659,7 @@ mod tests {
         );
         assert_eq!(
             fixture_stress_quarter["metadata"]["basis"],
-            "straight_section_equilibrium_with_consistent_distributed_loads"
+            "recovered_from_open_mechanics_stress_components"
         );
         assert!(find_result(&fixture, "result:moment:pipe-P-120:bending-z")
             .get("metadata")
@@ -16332,7 +16345,8 @@ mod tests {
         );
         assert_eq!(metadata.coordinate_system, "arc_section_frame");
         assert!(metadata.sign_convention.contains("arc section frame"));
-        // Straight spans keep the endpoint-interpolation basis untouched.
+        // Straight spans use the canonical stiffness-recovery category with
+        // detailed section-equilibrium semantics in the sign convention.
         let straight = run_linear_static_preview(request());
         let straight_row = straight
             .results
@@ -16344,7 +16358,7 @@ mod tests {
         let straight_metadata = straight_row.metadata.as_ref().unwrap();
         assert_eq!(
             straight_metadata.basis,
-            "straight_section_equilibrium_with_consistent_distributed_loads"
+            "recovered_from_local_element_stiffness"
         );
         assert_eq!(straight_metadata.coordinate_system, "element_local");
     }

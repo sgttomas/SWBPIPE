@@ -1,0 +1,138 @@
+{
+  "status": "Current 21 source/test/config files all bound to accepted fresh-or-unchanged review chains; transport-only packet finalization pending",
+  "files": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "679981e56cea23cb84924a243a0757680e79e5efb81c5711fd66caa8aae6f942",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27",
+    "projects/chirality-piping/tests/test_results_schema.py": "64854f2e43c74349b695f7f8a1d5fb6609d3d3dd7fa78ab9ca3abdfa70c4d553",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "4cd16a28a710789d07f3ee0ebd89c946896ef8d51bc2877cc64865da1dc0b430",
+    "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+    "projects/chirality-piping/validation/portability_policy.json": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d"
+  },
+  "sorted_compact_mapping_sha256": "e602705de62013341fe45f6ca6dfafc67be55aee45e77dc94974253d6d3da900",
+  "coverage": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "4cd16a28a710789d07f3ee0ebd89c946896ef8d51bc2877cc64865da1dc0b430",
+      "review_chain": "Original applicable F1 review plus fresh F3 final fixture/consumer remediation review"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "review_chain": "Fresh F3 N1 helper review; manifest76d49ed9956035fd462ec806e4ee9b6fc58d60ad9ea21e9bbf4591d61934c3ca"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "679981e56cea23cb84924a243a0757680e79e5efb81c5711fd66caa8aae6f942",
+      "review_chain": "Original applicable F1 review plus fresh F3 final fixture/consumer remediation review"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "review_chain": "Original P4/P5 reviews plus accepted P5 compatibility fresh review db22e5aff08e9f745fb905c0b8b39679c2a74942ea242499d08a344eb7313b35"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+      "review_chain": "Original P4/P5 reviews plus accepted P5 compatibility fresh review db22e5aff08e9f745fb905c0b8b39679c2a74942ea242499d08a344eb7313b35"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+      "sha256": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+      "sha256": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee",
+      "review_chain": "Original applicable F1 review plus fresh F3 final fixture/consumer remediation review"
+    },
+    {
+      "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+      "sha256": "467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27",
+      "review_chain": "Original applicable F1 review plus fresh F3 final fixture/consumer remediation review"
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_results_schema.py",
+      "sha256": "64854f2e43c74349b695f7f8a1d5fb6609d3d3dd7fa78ab9ca3abdfa70c4d553",
+      "review_chain": "Original applicable F1 review plus fresh F3 final fixture/consumer remediation review"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "sha256": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+      "sha256": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md",
+      "sha256": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs",
+      "sha256": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+      "review_chain": "Original frozen 15-file review chain unchanged; exact prior hash retained"
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
+      "review_chain": "Fresh F3 final remediation review: 17 CONTROL plus one EVIDENCE exact additions"
+    }
+  ],
+  "inventory": "C1 independently matched complete selected product/test/config Git diff against original 2be baseline",
+  "original_review_coverage": "instances/F3/SOURCE_REVIEW_COVERAGE.json",
+  "F3_final_review_manifest_sha256": "4a8a6bacfb8b9fe1f6b01e43c79000381295ce07f1d4cd2b15fcfe42c45e221f",
+  "limits": "No source-gap claim beyond declared product/test/config boundaries; evidence packaging separately reviewed, clean full verification still pending"
+}

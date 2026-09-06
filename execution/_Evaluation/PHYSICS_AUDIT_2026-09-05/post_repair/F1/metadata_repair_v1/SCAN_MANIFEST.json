@@ -1,0 +1,15 @@
+{
+  "status": "READ_ONLY_COMPLETE",
+  "members": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/CONSUMER_SCAN.md",
+      "sha256": "92ca8142e1c5cafaeaa9d4669dca205ad7899067567a0ab67268cf5119b78b2e",
+      "bytes": 1852
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/READ_ONLY_CONSUMER_NUMERIC_SCAN.json",
+      "sha256": "f22c500260c275131b5ed28edbd1eafd4747c05800e5ab5dcdc03e2b5a50f5d6",
+      "bytes": 1080
+    }
+  ]
+}

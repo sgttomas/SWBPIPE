@@ -1,0 +1,21 @@
+{
+  "status": "READ_ONLY_DIAGNOSIS_COMPLETE",
+  "repository_writes": false,
+  "files": [
+    {
+      "path": "ACTUAL_F2_OUTPUT_CHECK.json",
+      "sha256": "24a2942ef162f3c4876668186b83496056ba0f755b03724f6f55c223423fcfaa",
+      "bytes": 31912
+    },
+    {
+      "path": "FIXTURE_METADATA_ANALYSIS.json",
+      "sha256": "a50245101a295d52a1a9abfa0b3ff8600d982d6a5e27de262784c6b2f62f9a2b",
+      "bytes": 265119
+    },
+    {
+      "path": "REPORT.md",
+      "sha256": "9ecfe82dbd847b1c4bc2ae5f5bfca7062f87d82bfb2f5080f21e8b32e6cf1e39",
+      "bytes": 5894
+    }
+  ]
+}

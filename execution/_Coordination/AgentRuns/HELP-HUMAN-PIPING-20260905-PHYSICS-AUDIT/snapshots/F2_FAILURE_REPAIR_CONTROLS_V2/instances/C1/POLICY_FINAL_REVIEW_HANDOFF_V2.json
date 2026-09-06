@@ -1,0 +1,21 @@
+{
+  "policy_path": "projects/chirality-piping/validation/portability_policy.json",
+  "policy_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
+  "change": "Append 17 exact historical CONTROL exceptions and one exact historical EVIDENCE override under separate explicit root acceptances",
+  "historical_targets_unchanged": true,
+  "previous_entries_equal": true,
+  "portable_active_controls": [
+    "WORK_GRAPH.json",
+    "briefs/F2_FINAL_VERIFICATION_V2.md",
+    "instances/P5/compatibility_v1/AUTHOR_BRIEF_V2.md"
+  ],
+  "acceptances": [
+    "dispositions/ACCEPT_EXACT_16_HISTORICAL_CONTROL_EXCEPTIONS_V1.json",
+    "dispositions/ACCEPT_P5_SEALED_PREDECESSOR_CONTROL_EXCEPTION_V1.json",
+    "dispositions/ACCEPT_P5_IMMUTABLE_DIAGNOSTIC_EVIDENCE_OVERRIDE_V1.json"
+  ],
+  "full_diff": "instances/C1/_run_records/POLICY_FINAL_DIFF_V2.json",
+  "fresh_review": "Pending root-dispatched F3",
+  "failed_prior_checks": "Own PORTABILITY_REPAIR_V1 evidence is immutable; new diagnostic finding resolved by exact approved classification. This does not change failed F2 history.",
+  "validation": "Terminal rerun outputs in own PORTABILITY_REPAIR_V2; no full DEC025 acceptance inferred"
+}

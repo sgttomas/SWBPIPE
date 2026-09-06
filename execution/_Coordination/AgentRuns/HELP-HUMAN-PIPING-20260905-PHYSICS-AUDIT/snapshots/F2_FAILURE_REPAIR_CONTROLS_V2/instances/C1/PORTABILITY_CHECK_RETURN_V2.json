@@ -1,0 +1,26 @@
+{
+  "status": "BOUNDED_PORTABILITY_CHECKS_PASS",
+  "policy_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
+  "approved_control_exceptions": 17,
+  "approved_evidence_override": 1,
+  "original_targets_hash_preserved": true,
+  "policy_issues": 0,
+  "unacknowledged_control": 0,
+  "active_unclassified": 0,
+  "path_anchors_exit": 0,
+  "harness_pytest": {
+    "exit": 0,
+    "passed": 351,
+    "failed": 0
+  },
+  "harness_selfcheck": {
+    "exit": 0,
+    "inherited_reviews": 4,
+    "new_reviews": 0,
+    "whole_repo_unqualified_pass": false
+  },
+  "diff_check": "Tracked C1 controls and policy git diff --check exit 0",
+  "prior_failure": "PORTABILITY_CHECK_RETURN_V1 and raw V1 evidence preserved",
+  "tests": "Raw terminal streams encoded in instances/C1/_run_records/PORTABILITY_REPAIR_V2",
+  "remaining": "Fresh F3 policy review; new final source verification and complete clean DEC025 remain pending; no receipt"
+}

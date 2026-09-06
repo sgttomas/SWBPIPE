@@ -1,0 +1,74 @@
+{
+  "record_kind": "Semantic transcription of explicit root acceptance",
+  "candidate_sha256": "9f82588e8901fd29de51b2c361ae63a9263f7799a7f92830384ee4ae8a381f7e",
+  "accepted_entries": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/briefs/F2_FINAL_VERIFICATION_V1.md",
+      "sha256": "7f821d14d64bc91ea5125035f9936207727dfd9e1c18ef5cfdb66a4da80f95da"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json",
+      "sha256": "7b24e4bd77e99abf2f418fedd2a244fb9b4529d8bfd6022624d61ddc15953f27"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/E1/BRIEF.md",
+      "sha256": "f76d79221d46a2e30b8cab0a84ec6c5afe147b8a474ad3312641bfa128fb807c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_A_BRIEF_V1.md",
+      "sha256": "70dfc5096a511f5e8ee7f148b1c23b2366e725ff3e86c1ead23771ba3beee3bd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_A_BRIEF_V2.md",
+      "sha256": "0b78c17b3c9e25aa71b06d612edf3ed575dd50f78030d831cfafd9ab39ef0212"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_R2_BRIEF_V1.md",
+      "sha256": "d074c7eca8b3c5770d18474ddfa7703c109e56ef764a965c8927ae2634d297e9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P9/P9_R_BRIEF_V1.md",
+      "sha256": "5b8e035f5d3a5c3dfbcb04e4c42b8dcce57a6dc2760a524727e43c271a7d79f4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_CRLF_REPAIR_V1/WORK_GRAPH.json",
+      "sha256": "c9b2f50018ff3c5aeda361c8b8633e063d49392e3515ddaa2b981d302401fef0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_CRLF_REPAIR_V1/dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json",
+      "sha256": "7b24e4bd77e99abf2f418fedd2a244fb9b4529d8bfd6022624d61ddc15953f27"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/EVIDENCE_TRANSPORT_REPAIR_V2/WORK_GRAPH.json",
+      "sha256": "e93d4b8f07d7b0c4152c63909c521fb53ff25ec2169b7798b36ce7400a537ad4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_PREPARED_V1/BRIEF.md",
+      "sha256": "7f821d14d64bc91ea5125035f9936207727dfd9e1c18ef5cfdb66a4da80f95da"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/F2_PREPARED_V1/WORK_GRAPH.json",
+      "sha256": "5dde39666e95b0ee0470efae5a19bb973f030960e24c31c6100a1ca7b1ba06ae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/P5_SOURCE_F1_RELEASE_V1/WORK_GRAPH.json",
+      "sha256": "9709b296e5fe3f0329cacb4329e73fb909ae803bf0557a7cf0a067e7d8c311bf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/WORK_GRAPH.json",
+      "sha256": "0d6ba5bf640146911d61b1ffee64dc257cf353cf01c4f74ebe926541cd5de94e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/SOURCE_READY_V1/WORK_GRAPH.json",
+      "sha256": "b9453514757059054e54c7768b4bc92985690764656149ef704af67428c9c282"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/SOURCE_READY_V2/WORK_GRAPH.json",
+      "sha256": "bb3cc2684f28a65b7209471346be80d343c53f7fe70632d984873d554051c5dc"
+    }
+  ],
+  "authority": "User-approved physics audit and bounded-repair program; Agent0 explicitly approved these exact 16 CONTROL exceptions after reading candidate and independently verifying target hashes.",
+  "write_extension": "C1 may append only these 16 entries to projects/chirality-piping/validation/portability_policy.json. Preserve older entries and all frozen bytes; no EVIDENCE overrides, globs, or future execution authority.",
+  "preconditions": "Current graph uses portable temporary anchor. F2_FINAL_VERIFICATION_V2.md explicitly supersedes original brief for future released rerun. Completed historical controls remain immutable.",
+  "scope_meaning": "Historical preservation through existing exact-hash mechanism, not active-path waiver, new Owner policy, or test-gate acceptance."
+}

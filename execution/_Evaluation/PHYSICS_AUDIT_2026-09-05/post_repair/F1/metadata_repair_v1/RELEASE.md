@@ -1,0 +1,1 @@
+Root releases producer-dependent metadata work at product SHA e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903. Additional exact E2E write apps/desktop/e2e/r2-smoke.spec.ts viewport maximum4.567557→4.927109 only. Candidate not accepted until P5 fresh review and root integration acceptance. Existing brief and write fences unchanged.

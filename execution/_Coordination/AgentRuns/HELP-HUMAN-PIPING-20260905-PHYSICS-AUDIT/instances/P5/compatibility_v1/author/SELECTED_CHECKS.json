@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "evidence-sweep",
+    "harness-self-check",
+    "piping-pytest"
+  ],
+  "paths": [
+    "core/product_physics/src/lib.rs",
+    "core/runner/headless/src/result_envelope_binding.rs"
+  ],
+  "reasons": {
+    "evidence-sweep": [
+      "core/product_physics/src/lib.rs",
+      "core/runner/headless/src/result_envelope_binding.rs"
+    ],
+    "piping-pytest": [
+      "core/product_physics/src/lib.rs",
+      "core/runner/headless/src/result_envelope_binding.rs"
+    ]
+  },
+  "schema": "chirality-affected-checks/v1"
+}

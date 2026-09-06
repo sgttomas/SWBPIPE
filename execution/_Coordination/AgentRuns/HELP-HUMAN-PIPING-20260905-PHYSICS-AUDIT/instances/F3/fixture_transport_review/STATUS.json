@@ -1,0 +1,11 @@
+{
+  "run_status": "SUCCESS",
+  "verdict": "PASS",
+  "findings": [],
+  "attribution": "Parent-relayed semantic transcription",
+  "reviewer": "/root/fixture_review",
+  "actual_model": "unexposed",
+  "root_acceptance": "ACCEPT_BOUNDED_F1_TRANSPORT",
+  "logical_manifest_sha256": "3fc67be3aa81585a58986f55ecb090527f64220ee3dda20ced538cd156eb9058",
+  "physical_manifest_sha256": "1e97c39b7c67537ecea297f544ed6bf2e41288334224c03f071b4d7f6d64cf1a"
+}

@@ -1,0 +1,324 @@
+[
+  {
+    "check": "sparse axial quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse axial midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse axial quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse torsion quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse torsion midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse torsion quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse shear_y quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse shear_y midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse shear_y quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL shear quarter-1",
+    "actual": 150.0,
+    "expected": 150,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL moment quarter-1",
+    "actual": 112.5,
+    "expected": 112.5,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL shear midspan",
+    "actual": 100.0,
+    "expected": 100,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL moment midspan",
+    "actual": 50.0,
+    "expected": 50,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL shear quarter-3",
+    "actual": 50.0,
+    "expected": 50,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse UDL moment quarter-3",
+    "actual": 12.5,
+    "expected": 12.5,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse result:combination:combination-R-sum:disp:node-N-100",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse result:combination:combination-R-sum:disp:node-N-110",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse result:combination:combination-R-sum:reaction:support-S-100",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse overflow explicitly blocked",
+    "pass_": true,
+    "actual": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    }
+  },
+  {
+    "check": "sparse linear_spring displacement mm",
+    "actual": 0.187968,
+    "expected": 0.18796797141911276,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse nonlinear_spring displacement mm",
+    "actual": 0.187968,
+    "expected": 0.18796797141911276,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "sparse original_m solved",
+    "pass_": true
+  },
+  {
+    "check": "sparse original_mm solved",
+    "pass_": true
+  },
+  {
+    "check": "sparse original_in solved",
+    "pass_": true
+  },
+  {
+    "check": "dense axial quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense axial midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense axial quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense torsion quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense torsion midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense torsion quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense shear_y quarter-1",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense shear_y midspan",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense shear_y quarter-3",
+    "actual": 350.0,
+    "expected": 350,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL shear quarter-1",
+    "actual": 150.0,
+    "expected": 150,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL moment quarter-1",
+    "actual": 112.5,
+    "expected": 112.5,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL shear midspan",
+    "actual": 100.0,
+    "expected": 100,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL moment midspan",
+    "actual": 50.0,
+    "expected": 50,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL shear quarter-3",
+    "actual": 50.0,
+    "expected": 50,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense UDL moment quarter-3",
+    "actual": 12.5,
+    "expected": 12.5,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense result:combination:combination-R-sum:disp:node-N-100",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense result:combination:combination-R-sum:disp:node-N-110",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense result:combination:combination-R-sum:reaction:support-S-100",
+    "actual": 0.0,
+    "expected": 0,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense overflow explicitly blocked",
+    "pass_": true,
+    "actual": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    }
+  },
+  {
+    "check": "dense linear_spring displacement mm",
+    "actual": 0.187968,
+    "expected": 0.18796797141911276,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense nonlinear_spring displacement mm",
+    "actual": 0.187968,
+    "expected": 0.18796797141911276,
+    "tolerance": 1e-06,
+    "pass_": true
+  },
+  {
+    "check": "dense original_m solved",
+    "pass_": true
+  },
+  {
+    "check": "dense original_mm solved",
+    "pass_": true
+  },
+  {
+    "check": "dense original_in solved",
+    "pass_": true
+  }
+]

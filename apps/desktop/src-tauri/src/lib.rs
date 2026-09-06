@@ -3715,14 +3715,30 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     ))
     .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
     let baseline = solve_preview_mechanics(model.clone())?;
-    let baseline_displacement = baseline["results"]
-        .as_array()
-        .and_then(|rows| {
-            rows.iter()
-                .find(|row| row["id"].as_str() == Some("result:disp:node-N-140"))
-        })
-        .and_then(|row| row["value"].as_f64())
+    // The edited force acts directly at the active UY stop: displacement is
+    // constrained, so its signed reaction (not displacement) must absorb the edit.
+    let stop_reaction = |result: &Value| -> Option<f64> {
+        result["results"].as_array()?.iter().find(|row| {
+            row["id"] == json!("result:nonlinear-support:support-NL-140:uy-reaction")
+                && row["kind"] == json!("nonlinear_support_final_reaction")
+                && row["entity_ref"] == json!("support:NL-140")
+                && row["basis_ref"]["ref_id"] == json!("load:L-100")
+                && row["unit"] == json!("N")
+        })?["value"]
+            .as_f64()
+            .filter(|value| value.is_finite())
+    };
+    let baseline_reaction = stop_reaction(&baseline)
         .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-RESULT-MISSING".to_string())?;
+    let baseline_load = model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"]
+        .as_f64()
+        .filter(|value| value.is_finite())
+        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-LOAD-MISSING".to_string())?;
+    if baseline_load != 350.0
+        || model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"] != json!("N")
+    {
+        return Err("PACKAGED-SMOKE-BASELINE-LOAD-MISMATCH".to_string());
+    }
 
     model["project"]["id"] = json!("project:packaged-edited-load-smoke");
     model["project"]["name"] = json!("Packaged Edited Load Smoke");
@@ -3792,13 +3808,7 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     }
     let solved = solve_preview_mechanics(restored.model)?;
     let result_rows = solved["results"].as_array().map_or(0, Vec::len);
-    let restored_displacement = solved["results"]
-        .as_array()
-        .and_then(|rows| {
-            rows.iter()
-                .find(|row| row["id"].as_str() == Some("result:disp:node-N-140"))
-        })
-        .and_then(|row| row["value"].as_f64())
+    let restored_reaction = stop_reaction(&solved)
         .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-RESULT-MISSING".to_string())?;
     if solved["status"]["mechanics"] != json!("MECHANICS_SOLVED")
         || solved["model_ref"] != json!("project:packaged-edited-load-smoke")
@@ -3806,7 +3816,11 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
     {
         return Err("PACKAGED-SMOKE-RESTORED-SOLVE-FAILED".to_string());
     }
-    if restored_displacement == baseline_displacement {
+    let reaction_delta = restored_reaction - baseline_reaction;
+    let expected_reaction_delta = -(restored_value.unwrap() - baseline_load);
+    // Each published force is rounded to six decimals. Subtraction can carry
+    // up to one last-place unit of rounding error; this is not a physics tolerance.
+    if (reaction_delta - expected_reaction_delta).abs() > 1.0e-6 {
         return Err("PACKAGED-SMOKE-EDIT-DID-NOT-AFFECT-RESULT".to_string());
     }
 
@@ -3835,7 +3849,15 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S
             "mechanics": solved["status"]["mechanics"],
             "model_ref": solved["model_ref"],
             "result_rows": result_rows,
-            "edited_result_differs_from_baseline": true
+            "edited_result_differs_from_baseline": true,
+            "edit_witness": {
+                "result_id": "result:nonlinear-support:support-NL-140:uy-reaction",
+                "unit": "N",
+                "baseline": baseline_reaction,
+                "restored": restored_reaction,
+                "delta": reaction_delta,
+                "expected_delta": expected_reaction_delta
+            }
         },
         "boundary": {
             "network": false,
@@ -3980,6 +4002,13 @@ mod tests {
             json!("project:packaged-edited-load-smoke")
         );
         assert!(evidence["solve"]["result_rows"].as_u64().unwrap_or(0) > 0);
+        assert_eq!(evidence["solve"]["edit_witness"]["unit"], json!("N"));
+        assert_eq!(
+            evidence["solve"]["edit_witness"]["expected_delta"],
+            json!(-75.0)
+        );
+        let delta = evidence["solve"]["edit_witness"]["delta"].as_f64().unwrap();
+        assert!((delta + 75.0).abs() <= 1.0e-6);
         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
     }
 

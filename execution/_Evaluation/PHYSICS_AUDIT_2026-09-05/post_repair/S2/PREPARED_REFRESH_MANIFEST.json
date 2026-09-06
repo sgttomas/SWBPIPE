@@ -1,0 +1,25 @@
+{
+  "schema": "piping-postrepair-synthesis/v2",
+  "status": "PRE_RERUN_GLOBAL_GATES_OPEN",
+  "derivative": true,
+  "base": "manifest-relative",
+  "supersedes": "historical/PRE_FINAL_V1/PRE_FINAL_MANIFEST.json",
+  "superseded_sha256": "96481d7e27b84e4b96cf0c5cdb1a609efeb0f11c16bca2a10c66e58f6829be3a",
+  "files": {
+    "REFRESH_INPUT_VERIFICATION.json": "603d998dd16a1886ad1133776d62ca8dd8a7ad3a2c5e90a76917b9f56ead2de7",
+    "QA.json": "17325f93118998eef710a6d97aae9cb26c259993d53f9794336effb072fb66a4",
+    "REPORT.md": "b04a28c4295c99f0b70da31d870a7bddc24cbcb0aa9496afbd0256a600b0bf81",
+    "build_report.py": "4442238b6a3df819a20e8f7ccc44ab19821d31920c888480aca466e9e201b3bb",
+    "CANDIDATE_INTAKE.json": "caf4257b24a68f8aea5d01f0dd520c81c81997a29c7201346f73d0e63c992779",
+    "DISPOSITION_COUNTS.json": "71d52cc5b0bd34895bbdbad00208544f66706fd8c88204b7f169b5beaa8bd907",
+    "FINDING_DISPOSITIONS.csv": "7074abbef4e00fd9ee5800e186ccd7e560f9a405e3d2c74d376d0fce9239304d",
+    "BRIEF.md": "850a620fd3c4c1255c9e8358e51999537a03da4db5abeaf5be22c8ea4d408b5a",
+    "REFRESH_QA.json": "6599689736920a225076f3b64af4baa919fe9a1148f146e0bbe20b20d392cc15",
+    "ADDITIONAL_FINDINGS.csv": "522e8f43e960775fcbf2afad17ac67eb789667b999f4574a6664e8fd611af4db",
+    "INPUT_VERIFICATION.json": "e49e1769f9226c7d13059628ec8209f7eb14913483d3a640763ffa3a74394a92"
+  },
+  "instance_return": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/S2/RETURN_REFRESH_V1.md",
+    "sha256": "de2f5dd1520503a7b6ba6e5730a4a82686d76310cf1ff0a032e0358b87da58a9"
+  }
+}

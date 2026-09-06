@@ -1,0 +1,9 @@
+{
+  "fixtures/product_preview/invented_mechanics_result.json": "f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee",
+  "tests/product_preview/test_product_preview_service.py": "467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27",
+  "tests/test_results_schema.py": "64854f2e43c74349b695f7f8a1d5fb6609d3d3dd7fa78ab9ca3abdfa70c4d553",
+  "apps/desktop/src/App.test.tsx": "679981e56cea23cb84924a243a0757680e79e5efb81c5711fd66caa8aae6f942",
+  "apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+  "apps/desktop/e2e/r2-smoke.spec.ts": "4cd16a28a710789d07f3ee0ebd89c946896ef8d51bc2877cc64865da1dc0b430",
+  "core/product_physics/src/lib.rs": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903"
+}

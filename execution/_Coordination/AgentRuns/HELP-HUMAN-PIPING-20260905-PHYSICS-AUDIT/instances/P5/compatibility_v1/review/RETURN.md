@@ -1,0 +1,17 @@
+# Fresh compatibility review return
+
+Manager structured transcription of actual native child /root/repair_pkg05/compat_review terminal return. Observed absolute ScopePath and skill path represented by declared portable anchors; not a claim of raw transport bytes.
+
+RUN_STATUS SUCCESS. Verdict PASS, no actionable findings. Valid for manager fan-in, no lifecycle acceptance. TASK software-code-review v1, profile NONE, ControlSurface MERGED. ScopePath {WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1. Skill {REPO_ROOT}/skills/software-code-review. BRIEF_SCHEMA/TOOL_POLICY/QA_CHECKS found/read. RuntimeOverrides.INSTRUCTION_ROOT explicit resolved REPO_ROOT. Write targets NONE. Read-only shell git/rg/cat/sed and Python inspection/hash/decode/compare. No writes/builds/network/Git mutations/delegation. ToolPolicyCompliance PASS within sealed allowlist. Model unexposed; role/nondelegation instruction-asserted.
+
+100% coverage of both diffs plus producer/stress helper/assertions/export mapping/serialization/schema/test. Product11 hunks25added11removed; final ranges1637–1644,1754–1764,8691–8705,11789–11795,11805–11811,12084–12090,12100–12106,14643–14649,14659–14665,16345–16352,16358–16364. Headless one hunk161added0removed, entire test883–1042; production prefix byte-identical.
+
+Verified brief5061c2fae6d160fb739e78ea09eb30cf5672b915a8e7cf0e0ab9d2f20d5f6470. Author manifest58880dee31ae54109d503272ed8b2f8f3d140d116fc3485be0e183c4b10be8dc all20entries. Product before93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc finale757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903. Headless before0ab28ce33829e198ac4f91e2136a1dca122f35a8cb024af276683c200e3697cd final2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85. Decoded product patchcbdee50662faed4a94855654c6515096b676d9387fa96be262ccf5f0a462972e, headless2595738141722766f947f2d26bfadceef2d65c9b575449ceab32f6eb594e11a8. Headless production prefixfcb936a0e0c9c068715d2006cfc8f4716ad830ea25b9150e542ffd47e164de49. Live source matched frozen copies at review completion.
+
+Existing schema categories retain detailed equilibrium/fixed-end/frame/sign descriptions. Straight stress wording no longer falsely says interpolation; curved behavior unchanged. No numerical expression/result ID/public field/schema/production-adapter change or weakened existing assertion.
+
+Actual library test requires mapped station exports and five schema metadata fields, primitive vs combination distinctions. Longitudinal-pressure exception narrowly restricted to existing unmapped family, explicit per-row disclosure and preview metadata validation.
+
+Independent checks:40 stored output hashes/nonmetadata equality rechecked; manager5290numeric leaves.378 exported station metadata rows independently validated per each of three witnesses:144stiffness108stress126combination. Final headless log39PASS0FAIL decodedSHAa86cca34f05f3b7d97ce388a76acf255e4e81d072050c810924be733e9df091d; prior failing attempts retained. Product137PASS1enabled stale fixtureFAIL, F1owns.
+
+Residual: whole documents remain160/212/152errors (158/210/150metadata +2reproducibility each); no whole-document conformance claim. Longitudinal-pressure stays disclosed; curved metadata/D01–D06 held/out of scope. F1, global sweep/harness/pytest/root gates pending, reviewer no builds. Proposed changes none, missing none for bounded review, no human ruling required in scope; no new cycle.

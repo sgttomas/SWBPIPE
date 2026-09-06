@@ -1,0 +1,10 @@
+{
+  "source_before": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+  "source_after": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+  "product_source_observed_after_tests": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+  "head_basis": "0ab12975fb3162545c4f8d31060f279affd2402d",
+  "targeted_final_exit": 0,
+  "rustfmt_output_empty": false,
+  "rustfmt_final_exit": 1,
+  "final_test_log": "postformat_targeted.stdout"
+}

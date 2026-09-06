@@ -1,0 +1,11 @@
+{
+  "sha256": "407a0118f2c6b59003ab2359eb30470e1e4b967557996fbe223b2c2c5d04c9b1",
+  "before_files": {
+    "fixtures/product_preview/invented_mechanics_result.json": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "tests/product_preview/test_product_preview_service.py": "43650dbb36e4eec9508b4e75878ba3ba0f8570af9b95c88481636570e44d1b5e",
+    "tests/test_results_schema.py": "eb8446b6915bd106b69dbab08ee1bc01feddf4ceef8b693ae24f14a1e2c962cc",
+    "apps/desktop/src/App.test.tsx": "be226fb62c1b5fbc2a501ca8fb79d06f5eefd817b5b77eedfa02f04560f43664",
+    "apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "apps/desktop/e2e/r2-smoke.spec.ts": "4922261af9a74e7514b2a49e0aa0dd8552ae853264b07a0065f8fc4cc22449e8"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "command": [
+    "npm",
+    "test"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "returncode": 0,
+  "stdout_base64": "Cj4gQG9wZW5waXBlc3RyZXNzL2Rlc2t0b3BAMC4xLjAgdGVzdAo+IHZpdGVzdCBydW4KCgogUlVOICB2NC4xLjEwIC9Vc2Vycy9yeWFuLy5jb2RleC93b3JrdHJlZXMvODcyOC9jaGlyYWxpdHkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9hcHBzL2Rlc2t0b3AKCgogVGVzdCBGaWxlcyAgNDUgcGFzc2VkICg0NSkKICAgICAgVGVzdHMgIDc0OCBwYXNzZWQgKDc0OCkKICAgU3RhcnQgYXQgIDE5OjI4OjM4CiAgIER1cmF0aW9uICAxNDEuMDhzICh0cmFuc2Zvcm0gNi4wNnMsIHNldHVwIDMuMTdzLCBpbXBvcnQgOS42OHMsIHRlc3RzIDE4Ni4yNnMsIGVudmlyb25tZW50IDEzLjk4cykKCg==",
+  "stdout_sha256": "572944b70727991e57212f2f2d2bdb929b80c67bb30401ab00d0713c0d49349f",
+  "stderr_base64": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,505 @@
+{
+  "version": 17,
+  "selection_authority": {
+    "execution_scope_and_fanout": "HUMAN",
+    "routing": "AGENT_0"
+  },
+  "posture": "MIXED",
+  "source_basis": {
+    "git_source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+    "branch": "codex/piping-physics-audit",
+    "origin_main_verified_by": "C0",
+    "PR724_merge_ancestor": "39f51f1",
+    "intervening_piping": "None; no intervening Piping files/commits per C0",
+    "before_after_git": "clean per C0; C1 independently observed clean branch before control writes",
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010",
+    "pointer_verification": "C1 read live pointers; managers verify their numerical authority and live selected deliverable contexts/status with paired memory"
+  },
+  "approved_plan": "APPROVED_PLAN.md",
+  "audit_root": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05",
+  "initial_numerical_team_count": 11,
+  "nodes": [
+    {
+      "id": "C0",
+      "role": "CHANGE",
+      "status": "branch basis accepted",
+      "runtime_id": null,
+      "scope": "Git and own future exact evidence"
+    },
+    {
+      "id": "C1",
+      "role": "bounded Agent2 recorder",
+      "runtime_id": "/root/implementation_coordination",
+      "status": "active control recording",
+      "write_scope": "runroot root controls/briefs/snapshots/own C1 only"
+    },
+    {
+      "id": "M1",
+      "role": "EVALUATION",
+      "runtime_id": "/root/audit_numerics",
+      "status": "bounded baseline packet accepted/released to S1",
+      "children": [
+        "M1-E elements/assembly",
+        "M1-L linear numerics",
+        "M1-N nonlinear supports/convergence"
+      ],
+      "write_scope": "auditroot/M1 only",
+      "manifest_sha256": "e6c86c697ca9efdfce94b26ec5b1870cce347e8c739f4f0769e0cdbc4f6cffb0"
+    },
+    {
+      "id": "I1",
+      "role": "EVALUATION",
+      "runtime_id": "/root/audit_integration",
+      "status": "bounded baseline packet accepted/released to S1",
+      "children": [
+        "I1-C compilation/load-support transfer",
+        "I1-R recovery/combinations/publication"
+      ],
+      "write_scope": "auditroot/I1 only",
+      "manifest_sha256": "57753421814d4d5690da827830d644918a003c0efe2d987c137a7aa16c91e9f6"
+    },
+    {
+      "id": "V1",
+      "role": "EVALUATION",
+      "runtime_id": "/root/audit_verification",
+      "status": "bounded final packet accepted",
+      "children": [
+        "V1-R independent references",
+        "V1-C benchmark coverage/sensitivity/reproducibility"
+      ],
+      "write_scope": "auditroot/V1 only",
+      "manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1"
+    },
+    {
+      "id": "BASELINE_SYNTHESIS",
+      "role": "direct Agent 2 TASK",
+      "status": "whole S1V3 baseline accepted",
+      "write_scope": "auditroot/S1 only",
+      "instance": "S1",
+      "runtime_id": "/root/audit_synthesis",
+      "held_upstreams": [],
+      "manifest_sha256": "e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f"
+    },
+    {
+      "id": "R1",
+      "role": "fresh direct Agent 2 TASK",
+      "status": "finalPASS accepted complete reviewchain",
+      "write_scope": "auditroot/R1 only",
+      "runtime_id": "/root/audit_baseline_review",
+      "scope": "full44findings/coverage/references/repairgates",
+      "manifest_sha256": "45de32ea6e0e52a9afa903887a2c62c9ad9fdedc93e49bac2a960b8c64958e08"
+    },
+    {
+      "id": "REPAIR_MANAGERS",
+      "role": "package WORKING_ITEMS",
+      "status": "P4/P9 completed; P5 bounded compatibility repair active",
+      "write_scope": "none yet"
+    },
+    {
+      "id": "POST_REPAIR_REVIEW_AND_VALIDATION",
+      "status": "held",
+      "scope": "original witness reruns, fresh full production diff review, native integration, clean DEC025, CHANGE PR"
+    },
+    {
+      "id": "I1_SUPPLEMENT_V1",
+      "role": "bounded I1 evaluation supplement",
+      "runtime_id": "/root/audit_integration",
+      "status": "bounded supplement accepted",
+      "write_scope": "auditroot/I1/supplement_v1 only",
+      "purpose": "Close high-risk inexpensive UNKNOWN via actual previewService native-failure default/edited injection and optional rounding cancellation",
+      "manifest_sha256": "77f2f1f44cd6c14e1cdaa89bda2837d29260d370bec0c45922fb5e20a4e20cba"
+    },
+    {
+      "id": "P4",
+      "role": "WORKING_ITEMS",
+      "package": "PKG-04",
+      "status": "final bounded closure accepted; global gates open",
+      "repairs": [
+        "R01",
+        "R02",
+        "R03",
+        "R04",
+        "R06",
+        "R07"
+      ],
+      "shared_product_owner": "first exclusive",
+      "exact_paths": "manager resolves/seals before child dispatch",
+      "brief": "briefs/P4_REPAIR_LAUNCH_BRIEF_V2.md",
+      "runtime_id": "/root/repair_pkg04",
+      "current_exclusive_source": [],
+      "final_manifest_sha256": "4820759d2bb32768ec8f31034c91e6c001775f448517ab38ba19ff6852b69a8e"
+    },
+    {
+      "id": "P5",
+      "role": "WORKING_ITEMS",
+      "package": "PKG-05",
+      "status": "Compatibility candidate source frozen; fresh review and numeric replay pending",
+      "repairs": [
+        "R05",
+        "R08",
+        "R09",
+        "R11"
+      ],
+      "shared_product_owner": "only after accepted P4 frozen handoff and root transfer",
+      "exact_paths": "manager resolves/seals before child dispatch",
+      "brief": "briefs/P5_REPAIR_LAUNCH_BRIEF_V2.md",
+      "source_gate": "satisfied by accepted P4 checkpoint and explicit root transfer",
+      "runtime_id": "/root/repair_pkg05",
+      "compliance": "VIOLATION preserved, not PASS",
+      "product_input_sha256": "171a63860bb9d105e2336bb76be6a71b26032cca5795d55ba3556f8c08ba3d26",
+      "compile_slots": 1,
+      "accepted_source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "final_manifest_sha256": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1",
+      "current_source_fence": [
+        "core/product_physics/src/lib.rs metadata compatibility only, no numerical changes",
+        "core/runner/headless/src/result_envelope_binding.rs test module only"
+      ],
+      "candidate_source_sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "candidate_headless_test_sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85"
+    },
+    {
+      "id": "P9",
+      "role": "WORKING_ITEMS",
+      "package": "PKG-09",
+      "status": "final bounded closure accepted",
+      "repairs": [
+        "R10"
+      ],
+      "source_scope": "independent benchmarks/regressions outside kernel/product",
+      "exact_paths": "manager resolves/seals before child dispatch",
+      "brief": "briefs/P9_REPAIR_LAUNCH_BRIEF_V2.md",
+      "exact_test_write_fence": "validation/benchmarks/physics_audit_regression per root amendment/sealed P9 V2; no production/core-test edits",
+      "runtime_id": "/root/repair_pkg09",
+      "manifest_sha256": "6c6cac8ed0f320fa110a18c67c8cb1597e47e54bd3bfc0f70d51fd882fba659b",
+      "final_manifest_sha256": "b13ec5c533f1a571b8314b680b8985ed73dfcd44c53ffd2c5901339395b413bc"
+    },
+    {
+      "id": "F1",
+      "role": "future bounded direct Agent2",
+      "runtime_id": "/root/fixture_regeneration",
+      "status": "Root released exact dependent synchronization against frozen P5 candidate; acceptance remains pending",
+      "write_scope": [
+        "fixtures/product_preview/invented_mechanics_result.json only product path",
+        "instances/F1 evidence",
+        "evaluation post_repair/F1 evidence",
+        "declared isolated temporary/build outputs"
+      ],
+      "brief": "briefs/F1_FIXTURE_REGENERATION_V1.md",
+      "delegation": "none",
+      "review": "fresh root-dispatched read-only review after regeneration",
+      "accepted_product_source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "compile_slots": 1,
+      "additional_exact_write_scope": [
+        "services/previewService.test.ts two fixture synchronizations",
+        "App.test.tsx exact four fixture-dependent cases"
+      ],
+      "manifest_sha256": "7b1cb7ba585bfa89ff2d6b9a218764557643f2ecb8b9f9e1f141f5c17abd4fb4",
+      "additional_root_amendment": "apps/desktop/e2e/r2-smoke.spec.ts exact fixture-derived viewport maximum 4.567557 to 4.927109 mm; preserve interactions/assertions"
+    },
+    {
+      "id": "F2",
+      "role": "bounded direct Agent2 final verification",
+      "runtime_id": null,
+      "status": "Original execution terminal CHANGES_REQUIRED; future rerun HELD",
+      "brief": "briefs/F2_FINAL_VERIFICATION_V2.md",
+      "write_scope": [
+        "declared {VERIFICATION_TMP_ROOT} staging and ignored build outputs",
+        "after sweep terminal only instances/F2 and audit post_repair/F2"
+      ],
+      "source_writes": false,
+      "delegation": "none",
+      "resource_gate": "root-exclusive heavy build",
+      "DEC025": "exact full unchanged command, clean WHOLE committed repository, all five surfaces",
+      "checkpoint_manifest_sha256": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95"
+    },
+    {
+      "id": "S2",
+      "runtime_id": "/root/repair_report",
+      "role": "direct Agent2 report synthesis",
+      "status": "Pre-final accepted historically; final update awaits corrected source and complete verification",
+      "write_scope": [
+        "auditroot/post_repair/S2",
+        "instances/S2"
+      ]
+    },
+    {
+      "id": "CHANGE",
+      "runtime_id": "/root/audit_change",
+      "role": "Agent1 CHANGE",
+      "status": "Source commit 0ab12975 completed; new repair source commit held for review/freeze",
+      "write_scope": [
+        "instances/CHANGE",
+        "auditroot/post_repair/CHANGE"
+      ]
+    },
+    {
+      "id": "F3",
+      "runtime_id": "/root/fixture_review",
+      "role": "freshTASKsoftware-code-review",
+      "status": "Prior source/packaging review historical; fresh repair review pending",
+      "write_scope": [],
+      "source_mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d"
+    },
+    {
+      "id": "E1",
+      "runtime_id": "/root/evidence_crlf",
+      "role": "bounded direct Agent2",
+      "status": "bounded exactattributesaccepted afterF3PASS",
+      "write_scope": [
+        "auditroot/.gitattributes exact entries",
+        "own evidence/tmp"
+      ],
+      "review": "fresh F3backcheck",
+      "manifest_sha256": "e707cc995798d08973cfd3b8072a958da0d8964bd661c1282ef5075b3536c373"
+    },
+    {
+      "id": "V1_TRANSPORT",
+      "runtime_id": "/root/audit_verification",
+      "role": "V1 transport-only resume",
+      "status": "lossless logicalarchive/currentphysicalpackaging accepted afterF3PASS",
+      "write_scope": [
+        "auditroot/V1",
+        "instances/V1_TRANSPORT"
+      ],
+      "preservation": "110members+originalFINAL_MANIFEST losslessarchive; no semantic/sourcechange"
+    },
+    {
+      "id": "N1",
+      "role": "bounded direct Agent2 native verification helper",
+      "runtime_id": null,
+      "status": "Bounded helper amendment accepted after fresh F3 PASS; packaged/full gate pending",
+      "write_scope": [
+        "apps/desktop/src-tauri/src/lib.rs self-test helper and related tests",
+        "own instances/N1 and audit post_repair/N1",
+        "declared isolated temporary and ignored build outputs"
+      ],
+      "delegation": "none",
+      "source_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "manifest_sha256": "b6224f347209d354fb6d623c2ef386d918d078e02bdc29578c5212f18b46cc0d",
+      "fresh_review_manifest_sha256": "76d49ed9956035fd462ec806e4ee9b6fc58d60ad9ea21e9bbf4591d61934c3ca"
+    }
+  ],
+  "edges": [
+    {
+      "from": "C0",
+      "to": "M1",
+      "gate": "accepted source + sealed full plan/brief"
+    },
+    {
+      "from": "C0",
+      "to": "I1",
+      "gate": "accepted source + sealed full plan/brief"
+    },
+    {
+      "from": "C0",
+      "to": "V1",
+      "gate": "accepted source + sealed full plan/brief"
+    },
+    {
+      "from": "M1",
+      "to": "BASELINE_SYNTHESIS",
+      "gate": "validated full required child return and coverage",
+      "status": "satisfied for original accepted manager packet"
+    },
+    {
+      "from": "I1",
+      "to": "BASELINE_SYNTHESIS",
+      "gate": "validated full required child return and coverage",
+      "status": "satisfied for original accepted manager packet"
+    },
+    {
+      "from": "V1",
+      "to": "BASELINE_SYNTHESIS",
+      "gate": "validated independent reference/coverage evidence",
+      "status": "satisfied for original accepted manager packet"
+    },
+    {
+      "from": "BASELINE_SYNTHESIS",
+      "to": "R1",
+      "gate": "whole frozen baseline report/evidence",
+      "status": "satisfied for review only"
+    },
+    {
+      "from": "R1",
+      "to": "REPAIR_MANAGERS",
+      "gate": "fresh review accepts completeness/calibration + root accepts whole baseline",
+      "status": "satisfied by explicit root baseline acceptance/activation"
+    },
+    {
+      "from": "REPAIR_MANAGERS",
+      "to": "POST_REPAIR_REVIEW_AND_VALIDATION",
+      "gate": "confirmed finding/requirements/scope/closure tests satisfied"
+    },
+    {
+      "from": "I1_SUPPLEMENT_V1",
+      "to": "BASELINE_SYNTHESIS",
+      "gate": "terminal supplement plus root disposition required before S1 final seal",
+      "status": "satisfied"
+    },
+    {
+      "from": "R1",
+      "to": "P4",
+      "gate": "final R1PASS and explicit root wholebaseline/activation",
+      "status": "satisfied by explicit root baseline acceptance/activation"
+    },
+    {
+      "from": "R1",
+      "to": "P5",
+      "gate": "final R1PASS and explicit root wholebaseline/activation",
+      "status": "satisfied by explicit root baseline acceptance/activation"
+    },
+    {
+      "from": "R1",
+      "to": "P9",
+      "gate": "final R1PASS and explicit root wholebaseline/activation",
+      "status": "satisfied by explicit root baseline acceptance/activation"
+    },
+    {
+      "from": "P4",
+      "to": "P5",
+      "gate": "accepted frozen shared-source/selected-state handoff before any P5 shared-source writes",
+      "status": "satisfied; exclusive product ownership transferred at exact hash"
+    },
+    {
+      "from": "P4",
+      "to": "P9",
+      "gate": "matching repair freeze before corresponding regression acceptance"
+    },
+    {
+      "from": "P5",
+      "to": "P9",
+      "gate": "matching repair freeze before corresponding regression acceptance"
+    },
+    {
+      "from": "P5",
+      "to": "F1",
+      "gate": "final P5 source accepted and explicit root F1 release",
+      "status": "satisfied by accepted P5 source and explicit root launch"
+    },
+    {
+      "from": "F1",
+      "to": "POST_REPAIR_REVIEW_AND_VALIDATION",
+      "gate": "deterministic generator parity, consumer tests or explicit final-owner execution, fresh separate review"
+    },
+    {
+      "from": "P5",
+      "to": "F2",
+      "gate": "accepted final source/evidence and root release",
+      "status": "held"
+    },
+    {
+      "from": "P9",
+      "to": "F2",
+      "gate": "accepted final source/evidence and root release",
+      "status": "held"
+    },
+    {
+      "from": "F1",
+      "to": "F2",
+      "gate": "accepted final source/evidence and root release",
+      "status": "held"
+    },
+    {
+      "from": "POST_REPAIR_REVIEW_AND_VALIDATION",
+      "to": "F2",
+      "gate": "fresh final source review plus CHANGE clean source commit before full sweep",
+      "status": "held; no cycle activation inferred"
+    },
+    {
+      "from": "F2",
+      "to": "S2",
+      "gate": "terminal accepted final verification before final report claims"
+    },
+    {
+      "from": "F1",
+      "to": "CHANGE",
+      "gate": "final fresh review/source freeze/rootrelease before stage/commit"
+    },
+    {
+      "from": "E1",
+      "to": "F3",
+      "gate": "exact attribute inventory and positive/negative Git proofs frozen"
+    },
+    {
+      "from": "F3",
+      "to": "CHANGE",
+      "gate": "fresh E1backcheck PASS and SOURCE_READY_V2/rootrelease"
+    },
+    {
+      "from": "V1_TRANSPORT",
+      "to": "F3",
+      "gate": "final lossless packet and explicit archive/materialization mappings"
+    }
+  ],
+  "concurrency": {
+    "parallel": [
+      "M1",
+      "I1",
+      "V1"
+    ],
+    "disjoint_write_roots": true,
+    "shared_heavy_resources": "serialize through root with isolated targets",
+    "production_changes_during_baseline": "prohibited",
+    "lightweight_rust_compile_cap": 2,
+    "shared_product_source": "P5 exclusive metadata-only producer; F1 waits accepted freeze; N1 disjoint helper; C1 controls only",
+    "lightweight_compile_allocation": {
+      "F1": 1,
+      "idle": 1
+    }
+  },
+  "owner_gates": [
+    "new physical assumptions/formulations",
+    "production convergence/engineering thresholds",
+    "public schema/migration compatibility",
+    "unsupported capability adoption",
+    "scope change"
+  ],
+  "no_overall_score": true,
+  "enforcement": "delegated-harness-native instruction+config asserted, not mechanism-proven",
+  "actual_model": "unknown where unexposed",
+  "updates": [
+    "dispositions/ACCEPT_V1_BOUNDED_VERIFICATION_PACKET.json",
+    "notices/LAUNCH-002-S1-CONTINGENT-SYNTHESIS.json",
+    "dispositions/ACCEPT_M1_NUMERICAL_BASELINE_PACKET.json",
+    "dispositions/ACCEPT_I1_INTEGRATION_BASELINE_PACKET.json",
+    "dispositions/AMEND_I1_SERVICE_SUPPLEMENT_V1.json",
+    "dispositions/ACCEPT_I1_SERVICE_SUPPLEMENT_V1.json",
+    "dispositions/ACCEPT_S1_CONSOLIDATED_BASELINE_FOR_REVIEW.json",
+    "notices/LAUNCH-003-FRESH-R1-BASELINE-REVIEW.json",
+    "REPAIR_ACTIVATION_PLAN_V1.md",
+    "REPAIR_ACTIVATION_STATUS_V1.json",
+    "dispositions/ACCEPT_WHOLE_BASELINE_AND_ACTIVATE_R01_R11.json",
+    "REPAIR_ACTIVATION_PLAN_V2.md",
+    "dispositions/ACCEPT_P4_KERNEL_CHECKPOINT_V1.json",
+    "dispositions/ACCEPT_P9_PREPARATION_V1.json",
+    "dispositions/RECORD_P5_QUALIFIED_PLANNING_RETURN.json",
+    "notices/NOTICE-005-PRODUCT-OWNERSHIP.json",
+    "briefs/F1_FIXTURE_REGENERATION_V1.md",
+    "notices/NOTICE-006-FUTURE-F1-AND-P4D1.json",
+    "dispositions/ACCEPT_P4_PRODUCT_CHECKPOINT_AND_TRANSFER_P5.json",
+    "dispositions/RECORD_P9_POST_P4_CHECKPOINT.json",
+    "briefs/F2_FINAL_VERIFICATION_V1.md",
+    "dispositions/ACCEPT_P4_FINAL_BOUNDED_CLOSURE.json",
+    "dispositions/ACCEPT_P5_SOURCE_AND_P9_FINAL_CANDIDATE.json",
+    "notices/LAUNCH-007-F1-FIXTURE-REGENERATION.json",
+    "dispositions/ACCEPT_P5_P9_FINAL_BOUNDED_CLOSURE.json",
+    "dispositions/AMEND_F1_FIXTURE_CONSUMER_TESTS_V3.json",
+    "notices/LAUNCH-008-S2-AND-CHANGE-PREP.json",
+    "dispositions/ACCEPT_F3_F1_AND_S2_SOURCE_READY.json",
+    "dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json",
+    "notices/LAUNCH-011-E1-EVIDENCE-CRLF.json",
+    "dispositions/RECORD_E1_COMPLETE_AND_RELEASE_V1_TRANSPORT.json",
+    "notices/RESUME-012-V1-TRANSPORT-F3.json",
+    "dispositions/ACCEPT_F3_E1_V1_PACKAGING_BACKCHECK.json",
+    "dispositions/ACCEPT_F2_FAILURE_AND_AMEND_BOUNDED_REPAIRS_V1.json",
+    "briefs/F2_FINAL_VERIFICATION_V2.md",
+    "instances/C1/PORTABILITY_EXCEPTION_CANDIDATE_V1.json"
+  ],
+  "repair_posture": "MIXED",
+  "repair_activation_status": "R01\u2013R11 explicitly activated after accepted wholebaseline/finalR1PASS",
+  "owner_holds": "D01\u2013D06",
+  "current_stage": "Bounded correction after failed source-bound final verification; final closure pending",
+  "tested_source_commit": "0ab12975fb3162545c4f8d31060f279affd2402d"
+}

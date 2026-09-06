@@ -1,0 +1,9 @@
+# Current handoff — reviewed source ready for clean commit
+
+All bounded physics repairs, compatibility corrections, fixture consumers, native helper and evidence packaging have accepted review chains. `SOURCE_REVIEW_COVERAGE_V3.json` binds all 21 current product/test/config paths to fresh reviews or unchanged accepted hashes. `dispositions/ACCEPT_FINAL_REMEDIATION_SOURCE_READY_V3.json` records the accepted packet hashes and explicit logical/physical fixture transport resolvers. This is derivative evidence under accepted decomposition 0.12, SCA-009 and DAG-010; the original independently reviewed baseline and all prior failures remain preserved.
+
+Current closure is SOURCE_READY_V3 only. All C1 writes are frozen. After root verifies this snapshot, CHANGE may commit the exact reviewed inputs under its own release. F2 remains held until root supplies the resulting clean whole-repository committed HEAD, unchanged source bindings and exclusive build release. Portable `briefs/F2_FINAL_VERIFICATION_V2.md` governs the future rerun. The complete unchanged five-surface DEC025, actual packaged edited-load check, headless witnesses and final report/publication are still required. No receipt is issued yet.
+
+The failed 0ab source checkpoint remains immutable history. The bounded metadata repair leaves two separately identified findings OPEN: P5-CANONICAL-METADATA-001 and P5-CANONICAL-REPRODUCIBILITY-002, routed to PKG10/PKG13 coordination. They are not I1-C07 and do not imply whole-document canonical conformance. S2 prepared refresh is accepted only as a pending-cut report, with the original 44 baseline entries unchanged.
+
+Owner D01-D06, physical assumptions, public schema and production engineering criteria remain held. No lifecycle, scope or engineering acceptance promotion follows. Any changed source invalidates its existing review/test binding and requires appropriately renewed evidence before publication.

@@ -1,0 +1,201 @@
+{
+  "original_logical_members_verified": 30,
+  "original_manifest_sha256": "3fc67be3aa81585a58986f55ecb090527f64220ee3dda20ced538cd156eb9058",
+  "source_freeze_unchanged": true,
+  "whitespace_checks": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/BRIEF.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/BRIEF_SEAL.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/CONSUMER_SCAN.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/DERIVATION.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/FROZEN_DIFF.patch.transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/MANIFEST.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/NUMERICAL_PARITY.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/READ_ONLY_CONSUMER_NUMERIC_SCAN.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/RELEASE.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/RELEASE_SEAL.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/RETURN.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/SCAN_MANIFEST.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/SOURCE_FREEZE.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/TRANSPORT_MAPPING.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/TRANSPORT_README.md",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/apps/desktop/e2e/r2-smoke.spec.ts",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/apps/desktop/src/App.test.tsx",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/apps/desktop/src/services/previewService.test.ts",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/fixtures/product_preview/invented_mechanics_result.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/tests/product_preview/test_product_preview_service.py",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/after/tests/test_results_schema.py",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/apps/desktop/e2e/r2-smoke.spec.ts",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/apps/desktop/src/App.test.tsx",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/apps/desktop/src/services/previewService.test.ts",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/fixtures/product_preview/invented_mechanics_result.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/tests/product_preview/test_product_preview_service.py",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/before/tests/test_results_schema.py",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/desktop_tests_transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/generate_1_transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/generate_2_transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/product_tests_transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/python_tests_transport.json",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "whitespace_status": "PASS",
+  "exit_calibration": "git diff --no-index returns1 for differences even with no check diagnostics; only0/1 with empty stdout/stderr accepted."
+}

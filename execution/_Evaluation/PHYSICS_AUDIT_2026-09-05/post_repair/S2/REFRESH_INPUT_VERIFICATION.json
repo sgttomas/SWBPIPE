@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "base": "WORKING_ROOT",
+  "packets": [
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F2/checkpoint_0ab12975/MANIFEST.json",
+      "sha256": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95",
+      "verified_members": 251
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/N1/MANIFEST.json",
+      "sha256": "b6224f347209d354fb6d623c2ef386d918d078e02bdc29578c5212f18b46cc0d",
+      "verified_members": 10
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/native_helper_review/MANIFEST.json",
+      "sha256": "76d49ed9956035fd462ec806e4ee9b6fc58d60ad9ea21e9bbf4591d61934c3ca",
+      "verified_members": 2
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/FINAL_TRANSPORT_MANIFEST.json",
+      "sha256": "d11dd8e37af2d2906ca6e35dc99fdea25a97005565a0afba07e0a3cde4a9dbec",
+      "verified_members": 114
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/transport_archive/ORIGINAL_V1/ARCHIVE.json",
+      "sha256": "eb717e0a6f9851b7d4af4e57bc1cd2a723a65fb9b01a1712995a6ee545f1f7ea",
+      "decoded_files_verified": 111,
+      "original_members_verified": 110,
+      "original_manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1"
+    }
+  ]
+}

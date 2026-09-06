@@ -1,0 +1,27 @@
+{
+  "status": "CHANGES_REQUIRED_OUTSIDE_C1_TARGETS",
+  "policy_sha256": "d16eb3e35bacb7f27f66659dea8e14e42411f8fd01edccbd645374b36a33d031",
+  "approved_control_exceptions": 17,
+  "original_targets_hash_preserved": true,
+  "policy_issues": 0,
+  "unacknowledged_control": 0,
+  "active_unclassified": 1,
+  "path_anchors_exit": 1,
+  "harness_pytest": {
+    "exit": 1,
+    "passed": 350,
+    "failed": 1
+  },
+  "harness_selfcheck": {
+    "exit": 0,
+    "inherited_reviews": 4,
+    "new_reviews": 1,
+    "semantic_pass": false
+  },
+  "remaining_path": "instances/P5/compatibility_v1/diagnosis_snapshot/ACTUAL_F2_OUTPUT_CHECK.json",
+  "remaining_sha256": "24a2942ef162f3c4876668186b83496056ba0f755b03724f6f55c223423fcfaa",
+  "route": "Root/P5 notified; outside approved C1 targets. No added exception or historical modification.",
+  "diff_check": "Tracked C1 controls and policy git diff --check exit 0",
+  "tests": "Raw terminal streams encoded in instances/C1/_run_records/PORTABILITY_REPAIR_V1",
+  "whole_final_gate": "Pending repaired source, fresh review and complete clean DEC025; no receipt"
+}

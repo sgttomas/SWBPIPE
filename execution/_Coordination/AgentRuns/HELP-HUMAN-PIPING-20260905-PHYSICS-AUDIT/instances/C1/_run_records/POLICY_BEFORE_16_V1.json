@@ -1,0 +1,235 @@
+{
+  "sha256": "c3b807f30947f021a2b2258bbe5292f8ca4b5bb3f2aaa2e51c0d8f3ad8d3aabd",
+  "content": {
+    "schema_version": 1,
+    "project_root": "projects/chirality-piping",
+    "historical_role_overrides": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/BASELINE_AND_TOOLS.json",
+        "sha256": "6f6f4bd4dd0d49833dbef0999896769f21d07289d538d8a4286c0c95d6faab53",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable P1 capture of the machine-local toolchain used to repair the registered offline prerequisites.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_BEFORE.json",
+        "sha256": "2a0d975743ab618b0233b5986d3350295ff036b820cbd601db838f6ad8b0411d",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable P1 capture of the pre-repair prerequisite state and its execution directory.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_AFTER_NPM.json",
+        "sha256": "3741debc0aa0eb7f470ca07b4a5b6871817883ebd70f517e9b5fade06c2185d9",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable P1 capture of the intermediate prerequisite state and its execution directory.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/PREFLIGHT_FINAL.json",
+        "sha256": "ecf9385426f2f29e1506215be415b52fc5650711209169d9dd230c6eed31caec",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable P1 capture proving the repaired prerequisite state and its execution directory.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260721-DEL1202-REDACTION-BREADTH-R15/instances/N4B/CHECK_h4_dist.json",
+        "sha256": "26abe58c3f5eb6e021112d606984b9deda52069b42e9dbf385468afbed01f6af",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable N4B production-distribution H4 verification capture records the machine-local Playwright configuration path used for the adopted DEL-12-02 execution.",
+        "authority": "Owner adopted DEL-12-02 candidate v6; HELP_HUMAN explicitly authorized this exact classification-only repair."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2A_DEL0301_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+        "sha256": "1025972bf64f3ba41cbe0d265eb320245a71a0c68e76e71bb41865efa26a3009",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable R23 N2A Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+        "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2B_DEL0702_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+        "sha256": "c8aba880de012bdf3d40fbfaa4d1d67b3fcc556ba1488c4eaf7c6a086152a61a",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable R23 N2B Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+        "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2C_DEL0703_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+        "sha256": "6dd233613e1600ad211af79546c5858ac140c500293391a7497274674404d072",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable R23 N2C Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+        "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2D_DEL0901_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+        "sha256": "8dc4818a204226de2f1ab5823f5adcd7a8baebb112472ba5b661d94d6e8d7daa",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable R23 N2D Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+        "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/instances/N2E_DEL1602_PATCH/ATTEMPT-02/SEALED_INPUT.md",
+        "sha256": "f76efae6d4e4006c96c25dd4a9e7a5bd1082fafee9dad3d841b0daf716cb3f99",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable R23 N2E Attempt-02 record preserves the actual executed patch transport, including its machine-absolute paths, as historical evidence rather than live instruction.",
+        "authority": "Owner-approved R23 portability-classification amendment; Gate 1 O-A and the executed Attempt-02 record remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N5_CHANGE_WHITESPACE_NORMALIZATION/VALIDATION.md",
+        "sha256": "bd2995c2b401ecdeac1e6f8bfdb2937cfb4e755893a851664587007891935e9d",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable N5 verification record captures its external verification root and inventory as historical evidence, not live instruction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; representation-only normalization and accepted N5 verification remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PRODUCT-DESIGN-INVESTIGATION/instances/A2/SOURCE_INDEX.md",
+        "sha256": "149b0fee636b2193dc1854c005725bd543b774b09b1b0a3f38651391fb63845c",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable completed product-design investigation source index preserves machine-local source locations actually inspected; historical research evidence, not live executable direction.",
+        "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_CLASSIFICATION_ONLY.json (SHA-256 2098bc6f56524f8a338eb28b456cb7b84632a112e5c6a1297ea51ae1755c822c)."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/FINDING.md",
+        "sha256": "71d186231d0eee7fdaf6c50f088e821482c93b58e97bc5509d0e21cce95c66af",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable accepted units witness finding records two temporary-path command lines actually executed; historical runtime evidence, not live executable direction. Exact-hash classification preserves witness bytes.",
+        "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_UNITS_FINDING_CLASSIFICATION.json (SHA-256 54ea1b28944b42f43b25f6bc333d79c2ab265404d26ed7e9b4f88ab7ace8a5e8)."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/W2/I1/TASK_RUN.md",
+        "sha256": "2f34ffbc8365af8efcfff1ef95f51b07453c1e92d63e0db130d7236c0e3f9f7d",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable completed W2 implementation execution return preserves actual resolved runtime paths and commands; historical execution evidence, not live executable direction.",
+        "authority": "Owner directed implementation according to the preserved report and map; HELP_HUMAN accepted this exact classification-only repair in execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/dispositions/ACCEPT_C2_W2_EXECUTION_RETURN_CLASSIFICATION.json (SHA-256 f5477a0a21e3496f971936280e20d099dad706a8ef603b868fcf79ff3dfa666c)."
+      }
+    ],
+    "control_path_exceptions": [
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-54_reasoned_discretion_standing_approval_refinement.md",
+        "sha256": "8d078777a4f77879aca2ff334e6b045e01c63d3d304fd068b9397f1010e10525",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "The governed decision preserves the owner's machine-absolute source direction verbatim.",
+        "authority": "Owner-approved systematic portability repair; D-54 records the governing direction."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/ORCHESTRATION_PLAN.md",
+        "sha256": "dbcc1a21d3586bcafc821ee3d51519e4eed19bea3fa43e7d2f00dddefac90f47",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable P1 orchestration history records the actual provisioned checkout anchors.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260718-DEL0904-PREREQ-PROVISION-P1/instances/TASK-DEL0904-PREREQ-PROVISION-01/LAUNCH_BRIEF.md",
+        "sha256": "bc368a4834894550ad217011fd6ff4bb8c48f6b1e08e2d22d547fbbb650b4c4d",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable P1 child brief records the concrete checkout anchors authorized for that completed run.",
+        "authority": "Owner-approved systematic portability repair; Receipt 56 accepted P1 prerequisite proof."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260802-DEC092-DEPENDENCY-REFRESH-R23/GIT_APPROVAL.md",
+        "sha256": "40b52f1cec09806660fe1f1223b2b57d1a88c4dc153c5824ac6ba39557361648",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "R23 Git approval preserves the owner's machine-absolute checkout and branch direction verbatim; this exception changes classification only, not authorization.",
+        "authority": "Owner-approved R23 portability-classification amendment; the verbatim Git direction and Gate 1 O-A remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_APPLICATION_VERIFY_POST_CLEANUP/LAUNCH_BRIEF.md",
+        "sha256": "d937f558ee2b38d6d1458790de5efd2d987d9a2ce584ba9cfec2869bebca4a41",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Preserve the completed V1 verifier brief's actual machine-local checkout and scratch anchors; tokenized V2 supersedes it as terminal basis.",
+        "authority": "Direct owner PR #550 repair direction plus Amendment V5's frozen V1/tokenized V2 treatment."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_AUTHOR/LAUNCH_BRIEF.md",
+        "sha256": "fd5e0b5cb8b823c2f4a7a718dc3bf9081a8f486ebad96d7b785bb56e8fcbcb28",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_AUTHOR_REMEDIATION/LAUNCH_BRIEF.md",
+        "sha256": "6c260e749d008fe973060bc502553a050b1a6f900595f5241017d5f72295777a",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_09_VERIFY/LAUNCH_BRIEF.md",
+        "sha256": "bfdcefd180d6582e3de4731eee64babf7eeb7478669f4a3ffbcf19c0d227ef3e",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_AUTHOR/LAUNCH_BRIEF.md",
+        "sha256": "184bac8a6a304b3b4fe77ad285a6b657ef7760bf85dd29660a74cd2ba2366f81",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_AUTHOR_REMEDIATION/LAUNCH_BRIEF.md",
+        "sha256": "c669fab80de14fc02f51c99e33e066662c92f952243426a17b4d50e6309c1eb4",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_10_VERIFY/LAUNCH_BRIEF.md",
+        "sha256": "8eef63235b2065a7c622bc0409a02a3fd88458fde4af725f1547371236d5ee6e",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/A2_N3_CROSS_PACKAGE_VERIFY/LAUNCH_BRIEF.md",
+        "sha256": "fe1577559d1653a749e7a3eef0e580b93a250a39acdfe9519c13fc4698377fb3",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N3_WORKING_ITEMS_VERIFY/LAUNCH_BRIEF.md",
+        "sha256": "89e04e6d0ddf840dc16c48746ad47bdd034e40039bbe38352cfedf18e6efec17",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      },
+      {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/instances/N5_CHANGE_WHITESPACE_NORMALIZATION/LAUNCH_BRIEF.md",
+        "sha256": "553a85d85dbb2bd0045ea077a857ac206b1330144fc6addcab3d0dc338bcc013",
+        "entry_type": "control_path_exception",
+        "role": "CONTROL",
+        "reason": "Immutable completed runner-binding control record preserves the machine-local scratch or checkout anchor actually used by the governed execution; classification only, no live direction.",
+        "authority": "Owner-approved runner-binding closeout portability amendment; adopted CB-2026-08-11-DEL1005-MECHANICS-RUNNER-BINDING-001 and preserved execution history remain unchanged."
+      }
+    ]
+  }
+}

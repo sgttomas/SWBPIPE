@@ -1,0 +1,26 @@
+[
+  {
+    "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+    "line": 217,
+    "old_literal": "0.490101",
+    "source_row": "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+    "generated_value": 0.411514,
+    "line_text": "assert nonlinear_friction_reaction[\"value\"] == 0.490101"
+  },
+  {
+    "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+    "line": 219,
+    "old_literal": "48.952652",
+    "source_row": "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+    "generated_value": 41.120255,
+    "line_text": "assert nonlinear_friction_normal[\"value\"] == 48.952652"
+  },
+  {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "line": 589,
+    "old_literal": "4.567557",
+    "source_row": "result:combination:combination-C-OPER-ALT:disp:node-N-140",
+    "generated_value": 4.927109,
+    "line_text": "await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"available; nodes=5; max=4.567557 mm\");"
+  }
+]

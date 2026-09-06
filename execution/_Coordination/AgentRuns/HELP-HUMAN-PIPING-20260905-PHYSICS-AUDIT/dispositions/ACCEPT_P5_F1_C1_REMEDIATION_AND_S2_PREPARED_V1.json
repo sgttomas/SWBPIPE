@@ -1,0 +1,47 @@
+{
+  "record_kind": "Parent-transmitted root acceptance, semantic transcription",
+  "P5": "Root read manager return and verified all 55 manager and 37 control members. Accept bounded compatibility repair after fresh review of all 12 hunks and 40 numeric/nonmetadata replay comparisons. Changed station metadata conforms; whole canonical documents do not.",
+  "F1_C1": "Root accepts bounded fixture/consumer and exact portability repairs after fresh F3 PASS and independent packet checks; patch transport-only amendment remains pending separate acceptance.",
+  "S2": "Accept prepared refresh only as pending-cut report with 44 baseline entries unchanged, not final closure.",
+  "accepted_manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/MANIFEST.json",
+      "sha256": "512c7164c91ee31f19d62b336ff1ba2e7f867162538e899e194e7775e40eae8d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/MANIFEST.json",
+      "sha256": "d231a6ccb95fa83b955639a4ff25e03ec74cb15fb9344b70bf1b9678d5975bf7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/review/MANIFEST.json",
+      "sha256": "db22e5aff08e9f745fb905c0b8b39679c2a74942ea242499d08a344eb7313b35"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/PREPARED_REFRESH_MANIFEST.json",
+      "sha256": "4fd5bdf6da2d0385a92ae2f9b0be3805574ab27fecead4de8474b0465b9b2a96"
+    }
+  ],
+  "new_open_findings": [
+    {
+      "id": "P5-CANONICAL-METADATA-001",
+      "status": "OPEN",
+      "owning_coordination": "PKG10/PKG13",
+      "finding": "Existing mapped families emit metadata outside the canonical schema vocabulary."
+    },
+    {
+      "id": "P5-CANONICAL-REPRODUCIBILITY-002",
+      "status": "OPEN",
+      "owning_coordination": "PKG10/PKG13",
+      "finding": "Existing producer canonicalization identifier conflicts with the canonical enum."
+    }
+  ],
+  "finding_source": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/CANONICAL_EXPORT_FINDINGS.md",
+  "calibration": "These are separate from I1-C07. No automatic adapter/schema repairs, no complete canonical document conformance PASS. D01-D06 remain held.",
+  "remaining": [
+    "F1 transport-only packet/review acceptance",
+    "new source-ready freeze and root acceptance",
+    "CHANGE clean source commit",
+    "fresh actual native/headless and full unchanged clean five-surface DEC025",
+    "final S2 report and reviewed publication"
+  ]
+}
