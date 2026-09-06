@@ -1,0 +1,9 @@
+{
+  "prior_receipts_bytes": 251534,
+  "prior_receipts_sha256": "51fe7fac677c185d982e4cd009be56f59cdae0d76e02ceca3a723f45ba195229",
+  "appended_bytes": 2040,
+  "appended_sha256": "8953e8c740edeb8eee4b5c208035ff3b6eb9db94ee451d42db84c2180c561715",
+  "full_receipts_sha256": "3e2a29b1b2758ecffa083b10e4bed232330fe91d05b41c3aef36e8172ded27f4",
+  "prior_bytes_preserved": true,
+  "authorization": "Root explicitly released concise next loop receipt for final local closeout; no prior receipt edit"
+}

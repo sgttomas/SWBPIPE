@@ -1,0 +1,27 @@
+{
+  "schema": "piping-postrepair-synthesis/v3",
+  "status": "LOCAL_VERIFICATION_COMPLETE_PUBLICATION_CI_PENDING",
+  "derivative": true,
+  "tested_source_commit": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "evidence_container_commit": "not yet assigned; not tested source",
+  "base": "manifest-relative",
+  "files": {
+    "BRIEF.md": "850a620fd3c4c1255c9e8358e51999537a03da4db5abeaf5be22c8ea4d408b5a",
+    "REPORT.md": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205",
+    "FINDING_DISPOSITIONS.csv": "f652c562da54224af13b8a29ce5b85fc90c31dde5df4adca7c2d2312839cda88",
+    "ADDITIONAL_FINDINGS.csv": "6d567a31a671e409bee530c64025e0071a8db6b5fcffbce7877911e7c4c88b6d",
+    "INPUT_VERIFICATION.json": "e49e1769f9226c7d13059628ec8209f7eb14913483d3a640763ffa3a74394a92",
+    "REFRESH_INPUT_VERIFICATION.json": "603d998dd16a1886ad1133776d62ca8dd8a7ad3a2c5e90a76917b9f56ead2de7",
+    "FINAL_INPUT_VERIFICATION.json": "84c4c395e70e924ae9fd0760316b7953810256fb23bf09684422ade33144851a",
+    "FINAL_DISPOSITION_COUNTS.json": "f294cc7cf36bb7dc42739b688442ff84b5c4858e2734ec1f35cd878df7f18faa",
+    "FINAL_QA.json": "0166085707df55184fb9b8bececc10f05ecba3137249ab177937b06c349e3565"
+  },
+  "preserved_snapshots": {
+    "historical/PRE_FINAL_V1/PRE_FINAL_MANIFEST.json": "96481d7e27b84e4b96cf0c5cdb1a609efeb0f11c16bca2a10c66e58f6829be3a",
+    "historical/PREPARED_REFRESH_V1/PREPARED_REFRESH_MANIFEST.json": "4fd5bdf6da2d0385a92ae2f9b0be3805574ab27fecead4de8474b0465b9b2a96"
+  },
+  "instance_return": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/S2/RETURN_LOCAL_VERIFIED.md",
+    "sha256": "d1690f7d2bb3548e367a0c9e676e04a1e83d6613b061247cc5b03cc452df4a52"
+  }
+}

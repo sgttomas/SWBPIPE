@@ -1,0 +1,28 @@
+{
+  "record_kind": "Semantic transcription of explicit Agent0 bounded verification acceptance",
+  "tested_source": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "source_ready_snapshot_sha256": "923ff6945f1151213b50c0834c9641626e273953f0c1373f080b981384a315f5",
+  "F2_manifest_sha256": "7dab52cc0692b94f2f9f370440faf7fb6d2271733f077dd29ef940e6c00c8c43",
+  "root_verification": "Read full RETURN and independently verified all 266 manifest members",
+  "C1_verification": "Read RETURN and independently checked manifest hash",
+  "verdict": "ACCEPT_BOUNDED_PASS",
+  "checks": {
+    "full_registered_DEC025": "PASS, all five surfaces, exact unchanged command after clean whole-repository gate",
+    "python": 1012,
+    "python_xdist": 1012,
+    "vitest": {
+      "tests": 748,
+      "files": 45
+    },
+    "source_browser": 28,
+    "dist_browser": 3,
+    "harness": 351,
+    "selfcheck": "exit 0; four inherited out-of-scope REVIEW and 55 WARN; no new portability findings",
+    "native": "Actual bundled executable isolated saved/edit/close/reopen/solve PASS with independent -75 N support-reaction delta",
+    "headless": "Six default CLI successes plus blocked overflow; 58 API executions with 48 independent assertions",
+    "source_equality": "Unchanged"
+  },
+  "history": "Original 0ab failure and current-source sandbox failure remain immutable; successful complete host retry does not rewrite or waive them.",
+  "calibration": "Bounded software/mechanics evidence, not GUI usability or blanket engineering acceptance; canonical findings OPEN and D01-D06 held.",
+  "pending": "S2 final local-verified report acceptance; final evidence metadata/review/whitespace/path checks; CHANGE evidence-container commit; push/PR and exact-head hosted CI. A later evidence container is not claimed swept."
+}

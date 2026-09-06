@@ -1,0 +1,10 @@
+
+- **2026-09-05 — Receipt 134** (physics audit, bounded repairs and clean source verification).
+  - Receipt-ID: `Receipt-134`
+  - Examined-Through: `3e2d2b539c96276f924bd827e585aad2e46962cc`
+  - Parent-Receipt: `Receipt-133`
+  - Owner-Direction: `CHAT_TRANSCRIPTION — EVIDENCE, NOT RULING` — “Implement the proposed plan.” Adopted plan and choices are preserved in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/APPROVED_PLAN.md`.
+  - Pointers: branch `codex/piping-physics-audit`; same run `dispositions/ACCEPT_F2_COMPLETE_BOUNDED_VERIFICATION_V1.json`, `SOURCE_REVIEW_COVERAGE_V3.json` and `HANDOFF_STATE.md`; `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F2/final_3e2d2b53/RETURN.md` and its manifest own exact commands, source equality, measurements and limits.
+  - Checks: independent baseline and repair reviews, complete clean registered evidence sweep, native persistence/solve, headless witnesses, Python profile, practitioner harness and path anchors: PASS. Exact results and self-check qualifications are in the cited F2 packet and source-review chains.
+  - Model-Attribution: HELP_HUMAN supervised EVALUATION, WORKING_ITEMS and CHANGE managers, their bounded specialists, and direct review/witness/recorder roles. Actual identities are preserved in run records; exact models are unavailable where unexposed. Native role/non-delegation is instruction+config asserted, not mechanism-proven.
+  - Gate-Outcome: `EXECUTED` — complete audit baseline and bounded repairs accepted with source-bound local verification. Failed attempts remain preserved. Examined-Through identifies tested source; a forthcoming evidence-only commit is a different container, not claimed swept. Final evidence review, metadata and publication checks, push/PR and hosted CI remain pending at this cut. Canonical metadata/reproducibility findings remain OPEN for PKG10/PKG13; Owner D01–D06 remain held. Derivative evidence creates no lifecycle, scope, engineering or professional-reliance promotion.

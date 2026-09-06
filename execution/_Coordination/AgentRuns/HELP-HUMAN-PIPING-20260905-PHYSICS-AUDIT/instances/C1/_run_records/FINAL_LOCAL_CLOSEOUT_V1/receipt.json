@@ -1,0 +1,12 @@
+{
+  "command": [
+    "python3",
+    "tools/validation/validate_piping_loop_receipts.py"
+  ],
+  "working_directory": "{REPO_ROOT}",
+  "exit_code": 0,
+  "stdout_sha256": "0ede32893cfaa4f9f31b802356534ee906915ae4f4ac831ce371d8a578f70887",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_base64": "VkFMSUQgL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS9wcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2xvb3AvTE9PUF9SRUNFSVBUUy5tZDogZnJvemVuIHRocm91Z2ggUmVjZWlwdC00NDsgdmVyc2lvbmVkIHJlY2VpcHQgY29udHJhY3Qgc2F0aXNmaWVkCg==",
+  "stderr_base64": ""
+}

@@ -1,0 +1,83 @@
+{
+  "snapshot": "FINAL_LOCAL_VERIFICATION_V1",
+  "status": "LOCAL_VERIFICATION_COMPLETE_PUBLICATION_CI_PENDING",
+  "tested_source": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "derivative": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/HANDOFF_STATE.md",
+      "sha256": "09e847be142c5bbad184d993fcff8205af024008f05f451227244da6b1c79c51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/RECEIPT_134.md",
+      "sha256": "8953e8c740edeb8eee4b5c208035ff3b6eb9db94ee451d42db84c2180c561715"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/SOURCE_REVIEW_COVERAGE_V3.json",
+      "sha256": "87d2a28b1c7799d3df8270ac07e1b1bdc9ed648bf6d0af344f2416e1bea63f02"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/WORK_GRAPH.json",
+      "sha256": "d3d9a81d5c51f9c941d9f7d1a47124160ea8bcbe0996bacc5eab1b1fa6aefb01"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/dispositions/ACCEPT_F2_COMPLETE_BOUNDED_VERIFICATION_V1.json",
+      "sha256": "c862eb67cc9d670b081d39f9abfc4dc071af8fa79fae9e1c25f9f3cf32a14e0d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/dispositions/ACCEPT_S2_FINAL_AND_LOCAL_FAN_IN_V1.json",
+      "sha256": "c9afab2f17f20b7261db29958ef93b7c6891e2278581f9ca303abd14fcccc96f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/FINAL_LOCAL_VERIFICATION_V1/instances/C1/RECEIPT_134_APPEND_RECORD_V1.json",
+      "sha256": "945c3604ec51cf503e0a7130a92d017bb9c2527440546f06d61dfd1f8c235044"
+    }
+  ],
+  "external_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/snapshots/SOURCE_READY_V3/MANIFEST.json",
+      "sha256": "923ff6945f1151213b50c0834c9641626e273953f0c1373f080b981384a315f5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F2/final_3e2d2b53/MANIFEST.json",
+      "sha256": "7dab52cc0692b94f2f9f370440faf7fb6d2271733f077dd29ef940e6c00c8c43"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/LOCAL_VERIFIED_MANIFEST.json",
+      "sha256": "e4265c2b6bf877e882f22f0152f416d7c6a5cc141afafdbb63a09721097e99de"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "3e2a29b1b2758ecffa083b10e4bed232330fe91d05b41c3aef36e8172ded27f4"
+    },
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d"
+    }
+  ],
+  "checks": [
+    {
+      "name": "receipt",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/FINAL_LOCAL_CLOSEOUT_V1/receipt.json",
+      "sha256": "78fc5ecf0e48f58b3530a8549dd95364e659abbd1085e9497b440c4ab8846ca7",
+      "exit": 0
+    },
+    {
+      "name": "path_anchors",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/FINAL_LOCAL_CLOSEOUT_V1/path_anchors.json",
+      "sha256": "97d6b0eba7c817c9d4cde34d89b966d6aa3cf81e96b456134a485fbae9d6f678",
+      "exit": 0
+    },
+    {
+      "name": "whitespace",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/_run_records/FINAL_LOCAL_CLOSEOUT_V1/whitespace.json",
+      "sha256": "9dc0d7303c9cab5ac3d401ad460f1ed20cb4ecaeced32080ce7f6ee4be3ec606",
+      "exit": 0
+    }
+  ],
+  "policy_issues": 0,
+  "source21_unchanged": true,
+  "source_mapping_sha256": "e602705de62013341fe45f6ca6dfafc67be55aee45e77dc94974253d6d3da900",
+  "receipt_prior_bytes_preserved": true,
+  "remaining": "CHANGE evidence commit/push/PR/hosted CI; canonical OPEN findings and Owner D01-D06 remain; no merge/lifecycle/engineering closure"
+}

@@ -1,0 +1,25 @@
+{
+  "status": "OBSERVED_NOT_ACCEPTED",
+  "files": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/dispositions/ACCEPT_F2_FAILURE_AND_AMEND_BOUNDED_REPAIRS_V1.json",
+      "sha256": "eb99122aaa4c3e16e548fca32c1e21d0e11343c8b2d01483a37685e5e61a94fc"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/author/RETURN.md",
+      "sha256": "758e5d4e780d9f3b0889cb5626a69eb301bdaf5c615d218723c63fe9cfb39d2f"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/CANONICAL_EXPORT_FINDINGS.md",
+      "sha256": "928fcabefcd127e8910bdac96aa2a4e0b70d7031dc0e493ea0ad263be0363b9c"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/ACTUAL_CANONICAL_VALIDATION.json",
+      "sha256": "bc847d20cf9567d77a650911bd1861d98f28d17b2bf9def54d61e140b2ce5a97"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/NUMERICAL_COMPARISON.json",
+      "sha256": "ae0048229a3cd746b8b5187bcb88f3faec3c1c6b937f9454cc155414c21b8f87"
+    }
+  ]
+}

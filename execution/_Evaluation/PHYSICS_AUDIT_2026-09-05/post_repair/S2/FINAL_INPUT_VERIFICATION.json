@@ -1,0 +1,44 @@
+{
+  "status": "PASS",
+  "base": "WORKING_ROOT",
+  "tested_source": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "packets": [
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F2/final_3e2d2b53/MANIFEST.json",
+      "sha256": "7dab52cc0692b94f2f9f370440faf7fb6d2271733f077dd29ef940e6c00c8c43",
+      "verified_members": 266
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/MANIFEST.json",
+      "sha256": "512c7164c91ee31f19d62b336ff1ba2e7f867162538e899e194e7775e40eae8d",
+      "verified_members": 55
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/MANIFEST.json",
+      "sha256": "d231a6ccb95fa83b955639a4ff25e03ec74cb15fb9344b70bf1b9678d5975bf7",
+      "verified_members": 37
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/final_remediation_review/MANIFEST.json",
+      "sha256": "4a8a6bacfb8b9fe1f6b01e43c79000381295ce07f1d4cd2b15fcfe42c45e221f",
+      "verified_members": 2
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/F3/fixture_transport_review/MANIFEST.json",
+      "sha256": "4f14c6580a77c03ed900fad3c0802269f22d89fa87a565e2181ce829c14d6c0e",
+      "verified_members": 2
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/PHYSICAL_TRANSPORT_MANIFEST.json",
+      "sha256": "1e97c39b7c67537ecea297f544ed6bf2e41288334224c03f071b4d7f6d64cf1a",
+      "verified_members": 34
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/MANIFEST.json",
+      "sha256": "3fc67be3aa81585a58986f55ecb090527f64220ee3dda20ced538cd156eb9058",
+      "verified_logical_members": 30,
+      "resolver": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/metadata_repair_v1/TRANSPORT_MAPPING.json",
+      "resolver_sha256": "3a4126d4d7dcd4fc8067e752bc0ccaa3d8737a11ae297915ec13a6f9e1bc3b05"
+    }
+  ]
+}

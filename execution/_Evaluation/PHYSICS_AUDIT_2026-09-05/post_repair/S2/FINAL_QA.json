@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "baseline_entries": 44,
+  "additional_open_findings": 2,
+  "baseline_ids_exactly_once": true,
+  "all_source_crosswalk_requirement_before_after_fields_present": true,
+  "historical_snapshots_verified": true,
+  "tested_source_commit": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "local_verification": "ROOT_ACCEPTED_BOUNDED_PASS",
+  "publication_and_exact_head_CI": "PENDING_CHANGE",
+  "owner_holds": "D01-D06 retained; no engineering/lifecycle acceptance",
+  "new_experiments_by_S2": false
+}

@@ -1,0 +1,16 @@
+{
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT"
+  ],
+  "working_directory": "{REPO_ROOT}",
+  "exit_code": 0,
+  "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stdout_base64": "",
+  "stderr_base64": ""
+}

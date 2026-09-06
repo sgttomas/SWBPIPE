@@ -1,0 +1,24 @@
+{
+  "record_kind": "Root-accepted final bounded local verification fan-in",
+  "attribution": "Semantic transcription of parent acceptance; C1 independently checked S2 manifest and nine members, all 21 source hashes and receipt preservation",
+  "status": "LOCAL_VERIFICATION_COMPLETE_PUBLICATION_CI_PENDING",
+  "tested_source_commit": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+  "evidence_container_commit": "Future CHANGE evidence-only commit, not claimed swept",
+  "S2_manifest_sha256": "e4265c2b6bf877e882f22f0152f416d7c6a5cc141afafdbb63a09721097e99de",
+  "F2_manifest_sha256": "7dab52cc0692b94f2f9f370440faf7fb6d2271733f077dd29ef940e6c00c8c43",
+  "source_ready_manifest_sha256": "923ff6945f1151213b50c0834c9641626e273953f0c1373f080b981384a315f5",
+  "source_mapping_sha256": "e602705de62013341fe45f6ca6dfafc67be55aee45e77dc94974253d6d3da900",
+  "baseline_entries": 44,
+  "bounded_locally_verified": 26,
+  "additional_canonical_findings_open": 2,
+  "authority_basis": "Accepted decomposition 0.12, SCA-009, DAG-010 and user-adopted audit/repair plan; derivative evidence only",
+  "receipt": "Receipt-134",
+  "failures": "All original failed checkpoints, sandbox retries and packaging/check failures remain preserved",
+  "remaining": [
+    "PKG10/PKG13 canonical metadata/reproducibility findings OPEN",
+    "Owner D01-D06 held",
+    "final metadata/review/whitespace/path checks",
+    "CHANGE evidence-only commit, push/PR and hosted exact-head CI"
+  ],
+  "limits": "No merge authorization, lifecycle/scope promotion, blanket engine correctness or engineering acceptance"
+}

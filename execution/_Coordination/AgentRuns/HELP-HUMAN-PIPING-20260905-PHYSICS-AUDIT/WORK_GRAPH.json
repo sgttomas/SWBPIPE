@@ -1,5 +1,5 @@
 {
-  "version": 20,
+  "version": 22,
   "selection_authority": {
     "execution_scope_and_fanout": "HUMAN",
     "routing": "AGENT_0"
@@ -32,7 +32,7 @@
       "id": "C1",
       "role": "bounded Agent2 recorder",
       "runtime_id": "/root/implementation_coordination",
-      "status": "SOURCE_READY_V3 frozen; no further writes until explicit root release",
+      "status": "Final local fan-in sealed; writes frozen",
       "write_scope": "runroot root controls/briefs/snapshots/own C1 only"
     },
     {
@@ -203,7 +203,7 @@
       "id": "F2",
       "role": "bounded direct Agent2 final verification",
       "runtime_id": null,
-      "status": "Original failed execution preserved; rerun held for new clean source commit and explicit root release",
+      "status": "Final bounded PASS accepted; all processes terminal",
       "brief": "briefs/F2_FINAL_VERIFICATION_V2.md",
       "write_scope": [
         "declared {VERIFICATION_TMP_ROOT} staging and ignored build outputs",
@@ -213,24 +213,27 @@
       "delegation": "none",
       "resource_gate": "root-exclusive heavy build",
       "DEC025": "exact full unchanged command, clean WHOLE committed repository, all five surfaces",
-      "checkpoint_manifest_sha256": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95"
+      "checkpoint_manifest_sha256": "311ec958e25dfe8070694e7a96036f0d1d283593b4640ab114e30c4129db8b95",
+      "tested_source": "3e2d2b539c96276f924bd827e585aad2e46962cc",
+      "final_manifest_sha256": "7dab52cc0692b94f2f9f370440faf7fb6d2271733f077dd29ef940e6c00c8c43"
     },
     {
       "id": "S2",
       "runtime_id": "/root/repair_report",
       "role": "direct Agent2 report synthesis",
-      "status": "Prepared refresh accepted as pending-cut report; final closure held",
+      "status": "Final local-verified report accepted; publication/CI pending",
       "write_scope": [
         "auditroot/post_repair/S2",
         "instances/S2"
       ],
-      "prepared_refresh_manifest_sha256": "4fd5bdf6da2d0385a92ae2f9b0be3805574ab27fecead4de8474b0465b9b2a96"
+      "prepared_refresh_manifest_sha256": "4fd5bdf6da2d0385a92ae2f9b0be3805574ab27fecead4de8474b0465b9b2a96",
+      "local_verified_manifest_sha256": "e4265c2b6bf877e882f22f0152f416d7c6a5cc141afafdbb63a09721097e99de"
     },
     {
       "id": "CHANGE",
       "runtime_id": "/root/audit_change",
       "role": "Agent1 CHANGE",
-      "status": "Ready for root review/release to commit exact SOURCE_READY_V3 inputs",
+      "status": "Awaiting root release for final evidence-only commit, scoped push/PR and hosted CI",
       "write_scope": [
         "instances/CHANGE",
         "auditroot/post_repair/CHANGE"
@@ -505,12 +508,15 @@
     "dispositions/ACCEPT_P5_F1_C1_REMEDIATION_AND_S2_PREPARED_V1.json",
     "SOURCE_REVIEW_COVERAGE_V2.json",
     "SOURCE_REVIEW_COVERAGE_V3.json",
-    "dispositions/ACCEPT_FINAL_REMEDIATION_SOURCE_READY_V3.json"
+    "dispositions/ACCEPT_FINAL_REMEDIATION_SOURCE_READY_V3.json",
+    "dispositions/ACCEPT_F2_COMPLETE_BOUNDED_VERIFICATION_V1.json",
+    "instances/C1/RECEIPT_134_APPEND_RECORD_V1.json",
+    "dispositions/ACCEPT_S2_FINAL_AND_LOCAL_FAN_IN_V1.json"
   ],
   "repair_posture": "MIXED",
   "repair_activation_status": "R01\u2013R11 explicitly activated after accepted wholebaseline/finalR1PASS",
   "owner_holds": "D01\u2013D06",
-  "current_stage": "SOURCE_READY_V3: all bounded repairs and transport reviewed; CHANGE clean source commit next, F2 rerun held",
+  "current_stage": "Final bounded local verification complete; evidence publication and hosted CI pending",
   "tested_source_commit": "0ab12975fb3162545c4f8d31060f279affd2402d",
   "portability_remediation": {
     "policy_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
