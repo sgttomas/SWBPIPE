@@ -1,0 +1,6 @@
+{
+  "core/runner/headless/src/result_envelope_binding.rs": "0ab28ce33829e198ac4f91e2136a1dca122f35a8cb024af276683c200e3697cd",
+  "core/reporting/result_export/src/lib.rs": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+  "apps/desktop/src/features/results/resultInterpretation.ts": "9b1b9af32a51ec7938bf0b4fbbbb5eb7a6c1e7f5c767e2314ce9c2cadeb8b025",
+  "core/runner/headless/src/bin/headless_preview_runner.rs": "991c736547fa83563d80d05dfecda85c5ffb5d0db0c0c2f7f99f22cc415ef085"
+}

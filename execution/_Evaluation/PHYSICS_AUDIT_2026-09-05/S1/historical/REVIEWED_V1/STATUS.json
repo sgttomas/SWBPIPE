@@ -1,0 +1,10 @@
+{
+  "run_status": "SUCCESS",
+  "closure": "SYNTHESIS_COMPLETE_PENDING_INDEPENDENT_REVIEW_AND_AGENT0_ACCEPTANCE",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "model": "runtime not exposed",
+  "nondelegation": "instruction+config asserted",
+  "write_scope": "S1/**",
+  "frozen": true
+}

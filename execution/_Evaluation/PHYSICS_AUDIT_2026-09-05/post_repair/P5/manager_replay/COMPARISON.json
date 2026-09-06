@@ -1,0 +1,2685 @@
+{
+  "basis": "Frozen original I1 expectations, elementary statics and output quantization floor; no repaired-output fitted expected values",
+  "checks": [
+    {
+      "name": "sparse/axial/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/axial/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/axial/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/torsion/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/torsion/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/torsion/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_y/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_y/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_y/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_z/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_z/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/shear_z/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/quarter-1/shear",
+      "actual": 150.0,
+      "expected": 150,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/quarter-1/moment",
+      "actual": 112.5,
+      "expected": 112.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/midspan/shear",
+      "actual": 100.0,
+      "expected": 100,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/midspan/moment",
+      "actual": 50.0,
+      "expected": 50,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/quarter-3/shear",
+      "actual": 50.0,
+      "expected": 50,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/quarter-3/moment",
+      "actual": 12.5,
+      "expected": 12.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/uniform/tip",
+      "actual": 0.087005,
+      "expected": 0.08700500746613722,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/missing_selected_alpha/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/missing_base_alpha/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/wind_duplicate/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/wind_overlap/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/wind/solved",
+      "actual": "MECHANICS_SOLVED",
+      "expected": "MECHANICS_SOLVED",
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/wind_partial/solved",
+      "actual": "MECHANICS_SOLVED",
+      "expected": "MECHANICS_SOLVED",
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/observed",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:ux",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/opposite/result:combination:combination-R-sum:reaction:support-S-100",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/precision/2",
+      "actual": 1e-06,
+      "expected": 1e-06,
+      "tolerance": 0,
+      "pass_": true
+    },
+    {
+      "name": "sparse/precision/1000000",
+      "actual": 0.406023,
+      "expected": 0.406023,
+      "tolerance": 0,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "sparse/source/at_least_original20",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110",
+      "actual": 0.052609,
+      "expected": 0.052609,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-100:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:ux",
+      "actual": 0.052609,
+      "expected": 0.052609,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:force:pipe-P-100:axial:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:force:pipe-P-100:shear-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:force:pipe-P-100:shear-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:moment:pipe-P-100:torsion:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:moment:pipe-P-100:bending-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:moment:pipe-P-100:bending-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-i:axial-normal",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-i:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-i:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-i:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-i:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure/result:stress:pipe-P-100:end-j:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-100:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:force:pipe-P-100:axial:end-j",
+      "actual": -18626.502843,
+      "expected": -18626.502843,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:force:pipe-P-100:shear-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:force:pipe-P-100:shear-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:moment:pipe-P-100:torsion:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:moment:pipe-P-100:bending-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:moment:pipe-P-100:bending-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:axial-normal",
+      "actual": 5.26087,
+      "expected": 5.26087,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": -5.26087,
+      "expected": -5.26087,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "sparse/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/axial/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/axial/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/axial/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/torsion/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/torsion/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/torsion/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_y/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_y/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_y/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_z/quarter-1",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_z/midspan",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/shear_z/quarter-3",
+      "actual": 350.0,
+      "expected": 350,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/quarter-1/shear",
+      "actual": 150.0,
+      "expected": 150,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/quarter-1/moment",
+      "actual": 112.5,
+      "expected": 112.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/midspan/shear",
+      "actual": 100.0,
+      "expected": 100,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/midspan/moment",
+      "actual": 50.0,
+      "expected": 50,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/quarter-3/shear",
+      "actual": 50.0,
+      "expected": 50,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/quarter-3/moment",
+      "actual": 12.5,
+      "expected": 12.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/uniform/tip",
+      "actual": 0.087005,
+      "expected": 0.08700500746613722,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/missing_selected_alpha/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/missing_base_alpha/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/wind_duplicate/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/wind_overlap/blocked",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/wind/solved",
+      "actual": "MECHANICS_SOLVED",
+      "expected": "MECHANICS_SOLVED",
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/wind_partial/solved",
+      "actual": "MECHANICS_SOLVED",
+      "expected": "MECHANICS_SOLVED",
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/observed",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:ux",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/opposite/result:combination:combination-R-sum:reaction:support-S-100",
+      "actual": 0.0,
+      "expected": 0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/precision/2",
+      "actual": 1e-06,
+      "expected": 1e-06,
+      "tolerance": 0,
+      "pass_": true
+    },
+    {
+      "name": "dense/precision/1000000",
+      "actual": 0.406023,
+      "expected": 0.406023,
+      "tolerance": 0,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:stress:pipe-P-100",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:stress:pipe-P-120",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-100",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110:end-j:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-110",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:axial-normal",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-y",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-z",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120:end-i:torsional-shear",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier/result:loadcase:load-L-200:stress:pipe-P-120",
+      "actual": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "expected": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-200"
+      },
+      "tolerance": null,
+      "pass_": true
+    },
+    {
+      "name": "dense/source/at_least_original20",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110",
+      "actual": 0.052609,
+      "expected": 0.052609,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-100:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:ux",
+      "actual": 0.052609,
+      "expected": 0.052609,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:force:pipe-P-100:axial:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:force:pipe-P-100:shear-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:force:pipe-P-100:shear-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:moment:pipe-P-100:torsion:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:moment:pipe-P-100:bending-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:moment:pipe-P-100:bending-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-i:axial-normal",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-i:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-i:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-i:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-i:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure/result:stress:pipe-P-100:end-j:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-100:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:ux",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:uy",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:uz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:rx",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:ry",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:disp:node-N-110:rz",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:force:pipe-P-100:axial:end-j",
+      "actual": -18626.502843,
+      "expected": -18626.502843,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:force:pipe-P-100:shear-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:force:pipe-P-100:shear-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:moment:pipe-P-100:torsion:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:moment:pipe-P-100:bending-y:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:moment:pipe-P-100:bending-z:end-j",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:axial-normal",
+      "actual": 5.26087,
+      "expected": 5.26087,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-i:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:axial-normal",
+      "actual": -5.26087,
+      "expected": -5.26087,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:bending-normal-y",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:bending-normal-z",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:torsional-shear",
+      "actual": 0.0,
+      "expected": 0.0,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "dense/pressure_compat/pressure_fixed/result:stress:pipe-P-100:end-j:pressure-hoop",
+      "actual": 11.5,
+      "expected": 11.5,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/missing_selected_alpha.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/uniform.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/partial.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_overlap.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/pressure_fixed.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/pressure.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_partial.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/thermal_fixed.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/shear_y.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_partial.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/shear_y.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/direct1e6.input.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/missing_base_alpha.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/pressure.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/partial.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/shear_z.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/opposite_combinations_v2.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/invented_nonlinear.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/torsion.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_duplicate.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_duplicate.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/pressure_fixed.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/missing_selected_alpha.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/axial.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/direct2.input.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/axial.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/direct1e6.input.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind_overlap.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/wind.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/thermal_fixed.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/missing_base_alpha.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/opposite_combinations_v2.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/shear_z.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/torsion.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/scaled_combinations.input.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/uniform.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/invented_nonlinear.dense.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/scaled_combinations.input.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    },
+    {
+      "name": "finite/direct2.input.sparse.json",
+      "actual": true,
+      "expected": true,
+      "tolerance": 1e-06,
+      "pass_": true
+    }
+  ],
+  "passed": 314,
+  "failed": 0
+}

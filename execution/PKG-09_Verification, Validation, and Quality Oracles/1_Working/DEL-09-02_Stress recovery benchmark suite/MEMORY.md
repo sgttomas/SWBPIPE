@@ -682,3 +682,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-09-05 — Physics audit R10 independent regression evidence
+
+- Added the independent actual-product suite in `validation/benchmarks/physics_audit_regression`; original analytical expectations were frozen before comparisons and independently reviewed.
+- Root accepted matching reviewed-source verification: all 10 tests pass through both solver modes; deliberate dimensional-mixing and actual station-zero mutations fail the intended numerical assertions, and the restored control passes.
+- Evidence and scope mapping: `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_R10.md`. Existing status/Remaining, acceptance thresholds, canonical-unit, release and Owner gates are unchanged.

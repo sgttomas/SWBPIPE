@@ -1,0 +1,6 @@
+{
+  "verdict": "ACCEPTED_ADDITIVE_SOURCE_CLASSIFICATION",
+  "manifest_sha256": "2338d628fc0e503ef5ff2f9619bad7f0d9d462fc4d1d51f34a010dae15f519b1",
+  "classification": "94 reference/policy/governance inputs plus2incidental generatedcache files; no productionenginefiles in this specialist inventory. Original packet remainsimmutable. Root frozen source governs enginebasis; managerbound actual96inputhashes unchanged.",
+  "supersedes_claim": "Any96source/policy shorthand in manager V1_R_ACCEPTANCE.json means96capturedinputs and is qualified by this correction."
+}

@@ -1,0 +1,40 @@
+{
+  "schema": "piping-evidence-manifest/v1",
+  "transport_version": 2,
+  "original_manifest_sha256": "0540184a27b845f420a7c8eb19ed8d025bf7f538ecae3c3926ccfb5a0f7e599c",
+  "original_archive": "transport_archive/REVIEW_ORIGINAL_V1/ARCHIVE.json",
+  "original_archive_sha256": "3a4cb4f77442a38155214c1fbadaf9769b37e1df9e3d53e315c322828b7986ea",
+  "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "files": [
+    {
+      "path": "DIFF_BINDING.json",
+      "sha256": "894b0aaecb5f4da91ec59a55f169c9ce663dce637252890fba4a6adb68148135",
+      "bytes": 475
+    },
+    {
+      "path": "FINAL_lib.rs",
+      "sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "bytes": 676762
+    },
+    {
+      "path": "FULL_PRODUCT_DIFF.patch.json",
+      "sha256": "73c90ba77928c2e71f940fce7274407e929eabfde3d93f1046cb24edfb6604c0",
+      "bytes": 130948
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "12648c28dc2d55b2873c91c14f08e2b44927b42b70498afbe0a680bfa1fac117",
+      "bytes": 5690
+    },
+    {
+      "path": "STATUS.json",
+      "sha256": "918fe28bdbaed5940e91518e01c56d1cceaf2c90cdf259c24d6d83516fb7f959",
+      "bytes": 374
+    },
+    {
+      "path": "TRANSPORT_NORMALIZATION.md",
+      "sha256": "cf90ad55054de64f0f6ced7193c5862249e59e687f12ec3a9741ba8fd3df8ec3",
+      "bytes": 944
+    }
+  ]
+}

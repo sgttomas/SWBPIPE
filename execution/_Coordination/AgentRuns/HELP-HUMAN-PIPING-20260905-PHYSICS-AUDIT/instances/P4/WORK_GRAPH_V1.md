@@ -1,0 +1,2 @@
+# P4 graph v1
+Root activated P4 v2. MIXED posture. K1/N1 parallel disjoint implementation then fresh KR100% diff review; accepted kernel checkpoint gates P1 exclusive product adapter, fresh PR review and accepted source transfer P5. P9 checks downstream, not kernel checkpoint cycle. Parent-mediated updates, Agent2 no delegation. Global builds root gated. All models/context usage unknown when unexposed.

@@ -1,0 +1,11 @@
+[package]
+name="physics_audit_m1_e"
+version="0.1.0"
+edition="2021"
+[workspace]
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../../../../core/solver/frame_kernel" }
+open_pipe_stress_straight_pipe = { path = "../../../../../../core/solver/straight_pipe" }
+open_pipe_stress_curved_bend = { path = "../../../../../../core/solver/curved_bend" }
+open_pipe_stress_linear_supports = { path = "../../../../../../core/solver/linear_supports" }
+serde_json="1"

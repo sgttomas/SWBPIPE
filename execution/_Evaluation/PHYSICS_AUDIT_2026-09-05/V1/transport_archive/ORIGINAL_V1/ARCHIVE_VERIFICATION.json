@@ -1,0 +1,11 @@
+{
+  "verdict": "PASS",
+  "original_manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1",
+  "archive_sha256": "eb717e0a6f9851b7d4af4e57bc1cd2a723a65fb9b01a1712995a6ee545f1f7ea",
+  "original_members_verified": 111,
+  "original_data_members": 110,
+  "decoded_manifest_byte_identical": true,
+  "raw_log_sha256": "d10c7dbda54eca39f5903bf80a4f44b46dc6b93cd0036c69758d2dd3b0810bce",
+  "encoded_log_byte_identical": true,
+  "analytical_or_execution_changes": false
+}

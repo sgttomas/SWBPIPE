@@ -1,0 +1,10 @@
+{
+  "status": "E1complete, V1transport/F3reviewactive; sourcecommitstillheld",
+  "files": {
+    "snapshots/EVIDENCE_TRANSPORT_REPAIR_V2/WORK_GRAPH.json": "e93d4b8f07d7b0c4152c63909c521fb53ff25ec2169b7798b36ce7400a537ad4",
+    "snapshots/EVIDENCE_TRANSPORT_REPAIR_V2/dispositions/RECORD_E1_COMPLETE_AND_RELEASE_V1_TRANSPORT.json": "135ce35aa84d875039bb68d3b063adda83a4e5ae19b1625420b864180dab0a03",
+    "snapshots/EVIDENCE_TRANSPORT_REPAIR_V2/notices/RESUME-012-V1-TRANSPORT-F3.json": "34a01fddb22f5f978469bf64b11ec3c9750ec8c690d68de1cf883976f34212e1"
+  },
+  "no_truth_changes": "production15/auditresults/CSV unchanged; rawrepresentation-only",
+  "next_gate": "freshF3/SOURCE_READY_V2/rootCHANGErelease"
+}

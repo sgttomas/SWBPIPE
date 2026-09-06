@@ -1,0 +1,33 @@
+{
+  "candidate_source": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "test_source": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+  "candidate": {
+    "pass": 10,
+    "fail": 0,
+    "both_modes_all_assertions": true
+  },
+  "disposable_force_only_control": {
+    "pass": 10,
+    "fail": 0
+  },
+  "force_moment_mix": {
+    "pass": 5,
+    "fail": 5,
+    "compiled": true,
+    "intended_numeric_failures": true
+  },
+  "active_station_zero": {
+    "pass": 4,
+    "fail": 6,
+    "compiled": true,
+    "intended_numeric_failures": true
+  },
+  "restored": {
+    "pass": 10,
+    "fail": 0
+  },
+  "source_drift": [],
+  "test_oracle_changes": false,
+  "source_acceptance": "P5 candidate under fresh review, root acceptance pending",
+  "compile_slot": "released"
+}

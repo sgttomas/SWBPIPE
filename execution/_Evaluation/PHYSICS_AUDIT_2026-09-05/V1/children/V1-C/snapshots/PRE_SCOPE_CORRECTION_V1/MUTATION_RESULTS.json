@@ -1,0 +1,30 @@
+[
+  {
+    "mode": "baseline",
+    "exit_code": 0,
+    "summary": [
+      "test result: ok. 127 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+    ]
+  },
+  {
+    "mode": "W3_force_only_reaction",
+    "exit_code": 0,
+    "summary": [
+      "test result: ok. 127 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.05s"
+    ]
+  },
+  {
+    "mode": "W5_zero_interpolated_stations",
+    "exit_code": 0,
+    "summary": [
+      "test result: ok. 127 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+    ]
+  },
+  {
+    "mode": "positive_zero_force_stress",
+    "exit_code": 101,
+    "summary": [
+      "test result: FAILED. 114 passed; 13 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.06s"
+    ]
+  }
+]

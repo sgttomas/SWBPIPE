@@ -1,0 +1,23 @@
+{
+  "scope": "V1 lossless evidence transport only",
+  "authority": "Parent /root bounded TRANSPORT remediation request; no source/tests/reruns/Git",
+  "deleted_physical_path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/baseline/cargo.log",
+  "original_log_sha256": "d10c7dbda54eca39f5903bf80a4f44b46dc6b93cd0036c69758d2dd3b0810bce",
+  "new_files": [
+    "transport_archive/ORIGINAL_V1/ARCHIVE.json",
+    "transport_archive/ORIGINAL_V1/ARCHIVE_VERIFICATION.json",
+    "TRANSPORT_MAP.json",
+    "TRANSPORT_README.md",
+    "FINAL_TRANSPORT_MANIFEST.json"
+  ],
+  "unchanged_original_data_members": 109,
+  "original_manifest_physically_unchanged": true,
+  "original_manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1",
+  "archive_sha256": "eb717e0a6f9851b7d4af4e57bc1cd2a723a65fb9b01a1712995a6ee545f1f7ea",
+  "current_manifest_sha256": "d11dd8e37af2d2906ca6e35dc99fdea25a97005565a0afba07e0a3cde4a9dbec",
+  "fresh_temporary_materialization": "PASS all111originalmembers then110logicalbindings",
+  "current_physical_manifest": "PASS all114members",
+  "report_csv_testcount_changes": false,
+  "raw_execution_byte_changes": false,
+  "review_instructions": "F3 validate archive base64 members and per-member hashes; materialize in fresh temporary directory and check historical FINAL_MANIFEST digest and110members. Validate current114physicalmembers separately. Decode baseline/encoded/cargo.log.json content and compare archived baseline/cargo.log. Only physical raw log removed; five new transport files. CHANGE restages; no Git action performed by V1."
+}

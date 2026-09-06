@@ -1,0 +1,13 @@
+{
+  "id": "RECORD_P5_QUALIFIED_PLANNING_RETURN",
+  "disposition": "Record completed planning with qualified technical design acceptance; source still held",
+  "manifest_sha256": "2b24ceafd39c3ee88f2d854d6ca35671ea4f243d0efbbbee7e9f66e2b39cad6f",
+  "compliance": "Recon policy VIOLATION: temporary undeclared redirect removed; do not claim compliance PASS",
+  "technical_status": "P5 independent check accepted qualified technical design",
+  "source_gate": "No source writes until accepted P4 transfer",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "preservation": "All prior evidence and failed/violation history retained"
+}

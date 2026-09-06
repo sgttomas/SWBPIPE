@@ -1,0 +1,60 @@
+{
+  "reason": "Telemetry helper groups by session_id; reused native agent has separate bounded invocation sessions K1/K1R and KR/KR2. Original ledger/summary preserved. Only session_id disambiguation changed; no event times/outcomes/roles invented. Actual native agent parentage remains explicit in mapping.",
+  "raw_sha256": "af4ca9b313ec037af3d69e880e7984343aa690bf363c0a70d67f20326cf4b77a",
+  "mapping": [
+    {
+      "event_id": "K1-start",
+      "actual_agent": "/root/repair_pkg04/kernel",
+      "logical_run_session": "/root/repair_pkg04/kernel#K1",
+      "instance_id": "K1"
+    },
+    {
+      "event_id": "K1-finish",
+      "actual_agent": "/root/repair_pkg04/kernel",
+      "logical_run_session": "/root/repair_pkg04/kernel#K1",
+      "instance_id": "K1"
+    },
+    {
+      "event_id": "KR-start",
+      "actual_agent": "/root/repair_pkg04/kernel_review",
+      "logical_run_session": "/root/repair_pkg04/kernel_review#KR",
+      "instance_id": "KR"
+    },
+    {
+      "event_id": "KR-finish",
+      "actual_agent": "/root/repair_pkg04/kernel_review",
+      "logical_run_session": "/root/repair_pkg04/kernel_review#KR",
+      "instance_id": "KR"
+    },
+    {
+      "event_id": "K1R-start",
+      "actual_agent": "/root/repair_pkg04/kernel",
+      "logical_run_session": "/root/repair_pkg04/kernel#K1R",
+      "instance_id": "K1R"
+    },
+    {
+      "event_id": "K1R-finish",
+      "actual_agent": "/root/repair_pkg04/kernel",
+      "logical_run_session": "/root/repair_pkg04/kernel#K1R",
+      "instance_id": "K1R"
+    },
+    {
+      "event_id": "KR2-start",
+      "actual_agent": "/root/repair_pkg04/kernel_review",
+      "logical_run_session": "/root/repair_pkg04/kernel_review#KR2",
+      "instance_id": "KR2"
+    },
+    {
+      "event_id": "KR01-remediation",
+      "actual_agent": "/root/repair_pkg04/kernel",
+      "logical_run_session": "/root/repair_pkg04/kernel#K1R",
+      "instance_id": "K1R"
+    },
+    {
+      "event_id": "KR2-finish",
+      "actual_agent": "/root/repair_pkg04/kernel_review",
+      "logical_run_session": "/root/repair_pkg04/kernel_review#KR2",
+      "instance_id": "KR2"
+    }
+  ]
+}

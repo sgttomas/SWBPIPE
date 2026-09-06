@@ -1,0 +1,24 @@
+{
+  "id": "ACCEPT_V1_BOUNDED_VERIFICATION_PACKET",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept bounded V1 verification packet only",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1",
+  "root_verification": "Read V1 report/findings and independently verified all 110 FINAL_MANIFEST members",
+  "claim_limit": "Not whole-baseline acceptance; M1 and I1 still pending",
+  "early_oracle": {
+    "hash_prefix": "b398c429...",
+    "calibration": "Prefix only supplied in this notice; authoritative complete hash remains in owning V1 artifact",
+    "acceptance": "Audit expectations only, not production thresholds",
+    "routing": "Root relayed to M1/I1"
+  },
+  "completed_execution_as_reported": {
+    "V1": "Existing suite coordination complete; all37/971 reported",
+    "Python": "1010, one excluded duplicate gate covered",
+    "M1": "Two bounded lightweight isolated slots authorized and complete",
+    "I1": "Serialized drivers authorized and complete"
+  },
+  "repair_gate": "Whole baseline plus fresh independent R1 review remains mandatory"
+}

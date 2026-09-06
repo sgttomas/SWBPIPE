@@ -1,0 +1,1 @@
+Root-granted P4 checkpoint only; P4 source under fresh review not accepted. Run existing10 tests once with one isolated compile slot, no source/oracle edits. Preserve results, check after hashes, classify expected P5 failures. No mutations. WORKING_ITEMS P9 direct bounded execution, model unknown. Parent source hashes verified.

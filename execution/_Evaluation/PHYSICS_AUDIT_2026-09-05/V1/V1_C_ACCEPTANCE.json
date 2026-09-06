@@ -1,0 +1,18 @@
+{
+  "verdict": "ACCEPTED",
+  "manifest_sha256": "4c0ad4f3a0239eb76478b7f470651f5774ce94f22a85078f21cfcd29fc4d52db",
+  "members_checked": 55,
+  "subject_hashes_independently_checked": 168,
+  "bad": [],
+  "manager_review": [
+    "Read full report/findings/coverage/wholemutation script and exactsourcechanges.",
+    "Reviewed four terminal resultlogs and508pertesttable. Wholeproduct127 tests retained; broad positivecontrol13fails demonstrates selective numerical sensitivity.",
+    "W5 mutates defaultwrapper published matchingmetadata only after solve/combinations; lowerlevel and with_mode paths not covered by this mutation.",
+    "Reconciled TP014 constructor vs fixednumericvalidator and sectionDecimaloracle clarification with referencechild.",
+    "Productionowner inference removed; defer exactpackage routing to acceptedrootrepairbrief."
+  ],
+  "limits": [
+    "No exhaustive mutation/branchcoverage claim.",
+    "Sensitivity gap is distinct from independently reproduced physicsdefect."
+  ]
+}

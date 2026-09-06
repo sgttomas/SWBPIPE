@@ -1,0 +1,11 @@
+{
+  "status": "PASS root accepted bounded packaging only",
+  "runtime_id": "/root/fixture_review",
+  "role": "TASKsoftware-code-review1",
+  "ToolPolicy": "PASS",
+  "AllowedWriteTargets": [],
+  "model": "unknown",
+  "enforcement": "native instruction+config asserted",
+  "return_provenance": "C1 parent-authorized structured semantic transcription",
+  "source15_unchanged": true
+}

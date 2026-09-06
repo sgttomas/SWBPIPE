@@ -1,0 +1,21 @@
+{
+  "status": "prepared held; root-reviewable only; not production activation",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "files": {
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/P4_BRIEF.md": "6d5ad841a0963a30493b40956666b31207bb4392e609446af831fce6ffbe051f",
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/P5_BRIEF.md": "f7fdc40b909193550a0447749b6c81a3c519ff60bac9226b0836bf4c02a352de",
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/P9_BRIEF.md": "d35313d19ccf19c71d03db2ee87db64d6eb911d5f452a32fb90a3f6e434eff51",
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/REPAIR_ACTIVATION_PLAN_V1.md": "da67a18ed46e1b317f21eb9d8bf1400440540c247a3219b9a09430e089b25899",
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/REPAIR_ACTIVATION_STATUS_V1.json": "8e7b8e7e0a23e301ec8030bc63404c594ef161abf1af481279d1400b596dde6c",
+    "snapshots/REPAIR_ACTIVATION_PREPARED_V1/WORK_GRAPH.json": "428cca37a1362e69ee5aded27606c3ffd849069b718d4a6dbe8bbc98248072ce"
+  },
+  "read_evidence_sha256": {
+    "S1/CORRECTIONS_V2.json": "48e05bd9f231c1bf11b58881a7c3bb38d547ec3ddac11dd7a6962acd3d65ed40",
+    "S1/REPAIR_PLAN.md": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0",
+    "S1/MANIFEST_V2.json": "edf28fcaaef1b963a9b4a991b324e93831ef9a718b8afb8be125fe2d5b350565",
+    "R1/RETURN.md": "fe0755c159fae8e4cf09921482346163d1cf3ccd8c3958f639239b375ab7a732",
+    "R1/backcheck_v2/RETURN.md": "c4e8d4f6ae511c2ed40207c30ebd896c75e6864aa4d11ffc6f62184759dd536a"
+  },
+  "gate": "final corrected synthesis binding, fresh R1PASS, explicit root baseline acceptance/activation",
+  "preserves": "All previous immutable snapshots; no receipt/evaluator/source writes"
+}

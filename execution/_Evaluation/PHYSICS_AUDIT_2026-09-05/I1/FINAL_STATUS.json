@@ -1,0 +1,13 @@
+{
+  "manager": "/root/audit_integration",
+  "children": {
+    "C": "/root/audit_integration/compilation completed accepted",
+    "R": "/root/audit_integration/recovery completed accepted"
+  },
+  "status": "BOUNDED_BASELINE_COMPLETE_WITH_EXPLICIT_GAPS",
+  "whole_baseline_status": "parent consolidated fresh review pending",
+  "production_repairs": "none",
+  "model": "unknown; unexposed",
+  "delegation": "native role/nondelegation instruction+config asserted",
+  "write_freeze": true
+}

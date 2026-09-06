@@ -1,0 +1,242 @@
+[
+  {
+    "finding": "V1R-01",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:2086",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:2086"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:2180",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:2180"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:5883",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:5883"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:7741",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:7741"
+  },
+  {
+    "finding": "V1R-01",
+    "original": "REFERENCE_CORRECTIONS_AND_LIMITS.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCE_CORRECTIONS_AND_LIMITS.md"
+  },
+  {
+    "finding": "V1R-02",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-02",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-02",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:805",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:805"
+  },
+  {
+    "finding": "V1R-02",
+    "original": "EARLY_REFERENCE_CRITERIA.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EARLY_REFERENCE_CRITERIA.md"
+  },
+  {
+    "finding": "V1R-03",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-03",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-03",
+    "original": "validation/hand_calcs/nonlinear/convergence_observations.md",
+    "normalized": "validation/hand_calcs/nonlinear/convergence_observations.md"
+  },
+  {
+    "finding": "V1R-03",
+    "original": "validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md",
+    "normalized": "validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md"
+  },
+  {
+    "finding": "V1R-03",
+    "original": "REFERENCES.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCES.csv"
+  },
+  {
+    "finding": "V1R-04",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-04",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-04",
+    "original": "validation/benchmarks/mechanics/src/lib.rs:3096",
+    "normalized": "validation/benchmarks/mechanics/src/lib.rs:3096"
+  },
+  {
+    "finding": "V1R-04",
+    "original": "validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md",
+    "normalized": "validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md"
+  },
+  {
+    "finding": "V1R-04",
+    "original": "POLICY_RECORDS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/POLICY_RECORDS.json"
+  },
+  {
+    "finding": "V1R-05",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-05",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-05",
+    "original": "independent_oracles.py",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/independent_oracles.py"
+  },
+  {
+    "finding": "V1R-05",
+    "original": "INDEPENDENT_ORACLE_RESULTS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/INDEPENDENT_ORACLE_RESULTS.json"
+  },
+  {
+    "finding": "V1R-05",
+    "original": "ARC_REFERENCE_COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/ARC_REFERENCE_COMPARISON.json"
+  },
+  {
+    "finding": "V1R-06",
+    "original": "children/V1-R/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv"
+  },
+  {
+    "finding": "V1R-06",
+    "original": "children/V1-R/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1R-06",
+    "original": "tests/test_calculation_witness.py:66",
+    "normalized": "tests/test_calculation_witness.py:66"
+  },
+  {
+    "finding": "V1R-06",
+    "original": "validation/witness/tools/witness_validator.py",
+    "normalized": "validation/witness/tools/witness_validator.py"
+  },
+  {
+    "finding": "V1R-06",
+    "original": "validation/hand_calcs/stress/README.md",
+    "normalized": "validation/hand_calcs/stress/README.md"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "children/V1-C/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "children/V1-C/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "MUTATION_W5_zero_interpolated_stations.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_W5_zero_interpolated_stations.json"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "MUTATION_PATCHES.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PATCHES.json"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "MUTATION_PER_TEST.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv"
+  },
+  {
+    "finding": "V1-C-01",
+    "original": "COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv"
+  },
+  {
+    "finding": "V1-C-02",
+    "original": "children/V1-C/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv"
+  },
+  {
+    "finding": "V1-C-02",
+    "original": "children/V1-C/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1-C-02",
+    "original": "MUTATION_W3_force_only_reaction.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_W3_force_only_reaction.json"
+  },
+  {
+    "finding": "V1-C-02",
+    "original": "MUTATION_PATCHES.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PATCHES.json"
+  },
+  {
+    "finding": "V1-C-02",
+    "original": "MUTATION_PER_TEST.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "children/V1-C/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "children/V1-C/EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "WITNESS_COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/WITNESS_COVERAGE.csv"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "TEST_ASSERTIONS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/TEST_ASSERTIONS.json"
+  },
+  {
+    "finding": "V1-C-03",
+    "original": "EVALUATION_REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md"
+  }
+]

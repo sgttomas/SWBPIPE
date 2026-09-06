@@ -1,0 +1,13 @@
+{
+  "schema": "p4-kernel-checkpoint/v1",
+  "files": [
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "cc5307992ab111e83ae4fadea09ce40917c7418fd5883d72d84bf184a17552ba"
+    },
+    {
+      "path": "SOURCE_HASHES.json",
+      "sha256": "42480f012734b81ecb28ae6f2846cf377513553fb4c5e3f23922805a157c78f8"
+    }
+  ]
+}

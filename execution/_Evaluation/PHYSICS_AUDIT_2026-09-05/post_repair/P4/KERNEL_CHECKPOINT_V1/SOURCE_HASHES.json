@@ -1,0 +1,10 @@
+{
+  "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+  "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+  "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+  "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+  "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+  "projects/chirality-piping/core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+  "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "0ebfe5e6c69f1c2db432e158278eb4e39009f3656f27e4e17757690481e27fc4"
+}

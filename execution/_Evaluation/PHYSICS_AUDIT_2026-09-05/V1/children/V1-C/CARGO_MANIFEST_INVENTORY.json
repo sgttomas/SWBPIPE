@@ -1,0 +1,154 @@
+[
+  {
+    "path": "apps/desktop/src-tauri/Cargo.toml",
+    "manifest": "[package]\nname = \"openpipestress-desktop\"\nversion = \"0.1.0\"\ndescription = \"OpenPipeStress macOS technical preview desktop shell\"\nauthors = [\"OpenPipeStress contributors\"]\nedition = \"2021\"\n\n[lib]\nname = \"openpipestress_desktop_lib\"\ncrate-type = [\"staticlib\", \"cdylib\", \"rlib\"]\n\n[build-dependencies]\ntauri-build = { version = \"2\", features = [] }\n\n[dependencies]\nopen_pipe_stress_product_physics = { path = \"../../../core/product_physics\" }\nopen_pipe_stress_self_weight_wasm = { path = \"../../../core/loads/self_weight_wasm\" }\nopen_pipe_stress_operation_applier = { path = \"../../../core/model_operations/operation_applier\" }\nopen_pipe_stress_library_import_document = { path = \"../../../core/library_import/library_import_document\" }\nopen_pipe_stress_report_renderer = { path = \"../../../core/reporting/report_renderer\" }\nopen_pipe_stress_report_package = { path = \"../../../core/reporting/report_package\" }\nopen_pipe_stress_audit_manifest = { path = \"../../../core/reporting/audit_manifest\" }\nopen_pipe_stress_result_export = { path = \"../../../core/reporting/result_export\" }\nopen_pipe_stress_rule_pack_document = { path = \"../../../core/rules/rule_pack_document\" }\nopen_pipe_stress_rule_check_runner = { path = \"../../../core/rules/rule_check_runner\" }\nopen_pipe_stress_units = { path = \"../../../core/units\" }\nrusqlite = { version = \"0.32\", features = [\"bundled\"] }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\ngetrandom = \"0.3\"\ntauri = { version = \"2\", features = [] }\ntauri-plugin-dialog = \"2\"\n"
+  },
+  {
+    "path": "core/gui/viewport_editor/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_viewport_editor\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Viewport editor command-intent support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/library_import/library_import_document/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_library_import_document\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Library-import provenance seam: runtime validation of material/section/component library import payloads (required provenance, redistribution/review disposition, protected-content quarantine, unit and value-level provenance) projected into the PKG-02 import-boundary diagnostic envelope. Runtime Rust port of the DEL-03-07 provenance-checker contract (core/library_import/provenance_checker.py). No external file-format parsing, no legal license determinations, no professional, certification, sealing, authentication, or code-compliance claims.\"\n\n[dependencies]\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/loads/load_case_algebra/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_load_case_algebra\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral load case algebra for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_primitive_loads = { path = \"../primitive_loads\" }\n"
+  },
+  {
+    "path": "core/loads/primitive_loads/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_primitive_loads\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral primitive load case mechanics for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../../solver/frame_kernel\" }\nopen_pipe_stress_linear_supports = { path = \"../../solver/linear_supports\" }\n"
+  },
+  {
+    "path": "core/loads/self_weight_wasm/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_self_weight_wasm\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Original-document authenticated self-weight operation draft adapter\"\npublish = false\n\n[lib]\ncrate-type = [\"cdylib\", \"rlib\"]\n\n[features]\ndefault = []\nwasm = [\"dep:wasm-bindgen\"]\n\n[dependencies]\nopen_pipe_stress_product_physics = { path = \"../../product_physics\" }\nopen_pipe_stress_canonical_json = { path = \"../../serialization/canonical_json\" }\nserde_json = \"1\"\nsha2 = \"0.10\"\nwasm-bindgen = { version = \"=0.2.123\", optional = true }\n"
+  },
+  {
+    "path": "core/loads/stress_recovery/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_stress_recovery\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral mechanics stress recovery for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_primitive_loads = { path = \"../primitive_loads\" }\nopen_pipe_stress_straight_pipe = { path = \"../../solver/straight_pipe\" }\n"
+  },
+  {
+    "path": "core/loads/user_loads/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_user_loads\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral concentrated and distributed user load application for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../../solver/frame_kernel\" }\nopen_pipe_stress_primitive_loads = { path = \"../primitive_loads\" }\nopen_pipe_stress_straight_pipe = { path = \"../../solver/straight_pipe\" }\n"
+  },
+  {
+    "path": "core/model_operations/operation_applier/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_operation_applier\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Structured editor-operation validation, diff preview, and apply seam for OpenPipeStress model documents\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n# `cdylib` exists for the feature-gated wasm32 browser engine build; `rlib`\n# keeps the native library/test path unchanged.\ncrate-type = [\"cdylib\", \"rlib\"]\n\n[features]\n# Browser-engine build (DEC-020 / ADR-0001): wasm-bindgen JSON-string exports.\n# Native builds and tests never enable this feature.\nwasm = [\"dep:wasm-bindgen\"]\n\n[dependencies]\n# RFC 8785 (JCS) canonical JSON text \u2014 the single canonicalization for every\n# hash seam (completion-plan H5); this crate re-exports its `canonical_json`.\nopen_pipe_stress_canonical_json = { path = \"../../serialization/canonical_json\" }\nopen_pipe_stress_units = { path = \"../../units\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\nsha2 = \"0.10\"\n# Pinned exactly: the wasm-bindgen CLI version must match the crate version\n# (see docs/BUILD_AND_RELEASE.md and apps/desktop wasm build script).\nwasm-bindgen = { version = \"=0.2.123\", optional = true }\n"
+  },
+  {
+    "path": "core/product_physics/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_product_physics\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Product-preview physics adapter for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_curved_bend = { path = \"../solver/curved_bend\" }\nopen_pipe_stress_frame_kernel = { path = \"../solver/frame_kernel\" }\nopen_pipe_stress_load_case_algebra = { path = \"../loads/load_case_algebra\" }\nopen_pipe_stress_linear_supports = { path = \"../solver/linear_supports\" }\nopen_pipe_stress_nonlinear_integration = { path = \"../solver/nonlinear_integration\" }\nopen_pipe_stress_nonlinear_supports = { path = \"../solver/nonlinear_supports\" }\nopen_pipe_stress_primitive_loads = { path = \"../loads/primitive_loads\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../solver/diagnostics\" }\nopen_pipe_stress_sparse_direct = { path = \"../solver/sparse_direct\" }\nopen_pipe_stress_straight_pipe = { path = \"../solver/straight_pipe\" }\nopen_pipe_stress_stress_recovery = { path = \"../loads/stress_recovery\" }\nopen_pipe_stress_units = { path = \"../units\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/reporting/audit_manifest/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_audit_manifest\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Audit manifest and model hash support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/reporting/pdf_emitter/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_pdf_emitter\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Hash-bound deterministic PDF emitter and full-report-package assembly for OpenPipeStress (DEC-061)\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_report_renderer = { path = \"../report_renderer\" }\nopen_pipe_stress_report_generator = { path = \"../report_generator\", features = [\"serde\"] }\nopen_pipe_stress_report_sections = { path = \"../report_sections\", features = [\"serde\"] }\nopen_pipe_stress_protected_content_linter = { path = \"../protected_content_linter\" }\nserde = { version = \"1\", features = [\"derive\"] }\nsha2 = \"0.10\"\n\n[dev-dependencies]\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/reporting/protected_content_linter/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_protected_content_linter\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Report protected-content lint support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/reporting/report_generator/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_report_generator\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Calculation report assembly support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nserde = { version = \"1\", features = [\"derive\"], optional = true }\n\n[features]\nserde = [\"dep:serde\"]\n"
+  },
+  {
+    "path": "core/reporting/report_package/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_report_package\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Deterministic full-report-package container assembly for OpenPipeStress (DEC-028 / DEC-057 / DEC-061, completion-plan row E3)\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_pdf_emitter = { path = \"../pdf_emitter\" }\nopen_pipe_stress_report_renderer = { path = \"../report_renderer\" }\nopen_pipe_stress_audit_manifest = { path = \"../audit_manifest\" }\nopen_pipe_stress_result_export = { path = \"../result_export\" }\nopen_pipe_stress_canonical_json = { path = \"../../serialization/canonical_json\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\nsha2 = \"0.10\"\n\n[dev-dependencies]\nopen_pipe_stress_report_generator = { path = \"../report_generator\", features = [\"serde\"] }\nopen_pipe_stress_report_sections = { path = \"../report_sections\", features = [\"serde\"] }\n"
+  },
+  {
+    "path": "core/reporting/report_renderer/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_report_renderer\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Deterministic hash-bound single-file HTML calculation-report renderer for OpenPipeStress (DEC-021)\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_report_generator = { path = \"../report_generator\", features = [\"serde\"] }\nopen_pipe_stress_report_sections = { path = \"../report_sections\", features = [\"serde\"] }\nopen_pipe_stress_protected_content_linter = { path = \"../protected_content_linter\" }\nserde = { version = \"1\", features = [\"derive\"] }\nsha2 = \"0.10\"\n\n[dev-dependencies]\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/reporting/report_sections/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_report_sections\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Report section disclosure support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nserde = { version = \"1\", features = [\"derive\"], optional = true }\n\n[features]\nserde = [\"dep:serde\"]\n"
+  },
+  {
+    "path": "core/reporting/result_export/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_result_export\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Result export envelope support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/rules/completeness_checker/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_completeness_checker\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Required-input completeness checker for OpenPipeStress rule packs\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/rules/expression_evaluator/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_expression_evaluator\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Sandboxed declarative rule-pack expression evaluator for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/rules/rule_check_runner/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_rule_check_runner\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"End-to-end rule-check orchestration (C4): completeness, frozen-grammar formula decode and evaluation, ratio-vs-limit acceptability composition, per-check status, and worst-of aggregation over a rule-pack document plus caller-resolved solver and user values. No text parsing, no network/host/filesystem access, no protected content, no compliance claims.\"\n\n[dependencies]\nopen_pipe_stress_expression_evaluator = { path = \"../expression_evaluator\" }\nopen_pipe_stress_completeness_checker = { path = \"../completeness_checker\" }\nopen_pipe_stress_rule_pack_document = { path = \"../rule_pack_document\" }\nopen_pipe_stress_units = { path = \"../../units\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/rules/rule_pack_document/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_rule_pack_document\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Rule-pack document seam: production codec between the rule-pack JSON document encoding and the frozen DEC-022 expression AST, JCS checksum computation over pack documents, and document-level lifecycle validation. No text parsing of expressions, no protected content, no compliance claims.\"\n\n[dependencies]\nopen_pipe_stress_expression_evaluator = { path = \"../expression_evaluator\" }\nopen_pipe_stress_rule_pack_lifecycle = { path = \"../rule_pack_lifecycle\" }\nopen_pipe_stress_canonical_json = { path = \"../../serialization/canonical_json\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "core/rules/rule_pack_lifecycle/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_rule_pack_lifecycle\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Private rule-pack lifecycle and checksum handling for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/runner/headless/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_headless_runner\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Headless runner contract support for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[[bin]]\nname = \"openpipestress-runner\"\npath = \"src/bin/openpipestress-runner.rs\"\n\n[[bin]]\nname = \"headless_preview_runner\"\npath = \"src/bin/headless_preview_runner.rs\"\n\n[dependencies]\n# RFC 8785 (JCS) canonical JSON text \u2014 the single canonicalization for every\n# OpenPipeStress hash seam (completion-plan hardening row H5).\nopen_pipe_stress_canonical_json = { path = \"../../serialization/canonical_json\" }\nopen_pipe_stress_product_physics = { path = \"../../product_physics\" }\nopen_pipe_stress_report_package = { path = \"../../reporting/report_package\" }\n# DEL-08-04 result-export vocabulary, consumed read-only through its public\n# API by the governed analysis-run producer binding (R14 W1 T1).\nopen_pipe_stress_result_export = { path = \"../../reporting/result_export\" }\n# DEL-10-05 benchmark/regression payload bindings (CB-2026-07-19-DEL-10-05-\n# RUNNER-PAYLOADS-001): the suite crates remain the single source of fixture\n# identity, recorded comparison values, and encoded comparison predicates.\nopen_pipe_stress_mechanics_benchmarks = { path = \"../../../validation/benchmarks/mechanics\" }\nopen_pipe_stress_stress_benchmarks = { path = \"../../../validation/benchmarks/stress\" }\nopen_pipe_stress_nonlinear_benchmarks = { path = \"../../../validation/benchmarks/nonlinear\" }\nserde = { version = \"1\", features = [\"derive\"] }\nserde_json = \"1\"\nsha2 = \"0.10\"\n"
+  },
+  {
+    "path": "core/serialization/canonical_json/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_canonical_json\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"RFC 8785 (JCS) canonical JSON serialization shared by every OpenPipeStress hash seam\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nserde_json = \"1\"\n# Digit source for ECMAScript-equal shortest round-trip rendering (closest\n# candidate, exact ties to even \u2014 the std formatter breaks ties differently).\n# Already in the dependency closure: serde_json formats floats through ryu.\nryu = \"1\"\n"
+  },
+  {
+    "path": "core/solver/curved_bend/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_curved_bend\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Curved-bend macro-element mechanics for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\n"
+  },
+  {
+    "path": "core/solver/diagnostics/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_solver_diagnostics\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral solver diagnostics for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\nopen_pipe_stress_linear_supports = { path = \"../linear_supports\" }\nopen_pipe_stress_primitive_loads = { path = \"../../loads/primitive_loads\" }\nopen_pipe_stress_sparse_direct = { path = \"../sparse_direct\" }\n"
+  },
+  {
+    "path": "core/solver/frame_kernel/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_frame_kernel\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral 3D frame stiffness kernel for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n"
+  },
+  {
+    "path": "core/solver/linear_supports/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_linear_supports\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Linear support and restraint models for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\n"
+  },
+  {
+    "path": "core/solver/nonlinear_integration/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_nonlinear_integration\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Assembled nonlinear active-set integration loop for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_curved_bend = { path = \"../curved_bend\" }\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\nopen_pipe_stress_nonlinear_supports = { path = \"../nonlinear_supports\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../diagnostics\" }\nopen_pipe_stress_sparse_direct = { path = \"../sparse_direct\" }\n"
+  },
+  {
+    "path": "core/solver/nonlinear_supports/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_nonlinear_supports\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Nonlinear support active-set mechanics for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_linear_supports = { path = \"../linear_supports\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../diagnostics\" }\n"
+  },
+  {
+    "path": "core/solver/performance_harness/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_solver_performance_harness\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Deterministic sparse-solver performance and conditioning harness for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../diagnostics\" }\nopen_pipe_stress_sparse_direct = { path = \"../sparse_direct\" }\n"
+  },
+  {
+    "path": "core/solver/sparse_direct/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_sparse_direct\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Code-neutral in-repo sparse skyline direct solver for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n\n[dev-dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\n"
+  },
+  {
+    "path": "core/solver/straight_pipe/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_straight_pipe\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Straight pipe element mechanics for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../frame_kernel\" }\n"
+  },
+  {
+    "path": "core/units/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_units\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Deterministic unit catalog and conversion primitives for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\n\n[dev-dependencies]\nserde_json = \"1\"\n"
+  },
+  {
+    "path": "validation/benchmarks/mechanics/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_mechanics_benchmarks\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Original mechanics verification benchmarks for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_curved_bend = { path = \"../../../core/solver/curved_bend\" }\nopen_pipe_stress_frame_kernel = { path = \"../../../core/solver/frame_kernel\" }\nopen_pipe_stress_linear_supports = { path = \"../../../core/solver/linear_supports\" }\nopen_pipe_stress_primitive_loads = { path = \"../../../core/loads/primitive_loads\" }\nopen_pipe_stress_result_export = { path = \"../../../core/reporting/result_export\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../../../core/solver/diagnostics\" }\nopen_pipe_stress_straight_pipe = { path = \"../../../core/solver/straight_pipe\" }\nopen_pipe_stress_user_loads = { path = \"../../../core/loads/user_loads\" }\nserde_json = \"1\"\nsha2 = \"0.10\"\n"
+  },
+  {
+    "path": "validation/benchmarks/nonlinear/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_nonlinear_benchmarks\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Original nonlinear support regression benchmarks for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../../../core/solver/frame_kernel\" }\nopen_pipe_stress_nonlinear_integration = { path = \"../../../core/solver/nonlinear_integration\" }\nopen_pipe_stress_nonlinear_supports = { path = \"../../../core/solver/nonlinear_supports\" }\nopen_pipe_stress_solver_diagnostics = { path = \"../../../core/solver/diagnostics\" }\n"
+  },
+  {
+    "path": "validation/benchmarks/stress/Cargo.toml",
+    "manifest": "[package]\nname = \"open_pipe_stress_stress_benchmarks\"\nversion = \"0.1.0\"\nedition = \"2021\"\ndescription = \"Original stress recovery verification benchmarks for OpenPipeStress\"\npublish = false\n\n[lib]\npath = \"src/lib.rs\"\n\n[dependencies]\nopen_pipe_stress_frame_kernel = { path = \"../../../core/solver/frame_kernel\" }\nopen_pipe_stress_result_export = { path = \"../../../core/reporting/result_export\" }\nopen_pipe_stress_stress_recovery = { path = \"../../../core/loads/stress_recovery\" }\nopen_pipe_stress_straight_pipe = { path = \"../../../core/solver/straight_pipe\" }\nsha2 = \"0.10\"\n"
+  }
+]

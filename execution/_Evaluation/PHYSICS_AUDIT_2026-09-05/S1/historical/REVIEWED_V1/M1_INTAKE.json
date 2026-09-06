@@ -1,0 +1,6 @@
+{
+  "accepted_by": "parent explicit message release",
+  "manifest_sha256": "e6c86c697ca9efdfce94b26ec5b1870cce347e8c739f4f0769e0cdbc4f6cffb0",
+  "members_verified": 107,
+  "coverage_cutoff_note": "nonlinear_integration line1461 is blank; source inventory1461 retained"
+}

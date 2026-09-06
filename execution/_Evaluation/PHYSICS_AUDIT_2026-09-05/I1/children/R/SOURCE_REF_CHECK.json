@@ -1,0 +1,242 @@
+[
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-100:end-j:axial-normal",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-100:end-j:bending-normal-y",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-100:end-j:bending-normal-z",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-100:end-j:torsional-shear",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-100",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-i:axial-normal",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-i:bending-normal-y",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-i:bending-normal-z",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-i:torsional-shear",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-110:pipe-P-110:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-j:axial-normal",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-j:bending-normal-y",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-j:bending-normal-z",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110:end-j:torsional-shear",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-110:end-j:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-110",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-120:end-i:axial-normal",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-120:end-i:bending-normal-y",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-120:end-i:bending-normal-z",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-120:end-i:torsional-shear",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  },
+  {
+    "row": "result:loadcase:load-L-200:stress:component-C-120:pipe-P-120:end-i:user-multiplier",
+    "basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-200"
+    },
+    "source": "result:stress:pipe-P-120",
+    "source_basis": {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  }
+]

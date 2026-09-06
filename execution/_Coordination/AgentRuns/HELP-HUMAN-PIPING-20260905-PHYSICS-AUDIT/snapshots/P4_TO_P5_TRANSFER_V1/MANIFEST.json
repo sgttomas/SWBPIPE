@@ -1,0 +1,10 @@
+{
+  "status": "exclusive product ownership transferred P4\u2192P5 at frozen source fingerprint",
+  "files": {
+    "snapshots/P4_TO_P5_TRANSFER_V1/HANDOFF_STATE.md": "8a191e568bfdec0c88b9209a81856d0eabdac0f2efd95236f0b35677e164b215",
+    "snapshots/P4_TO_P5_TRANSFER_V1/P9_CHECKPOINT.json": "9d14384a6c1749f2df18f687b25f5ec9eee73aef24d4fc01d878446923be3ce2",
+    "snapshots/P4_TO_P5_TRANSFER_V1/TRANSFER.json": "ce5501e6eaca648d7d10731a094a399f5f01261d6ea27a44af85e6a1a3b5d36e",
+    "snapshots/P4_TO_P5_TRANSFER_V1/WORK_GRAPH.json": "26365b9bb3af55875fe7a3c269a6179e7d9b2aa12ac04b5a1d467da8b3c09fbc"
+  },
+  "source_or_fixture_closure": "not final; stale fixture failure/F1 and remaining gates explicit"
+}

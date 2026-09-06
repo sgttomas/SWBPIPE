@@ -1,0 +1,11 @@
+--- accepted-candidate/lib.rs
++++ station_zero/lib.rs
+@@ -7453,7 +7453,7 @@
+     results.push(ResultItem {
+         id: id.to_string(),
+         kind: kind.to_string(),
+-        value: value,
++        value: 0.0,
+         unit: unit.to_string(),
+         entity_ref: pipe_id.to_string(),
+         basis_ref: None,

@@ -1,0 +1,18 @@
+{
+  "id": "LAUNCH-009-F3-FIXTURE-REVIEW",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "instance": "F3",
+  "runtime_id": "/root/fixture_review",
+  "role": "TASK software-code-review",
+  "status": "actually launched fresh read-only review",
+  "brief": "briefs/F3_FIXTURE_FRESH_REVIEW_V1.json",
+  "brief_sha256": "bcfc2e2caf0cdaa5e90bd95111b3043821a88474c47f414fd8108a29a170ba59",
+  "AllowedWriteTargets": [],
+  "delegation": "none",
+  "builds": "none",
+  "model": "unknown/unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "return_persistence": "Root transmits terminal structured return to C1; F3 writes none"
+}

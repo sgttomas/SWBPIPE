@@ -763,3 +763,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Stress behavior was unchanged; nonlinear remained 5/5. DEC-046 C-B stayed byte-identical at SHA-256 `1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6` and remains nonlinear-only.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-12_DEL0901_MECHANICS_OBSERVATION_API.md` and managed run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/`.
 - Lifecycle remains `IN_PROGRESS`. The public result-comparison number, acceptance thresholds, release integration, manual-page promotion, Task Management, and reliance decisions remain outside this bounded evidence. The clean-commit DEC-025 derivative evidence has not yet been produced.
+
+## 2026-09-05 — Physics audit R10 independent regression evidence
+
+- Added the independent actual-product suite in `validation/benchmarks/physics_audit_regression`; original analytical expectations were frozen before comparisons and independently reviewed.
+- Root accepted matching reviewed-source verification: all 10 tests pass through both solver modes; deliberate dimensional-mixing and actual station-zero mutations fail the intended numerical assertions, and the restored control passes.
+- Evidence and scope mapping: `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_R10.md`. Existing status/Remaining, acceptance thresholds, canonical-unit, release and Owner gates are unchanged.

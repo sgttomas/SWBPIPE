@@ -1,0 +1,1001 @@
+[
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/convergence_policy.dec046.json",
+    "sha256": "bcf6a0a3afc02e12b08b82a790150373973091625d06ab8fd470d6f30efdc552",
+    "record": {
+      "record_kind": "governed_nonlinear_convergence_policy",
+      "record_id": "DEC-046-CV-B-active-set-count-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_current_assembled_validation_seed",
+      "scope": "current_public_original_assembled_validation_seed_only",
+      "residual_basis": {
+        "name": "active_set_changed_support_count",
+        "unit": "count",
+        "dimension": "dimensionless",
+        "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "relative_residual_tolerance": 0.0,
+          "absolute_residual_floor": 0.0,
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "gap",
+          "relative_residual_tolerance": 0.0,
+          "absolute_residual_floor": 0.0,
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "relative_residual_tolerance": 0.0,
+          "absolute_residual_floor": 0.0,
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "friction",
+          "relative_residual_tolerance": 0.0,
+          "absolute_residual_floor": 0.0,
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-CV-B-active-set-count-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the current public-original assembled validation seed and its active-set changed-support-count residual.",
+        "Does not define free-DOF force/moment, displacement, free-DOF work/energy, sparse live-path, product-preview, or external validation convergence thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/displacement_reaction_delta_policy.dec046.json",
+    "sha256": "a7927406186fb0df4f1092a60e9650c85b17d6e75e8cb8f977abc39eb04e909f",
+    "record": {
+      "record_kind": "governed_nonlinear_displacement_reaction_delta_policy",
+      "record_id": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_current_assembled_validation_seed",
+      "scope": "current_public_original_assembled_validation_seed_only",
+      "source_observation_record": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+      "delta_semantics": "final-iteration max absolute change from the previous linearized active-set solve; nonzero values can coexist with active-set convergence",
+      "translation_delta_basis": {
+        "name": "max_abs_translation_delta_from_previous",
+        "unit": "mm",
+        "dimension": "displacement"
+      },
+      "rotation_delta_basis": {
+        "name": "max_abs_rotation_delta_from_previous",
+        "unit": "rad",
+        "dimension": "rotation"
+      },
+      "force_reaction_delta_basis": {
+        "name": "max_abs_force_reaction_delta_from_previous",
+        "unit": "N",
+        "dimension": "force"
+      },
+      "moment_reaction_delta_basis": {
+        "name": "max_abs_moment_reaction_delta_from_previous",
+        "unit": "N-m",
+        "dimension": "moment"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed displacement or reaction delta threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "translation_delta_absolute_limit": 100.0,
+          "rotation_delta_absolute_limit": 0.0,
+          "force_reaction_delta_absolute_limit": 10.0,
+          "moment_reaction_delta_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+          "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "gap",
+          "translation_delta_absolute_limit": 50.0,
+          "rotation_delta_absolute_limit": 0.0,
+          "force_reaction_delta_absolute_limit": 5.0,
+          "moment_reaction_delta_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+          "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "translation_delta_absolute_limit": 100.0,
+          "rotation_delta_absolute_limit": 0.0,
+          "force_reaction_delta_absolute_limit": 10.0,
+          "moment_reaction_delta_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+          "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "friction",
+          "translation_delta_absolute_limit": 100.0,
+          "rotation_delta_absolute_limit": 0.0,
+          "force_reaction_delta_absolute_limit": 10.0,
+          "moment_reaction_delta_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-displacement-reaction-delta-threshold-validation-v1",
+          "observation_ref": "DEC-046-CV-B-displacement-reaction-delta-observation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the current public-original assembled validation seed final-iteration displacement and reaction deltas from the previous active-set solve.",
+        "Limits are fixture-evidence envelopes for the accepted seed classes; fixture-local overrides may only tighten them.",
+        "Does not define general energy, sparse live-path, product-preview, release, external validation, or CI thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/free_dof_force_moment_policy.dec046.json",
+    "sha256": "bee6f3f2161a7e9c5da422983b830e242088cb1002c51a5f281368638705d6b4",
+    "record": {
+      "record_kind": "governed_nonlinear_free_dof_force_moment_residual_policy",
+      "record_id": "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_current_assembled_validation_seed",
+      "scope": "current_public_original_assembled_validation_seed_only",
+      "force_residual_basis": {
+        "name": "free_dof_force_residual",
+        "unit": "N",
+        "dimension": "force",
+        "note": "zero means no translational free-DOF equilibrium residual remains in the final linearized solve"
+      },
+      "moment_residual_basis": {
+        "name": "free_dof_moment_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no rotational free-DOF equilibrium residual remains in the final linearized solve"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed force or moment residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "force_absolute_limit": 0.0,
+          "moment_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "gap",
+          "force_absolute_limit": 0.0,
+          "moment_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "force_absolute_limit": 0.0,
+          "moment_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "friction",
+          "force_absolute_limit": 0.0,
+          "moment_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-force-moment-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to current public-original assembled validation-seed final-iteration free-DOF force and moment equilibrium residuals.",
+        "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/free_dof_work_policy.dec046.json",
+    "sha256": "f5b7fd2052d19e0ee206a4f716058cc0e21837c58b0df3a6054af0094e699c1b",
+    "record": {
+      "record_kind": "governed_nonlinear_free_dof_work_residual_policy",
+      "record_id": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_current_assembled_validation_seed",
+      "scope": "current_public_original_assembled_validation_seed_only",
+      "work_residual_basis": {
+        "name": "free_dof_work_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no free-DOF residual work product remains in the final linearized solve"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed work residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "work_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "gap",
+          "work_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "work_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "friction",
+          "work_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-free-dof-work-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work products.",
+        "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/general_energy_policy.dec046.json",
+    "sha256": "709d1f73da34f235f66cb5d66d0ad946f3831aa88761a5b9d5eec489742eaafa",
+    "record": {
+      "record_kind": "governed_nonlinear_general_energy_residual_policy",
+      "record_id": "DEC-046-CV-B-general-energy-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_current_assembled_validation_seed",
+      "scope": "current_public_original_assembled_validation_seed_only",
+      "energy_residual_basis": {
+        "name": "general_energy_residual_envelope",
+        "source_measure": "max_abs_free_dof_work_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no free-DOF residual work/energy product remains in the final linearized solve for the accepted seed fixture"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed general-energy residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "energy_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-ONE-WAY-DEACTIVATE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "gap",
+          "energy_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-GAP-CLOSURE-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "energy_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-LIFT-OFF-ORIGINAL"
+          ]
+        },
+        {
+          "nonlinear_class": "friction",
+          "energy_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-general-energy-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-FRICTION-STICK-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-SLIDE-ORIGINAL",
+            "NL-ASSEMBLED-FRICTION-DERIVED-NORMAL-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to current public-original assembled validation-seed final-iteration free-DOF residual work/energy envelopes.",
+        "Does not define sparse live-path, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json",
+    "sha256": "0ed5025fc48077b669e4a3984f492c2e2645172051743ce6fac9f80d640e4508",
+    "record": {
+      "record_kind": "governed_nonlinear_multisupport_convergence_policy",
+      "record_id": "DEC-046-CV-B-multisupport-active-set-count-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+      "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+      "residual_basis": {
+        "name": "active_set_changed_support_count",
+        "unit": "count",
+        "dimension": "dimensionless",
+        "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "relative_residual_tolerance": 0.0,
+          "absolute_residual_floor": 0.0,
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-CV-B-multisupport-active-set-count-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the public-original multi-DOF / multi-support validation fixture set and its active-set changed-support-count residual.",
+        "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_displacement_reaction_delta_policy.dec046.json",
+    "sha256": "020715511e7d0490dcac51ae49823f299279e894b1da6c909f7d3b78ec744eb4",
+    "record": {
+      "record_kind": "governed_nonlinear_multisupport_displacement_reaction_delta_policy",
+      "record_id": "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+      "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+      "source_observation_record": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+      "delta_semantics": "final-iteration max absolute change from the previous linearized active-set solve; nonzero values can coexist with active-set convergence",
+      "translation_delta_basis": {
+        "name": "max_abs_translation_delta_from_previous",
+        "unit": "mm",
+        "dimension": "displacement"
+      },
+      "rotation_delta_basis": {
+        "name": "max_abs_rotation_delta_from_previous",
+        "unit": "rad",
+        "dimension": "rotation"
+      },
+      "force_reaction_delta_basis": {
+        "name": "max_abs_force_reaction_delta_from_previous",
+        "unit": "N",
+        "dimension": "force"
+      },
+      "moment_reaction_delta_basis": {
+        "name": "max_abs_moment_reaction_delta_from_previous",
+        "unit": "N-m",
+        "dimension": "moment"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed displacement or reaction delta threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "translation_delta_absolute_limit": 100.0,
+          "rotation_delta_absolute_limit": 0.005,
+          "force_reaction_delta_absolute_limit": 10.0,
+          "moment_reaction_delta_absolute_limit": 3.0,
+          "policy_ref": "DEC-046-CV-B-multisupport-displacement-reaction-delta-threshold-validation-v1",
+          "observation_ref": "DEC-046-CV-B-multisupport-displacement-reaction-delta-observation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration displacement and reaction deltas from the previous active-set solve.",
+        "Limits are fixture-evidence envelopes for the accepted thirteen-fixture multi-support set; fixture-local overrides may only tighten them.",
+        "Does not define general energy, sparse default, product-preview, release, external validation, or CI thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_free_dof_force_moment_policy.dec046.json",
+    "sha256": "b9958122132f178184d61e575791a78e4e25b0b03fe6b2d75538287e7eb01519",
+    "record": {
+      "record_kind": "governed_nonlinear_multisupport_free_dof_force_moment_residual_policy",
+      "record_id": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+      "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+      "force_residual_basis": {
+        "name": "free_dof_force_residual",
+        "unit": "N",
+        "dimension": "force",
+        "note": "zero means no translational free-DOF equilibrium residual remains in the final linearized solve"
+      },
+      "moment_residual_basis": {
+        "name": "free_dof_moment_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no rotational free-DOF equilibrium residual remains in the final linearized solve"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed force or moment residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "force_absolute_limit": 0.0,
+          "moment_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-multisupport-free-dof-force-moment-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF force and moment equilibrium residuals.",
+        "Does not define displacement-delta, reaction-delta, free-DOF work/energy, sparse live-path, product-preview, release, or external validation thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_free_dof_work_policy.dec046.json",
+    "sha256": "7745a904748c3d46aa206035f846994bb288a119a53b28ad7dd112b2365302d1",
+    "record": {
+      "record_kind": "governed_nonlinear_multisupport_free_dof_work_residual_policy",
+      "record_id": "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+      "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+      "work_residual_basis": {
+        "name": "free_dof_work_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no free-DOF residual work product remains in the final linearized solve"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed work residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "work_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-multisupport-free-dof-work-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF residual work products.",
+        "Does not define displacement-delta, reaction-delta, general energy convergence, sparse live-path, product-preview, release, or external validation thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_general_energy_policy.dec046.json",
+    "sha256": "313e57d487a1a613fa20699a4249513b76b0ec8df63963383e6adaaf0c7e9acd",
+    "record": {
+      "record_kind": "governed_nonlinear_multisupport_general_energy_residual_policy",
+      "record_id": "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1",
+      "decision_ref": "DEC-046",
+      "decision_option": "CV-B",
+      "status": "accepted_for_public_original_multisupport_validation_fixture_set",
+      "scope": "public_original_multi_dof_multi_support_validation_fixture_set_only",
+      "energy_residual_basis": {
+        "name": "general_energy_residual_envelope",
+        "source_measure": "max_abs_free_dof_work_residual",
+        "unit": "N-m",
+        "dimension": "moment",
+        "note": "zero means no free-DOF residual work/energy product remains in the final linearized solve for the accepted multi-support fixture set"
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed general-energy residual threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "energy_absolute_limit": 0.0,
+          "policy_ref": "DEC-046-CV-B-multisupport-general-energy-residual-validation-v1",
+          "evidence_fixture_ids": [
+            "NL-ASSEMBLED-MULTI-DOF-MULTI-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FRICTION-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-THREE-SUPPORT-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-DERIVED-NORMAL-ROTATIONAL-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-CASCADE-GAP-LIFT-OFF-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-NEGATIVE-GAP-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-FOUR-CLASS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-OPPOSING-GAPS-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-ACCEPTED-ORIGINAL",
+            "NL-ASSEMBLED-MULTI-DOF-TWO-SPAN-OPPOSING-GAPS-ACCEPTED-ORIGINAL"
+          ]
+        }
+      ],
+      "limitations": [
+        "Applies only to the public-original multi-DOF / multi-support validation fixture set final-iteration free-DOF residual work/energy envelopes.",
+        "Does not define sparse default, product-preview, release, external validation, total strain-energy, modal-energy, or CI thresholds."
+      ],
+      "boundary_notice": "Mechanics validation policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/nonlinear/release_convergence_policy.dec046.c-b.json",
+    "sha256": "1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6",
+    "record": {
+      "record_kind": "governed_nonlinear_release_scope_convergence_policy",
+      "schema_version": 1,
+      "record_id": "DEC-046-C-B-active-set-count-release-scope-v1",
+      "decision_ref": "DEC-046",
+      "convention_ref": "D-19-CV-B",
+      "owner_selection": "C-B",
+      "status": "governed_release_scope_policy_recorded_not_released",
+      "scope": "public_benchmark_nonlinear_convergence_release_scope",
+      "accepted_basis_commit": "c05fe2d6fbc3bd3d3b690f50075e2c878af0faf3",
+      "policy_effect": {
+        "values_promoted_to_release_scope": true,
+        "release_executed": false,
+        "comparison_policy_selected": false,
+        "mechanics_runner_binding_changed": false
+      },
+      "source_pointers": [
+        {
+          "role": "verbatim_owner_ruling",
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/OWNER_RULING_2026-08-11.md",
+          "git_blob": "ab17acbd19be9fcce163d7a13bb17dd7d0fbe4d1",
+          "sha256": "5f0f857e5b95284e88506c768c91547b3f02815dfd63747c966d2df7b8775a22"
+        },
+        {
+          "role": "owner_interface",
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/PACKAGE_RETURN.md",
+          "git_blob": "ce2649072f75cb25189dde3804bad4ce3aa40b20",
+          "sha256": "01855ffbaee369e9321ae16972af56183fb6fada66a99a7aa9680c73a8bc906f"
+        },
+        {
+          "role": "accepted_decision_packet",
+          "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260810-DEL0904-OWNER-GATES/instances/A2_DEC046_REMEDIATION/PACKET_V2.md",
+          "git_blob": "9a02bdfb743fd6e3dd5e2d051437139f4f6813f8",
+          "sha256": "1265e843c2c33eaa915f26cba5b75b72e811b7bf2bcc280bb90bcb02ecc5178c"
+        },
+        {
+          "role": "ruled_convergence_convention",
+          "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-19_release_convergence_tolerance_policy.md",
+          "git_blob": "9275cd9c44f1af84b443910e08c8ba73aa0e8791"
+        },
+        {
+          "role": "accepted_four_class_validation_policy",
+          "path": "projects/chirality-piping/validation/benchmarks/nonlinear/convergence_policy.dec046.json",
+          "git_blob": "d3850f5becda48c523dfb15cd5d87aabe54220c0",
+          "sha256": "bcf6a0a3afc02e12b08b82a790150373973091625d06ab8fd470d6f30efdc552"
+        },
+        {
+          "role": "accepted_multisupport_validation_policy",
+          "path": "projects/chirality-piping/validation/benchmarks/nonlinear/multisupport_convergence_policy.dec046.json",
+          "git_blob": "a6f43a50aa7682d85409f1d25b8982aeff7bd6a9",
+          "sha256": "0ed5025fc48077b669e4a3984f492c2e2645172051743ce6fac9f80d640e4508"
+        }
+      ],
+      "residual_basis": {
+        "name": "active_set_changed_support_count",
+        "unit": "count",
+        "dimension": "dimensionless",
+        "domain": "nonnegative_integer",
+        "note": "zero means no nonlinear support state changed in the final assembled-loop iteration"
+      },
+      "inclusive_final_condition": {
+        "observed_field": "active_set_changed_support_count",
+        "operator": "less_than_or_equal",
+        "threshold": 0,
+        "unit": "count",
+        "required_final_changed_support_count": 0
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed convergence value or raising an iteration cap requires a new governance event"
+      },
+      "entries": [
+        {
+          "nonlinear_class": "one_way",
+          "relative_residual_field": {
+            "value": 0,
+            "unit": "count"
+          },
+          "absolute_residual_floor": {
+            "value": 0,
+            "unit": "count"
+          },
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+        },
+        {
+          "nonlinear_class": "gap",
+          "relative_residual_field": {
+            "value": 0,
+            "unit": "count"
+          },
+          "absolute_residual_floor": {
+            "value": 0,
+            "unit": "count"
+          },
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+        },
+        {
+          "nonlinear_class": "lift_off",
+          "relative_residual_field": {
+            "value": 0,
+            "unit": "count"
+          },
+          "absolute_residual_floor": {
+            "value": 0,
+            "unit": "count"
+          },
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+        },
+        {
+          "nonlinear_class": "friction",
+          "relative_residual_field": {
+            "value": 0,
+            "unit": "count"
+          },
+          "absolute_residual_floor": {
+            "value": 0,
+            "unit": "count"
+          },
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+        },
+        {
+          "nonlinear_class": "multi_support_multi_dof",
+          "relative_residual_field": {
+            "value": 0,
+            "unit": "count"
+          },
+          "absolute_residual_floor": {
+            "value": 0,
+            "unit": "count"
+          },
+          "max_iterations": 4,
+          "policy_ref": "DEC-046-C-B-active-set-count-release-scope-v1"
+        }
+      ],
+      "evidence_admission": {
+        "accepted_seed_observations": "9/9",
+        "accepted_multisupport_observations": "13/13",
+        "maximum_observed_stabilization_iteration": 3,
+        "iteration_headroom_over_observed_maximum": 1,
+        "final_changed_support_count_required": 0,
+        "historical_mechanics_blocks_unblocked": "0/13"
+      },
+      "limitations": [
+        "This record governs only the DEC-046 nonlinear active-set convergence axis for the named public-benchmark classes.",
+        "It does not select DEC-026 result-versus-reference comparison values or change any comparison formula.",
+        "It does not repair or unblock any mechanics benchmark runner binding, fixture, data, implementation, or case.",
+        "It does not modify or supersede either accepted validation-scope convergence record cited above.",
+        "It does not itself execute a release, publication, lifecycle transition, reliance change, professional approval, certification, sealing, authentication, or code-compliance act."
+      ],
+      "boundary_notice": "Release-scope policy recording only; no release act is executed by this record."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/sparse_conditioning_threshold_policy.dec050.json",
+    "sha256": "e4d2f06350bd4a6d23a68372908eedbd3e48742a2dfc851f589e18a818071cdb",
+    "record": {
+      "record_kind": "governed_sparse_generated_grid_pivot_conditioning_policy",
+      "record_id": "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1",
+      "decision_ref": "DEC-050",
+      "status": "accepted_for_generated_grid_pivot_ratio_observation_set",
+      "scope": "invented_generated_grid_sparse_suitability_observation_set_only",
+      "source_observation_record": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+      "dense_path_role": "default_solver_and_parity_oracle",
+      "sparse_path_role": "evidence_lane_only",
+      "metric_basis": {
+        "name": "sparse_pivot_condition_ratio_estimate",
+        "unit": "dimensionless",
+        "basis": "sparse LDLT factorization report max absolute accepted pivot divided by min absolute accepted pivot",
+        "proxy_notice": "Pivot-ratio proxy only; not a true matrix condition number."
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening the governed generated-grid pivot-conditioning threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "fixture_family": "invented_planar_grid_frame",
+          "sparse_pivot_condition_ratio_estimate_limit": 1e+16,
+          "policy_ref": "DEC-050-SPARSE-GENERATED-GRID-PIVOT-CONDITIONING-POLICY-v1",
+          "observation_ref": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+          "evidence_fixture_ids": [
+            "invented-grid-frame-4x3",
+            "invented-grid-frame-6x8"
+          ]
+        }
+      ],
+      "still_tbd": [
+        "default_sparse_promotion",
+        "timing_thresholds",
+        "allocator_rss_memory_thresholds",
+        "ci_gate_thresholds",
+        "hardware_normalization_methodology",
+        "true_condition_number_thresholds",
+        "practical_size_band_thresholds",
+        "release_or_external_validation_thresholds"
+      ],
+      "limitations": [
+        "Applies only to the generated-grid sparse suitability observation set named in the source observation record.",
+        "Uses the sparse factorization pivot-ratio proxy only; it is not a true condition-number policy.",
+        "Does not make the sparse path the default product or release solve path.",
+        "Does not define timing, allocator/RSS memory, CI, hardware-normalized, release, external validation, professional, or code-compliance thresholds."
+      ],
+      "boundary_notice": "Sparse conditioning verification policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/sparse_default_promotion_policy.dec053.json",
+    "sha256": "b85ef2aaed5b288345ab68388caf2108194e01233cfde67feaa0f8093296c5f3",
+    "record": {
+      "record_kind": "sparse_interactive_default_dense_scrutiny_policy",
+      "record_id": "DEC-053-SPARSE-INTERACTIVE-DEFAULT-DENSE-SCRUTINY-POLICY-v1",
+      "decision_ref": "DEC-053",
+      "source_observation_record": "DEC-053-SPARSE-DEFAULT-PROMOTION-OBSERVATION-v1",
+      "status": "accepted_for_r4_sparse_residual_closure_observation_set",
+      "scope": "bounded_r4_sparse_default_promotion_observation_set",
+      "solver_mode_policy": {
+        "default_mode": "sparse_interactive",
+        "default_mode_role": "rapid preview/render iteration of model changes",
+        "explicit_secondary_mode": "dense_scrutiny",
+        "explicit_secondary_mode_role": "pause-and-review solve path for a selected configuration",
+        "fallback_policy": "dense fallback after sparse interactive failure is allowed only with explicit diagnostic and result basis"
+      },
+      "evidence_requirements": {
+        "observation_count": 9,
+        "required_fixture_ids": [
+          "invented-cantilever-chain-8",
+          "invented-cantilever-chain-24",
+          "invented-cantilever-chain-48",
+          "invented-grid-frame-4x3",
+          "invented-grid-frame-6x8",
+          "invented-grid-frame-7x8",
+          "invented-grid-frame-5x5",
+          "invented-cantilever-chain-32",
+          "invented-grid-frame-5x6"
+        ],
+        "required_metrics": [
+          "dense_first_solve_elapsed_nanos",
+          "sparse_first_solve_elapsed_nanos",
+          "dense_reduced_matrix_value_storage_bytes",
+          "sparse_ordered_profile_value_storage_bytes",
+          "allocator_rss_observation_status",
+          "hardware_normalization_status",
+          "true_condition_number_2norm",
+          "sparse_pivot_condition_ratio_estimate",
+          "sparse_dense_relative_delta",
+          "max_abs_sparse_residual",
+          "max_abs_sparse_repeat_solution_delta",
+          "nonpositive_pivot_count"
+        ]
+      },
+      "accepted_thresholds_for_observation_set": {
+        "sparse_dense_relative_delta_limit": 1e-09,
+        "sparse_residual_absolute_limit": 1e-06,
+        "sparse_repeat_solution_delta_absolute_limit": 0.0,
+        "nonpositive_pivot_count_limit": 0
+      },
+      "observation_only_axes": {
+        "timing": "observed_not_threshold_gated",
+        "allocator_rss_memory": "observed_not_threshold_gated",
+        "hardware_normalization": "hardware_metadata_recorded_no_cross_machine_threshold",
+        "true_condition_number": "recorded_for_bounded_observation_set_no_release_threshold",
+        "hosted_ci": "not_activated; local_DEC025_cargo_pytest_surfaces_cover_the_packet"
+      },
+      "closure_status": {
+        "sparse_default_promotion": "closed_for_r4_interactive_default",
+        "sparse_timing": "closed_for_r4_as_observation_not_threshold",
+        "allocator_rss_memory": "closed_for_r4_as_observation_not_threshold",
+        "ci": "closed_for_r4_by_local_DEC025_cargo_pytest_coverage",
+        "hardware_normalized": "closed_for_r4_by_hardware_metadata_no_cross_machine_threshold",
+        "practical_size_band": "closed_for_r4_by_nine_record_practical_observation_set",
+        "true_condition_number": "closed_for_r4_by_bounded_true_condition_number_observations",
+        "sparse_conditioning_beyond_pivot_proxy": "closed_for_r4_by_true_condition_number_fields_alongside_pivot_proxy"
+      },
+      "limitations": [
+        "This policy promotes sparse only as the interactive preview/render default; it is not a release-performance, external-validation, professional, or code-compliance acceptance.",
+        "Timing and allocator/RSS memory are observed values only; no release timing or memory threshold is asserted.",
+        "Hardware metadata labels the local machine; no cross-machine normalized pass/fail bar is asserted.",
+        "Hosted CI remains deferred under D-05b; this packet is covered by the local DEC-025 evidence sweep only."
+      ],
+      "boundary_notice": "Sparse R4 residual closure evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  },
+  {
+    "path": "projects/chirality-piping/validation/benchmarks/sparse_suitability_threshold_policy.dec050.json",
+    "sha256": "05152e84c62bc83912bba820cb0b6463aa91457642b8f2faa92d3405cca6396b",
+    "record": {
+      "record_kind": "governed_sparse_suitability_threshold_policy",
+      "record_id": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+      "decision_ref": "DEC-050",
+      "status": "accepted_for_generated_grid_observation_set",
+      "scope": "invented_generated_grid_sparse_suitability_observation_set_only",
+      "source_observation_record": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+      "dense_path_role": "default_solver_and_parity_oracle",
+      "sparse_path_role": "evidence_lane_only",
+      "metric_bases": {
+        "sparse_dense_relative_delta": {
+          "name": "sparse_dense_relative_delta",
+          "unit": "dimensionless",
+          "basis": "max_abs_sparse_dense_solution_delta divided by dense_solution_scale"
+        },
+        "sparse_residual_absolute": {
+          "name": "max_abs_sparse_residual",
+          "unit": "force generalized by reduced DOF basis"
+        },
+        "sparse_repeat_solution_delta_absolute": {
+          "name": "max_abs_sparse_repeat_solution_delta",
+          "unit": "solution DOF units"
+        },
+        "nonpositive_pivot_count": {
+          "name": "nonpositive_pivot_count",
+          "unit": "count"
+        }
+      },
+      "change_provenance": {
+        "fixture_local_overrides": "tighten_only",
+        "loosening_rule": "loosening a governed sparse suitability threshold requires a new governance event"
+      },
+      "entries": [
+        {
+          "fixture_family": "invented_planar_grid_frame",
+          "sparse_dense_relative_delta_limit": 1e-09,
+          "sparse_residual_absolute_limit": 1e-06,
+          "sparse_repeat_solution_delta_absolute_limit": 0.0,
+          "nonpositive_pivot_count_limit": 0,
+          "policy_ref": "DEC-050-SPARSE-SUITABILITY-GENERATED-GRID-THRESHOLD-POLICY-v1",
+          "observation_ref": "DEC-050-SPARSE-SUITABILITY-OBSERVATION-v1",
+          "evidence_fixture_ids": [
+            "invented-grid-frame-4x3",
+            "invented-grid-frame-6x8"
+          ]
+        }
+      ],
+      "still_tbd": [
+        "default_sparse_promotion",
+        "timing_memory_thresholds",
+        "conditioning_thresholds_beyond_generated_grid_pivot_ratio",
+        "ci_gate_thresholds",
+        "hardware_normalization_methodology",
+        "practical_size_band_thresholds",
+        "release_or_external_validation_thresholds"
+      ],
+      "limitations": [
+        "Applies only to the generated-grid sparse suitability observation set named in the source observation record.",
+        "Does not make the sparse path the default product or release solve path.",
+        "Does not define timing, memory, CI, hardware-normalized, release, external validation, professional, or code-compliance thresholds."
+      ],
+      "boundary_notice": "Sparse suitability verification policy evidence only; not a release, reliance, certification, sealing, authentication, or code-compliance claim."
+    }
+  }
+]

@@ -1,0 +1,34 @@
+{
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "warning": "Mutable source observation, not accepted P4 handoff. Revalidate hashes/callsites before editing.",
+  "files": {
+    "core/product_physics/src/lib.rs": {
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+      "bytes": 627819
+    },
+    "core/product_physics/Cargo.toml": {
+      "sha256": "2d04ed98254a98a1f24235ed09ba9538e96e63924ca2a2802b9cd3218d7c5035",
+      "bytes": 1136
+    },
+    "core/solver/straight_pipe/src/lib.rs": {
+      "sha256": "3384c44cf245a50ce8682a831852592dd6ef55b94e67930a6f8504ba24c3a9a8",
+      "bytes": 82321
+    },
+    "core/loads/user_loads/src/lib.rs": {
+      "sha256": "688c84a2c26dac651ca1a40ac408f1805f5a505c17a3493491a855ecda606ddc",
+      "bytes": 68642
+    },
+    "core/loads/primitive_loads/src/lib.rs": {
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "bytes": 157098
+    },
+    "core/loads/stress_recovery/src/lib.rs": {
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "bytes": 55911
+    },
+    "software-workflow.json": {
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+      "bytes": 1101
+    }
+  }
+}

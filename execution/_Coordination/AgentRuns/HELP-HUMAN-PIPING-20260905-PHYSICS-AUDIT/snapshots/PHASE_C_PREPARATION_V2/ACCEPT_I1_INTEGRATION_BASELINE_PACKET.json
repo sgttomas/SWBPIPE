@@ -1,0 +1,14 @@
+{
+  "id": "ACCEPT_I1_INTEGRATION_BASELINE_PACKET",
+  "manager": "I1",
+  "runtime_id": "/root/audit_integration",
+  "manifest_sha256": "57753421814d4d5690da827830d644918a003c0efe2d987c137a7aa16c91e9f6",
+  "root_verification": "Root read report/repair boundaries and 17 finding rows, independently verified 423 members",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "disposition": "Accept bounded manager baseline packet and release to S1",
+  "claim_limit": "Whole baseline not yet accepted; fresh R1 review pending; no repair release",
+  "preservation": "Accepted original manager packet immutable"
+}

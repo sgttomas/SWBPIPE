@@ -1,0 +1,11 @@
+[
+  {
+    "id": "KR-01",
+    "priority": "P2",
+    "file": "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "line": 1052,
+    "title": "Small coupled singular block passes global Jacobi stopping criterion",
+    "status": "OPEN",
+    "remediation": "Resolve the smallest spectrum or explicitly withhold unresolved condition; add small coupled singular/SPD regressions."
+  }
+]

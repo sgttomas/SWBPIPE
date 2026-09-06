@@ -1,0 +1,21 @@
+{
+  "id": "AMEND_I1_SERVICE_SUPPLEMENT_V1",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "instance": "I1",
+  "runtime_id": "/root/audit_integration",
+  "disposition": "Release bounded audit supplement within already approved scope",
+  "write_scope": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1 only",
+  "purpose": "Close high-risk inexpensive UNKNOWN via actual previewService native-failure default/edited injection and optional rounding cancellation",
+  "allowed_execution": "Exact service runtime through own Vitest harness and temporary configuration",
+  "exclusions": [
+    "No GUI",
+    "No user data",
+    "No production/source writes",
+    "No edits to old I1 packet"
+  ],
+  "dependency_effect": "S1 may draft from all three accepted managers, but final seal waits supplement terminal result and root disposition",
+  "other_managers": "frozen",
+  "whole_baseline": "not accepted; R1 fresh review still pending"
+}

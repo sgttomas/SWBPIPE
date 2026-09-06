@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "src/services/previewService.test.ts"
+  ],
+  "cwd": "projects/chirality-piping/apps/desktop",
+  "returncode": 0,
+  "seconds": 0.5354480743408203,
+  "stdout_base64": "Cj4gQG9wZW5waXBlc3RyZXNzL2Rlc2t0b3BAMC4xLjAgdGVzdAo+IHZpdGVzdCBydW4gc3JjL3NlcnZpY2VzL3ByZXZpZXdTZXJ2aWNlLnRlc3QudHMKCgogUlVOICB2NC4xLjEwIC9Vc2Vycy9yeWFuLy5jb2RleC93b3JrdHJlZXMvODcyOC9jaGlyYWxpdHkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9hcHBzL2Rlc2t0b3AKCgogVGVzdCBGaWxlcyAgMSBwYXNzZWQgKDEpCiAgICAgIFRlc3RzICAxNiBwYXNzZWQgKDE2KQogICBTdGFydCBhdCAgMTg6MjE6MzQKICAgRHVyYXRpb24gIDMyMW1zICh0cmFuc2Zvcm0gNTFtcywgc2V0dXAgNDNtcywgaW1wb3J0IDI0bXMsIHRlc3RzIDg0bXMsIGVudmlyb25tZW50IDExN21zKQoK",
+  "stdout_sha256": "d99e5b71ce7db96a15861d4cf21fce06a12bf0059940ea5df1c4028fea1b1458",
+  "stderr_base64": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

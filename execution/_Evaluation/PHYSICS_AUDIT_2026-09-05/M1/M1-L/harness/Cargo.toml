@@ -1,0 +1,9 @@
+[package]
+name="audit_linear_m1l"
+version="0.1.0"
+edition="2021"
+[workspace]
+[dependencies]
+open_pipe_stress_frame_kernel={path="../../../../../../core/solver/frame_kernel"}
+open_pipe_stress_sparse_direct={path="../../../../../../core/solver/sparse_direct"}
+open_pipe_stress_solver_diagnostics={path="../../../../../../core/solver/diagnostics"}

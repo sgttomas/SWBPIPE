@@ -1,0 +1,197 @@
+--- a/apps/desktop/src/App.test.tsx
++++ b/apps/desktop/src/App.test.tsx
+@@ -661,7 +661,7 @@
+     ]);
+     expect(
+       comparisonPacket.unit_policy_evidence.unmatched_left_result_count,
+-    ).toBe(18);
++    ).toBe(23);
+     expect(
+       comparisonPacket.unit_policy_evidence.unmatched_right_result_count,
+     ).toBe(0);
+@@ -6945,7 +6945,7 @@
+     await waitFor(() =>
+       expect(
+         screen.getByTestId("viewport-deformation-status").textContent,
+-      ).toContain("available; nodes=5; max=4.567557 mm"),
++      ).toContain("available; nodes=5; max=4.927109 mm"),
+     );
+     expect(
+       screen.getByTestId("viewport-deformation-boundary").textContent,
+@@ -9774,10 +9774,10 @@
+     ).toContain("rule inputs incomplete");
+     expect(
+       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
+-    ).toContain("31 diagnostics");
++    ).toContain("32 diagnostics");
+     expect(
+       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
+-    ).toContain("11 warnings");
++    ).toContain("12 warnings");
+     expect(
+       within(solvedReadiness).getByTestId("readiness-diagnostics").textContent,
+     ).toContain("0 blocking/error");
+@@ -9868,7 +9868,7 @@
+     expect(solveJobPacket.summary.job_state).toBe("completed");
+     expect(solveJobPacket.summary.event_count).toBe(3);
+     expect(solveJobPacket.summary.result_row_count).toBe(830);
+-    expect(solveJobPacket.summary.diagnostic_count).toBe(31);
++    expect(solveJobPacket.summary.diagnostic_count).toBe(32);
+     expect(solveJobPacket.summary.cancellation_requested).toBe(false);
+     expect(solveJobPacket.summary.cancellation_status).toBe("not_requested");
+     expect(solveJobPacket.progress_contract.progress_basis).toBe(
+@@ -9970,7 +9970,7 @@
+     ).toContain("sets=1");
+     expect(
+       within(resultExport).getByTestId("result-export-summary").textContent,
+-    ).toContain("diagnostics=31");
++    ).toContain("diagnostics=32");
+     expect(
+       within(resultExport).getByTestId("result-export-format").textContent,
+     ).toContain("schema_first_json_result_envelope");
+@@ -10076,7 +10076,7 @@
+       "[REDACTED]",
+     );
+     expect(resultExportUnitWitness.conversion_performed).toBe("[REDACTED]");
+-    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(31);
++    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(32);
+     expect(
+       resultExportPacket.result_envelope.reproducibility.deterministic_ordering,
+     ).toBe("[REDACTED]");
+@@ -10414,7 +10414,7 @@
+     expect(headlessUnitWitness.target_quantity.unit).toBe("N");
+     expect(headlessUnitWitness.target_quantity.dimension).toBe("force");
+     expect(headlessUnitWitness.conversion_performed).toBe(false);
+-    expect(headlessPacket.result.diagnostics).toHaveLength(31);
++    expect(headlessPacket.result.diagnostics).toHaveLength(32);
+     expect(headlessPacket.result.privacy.telemetry_allowed).toBe(false);
+     expect(
+       headlessPacket.result.professional_boundary
+@@ -10434,7 +10434,7 @@
+     expect(
+       within(adapterFramework).getByTestId("adapter-framework-summary")
+         .textContent,
+-    ).toContain("diagnostics=31");
++    ).toContain("diagnostics=32");
+     expect(
+       within(adapterFramework).getByTestId("adapter-framework-validation")
+         .textContent,
+@@ -10462,7 +10462,7 @@
+     expect(adapterPacket.operation_result.parse_status).toBe(
+       "[REDACTED]",
+     );
+-    expect(adapterPacket.operation_result.diagnostics).toHaveLength(31);
++    expect(adapterPacket.operation_result.diagnostics).toHaveLength(32);
+     expect(adapterPacket.operation_result.checksums).toHaveLength(2);
+     expect(adapterPacket.operation_result.audit_manifest_refs[0].ref_id).toBe(
+       "[REDACTED]",
+@@ -10989,7 +10989,7 @@
+     expect(
+       nativePackagePacket.loss_report.entries[2].affected_refs,
+     ).not.toContain("canonical_package_hash");
+-    expect(nativePackagePacket.diagnostics).toHaveLength(31);
++    expect(nativePackagePacket.diagnostics).toHaveLength(32);
+     expect(nativePackagePacket.generation_context.network_required).toBe(false);
+     expect(nativePackagePacket.generation_context.telemetry_enabled).toBe(
+       false,
+@@ -11241,7 +11241,7 @@
+     ).toContain("combination:C-OPER-ALT; 261 rows");
+     expect(
+       within(comparison).getByTestId("comparison-summary").textContent,
+-    ).toContain("261 comparable pairs; 18 reference-only; 0 target-only");
++    ).toContain("261 comparable pairs; 23 reference-only; 0 target-only");
+     expect(
+       within(comparison).getByTestId("comparison-tolerance-status").textContent,
+     ).toContain("not_tolerance_checked");
+@@ -11275,7 +11275,7 @@
+     const comparisonRow = within(comparison).getByTestId(
+       "comparison-row-result:combination:combination-C-OPER-ALT:reaction:support-S-120",
+     );
+-    expect(Number(comparisonRow.querySelector("[data-display-status]")!.textContent!.split(" ")[0])).toBeCloseTo(192.514, 3);
++    expect(Number(comparisonRow.querySelector("[data-display-status]")!.textContent!.split(" ")[0])).toBeCloseTo(191.444, 3);
+     expect(
+       within(comparison).getByTestId("comparison-diagnostics").textContent,
+     ).toContain("1 comparison diagnostic");
+@@ -11908,10 +11908,10 @@
+       within(report).getByTestId("report-component-pressure-thrust")
+         .textContent,
+     ).toContain("component:C-150");
+-    expect(within(report).getByText(/33 review findings/i)).toBeInTheDocument();
++    expect(within(report).getByText(/34 review findings/i)).toBeInTheDocument();
+     expect(
+       within(report).getByTestId("report-diagnostic-summary").textContent,
+-    ).toContain("12 warnings; 21 info; 0 errors; 0 blocking");
++    ).toContain("13 warnings; 21 info; 0 errors; 0 blocking");
+     expect(
+       within(report).getByText(/result value hashes/i),
+     ).toBeInTheDocument();
+@@ -11974,7 +11974,7 @@
+     ).toContain("no private payload");
+     expect(
+       within(report).getByTestId("report-export-summary").textContent,
+-    ).toContain("33 diagnostics");
++    ).toContain("34 diagnostics");
+     }
+     const exportHref =
+       within(report).getByTestId("report-export-link").getAttribute("href") ??
+@@ -12061,8 +12061,8 @@
+     expect(exportPacket.diagnostic_refs).toContain(
+       "diagnostic:spring-hanger:support-CE-120:hanger",
+     );
+-    expect(exportPacket.diagnostic_summary.total).toBe(33);
+-    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(12);
++    expect(exportPacket.diagnostic_summary.total).toBe(34);
++    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(13);
+     expect(exportPacket.diagnostic_summary.by_severity.info).toBe(21);
+     */
+     expect(exportPacket.project_ref).toBe("[REDACTED]");
+@@ -12459,7 +12459,7 @@
+       "comparison:run:preview-linear-static-001",
+     );
+     expect(exportPacket.comparison_summary.comparable_result_pairs).toBe(261);
+-    expect(exportPacket.comparison_summary.unmatched_left_results).toBe(18);
++    expect(exportPacket.comparison_summary.unmatched_left_results).toBe(23);
+     expect(exportPacket.comparison_summary.unmatched_right_results).toBe(0);
+     expect(exportPacket.comparison_summary.tolerance_status).toBe(
+       "not_tolerance_checked",
+@@ -12568,7 +12568,7 @@
+       "handoff-export-summary",
+     );
+     expect(handoffExportSummary.textContent).toContain("26 entities");
+-    expect(handoffExportSummary.textContent).toContain("33 diagnostics");
++    expect(handoffExportSummary.textContent).toContain("34 diagnostics");
+     expect(
+       within(handoff).getByTestId("handoff-target-profile").textContent,
+     ).toContain("native_open_json_preview");
+@@ -13403,11 +13403,11 @@
+     const diagnostics = await screen.findByLabelText("Diagnostics");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("33 of 33 diagnostics visible");
++    ).toContain("34 of 34 diagnostics visible");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-warning")
+         .textContent,
+-    ).toContain("12 Warnings");
++    ).toContain("13 Warnings");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-info").textContent,
+     ).toContain("21 Info");
+@@ -13427,7 +13427,7 @@
+     );
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("1 of 33 diagnostics visible");
++    ).toContain("1 of 34 diagnostics visible");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-severity-warning")
+         .textContent,
+@@ -13494,7 +13494,7 @@
+     fireEvent.click(within(diagnostics).getByTestId("clear-diagnostic-filter"));
+     expect(
+       within(diagnostics).getByTestId("diagnostic-filter-summary").textContent,
+-    ).toContain("33 of 33 diagnostics visible");
++    ).toContain("34 of 34 diagnostics visible");
+     expect(
+       within(diagnostics).getByTestId("diagnostic-RULE_CHECK_NOT_PERFORMED"),
+     ).toBeInTheDocument();

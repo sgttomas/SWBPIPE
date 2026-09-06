@@ -1,0 +1,18 @@
+{
+  "id": "ACCEPT_F3_E1_V1_PACKAGING_BACKCHECK",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept F3 terminalPASS for bounded E1/V1 evidence packaging",
+  "F3_backcheck_manifest_sha256": "a89d9c2e1b624f50e1700a113663c68aa2ee6dca66b22479f6ac26b42cae9801",
+  "attribute_sha256": "f6aaa4d033abcb81da1adadfd4b73b0873b11198fb9c2353ab2087824d8def6f",
+  "V1_logical_manifest_sha256": "27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1",
+  "V1_current_physical_manifest_sha256": "d11dd8e37af2d2906ca6e35dc99fdea25a97005565a0afba07e0a3cde4a9dbec",
+  "source15_unchanged": true,
+  "remaining": [
+    "CHANGErestage/fullcachedwhitespace",
+    "CleancommittedsourceDEC025",
+    "Native/headless/CI"
+  ],
+  "claim_limit": "No numerical/publicpolicy or truth changes; no receipt untilF2"
+}

@@ -1,0 +1,22 @@
+{
+  "status": "CANDIDATE_VERIFICATION_PASS",
+  "files": {
+    "station_zero.diff": "05b0888ea45ec9861b2ceb4e3b960c7093524b20aa386527d019315b86fac5d3",
+    "control.log.json": "ff6a3eabc188c7e5557483928aa3564ae5c981035870c3b9f4788368d2be6f26",
+    "RETURN.md": "be4d957f58022d0bce9df33c4e59ec9ad7f19c1c3582a86bc195021e718d7227",
+    "SOURCE_AFTER.json": "11f52a1ea2e3b4b43770be68062a80fedd3cc3ce2001bd8501d5dda2ceae3191",
+    "cargo.log.json": "f29a2b18983607705237513c0dafbb631d96a4d8818d3f8102652c4d15afbe6c",
+    "mix.diff": "adfa29c531ab84eb787dfddb83086c9130e5e03bddca2b266ebc3a5458f92bde",
+    "RESULTS.json": "34908b62be94350294490884902adafb29cab237698c4778e4e9e9d453de5d3e",
+    "DISPOSABLE_RESTORED_HASHES.json": "11f52a1ea2e3b4b43770be68062a80fedd3cc3ce2001bd8501d5dda2ceae3191",
+    "restored.log.json": "a29cd2fefcca9133bc536e31a5137aa1d8f80b5438ee6efebec603193346058e",
+    "DISPOSABLE_COPY.json": "0aec98d00c3e7c4fe4198abd3a64b7a9aa536424cc1673199166b5ab3b1d9e1b",
+    "SOURCE_BEFORE.json": "11f52a1ea2e3b4b43770be68062a80fedd3cc3ce2001bd8501d5dda2ceae3191",
+    "station_zero_source.rs": "3faa4a4ccd62854e69610c33fb74ef4127f106aadcfa668ac2aa1147f68c5f09",
+    "MUTATION_SEAL.json": "5a542ccf17d1826735faae0fd39e2209929fabaf78f0d840caf33b4eb2673a49",
+    "SOURCE_FINAL.json": "11f52a1ea2e3b4b43770be68062a80fedd3cc3ce2001bd8501d5dda2ceae3191",
+    "station_zero.log.json": "d82c138f16abfd55f9bffe8ebe0c80fceeb05f276b1e5007335140f28973bac0",
+    "mix_source.rs": "bdf0bca71f1aad43f4150b1494d22966fb4fc21e0bf38dbf1d44d84ed2885ae6",
+    "mix.log.json": "dbe92d46f17e4ef9338ecd32cef90ee8eb52289305cdb7fe861f23ce721f8305"
+  }
+}

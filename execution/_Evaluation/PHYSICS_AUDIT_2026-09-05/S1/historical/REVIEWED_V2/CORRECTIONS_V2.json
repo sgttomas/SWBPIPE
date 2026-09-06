@@ -1,0 +1,25 @@
+{
+  "review_manifest_sha256": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad0",
+  "reviewed_s1_sha256": "0e21940bfe3109aea0b907ab791f3f0c92f0710499603878536a70d6daa122cd",
+  "preserved_snapshot": "historical/REVIEWED_V1",
+  "corrections": [
+    {
+      "id": "R1-01",
+      "change": "Corrective force-only mutant must pass; deliberate dimensional mixing and actual-output station zeroing must fail; no-op retired-route mutations are not failure requirements."
+    },
+    {
+      "id": "R1-02",
+      "change": "Current normalized claims/report/test literals use frozen unrounded .18796797141911276mm and187.96797141911276N; round6 distinguished; upstream narrative discrepancy explicitly marked; originals untouched."
+    },
+    {
+      "id": "R1-03",
+      "change": "44 entries are not a count of independent engine defects; contradictory43 wording removed."
+    }
+  ],
+  "nonblocking_clarifications": [
+    "V1-C-03 historical reproduction request answered by accepted I1; permanent regression gap remains",
+    "R11 existing-scope judgment adopted; explicit root activation after R1 PASS still required"
+  ],
+  "new_experiments": false,
+  "production_changes": false
+}

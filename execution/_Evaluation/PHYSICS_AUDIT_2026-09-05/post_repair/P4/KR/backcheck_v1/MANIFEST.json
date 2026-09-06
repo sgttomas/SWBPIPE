@@ -1,0 +1,22 @@
+{
+  "schema": "piping-audit-review/v1",
+  "instance": "KR-backcheck-v1",
+  "verdict": "PASS",
+  "members": [
+    {
+      "path": "RETURN.md",
+      "sha256": "12b27d44c7bf5d415c32fee25fc80010cd589abc5a18bca86e5c4439bd49ef6c",
+      "bytes": 2144
+    },
+    {
+      "path": "SOURCE_BINDING.json",
+      "sha256": "8510c04cefe713a0e4e27a91b24d122d28b8c2231214a4a8573c9ec864f8dea8",
+      "bytes": 523
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_KR_BACKCHECK.md",
+      "sha256": "075848107b25d9205f5143a625898a9dff6e3beea59654732032696cd68fede2",
+      "bytes": 1735
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# P5 bounded implementation acceptance
+
+WORKING_ITEMS P5 accepts R05/R08/R09/R11 within PKG05 selected DEL05-01/02/03/05 and root explicitly accepted the matching source after fresh reviewer PASS. Product source93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc remains frozen. This is bounded implementation/verification fan-in, not whole-project closure or lifecycle acceptance.
+
+Accepted basis: whole S1 V3/R1 PASS; root REPAIR_ACTIVATION_V1; P4 selected-state checkpoint6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed and source171a638 predecessor. R11 existing DEL05-05 OUT001/R7 separately dispatched integration and root internal analytical-extrema selection. No physical/public-policy or decomposition amendment.
+
+Author source and all21 original member hashes validated; fresh fork-none read-only reviewer assessed100% full77hunk baseline product diff and53hunk P5 incremental, zero actionable findings. Manager40 original-input executions and314 checksPASS, and root-approved P9 candidate17member packet independently hash-verified/read by P5: all10 tests bothmodes green, corrected force-only control/restored copy green, actual force/moment-mixing mutation5FAIL and active station-zero mutation6FAIL. Mutant failures stop sparse-first and are not claimed dense mutation coverage. Pressure endpoint/displacement compatibility preserved, not independently endorsed as physical policy.
+
+Product full terminal run137PASS/1 known enabled stale browser-fixture assertionFAIL. No other failures. Root F1 regeneration and final full product/global/native checks remain separate gates; earlier136 filtered passes predate added test and are not full final-green evidence. Root owns publication/Git/CI. Selected package memory/status histories updated without lifecycle promotion.
+
+Transport packaging: root-authorized representation-only normalization preserved entire original author/review packets losslessly in encoded archives; exact decoded original manifests/return/diff bytes verified. Current manifests bind base64 diff transport. No attributes exception, source mutation or semantic review rerun. Planning snapshot remains immutable at explicit snapshots/PLANNING_V1 path; top-level controls advanced transparently.

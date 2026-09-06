@@ -1,0 +1,89 @@
+{
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "accepted_upstream": "decomp0.12/SCA009/DAG010; verified live DAG pointer",
+  "invariants": [
+    "OPS-K-MECH-1",
+    "OPS-K-MECH-2",
+    "OPS-K-UNIT-1",
+    "OPS-K-SOLVER-1",
+    "OPS-K-SOLVER-2",
+    "OPS-K-DATA-2",
+    "OPS-K-AGENT-1",
+    "OPS-K-AGENT-2"
+  ],
+  "records": [
+    {
+      "deliverable": "DEL-04-01",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "- Verify mechanics-program \u00a75 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan \u00a75 / DEC-066\u2013070)",
+      "paired_files": {
+        "ScopeOfWork.md": "45b8f29f68912d9626fbda4a5e3d3debe2479677883ebc9d55d1a8856e7271dd",
+        "_CONTEXT.md": "7a01c5f73c77c3a6ddf9e0a1e1fc7a5b0374849956b89f1c9cd896a4b64829d7",
+        "_STATUS.md": "758921a020b87dc345d29d279747f4c8ff68279ddafb5eb925488f07a5c179f0",
+        "MEMORY.md": "5537a1d54d053fce74ec1b1a65b3e5c9fde32aa721f9fb8315329a88b3d605e5"
+      }
+    },
+    {
+      "deliverable": "DEL-04-02",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "",
+      "paired_files": {
+        "ScopeOfWork.md": "0ad4bf821d93e45097c4185148aaf367dd1759c6edf2b47d3624869416655e13",
+        "_CONTEXT.md": "e3b9614cf177d5e632d3cb463984ae4f185c0625a48cae87f88eec552bb5f304",
+        "_STATUS.md": "bffc84545c0434a62541c03916a55f9c83023948fa0e60f9e781dfb3b44f0c23",
+        "MEMORY.md": "8641b993b24443d365b8448f042a467fbdb6b02286a1c5b59c799dd44f862605"
+      }
+    },
+    {
+      "deliverable": "DEL-04-03",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "",
+      "paired_files": {
+        "ScopeOfWork.md": "ddada32fd505be275bcae8cefb7e5057ea78523c40e663ec9b93cd558a60e59f",
+        "_CONTEXT.md": "13d53533c45b24ed9dda0bc1d445dd5dbabf5a3144a9878488c7bd5e72489d7a",
+        "_STATUS.md": "60d5ee09522d73a999aa05cd78228ad9d039ca8de38adc9f06f9538072c6d5ee",
+        "MEMORY.md": "352fd8e3973427877d38ff0c91da7ff56c7534d5d7e683ac591fc1fbe05ba960"
+      }
+    },
+    {
+      "deliverable": "DEL-04-04",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "- Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.\n- Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan \u00a74) (source: mechanics plan \u00a74 / Receipt 6 / TP-PMM-P2-FRICTION-001 \u00a7Boundaries)\n- Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan \u00a73 Phase D D6/D9 rows / DEC-046)\n- Promote broader displacement/reaction-delta and energy thresholds beyond the accepted current-seed/thirteen-fixture/product-preview surfaces (see also DEL-09-03) (source: PRD plan \u00a73 D6/D9 rows)\n- Promote broader multi-DOF/multi-support acceptance thresholds and external validation convergence thresholds (stage-gated: R5 release evidence) (source: PRD plan \u00a73 D9 row / DEC-052/DEC-054 residual list)",
+      "paired_files": {
+        "ScopeOfWork.md": "23488618ae7f3f3b7249501181ff8ff2febac4bdaab9ea5221237cce5c265083",
+        "_CONTEXT.md": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+        "_STATUS.md": "82251da858ea2c11f40f5eeb84565852be99785dcbd5913e314bea8c408a257b",
+        "MEMORY.md": "cf930c05e43710813283684b244580140de122f3d70e5e32b073d23e3029c3b5"
+      }
+    },
+    {
+      "deliverable": "DEL-04-05",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "- Obtain the owning formal REVIEW disposition and accepted dimensional-check basis before PDU-035 closure; fixture unit metadata is reproducibility evidence, not conversion or engineering validation.\n- Promote release/external sparse thresholds: timing, allocator/RSS memory, conditioning beyond the pivot-ratio proxy, and cross-machine hardware-normalized pass/fail gates (stage-gated: R5 release) (source: PRD plan \u00a73 D7 row + Phase D sparse update / DEC-050/DEC-053)\n- Provide hosted-CI sparse evidence once public-export CI activates (gated: D-05b conditions per DEC-059) (source: PRD plan \u00a73 D7 row)",
+      "paired_files": {
+        "ScopeOfWork.md": "914f59494a1d41bf09a61b6a7771d298e57d6fbda2c42cc53dee8413ac245508",
+        "_CONTEXT.md": "786c5f0182340cfd4ea082f84eefda8221a4cf2114bb60e3f6c598a10c0efb28",
+        "_STATUS.md": "f4e5a383439065654f358d9ef507dea07a1b50718cc303345ed641a7807323dc",
+        "MEMORY.md": "1f525aade1dddba0ae20934b974c5cfecfe48fce0b32dae98ce654de3fcac002"
+      }
+    },
+    {
+      "deliverable": "DEL-04-06",
+      "source_scope": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection",
+      "current_state": "**Current State:** IN_PROGRESS",
+      "remaining": "",
+      "paired_files": {
+        "ScopeOfWork.md": "799c8855a3123b3adecef12fedb10faf2152b642175c01dc1e082301202b56c9",
+        "_CONTEXT.md": "af6fbf705f275d4579ab4ef124b60f8da22102d5df68150edd8aed2443149558",
+        "_STATUS.md": "e0fd91bb6f62b5b97e8ea1d3c3dee84bcebbc495c1d9e5f3024ba4c4a1ffd520",
+        "MEMORY.md": "afb29b77022f391bcd4576c54ff63d6378ec67253f9619c6b56e204cf2d12908"
+      }
+    }
+  ],
+  "claim_fence": "Derivative audit basis, no status or engineering acceptance change. Historical context revision labels do not override live authority."
+}

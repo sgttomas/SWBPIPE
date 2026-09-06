@@ -1,0 +1,4 @@
+{
+  "expectation": "Nonfinite numerical outputs must not be silently labelled solved finite mechanics. No quantitative acceptance threshold; classify actual diagnostic, panic, serialization null, and status independently.",
+  "basis": "Owner audit nonfinite/result publication scope; finite input does not ensure finite arithmetic."
+}

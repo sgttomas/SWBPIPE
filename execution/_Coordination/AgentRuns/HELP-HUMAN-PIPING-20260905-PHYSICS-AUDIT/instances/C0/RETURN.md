@@ -1,0 +1,9 @@
+# C0 return
+
+Created `codex/piping-physics-audit` from verified `origin/main` at `2be412ccea62bdc4bd96deb082c46d7a792076ea`. Whole-repository clean start and absence of in-progress Git operations were verified before branch creation. Old branch `codex/piping-modeling-workspace` remains at `fe89c1866d801d804fbab5fd95e713d5aacd9433`. PR724 merge is an ancestor. No intervening Piping commits or file changes exist. No loaded instruction file changed versus the previous task head.
+
+Committed-HEAD loader selected `projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md` as a regular blob. Receipt validation passed before reading Receipt-133. Approved pointer resolves DAG-010 and its approval record. Target remains R5 under DEC-054 (DEC-080 wording refresh); newest DEC-094 does not advance stage. Discovery: 102 rows, 100 IN_PROGRESS, one ISSUED, one OPEN; 125 remaining items across63 deliverables. These are discovery counts, not activation or acceptance.
+
+Self-check exits zero with INFO14, NOT_APPLICABLE1, REVIEW4, WARN55 and no BLOCK. Four REVIEW findings are pre-existing DomainEngines surfaces outside scope. Initial discovery command supplied a path where DAG identifier is expected and failed; corrected `--dag DAG-010` passed. Both outputs remain encoded in evidence. No product sweep was run.
+
+Root/C1 began disjoint new-run evidence after branch creation. Those paths are recorded in STATUS; no tracked source changed. C0 wrote only its own records. This derivative intake cites accepted main, committed plan, live receipt, DAG approval, coordination and decision records; it is not decomposition truth. Closure: prerequisite complete only. Root accepts this basis and activates managers; source or instruction changes require refreshed intake. Current owner audit authorization prevents treating old receipt holds as a blanket parked state. Existing D58/client and engineering boundaries remain. Standard claim fence applies (F-PIP-2; DEC-081).

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "R1-01",
+    "severity": "MEDIUM",
+    "location": "S1/REPAIR_PLAN.md R10 closure evidence",
+    "finding": "The reaction mutation closure criterion points in the wrong direction. W3_force_only_reaction removes rotational terms from a force norm, which is the dimensional correction sought by R07. Requiring that original corrective mutant to fail after repair would reward the defect. The W5 wrapper also targets old interpolated metadata and may become a no-op if R11 replaces that route.",
+    "evidence": [
+      "V1/children/V1-C/MUTATION_PATCHES.json: W3_force_only_reaction and W5_zero_interpolated_stations",
+      "S1/REPAIR_PLAN.md: R07 and R10"
+    ],
+    "required_change": "Preserve both historical experiments as sensitivity observations. Require new independent reaction tests to fail on unchanged dimensional-mixing baseline and on deliberate reintroduction of that defect after repair; a force-only correction must pass. Require station tests to detect zeroing actual repaired station outputs, retargeting the isolated mutation when the old route is retired. Do not require unchanged corrective/no-op patches to fail."
+  },
+  {
+    "id": "R1-02",
+    "severity": "LOW",
+    "location": "S1/REPORT.md reaction/spring cluster; S1/FINDINGS.csv I1-C-02 and I1-C-04",
+    "finding": "Narrative spring expectations 0.187968155 mm and 187.968155 N do not match the frozen independent expectation 0.18796797141911276 mm and its ks*u reaction 187.96797141911276 N. The mismatch is small relative to the zero-versus-nonzero and lost-spring defects, but precise repair oracles must bind the frozen derivation rather than unsupported narrative digits.",
+    "evidence": [
+      "I1/children/C/EXPECTED_BEFORE_RUN.json expected.spring_tip_displacement_mm and definitions",
+      "I1/children/C/COMPARISON.json",
+      "I1/children/C/REPORT.md principal findings 2 and 4",
+      "S1/REPORT.md",
+      "S1/FINDINGS.csv"
+    ],
+    "required_change": "Correct the current synthesis numbers from the frozen expected file and record the discrepancy against immutable upstream narrative; preserve upstream packet bytes. Identify analytical unrounded values versus round6 observed rows explicitly."
+  },
+  {
+    "id": "R1-03",
+    "severity": "LOW",
+    "location": "S1/REPORT.md consolidated finding count paragraph",
+    "finding": "The report states 44 consolidated entries but then says these are not 43 independent defects. Actual consolidated CSV has 44 rows; the unnecessary conflicting count impairs claim clarity.",
+    "evidence": [
+      "S1/FINDINGS.csv",
+      "S1/FINDING_CROSSWALK.csv",
+      "S1/REPORT.md"
+    ],
+    "required_change": "Say the 44 entries include observations/conflicts/unknowns and are not a count of independent engine defects; avoid an unsupported second defect count."
+  }
+]

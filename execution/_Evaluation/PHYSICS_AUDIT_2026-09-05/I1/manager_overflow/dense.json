@@ -1,0 +1,342 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "run_id": "run:preview-linear-static-001",
+  "model_ref": "project:invented-loop-01",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+  },
+  "summary": {
+    "node_count": 2,
+    "segment_count": 1,
+    "support_count": 1,
+    "load_case_count": 1,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "component_pressure_thrust_load_count": 0,
+    "spring_hanger_user_input_count": 0,
+    "max_displacement": {
+      "value": 0.0,
+      "unit": "mm",
+      "location_ref": "node:N-100",
+      "result_ref": "result:disp:node-N-100"
+    },
+    "max_open_formula_stress": null
+  },
+  "results": [
+    {
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "value": 2.0,
+      "unit": "mode_code",
+      "entity_ref": "solver:linear_static_preview",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:L-100",
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=dense_scrutiny; solution_basis=dense_scrutiny_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=not_observed; original_profile_entries=not_observed; ordered_profile_entries=not_observed; original_half_bandwidth=not_observed; ordered_half_bandwidth=not_observed; nonpositive_pivots=not_observed; pivot_condition_ratio_proxy=not_observed; max_abs_sparse_residual=not_observed; dense_fallback=false; dense_fallback_message=none",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      }
+    },
+    {
+      "id": "result:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "value": null,
+      "unit": "unitless",
+      "entity_ref": "solver:sparse_direct",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=6; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; max_abs_dense_sparse_delta=inf; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100",
+      "kind": "displacement_magnitude",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110",
+      "kind": "displacement_magnitude",
+      "value": null,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-100:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:ux",
+      "kind": "global_nodal_displacement_x",
+      "value": null,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:uy",
+      "kind": "global_nodal_displacement_y",
+      "value": null,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:uz",
+      "kind": "global_nodal_displacement_z",
+      "value": 0.0,
+      "unit": "mm",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:rx",
+      "kind": "global_nodal_rotation_x",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:ry",
+      "kind": "global_nodal_rotation_y",
+      "value": 0.0,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      }
+    },
+    {
+      "id": "result:disp:node-N-110:rz",
+      "kind": "global_nodal_rotation_z",
+      "value": 8.700500746613732e+301,
+      "unit": "rad",
+      "entity_ref": "node:N-110",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      },
+      "metadata": {
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "basis": "solved_from_global_linear_system",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      }
+    },
+    {
+      "id": "result:reaction:support-S-100",
+      "kind": "reaction_resultant",
+      "value": null,
+      "unit": "N",
+      "entity_ref": "support:S-100",
+      "basis_ref": {
+        "ref_type": "load_case",
+        "ref_id": "load:L-100"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "id": "diagnostic:stress:pipe-P-100",
+      "code": "ELEMENT_FORCE_RECOVERY_FAILED",
+      "severity": "warning",
+      "message": "global_model_displacements must be finite, got NaN",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:physics:rule-inputs-missing",
+      "code": "RULE_CHECK_INPUTS_MISSING",
+      "severity": "warning",
+      "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+      "source": "core/product_physics"
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  },
+  "accepted_model_state_mutated": false
+}

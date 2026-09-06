@@ -1,0 +1,27 @@
+{
+  "id": "RESUME-012-V1-TRANSPORT-F3",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "actual_resumes": [
+    {
+      "runtime_id": "/root/audit_verification",
+      "role": "V1 evaluation manager resumed transport-only",
+      "write_scope": [
+        "auditroot/V1",
+        "instances/V1_TRANSPORT"
+      ],
+      "no_new_audit": "Complete original packet and results preserved"
+    },
+    {
+      "runtime_id": "/root/fixture_review",
+      "role": "fresh-review instance resumed read-only backcheck",
+      "write_scope": [],
+      "review_scope": "E1 exact attributes then V1 final lossless transport",
+      "status": "E1 review may proceed; V1 final review waits final packet"
+    }
+  ],
+  "model": "unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "no_author_staging": true
+}

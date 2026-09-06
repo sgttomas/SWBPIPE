@@ -1,0 +1,8 @@
+{
+  "baseline": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "mix": "bdf0bca71f1aad43f4150b1494d22966fb4fc21e0bf38dbf1d44d84ed2885ae6",
+  "station_zero": "3faa4a4ccd62854e69610c33fb74ef4127f106aadcfa668ac2aa1147f68c5f09",
+  "expected": "baseline force-only passes all10 both-mode; mutants compile and fail actual targeted numerical tests",
+  "runtime": "one serial compile slot only",
+  "test_changes": false
+}

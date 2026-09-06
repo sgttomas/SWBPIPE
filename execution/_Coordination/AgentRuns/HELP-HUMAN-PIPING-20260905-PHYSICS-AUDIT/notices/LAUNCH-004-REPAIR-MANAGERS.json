@@ -1,0 +1,43 @@
+{
+  "id": "LAUNCH-004-REPAIR-MANAGERS",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "release_manifest_sha256": "a101d7dc10aa99de3879cc611b1e226e50797b03e27073a520f371eb08bac768",
+  "authority": "Root read/accepted V2 briefs and explicitly launched native sessions after whole-baseline acceptance",
+  "instances": [
+    {
+      "id": "P4",
+      "runtime_id": "/root/repair_pkg04",
+      "role": "Agent 1 WORKING_ITEMS",
+      "package": "PKG-04",
+      "status": "executing kernels and first exclusive product ownership",
+      "brief": "briefs/P4_REPAIR_LAUNCH_BRIEF_V2.md",
+      "compile_slots": "two initial lightweight isolated Rust slots granted"
+    },
+    {
+      "id": "P5",
+      "runtime_id": "/root/repair_pkg05",
+      "role": "Agent 1 WORKING_ITEMS",
+      "package": "PKG-05",
+      "status": "planning only; shared-source writes held until accepted P4 transfer",
+      "brief": "briefs/P5_REPAIR_LAUNCH_BRIEF_V2.md",
+      "compile_slots": "none until root grant"
+    },
+    {
+      "id": "P9",
+      "runtime_id": "/root/repair_pkg09",
+      "role": "Agent 1 WORKING_ITEMS",
+      "package": "PKG-09",
+      "status": "independent references/new validation tests",
+      "brief": "briefs/P9_REPAIR_LAUNCH_BRIEF_V2.md",
+      "compile_slots": "none until root grant"
+    }
+  ],
+  "record_write_scope": "Each owns instances/P4,P5,P9 respectively and evaluation post_repair/<ID>, in addition to exact source/test/local-record fences in accepted brief; managers persist own child records",
+  "child_runtime_calibration": "No child launches inferred until actual manager receipts",
+  "heavy_resources": "root serialized",
+  "model": "unexposed; no fabricated identifier",
+  "enforcement": "delegated-harness-native instruction+config asserted; not mechanism-proven",
+  "preservation": "All frozen baseline/activation/prior snapshots unchanged"
+}

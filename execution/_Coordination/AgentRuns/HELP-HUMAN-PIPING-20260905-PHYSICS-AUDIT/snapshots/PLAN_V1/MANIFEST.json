@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "status": "sealed before manager launch",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "approved_plan_provenance": "Faithful parent-transmitted semantic copy; exact current user direction and choices recorded; not raw UI bytes",
+  "files": {
+    "snapshots/PLAN_V1/APPROVED_PLAN.md": "4492537fedb5fc8992415eca984be9afb76795434df87801584dcd305930be3a",
+    "snapshots/PLAN_V1/HANDOFF_STATE.md": "5743ac5dd9e618badb5579a68f0bd73d9dd0fa86585c664720e21b6462f599b2",
+    "snapshots/PLAN_V1/ORCHESTRATION_PLAN.md": "4ca094bd458f6227d3dd5fd89e1ae73f7e4a822bb02694b59e1d69e230c7de50",
+    "snapshots/PLAN_V1/SOURCE_BASIS.json": "f5a19f1bc3f04ccc275185f7b757a232320a13656e6eb2eeadccf2cb93abae1b",
+    "snapshots/PLAN_V1/USER_CHOICES.json": "bca1417cc20399b41a35327be3508470ff51b895031233940f05150f9fa85892",
+    "snapshots/PLAN_V1/WORK_GRAPH.json": "3ada5e35a33cf0ca275fc7afa23094c6957d6b345257d35eae91353e163d42e8",
+    "snapshots/PLAN_V1/briefs/I1_LAUNCH_BRIEF.md": "16e831171ae52692ac7dffb90730e3eeb844efdf733413f7a0a5beb7b15069e0",
+    "snapshots/PLAN_V1/briefs/M1_LAUNCH_BRIEF.md": "4d1de830ec3c682dbdb4ee769167d8b034811f1ff8fda14c55a32440735d595a",
+    "snapshots/PLAN_V1/briefs/V1_LAUNCH_BRIEF.md": "b424da085b72a57923f2c0fc31d4f4da9bd1042e58c12c5cbca0ec3a02b28cd9",
+    "snapshots/PLAN_V1/instances/C1/LAUNCH_BRIEF.md": "156949809cba7669935c92b5c88aaa746248f5fbd13b70adc733be6648a55ed6",
+    "snapshots/PLAN_V1/instances/C1/STATUS.json": "f017835c23b376749562b3499a8401cd9a7615f2285a19d9e9a01b4f1031792b"
+  },
+  "instruction_source_sha256": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "agents/AGENT_HELP_HUMAN.md": "0285715cbe41ac2c8b7bfd8b6dbd56ad1f0cbb1a970a4f7afed290fc30d1e981",
+    "agents/AGENT_EVALUATION.md": "49f11c18efe3b2b88bdb2f6fb377d3f5013e84753e8fd1f074715a322b906cc7",
+    "agents/AGENT_TASK.md": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "skills/evaluation-protocol/SKILL.md": "7efbb4d3826a6a12d1eb7f6bf71c3665c26d2f267bd1d233a1abcf2ce4cf5884",
+    "skills/evaluation-protocol/BRIEF_SCHEMA.md": "564105f30786063ce911a4ef68b59940a56f0b32a819eea3f1db43996b501377",
+    "skills/evaluation-protocol/TOOL_POLICY.md": "a4f6df7ac94db86debaecc342129395aa1246b78c0f7791979488fdb458f7146",
+    "skills/evaluation-protocol/QA_CHECKS.md": "3e41e890c19932d2a2173d4eac623710bff1b8b42a4d2dc17af2dc721e069e7b"
+  },
+  "no_production_changes_before": "whole baseline plus fresh independent report review accepted",
+  "delegation_class": "native instruction+config asserted; not mechanism-proven",
+  "model": "unknown where unexposed"
+}

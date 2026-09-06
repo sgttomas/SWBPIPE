@@ -352,16 +352,19 @@ impl ProfileFactorization {
                 sum -= self.factor.stored(row, col) * solution[col];
             }
             solution[row] = sum;
+            validate_finite_slice("forward solution", &[sum])?;
         }
 
         for row in 0..dimension {
             solution[row] /= self.factor.stored(row, row);
+            validate_finite_slice("scaled solution", &[solution[row]])?;
         }
 
         for row in (0..dimension).rev() {
             let value = solution[row];
             for col in self.factor.first_columns[row]..row {
                 solution[col] -= self.factor.stored(row, col) * value;
+                validate_finite_slice("backward solution", &[solution[col]])?;
             }
         }
 
@@ -396,7 +399,9 @@ pub fn factorize_ldlt(
             }
             work[col] = sum;
             let pivot = factor.stored(col, col);
-            factor.set_stored(row, col, sum / pivot);
+            let coefficient = sum / pivot;
+            validate_finite_slice("factorization coefficient", &[coefficient])?;
+            factor.set_stored(row, col, coefficient);
         }
 
         let mut diagonal = factor.stored(row, row);
@@ -441,7 +446,9 @@ pub fn factorize_ldlt(
         max_half_bandwidth: factor.max_half_bandwidth(),
         min_abs_pivot: (dimension > 0).then_some(min_abs_pivot),
         max_abs_pivot: (dimension > 0).then_some(max_abs_pivot),
-        pivot_condition_ratio_estimate: (dimension > 0).then_some(max_abs_pivot / min_abs_pivot),
+        pivot_condition_ratio_estimate: (dimension > 0)
+            .then_some(max_abs_pivot / min_abs_pivot)
+            .filter(|ratio| ratio.is_finite()),
         nonpositive_pivot_count,
         first_nonpositive_pivot,
     };
@@ -910,6 +917,15 @@ mod tests {
             }
         }
         entries
+    }
+
+    #[test]
+    fn audit_rejects_unrepresentable_solution() {
+        let result =
+            solve_symmetric_system(&[vec![1e-11, 0.], vec![0., 1e308]], &[0., 0.]).unwrap();
+        assert_eq!(result.factorization.pivot_condition_ratio_estimate, None);
+
+        assert!(solve_symmetric_system(&[vec![0.5]], &[1e308]).is_err());
     }
 
     #[test]

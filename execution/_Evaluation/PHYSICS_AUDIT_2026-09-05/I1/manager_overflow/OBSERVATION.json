@@ -1,0 +1,44 @@
+[
+  {
+    "mode": "dense",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "panic": null,
+    "null_value_rows": [
+      "result:sparse-live:dense-parity-relative-delta",
+      "result:disp:node-N-110",
+      "result:disp:node-N-110:ux",
+      "result:disp:node-N-110:uy",
+      "result:reaction:support-S-100"
+    ],
+    "blocking": []
+  },
+  {
+    "mode": "sparse",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "panic": null,
+    "null_value_rows": [
+      "result:disp:node-N-110",
+      "result:disp:node-N-110:uy",
+      "result:reaction:support-S-100",
+      "result:force:pipe-P-100:shear-z",
+      "result:force:pipe-P-100:shear-z:end-j",
+      "result:moment:pipe-P-100:bending-y",
+      "result:moment:pipe-P-100:bending-y:end-j",
+      "result:force:pipe-P-100:quarter-1:shear-z",
+      "result:moment:pipe-P-100:quarter-1:bending-y",
+      "result:force:pipe-P-100:midspan:shear-z",
+      "result:moment:pipe-P-100:midspan:bending-y",
+      "result:force:pipe-P-100:quarter-3:shear-z",
+      "result:moment:pipe-P-100:quarter-3:bending-y"
+    ],
+    "blocking": []
+  }
+]

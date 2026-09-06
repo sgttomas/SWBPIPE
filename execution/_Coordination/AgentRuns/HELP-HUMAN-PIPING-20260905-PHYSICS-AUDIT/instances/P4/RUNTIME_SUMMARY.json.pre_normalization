@@ -1,0 +1,112 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 9
+  },
+  "counts": {
+    "category": {
+      "numerical_observation": 1
+    },
+    "event_type": {
+      "FINISH": 9,
+      "REMEDIATION": 1,
+      "START": 9
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 9,
+      "STARTED": 9
+    },
+    "reason_code": {
+      "GLOBAL_ABSOLUTE_EIGEN_CUTOFF": 1
+    }
+  },
+  "events": 19,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": null,
+      "events": 5,
+      "final_outcome": "PASS",
+      "instance_id": "K1",
+      "package_id": "PKG-04",
+      "remediations": 1,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/kernel"
+    },
+    {
+      "duration_seconds": null,
+      "events": 4,
+      "final_outcome": "PASS",
+      "instance_id": "KR",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/kernel_review"
+    },
+    {
+      "duration_seconds": 444.718,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "N1",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/nonlinear"
+    },
+    {
+      "duration_seconds": 301.185,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "D1",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/observations"
+    },
+    {
+      "duration_seconds": 892.361,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P1",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/product"
+    },
+    {
+      "duration_seconds": 266.579,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "PR",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "/root/repair_pkg04/product_review"
+    },
+    {
+      "duration_seconds": 2281.689,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P4",
+      "package_id": "PKG-04",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "repair_pkg04"
+    }
+  ],
+  "sessions": 7,
+  "status": "INCOMPLETE",
+  "unmatched_sessions": [
+    "/root/repair_pkg04/kernel",
+    "/root/repair_pkg04/kernel_review"
+  ]
+}

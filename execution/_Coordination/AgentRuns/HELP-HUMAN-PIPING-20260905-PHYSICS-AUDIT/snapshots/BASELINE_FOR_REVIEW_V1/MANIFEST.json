@@ -1,0 +1,11 @@
+{
+  "status": "whole synthesized baseline accepted for fresh review, not for production repairs",
+  "previous_manifest_sha256": "4054356fad61ac284e720537021246b6e486da963f2fc58677eb75f4481025ad",
+  "files": {
+    "snapshots/BASELINE_FOR_REVIEW_V1/ACCEPT_I1_SERVICE_SUPPLEMENT_V1.json": "f443d9d80c92a6805281fe47c1852b96bb740c5a1276ca6f0ac8501ff379de8b",
+    "snapshots/BASELINE_FOR_REVIEW_V1/ACCEPT_S1_CONSOLIDATED_BASELINE_FOR_REVIEW.json": "a907992593905abfee5b24629fe7dd4e1f6ee2c31e73040c56f2d22c3dcda25e",
+    "snapshots/BASELINE_FOR_REVIEW_V1/R1_LAUNCH.json": "9a561235af29e93229df32232ba760f2960f8c9d844a98f0529115ee04a976e1",
+    "snapshots/BASELINE_FOR_REVIEW_V1/WORK_GRAPH.json": "e38e1cd76d92239f8a424fcdd3259d0adfdbe91defad100e7e21c6da368c779c"
+  },
+  "production_barrier": "Fresh R1 PASS plus explicit root whole-baseline acceptance"
+}

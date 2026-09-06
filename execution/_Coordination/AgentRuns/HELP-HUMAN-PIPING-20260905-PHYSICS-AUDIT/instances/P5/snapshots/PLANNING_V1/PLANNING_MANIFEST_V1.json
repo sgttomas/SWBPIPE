@@ -1,0 +1,80 @@
+{
+  "schema": "piping-evidence-manifest/v1",
+  "role": "P5 WORKING_ITEMS",
+  "phase": "planning ready, source held",
+  "upstream": "P5_REPAIR_LAUNCH_BRIEF_V2; S1 V3/R1 PASS; REPAIR_ACTIVATION_V1",
+  "derivative": true,
+  "process_qualification": "recon transient write-scope deviation retained in record; technical output independently checked",
+  "files": [
+    {
+      "path": "IMPLEMENTATION_BRIEF_DRAFT_V1.md",
+      "sha256": "4d9b93cab4998e673561e084e5a9ec9d8073539af8f2f9b6f8a6b4e0d9ea413f",
+      "bytes": 3859
+    },
+    {
+      "path": "NOTICE_PKG03_SELECTED_ALPHA_V1.md",
+      "sha256": "2e80fe45794899ce22206e2bf40e85e1c24512eb76193c4299cca58072641b9c",
+      "bytes": 1004
+    },
+    {
+      "path": "PLANNING_FANIN_V1.md",
+      "sha256": "22600721b620247605a35701c6c300e77bac8bd49e26dbf5ba5f493c07cd63c6",
+      "bytes": 2135
+    },
+    {
+      "path": "PLANNING_R05_R09_V1.md",
+      "sha256": "34dc0470f59aa05882c5037c69494069ad038125cb48d5dd804fc2e34044d734",
+      "bytes": 5248
+    },
+    {
+      "path": "R09_INTERFACE_ADDENDUM_V1.md",
+      "sha256": "b379f8950def65466916478b734923aaef8dcc5ac75ca339012990aad8d6291b",
+      "bytes": 1046
+    },
+    {
+      "path": "R11_ROOT_DESIGN_SELECTION_V1.md",
+      "sha256": "54c320d75dd04f6bbae2f795e1248b96b66f84f5b0f1c5c3d5a55ddd83bd57a8",
+      "bytes": 887
+    },
+    {
+      "path": "RECON_BRIEF_V1.md",
+      "sha256": "f3042793dada39615a52a23c8f47f11d2eeea868e22f48490b24c347675ba31b",
+      "bytes": 2606
+    },
+    {
+      "path": "RUNTIME_EVENTS.jsonl",
+      "sha256": "5d2c0a17472c00c4267f5b8b5fca8d4b946987bf34b7ba6055ae70495ec83a9e",
+      "bytes": 2439
+    },
+    {
+      "path": "RUNTIME_SUMMARY.json",
+      "sha256": "dc7cd896e49297d03658e6b38573cc42a31a2d51159a26641e3f04c54c572eaa",
+      "bytes": 1076
+    },
+    {
+      "path": "WORK_GRAPH_V1.md",
+      "sha256": "cae9bcf5ba8c08a88dbba1353900d79861940358f7bca30bcdf27e6843ea8140",
+      "bytes": 831
+    },
+    {
+      "path": "children/recon/MANIFEST.json",
+      "sha256": "a1bcccc30701bba1c9e13628b91b2c21c1f9298ba514ecd9ef678492363b5908",
+      "bytes": 560
+    },
+    {
+      "path": "children/recon/OBSERVED_SOURCE.json",
+      "sha256": "ed830bcea7df494ab40c84e8381df460b8d2f4a3221ddaad394834d009a0fcc6",
+      "bytes": 1275
+    },
+    {
+      "path": "children/recon/RECON.md",
+      "sha256": "65877e768e8a5c44f3f2057ec07586e6a604ea70427c27a59390b54a56d1f9d5",
+      "bytes": 13253
+    },
+    {
+      "path": "children/recon/_run_records/TASK_RUN_2026-09-05_RECON.md",
+      "sha256": "37c77f73e5136f8b7401571291389bc6bad4c14773bfbb85b801b0596315a7ba",
+      "bytes": 3163
+    }
+  ]
+}

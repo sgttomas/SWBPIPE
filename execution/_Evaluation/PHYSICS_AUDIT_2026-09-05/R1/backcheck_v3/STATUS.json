@@ -1,0 +1,14 @@
+{
+  "verdict": "PASS",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "input_manifest_sha256": "e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f",
+  "verified_members": 33,
+  "historical_v2_members_verified": 32,
+  "changed_prior_member": "CORRECTIONS_V2.json",
+  "changed_field": "review_manifest_sha256",
+  "correct_bound_review_manifest": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad01",
+  "prior_full_review_manifest": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad01",
+  "prior_substantive_backcheck_manifest": "e7b97c0624266450a254953f91e95fe70c39383bec9d11382aef5e1174900521",
+  "open_actionable_findings": 0,
+  "limitations": "Baseline audit/report acceptance review only; not engine correctness, repair authorization, lifecycle or engineering acceptance. Original explicit coverage/policy holds persist."
+}

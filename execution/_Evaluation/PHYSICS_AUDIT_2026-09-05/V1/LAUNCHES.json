@@ -1,0 +1,14 @@
+{
+  "V1-R": {
+    "task": "/root/audit_verification/references",
+    "status": "RUNNING",
+    "model": "unknown",
+    "role_enforcement": "instruction+config asserted"
+  },
+  "V1-C": {
+    "task": "/root/audit_verification/coverage",
+    "status": "RUNNING",
+    "model": "unknown",
+    "role_enforcement": "instruction+config asserted"
+  }
+}

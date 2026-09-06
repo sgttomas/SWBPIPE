@@ -1,0 +1,64 @@
+[
+  {
+    "name": "generate_1",
+    "command": [
+      "cargo",
+      "run",
+      "--quiet",
+      "--manifest-path",
+      "core/product_physics/Cargo.toml",
+      "--example",
+      "preview_result"
+    ],
+    "cwd": "projects/chirality-piping",
+    "returncode": 0,
+    "seconds": 4.879676342010498,
+    "stdout_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "generate_2",
+    "command": [
+      "cargo",
+      "run",
+      "--quiet",
+      "--manifest-path",
+      "core/product_physics/Cargo.toml",
+      "--example",
+      "preview_result"
+    ],
+    "cwd": "projects/chirality-piping",
+    "returncode": 0,
+    "seconds": 0.3283579349517822,
+    "stdout_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "name": "product_tests",
+    "command": [
+      "cargo",
+      "test",
+      "--manifest-path",
+      "core/product_physics/Cargo.toml"
+    ],
+    "cwd": "projects/chirality-piping",
+    "returncode": 0,
+    "seconds": 2.717050075531006,
+    "stdout_sha256": "b4ede64395d120bf92129d6daa7e9c6e6935efba5330436dbf44e8755395faf9",
+    "stderr_sha256": "ce401767d71ddc6a6a28ce2b864f7193a91d65b21b4b8dc9031f3ae6f4e5be38"
+  },
+  {
+    "name": "consumer_tests",
+    "command": [
+      "npm",
+      "test",
+      "--",
+      "src/services/previewService.test.ts"
+    ],
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "returncode": 1,
+    "seconds": 0.8368039131164551,
+    "stdout_sha256": "ad448bbd5b5ede5ecd9df1a16301cf3533fc12029063c44d7e8973ac501d1e07",
+    "stderr_sha256": "267c2b93de724392c0f1eb08868e1565346ee99d4569d482a0a664894e50e16e"
+  }
+]

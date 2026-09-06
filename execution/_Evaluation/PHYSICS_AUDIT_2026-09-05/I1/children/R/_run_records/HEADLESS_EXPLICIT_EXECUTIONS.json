@@ -1,0 +1,86 @@
+[
+  {
+    "fixture": "axial",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "2fe877c8c58348b8f808cf4b1486a99fabfd20c27635005924fcdca3d6d1514d"
+  },
+  {
+    "fixture": "axial_gap_v2",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "817b61475eeb5f39cbd5b6bace90826a46c0cb59c2ea3d6958dadbc9790baca6"
+  },
+  {
+    "fixture": "uniform",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "53a5423b99e7882b83a3ec5975fb666b31f2dbd17a35f46ba6c8e10cf8c53c4d"
+  },
+  {
+    "fixture": "identity_base",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "8da9800568fb31a4e27c25fe4d63bb72a02ee9a71b6e3804b10ec8ed90c30002"
+  },
+  {
+    "fixture": "identity_geometry",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "ced98ad9430f4a24c84ee15fc17bd1e38aa38a5bb832aede3561407b550e6336"
+  },
+  {
+    "fixture": "opposite_combinations_v2",
+    "exit": 0,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "b49d537c428e6a821b7cb326d74de4e0ce3d12b55b894ffc022b213f5e10f099"
+  },
+  {
+    "fixture": "overflow",
+    "exit": 1,
+    "stderr": "",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "payload_present": true,
+    "stdout_sha256": "e41b1706e1dd527c0fc028d21824337fae159c3914ef77ab22212c6b9b11e6fa"
+  }
+]

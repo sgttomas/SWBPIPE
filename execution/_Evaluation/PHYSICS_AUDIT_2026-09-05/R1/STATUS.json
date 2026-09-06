@@ -1,0 +1,14 @@
+{
+  "run_status": "SUCCESS",
+  "review_verdict": "CHANGES_REQUIRED",
+  "actionable_findings": 3,
+  "reviewed_findings": 44,
+  "input_manifest_sha256": "0e21940bfe3109aea0b907ab791f3f0c92f0710499603878536a70d6daa122cd",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "role": "Agent2 TASK",
+  "parent": "/root",
+  "model": "unknown",
+  "role_enforcement": "instruction+config asserted",
+  "derivative": true,
+  "closure": "Review complete; corrected synthesis and fresh backcheck required"
+}

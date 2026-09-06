@@ -1,0 +1,15 @@
+{
+  "child": "C",
+  "manifest_sha256": "12e1c44dd0b4d2e7ef957f60014ddaf191d02683693055d22cdff8b219f29710",
+  "member_count": 254,
+  "bad_members": [],
+  "findings_count": 8,
+  "schema_valid": true,
+  "source_binding_current": "See SOURCE_UNCHANGED.json/READ_BINDINGS",
+  "independent_manager_replays": [
+    "manager_replay/REPLAY.json",
+    "manager_replay/THERMAL_REPLAY.json",
+    "manager_replay/WIND_REPLAY.json"
+  ],
+  "verdict": "ACCEPTED_WITH_EXPLICIT_COVERAGE_GAPS"
+}

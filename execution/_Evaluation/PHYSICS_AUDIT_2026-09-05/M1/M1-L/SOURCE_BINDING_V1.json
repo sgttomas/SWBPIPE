@@ -1,0 +1,10 @@
+{
+  "basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "sources": {
+    "core/solver/frame_kernel/src/lib.rs": "e5b7346448841f9f2bdaa360102f976638c52967860fe9ee8ad8896a69f925f7",
+    "core/solver/sparse_direct/src/lib.rs": "7a9468285b6719576fe0c3595baeb9e43a87009138aeefb198c98274e69542cd",
+    "core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+    "core/solver/performance_harness/src/lib.rs": "7debffb199616f976d688ed809fa487bc75fe402822a953330fe8be37f11bd17"
+  },
+  "performance_wrapper": "exact original bytes + audit_condition and audit_eigen wrappers"
+}

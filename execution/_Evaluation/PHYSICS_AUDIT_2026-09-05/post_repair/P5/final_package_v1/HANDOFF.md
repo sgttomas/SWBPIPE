@@ -1,0 +1,9 @@
+# P5 handoff
+
+Closure verdict: bounded source repairs and package fan-in COMPLETE; global integration OPEN. Next owner HELP_HUMAN Agent0, then root F1/CHANGE. P5 has no ongoing source edits, compiles or child work. Source hash in SOURCE_BINDINGS.json is the required frozen consumer input.
+
+Derivative status: this final packet, audit, telemetry and replay are derivative evidence of accepted root/audit/P4/source snapshots, not decomposition truth. Independent P9 candidate accepted by root and verified here. Original source/test/expected input packets remain immutable or losslessly encoded with explicit decoded hashes. Package records bind new bounded history while IN_PROGRESS remains unchanged. Validation-manual derivatives remain DEL09-04 owning cadence.
+
+Required downstream: regenerate stale browser fixture via authorized F1, rerun enabled assertion/full product, clean-source registered DEC025/native isolated saved-edited-load self-test/CI and scoped Git closeout. Root must bind later source commit and evidence snapshot separately. Any source change invalidates93d182 test/review binding and requires relevant reruns plus fresh frozen-diff review. Fixture-only regeneration does not amend source review but needs generation/full product verification. Do not merge automatically.
+
+Held: pressure D03, friction/current-normal/history D01, finite connector contract/objectivity, pivot/convergence/contact-only initialization policy, public schemas/migration/new physics and engineering reliance. No new Owner ruling arose. Continuous extrema only current constant-section straight piecewise-uniform expression; public fixed stations preserved, curved/combined continuous extrema not established. Existing scalar range semantics and stress-summary combination exclusion preserved. Process qualifications from reconnaissance temporary write and author selector order retained; no concealed clean-policy claim.

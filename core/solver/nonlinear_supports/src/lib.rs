@@ -541,7 +541,8 @@ fn classify_iteration_support_state(
 ///
 /// Engaged unilateral supports (prior state `Active`, including closed gaps)
 /// classify on the sign of the trial reaction: contact persists only while the
-/// reaction bears in the sense the support can supply. Released supports
+/// reaction bears in the sense the support can supply (including zero reaction
+/// at a closed gap). Released supports
 /// (prior state `Inactive`, or an unseeded support) classify on the trial
 /// displacement: contact re-engages when the free displacement penetrates into
 /// the support (or reaches the explicit gap clearance). This pairing means
@@ -553,6 +554,15 @@ pub fn classify_support_state(
     trial: &TrialSupportState,
     prior_state: Option<ActiveSetState>,
 ) -> Result<ActiveSetState, NonlinearSupportError> {
+    // Public fields permit callers to bypass TrialSupportState constructors.
+    validate_finite("displacement", trial.displacement)?;
+    validate_finite("reaction", trial.reaction)?;
+    if let Some(normal) = trial.normal_reaction {
+        validate_finite("normal reaction", normal)?;
+    }
+    if let Some(tangential) = trial.tangential_reaction {
+        validate_finite("tangential reaction", tangential)?;
+    }
     let engaged = prior_state == Some(ActiveSetState::Active);
     match support.behavior {
         NonlinearSupportBehavior::OneWay { active_when } => {
@@ -571,12 +581,13 @@ pub fn classify_support_state(
             validate_nonnegative_finite("gap clearance", gap)?;
             if engaged {
                 // A closed gap bears against further motion in the closing
-                // direction, so contact persists only while the reaction
-                // opposes that direction; a reaction that would have to pull
+                // direction. Zero reaction is admissible at exact touching,
+                // consistent with the released-gap clearance equality below.
+                // A reaction that would have to pull
                 // the node onto the stop means lift-off of the closed gap.
                 let bearing = match closes_when {
-                    GapDirection::PositiveDisplacement => trial.reaction < 0.0,
-                    GapDirection::NegativeDisplacement => trial.reaction > 0.0,
+                    GapDirection::PositiveDisplacement => trial.reaction <= 0.0,
+                    GapDirection::NegativeDisplacement => trial.reaction >= 0.0,
                 };
                 return Ok(if bearing {
                     ActiveSetState::Active
@@ -727,6 +738,49 @@ mod tests {
     use super::*;
 
     #[test]
+    fn audit_nonfinite_literal_trials_are_rejected_for_every_behavior() {
+        let supports = [
+            NonlinearSupport::one_way("s", 0, FrameDof::Ux, ActivationSense::PositiveReaction),
+            NonlinearSupport::lift_off("s", 0, FrameDof::Ux, ActivationSense::PositiveReaction),
+            NonlinearSupport::gap(
+                "s",
+                0,
+                FrameDof::Ux,
+                0.05,
+                GapDirection::PositiveDisplacement,
+            )
+            .unwrap(),
+            NonlinearSupport::friction("s", 0, FrameDof::Ux, 0.3).unwrap(),
+        ];
+        for support in supports {
+            for prior in [
+                None,
+                Some(ActiveSetState::Active),
+                Some(ActiveSetState::Inactive),
+            ] {
+                for value in [f64::NAN, f64::INFINITY, f64::NEG_INFINITY] {
+                    for field in 0..4 {
+                        let mut trial = TrialSupportState::new("s", 0.0, 0.0)
+                            .unwrap()
+                            .with_friction_reactions(1.0, 0.0)
+                            .unwrap();
+                        match field {
+                            0 => trial.displacement = value,
+                            1 => trial.reaction = value,
+                            2 => trial.normal_reaction = Some(value),
+                            _ => trial.tangential_reaction = Some(value),
+                        }
+                        assert!(matches!(
+                            classify_support_state(&support, &trial, prior),
+                            Err(NonlinearSupportError::NonFiniteInput { .. })
+                        ));
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
     fn engaged_one_way_support_classifies_on_explicit_reaction_sense() {
         let support = NonlinearSupport::one_way(
             "one-way-1",
@@ -814,7 +868,7 @@ mod tests {
 
         let bearing_trial = TrialSupportState::new("gap-1", 0.25, -5.0).unwrap();
         let pulling_trial = TrialSupportState::new("gap-1", 0.25, 4.0).unwrap();
-        let separating_trial = TrialSupportState::new("gap-1", 0.25, 0.0).unwrap();
+        let touching_trial = TrialSupportState::new("gap-1", 0.25, 0.0).unwrap();
 
         assert_eq!(
             classify_support_state(&support, &bearing_trial, Some(ActiveSetState::Active)).unwrap(),
@@ -825,9 +879,9 @@ mod tests {
             ActiveSetState::Inactive
         );
         assert_eq!(
-            classify_support_state(&support, &separating_trial, Some(ActiveSetState::Active))
+            classify_support_state(&support, &touching_trial, Some(ActiveSetState::Active))
                 .unwrap(),
-            ActiveSetState::Inactive
+            ActiveSetState::Active
         );
     }
 
@@ -1209,8 +1263,9 @@ mod tests {
         assert!(report
             .limitations
             .iter()
-            .any(|limitation| limitation
-                .contains("acceptance and professional judgment remain with the responsible engineer")));
+            .any(|limitation| limitation.contains(
+                "acceptance and professional judgment remain with the responsible engineer"
+            )));
     }
 
     #[test]

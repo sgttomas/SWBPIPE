@@ -293,3 +293,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
   threshold state, and all lifecycle/issuance/release/professional claims
   remain untouched. Evidence is recorded in
   `_run_records/WORKING_ITEMS_RUN_2026-07-19_R14_W1_T2_CONSTANT_EFFORT.md`.
+
+## 2026-09-05 — Physics audit repair checkpoint: R02/R06/R07 linear spring validity and actions
+
+Scalar springs require exactly one DOF and finite nonnegative stiffness; valid zero stiffness remains supported. Positive springs contribute to nonlinear stiffness. Physical spring action is -k*u from selected state; force resultants exclude moment dimensions. Unique grounded-DOF count is only a necessary lower bound, with actual assembled solve still required; no claim of detecting every mechanism or changed pivot policy.
+
+Evidence: `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KERNEL_CHECKPOINT_V1/MANIFEST.json` (ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1), `PRODUCT_CHECKPOINT_V1/MANIFEST.json` (6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed), fresh KR plus backcheck and PR review packets, and D1 current derivative manifest663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766 under that P4 root. Manager orchestration is in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4/`.
+
+This is bounded technical checkpoint acceptance, not lifecycle, engineering, release, or complete deliverable closure. State remains IN_PROGRESS and existing Remaining rows/Owner holds remain. Kernel targeted evidence197 PASS; P1 nonlinear22 PASS and product129 PASS with one enabled stale generated-fixture FAIL. Root separately owns final browser fixture regeneration after P5 integration; full P9/product/registered clean DEC025/native gates remain required. No global product PASS claimed. P5 receives exact frozen product source only after root accepts transfer.

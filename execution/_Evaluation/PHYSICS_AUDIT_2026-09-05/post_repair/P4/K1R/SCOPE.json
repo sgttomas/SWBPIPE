@@ -1,0 +1,20 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/SOURCE.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/RETURN.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/EXPECTED_BEFORE_RUN.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/FULL_TESTS.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/BEFORE.rs.txt",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/PATCH.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/FORMAT.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/_run_records/TASK_RUN_K1R.md"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

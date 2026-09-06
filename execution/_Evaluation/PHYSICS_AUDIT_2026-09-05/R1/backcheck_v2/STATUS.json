@@ -1,0 +1,31 @@
+{
+  "verdict": "CHANGES_REQUIRED",
+  "input_manifest": "edf28fcaaef1b963a9b4a991b324e93831ef9a718b8afb8be125fe2d5b350565",
+  "verified_current_members": 32,
+  "verified_historical_members": 27,
+  "reviewed_changed_files": [
+    "FINDINGS.csv",
+    "HANDOFF.md",
+    "I1_FINDINGS_NORMALIZED.csv",
+    "REPAIR_PLAN.md",
+    "REPORT.md",
+    "SOURCE_FINDINGS_NORMALIZED.csv"
+  ],
+  "prior_corrections": {
+    "R1-01": "PASS",
+    "R1-02": "PASS",
+    "R1-03": "PASS"
+  },
+  "remaining": [
+    {
+      "id": "R1-V2-01",
+      "severity": "LOW",
+      "path": "S1/CORRECTIONS_V2.json",
+      "field": "review_manifest_sha256",
+      "actual_reference": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad0",
+      "required_reference": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad01",
+      "reason": "Missing final hexadecimal digit; does not bind actual R1 manifest."
+    }
+  ],
+  "scope": "Metadata-only correction remains; all six-file substantive changes accepted; unchanged original review still applies. No repair authorization."
+}

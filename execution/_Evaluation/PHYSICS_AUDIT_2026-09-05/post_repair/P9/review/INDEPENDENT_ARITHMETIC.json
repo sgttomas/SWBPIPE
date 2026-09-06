@@ -1,0 +1,152 @@
+{
+  "frozen_manifest_sha256": "51465611bebef370b1542308bcb93e89be09b0ea3b3fa3dbc963015415d92d1a",
+  "frozen_expectations_sha256": "69b58a92b893589bb693e3b5a6acf43477bc53f9be03e908b3d2d9995005b5a3",
+  "method": "60-digit Decimal arithmetic; pi mathematical constant; annulus integration, cantilever curvature/virtual work, force balance and parallel stiffness. No product imports or execution.",
+  "values": [
+    {
+      "quantity": "I_m4",
+      "independent_decimal": "0.0000114935913359837813205049943055084141900288439303870598048001",
+      "frozen_value": 1.1493591335983794e-05,
+      "absolute_difference": "1.26794950056944915858099711560696129401951999E-20"
+    },
+    {
+      "quantity": "A_m2",
+      "independent_decimal": "0.00354057492059569697974739909295599975049020991309574426023878",
+      "frozen_value": 0.003540574920595698,
+      "absolute_difference": "1.02025260090704400024950979008690425573976122E-18"
+    },
+    {
+      "quantity": "point_tip_mm",
+      "independent_decimal": "0.406023368175307449398476218213279981847402255325232439717858",
+      "frozen_value": 0.40602336817530704,
+      "absolute_difference": "4.09398476218213279981847402255325232439717858E-16"
+    },
+    {
+      "quantity": "root_force_N",
+      "independent_decimal": "350",
+      "frozen_value": 350,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "root_moment_Nm",
+      "independent_decimal": "700",
+      "frozen_value": 700,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "pure_moment_root_force_N",
+      "independent_decimal": "0",
+      "frozen_value": 0,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "pure_moment_root_moment_Nm",
+      "independent_decimal": "100",
+      "frozen_value": 100,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "spring_u_mm",
+      "independent_decimal": "0.187967971419112830453378697453683312125537094711475700244765",
+      "frozen_value": 0.18796797141911276,
+      "absolute_difference": "7.0453378697453683312125537094711475700244765E-17"
+    },
+    {
+      "quantity": "spring_action_N",
+      "independent_decimal": "187.967971419112830453378697453683312125537094711475700244765",
+      "frozen_value": 187.96797141911276,
+      "absolute_difference": "7.0453378697453683312125537094711475700244765E-14"
+    },
+    {
+      "quantity": "closed_zero_gap_axial_u_mm",
+      "independent_decimal": "0",
+      "frozen_value": 0,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "closed_zero_gap_pipe_axial_N",
+      "independent_decimal": "0",
+      "frozen_value": 0,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "constant_axial_N",
+      "independent_decimal": "350",
+      "frozen_value": 350,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "constant_torsion_Nm",
+      "independent_decimal": "350",
+      "frozen_value": 350,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "constant_shear_N",
+      "independent_decimal": "350",
+      "frozen_value": 350,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "sum_opposites_components_and_norms",
+      "independent_decimal": "0",
+      "frozen_value": 0,
+      "absolute_difference": "0"
+    },
+    {
+      "quantity": "tiny_then_1e6_mm",
+      "independent_decimal": "0.406023368175307449398476218213279981847402255325232439717858",
+      "frozen_value": 0.40602336817530704,
+      "absolute_difference": "4.09398476218213279981847402255325232439717858E-16"
+    },
+    {
+      "quantity": "uniform_q100_tip_mm",
+      "independent_decimal": "0.0870050074661373105853877610457028532530147689982640942252554",
+      "frozen_value": 0.08700500746613722,
+      "absolute_difference": "9.05853877610457028532530147689982640942252554E-17"
+    },
+    {
+      "quantity": "partial_q100_a05_b15_tip_mm",
+      "independent_decimal": "0.0380646907664350733811071454574949982981939614367405412235493",
+      "frozen_value": 0.03806469076643504,
+      "absolute_difference": "3.33811071454574949982981939614367405412235493E-17"
+    }
+  ],
+  "distributed_station_checks": [
+    {
+      "x_m": "0",
+      "full_shear_N": "200",
+      "full_moment_Nm": "200",
+      "partial_shear_N": "100.0",
+      "partial_moment_Nm": "100.00"
+    },
+    {
+      "x_m": "0.5",
+      "full_shear_N": "150.0",
+      "full_moment_Nm": "112.50",
+      "partial_shear_N": "100.0",
+      "partial_moment_Nm": "50.00"
+    },
+    {
+      "x_m": "1",
+      "full_shear_N": "100",
+      "full_moment_Nm": "50",
+      "partial_shear_N": "50.0",
+      "partial_moment_Nm": "12.50"
+    },
+    {
+      "x_m": "1.5",
+      "full_shear_N": "50.0",
+      "full_moment_Nm": "12.50",
+      "partial_shear_N": "0.0",
+      "partial_moment_Nm": "0"
+    },
+    {
+      "x_m": "2",
+      "full_shear_N": "0",
+      "full_moment_Nm": "0",
+      "partial_shear_N": "0",
+      "partial_moment_Nm": "0"
+    }
+  ]
+}

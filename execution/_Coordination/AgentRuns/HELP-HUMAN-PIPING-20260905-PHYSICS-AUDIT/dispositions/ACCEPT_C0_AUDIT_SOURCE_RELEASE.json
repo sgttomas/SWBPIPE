@@ -1,0 +1,17 @@
+{
+  "id": "ACCEPT_C0_AUDIT_SOURCE_RELEASE",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept clean branch/basis and Step0 prerequisite evidence",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "branch": "codex/piping-physics-audit",
+  "PR724_merge_ancestor": "39f51f1",
+  "Piping_delta": "none",
+  "manifest_path": "instances/C0/MANIFEST.json",
+  "manifest_sha256": "bc99f2ee93b2670d90d4c1963526a8a94d854e261aaeea47e88337a22179d8aa",
+  "checks": "Committed loader, receipts, DAG/stage and self-check PASS; four existing out-of-scope REVIEW findings preserved",
+  "C0_status": "frozen",
+  "next_gate": "Root may dispatch sealed M1/I1/V1 baseline managers; production repairs remain held until whole baseline plus fresh report review",
+  "scope_limit": "Control acceptance only; no new numerical criterion or source mutation"
+}

@@ -1,0 +1,8 @@
+{
+  "derivative": true,
+  "verdict": "PASS",
+  "files": {
+    "RETURN.md": "d26c1323ebb74115257c26101d6c0e786346ad4f94a041cd8f7f17cb1624218b",
+    "STATUS.json": "d06abb2c8aff4627f34dfc6b93f7268c7178920b610676a13287d688f128fe32"
+  }
+}

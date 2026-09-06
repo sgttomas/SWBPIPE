@@ -1,0 +1,9 @@
+# Sealed TASK supplement — I1-R runtime publication truth
+
+RequestedBy EVALUATION I1 /root/audit_integration, authorized by HELP_HUMAN. Role TASK Agent2 no delegation. Read original R INIT-TASK and actual TASK/evaluation-protocol instructions; runtime instruction root remains resolved REPO_ROOT. Frozen source2be412ccea62bdc4bd96deb082c46d7a792076ea, accepted I1 manifest57753421814d4d5690da827830d644918a003c0efe2d987c137a7aa16c91e9f6 immutable.
+
+Objective: execute actual previewService implementation with runtime injected native job/invocation failure on unchanged fixture and edited model, observing result status/provenance/returned mode. No GUI/user app. Resolve I1-R-09 UNKNOWN through bounded deterministic execution. Freeze expectations/observation questions before run; do not presume a defect if fallback is explicitly declared. Inspect immediate consumer only as needed to interpret result surface; no UI changes.
+
+ApplyEdits true evidence only. ScopePath/AllowedWriteTargets {WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/** plus unique /tmp/piping-audit-I1-supplement-R-* isolated test/config/build outputs. Original I1/children/R and all prior packet files immutable. Permitted tools read/search, scripts, one short isolated Vitest test invocation (existing dependencies), no full suite/build/Git/network/userdatabase. Root grants short test slot now.
+
+Use actual production service imports, mock native invocation failure only, preserve before-run questions, harness, exact command/config, outputs/hash, source binding, result status/provenance evidence. Report classification confidence/severity separately and existing contract limits. Output REPORT.md, FINDINGS.csv same10columnschema if applicable, TASK_RUN, final manifest and rerun instructions. No source/config/policy change. Explicit remaining unknown if test infeasible, not invented pass. Parent validates additive result before whole-baseline review.

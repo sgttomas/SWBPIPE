@@ -1,7 +1,7 @@
 # Status: DEL-04-05 Sparse solver performance harness
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-05
 
 ## Remaining
 - Obtain the owning formal REVIEW disposition and accepted dimensional-check basis before PDU-035 closure; fixture unit metadata is reproducibility evidence, not conversion or engineering validation.
@@ -23,3 +23,5 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 1 cited declaration claim to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+
+- 2026-09-05 - P4 physics audit repair checkpoint accepted for R03 corrected condition and residual observations. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.

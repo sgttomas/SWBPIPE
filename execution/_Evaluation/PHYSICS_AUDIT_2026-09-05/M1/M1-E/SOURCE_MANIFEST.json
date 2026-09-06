@@ -1,0 +1,47 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "sources": [
+    {
+      "path": "{WORKING_ROOT}/core/solver/frame_kernel/src/lib.rs",
+      "sha256": "e5b7346448841f9f2bdaa360102f976638c52967860fe9ee8ad8896a69f925f7",
+      "baseline_git_blob": "794d81f3851dd13e55ab969f38991c9c9b979126",
+      "read_production_lines": "1-1169",
+      "method": "all production bodies read; selected tests inspected; existing suite execution by V1"
+    },
+    {
+      "path": "{WORKING_ROOT}/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "67565f4a5d0389100ead5d218f40e167e08d674568133db002cc8868145b4f79",
+      "baseline_git_blob": "8d6ac5801f8bc1cda1d44a76e80a2b3a8ac00d9f",
+      "read_production_lines": "1-1480",
+      "method": "all production bodies read; selected tests inspected; existing suite execution by V1"
+    },
+    {
+      "path": "{WORKING_ROOT}/core/solver/curved_bend/src/lib.rs",
+      "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+      "baseline_git_blob": "cb925df33358f6278ca70ab4d5c1533da8e4c900",
+      "read_production_lines": "1-1062",
+      "method": "all production bodies read; selected tests inspected; existing suite execution by V1"
+    },
+    {
+      "path": "{WORKING_ROOT}/core/solver/linear_supports/src/lib.rs",
+      "sha256": "1b23899cc93f5d4a56742cb3ba5c617d1d4b401c903e42412300e86c803de50e",
+      "baseline_git_blob": "d962a4a65b1cc3fe6f8e09df8b635a0e3cac046b",
+      "read_production_lines": "1-672",
+      "method": "all production bodies read; selected tests inspected; existing suite execution by V1"
+    },
+    {
+      "path": "{WORKING_ROOT}/core/product_physics/src/lib.rs",
+      "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+      "read_lines": [
+        "1270-1328",
+        "1380-1457",
+        "3263-3345",
+        "6880-6935",
+        "3330-3365",
+        "3108-3128",
+        "910-924"
+      ],
+      "method": "selected consumer bodies only; full product audit owned I1"
+    }
+  ]
+}

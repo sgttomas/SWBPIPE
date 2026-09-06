@@ -1,0 +1,22 @@
+{
+  "parent": "/root",
+  "manager": "/root/audit_integration",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "children": {
+    "C": {
+      "brief": "children/C/INIT-TASK.md",
+      "sha256": "ba56bc812d37d86d9bee47703df0738574f934a84917ce198ee313194edb8d1c",
+      "mode": "TASK instruction+config asserted",
+      "model": "unknown",
+      "status": "sealed"
+    },
+    "R": {
+      "brief": "children/R/INIT-TASK.md",
+      "sha256": "1aa51ad8d570c86f135550b13784bf62e899c378fe51f3d346e43f61bfba30b7",
+      "mode": "TASK instruction+config asserted",
+      "model": "unknown",
+      "status": "sealed"
+    }
+  },
+  "schedule": "parallel static/oracles; root-serialized heavy execution; validated fan-in"
+}

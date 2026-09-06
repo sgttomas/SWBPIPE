@@ -1,0 +1,22 @@
+Family,Oracle,Disposition,Limit,EvidenceRefs
+Inputs/units,Equivalent SI systems; translation/rotation covariance,CRITERIA_FROZEN,Actual unit replay owned by integration; no production verdict here,EARLY_REFERENCE_CRITERIA.md:5
+Sections/materials,Annulus integrals and linear interpolation; witness Decimal interpreter,REFERENCE_LINEAGE_REVIEWED,No empirical material curve validation,REFERENCES.csv;REFERENCE_CORRECTIONS_AND_LIMITS.md
+Axial/bending/torsion,EA/L;PL3/(3EI);TL/GJ; exact rational elementary cases,INDEPENDENT_ORACLES_EVALUATED,Does not cover every element orientation or formulation,INDEPENDENT_ORACLE_RESULTS.json
+Curved bends,Vector equilibrium + numerical strain-energy integration,FOUR_REFERENCE_CASES_CORROBORATED,Quarter circle k1/k2 only; no shear/ovalization,ARC_REFERENCE_COMPARISON.json
+Rigid/user-stiffness components,Rigid motion compatibility; specified matrix symmetry/work f=Kdelta,CRITERIA_AVAILABLE_RUNTIME_UNKNOWN,Not a constitutive oracle for unsupported supplied stiffness; no separate handcalc family in73inventory,REFERENCES.csv;EARLY_REFERENCE_CRITERIA.md
+Linear supports,Parallel spring and prescribed reaction equilibrium,INDEPENDENT_ORACLES_EVALUATED,Full stability/rank solve belongs numerical manager,INDEPENDENT_ORACLE_RESULTS.json
+Nonlinear supports,Scalar contact complementarity and bounded friction balance,REFERENCE_DEPTH_GAP_VISIBLE,Multisupport iteration envelopes not independent all-vector solutions,REFERENCES.csv;FINDINGS.csv:V1R-03
+Loads,Force/moment integration; Hermite work-equivalent distribution; uniform/partial spans,ANALYTICAL_REFERENCE_REVIEWED,Preview force-lumping contract distinct from work equivalence,EARLY_REFERENCE_CRITERIA.md;REFERENCES.csv
+Thermal/pressure,Thermal strain/constraint force and membrane equilibrium,INDEPENDENT_SIMPLE_CASES_EVALUATED,Thin-wall assumptions and pressure radius explicit; thermal history not adopted,INDEPENDENT_ORACLE_RESULTS.json;REFERENCES.csv
+Wind/seismic,User factors times area/mass; force centroid conservation,INDEPENDENT_WIND_CASE_EVALUATED,Equivalent static only; no dynamics or code coefficients,INDEPENDENT_ORACLE_RESULTS.json;REFERENCES.csv
+Linear numerics,Residual/backward error; exact diagonal and singular conditioning; Toeplitz eigenvalues,CRITERIA_FROZEN,No tolerance invention; norm conventions explicit,REFERENCE_CORRECTIONS_AND_LIMITS.md
+Stress/recovery,N/A;M/Z;Tr/J; section equilibrium,INDEPENDENT_SIMPLE_CASES_EVALUATED,Downstream stress notes share mechanics inputs; no fatigue/code acceptance,INDEPENDENT_ORACLE_RESULTS.json;REFERENCES.csv
+Combinations/publication,Linear superposition only compatible bases; distinguish signed states and selected solution,CRITERIA_AVAILABLE_RUNTIME_UNKNOWN,No history/friction superposition assumption; identity whole-contract review elsewhere,EARLY_REFERENCE_CRITERIA.md;REFERENCES.csv
+Rust robustness,Finite representation and dimensioned diagnostic boundary,CRITERIA_AVAILABLE_RUNTIME_UNKNOWN,No unsafe/FFI audit performed by reference specialist,REFERENCE_CORRECTIONS_AND_LIMITS.md
+Mandatory witness 1,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 2,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 3,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 4,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 5,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 6,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md
+Mandatory witness 7,Numbered criterion in early packet,CRITERIA_FROZEN_PRODUCTION_OUTCOME_WITH_SIBLING,No independently reproduced production defect claimed by reference specialist,EARLY_REFERENCE_CRITERIA.md

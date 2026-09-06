@@ -1,0 +1,44 @@
+[
+  {
+    "case": "missing_selected_alpha",
+    "same": true,
+    "input_sha256": "73ee51235fd12230c181a926ff4cc1cf00c0dc4ee245facedbf7f9af1b79c7c8",
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "max_displacement": {
+      "value": 0.0,
+      "unit": "mm",
+      "location_ref": "node:N-100",
+      "result_ref": "result:disp:node-N-100"
+    },
+    "blocking": []
+  },
+  {
+    "case": "missing_base_alpha",
+    "same": true,
+    "input_sha256": "7bb7fb0cbb3cf6256100e77ec8f81eddb4ce9f50a30bccdf6920804322c86ed0",
+    "status": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "max_displacement": null,
+    "blocking": [
+      {
+        "id": "diagnostic:thermal:material:material-invented-carbon-steel:expansion-missing",
+        "code": "THERMAL_EXPANSION_INPUT_MISSING",
+        "severity": "blocking",
+        "message": "thermal temperature-change loads require explicit material thermal_expansion_coefficient; no hidden material defaults are applied",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "load:A2-invented",
+          "pipe:P-100",
+          "material:invented-carbon-steel"
+        ]
+      }
+    ]
+  }
+]

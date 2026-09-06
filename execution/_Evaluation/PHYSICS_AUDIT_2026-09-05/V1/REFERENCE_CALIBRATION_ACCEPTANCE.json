@@ -1,0 +1,12 @@
+{
+  "verdict": "ACCEPTED_ADDITIVE_CALIBRATION",
+  "artifact": "children/V1-R/REFERENCE_CORRECTIONS_AND_LIMITS.md",
+  "sha256": "bbed9599b09344bb61daccfbf729289a9d69e8254dfad2b70dbadc1f2bd5df05",
+  "independent_review": [
+    "Manager checked live release_convergence_policy.dec046.c-b.json explicit public_benchmark_nonlinear_convergence_release_scope and source pointers.",
+    "Manager inspected TP014 expected constructor production helper and independent fixed-number validator evidence supplied by coverage child.",
+    "Manager inspected independent_oracles.py entire implementation and replayed exact results in own tmp; no product import.",
+    "Calculator witness potential circularity withdrawn after source lineage scrutiny; test compares prod to independent Decimal evaluator."
+  ],
+  "remaining": "Final child manifests/reports and complete fan-in not yet accepted"
+}

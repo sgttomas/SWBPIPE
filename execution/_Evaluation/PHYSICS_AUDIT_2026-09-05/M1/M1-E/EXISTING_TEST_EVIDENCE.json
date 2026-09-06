@@ -1,0 +1,31 @@
+{
+  "source": "../../V1/baseline/CRATE_RESULTS.json",
+  "sha256": "76f5031457509d8c0ab5de87d1a718f1efef33184091fde03fa7aedb37021c7b",
+  "results": [
+    {
+      "crate": "core/solver/curved_bend",
+      "passed": 23,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "crate": "core/solver/frame_kernel",
+      "passed": 36,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "crate": "core/solver/linear_supports",
+      "passed": 14,
+      "failed": 0,
+      "ignored": 0
+    },
+    {
+      "crate": "core/solver/straight_pipe",
+      "passed": 33,
+      "failed": 0,
+      "ignored": 0
+    }
+  ],
+  "calibration": "V1 executed existing suites; these are corroboration, not independent engineering oracles."
+}

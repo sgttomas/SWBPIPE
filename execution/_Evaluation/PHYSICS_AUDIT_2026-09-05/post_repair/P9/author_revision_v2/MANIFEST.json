@@ -1,0 +1,12 @@
+{
+  "files": {
+    "CHANGES.diff": "ad5f110a5a7f181a1d65fcc891118c82c86b22b2bc436de9cfeca59a332c2276",
+    "RETURN.md": "eaa2341b1e3ff19bacf3b47180e7d86c8079887b9d5d6b8b405f949c3c80087e",
+    "AUTHORED_SOURCE_FINAL.json": "8933380b8b44a9a6cd3a1f65ae5ffa2ed6e3236fa00850463cf432be1130f1d2",
+    "source_before/Cargo.toml": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+    "source_before/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "source_before/README.md": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+    "_run_records/TASK_RUN_P9_A_V2.md": "f1ae1b638386b8cfac2e92551dd8aa9d2da5993f78e5986417acf996bf25d8fe",
+    "source_before/src/lib.rs": "91ea3ad88f76a617075ebc24d2d5a931f4b0cf30faf45f55b8da4f613a3081fc"
+  }
+}

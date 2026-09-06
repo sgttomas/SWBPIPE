@@ -1,0 +1,33 @@
+{
+  "package": "PKG-09",
+  "deliverables": [
+    "DEL-09-01",
+    "DEL-09-02",
+    "DEL-09-03"
+  ],
+  "objective": "R10 independent regression reachability",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "accepted_root_scope_amendment": "new validation/benchmarks/physics_audit_regression only",
+  "basis_hashes": {
+    "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/briefs/P9_REPAIR_LAUNCH_BRIEF_V2.md": "b742d7f0ef8e0c735e65e32f32382d0075e410f2dc5079d64a121b087c48874b",
+    "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0",
+    "docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+  },
+  "children": [
+    {
+      "id": "P9-A",
+      "native_task": "/root/repair_pkg09/regression_author",
+      "status": "running",
+      "model": "unknown, not exposed",
+      "role_enforcement": "instruction+config asserted"
+    }
+  ],
+  "remaining_preserved": [
+    "PDU-013 canonical unit acceptance",
+    "PDU-037 provenance/release/threshold choices",
+    "PDU-039 final thresholds/publication",
+    "PDU-060 Owner dispositions"
+  ],
+  "derivative": true
+}

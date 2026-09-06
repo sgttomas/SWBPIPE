@@ -1,0 +1,17 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "original_packet_immutable": true,
+  "files": {
+    "EXECUTION.json": "11705a684c04d0ebe3b899acba95ac50b574c56db82ecf58af4e9f9a14cdc5da",
+    "FINDINGS.csv": "52655d397bbafa9aff620c5c03e0d960f0c91de7961ee7ec78337138b68c09d9",
+    "OBSERVATIONS.json": "fdeab9300994f2b2a47c55a4c1ebff34cd4197b71d1d90fadbb344abfa3f8028",
+    "PREEXEC_MANIFEST.json": "66da050cf8315d90a6d0dee38e89e29f0b003fffa6776bcc521ff454baebfb7f",
+    "QUESTIONS_BEFORE_RUN.md": "d0354ae4e43efed188ef16cd786dc41d47c252d4f27383395e3807ed0fc85c4e",
+    "REPORT.md": "690eb1e3721213a2811bf585a3a8e1676b715447a829e6f84eb78c5d6b419a58",
+    "SOURCE_BINDING.json": "2efc2e588bbc1ad19619b17ad3edd8b71723b43576c179ef31a3ef1e899f6f9b",
+    "TASK_RUN.md": "d8fb635c69b6d592d07d4c2a47ef64ee47b294c1ec17b61caaee45befb01d0b0",
+    "native-failure.test.ts": "c784f61830163bb1ef6d7e2ae6b04fff042c2417837497cdaa98837d6cf935b8",
+    "vitest.config.mjs": "af32aa3a748d536c7d2e1b011d7fbc4ac78c579c16060188eba614e3379ede46"
+  }
+}

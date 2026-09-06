@@ -1,0 +1,33 @@
+{
+  "id": "LAUNCH-008-S2-AND-CHANGE-PREP",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "instances": [
+    {
+      "id": "S2",
+      "runtime_id": "/root/repair_report",
+      "role": "actual direct Agent2",
+      "status": "pre-final 44-finding disposition report",
+      "write_scope": [
+        "auditroot/post_repair/S2",
+        "instances/S2"
+      ],
+      "gate": "F2 final results pending; no final verification claims"
+    },
+    {
+      "id": "CHANGE",
+      "runtime_id": "/root/audit_change",
+      "role": "actual Agent1 CHANGE",
+      "status": "read-only publication preparation",
+      "write_scope": [
+        "instances/CHANGE",
+        "auditroot/post_repair/CHANGE"
+      ],
+      "Git_gate": "No staging or commits until explicit root release"
+    }
+  ],
+  "model": "unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "receipts": "No receipt yet; final F2 results required per root"
+}

@@ -1,0 +1,17 @@
+RequestedBy: WORKING_ITEMS /root/repair_pkg04
+RunID: HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT
+ParentInstanceID: P4
+ChildInstanceID: D1
+Role: Agent2 TASK; no delegation/sibling messaging.
+TaskSkill: software-bounded-implementation
+ApplyEdits: true for evidence only; no production edits.
+PackageID: PKG-04 DEL04-05/06 SOW035/053 R03.
+RuntimeOverrides.INSTRUCTION_ROOT: resolve REPO_ROOT git rev-parse --show-toplevel.
+Objective: generate a new current derivative capture of all nine DEC053 observations from accepted repaired kernel, preserving immutable accepted historical DEC053 packet.
+AcceptedBasis: source2be412ccea62bdc4bd96deb082c46d7a792076ea plus accepted KERNEL_CHECKPOINT_V1 manifest ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1 and exact source hashes. Existing original sparse_default_promotion_observation.dec053.json and policy.dec053.json are historical/immutable.
+DeclaredReads: root/project AGENTS, TASK/skill/softwareprofile, PKG04 DEL04-05 SOW/context/status/memory, original TP-R4-D7-SPARSEDEFAULTPROMOTE-001 runrecord, DEC053 ruling in execution/_Decomposition, validation/evidence/comparison_measurement/DEL0904_VD_20260811/SPARSE_UNIT_NORMALIZED_DESIGN.md, original observation/policy/test, performance_harness emitter/source/dependencies, accepted kernel evidence.
+ScopePath: projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/D1
+AllowedWriteTargets: own ScopePath/** and isolated /tmp build/copy tree only. No source, Cargo manifest/lock, policy, historical packet, tests, registers or control pointer edits.
+AllowedTools: reads, evidence writes, exact existing cargo run --locked --offline --manifest-path core/solver/performance_harness/Cargo.toml --example sparse_default_promotion_observation with distinct /tmp CARGO_TARGET_DIR. One lightweight compile allocation independent P1 (only frame/sparse/diagnostics deps, no product/nonlinear dependency). If lock absent or Cargo would modify source-tree lock, build an exact hashed isolated copy instead. Read-only git status/rev-parse/diff allowed, no Git mutation/network/user app.
+AcceptanceCriteria: inspect owning contract before capture; no clean-source requirement found for local derivative observations (historical run explicitly distinguished dirty local observation from final gate), but do not claim clean committed evidence. Bind actual HEAD, dirty status, exact emitter + direct transitive source/Cargo/lock hashes before/after, accepted checkpoint. Validate9records finite required numeric fields, expected fixture IDs, original established parity/residual/repeat/pivot criteria only; no new thresholds. Compare historical vs corrected true condition values, name physical/public policy holds. Preserve raw emitter output including legacy record/tranche labels; wrapper must clearly identify NEW derivative capture and clarify old labels are emitter metadata, not a replay of historical acceptance. Do not backfill unit-separated quantities or change policy.
+ExpectedOutputs: normalized current-capture wrapper/provenance, raw JSON, exact command/stdout/stderr encoding+SHA as needed, semantic9row comparison, finite/invariant QA, manifest, TASK runrecord and handoff. Derivative for current audit/repair; final exact clean source capture/sweep rerun remains root if required. No lifecycle or engineering acceptance. Model unknown if unexposed, native role instruction/config asserted.

@@ -1,0 +1,14 @@
+{
+  "role": "Agent2 TASK independent baseline critic",
+  "parent": "/root",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "instruction_root": "/Users/ryan/.codex/worktrees/8728/chirality",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/R1",
+  "tools": "read-only shell/rg/hash/validators; writes only own evidence",
+  "exclusions": "No children, builds, experiments, network, source/Git/manager evidence edits",
+  "review": "All 44 consolidated findings, coverage, references, mandatory seven witnesses and repair scope R01-R11",
+  "model": "unknown",
+  "role_enforcement": "instruction+config asserted",
+  "input_manifest_sha256": "0e21940bfe3109aea0b907ab791f3f0c92f0710499603878536a70d6daa122cd"
+}

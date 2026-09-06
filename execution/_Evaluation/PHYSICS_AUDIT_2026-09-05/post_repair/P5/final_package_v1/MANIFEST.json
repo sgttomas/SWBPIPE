@@ -1,0 +1,43 @@
+{
+  "schema": "piping-evidence-manifest/v1",
+  "role": "WORKING_ITEMS P5",
+  "verdict": "BOUNDED_SOURCE_ACCEPTED_GLOBAL_GATES_OPEN",
+  "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "files": [
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "992a0e96fc760ce813bc34e1b79a56b40e21b763a5132ea6d586c3a2b0dd0c24",
+      "bytes": 2258
+    },
+    {
+      "path": "EVIDENCE_BINDINGS.json",
+      "sha256": "2cef52e613427c740a52a9147c670894a8475ee8fe53d5a870d412eef7cbe007",
+      "bytes": 1684
+    },
+    {
+      "path": "HANDOFF.md",
+      "sha256": "bffe54676d21b930ad8d0a69166c0452dab7750c38bc9e50475b17d657296b7e",
+      "bytes": 1921
+    },
+    {
+      "path": "PACKAGE_RECORD_BINDINGS.json",
+      "sha256": "3bdcbb8a4a2b5eb71e2ecd4a5057cd050320a8d1fa3f1acd36448b4f8530d613",
+      "bytes": 2204
+    },
+    {
+      "path": "RUNTIME_EVENTS.jsonl",
+      "sha256": "dbd7dce945bdb23acff807ca9df666b18bfac96bfa077049f0817a85f46a2495",
+      "bytes": 6688
+    },
+    {
+      "path": "RUNTIME_SUMMARY.json",
+      "sha256": "aaae38b3210497e58a9565311b342d79199cd1071764906e798199b0749cebf0",
+      "bytes": 1937
+    },
+    {
+      "path": "SOURCE_BINDINGS.json",
+      "sha256": "2ac304355b29397fb7ba838ddd67611c605818af6424af6cebae605bff794008",
+      "bytes": 353
+    }
+  ]
+}

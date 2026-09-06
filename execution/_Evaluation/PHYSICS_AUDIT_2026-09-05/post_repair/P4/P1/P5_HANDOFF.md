@@ -1,0 +1,13 @@
+# P5 state contract
+
+Read SOURCE_BINDING.json and frozen product_after.rs/nonlinear_after.rs before accepting ownership. Exclusive product ownership transfers only after parent/root accepts fresh review.
+
+`LoadCaseSolve.support_force_vectors: HashMap<String, [f64; 3]>` is per primitive case, keyed original support ID, signed global Fx/Fy/Fz in Newtons with no display rounding. It is internal and currently unused outside construction (expected dead-code warning until P5 consumer). It must be consumed before `load_case_solves.into_iter()` moves results, retaining load-case ID. Support resultant public IDs/kinds unchanged. Combining these vectors and then computing their norm supports R09; do not combine magnitudes.
+
+Within solve_load_case, the unrounded `displacements` vector is replaced by converged selected nonlinear state before ordinary consumers. `selected_nonlinear` also provides the chosen reaction vector. Linear springs supplied to `solve_active_set_frame_with_mode_and_springs` use canonical global DOF/stiffness pairs, validated finite/nonnegative and in range. Existing entry point passes an empty spring list. Preliminary linear solver evidence remains explicitly observational; failure/nonconvergence yields blocked envelope.
+
+R08-R11 remain P5: full precision must still be retained through existing helper result rows/algebra; this slice deliberately does not remove all current result-row round6 calls. P5 should consume full-precision selected mechanics and the signed support map, then round once at final publication. The round6 helper now avoids overflow from multiplication for representable large values; ordinary display rounding is unchanged. Embedded case source links, station signs, distributed assembly and pressure basis were not changed.
+
+Root must route final `fixtures/product_preview/invented_mechanics_result.json` generation after P5 source finalization using registered `npm run generate:product-preview-mechanics` (cargo preview_result example). Existing product test `generated_result_surface_matches_fallback_fixture_force_metadata` remains enabled and currently fails because native selected UY0 differs from stale fixture .332485. Historical mixed no-ground-spring friction literals are preserved as compatibility checks, not independent normal-force physics evidence; D01 remains explicit for retained-spring mixed friction numeric adequacy.
+
+Required reruns after integration: full product/P9 suites, relevant package checks, fresh complete diff review, then root registered clean-source DEC025/native gates. Baseline and kernel snapshots remain immutable.

@@ -1,0 +1,23 @@
+{
+  "projects/chirality-piping/core/loads/primitive_loads/Cargo.lock": "4cc8edcfe1a36df477b0fcb9852ad63926bf75795e60615f1f820d5a7581a854",
+  "projects/chirality-piping/core/loads/primitive_loads/Cargo.toml": "97959fbf7124f55b39ea51a33ae1da1f1abcc9fc1b969f7d42d9ea0fcab894a0",
+  "projects/chirality-piping/core/loads/primitive_loads/src/lib.rs": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+  "projects/chirality-piping/core/solver/diagnostics/Cargo.lock": "e80edc2f981aa904e2146072db14d31eed2680cf5975eea0ea3b8b5a4175ee64",
+  "projects/chirality-piping/core/solver/diagnostics/Cargo.toml": "b97f1331ea132a493008eb94d985b6afd26c8ea13476e56c1fa2a098f34244b6",
+  "projects/chirality-piping/core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.lock": "7e1d8a98a542f977cfcfe8b2b0bb27be24fb91fbcf8f0b39a2e9e235574a08b9",
+  "projects/chirality-piping/core/solver/frame_kernel/Cargo.toml": "c124ff5534616207027d932d561b810fed824ee7a095b4a06f738ff9d226c317",
+  "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+  "projects/chirality-piping/core/solver/linear_supports/Cargo.lock": "5792a728c5b0687e3306a96ace1bc79eac4d0b5be8294e40de34849921c64537",
+  "projects/chirality-piping/core/solver/linear_supports/Cargo.toml": "db634677878b548ca51ad7b14d0532540b0471a439ac7e8d7e28a405b32e5b08",
+  "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+  "projects/chirality-piping/core/solver/performance_harness/Cargo.lock": "c191d3f5d2ca8cdc6c6237effbc18d5e477cf1362d79bf45c62821486f94ab8b",
+  "projects/chirality-piping/core/solver/performance_harness/Cargo.toml": "e0b4a13926a7fffdb45547b2b35e00b72ce2d24a038aa10d0662be16ab99bc0a",
+  "projects/chirality-piping/core/solver/performance_harness/examples/sparse_default_promotion_observation.rs": "492512dc9c964dc1f05ac46e2c3050db34c43e51ef3da5b0d96f8476692a0cce",
+  "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+  "projects/chirality-piping/core/solver/sparse_direct/Cargo.lock": "86a316b6f076f21b01531b16c1336abeccfb484d8425ad44fc560831d1c34b36",
+  "projects/chirality-piping/core/solver/sparse_direct/Cargo.toml": "3c80029904a6af6443cd5af5c7b8de98e1eaf6ba573a50408fce6ea63fc2192e",
+  "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+  "projects/chirality-piping/validation/benchmarks/sparse_default_promotion_observation.dec053.json": "d49c7923c224fccdbe0c8885bd19564cdc5a78bfefbf1b6e83d2f027cad71f24",
+  "projects/chirality-piping/validation/benchmarks/sparse_default_promotion_policy.dec053.json": "b85ef2aaed5b288345ab68388caf2108194e01233cfde67feaa0f8093296c5f3"
+}

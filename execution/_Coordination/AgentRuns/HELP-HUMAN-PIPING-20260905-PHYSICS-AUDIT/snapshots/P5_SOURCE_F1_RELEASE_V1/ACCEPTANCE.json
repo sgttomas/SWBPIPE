@@ -1,0 +1,23 @@
+{
+  "id": "ACCEPT_P5_SOURCE_AND_P9_FINAL_CANDIDATE",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "P5": {
+    "disposition": "Accept frozen P5 product source",
+    "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+    "fresh_review_manifest_sha256": "0540184a27b845f420a7c8eb19ed8d025bf7f538ecae3c3926ccfb5a0f7e599c",
+    "verification": "Root read full fresh review and verified five members",
+    "pending": "Metadata-only patch transport repair: raw review patch has 30 whitespace findings; lossless historical archive plus base64/new manifest authorized, no source change",
+    "write_posture": "Source frozen; records-only"
+  },
+  "P9": {
+    "disposition": "Accept final regression candidate",
+    "manifest_sha256": "6c6cac8ed0f320fa110a18c67c8cb1597e47e54bd3bfc0f70d51fd882fba659b",
+    "verification": "Root verified 17 members and read RETURN",
+    "results": "10 both-mode cases PASS; dimensional-mixing mutant five FAIL; station-zero mutant six FAIL; restored ten PASS; source unchanged",
+    "actual_resume": "P9 resumed for final PKG09 records only"
+  },
+  "P4": "No source writers",
+  "global_limits": "Final fixture review/integration/native/cleanDEC025 and publication gates remain"
+}

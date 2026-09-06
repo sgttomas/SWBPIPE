@@ -1,0 +1,78 @@
+{
+  "role": "CHANGE",
+  "parent": "/root",
+  "runtime_instance": "/root/sync_main",
+  "status": "COMPLETE_PREREQUISITE_ONLY",
+  "before": {
+    "before_head": "fe89c1866d801d804fbab5fd95e713d5aacd9433",
+    "before_branch": "codex/piping-modeling-workspace",
+    "before_status": "",
+    "branches": "",
+    "operations": {
+      "MERGE_HEAD": false,
+      "CHERRY_PICK_HEAD": false,
+      "REVERT_HEAD": false,
+      "rebase-apply": false,
+      "rebase-merge": false,
+      "BISECT_LOG": false
+    },
+    "fetched_main": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+    "intervening_piping_changes": "",
+    "intervening_piping_commits": ""
+  },
+  "branch": "codex/piping-physics-audit",
+  "head": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "origin_main": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "contains_merge_724": "39f51f1cd712b86c67c57270457fc09066eadb1c",
+  "clean_start_verified": true,
+  "tracked_source_unchanged": true,
+  "concurrent_evidence_before_own_write": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/USER_CHOICES.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/C1/STATUS.json\n",
+  "committed_loader": {
+    "enumerated": [
+      [
+        "projects/chirality-piping/loop/WORKPLAN_2026-07-04_piping_loop.md",
+        "100644 blob ee1ef82aca0c8e5fc5ff64f65b23d64eaf23a171"
+      ],
+      [
+        "projects/chirality-piping/loop/WORKPLAN_2026-07-10_piping_loop.md",
+        "100644 blob 8e81dcc0ca5ea3fb81a0d4dea9273bf275d22ade"
+      ],
+      [
+        "projects/chirality-piping/loop/WORKPLAN_2026-07-17_piping_loop.md",
+        "100644 blob 6a1388476d11e63af4b5bcd6b3944df61d8b1a22"
+      ],
+      [
+        "projects/chirality-piping/loop/WORKPLAN_2026-07-18_piping_loop.md",
+        "100644 blob b7041c1495bfc8f99b641bdb9db8d266790d68f4"
+      ],
+      [
+        "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+        "100644 blob 61dbbca25b9be766383aa1e5a743a021ce4d63d1"
+      ]
+    ],
+    "selected": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+    "mode": "100644",
+    "type": "blob"
+  },
+  "receipt": "Receipt-133",
+  "receipt_validation": "PASS before receipt read",
+  "dag": "DAG-010",
+  "dag_approval": "approved_active_graph_authority",
+  "target_stage": "R5 under DEC-054; DEC-080 re-expressed wording",
+  "latest_codified_decision": "DEC-094; does not advance stage",
+  "deliverables": {
+    "rows": 102,
+    "IN_PROGRESS": 100,
+    "ISSUED": 1,
+    "OPEN": 1,
+    "remaining_items": 125,
+    "deliverables_with_remaining": 63
+  },
+  "checks": {
+    "receipts": "PASS",
+    "self_check": "PASS exit 0; INFO14/NA1/REVIEW4/WARN55, no BLOCK",
+    "deliverable_status": "PASS with --dag DAG-010; initial path-valued argument failed and is preserved"
+  },
+  "remaining": "Root accepts C0 basis and activates bounded audit managers. No implementation performed."
+}

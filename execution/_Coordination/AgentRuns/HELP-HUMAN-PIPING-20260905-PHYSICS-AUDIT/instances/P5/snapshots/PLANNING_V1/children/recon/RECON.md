@@ -1,0 +1,66 @@
+# P5-RECON — R08/R11 integration map
+
+Status: SUCCESS, planning evidence only. Package PKG-05, DEL-05-03/05, SOW-015/052/013. Accepted audit basis S1 V3 and R1 PASS as supplied in sealed P5 brief; source baseline 2be412ccea62bdc4bd96deb082c46d7a792076ea. This derivative packet does not amend decomposition or adopt engineering acceptance policy. Observed source hashes are in OBSERVED_SOURCE.json; another package owns active source edits, so these observations are not an accepted source handoff.
+
+## Source facts and ownership
+
+All relative paths below are relative to projects/chirality-piping. Product paths and lines refer to the observed source; re-resolve after P4 hands it off.
+
+| Stage | Existing surface | Required integration |
+|---|---|---|
+| Inputs | product_physics/src/lib.rs:530–548 PreviewPrimitiveLoad and LoadTargetInput; build_primitive_loads and append_equivalent_static_generated_loads:5108 | Native authored loads target node or whole element. Native generated wind has existing exposed_spans; seismic and self-weight produce primitive uniform contributions. Do not add native station/local-axis/new span fields. |
+| Prepared loads | core/loads/primitive_loads/src/lib.rs:1031 ElementUniformLoadContribution and :1071 LoadExtent | Preserve load identity/dimension/extent and validate before assembly. Exclude pressure and temperature contributions from mechanical UDL conversion. |
+| Assembly seam | core/product_physics/src/lib.rs:1180–1193, add_uniform_element_loads:5984–6110 | Replace only straight-pipe lumped end shares with existing consistent 12-DOF global vectors; keep curved branch, including partial-arc rejection, unchanged. |
+| Existing equivalent API | core/solver/straight_pipe/src/lib.rs:595 equivalent_global_nodal_loads_with_spans; :570 equivalent_nodal_loads_with_spans | SpannedGlobalUniformLoad + UniformLoadSpan; orientation transforms global intensity into three local components, integrates Hermite shapes, then transforms to global. Existing user_loads:536 apply_straight_pipe_equivalent_user_loads wraps this and preserves hooks. Product already depends directly on straight_pipe, not user_loads. Direct lower helper reuse avoids unnecessary wrapper/primitive conversion and Cargo changes. |
+| Fixed-end forces | product:1378 currently Kd only, axial correction:6390 | Subtract the same local mechanical equivalent vector used for assembly from Kd, then apply unchanged thermal/pressure correction. Alternatively use straight_pipe:749 recover_end_resultants_from_global_model_with_spans_and_axial_effects with empty axial list, then existing axial helper; never apply eigenload twice. |
+| Section equilibrium | straight_pipe:934 station_resultants_from_i_end_with_spans; :984 sweep | Seed from corrected end-I actions, pass identical local mechanical spans, evaluate each station by cut equilibrium. Product :6885 interpolation must no longer feed straight-pipe station results. |
+| Stress/summary | product:1471–1558, :7081 recover_station_stress, :7111 open_formula_summary_mpa | Existing stress formulas remain; fixed station rows keep IDs/locations. Feed coherent section signs and full-precision values to stress and later algebra. |
+| Extrema | No ready continuous-extrema helper found in straight_pipe or stress_recovery; product samples five stations | Add bounded internal analytical candidate helper described below; public fixed station rows remain. |
+
+The lower user-load bridge at user_loads:635 adds PrimitiveAxialEffectContribution. It is available, but adopting it blindly could change pressure D03 semantics; direct mechanical-only lower API reuse plus unchanged existing eigenload correction is safer within this brief.
+
+## Ordered implementation design
+
+1. Consume accepted P4 selected-state handoff. Require one selected displacement vector and force/load context; every endpoint, station, stress, maximum and later combination must derive from it. Do not rerun a second ordinary solution for recovery.
+2. Compile each straight element’s validated mechanical uniform contributions once into global and local spanned records. Use orientation from the actual StraightPipeElement frame; global q projected onto local x/y/z, not global axis treated as local. Keep source load IDs internally. Use None extent as [0,1]. Do not process curved macro elements here.
+3. Scatter equivalent_global_nodal_loads_with_spans via node_i/node_j DOF map exactly once. Nodal concentrated loads remain in the primitive global vector; no double counting. A failed conversion blocks with existing diagnostics, not dropped load or lumped fallback.
+4. Recover Kd from selected displacement, subtract equivalent_nodal_loads_with_spans, then run unchanged corrected_local_forces_for_axial_effects. Keep endpoint rows as nodal end actions with their present sign convention.
+5. R08 is distinct: opposite end actions cannot be interpolated directly. Existing lower section API carries the end-I action convention. For a common j-side section convention (positive tension consistent with the curved station description), negate all six lower section components after equilibrium evaluation, not only axial/shear. A +350 N axial tip load has end actions -350/+350, lower cut -350 constant, j-side section +350 constant. Fixed thermal restraint then has compressive negative section axial stress. Endpoint rows may remain opposing actions; metadata must clearly distinguish them. Alternatively retain the lower convention everywhere with truthful metadata, but do not mix conventions among components or stations.
+6. Use cut equilibrium for quarter/mid/three-quarter fixed rows, including unloaded spans. Update interpolation basis/sign descriptions only where the old text is now false. Preserve curved recovery and unsupported partial-arc diagnostics.
+7. Compute internal extrema candidates using the same recovered section evaluator. Feed extra stress candidates into existing element summary/max; keep public fixed row IDs and schema. Coordinate the resulting element summary with R09: combining already-maximized scalar summaries is not linear superposition. Existing signed component families must determine combined quantities; do not claim a continuous combined maximum from combining primitive maxima.
+8. Source ownership: P4 product handoff -> one P5 product owner for R05/R08/R11/R09 edits; disjoint tests may be prepared separately but review frozen final diff. Suggested implementation source core/product_physics/src/lib.rs, optional private core/product_physics/src/straight_recovery.rs; tests in product crate tests/physics_audit_recovery.rs or existing test module. No kernel edits are necessary for this plan.
+
+## Bounded extrema helper
+
+Parent relay records root acceptance of this internal R11 design on 2026-09-05: piecewise-uniform straight mechanical loads, current stress expression, constant element section/moduli, span/load boundaries, endpoints and valid stationary candidates of all eight signed quadratics; no new tolerance or public station fields.
+
+Current product summary is |N/A + pressure_longitudinal| + |My/Zy| + |Mz/Zz|, divided by 1e6. The pressure term is included only under the current include_pressure_longitudinal rule; do not change that rule. On each interval between all uniform-load start/end positions, N is affine and My/Mz quadratic. The identity |a|+|b|+|c| = max over eight sign choices of (sa*a + sb*b + sc*c) yields finite candidate maxima: interval endpoints, plus -linear/(2*quadratic) for each signed quadratic when its quadratic coefficient is nonzero and the root lies inside the interval. Evaluate candidates with existing station resultants/stress routines. Constant/linear polynomials need only endpoints. Include all span boundaries exactly; do not invent an epsilon to merge nearby boundaries. Reject nonfinite coefficient/root/result arithmetic under R01 channels.
+
+This finds extrema of the existing scalar expression, not a new von Mises/principal/code stress measure. Fixed station samples alone cannot certify a continuous maximum. No iterative solver, optimizer tolerance, material interpolation law or acceptance threshold is needed. Stress-recovery crate extreme-normal helpers concern cross-sectional combinations; they are not longitudinal maxima. Curved macro geometry is nonquadratic and excluded from this helper; preserve its existing sampled summary basis. Native interior point targets are absent. If later authorized point loads are introduced, one-sided boundary candidates must account for force jumps; do not silently reuse the continuous-UDL assumption.
+
+## Independent proposed regression quantities (not executed)
+
+Invented test parameters below are mathematical fixtures, not engineering defaults. Expected quantities are derived from equilibrium / Euler–Bernoulli virtual work; freeze exact formulas before running code. E, I, A, G, J must be explicit valid fixture inputs. Avoid using production APIs to generate expected values.
+
+| Fixture | Independent quantities |
+|---|---|
+| Cantilever L=2 m, +100 N/m local y, full span | Total load 200 N; root Fy=-200 N and Mz=-200 Nm; free-end element actions zero; tip displacement q L^4/(8 EI)=200/(EI) m and rotation q L^3/(6 EI)=400/(3 EI) rad. At x=1 m, end-I cut convention Vy=-100 N, Mz=-50 Nm; j-side convention reverses both. |
+| Cantilever same q only x in [1,2] m | Root Fy=-100 N, Mz=-150 Nm; tip displacement q integral_1^2 s^2(3L-s)/(6EI) ds = 1025/(6 EI) m; rotation 350/(3 EI) rad. At x=1: cut Vy=-100 N, Mz=-50 Nm; at free end both zero. |
+| Simply supported L=2, +100 N/m only x in [0,1] | Support reactions -75 and -25 N. End-I-cut bending Mz=75x-50x^2 for x in [0,1]; unique interior peak 28.125 Nm at x=0.75 m (fraction 0.375), missed by fixed quarter grid. Peak absolute bending stress=28.125/Z Pa. Boundary x=1 gives 25 Nm, right support zero. Valid fixture restraints must remove rigid torsion and out-of-plane modes without fixing the in-plane end rotations. |
+| Full-span simply supported | Reactions -100/-100 N; maximum |M|=50 Nm at midspan. |
+| Nodal axial/torsion/transverse loads | +350 N axial or +350 Nm torsion yields constant signed section field, not zero midspan. Nodal shear tip force yields constant section shear and linear moment satisfying root F*L and zero free moment. |
+| Thermal neighboring semantics | Free expansion u=alpha*dT*L, zero mechanical stress; both ends axial restrained gives section compression -EA*alpha*dT in j-side convention, constant across stations. Do not fit this from output. |
+| Pressure neighboring semantics | Characterize and preserve the accepted baseline eigenload correction and include_pressure_longitudinal behavior, including fixed/free existing tests. Treat this as compatibility test, not independent endorsement of D03 physical contract. |
+| Orientation/reversal | Rotate geometry and global load together; displacement/reaction vectors rotate, scalar stress magnitude unchanged. Reverse element endpoints and appropriately transform local frame; physical global reactions and maximum unchanged, station fractions map 1-r and signs follow declared cut basis. |
+| Multiple spans/cases | Adjacent spans equal a single full load; disjoint spans superpose in displacement and signed section components; equal/opposite mechanical loads cancel before max. Evaluate boundary continuity and zero force at unloaded tip. |
+| Selected nonlinear state | Reuse P4 independently expected inactive-gap/spring selected displacement, then verify section/stress consumer uses it, not ordinary linear vector. |
+
+No compiles, experiments, tests or application interaction ran in this reconnaissance. Registered (discovered only): software-workflow.json core changes select piping-pytest and evidence-sweep; always harness-self-check. Targeted product/straight/user/stress Cargo tests are applicable, and native/headless/DEC025 gates remain parent/root scheduled.
+
+## Constraints, gaps and handoff
+
+Applicable invariants: OPS-K-MECH-1/2, UNIT-1, DATA-1/2, SOLVER-1/2, REPORT-1, IP-1/2/3, AGENT-1/2/3. Preserve all Owner-held pressure, friction/history, connector, convergence/pivot, public-schema and reliance decisions. DEL05-05 OUT001/R7 and separately dispatched downstream integration support this work; local context revision 0.7 is historical beneath accepted project 0.12 supplied by parent.
+
+Closure: reconnaissance complete; implementation remains parent-owned, no source handoff accepted here. Rerun source callsite/hash check after P4 acceptance, seal numerical test expectations, then implement/review/verify through declared gates. No public schema expansion needed. Continuous combined-case extrema require explicit coherent component treatment in R09; it cannot be inferred from scalar primitive max rows.
+
+P9 parent-supplied prefrozen expectations: execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/author/EXPECTED_MANIFEST.json SHA256 51465611bebef370b1542308bcb93e89be09b0ea3b3fa3dbc963015415d92d1a (hash verified here); underlying EXPECTED_BEFORE_RUN.json SHA256 69b58a92b893589bb693e3b5a6acf43477bc53f9be03e908b3d2d9995005b5a3 supplied by parent, not independently verified here. Parent should prefer these frozen expectations and add missing extrema coverage deliberately.

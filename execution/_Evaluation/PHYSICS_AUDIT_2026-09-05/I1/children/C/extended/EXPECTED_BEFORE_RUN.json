@@ -1,0 +1,14 @@
+{
+  "frozen_utc": "2026-09-05T22:36:44.980381+00:00",
+  "basis": "Independent formulas established EXPECTED_BEFORE_RUN; source catalog and schema inspected before executing these fixtures. Duplicate wind must reject or de-duplicate rather than double-count. Unknown imposed field is interface unsupported input observation, not proof implemented displacement capability.",
+  "values": {
+    "supported_mixed_units_mm": 0.406023368175307,
+    "mill_reduction_mm": 0.4652166712154495,
+    "modulus_interpolated_mm": 0.5413644909004093,
+    "wind_intensity_N_per_m": 168,
+    "wind_whole_resultant_N": 336,
+    "wind_partial_resultant_N": 168,
+    "seismic_intensity_N_per_m": 138.96756563338116
+  },
+  "comparison": "round6 quantization only, no engineering acceptance; generated load equivalence corroborates implemented lumped mapping only, not continuum distributed response."
+}

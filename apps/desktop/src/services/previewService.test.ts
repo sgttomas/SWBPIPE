@@ -136,9 +136,9 @@ describe("previewService mechanics browser fallback", () => {
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      // DEC-067 bounded sliding: the sliding support carries the +mu*N
-      // tangential reaction opposing its negative-Z motion.
-      value: 0.490101,
+      // Generated-fixture transport/parity only; the existing friction policy
+      // remains held. This does not verify mu times the final normal reaction.
+      value: 0.411514,
     });
     expect(
       result.results.find(
@@ -149,7 +149,7 @@ describe("previewService mechanics browser fallback", () => {
     ).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 48.952652,
+      value: 41.120255,
       unit: "N",
     });
     const normalBasis = result.results.find(

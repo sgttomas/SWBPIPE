@@ -1,0 +1,10 @@
+{
+  "accepted_by": "HELP_HUMAN /root explicit final-package followup",
+  "product_source": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "p5_fresh_review": "0540184a27b845f420a7c8eb19ed8d025bf7f538ecae3c3926ccfb5a0f7e599c",
+  "accepted_verification_manifest": "6c6cac8ed0f320fa110a18c67c8cb1597e47e54bd3bfc0f70d51fd882fba659b",
+  "source_drift": [],
+  "immutable_candidate_preserved": true,
+  "raw_text_trailing_whitespace": 0,
+  "global_checks": "root/CHANGE pending, no additional P9 compilation"
+}

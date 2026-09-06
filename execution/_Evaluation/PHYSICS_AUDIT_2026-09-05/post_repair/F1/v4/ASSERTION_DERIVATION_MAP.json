@@ -1,0 +1,212 @@
+[
+  {
+    "before_line": 664,
+    "after_line": 664,
+    "before": "    ).toBe(18);",
+    "after": "    ).toBe(23);",
+    "derivation": "Five magnitude source rows newly unmatched after corrected combination magnitudes reference signed combination components; left unmatched18\u219223, right0 and261 pairs preserved."
+  },
+  {
+    "before_line": 6948,
+    "after_line": 6948,
+    "before": "      ).toContain(\"available; nodes=5; max=4.567557 mm\"),",
+    "after": "      ).toContain(\"available; nodes=5; max=4.927109 mm\"),",
+    "derivation": "PipeViewport magnitude selection across node/basis rows; maximum generated combination N1404.927109mm, five nodes."
+  },
+  {
+    "before_line": 9777,
+    "after_line": 9777,
+    "before": "    ).toContain(\"31 diagnostics\");",
+    "after": "    ).toContain(\"32 diagnostics\");",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 9780,
+    "after_line": 9780,
+    "before": "    ).toContain(\"11 warnings\");",
+    "after": "    ).toContain(\"12 warnings\");",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 9871,
+    "after_line": 9871,
+    "before": "    expect(solveJobPacket.summary.diagnostic_count).toBe(31);",
+    "after": "    expect(solveJobPacket.summary.diagnostic_count).toBe(32);",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 9973,
+    "after_line": 9973,
+    "before": "    ).toContain(\"diagnostics=31\");",
+    "after": "    ).toContain(\"diagnostics=32\");",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 10079,
+    "after_line": 10079,
+    "before": "    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(31);",
+    "after": "    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(32);",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 10417,
+    "after_line": 10417,
+    "before": "    expect(headlessPacket.result.diagnostics).toHaveLength(31);",
+    "after": "    expect(headlessPacket.result.diagnostics).toHaveLength(32);",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 10437,
+    "after_line": 10437,
+    "before": "    ).toContain(\"diagnostics=31\");",
+    "after": "    ).toContain(\"diagnostics=32\");",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 10465,
+    "after_line": 10465,
+    "before": "    expect(adapterPacket.operation_result.diagnostics).toHaveLength(31);",
+    "after": "    expect(adapterPacket.operation_result.diagnostics).toHaveLength(32);",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 10992,
+    "after_line": 10992,
+    "before": "    expect(nativePackagePacket.diagnostics).toHaveLength(31);",
+    "after": "    expect(nativePackagePacket.diagnostics).toHaveLength(32);",
+    "derivation": "Model1warning + fixture31 diagnostics(11warning20info) =32 diagnostics12warnings. Solve readiness/job/export/adapter/headless/native consumers explicitly aggregate model+result; no broader count changes."
+  },
+  {
+    "before_line": 11244,
+    "after_line": 11244,
+    "before": "    ).toContain(\"261 comparable pairs; 18 reference-only; 0 target-only\");",
+    "after": "    ).toContain(\"261 comparable pairs; 23 reference-only; 0 target-only\");",
+    "derivation": "Five magnitude source rows newly unmatched after corrected combination magnitudes reference signed combination components; left unmatched18\u219223, right0 and261 pairs preserved."
+  },
+  {
+    "before_line": 11278,
+    "after_line": 11278,
+    "before": "    expect(Number(comparisonRow.querySelector(\"[data-display-status]\")!.textContent!.split(\" \")[0])).toBeCloseTo(192.514, 3);",
+    "after": "    expect(Number(comparisonRow.querySelector(\"[data-display-status]\")!.textContent!.split(\" \")[0])).toBeCloseTo(191.444, 3);",
+    "derivation": "ComparisonPanel displays raw_delta =957.220159\u2212765.776127=191.444032N; existing formatted191.444 and tolerance3 retained."
+  },
+  {
+    "before_line": 11334,
+    "after_line": 11334,
+    "before": "        \"comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:bending-z:end-j\",",
+    "after": "        \"comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z\",",
+    "derivation": "ComparisonPanel top4 cap; old P120 end-j moment rank2\u21925. P120 quarter3 bending-z rank3 preserves same entity/moment/N*m linked Rack span selection."
+  },
+  {
+    "before_line": 11369,
+    "after_line": 11369,
+    "before": "      within(results).getByTestId(\"result-row-result:disp:node-N-140:uz\"),\n    ).toBeInTheDocument();\n    expect(",
+    "after": "",
+    "derivation": "Same UZ presence assertion moved intact from page1 to after existing page2 action; generated source row index34\u219251. No action or ID removed."
+  },
+  {
+    "before_line": 11374,
+    "after_line": 11371,
+    "before": "    expect(within(results).getByTestId(\"result-row-result:disp:node-N-140\")).toHaveTextContent(\"3.686623 mm\");",
+    "after": "    expect(within(results).getByTestId(\"result-row-result:disp:node-N-140\")).toHaveTextContent(\"3.977299 mm\");",
+    "derivation": "Exact generated base result:disp:node-N-140 value3.977299mm, used by row readout and computed knowledge citation."
+  },
+  {
+    "before_line": 11459,
+    "after_line": 11456,
+    "before": "",
+    "after": "    expect(\n      within(results).getByTestId(\"result-row-result:disp:node-N-140:uz\"),\n    ).toBeInTheDocument();",
+    "derivation": "Same UZ presence assertion moved intact from page1 to after existing page2 action; generated source row index34\u219251. No action or ID removed."
+  },
+  {
+    "before_line": 11648,
+    "after_line": 11648,
+    "before": "    ).toContain(\"interpolated_from_endpoint_resultants\");",
+    "after": "    ).toContain(\"straight_section_equilibrium_with_consistent_distributed_loads\");",
+    "derivation": "Exact generated P120 midspan axial/quarter1 shear metadata.basis after accepted R11 integration; preserves strict basis and component/location/ID assertions."
+  },
+  {
+    "before_line": 11669,
+    "after_line": 11669,
+    "before": "    ).toContain(\"interpolated_from_endpoint_resultants\");",
+    "after": "    ).toContain(\"straight_section_equilibrium_with_consistent_distributed_loads\");",
+    "derivation": "Exact generated P120 midspan axial/quarter1 shear metadata.basis after accepted R11 integration; preserves strict basis and component/location/ID assertions."
+  },
+  {
+    "before_line": 11795,
+    "after_line": 11795,
+    "before": "    expect(within(knowledge).getByTestId(\"knowledge-record-knowledge:computed-max-displacement\")).toHaveTextContent(\"result:disp:node-N-140 is 3.686623 mm\");",
+    "after": "    expect(within(knowledge).getByTestId(\"knowledge-record-knowledge:computed-max-displacement\")).toHaveTextContent(\"result:disp:node-N-140 is 3.977299 mm\");",
+    "derivation": "Exact generated base result:disp:node-N-140 value3.977299mm, used by row readout and computed knowledge citation."
+  },
+  {
+    "before_line": 11911,
+    "after_line": 11911,
+    "before": "    expect(within(report).getByText(/33 review findings/i)).toBeInTheDocument();",
+    "after": "    expect(within(report).getByText(/34 review findings/i)).toBeInTheDocument();",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 11914,
+    "after_line": 11914,
+    "before": "    ).toContain(\"12 warnings; 21 info; 0 errors; 0 blocking\");",
+    "after": "    ).toContain(\"13 warnings; 21 info; 0 errors; 0 blocking\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 11977,
+    "after_line": 11977,
+    "before": "    ).toContain(\"33 diagnostics\");",
+    "after": "    ).toContain(\"34 diagnostics\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 12064,
+    "after_line": 12064,
+    "before": "    expect(exportPacket.diagnostic_summary.total).toBe(33);\n    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(12);",
+    "after": "    expect(exportPacket.diagnostic_summary.total).toBe(34);\n    expect(exportPacket.diagnostic_summary.by_severity.warning).toBe(13);",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 12462,
+    "after_line": 12462,
+    "before": "    expect(exportPacket.comparison_summary.unmatched_left_results).toBe(18);",
+    "after": "    expect(exportPacket.comparison_summary.unmatched_left_results).toBe(23);",
+    "derivation": "Five magnitude source rows newly unmatched after corrected combination magnitudes reference signed combination components; left unmatched18\u219223, right0 and261 pairs preserved."
+  },
+  {
+    "before_line": 12571,
+    "after_line": 12571,
+    "before": "    expect(handoffExportSummary.textContent).toContain(\"33 diagnostics\");",
+    "after": "    expect(handoffExportSummary.textContent).toContain(\"34 diagnostics\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 13406,
+    "after_line": 13406,
+    "before": "    ).toContain(\"33 of 33 diagnostics visible\");",
+    "after": "    ).toContain(\"34 of 34 diagnostics visible\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 13410,
+    "after_line": 13410,
+    "before": "    ).toContain(\"12 Warnings\");",
+    "after": "    ).toContain(\"13 Warnings\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 13430,
+    "after_line": 13430,
+    "before": "    ).toContain(\"1 of 33 diagnostics visible\");",
+    "after": "    ).toContain(\"1 of 34 diagnostics visible\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  },
+  {
+    "before_line": 13497,
+    "after_line": 13497,
+    "before": "    ).toContain(\"33 of 33 diagnostics visible\");",
+    "after": "    ).toContain(\"34 of 34 diagnostics visible\");",
+    "derivation": "Fixture31 diagnostics11warning20info + model1warning + knowledge1warning1info =34 diagnostics13warning21info. Filtered matched row remains1; denominator34. New warning CE120 constant-effort not consumed without acting direction."
+  }
+]

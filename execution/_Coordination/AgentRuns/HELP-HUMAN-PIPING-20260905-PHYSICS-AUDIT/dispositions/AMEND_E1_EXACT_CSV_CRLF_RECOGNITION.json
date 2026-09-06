@@ -1,0 +1,43 @@
+{
+  "id": "AMEND_E1_EXACT_CSV_CRLF_RECOGNITION",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Temporarily lift control/source-ready freeze only for exact evidence-attribute repair and fresh review; no production change",
+  "trigger": {
+    "source_commit": "blocked, not committed",
+    "CHANGE": "1463 approved paths staged; cached diff check failed",
+    "hazard": "67 baseline-audit CSV files with CRLF; 3796 flagged lines under unset/default core.whitespace",
+    "scan_calibration": "Earlier Python splitlines scan missed CR; honest CHANGE preflight corrected unstaged"
+  },
+  "hazard_inventory": {
+    "historical_path": "/tmp/piping-audit-crlf-hazard.json",
+    "sha256": "ee61005a9abfa68c6a3b98d31304fd6bf8d97f711866237d54f6f3eeee03fccc",
+    "classification": "Executed preflight hazard evidence, not live instruction path"
+  },
+  "repair_contract": {
+    "only_configuration": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/.gitattributes",
+    "paths": "Exactly 67 enumerated CSV paths; no broad glob",
+    "whitespace_rules": [
+      "blank-at-eol",
+      "blank-at-eof",
+      "space-before-tab",
+      "cr-at-eol"
+    ],
+    "purpose": "Recognize CRLF record endings while retaining checks for actual whitespace defects",
+    "exclusions": [
+      "No blanket whitespace exemption",
+      "No CSV rewriting",
+      "No staged byte changes",
+      "No new physics/public policy"
+    ]
+  },
+  "required_evidence": [
+    "Temporary isolated Git regression: valid CRLF passes and genuine whitespace defects fail",
+    "All real CSV hashes unchanged",
+    "Fresh F3 backcheck",
+    "New SOURCE_READY_V2"
+  ],
+  "CHANGE": "Hold source commit/content edits; stage only after review/root release",
+  "receipt": "No receipt before F2"
+}

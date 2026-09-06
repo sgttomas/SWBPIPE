@@ -1,0 +1,31 @@
+{
+  "status": "accepted source-ready freeze; finalverification pending, no receipt",
+  "source_mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d",
+  "files": {
+    "snapshots/SOURCE_READY_V1/HANDOFF_STATE.md": "0b896b948fc8526244fdbd552f29ddd3c8884cb49e831e6e0dd414684bba5b7b",
+    "snapshots/SOURCE_READY_V1/WORK_GRAPH.json": "b9453514757059054e54c7768b4bc92985690764656149ef704af67428c9c282",
+    "snapshots/SOURCE_READY_V1/dispositions/ACCEPT_F3_F1_AND_S2_SOURCE_READY.json": "7f4389965664fa81541369766d0131a1b3bd504f5532a34dda403df767d1fb84",
+    "snapshots/SOURCE_READY_V1/instances/F3/MANIFEST.json": "acd92fb0418e1b2789cc0ccec81c9a13e78c28f7be38b03fe92fb5d36bed30bd",
+    "snapshots/SOURCE_READY_V1/instances/F3/RETURN.md": "c7f505f612ede7abeaf89050df8182db4830b652003f09cbec35bf82442b2092",
+    "snapshots/SOURCE_READY_V1/instances/F3/SOURCE_REVIEW_COVERAGE.json": "490e8ae3b4b31e617eb5e8313fad1f8c6415997923be82dcae0a013a2061196d",
+    "snapshots/SOURCE_READY_V1/instances/F3/STATUS.json": "478ad4dac1aa79ec8e4314af2da6b47c3a188bdf55e50151f59213e045e1e854"
+  },
+  "source_files": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "be226fb62c1b5fbc2a501ca8fb79d06f5eefd817b5b77eedfa02f04560f43664"
+  },
+  "freeze": "ALL C1 WRITES FROZEN; root may release CHANGE sourcecommit next"
+}

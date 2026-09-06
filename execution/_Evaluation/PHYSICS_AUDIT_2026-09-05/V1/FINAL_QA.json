@@ -1,0 +1,11 @@
+{
+  "findings_schema": true,
+  "findings_count": 9,
+  "V1-R_hashes": true,
+  "V1-C_hashes": true,
+  "R_calibration_hashes": true,
+  "production_diff_empty": true,
+  "coverage_rows": 24,
+  "reference_rows": 73,
+  "witness_rows": 7
+}

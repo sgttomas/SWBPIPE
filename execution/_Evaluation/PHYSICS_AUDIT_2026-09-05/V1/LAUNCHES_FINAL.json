@@ -1,0 +1,13 @@
+{
+  "parent": "/root/audit_verification",
+  "role": "EVALUATION Agent1",
+  "model": "unknown",
+  "delegation": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted",
+  "children": {
+    "V1-R": "/root/audit_verification/references",
+    "V1-C": "/root/audit_verification/coverage"
+  },
+  "status": "both actualchildren SUCCESS and manageraccepted",
+  "production_repairs": "none"
+}

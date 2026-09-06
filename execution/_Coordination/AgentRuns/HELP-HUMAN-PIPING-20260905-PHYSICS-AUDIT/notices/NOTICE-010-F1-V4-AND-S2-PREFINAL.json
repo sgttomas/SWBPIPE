@@ -1,0 +1,23 @@
+{
+  "id": "NOTICE-010-F1-V4-AND-S2-PREFINAL",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "F1_V4": {
+    "scope": "Same exact four App fixture cases; all literals/provenance derived from generated fixture",
+    "details": [
+      "Visible P120 quarter-3 moment selection rank3 replaces old end-j rank5",
+      "UZ assertion moved after existing next-page action as row moves34\u219251",
+      "Actions, units and pagination coverage preserved"
+    ],
+    "derivation": "ASSERTION_DERIVATION_MAP has30groups",
+    "validation": "Targeted four PASS; full Vitest still running",
+    "source_status": "frozen"
+  },
+  "S2": {
+    "status": "Pre-final complete; root read REPORT/all44entriesmapped; final F2 pending",
+    "manifest_sha256": "96481d7e27b84e4b96cf0c5cdb1a609efeb0f11c16bca2a10c66e58f6829be3a",
+    "root_hash_verification": "later, not yet claimed"
+  },
+  "claim_limit": "No final F3 or full Vitest/F2 PASS inferred"
+}

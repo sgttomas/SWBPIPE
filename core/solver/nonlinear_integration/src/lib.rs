@@ -373,6 +373,16 @@ pub fn solve_active_set_frame_with_mode(
     input: &NonlinearFrameSolveInput,
     linear_solve_mode: LinearSolveMode,
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
+    solve_active_set_frame_with_mode_and_springs(input, linear_solve_mode, &[])
+}
+
+/// Compatibility-preserving adapter for validated linear ground springs.
+/// Entries are (global DOF, stiffness in canonical force/displacement units).
+pub fn solve_active_set_frame_with_mode_and_springs(
+    input: &NonlinearFrameSolveInput,
+    linear_solve_mode: LinearSolveMode,
+    springs: &[(usize, f64)],
+) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
     validate_input(input)?;
 
     let mut stiffness = assemble_global_stiffness_with_user_elements(
@@ -381,6 +391,19 @@ pub fn solve_active_set_frame_with_mode(
         &input.user_stiffness_elements,
     )?;
     add_curved_bend_stiffness_contributions(&mut stiffness, &input.curved_bend_elements);
+    for &(dof, value) in springs {
+        validate_nonnegative_finite("linear spring stiffness", value)?;
+        if dof >= stiffness.len() {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: "linear spring DOF is outside the assembled system".to_string(),
+            });
+        }
+        stiffness[dof][dof] += value;
+    }
+    for value in stiffness.iter().flatten() {
+        validate_finite("assembled stiffness", *value)?;
+    }
+
     let mut current_states = normalized_initial_states(input)?;
     let mut iterations = Vec::new();
     let mut final_diagnostics = policy_diagnostics(&input.convergence);
@@ -421,6 +444,9 @@ pub fn solve_active_set_frame_with_mode(
         let mut reactions = linearized.reactions.clone();
         for applied in &applied_sliding_friction_forces {
             reactions[applied.global_dof] += applied.force;
+        }
+        for value in &reactions {
+            validate_finite("selected reaction", *value)?;
         }
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
@@ -556,6 +582,14 @@ struct LinearizedSolve {
 }
 
 fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearIntegrationError> {
+    // Reapply constructor checks at the execution boundary: fields are public.
+    ConvergenceControl::new(
+        input.convergence.policy_ref.clone(),
+        input.convergence.policy_status,
+        input.convergence.residual_tolerance,
+        input.convergence.absolute_residual_floor,
+        input.convergence.max_iterations,
+    )?;
     if input.node_count == 0 {
         return Err(NonlinearIntegrationError::InvalidInput {
             detail: "node_count must be positive".to_string(),
@@ -583,7 +617,13 @@ fn validate_input(input: &NonlinearFrameSolveInput) -> Result<(), NonlinearInteg
             });
         }
     }
+    let mut support_ids = HashSet::new();
     for support in &input.nonlinear_supports {
+        if !support_ids.insert(support.support_id.as_str()) {
+            return Err(NonlinearIntegrationError::InvalidInput {
+                detail: format!("duplicate nonlinear support ID {}", support.support_id),
+            });
+        }
         if support.node_index >= input.node_count {
             return Err(NonlinearIntegrationError::InvalidInput {
                 detail: format!(
@@ -948,6 +988,9 @@ fn solve_linearized_system(
         .zip(force.iter())
         .map(|(internal, applied)| internal - applied)
         .collect();
+    for value in displacements.iter().chain(reactions.iter()) {
+        validate_finite("computed displacement or reaction", *value)?;
+    }
     let max_abs_free_dof_force_residual =
         max_abs_by_dof_group(&reactions, &reduced.free_dofs, true);
     let max_abs_free_dof_moment_residual =
@@ -955,6 +998,7 @@ fn solve_linearized_system(
     let max_abs_free_dof_work_residual =
         max_abs_free_dof_work_residual(&reactions, &displacements, &reduced.free_dofs);
 
+    validate_finite("free DOF work residual", max_abs_free_dof_work_residual)?;
     Ok(LinearizedSolve {
         displacements,
         reactions,
@@ -1059,6 +1103,22 @@ fn sparse_linear_solve_evidence(
             }
             _ => None,
         };
+    let residual =
+        max_abs_entry_residual(reduced_dof_count, entries, sparse_solution, reduced_force);
+    if !residual.is_finite()
+        || max_abs_dense_sparse_solution_delta.is_some_and(|v| !v.is_finite())
+        || relative_dense_sparse_solution_delta.is_some_and(|v| !v.is_finite())
+        || sparse
+            .factorization
+            .pivot_condition_ratio_estimate
+            .is_some_and(|v| !v.is_finite())
+    {
+        return sparse_evidence_unavailable(
+            reduced_dof_count,
+            "nonfinite computed sparse scrutiny evidence".to_string(),
+            linear_solve_mode,
+        );
+    }
     SparseLinearSolveEvidence {
         status: SparseEvidenceStatus::Observed,
         policy_ref: "DEC-053".to_string(),
@@ -1198,19 +1258,37 @@ fn residual_observation(
 ) -> NonlinearResidualObservation {
     NonlinearResidualObservation {
         active_set_changed_support_count,
-        max_abs_translation_delta_from_previous: previous.map(|previous| {
-            max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, true)
-        }),
-        max_abs_rotation_delta_from_previous: previous.map(|previous| {
-            max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, false)
-        }),
+        max_abs_translation_delta_from_previous: previous
+            .map(|previous| {
+                max_abs_delta_by_dof_group(&linearized.displacements, &previous.displacements, true)
+            })
+            .filter(|value| value.is_finite()),
+        max_abs_rotation_delta_from_previous: previous
+            .map(|previous| {
+                max_abs_delta_by_dof_group(
+                    &linearized.displacements,
+                    &previous.displacements,
+                    false,
+                )
+            })
+            .filter(|value| value.is_finite()),
         max_abs_force_reaction_delta_from_previous: previous
-            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, true)),
+            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, true))
+            .filter(|value| value.is_finite()),
         max_abs_moment_reaction_delta_from_previous: previous
-            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, false)),
+            .map(|previous| max_abs_delta_by_dof_group(reactions, &previous.reactions, false))
+            .filter(|value| value.is_finite()),
         max_abs_free_dof_force_residual: linearized.max_abs_free_dof_force_residual,
         max_abs_free_dof_moment_residual: linearized.max_abs_free_dof_moment_residual,
         max_abs_free_dof_work_residual: linearized.max_abs_free_dof_work_residual,
+    }
+}
+
+fn finite_max(left: f64, right: f64) -> f64 {
+    if left.is_finite() && right.is_finite() {
+        left.max(right)
+    } else {
+        f64::NAN
     }
 }
 
@@ -1222,7 +1300,7 @@ fn max_abs_free_dof_work_residual(
     free_dofs
         .iter()
         .map(|&dof| (reactions[dof] * displacements[dof]).abs())
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max)
 }
 
 fn max_abs_delta_by_dof_group(current: &[f64], previous: &[f64], translations: bool) -> f64 {
@@ -1232,18 +1310,18 @@ fn max_abs_delta_by_dof_group(current: &[f64], previous: &[f64], translations: b
         .enumerate()
         .filter(|(index, _)| is_translation_dof_index(*index) == translations)
         .map(|(_, (current, previous))| (current - previous).abs())
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max)
 }
 
 fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
     left.iter()
         .zip(right.iter())
         .map(|(left, right)| (left - right).abs())
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max)
 }
 
 fn max_abs_value(values: &[f64]) -> f64 {
-    values.iter().copied().map(f64::abs).fold(0.0, f64::max)
+    values.iter().copied().map(f64::abs).fold(0.0, finite_max)
 }
 
 fn max_abs_entry_residual(
@@ -1263,7 +1341,7 @@ fn max_abs_entry_residual(
         .iter()
         .zip(force.iter())
         .map(|(internal, applied)| (internal - applied).abs())
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max)
 }
 
 fn max_abs_by_dof_group(values: &[f64], dofs: &[usize], translations: bool) -> f64 {
@@ -1272,7 +1350,7 @@ fn max_abs_by_dof_group(values: &[f64], dofs: &[usize], translations: bool) -> f
         .filter(|dof| is_translation_dof_index(*dof) == translations)
         .filter_map(|dof| values.get(dof).copied())
         .map(f64::abs)
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max)
 }
 
 fn is_translation_dof_index(global_dof: usize) -> bool {
@@ -1533,6 +1611,135 @@ mod tests {
             )
             .unwrap(),
         }
+    }
+
+    #[test]
+    fn audit_gap_equilibrium_both_signs_seeds_and_modes() {
+        for (sign, direction) in [
+            (1.0, GapDirection::PositiveDisplacement),
+            (-1.0, GapDirection::NegativeDisplacement),
+        ] {
+            for seed in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                for mode in [
+                    LinearSolveMode::DenseScrutiny,
+                    LinearSolveMode::SparseInteractive,
+                ] {
+                    for magnitude in [4.0, 5.0, 6.0] {
+                        let support =
+                            NonlinearSupport::gap("gap", 1, FrameDof::Ux, 0.05, direction).unwrap();
+                        let mut input = two_node_axial_problem(
+                            vec![support],
+                            vec![SupportStateRecord::new("gap", seed)],
+                            8,
+                        );
+                        input.force[6] = sign * magnitude;
+                        let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                        assert!(
+                            result.converged,
+                            "sign={sign} seed={seed:?} mode={mode:?} F={magnitude}"
+                        );
+                        let expected_u = sign * if magnitude < 5.0 { 0.04 } else { 0.05 };
+                        let expected_r = if magnitude > 5.0 { -sign } else { 0.0 };
+                        assert!((result.displacements[6] - expected_u).abs() < 1e-14);
+                        assert!((result.reactions[6] - expected_r).abs() < 1e-14);
+                        assert_eq!(
+                            result.final_states[0].state,
+                            if magnitude < 5.0 {
+                                ActiveSetState::Inactive
+                            } else {
+                                ActiveSetState::Active
+                            }
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn audit_coupled_exact_contacts_converge_from_all_seeds() {
+        for sign in [1.0, -1.0] {
+            for seed1 in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                for seed2 in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                    for mode in [
+                        LinearSolveMode::DenseScrutiny,
+                        LinearSolveMode::SparseInteractive,
+                    ] {
+                        let mut input = two_node_axial_problem(vec![], vec![], 8);
+                        input.node_count = 3;
+                        input.elements.push(
+                            FrameElement::new(
+                                FrameNode::new(1, [1.0, 0.0, 0.0]).unwrap(),
+                                FrameNode::new(2, [2.0, 0.0, 0.0]).unwrap(),
+                                FrameSection::new(100.0, 40.0, 1.0, 1.0, 1.0, 1.0).unwrap(),
+                                [0.0, 1.0, 0.0],
+                            )
+                            .unwrap(),
+                        );
+                        input.force = vec![0.0; 18];
+                        input.force[12] = sign * 12.5;
+                        input.base_restrained_dofs.extend(13..18);
+                        let direction = if sign > 0.0 {
+                            GapDirection::PositiveDisplacement
+                        } else {
+                            GapDirection::NegativeDisplacement
+                        };
+                        input.nonlinear_supports = vec![
+                            NonlinearSupport::gap("g1", 1, FrameDof::Ux, 0.125, direction).unwrap(),
+                            NonlinearSupport::gap("g2", 2, FrameDof::Ux, 0.25, direction).unwrap(),
+                        ];
+                        input.initial_states = vec![
+                            SupportStateRecord::new("g1", seed1),
+                            SupportStateRecord::new("g2", seed2),
+                        ];
+                        let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                        assert!(result.converged);
+                        assert_eq!(result.displacements[6], sign * 0.125);
+                        assert_eq!(result.displacements[12], sign * 0.25);
+                        assert_eq!(result.reactions[6], 0.0);
+                        assert_eq!(result.reactions[12], 0.0);
+                        assert!(result
+                            .final_states
+                            .iter()
+                            .all(|state| state.state == ActiveSetState::Active));
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn audit_literal_zero_iteration_cap_returns_error() {
+        let mut input = two_node_axial_problem(vec![], vec![], 4);
+        input.convergence.max_iterations = 0;
+        assert!(matches!(
+            solve_active_set_frame(&input),
+            Err(NonlinearIntegrationError::InvalidInput { .. })
+        ));
+    }
+
+    #[test]
+    fn audit_duplicate_support_ids_return_error() {
+        let support = NonlinearSupport::gap(
+            "duplicate",
+            1,
+            FrameDof::Ux,
+            1.0,
+            GapDirection::PositiveDisplacement,
+        )
+        .unwrap();
+        let input = two_node_axial_problem(
+            vec![support.clone(), support],
+            vec![SupportStateRecord::new(
+                "duplicate",
+                ActiveSetState::Inactive,
+            )],
+            4,
+        );
+        assert!(matches!(
+            solve_active_set_frame(&input),
+            Err(NonlinearIntegrationError::InvalidInput { .. })
+        ));
     }
 
     #[test]
@@ -2234,5 +2441,48 @@ mod tests {
         assert_eq!(RX, 3);
         assert_eq!(RY, 4);
         assert_eq!(RZ, 5);
+    }
+}
+
+#[cfg(test)]
+mod computed_finite_audit_tests {
+    use super::*;
+
+    #[test]
+    fn finite_solution_with_overflowing_reaction_or_work_is_rejected() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            // Exact prescribed u=2 gives unrepresentable reaction 2e308.
+            let boundary = BoundaryState {
+                dofs: vec![0],
+                displacements: vec![2.0],
+            };
+            assert!(
+                solve_linearized_system(&vec![vec![1e308]], &vec![0.0], &boundary, mode).is_err()
+            );
+        }
+        assert!(!max_abs_free_dof_work_residual(&[1e308], &[2.0], &[0]).is_finite());
+        assert!(!max_abs_delta_by_dof_group(&[1e308], &[-1e308], true).is_finite());
+        // NaN accumulation used to disappear into f64::max's zero seed.
+        assert!(!max_abs_entry_residual(
+            1,
+            &[
+                SymmetricMatrixEntry {
+                    row: 0,
+                    col: 0,
+                    value: 1e308
+                },
+                SymmetricMatrixEntry {
+                    row: 0,
+                    col: 0,
+                    value: -1e308
+                },
+            ],
+            &[2.0],
+            &[0.0]
+        )
+        .is_finite());
     }
 }

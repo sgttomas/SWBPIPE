@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "cargo",
+    "run",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "core/solver/performance_harness/Cargo.toml",
+    "--example",
+    "sparse_default_promotion_observation"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping",
+  "env_override": {
+    "CARGO_TARGET_DIR": "/tmp/piping-physics-audit-p4-d1-target"
+  },
+  "start_utc": "2026-09-05T23:40:19.301249+00:00",
+  "end_utc": "2026-09-05T23:40:26.305081+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "5a5e9b09912a4f23838a64681d7a12deb1ce408c7862cdf92bfaff41a944477b",
+  "stderr_sha256": "117b2efd9991bc9e3f50f04ebe5a2e0039a70e919834a23ff94e0cf70b8405d9",
+  "stderr_base64": "ICAgQ29tcGlsaW5nIG9wZW5fcGlwZV9zdHJlc3NfZnJhbWVfa2VybmVsIHYwLjEuMCAoL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS9wcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2NvcmUvc29sdmVyL2ZyYW1lX2tlcm5lbCkKICAgQ29tcGlsaW5nIG9wZW5fcGlwZV9zdHJlc3Nfc3BhcnNlX2RpcmVjdCB2MC4xLjAgKC9Vc2Vycy9yeWFuLy5jb2RleC93b3JrdHJlZXMvODcyOC9jaGlyYWxpdHkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9jb3JlL3NvbHZlci9zcGFyc2VfZGlyZWN0KQogICBDb21waWxpbmcgb3Blbl9waXBlX3N0cmVzc19saW5lYXJfc3VwcG9ydHMgdjAuMS4wICgvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvY29yZS9zb2x2ZXIvbGluZWFyX3N1cHBvcnRzKQogICBDb21waWxpbmcgb3Blbl9waXBlX3N0cmVzc19wcmltaXRpdmVfbG9hZHMgdjAuMS4wICgvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvY29yZS9sb2Fkcy9wcmltaXRpdmVfbG9hZHMpCiAgIENvbXBpbGluZyBvcGVuX3BpcGVfc3RyZXNzX3NvbHZlcl9kaWFnbm9zdGljcyB2MC4xLjAgKC9Vc2Vycy9yeWFuLy5jb2RleC93b3JrdHJlZXMvODcyOC9jaGlyYWxpdHkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9jb3JlL3NvbHZlci9kaWFnbm9zdGljcykKICAgQ29tcGlsaW5nIG9wZW5fcGlwZV9zdHJlc3Nfc29sdmVyX3BlcmZvcm1hbmNlX2hhcm5lc3MgdjAuMS4wICgvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvY29yZS9zb2x2ZXIvcGVyZm9ybWFuY2VfaGFybmVzcykKICAgIEZpbmlzaGVkIGBkZXZgIHByb2ZpbGUgW3Vub3B0aW1pemVkICsgZGVidWdpbmZvXSB0YXJnZXQocykgaW4gMC42NXMKICAgICBSdW5uaW5nIGAvdG1wL3BpcGluZy1waHlzaWNzLWF1ZGl0LXA0LWQxLXRhcmdldC9kZWJ1Zy9leGFtcGxlcy9zcGFyc2VfZGVmYXVsdF9wcm9tb3Rpb25fb2JzZXJ2YXRpb25gCg==",
+  "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "rustc_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+}

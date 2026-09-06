@@ -1,0 +1,228 @@
+{
+  "binary_sha": "bc0c42d0c428546325e72bc57077ef93629aff959f1e2c514604496efc9f7984",
+  "method": "manager independently invoked frozen child harness, independently reviewed analytic oracle; this corroborates execution not independent alternate implementation",
+  "cases": [
+    {
+      "case": "pure_moment",
+      "fixture_sha": "0e2040361e1909cff78d5d188505caa58057ef897d6db13207b685db317f2589",
+      "exit": 0,
+      "output_sha": "fa9ffc2f86331438773bd3226fddd7e372dd42f31e5b9d677b75664d7ebc7d2d",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [
+        {
+          "id": "result:reaction:support-S-100",
+          "kind": "reaction_resultant",
+          "value": 100.0,
+          "unit": "N",
+          "entity_ref": "support:S-100",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case": "linear_spring",
+      "fixture_sha": "5bd5b3db2aabebbfd70de250edbb66387d208b74e4be7f5bca3fff81486bce7a",
+      "exit": 0,
+      "output_sha": "2f8e332b14483004598938613253d23f710f7ed0f896b6cc0407f81cda979889",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [
+        {
+          "id": "result:reaction:support-S-100",
+          "kind": "reaction_resultant",
+          "value": 362.31463,
+          "unit": "N",
+          "entity_ref": "support:S-100",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:reaction:support-spring-UY",
+          "kind": "reaction_resultant",
+          "value": 0.0,
+          "unit": "N",
+          "entity_ref": "support:spring-UY",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case": "nonlinear_spring",
+      "fixture_sha": "80f0383ffe4ec886c3c0e428c9f36bcbd72eb329eb4cbe04e6cf4eac3442426e",
+      "exit": 0,
+      "output_sha": "79fa21c785ff00602e9acb686b6c7a0d2b0ffd513cba5f00276b294cfc34fa41",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [
+        {
+          "id": "result:reaction:support-S-100",
+          "kind": "reaction_resultant",
+          "value": 362.31463,
+          "unit": "N",
+          "entity_ref": "support:S-100",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:reaction:support-spring-UY",
+          "kind": "reaction_resultant",
+          "value": 0.0,
+          "unit": "N",
+          "entity_ref": "support:spring-UY",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:reaction:support-audit-gap",
+          "kind": "reaction_resultant",
+          "value": 0.0,
+          "unit": "N",
+          "entity_ref": "support:audit-gap",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:nonlinear-support:support-audit-gap:uy-displacement",
+          "kind": "nonlinear_support_final_displacement",
+          "value": 0.406023,
+          "unit": "mm",
+          "entity_ref": "support:audit-gap",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nonlinear_support_final_displacement",
+            "coordinate_system": "solver_iteration",
+            "location": "uy",
+            "basis": "dense_scrutiny_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=inactive",
+            "sign_convention": "positive value follows the global frame DOF sign convention"
+          }
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case": "nonlinear_nospring",
+      "fixture_sha": "966d589db89863d2379efdda3d27cfe195fe3fb9a0b365f36ceacb66f94927b7",
+      "exit": 0,
+      "output_sha": "51e880b99e0cb9953921b20748026c90cedf635e10b3377d278bddc6d5f37f15",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [
+        {
+          "id": "result:reaction:support-S-100",
+          "kind": "reaction_resultant",
+          "value": 782.623792,
+          "unit": "N",
+          "entity_ref": "support:S-100",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:reaction:support-audit-gap",
+          "kind": "reaction_resultant",
+          "value": 0.0,
+          "unit": "N",
+          "entity_ref": "support:audit-gap",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          }
+        },
+        {
+          "id": "result:nonlinear-support:support-audit-gap:uy-displacement",
+          "kind": "nonlinear_support_final_displacement",
+          "value": 0.406023,
+          "unit": "mm",
+          "entity_ref": "support:audit-gap",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nonlinear_support_final_displacement",
+            "coordinate_system": "solver_iteration",
+            "location": "uy",
+            "basis": "dense_scrutiny_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=inactive",
+            "sign_convention": "positive value follows the global frame DOF sign convention"
+          }
+        }
+      ],
+      "diagnostics": []
+    },
+    {
+      "case": "spring_stabilized",
+      "fixture_sha": "17591452de3165a9e6d5dbbead9fa551c4b5a6cb83672c94a58609cb0409e472",
+      "exit": 0,
+      "output_sha": "484dd9bf979e05897962438ad1954a5cf1f153d07f0333cffc9d080c11f42a1e",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MODEL_INCOMPLETE",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [],
+      "diagnostics": [
+        [
+          "SOLVER_SYSTEM_BLOCKED",
+          "linear-static preview has fewer than six rigid restraints; restrained global DOF classes: none; missing global rigid-body DOF classes: UX,UY,UZ,RX,RY,RZ; support contributions: support:spring-UX@node:N-100=none;support:spring-UY@node:N-100=none;support:spring-UZ@node:N-100=none;support:spring-RX@node:N-100=none;support:spring-RY@node:N-100=none;support:spring-RZ@node:N-100=none"
+        ]
+      ]
+    },
+    {
+      "case": "five_rigid_plus_spring",
+      "fixture_sha": "2bbb6ec9a5aad12562083325ec2219232586a7bf4cac719508efc6c5e7048301",
+      "exit": 0,
+      "output_sha": "8053efd230d2961ae4e55d92d0be40c909c9405c36cbba8dc195b1077f679aa2",
+      "identical_child_output": true,
+      "status": {
+        "mechanics": "MODEL_INCOMPLETE",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "selected": [],
+      "diagnostics": [
+        [
+          "SOLVER_SYSTEM_BLOCKED",
+          "linear-static preview has fewer than six rigid restraints; restrained global DOF classes: UX,UZ,RX,RY,RZ; missing global rigid-body DOF classes: UY; support contributions: support:S-100@node:N-100=RX,RY,RZ,UX,UZ;support:spring-UY@node:N-100=none"
+        ]
+      ]
+    }
+  ]
+}

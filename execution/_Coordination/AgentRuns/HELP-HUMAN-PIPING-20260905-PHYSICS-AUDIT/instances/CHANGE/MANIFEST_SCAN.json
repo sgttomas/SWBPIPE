@@ -1,0 +1,5 @@
+{
+  "checked_members": 1663,
+  "failures": [],
+  "calibration": "Dict hash manifests only; runroot-relative snapshot paths resolved under runroot. Superseded S1 V1/V2 resolved in explicitly preserved historical snapshots; V3 resolved current. Other schema formats not blanket-validated."
+}

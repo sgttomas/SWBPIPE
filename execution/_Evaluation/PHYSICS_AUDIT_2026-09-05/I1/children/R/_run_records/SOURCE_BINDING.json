@@ -1,0 +1,9 @@
+{
+  "core/product_physics/src/lib.rs": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "core/loads/stress_recovery/src/lib.rs": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+  "core/loads/load_case_algebra/src/lib.rs": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+  "core/runner/headless/src/lib.rs": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+  "apps/desktop/src-tauri/src/lib.rs": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+  "apps/desktop/src/services/previewService.ts": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+  "core/analysis_runs/records.py": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0"
+}

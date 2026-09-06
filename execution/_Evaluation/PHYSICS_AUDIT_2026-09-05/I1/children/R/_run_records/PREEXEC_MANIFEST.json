@@ -1,0 +1,16 @@
+{
+  "fixtures/axial.json": "eb4ed592c9ca525b2899f4af21eaf975b582077f6712b7cad0e6a558181a8024",
+  "fixtures/axial_gap.json": "cb9bacca5b32f6f5743d9f7c996b3fe2dc2c39baf78920f9b68e3e911c0cfd95",
+  "fixtures/identity_base.json": "7874f10167f3f3e309916177cebdd3f9b84697d3497615889636b567b7baa40c",
+  "fixtures/identity_geometry.json": "1279f4c02b5a581c09239d12a67656af85ca83d2ebd156222a71cb2f6be14fab",
+  "fixtures/identity_material.json": "f61c872a07748718bc2452ae3da559249f4a531efd41b2d0cbe09258984ca6d8",
+  "fixtures/invented_nonlinear.json": "fb374cc68aaa3e2db9fce70251c4d90e4a3084c989ff4caa28180597433b2b3c",
+  "fixtures/invented_nonlinear_removed.json": "1794783989b2b741442d9c45102051bd977d831a225fe289e7622d657cea7afb",
+  "fixtures/opposite_combinations.json": "b4cd41b143b82b313da927cd3a12cae62004166dc30b86c93640b2a47911a13c",
+  "fixtures/partial.json": "6150ab5b35165664610044ff4caa28c85929afda17ce3724125d632a8e38db2e",
+  "fixtures/shear_y.json": "7874f10167f3f3e309916177cebdd3f9b84697d3497615889636b567b7baa40c",
+  "fixtures/shear_z.json": "cc35aee281398edc0add82d818852f682564454090c208cb83d979b043ab865e",
+  "fixtures/torsion.json": "e7018a2b5b8398ebe1d71cee670d87069e2c899812e82128b56a0ab6ff9d65ac",
+  "fixtures/uniform.json": "d19a3676ffe71849a76f5d385c4057081f4c54cc8b872c1beefe643192fc7527",
+  "EXPECTED_BEFORE_RUN.json": "a2c7d1ca9da7ca07d802b6c3a3654e69909f12e8935eaefea4bf16e5172e1790"
+}

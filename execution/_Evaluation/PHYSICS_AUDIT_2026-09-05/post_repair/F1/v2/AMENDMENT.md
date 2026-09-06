@@ -1,0 +1,3 @@
+# F1 V2 sealed scope amendment
+
+Root release: exact additional write apps/desktop/src/services/previewService.test.ts, only stale generated fixture numbers and concise claim-calibrating comment in the nonlinear support evidence test. Preserve every ID, kind, unit, state, metadata and diagnostic assertion. This is generated-fixture transport/parity, not independent physics verification; existing friction policy remains held. No engine, schema, tolerances, unrelated UI tests, Git, app or children. Run targeted previewService then full desktop Vitest. Report unrelated failures without edits. Original V1 packet preserved in snapshot_v1 before modification; original files also remain unchanged. Root fresh review required over fixture and test.

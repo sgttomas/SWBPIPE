@@ -1,0 +1,352 @@
+{
+  "axial": {
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "station_values": [
+      -175.0,
+      0.0,
+      175.0
+    ],
+    "expected_absolute_constant": 350,
+    "tip": {
+      "result:disp:node-N-110:ux": 0.000989,
+      "result:disp:node-N-110:uy": 0.0,
+      "result:disp:node-N-110:uz": 0.0,
+      "result:disp:node-N-110:rx": 0.0,
+      "result:disp:node-N-110:ry": 0.0,
+      "result:disp:node-N-110:rz": 0.0
+    }
+  },
+  "torsion": {
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "station_values": [
+      -175.0,
+      0.0,
+      175.0
+    ],
+    "expected_absolute_constant": 350,
+    "tip": {
+      "result:disp:node-N-110:ux": 0.0,
+      "result:disp:node-N-110:uy": 0.0,
+      "result:disp:node-N-110:uz": 0.0,
+      "result:disp:node-N-110:rx": 0.000395,
+      "result:disp:node-N-110:ry": 0.0,
+      "result:disp:node-N-110:rz": 0.0
+    }
+  },
+  "shear_y": {
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "station_values": [
+      -175.0,
+      0.0,
+      175.0
+    ],
+    "expected_absolute_constant": 350,
+    "tip": {
+      "result:disp:node-N-110:ux": 0.0,
+      "result:disp:node-N-110:uy": 0.406023,
+      "result:disp:node-N-110:uz": 0.0,
+      "result:disp:node-N-110:rx": 0.0,
+      "result:disp:node-N-110:ry": 0.0,
+      "result:disp:node-N-110:rz": 0.000305
+    }
+  },
+  "shear_z": {
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "station_values": [
+      -175.0,
+      0.0,
+      175.0
+    ],
+    "expected_absolute_constant": 350,
+    "tip": {
+      "result:disp:node-N-110:ux": 0.0,
+      "result:disp:node-N-110:uy": 0.0,
+      "result:disp:node-N-110:uz": 0.406023,
+      "result:disp:node-N-110:rx": 0.0,
+      "result:disp:node-N-110:ry": -0.000305,
+      "result:disp:node-N-110:rz": 0.0
+    }
+  },
+  "uniform": {
+    "station_shear": [
+      -50.0,
+      0.0,
+      50.0
+    ],
+    "station_moment": [
+      -150.0,
+      -100.0,
+      -50.0
+    ],
+    "oracle": {
+      "root_force_N": -200,
+      "root_moment_Nm": -200.0,
+      "tip_force_N": 0,
+      "tip_moment_Nm": 0,
+      "interior_absolute_shear_N": [
+        150.0,
+        100.0,
+        50.0
+      ],
+      "interior_absolute_moment_Nm": [
+        112.5,
+        50.0,
+        12.5
+      ],
+      "tip_mm_Euler_Bernoulli": 0.08700500746613722
+    },
+    "tip_mm": 0.116007
+  },
+  "nonlinear_existing": {
+    "comparable_rows": 784,
+    "equal_values": 784,
+    "pairs": [
+      [
+        "UY at N140",
+        0.332485,
+        0.0
+      ],
+      [
+        "UZ at N130",
+        -3.530824,
+        -5.469167
+      ]
+    ]
+  },
+  "gap": {
+    "result:disp:node-N-110:ux": 0.000989,
+    "result:reaction:support-R-gap": 0.0,
+    "result:nonlinear-support:converged-flag": 1.0,
+    "result:nonlinear-support:support-R-gap:state-code": 1.0,
+    "result:nonlinear-support:support-R-gap:ux-displacement": 0.0,
+    "result:nonlinear-support:support-R-gap:ux-reaction": -350.0,
+    "result:force:pipe-P-100:axial": -350.0,
+    "result:force:pipe-P-100:axial:end-j": 350.0
+  },
+  "combinations": {
+    "result:combination:combination-R-sum:disp:node-N-110": 0.812046,
+    "result:combination:combination-R-sum:disp:node-N-110:rx": 0.0,
+    "result:combination:combination-R-sum:disp:node-N-110:ry": 0.0,
+    "result:combination:combination-R-sum:disp:node-N-110:rz": 0.0,
+    "result:combination:combination-R-sum:disp:node-N-110:ux": 0.0,
+    "result:combination:combination-R-sum:disp:node-N-110:uy": 0.0,
+    "result:combination:combination-R-sum:disp:node-N-110:uz": 0.0,
+    "result:combination:combination-R-sum:reaction:support-S-100": 1565.247584
+  },
+  "identity": [
+    {
+      "name": "identity_base",
+      "run_id": "run:preview-linear-static-001",
+      "model_ref": "project:invented-loop-01",
+      "max_displacement": {
+        "value": 0.406023,
+        "unit": "mm",
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110"
+      },
+      "input_digest": "e6c4aa007d1c01e855a77414c93376d0746f2ee045e6e6c6a1b4a46a7745b809",
+      "record_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "AnalysisRun",
+            "ref": "run:preview-linear-static-001"
+          },
+          "payload_scope": "analysis_run_record",
+          "value": "0676e36a77892b1ec014a081bb0d9e64850d2a44ec60a1afe9e0f3db263bfee5"
+        },
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "ResultEnvelope",
+            "ref": "result-envelope:run:preview-linear-static-001"
+          },
+          "payload_scope": "result_envelope",
+          "value": "133f81045cc5894dfb284c5118dc8b1191fe77c1012fec10f6400e6d7c5c374f"
+        }
+      ],
+      "qualification": "Audit-supplied input manifest digest from fixture; tests wrapper reference/hash separation, not authentic frontend manifest generation or native command invocation."
+    },
+    {
+      "name": "identity_geometry",
+      "run_id": "run:preview-linear-static-001",
+      "model_ref": "project:invented-loop-01",
+      "max_displacement": {
+        "value": 1.370329,
+        "unit": "mm",
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110"
+      },
+      "input_digest": "9397968ef5b747d2773e4afbd2e5a0465e2c6ffcd2939c1f0d5342d0799b6cb0",
+      "record_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "AnalysisRun",
+            "ref": "run:preview-linear-static-001"
+          },
+          "payload_scope": "analysis_run_record",
+          "value": "b99949c6ab7d448824f1eff3374c1aa1587d9b81ecd082d36cf0af82745109f1"
+        },
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "ResultEnvelope",
+            "ref": "result-envelope:run:preview-linear-static-001"
+          },
+          "payload_scope": "result_envelope",
+          "value": "8ed93a1e635bb951a6a81b9645d2fb8256ce7dc8f359c572198bd83d9355aa5e"
+        }
+      ],
+      "qualification": "Audit-supplied input manifest digest from fixture; tests wrapper reference/hash separation, not authentic frontend manifest generation or native command invocation."
+    },
+    {
+      "name": "identity_material",
+      "run_id": "run:preview-linear-static-001",
+      "model_ref": "project:invented-loop-01",
+      "max_displacement": {
+        "value": 0.812047,
+        "unit": "mm",
+        "location_ref": "node:N-110",
+        "result_ref": "result:disp:node-N-110"
+      },
+      "input_digest": "210423c191f38e1ccadc3632978888e50dfe2f3b57c24cbf612660e66144d7ea",
+      "record_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "AnalysisRun",
+            "ref": "run:preview-linear-static-001"
+          },
+          "payload_scope": "analysis_run_record",
+          "value": "3e1474947fdde0467b11d81253c9ae42d988a220e6a600d5826e1f4e2a464244"
+        },
+        {
+          "algorithm": "sha256",
+          "canonicalization": "SORTED_COMPACT_JSON",
+          "payload_ref": {
+            "object_type": "ResultEnvelope",
+            "ref": "result-envelope:run:preview-linear-static-001"
+          },
+          "payload_scope": "result_envelope",
+          "value": "c570548bf04989b2a6d9a4289a56015c0836bb663f7061ab7f973c38a8936c31"
+        }
+      ],
+      "qualification": "Audit-supplied input manifest digest from fixture; tests wrapper reference/hash separation, not authentic frontend manifest generation or native command invocation."
+    }
+  ],
+  "pressure": {
+    "axial_end_N": 0.0,
+    "axial_end_MPa": 0.0,
+    "pressure_longitudinal_rows": [],
+    "tip_ux_mm": 0.052609
+  },
+  "overflow": {
+    "null_rows": [
+      "result:disp:node-N-110",
+      "result:disp:node-N-110:ux",
+      "result:reaction:support-S-100",
+      "result:force:pipe-P-100:axial",
+      "result:force:pipe-P-100:axial:end-j",
+      "result:force:pipe-P-100:quarter-1:axial",
+      "result:force:pipe-P-100:midspan:axial",
+      "result:force:pipe-P-100:quarter-3:axial"
+    ],
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "blocking": []
+  },
+  "headless": [
+    {
+      "name": "axial",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    },
+    {
+      "name": "axial_gap_v2",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    },
+    {
+      "name": "identity_base",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    },
+    {
+      "name": "identity_geometry",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    },
+    {
+      "name": "opposite_combinations_v2",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    },
+    {
+      "name": "overflow",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": [
+        {
+          "affected_object": {
+            "ref_id": "result-envelope:run:headless-preview:headless-preview-entrypoint-run",
+            "ref_type": "result_envelope"
+          },
+          "class": "RUNNER_BLOCKING",
+          "code": "HEADLESS_RUNNER_RESULT_ENVELOPE_PRODUCTION_FAILED",
+          "message": "result-envelope production failed structurally: typed envelope validation blocked: RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE, RESULT_EXPORT_VALUE_METADATA_INCOMPLETE",
+          "provenance": {
+            "contributor": "OpenPipeStress",
+            "contributor_certification": "diagnostic metadata only",
+            "redistribution_status": "invented_non_engineering_example",
+            "review_status": "accepted",
+            "source_license": "project",
+            "source_location": "core/runner/headless",
+            "source_name": "OpenPipeStress headless runner validator"
+          },
+          "remediation": "Provide explicit schema-first runner metadata before relying on this request or result.",
+          "severity": "blocking",
+          "source": {
+            "ref_id": "DEL-10-05",
+            "ref_type": "headless_runner"
+          }
+        }
+      ]
+    },
+    {
+      "name": "uniform",
+      "embedded_equals_product": true,
+      "runner_run_id": "run:headless-preview:headless-preview-entrypoint-run",
+      "runner_diagnostics": []
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "basis": "decomp0.12/SCA009/DAG010; no lifecycle selection or amendment",
+  "bindings": {
+    "execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+    "execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+    "execution/_Coordination/_DECISIONS/_REGISTER.md": "93606f156d79a5c541938358be298720c5315bd9193c6984ce891ca87ed6ef2a",
+    "docs/VALIDATION_STRATEGY.md": "a9bce923d5ca9656191a4abddad8f9464c2fde6b37c94b3d787e98c00949acda",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/_STATUS.md": "63a4cdd821fd6198294972b2514c4819e70dd2a76579e6c27b81e757df458624",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-05_Release quality gate checklist/MEMORY.md": "727c1fca4cab9fa7cbe75ddcf2a8e958e595eed248e0bf0e25266a68c2b41441",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/_STATUS.md": "ecff53f21f6f75da30b88cb0e0f1eb6141f490d97813d4c1504c455b6ccf7900",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/MEMORY.md": "7cfdb7ed472ea382997324ae34fb6742fa2f3cbc02698f7ce7154c96bd125b35",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/_STATUS.md": "c971dfb0214d17ff578594e67e0f828f8cb0ac83d3e3b3227210cb92d7cd53db",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-04_Validation manual skeleton/MEMORY.md": "723628f50aeb17ee2938da82eb643252d3aae9511d7a3ca9819b2cdd7bf3c8b9",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md": "f8876e7b23ad14de86f0e17cb378b5355b8845df81565250e2e6eb6f11a9bf16",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "7dad038c7f42942195a416202319d9a4ce8bffb377eac645e01d70c8bedcdfa6",
+    "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "cb4b8eb3a9f5ef5fdce4ec5f19bc5acca400bc71e309648aceb26fb08c659a2d"
+  },
+  "observations": [
+    "PKG09 statuses all IN_PROGRESS; no lifecycle change authorized by audit.",
+    "DEL0901 dedicated provenance/release thresholds and full benchmark system remain open; accepted bounded suite evidence not broad closure.",
+    "DEL0904 current Remaining records DEC046 release-scope policy separately from final public comparison numbers.",
+    "docs/VALIDATION_STRATEGY.md explicitly has older alignment baseline; its blanket TBD prose cannot override current decisions/policies."
+  ]
+}

@@ -1,0 +1,62 @@
+--- v3/App.test.tsx
++++ v4/App.test.tsx
+@@ -11331,7 +11331,7 @@
+     ).toBe("unit-policy-evidence:comparison-workspace-preview");
+     fireEvent.click(
+       within(comparison).getByTestId(
+-        "comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:bending-z:end-j",
++        "comparison-select-result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z",
+       ),
+     );
+     expect(
+@@ -11366,12 +11366,9 @@
+       within(results).getByTestId("result-family-count-other").textContent,
+     ).toContain("32");
+     expect(
+-      within(results).getByTestId("result-row-result:disp:node-N-140:uz"),
+-    ).toBeInTheDocument();
+-    expect(
+       within(results).getByText("result:disp:node-N-140"),
+     ).toBeInTheDocument();
+-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.686623 mm");
++    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977299 mm");
+     expect(
+       within(results).getByTestId("result-filter-summary").textContent,
+     ).toContain("830 of 830 results match filter");
+@@ -11457,6 +11454,9 @@
+       within(results).getByTestId("result-page-summary").textContent,
+     ).toContain("Showing 51 to 100 of 830 matching results; page 2 of 17");
+     expect(
++      within(results).getByTestId("result-row-result:disp:node-N-140:uz"),
++    ).toBeInTheDocument();
++    expect(
+       within(results).getByTestId("result-row-result:force:pipe-P-100:axial"),
+     ).toBeInTheDocument();
+     fireEvent.click(within(results).getByTestId("previous-result-page"));
+@@ -11645,7 +11645,7 @@
+     ).toContain("midspan");
+     expect(
+       within(detail).getByTestId("selected-result-recovery-basis").textContent,
+-    ).toContain("interpolated_from_endpoint_resultants");
++    ).toContain("straight_section_equilibrium_with_consistent_distributed_loads");
+     expect(
+       within(detail).queryByTestId("endpoint-pair-table"),
+     ).not.toBeInTheDocument();
+@@ -11666,7 +11666,7 @@
+     ).toContain("quarter_1");
+     expect(
+       within(detail).getByTestId("selected-result-recovery-basis").textContent,
+-    ).toContain("interpolated_from_endpoint_resultants");
++    ).toContain("straight_section_equilibrium_with_consistent_distributed_loads");
+     expect(
+       within(detail).queryByTestId("endpoint-pair-table"),
+     ).not.toBeInTheDocument();
+@@ -11792,7 +11792,7 @@
+     expect(
+       within(knowledge).getByText(/Computed displacement review/i),
+     ).toBeInTheDocument();
+-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.686623 mm");
++    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977299 mm");
+     expect(
+       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
+     ).toBeInTheDocument();

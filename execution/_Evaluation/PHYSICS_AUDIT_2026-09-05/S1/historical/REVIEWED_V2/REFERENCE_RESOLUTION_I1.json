@@ -1,0 +1,222 @@
+[
+  {
+    "finding": "I1-C-01",
+    "original": "children/C/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-01",
+    "original": "children/C/results/pure_moment_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/pure_moment_sparse.json"
+  },
+  {
+    "finding": "I1-C-01",
+    "original": "children/C/results/original_m_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/original_m_sparse.json"
+  },
+  {
+    "finding": "I1-C-02",
+    "original": "children/C/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-02",
+    "original": "children/C/results/nonlinear_spring_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/nonlinear_spring_sparse.json"
+  },
+  {
+    "finding": "I1-C-02",
+    "original": "children/C/results/nonlinear_nospring_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/nonlinear_nospring_sparse.json"
+  },
+  {
+    "finding": "I1-C-02",
+    "original": "children/C/results/linear_spring_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/linear_spring_sparse.json"
+  },
+  {
+    "finding": "I1-C-03",
+    "original": "children/C/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-03",
+    "original": "children/C/results/spring_stabilized_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/spring_stabilized_sparse.json"
+  },
+  {
+    "finding": "I1-C-03",
+    "original": "children/C/results/five_rigid_plus_spring_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/five_rigid_plus_spring_sparse.json"
+  },
+  {
+    "finding": "I1-C-04",
+    "original": "children/C/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-04",
+    "original": "children/C/results/linear_spring_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/linear_spring_sparse.json"
+  },
+  {
+    "finding": "I1-C-05",
+    "original": "children/C/extended/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-05",
+    "original": "children/C/extended/results/wind_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/wind_sparse.json"
+  },
+  {
+    "finding": "I1-C-05",
+    "original": "children/C/extended/results/wind_duplicate_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/wind_duplicate_sparse.json"
+  },
+  {
+    "finding": "I1-C-06",
+    "original": "children/C/thermal_basis/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-C-06",
+    "original": "children/C/thermal_basis/missing_selected_alpha_sparse.out.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_selected_alpha_sparse.out.json"
+  },
+  {
+    "finding": "I1-C-06",
+    "original": "children/C/thermal_basis/missing_base_alpha_sparse.out.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_base_alpha_sparse.out.json"
+  },
+  {
+    "finding": "I1-C-07",
+    "original": "children/C/schema_rechecks/canonical_analytical.out.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/schema_rechecks/canonical_analytical.out.json"
+  },
+  {
+    "finding": "I1-C-07",
+    "original": "children/C/extended/results/unknown_imposed_field_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/unknown_imposed_field_sparse.json"
+  },
+  {
+    "finding": "I1-R-01",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-01",
+    "original": "children/R/results/axial_gap_v2_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/axial_gap_v2_sparse.json"
+  },
+  {
+    "finding": "I1-R-01",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  },
+  {
+    "finding": "I1-R-02",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-02",
+    "original": "children/R/EXPECTED_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/EXPECTED_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-R-03",
+    "original": "children/R/results/opposite_combinations_v2_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/opposite_combinations_v2_sparse.json"
+  },
+  {
+    "finding": "I1-R-03",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-04",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-04",
+    "original": "children/R/results/overflow_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/overflow_sparse.json"
+  },
+  {
+    "finding": "I1-R-04",
+    "original": "children/R/results/headless_explicit_overflow.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_explicit_overflow.json"
+  },
+  {
+    "finding": "I1-R-04",
+    "original": "manager_overflow/OBSERVATION.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/manager_overflow/OBSERVATION.json"
+  },
+  {
+    "finding": "I1-R-04",
+    "original": "manager_overflow/EXPECTED_BEFORE.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/manager_overflow/EXPECTED_BEFORE.json"
+  },
+  {
+    "finding": "I1-R-05",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-05",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  },
+  {
+    "finding": "I1-R-06",
+    "original": "children/R/EXPECTED_SUPPLEMENT_BEFORE_RUN.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/EXPECTED_SUPPLEMENT_BEFORE_RUN.json"
+  },
+  {
+    "finding": "I1-R-06",
+    "original": "children/R/results/pressure_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/pressure_sparse.json"
+  },
+  {
+    "finding": "I1-R-06",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  },
+  {
+    "finding": "I1-R-07",
+    "original": "children/R/SOURCE_REF_CHECK.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/SOURCE_REF_CHECK.json"
+  },
+  {
+    "finding": "I1-R-07",
+    "original": "children/R/results/invented_nonlinear_sparse.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/invented_nonlinear_sparse.json"
+  },
+  {
+    "finding": "I1-R-08",
+    "original": "children/R/COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json"
+  },
+  {
+    "finding": "I1-R-08",
+    "original": "children/R/results/analysis_run_identity_base.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/analysis_run_identity_base.json"
+  },
+  {
+    "finding": "I1-R-08",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  },
+  {
+    "finding": "I1-R-09",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  },
+  {
+    "finding": "I1-R-10",
+    "original": "children/R/REPORT.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md"
+  }
+]

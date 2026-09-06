@@ -529,3 +529,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
   deliverable's owning cadence. DEL-05-02 remains `IN_PROGRESS`; no lifecycle,
   release, publication, professional approval, certification, sealing,
   authentication, or code-compliance state changed.
+
+## 2026-09-05 — Physics audit bounded product repairs (R09)
+
+Primitive numerical result values retain full precision through case algebra before existing six-decimal publication. Arithmetic displacement/reaction magnitudes derive from signed vectors; support vectors remain internal and missing components produce explicit withholding diagnostics. Scalar range/envelope semantics and scalar stress-summary exclusions remain unchanged. Actual result source references are qualified within their primitive case; load IDs and other provenance are preserved. No new factors, schema fields or material selection policy were added.
+
+Accepted source for this bounded handoff: product SHA256 `93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc`, following accepted P4 selected-state integration. Fresh read-only review covered the complete frozen product diff and returned PASS with no actionable finding. Manager replayed 20 unchanged original audit inputs in both solver modes, with 314 checks passing. Final author crate run passed 137 tests; the single enabled stale browser-fixture assertion remains for root-owned F1 regeneration and full rerun. No global pass is inferred.
+
+Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json`, manager replay at `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json`, and package record `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Root owns final fixture generation, independent P9 binding, clean DEC-025/native/CI checks and Git closeout. State remains IN_PROGRESS; broader lifecycle, release and professional reliance are not advanced. D01–D06 held decisions remain.

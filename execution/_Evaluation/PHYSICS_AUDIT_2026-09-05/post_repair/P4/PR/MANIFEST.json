@@ -1,0 +1,34 @@
+{
+  "schema": "piping-independent-review/v1",
+  "status": "PASS",
+  "parent": "/root/repair_pkg04",
+  "instance": "/root/repair_pkg04/product_review",
+  "upstream_manifest_sha256": "30600919d738e858ce002fb402762f3955ccaa4082ffb5cef50239b408e38369",
+  "members": [
+    {
+      "path": "AFFECTED_CHECKS.json",
+      "bytes": 510,
+      "sha256": "854a1b41fc1a9dc0e1d2ea445ab3a18a967ae5de727cba124bb6235ff56ea63d"
+    },
+    {
+      "path": "COVERAGE.csv",
+      "bytes": 7080,
+      "sha256": "1de59b080b4ef57e2ba8f03b323f9a572d04bf8d6a083f367830da20abfac458"
+    },
+    {
+      "path": "INPUT_VERIFICATION.json",
+      "bytes": 440,
+      "sha256": "fc842b9d4ba49790a467c64c3dfcbeffc820f50b371b41f12920e547df6abe62"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 4562,
+      "sha256": "2d7c0c2510e5980d067a8b5462381906f0b8926e29d907671c80fb8289661cf7"
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_PR.md",
+      "bytes": 1715,
+      "sha256": "b90010d1db317f07457bda710c1547333f6de1d1d094b65eeb6805671e40fc43"
+    }
+  ]
+}

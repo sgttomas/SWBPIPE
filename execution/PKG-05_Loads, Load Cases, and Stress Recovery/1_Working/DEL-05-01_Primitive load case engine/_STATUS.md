@@ -1,7 +1,7 @@
 # Status: DEL-05-01 Primitive load case engine
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-20
+**Last Updated:** 2026-09-05
 
 ## Remaining
 
@@ -17,3 +17,5 @@
 - 2026-07-11 - Remaining seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 4 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-20 - R14-W2-T4 (CB-2026-07-20-T4-PKG05-SUBSPAN-WIND-001): sub-span wind exposure Remaining item closed — wind marking extends to partial-extent exposure via a validated optional `LoadExtent` threaded through generation and preview lumping, with exact lever-rule statically-equivalent end shares on straight spans (reducing exactly to the 50/50 whole-span shares at full extent), fail-closed blocking for partial extents on curved-bend macro-realized spans, canonical `ElementLoadSpan` vocabulary reuse in `schemas/model.schema.yaml`, and all inputs user-entered; witnessed by `validation/hand_calcs/mechanics/tp_pmm_p3_subspan_wind_exposure.md` and fixture `MECH-TP-PMM-P3-SUBSPAN-WIND-EXPOSURE`. GUI/operation emission of sub-span marking (DEL-07-02 surface) is reported to HELP_HUMAN as a follow-on, not performed here. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
+
+- 2026-09-05 - Bounded physics-audit product repairs R05 and R11 implemented with fresh full-diff review and independent original-input replay; see `MEMORY.md` and package `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Final stale-fixture regeneration and clean global/native checks remain root integration gates, not a lifecycle promotion. State remains IN_PROGRESS.

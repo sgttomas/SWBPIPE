@@ -1,0 +1,6 @@
+{
+  "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+  "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+  "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+  "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs": "91ea3ad88f76a617075ebc24d2d5a931f4b0cf30faf45f55b8da4f613a3081fc"
+}

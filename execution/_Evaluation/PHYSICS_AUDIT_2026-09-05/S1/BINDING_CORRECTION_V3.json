@@ -1,0 +1,9 @@
+{
+  "change": "Only CORRECTIONS_V2.json review_manifest_sha256 corrected to actual R1 manifest digest",
+  "old": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad0",
+  "new": "20c7d4d6a271a44d58b3e0c184a990c8ac6e3f841eedd92887f94c085fcfad01",
+  "before_sha256": "f6a2cde8a34333000ec4e33edcae6a5ecf97edf727cc52f80a95edf60f316358",
+  "after_sha256": "48e05bd9f231c1bf11b58881a7c3bb38d547ec3ddac11dd7a6962acd3d65ed40",
+  "preserved_v2": "historical/REVIEWED_V2/MANIFEST_V2.json",
+  "no_substantive_changes": true
+}

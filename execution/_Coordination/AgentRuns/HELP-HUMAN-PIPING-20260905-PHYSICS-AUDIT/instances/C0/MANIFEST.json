@@ -1,0 +1,9 @@
+{
+  "basis_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "files": {
+    "RETURN.md": "7aadb56dc71a50d58ee6d418203389e77ebddcce7fa05507fcd15bdc0c07efe4",
+    "STATUS.json": "46d9127afcd52acc5b2f56fea6ff894c5397c3fddbfab466b8165703d8be948d",
+    "SEALED_BRIEF.md": "f6ebf4980dbceb61a1902c80179466a0582f830fdcf5bf685f66792c695fcb5f",
+    "_run_records/INTAKE_LOG_BYTES.json": "c3ceabeef04bbbe957c86921363e4f10e7d59fd0d60991a447079083b975264f"
+  }
+}

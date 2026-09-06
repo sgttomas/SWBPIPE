@@ -1,0 +1,346 @@
+{
+  "tip": {
+    "max_absolute_error": 5.421010862427522e-20,
+    "max_error_over_max_expected": 7.416366652180975e-17
+  },
+  "reactions": {
+    "max_absolute_error": 1.1368683772161603e-13,
+    "max_error_over_max_expected": 1.525997821766658e-16
+  },
+  "stations": {
+    "max_absolute_error": 1.4210854715202004e-14,
+    "max_error_over_max_expected": 4.2632564145606e-16
+  },
+  "bends": [
+    {
+      "phi": 0.05,
+      "factors": [
+        1.0,
+        1.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 4.1028158382630173e-22,
+        "max_error_over_max_expected": 2.9547164927628243e-15
+      },
+      "stations": {
+        "max_absolute_error": 5.684341886080802e-14,
+        "max_error_over_max_expected": 3.343730521224001e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 6.088049308390284e-22,
+      "max_rigid_force": 2.041459083557129e-06
+    },
+    {
+      "phi": 0.05,
+      "factors": [
+        2.0,
+        3.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 8.205631676526035e-22,
+        "max_error_over_max_expected": 2.736434585603232e-15
+      },
+      "stations": {
+        "max_absolute_error": 5.684341886080802e-14,
+        "max_error_over_max_expected": 3.343730521224001e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 1.2176098616780567e-21,
+      "max_rigid_force": 1.3783574104309082e-06
+    },
+    {
+      "phi": 0.2,
+      "factors": [
+        1.0,
+        1.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 1.641126335305207e-21,
+        "max_error_over_max_expected": 2.965008550485978e-15
+      },
+      "stations": {
+        "max_absolute_error": 2.3092638912203256e-13,
+        "max_error_over_max_expected": 5.5457400618252735e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 8.881784197001252e-16,
+        "max_error_over_max_expected": 1.3420857605930907e-16
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 2.4352197233561135e-21,
+      "max_rigid_force": 2.9802322387695312e-08
+    },
+    {
+      "phi": 0.2,
+      "factors": [
+        2.0,
+        3.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 3.282252670610414e-21,
+        "max_error_over_max_expected": 2.7547789315830115e-15
+      },
+      "stations": {
+        "max_absolute_error": 2.3092638912203256e-13,
+        "max_error_over_max_expected": 5.5457400618252735e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 4.870439446712227e-21,
+      "max_rigid_force": 4.3958425521850586e-07
+    },
+    {
+      "phi": 0.7,
+      "factors": [
+        1.0,
+        1.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 4.171637265227429e-20,
+        "max_error_over_max_expected": 2.238198009610734e-14
+      },
+      "stations": {
+        "max_absolute_error": 5.684341886080801e-13,
+        "max_error_over_max_expected": 4.302860291304982e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 3.552713678800501e-15,
+        "max_error_over_max_expected": 4.5956433531471915e-17
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 6.179105350220121e-19,
+      "max_rigid_force": 7.078051567077637e-08
+    },
+    {
+      "phi": 0.7,
+      "factors": [
+        2.0,
+        3.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 8.322098706773501e-20,
+        "max_error_over_max_expected": 2.1526064655990945e-14
+      },
+      "stations": {
+        "max_absolute_error": 5.684341886080801e-13,
+        "max_error_over_max_expected": 4.302860291304982e-15
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 3.552713678800501e-15,
+        "max_error_over_max_expected": 4.5956433531471915e-17
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 1.2341270041495156e-18,
+      "max_rigid_force": 3.5390257835388184e-08
+    },
+    {
+      "phi": 1.5707963267948966,
+      "factors": [
+        1.0,
+        1.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 1.720323915873484e-18,
+        "max_error_over_max_expected": 1.679855874583222e-13
+      },
+      "stations": {
+        "max_absolute_error": 1.958255779754836e-11,
+        "max_error_over_max_expected": 5.485310307436359e-14
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 5.684341886080802e-14,
+        "max_error_over_max_expected": 1.7121511705062658e-16
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 2.5860762912621044e-17,
+      "max_rigid_force": 2.3283064365386963e-09
+    },
+    {
+      "phi": 1.5707963267948966,
+      "factors": [
+        2.0,
+        3.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 3.4304834363799164e-18,
+        "max_error_over_max_expected": 1.504118232245374e-13
+      },
+      "stations": {
+        "max_absolute_error": 1.958255779754836e-11,
+        "max_error_over_max_expected": 5.485310307436359e-14
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 5.171644362755856e-17,
+      "max_rigid_force": 9.313225746154785e-10
+    },
+    {
+      "phi": 2.5,
+      "factors": [
+        1.0,
+        1.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 6.238503535646329e-18,
+        "max_error_over_max_expected": 1.6582302360106206e-13
+      },
+      "stations": {
+        "max_absolute_error": 1.666933258093195e-10,
+        "max_error_over_max_expected": 2.489731665398536e-13
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 9.359099968273259e-17,
+      "max_rigid_force": 2.3283064365386963e-10
+    },
+    {
+      "phi": 2.5,
+      "factors": [
+        2.0,
+        3.0
+      ],
+      "flexibility": {
+        "max_absolute_error": 1.2475313005398149e-17,
+        "max_error_over_max_expected": 2.0299204304579896e-13
+      },
+      "stations": {
+        "max_absolute_error": 1.666933258093195e-10,
+        "max_error_over_max_expected": 2.489731665398536e-13
+      },
+      "uniform_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "uniform_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_force": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "pressure_moment": {
+        "max_absolute_error": 0.0,
+        "max_error_over_max_expected": 0.0
+      },
+      "reference_refinement_512_1024": 1.8715277672878491e-16,
+      "max_rigid_force": 1.1641532182693481e-10
+    }
+  ]
+}

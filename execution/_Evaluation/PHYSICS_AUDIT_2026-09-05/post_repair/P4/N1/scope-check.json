@@ -1,0 +1,15 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/N1"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/N1"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

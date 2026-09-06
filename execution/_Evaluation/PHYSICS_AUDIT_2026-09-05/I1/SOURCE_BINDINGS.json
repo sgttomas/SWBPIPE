@@ -1,0 +1,12 @@
+{
+  "core/product_physics/src/lib.rs": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "core/product_physics/src/validation.rs": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+  "core/product_physics/src/self_weight.rs": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144",
+  "apps/desktop/src-tauri/src/lib.rs": "8b0aa321029e0fb555d0e0f23362b0c991f7a4e35e065e1f79d1ad9a40505a89",
+  "apps/desktop/src/services/previewService.ts": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+  "core/runner/headless/src/lib.rs": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+  "core/runner/headless/src/bin/headless_preview_runner.rs": "991c736547fa83563d80d05dfecda85c5ffb5d0db0c0c2f7f99f22cc415ef085",
+  "core/runner/headless/src/bin/openpipestress-runner.rs": "589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54",
+  "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py": "3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990",
+  "apps/desktop/package.json": "6dd5540cb4af6170e96ce433bab3630e8606ef6a8abc90b8601403c7542ba776"
+}

@@ -1,0 +1,434 @@
+[
+  {
+    "case": "opposite_combinations_v2",
+    "same": true,
+    "input_sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+    "output_sha256": "d48a367bf9f76e9e7c97496383944de766941874a8ad0ee608db4c9c3cd0096b",
+    "rows": [
+      {
+        "id": "result:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:loadcase:load-R-negative:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:R-negative"
+        }
+      },
+      {
+        "id": "result:loadcase:load-R-negative:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:R-negative"
+        }
+      },
+      {
+        "id": "result:loadcase:load-R-negative:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:R-negative"
+        }
+      },
+      {
+        "id": "result:combination:combination-R-sum:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sum"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-sum:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.812046,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sum"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-sum:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 1565.247584,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sum"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-sub:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sub"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-sub:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sub"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-sub:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-sub"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min_abs:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min_abs"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min_abs:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min_abs"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-min_abs:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-min_abs"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max_abs:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max_abs"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-100",
+          "result:loadcase:load-R-negative:disp:node-N-100"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max_abs:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.406023,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max_abs"
+        },
+        "source_result_refs": [
+          "result:disp:node-N-110",
+          "result:loadcase:load-R-negative:disp:node-N-110"
+        ]
+      },
+      {
+        "id": "result:combination:combination-R-max_abs:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 782.623792,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "combination",
+          "ref_id": "combination:R-max_abs"
+        },
+        "source_result_refs": [
+          "result:reaction:support-S-100",
+          "result:loadcase:load-R-negative:reaction:support-S-100"
+        ]
+      }
+    ]
+  },
+  {
+    "case": "axial_gap_v2",
+    "same": true,
+    "input_sha256": "e6fcd257cb2c82f5800181e1e1e73ee659222d4b7beedd013be383917a7c9eca",
+    "output_sha256": "0bad053434343952fd6f575e5982c6c0d3bce46e564414a956a0171bab300c99",
+    "rows": [
+      {
+        "id": "result:disp:node-N-100",
+        "kind": "displacement_magnitude",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "node:N-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:disp:node-N-110",
+        "kind": "displacement_magnitude",
+        "value": 0.000989,
+        "unit": "mm",
+        "entity_ref": "node:N-110",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:reaction:support-S-100",
+        "kind": "reaction_resultant",
+        "value": 350.0,
+        "unit": "N",
+        "entity_ref": "support:S-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:reaction:support-R-gap",
+        "kind": "reaction_resultant",
+        "value": 0.0,
+        "unit": "N",
+        "entity_ref": "support:R-gap",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        }
+      },
+      {
+        "id": "result:nonlinear-support:support-R-gap:ux-displacement",
+        "kind": "nonlinear_support_final_displacement",
+        "value": 0.0,
+        "unit": "mm",
+        "entity_ref": "support:R-gap",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "nonlinear_support_final_displacement",
+          "coordinate_system": "solver_iteration",
+          "location": "ux",
+          "basis": "dense_scrutiny_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF sign convention"
+        }
+      },
+      {
+        "id": "result:nonlinear-support:support-R-gap:ux-reaction",
+        "kind": "nonlinear_support_final_reaction",
+        "value": -350.0,
+        "unit": "N",
+        "entity_ref": "support:R-gap",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "nonlinear_support_final_reaction",
+          "coordinate_system": "solver_iteration",
+          "location": "ux",
+          "basis": "dense_scrutiny_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF reaction sign convention"
+        }
+      }
+    ]
+  }
+]

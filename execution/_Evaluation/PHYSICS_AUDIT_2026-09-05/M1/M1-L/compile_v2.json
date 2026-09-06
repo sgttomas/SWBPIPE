@@ -1,0 +1,5 @@
+{
+  "original_file": "compile_v2.txt",
+  "sha256": "3b1fa308f339e70af1bc906af131f8e33e53493d9494b99999a28f16edb891ba",
+  "utf8": "   Compiling audit_linear_m1l v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/harness)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.15s\n     Running `target/debug/audit_linear_m1l`\n"
+}

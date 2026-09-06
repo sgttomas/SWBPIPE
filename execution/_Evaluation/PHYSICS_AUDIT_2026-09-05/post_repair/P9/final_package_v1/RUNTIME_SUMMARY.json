@@ -1,0 +1,107 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 7
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "CHECK": 1,
+      "FINISH": 7,
+      "START": 7
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 7,
+      "STARTED": 7
+    },
+    "reason_code": {
+      "TEST_UNIT_ASSERTION_GAP": 2
+    }
+  },
+  "events": 15,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 957.669,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P9",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "P9-1"
+    },
+    {
+      "duration_seconds": 484.553,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P9-A",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P9-A-1"
+    },
+    {
+      "duration_seconds": 125.43,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P9-A",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P9-A-2"
+    },
+    {
+      "duration_seconds": 137.936,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P9-R",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P9-R-1"
+    },
+    {
+      "duration_seconds": 141.866,
+      "events": 2,
+      "final_outcome": "FAIL",
+      "instance_id": "P9-R2",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P9-R2-1"
+    },
+    {
+      "duration_seconds": 79.982,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P9-R3",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P9-R3-1"
+    },
+    {
+      "duration_seconds": 0.045,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "P9",
+      "package_id": "PKG-09",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "P9-finalization"
+    }
+  ],
+  "sessions": 7,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

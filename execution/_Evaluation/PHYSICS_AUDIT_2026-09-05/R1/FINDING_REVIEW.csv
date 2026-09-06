@@ -1,0 +1,45 @@
+FindingID,ReviewDisposition,ReviewNotes
+M1-E-001,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+M1-E-002,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-E-003,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-E-004,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-E-005,SUPPORTED_WITH_STATED_LIMITS,Explicit coverage/reference limit retained; neither unsupported correctness nor a reproduced engine defect is asserted.
+M1-L-001,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-L-002,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-L-003,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-L-004,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+M1-L-005,SUPPORTED_WITH_STATED_LIMITS,Explicit coverage/reference limit retained; neither unsupported correctness nor a reproduced engine defect is asserted.
+M1-N-001,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-N-002,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+M1-N-003,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+M1-N-004,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-N-005,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-N-006,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+M1-N-008,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+V1R-01,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+V1R-02,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+V1R-03,SUPPORTED_WITH_STATED_LIMITS,Explicit coverage/reference limit retained; neither unsupported correctness nor a reproduced engine defect is asserted.
+V1R-04,SUPPORTED_WITH_STATED_LIMITS,Explicit coverage/reference limit retained; neither unsupported correctness nor a reproduced engine defect is asserted.
+V1R-05,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+V1R-06,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+V1-C-01,SUPPORTED_WITH_STATED_LIMITS,Baseline station-zeroing sensitivity gap supported; future mutation must target actual repaired route. R1-01.
+V1-C-02,SUPPORTED_WITH_STATED_LIMITS,Historical sensitivity observation supported; corrective mutation is not an error to kill. R1-01 corrects prospective repair criterion.
+V1-C-03,SUPPORTED_WITH_STATED_LIMITS,"Valid limitation of existing suites; consolidated W2/W4/W6/W7 experiments now address baseline reproduction, so original rerun wording is historical rather than an uncompleted baseline dependency. New permanent regressions remain needed."
+I1-C-01,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-C-02,SUPPORTED_DEFECT_CORRECT_ORACLE_DIGITS,Independent expected scalar differs from narrative; R1-02. Large spring transfer/reaction defect remains supported.
+I1-C-03,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-C-04,SUPPORTED_DEFECT_CORRECT_ORACLE_DIGITS,Independent expected scalar differs from narrative; R1-02. Large spring transfer/reaction defect remains supported.
+I1-C-05,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-C-06,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-C-07,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-01,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-02,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-03,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-04,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-05,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-06,SUPPORTED_WITH_STATED_LIMITS,Evidence supports observed behavior; physical/initialization/scale contract distinction and Owner hold are appropriate. No unilateral physical repair warranted.
+I1-R-07,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-08,SUPPORTED_WITH_STATED_LIMITS,"Claim, classification, stated scope, upstream report and cited evidence checked; no blanket engine correctness or native GUI inference."
+I1-R-10,SUPPORTED_WITH_STATED_LIMITS,Explicit coverage/reference limit retained; neither unsupported correctness nor a reproduced engine defect is asserted.
+I1-R-09-S1,SUPPORTED_WITH_STATED_LIMITS,"Actual imported service with mocked Tauri rejection, not native process fault injection. Browser receipt discloses fallback and edited model blocks. GUI/manifest gap remains explicit."
+I1-R-10-S1,SUPPORTED_WITH_STATED_LIMITS,Frozen independent EB oracle and six product observations confirm premature signed-component quantization; internal precision repair need not change public decimal policy.

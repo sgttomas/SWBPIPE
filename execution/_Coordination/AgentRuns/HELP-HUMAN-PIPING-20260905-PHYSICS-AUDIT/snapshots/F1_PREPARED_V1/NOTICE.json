@@ -1,0 +1,14 @@
+{
+  "id": "NOTICE-006-FUTURE-F1-AND-P4D1",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "F1": "Future prepared bounded Agent2 fixture regeneration; not launched/released",
+  "F1_gate": "P5 final accepted source plus explicit root release",
+  "P4D1": {
+    "manager_status": "Nine observation derivative accepted by manager",
+    "manifest_sha256": "663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766",
+    "root_status": "Not yet fully read/accepted by root"
+  },
+  "claim_limit": "No inferred source release or root derivative acceptance"
+}

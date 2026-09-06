@@ -1,0 +1,10 @@
+{
+  "method": "Manager read entire independent_oracles.py then reran byte-identical copy in isolated tmp; no production imports or output rewriting",
+  "exit_code": 0,
+  "stdout": "{\"simple_cases\": 25, \"arc_cases\": 4, \"max_B_refinement_delta\": 4.986077328794636e-09}\n",
+  "stderr": "",
+  "same_result_bytes": true,
+  "script_sha256": "49dc05a9b7757a33aa557e8a2fae6cc01c0e909b91ef6a62b2857ec9db645b0d",
+  "result_sha256": "6abf9a504d9be55bc235d6810ae921d5c71e7de8c09c151d96249392cfb96cb7",
+  "limits": "Replay verifies arithmetic reproducibility; code inspection confirms vector equilibrium and energy method independence from closed-form production; no experimental validation or new acceptance threshold"
+}

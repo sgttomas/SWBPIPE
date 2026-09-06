@@ -1,0 +1,25 @@
+{
+  "id": "ACCEPT_F3_F1_AND_S2_SOURCE_READY",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept F3 terminal fresh review PASS, F1 final fixture/test packet and S2 pre-final report; ready for source-commit gates",
+  "F3": {
+    "return": "instances/F3/RETURN.md",
+    "manifest_sha256": "acd92fb0418e1b2789cc0ccec81c9a13e78c28f7be38b03fe92fb5d36bed30bd",
+    "mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d",
+    "root_read": "entire terminal return"
+  },
+  "F1": {
+    "manifest_sha256": "7b1cb7ba585bfa89ff2d6b9a218764557643f2ecb8b9f9e1f141f5c17abd4fb4",
+    "verification": "Root verified19members/read RETURN"
+  },
+  "S2": {
+    "manifest_sha256": "96481d7e27b84e4b96cf0c5cdb1a609efeb0f11c16bca2a10c66e58f6829be3a",
+    "verification": "Root verified7members and instance return/readREPORT; all44entriesmapped",
+    "limit": "Accepted pre-final only, F2 pending"
+  },
+  "remaining": "CHANGE sourcecommit/finalmetadata, F2fullcleanDEC025/native/headless/CI",
+  "holds": "D01\u2013D06 unchanged; no receipt untilF2",
+  "source_status": "All15product/test/fixture/regressionfiles frozen; no other writers reported"
+}

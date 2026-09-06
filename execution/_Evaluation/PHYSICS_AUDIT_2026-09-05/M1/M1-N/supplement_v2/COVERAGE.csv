@@ -1,0 +1,6 @@
+Family,Cases,Reference,Disposition,SourceBinding
+Coupled multi-support gap,8configs/16executions,EXPECTATIONS serial2DOF K,Bothsigns/all4seeds observed agreement; errors COMPARISON,Initialpacket fullproduction hashes unchanged
+Mixed userstiffness+gap,4configs/8executions,EXPECTATIONS parallel300N/m,Open/closed bothseeds agreement; not productgroundspringtest,Initialpacket hashes
+Rotational gap,4configs/8executions,EXPECTATIONS torsion40Nm/rad,Signs/seeds agreement; quantities separate,Initialpacket hashes
+Changing derivednormal friction,2configs/4executions,EXPECTATIONS coupled Kxx150 Kxy-50,Knownpolicy discrepancy; bounds not satisfiedsimultaneously; M1-N-008,Initialpacket hashes
+Curved nonlinear integration,Existingnamedcase,core/solver/nonlinear_integration/src/lib.rs:1817 curved_bend_slot_matches_linear_arc_path_when_support_stays_released,"Samekernel/stiffness parity only, no independentcurvedoracle; M1-E fullcurvedwitness+V1suite coverage required atfanin",Initialpacket hashes

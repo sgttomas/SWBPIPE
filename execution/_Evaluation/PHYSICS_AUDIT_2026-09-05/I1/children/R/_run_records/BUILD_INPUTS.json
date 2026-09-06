@@ -1,0 +1,6 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "product_binary_sha256": "95c4538b97c06647782aea4f138a2605b4f031a44f207a6c79e0bfed2eec59d8",
+  "headless_binary_sha256": "6de41216861b724e8f662a0f25f8b865bca27fb61f0c179c00d60167aba1e900",
+  "cargo_manifest": "[package]\nname=\"piping-audit-i1-r\"\nversion=\"0.1.0\"\nedition=\"2021\"\n[dependencies]\nopen_pipe_stress_product_physics={path=\"/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/product_physics\"}\nserde_json=\"1\"\n"
+}

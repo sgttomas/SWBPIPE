@@ -1,0 +1,94 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "run_id": "run:preview-linear-static-blocked",
+  "model_ref": "project:invented-loop-01",
+  "status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+  },
+  "summary": {
+    "node_count": 2,
+    "segment_count": 1,
+    "support_count": 1,
+    "load_case_count": 1,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "component_pressure_thrust_load_count": 0,
+    "spring_hanger_user_input_count": 0,
+    "max_displacement": null,
+    "max_open_formula_stress": null
+  },
+  "results": [],
+  "diagnostics": [
+    {
+      "id": "diagnostic:stress:pipe-P-100:end-i:NonFiniteInput",
+      "code": "STRESS_RECOVERY_LIMITED",
+      "severity": "warning",
+      "message": "axial_force recovery produced a non-finite value",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:stress:pipe-P-100:end-j:NonFiniteInput",
+      "code": "STRESS_RECOVERY_LIMITED",
+      "severity": "warning",
+      "message": "axial_force recovery produced a non-finite value",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:stress:pipe-P-100:quarter-1:NonFiniteInput",
+      "code": "STRESS_RECOVERY_LIMITED",
+      "severity": "warning",
+      "message": "axial_force must be finite",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:stress:pipe-P-100:midspan:NonFiniteInput",
+      "code": "STRESS_RECOVERY_LIMITED",
+      "severity": "warning",
+      "message": "axial_force must be finite",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:stress:pipe-P-100:quarter-3:NonFiniteInput",
+      "code": "STRESS_RECOVERY_LIMITED",
+      "severity": "warning",
+      "message": "axial_force must be finite",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "pipe:P-100"
+      ]
+    },
+    {
+      "id": "diagnostic:physics:solver",
+      "code": "SOLVER_SYSTEM_BLOCKED",
+      "severity": "blocking",
+      "message": "computed mechanics must be finite, got inf",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "model"
+      ]
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  },
+  "accepted_model_state_mutated": false
+}

@@ -1,0 +1,18 @@
+{
+  "sealed_utc": "2026-09-05T23:22:27.771825+00:00",
+  "before_product_execution": true,
+  "expectations": {
+    "open_gap_state": 0,
+    "open_gap_reaction_N": 0,
+    "open_gap_displacement": "same selected u=F/(kbeam+ks), published mm",
+    "closed_gap_state": 1,
+    "closed_gap_displacement_mm": 0,
+    "closed_gap_signed_reaction_N": -350,
+    "closed_gap_equilibrium": "350+(-350)-0=0; reaction opposes positive load",
+    "spring_tip_equilibrium": "350 - element_end_j_shear - ks*u = 0; end_j_shear=(350-ks*u)>0",
+    "actual_root_moment_magnitude_Nm": 700,
+    "axial_station_stress_MPa": "350/A/1e6",
+    "torsion_station_stress_MPa": "350*(D/2)/(2I)/1e6"
+  },
+  "limitations": "No public signed rigid-support vector asserted; equilibrium uses actual signed element end_j action and independently derived spring action. No trial-displacement row exists; inspect final-displacement row. State codes are existing public 0 inactive /1 active, not new convergence policy."
+}

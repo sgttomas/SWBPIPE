@@ -1,0 +1,44 @@
+[
+  {
+    "fixture": "axial",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "0d8de5bef0f2a1708b0ea437f1f0ff6b6f5a20d3ea1288d62058361099e50b9f"
+  },
+  {
+    "fixture": "axial_gap_v2",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "af34067161ad3edd50e864ffda0e153884be6098a6d47aa1bdab0782fcf3cce6"
+  },
+  {
+    "fixture": "uniform",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "0d8de5bef0f2a1708b0ea437f1f0ff6b6f5a20d3ea1288d62058361099e50b9f"
+  },
+  {
+    "fixture": "identity_base",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "0d8de5bef0f2a1708b0ea437f1f0ff6b6f5a20d3ea1288d62058361099e50b9f"
+  },
+  {
+    "fixture": "identity_geometry",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "0d8de5bef0f2a1708b0ea437f1f0ff6b6f5a20d3ea1288d62058361099e50b9f"
+  },
+  {
+    "fixture": "opposite_combinations_v2",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "4fff9e2e288b723e10a5658e18e09bba88b1f852ceebb9ea61e532db91dc8c16"
+  },
+  {
+    "fixture": "overflow",
+    "exit": 1,
+    "stderr": "",
+    "stdout_sha256": "09a615457868f3d65ecacdd452981437e65d4a3e4cf2908538b6e140383e322a"
+  }
+]

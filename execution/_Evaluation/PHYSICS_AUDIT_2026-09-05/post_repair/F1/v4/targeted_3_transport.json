@@ -1,0 +1,15 @@
+{
+  "command": [
+    "npm",
+    "test",
+    "--",
+    "src/App.test.tsx",
+    "-t",
+    "records comparison workspace unit policy evidence without conversion|carries queued editor intents into the report packet as review-only operation context|shows computed mechanics diagnostics in results, knowledge, and review-only proposal context|links selected diagnostics to affected result and model context"
+  ],
+  "returncode": 0,
+  "stdout_base64": "Cj4gQG9wZW5waXBlc3RyZXNzL2Rlc2t0b3BAMC4xLjAgdGVzdAo+IHZpdGVzdCBydW4gc3JjL0FwcC50ZXN0LnRzeCAtdCByZWNvcmRzIGNvbXBhcmlzb24gd29ya3NwYWNlIHVuaXQgcG9saWN5IGV2aWRlbmNlIHdpdGhvdXQgY29udmVyc2lvbnxjYXJyaWVzIHF1ZXVlZCBlZGl0b3IgaW50ZW50cyBpbnRvIHRoZSByZXBvcnQgcGFja2V0IGFzIHJldmlldy1vbmx5IG9wZXJhdGlvbiBjb250ZXh0fHNob3dzIGNvbXB1dGVkIG1lY2hhbmljcyBkaWFnbm9zdGljcyBpbiByZXN1bHRzLCBrbm93bGVkZ2UsIGFuZCByZXZpZXctb25seSBwcm9wb3NhbCBjb250ZXh0fGxpbmtzIHNlbGVjdGVkIGRpYWdub3N0aWNzIHRvIGFmZmVjdGVkIHJlc3VsdCBhbmQgbW9kZWwgY29udGV4dAoKCiBSVU4gIHY0LjEuMTAgL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS9wcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2FwcHMvZGVza3RvcAoKCiBUZXN0IEZpbGVzICAxIHBhc3NlZCAoMSkKICAgICAgVGVzdHMgIDQgcGFzc2VkIHwgMTIyIHNraXBwZWQgKDEyNikKICAgU3RhcnQgYXQgIDE4OjM1OjIxCiAgIER1cmF0aW9uICAyMi4yNXMgKHRyYW5zZm9ybSA3NDNtcywgc2V0dXAgNDVtcywgaW1wb3J0IDg3NW1zLCB0ZXN0cyAyMS4xNnMsIGVudmlyb25tZW50IDEyMm1zKQoK",
+  "stdout_sha256": "7abc9a8acc9b07e5dc36dbae1cfc5f336910eb7203d317fb8266a6a152f29dc4",
+  "stderr_base64": "",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,7 +1,7 @@
 # Status: DEL-04-02 Straight pipe element
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-19
+**Last Updated:** 2026-09-05
 
 ## Remaining
 
@@ -19,3 +19,5 @@
 - 2026-07-02 - State set to IN_PROGRESS (affirmed; human K-CONFLICT-1 ruling, bridge Loop 2): records the 2026-06-16 header reversal from CHECKING that commit 28219696d left unlogged; ruling record at execution/_Reconciliation/LifecycleCorrection/LIFECYCLE_CORRECTION_2026-07-02_2050/Decision_Log.md.
 - 2026-07-11 - Remaining section added and seeded with the gated D-41 concordance bootstrap item at packet time per plans/PLAN_2026-07-10_deliverable_implementation_reconciliation.md §4 (D-41 AWAITING_RULING; item inert until the ruling flips the gate suffix and supplies the pinned SHA; no state change).
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
+
+- 2026-09-05 - P4 physics audit repair checkpoint accepted for R02 direct station point-input validation. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.

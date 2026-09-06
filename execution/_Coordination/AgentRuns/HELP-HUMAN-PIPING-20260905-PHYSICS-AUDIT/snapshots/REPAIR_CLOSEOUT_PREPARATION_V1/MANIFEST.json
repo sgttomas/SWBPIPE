@@ -1,0 +1,12 @@
+{
+  "status": "bounded repair managers closed; exact fixture consumers active; final verification/publication held",
+  "files": {
+    "snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/HANDOFF_STATE.md": "843375cb1d5f5225c2d430680de564ed22b0c460406507a8031fd83134109ed4",
+    "snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/WORK_GRAPH.json": "0d6ba5bf640146911d61b1ffee64dc257cf353cf01c4f74ebe926541cd5de94e",
+    "snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/dispositions/ACCEPT_P5_P9_FINAL_BOUNDED_CLOSURE.json": "88e510c100a44375be2f52207c6cbf729f15c7d2ca01de0334e7192c80fee340",
+    "snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/dispositions/AMEND_F1_FIXTURE_CONSUMER_TESTS_V3.json": "3f1140080de541d12fe8aa88a9894c1ad2c1492c7972351f393ed458d4c27d88",
+    "snapshots/REPAIR_CLOSEOUT_PREPARATION_V1/notices/LAUNCH-008-S2-AND-CHANGE-PREP.json": "954edeba78edea7ddd0f9297fa628e1ef40f251664bb729bff83ba8da0c16134"
+  },
+  "receipts": "held until final F2 results",
+  "Git": "CHANGE planning only until root release"
+}

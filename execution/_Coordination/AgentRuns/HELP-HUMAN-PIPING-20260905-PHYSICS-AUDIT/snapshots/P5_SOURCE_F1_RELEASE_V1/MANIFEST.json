@@ -1,0 +1,11 @@
+{
+  "status": "P5 source/P9 candidate accepted; F1 actual release; F2 held",
+  "files": {
+    "snapshots/P5_SOURCE_F1_RELEASE_V1/ACCEPTANCE.json": "ca9788d1e837774f8084e7d3b49d93ae2686a86c1410ecefc6e3eb53c0a3d93f",
+    "snapshots/P5_SOURCE_F1_RELEASE_V1/F1_LAUNCH.json": "f1e6d1c3247008e70baa25d51e7ccd358abb79849b002add57210524b699d534",
+    "snapshots/P5_SOURCE_F1_RELEASE_V1/HANDOFF_STATE.md": "23dbd7a040cbc4087890539a21a5059101810ed49e2bb9b1ea554e886379778e",
+    "snapshots/P5_SOURCE_F1_RELEASE_V1/WORK_GRAPH.json": "9709b296e5fe3f0329cacb4329e73fb909ae803bf0557a7cf0a067e7d8c311bf"
+  },
+  "source_binding": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "limits": "No C1 product/evaluator/receipt writes"
+}

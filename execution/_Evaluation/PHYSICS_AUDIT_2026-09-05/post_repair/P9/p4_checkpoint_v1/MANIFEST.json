@@ -1,0 +1,11 @@
+{
+  "status": "P4_CHECKPOINT_2_PASS_8_EXPECTED_FAIL",
+  "files": {
+    "RETURN.md": "b25af8867b3e4bb61698c7b0ee829a5f22de52754e228e635b52ac3cca69fdc1",
+    "SOURCE_DRIFT.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "SOURCE_AFTER.json": "d00a902a85f7791efccbbb190841558f0df5b6dc4d83f3ada259844ab304ab3e",
+    "cargo.log.json": "fe205fb658d090b62d8f2457e3f444181cccb2022e222f222259c7fa95e3afcb",
+    "SOURCE_BEFORE.json": "d00a902a85f7791efccbbb190841558f0df5b6dc4d83f3ada259844ab304ab3e",
+    "BRIEF.md": "e9f94c0d07d8ca4101a5183901191c97c5c0f5e4e17dbabcaa9420bd648f66ac"
+  }
+}

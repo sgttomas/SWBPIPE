@@ -1,0 +1,84 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 5
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "FINISH": 5,
+      "REMEDIATION": 1,
+      "START": 5
+    },
+    "outcome": {
+      "PASS": 6,
+      "STARTED": 5
+    },
+    "reason_code": {
+      "REPRESENTATION_ONLY": 1
+    }
+  },
+  "events": 11,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 0.022,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5-IMPL",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P5-IMPL-session1"
+    },
+    {
+      "duration_seconds": 0.019,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5-RECON",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P5-RECON-session1"
+    },
+    {
+      "duration_seconds": 487.478,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5-REVIEW",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "TASK",
+      "session_id": "P5-REVIEW-session1"
+    },
+    {
+      "duration_seconds": 382.135,
+      "events": 2,
+      "final_outcome": "PASS",
+      "instance_id": "P5",
+      "package_id": "PKG-05",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "P5-session1"
+    },
+    {
+      "duration_seconds": 1547.924,
+      "events": 3,
+      "final_outcome": "PASS",
+      "instance_id": "P5",
+      "package_id": "PKG-05",
+      "remediations": 1,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "P5-session2"
+    }
+  ],
+  "sessions": 5,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

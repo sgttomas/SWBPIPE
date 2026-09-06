@@ -1,0 +1,72 @@
+{
+  "schema": "piping-audit-evidence/v1",
+  "instance": "N1",
+  "status": "IMPLEMENTED_PENDING_REVIEW",
+  "members": [
+    {
+      "path": "EXPECTED_BEFORE_RUN.md",
+      "sha256": "b5a823f2925c00c353e64b0b6236fe2533adc63051c53ea910c356104d7b1856",
+      "bytes": 1022
+    },
+    {
+      "path": "FROZEN.patch",
+      "sha256": "2988c23f4534c459af20646dd9f5595a310a2b2d9cfe8d13911da1573a5c1fa7",
+      "bytes": 13860
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "f0f882eeb2e51b96a622b981b9c2cd1a03770bb44c43e8d03b5af99c20f4c1c7",
+      "bytes": 3022
+    },
+    {
+      "path": "SOURCE_HASHES.json",
+      "sha256": "9a301e40b56b30ab69034cc3766b8ea706e87623cea7c980251dbbd634793dc3",
+      "bytes": 288
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_N1.md",
+      "sha256": "d80936c6f4ff50e61f60fe6eb4b1f4fbf9b602fd594242ad029e776d56b33866",
+      "bytes": 739
+    },
+    {
+      "path": "affected-checks.json",
+      "sha256": "827e10833625fb2c48ad25f0b8ea65360cb55f9fbe414d5de1d4ba1efe9bd6a1",
+      "bytes": 540
+    },
+    {
+      "path": "after-integration.log.json",
+      "sha256": "4c92c015d5a4c6e3bf8ed6752daa6cb01ac435c9bbc603532c88ef29fbda2cd4",
+      "bytes": 4570
+    },
+    {
+      "path": "after-supports.log.json",
+      "sha256": "68d379e0e7a1e66fe2ba0d8fc8fd36e1797dab5f76b421336fa32579ae191cfb",
+      "bytes": 3022
+    },
+    {
+      "path": "before-integration.log.json",
+      "sha256": "563eec6ebc0cebea79d1875f2ab9a2f96807c0a5db970737ff02a3901f8523fc",
+      "bytes": 3946
+    },
+    {
+      "path": "before-supports.log.json",
+      "sha256": "ccfac95bf74f6d4bc4ab281353f076343bb9c5e2c154171e9609b82c91aa1d4a",
+      "bytes": 1626
+    },
+    {
+      "path": "nonlinear_integration.before.rs",
+      "sha256": "9ae6eb2cab93ed034b394fc12d99e6dd7f555359b77bb5eafb9d7ccc9fa4bd93",
+      "bytes": 83999
+    },
+    {
+      "path": "nonlinear_supports.before.rs",
+      "sha256": "6caba773225584a610dcd39500242fae403c9f077f1cff646f3e9acfdaa913f6",
+      "bytes": 43359
+    },
+    {
+      "path": "scope-check.json",
+      "sha256": "48317159d452322b95771f5cfac6a5f1f849e42221ac5277ad3761073031c3aa",
+      "bytes": 622
+    }
+  ]
+}

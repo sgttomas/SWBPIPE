@@ -1,0 +1,9 @@
+{
+  "status": "F2 prepared held, no dispatch or verification claims",
+  "files": {
+    "snapshots/F2_PREPARED_V1/BRIEF.md": "7f821d14d64bc91ea5125035f9936207727dfd9e1c18ef5cfdb66a4da80f95da",
+    "snapshots/F2_PREPARED_V1/P4_ACCEPTANCE.json": "7b32bb02aabf8878da3d38d0535ea5b140acef31df2322959baf96546db073ed",
+    "snapshots/F2_PREPARED_V1/WORK_GRAPH.json": "5dde39666e95b0ee0470efae5a19bb973f030960e24c31c6100a1ca7b1ba06ae"
+  },
+  "release_conditions": "P5/F1/P9 accepted + fresh final source review + CHANGE clean committed source + root heavy slot/upstream fingerprint release"
+}

@@ -1,0 +1,5 @@
+{
+  "EXPECTATIONS.md": "58eca8ddda2948bfe37bbbff74872b23b4ccc16c092212738e895797aae94cbd",
+  "harness/src/main.rs": "5b4671282466232902d42daeb6ec12391654381c067c9b9276cc6dbd6253ed2d",
+  "harness/Cargo.toml": "326677deba0692d4eb2bebbb4c4bd009c805fc0a742197798a072afaf4924558"
+}

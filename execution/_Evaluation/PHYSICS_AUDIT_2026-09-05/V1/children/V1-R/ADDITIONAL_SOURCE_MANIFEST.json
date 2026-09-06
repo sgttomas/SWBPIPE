@@ -1,0 +1,11 @@
+{
+  "projects/chirality-piping/validation/benchmarks/nonlinear/src/lib.rs": "ff3f318224fa2c55392bfa17569182768453b3157cf35fc20d763f54bf02fd12",
+  "projects/chirality-piping/validation/benchmarks/stress/src/lib.rs": "ad7239a073f5ca6c161ee3f63642d487414efed6e3176ae86a2af7979b73210c",
+  "projects/chirality-piping/validation/benchmarks/stress/target/debug/build/serde_core-68356cacc7ea2a16/out/private.rs": "27ad1b5fb4eebeb1da6419cbfad3ac1922ed1d817fcbab0a1dae1bdfd38d8307",
+  "projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+  "projects/chirality-piping/validation/benchmarks/mechanics/target/debug/build/serde_core-68356cacc7ea2a16/out/private.rs": "27ad1b5fb4eebeb1da6419cbfad3ac1922ed1d817fcbab0a1dae1bdfd38d8307",
+  "projects/chirality-piping/tests/test_calculation_witness.py": "b8f597acae522244a02a2f4f45968981dd320e21ea082414ad3b38d47a8fdbbd",
+  "projects/chirality-piping/validation/witness/tools/witness_validator.py": "7f7c26cbcb2b4fe0b60e30b4ff330166ca35bb700aca0576877f4e73bbbf3857",
+  "projects/chirality-piping/validation/witness/fixtures/tp_phys_015_section_property_stress_witness.json": "3b44dff4b2e106926cdb05fe7f6deccbce72e410605b793ce33f71040c0f478b",
+  "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3"
+}

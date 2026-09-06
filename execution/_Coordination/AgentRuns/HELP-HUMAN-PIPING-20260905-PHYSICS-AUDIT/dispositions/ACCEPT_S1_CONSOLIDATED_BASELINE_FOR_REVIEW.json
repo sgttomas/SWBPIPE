@@ -1,0 +1,13 @@
+{
+  "id": "ACCEPT_S1_CONSOLIDATED_BASELINE_FOR_REVIEW",
+  "disposition": "ACCEPT FOR REVIEW only; not whole-baseline acceptance",
+  "manifest_sha256": "0e21940bfe3109aea0b907ab791f3f0c92f0710499603878536a70d6daa122cd",
+  "root_verification": "Root read report/repair plan and verified all 27 members",
+  "upstream": "S1 consumed all accepted M1/I1/V1 and I1 supplement packets",
+  "effect": "Release complete synthesis for fresh R1 review",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "production_barrier": "R1 PASS plus root whole-baseline acceptance still required before production changes"
+}

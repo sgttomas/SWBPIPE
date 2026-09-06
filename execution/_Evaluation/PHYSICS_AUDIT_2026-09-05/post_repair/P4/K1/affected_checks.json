@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "harness-self-check"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "projects/chirality-piping/core/solver/diagnostics/src/lib.rs"
+  ],
+  "reasons": {},
+  "schema": "chirality-affected-checks/v1"
+}

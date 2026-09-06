@@ -1,0 +1,10 @@
+{
+  "id": "NOTICE-005-PRODUCT-OWNERSHIP",
+  "date": "2026-09-05",
+  "source": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "P4": "P1 product child currently exclusive owner of product_physics and nonlinear_integration; actual child attribution remains manager-owned",
+  "P5": "Source transfer pending; planning completed with recorded compliance violation",
+  "P9": "Preparation accepted; existing-discovery benchmark suite path in sealed V2; current red tests are baseline observations, not closure",
+  "no_owner_policy_change": true
+}

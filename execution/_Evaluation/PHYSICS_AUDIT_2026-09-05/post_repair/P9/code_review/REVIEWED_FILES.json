@@ -1,0 +1,26 @@
+[
+  {
+    "file": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml",
+    "sha256": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+    "lines": 9,
+    "coverage": "100% read"
+  },
+  {
+    "file": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+    "sha256": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "lines": 212,
+    "coverage": "100% read"
+  },
+  {
+    "file": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md",
+    "sha256": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+    "lines": 13,
+    "coverage": "100% read"
+  },
+  {
+    "file": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs",
+    "sha256": "91ea3ad88f76a617075ebc24d2d5a931f4b0cf30faf45f55b8da4f613a3081fc",
+    "lines": 431,
+    "coverage": "100% read"
+  }
+]

@@ -1,0 +1,11 @@
+{
+  "status": "source commit held; exact evidence attribute repair authorized",
+  "files": {
+    "snapshots/EVIDENCE_CRLF_REPAIR_V1/HANDOFF_STATE.md": "81b1d04ab9bed0221ff056b53dd8e9ae2b04a40e5cb9d24f47d152e436f223c3",
+    "snapshots/EVIDENCE_CRLF_REPAIR_V1/WORK_GRAPH.json": "c9b2f50018ff3c5aeda361c8b8633e063d49392e3515ddaa2b981d302401fef0",
+    "snapshots/EVIDENCE_CRLF_REPAIR_V1/dispositions/AMEND_E1_EXACT_CSV_CRLF_RECOGNITION.json": "7b24e4bd77e99abf2f418fedd2a244fb9b4529d8bfd6022624d61ddc15953f27",
+    "snapshots/EVIDENCE_CRLF_REPAIR_V1/notices/LAUNCH-011-E1-EVIDENCE-CRLF.json": "24bf1717359716deb0424b39f3352a897ee24e618639befa951957dd938b940d"
+  },
+  "production_scope": "unchanged; control-only C1 update",
+  "required_next": "E1proofs/freshF3/SOURCE_READY_V2/rootrelease"
+}

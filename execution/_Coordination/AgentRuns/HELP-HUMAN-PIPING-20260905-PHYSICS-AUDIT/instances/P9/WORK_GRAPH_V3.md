@@ -1,0 +1,5 @@
+P9 Agent1, PKG09 only. Root-approved R10. A: independent reference seal then test authoring; R: fresh read-only review after A terminal and matching repaired source. Manager validates evidence and mediates root notices. A writes only novel regression crate and own author evidence; R evidence only. Compilation held by root. No cycles: P9 closure consumes P4/P5 source, P4 handoff does not depend P9 closure. Native attribution instruction+config asserted; model and token/context unknown when unexposed. All derivative evidence cites accepted S1 V3/R1 PASS and retains lifecycle/Owner gates.
+
+Root explicit amended new crate location: validation/benchmarks/physics_audit_regression. Existing DEC025 core+validation/benchmarks discovery includes it; no release runner integration edit needed. Old validation/tests proposal superseded.
+
+P9-R /root/repair_pkg09/reference_review launched on sealed expectations only, in parallel with A test authoring. R writes own review evidence only. A expectations have been frozen before this launch. R later may perform separately sealed full test-diff review after A terminal; never an author. Model unexposed.

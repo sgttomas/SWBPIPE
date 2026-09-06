@@ -1,0 +1,8 @@
+{
+  "supersedes": "MUTATION_EXPECTATIONS.json (unexecuted selected-test candidate retained)",
+  "baseline": "Entire original product --lib suite must pass; no assertion edits",
+  "W3": "Remove rotational reaction squares from force magnitude. Anticipate original suite may survive; measure rather than infer. This direction is an audit target, not asserted physical approval.",
+  "W5": "Zero every interpolated endpoint station numeric row at wrapper output. Anticipate metadata tests survive; measure whole original suite, including failures.",
+  "positive_control": "Zero all force/moment/stress values; fixed thermal numeric regression must fail.",
+  "scope": "Same copied product source, absolute read-only dependencies and fixture includes; no production changes. Test source assertions unchanged. Existing thresholds unchanged; no random cases."
+}

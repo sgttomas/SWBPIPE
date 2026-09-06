@@ -1,0 +1,21 @@
+{
+  "schema": "piping-evidence-manifest/v1",
+  "role": "P5-RECON",
+  "files": [
+    {
+      "path": "OBSERVED_SOURCE.json",
+      "sha256": "ed830bcea7df494ab40c84e8381df460b8d2f4a3221ddaad394834d009a0fcc6",
+      "bytes": 1275
+    },
+    {
+      "path": "RECON.md",
+      "sha256": "65877e768e8a5c44f3f2057ec07586e6a604ea70427c27a59390b54a56d1f9d5",
+      "bytes": 13253
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_RECON.md",
+      "sha256": "37c77f73e5136f8b7401571291389bc6bad4c14773bfbb85b801b0596315a7ba",
+      "bytes": 3163
+    }
+  ]
+}

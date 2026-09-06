@@ -1,0 +1,20 @@
+{
+  "verdict": "PASS",
+  "files": [
+    {
+      "path": "INDEPENDENT_ARITHMETIC.json",
+      "sha256": "ce1f41b7330493d5a8f15f9211acae8bbfeec23d8d6510f2f105638ea0c8e1ae",
+      "bytes": 4910
+    },
+    {
+      "path": "REFERENCE_REVIEW.md",
+      "sha256": "9a18b417283b1cbc149d4941d9113b7d8d40414c50ab2fad001ea7b40d7fac4e",
+      "bytes": 5133
+    },
+    {
+      "path": "_run_records/TASK_RUN_P9_R.md",
+      "sha256": "c8d62b5fecfb77fcc9b75eaa859cdb0d2d23b0ede1c32c9203f638238dd584f9",
+      "bytes": 1388
+    }
+  ]
+}

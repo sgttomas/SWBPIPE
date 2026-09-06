@@ -594,7 +594,11 @@ impl FrameElement {
     pub fn global_stiffness(&self) -> Result<Matrix12, FrameKernelError> {
         let local = self.local_stiffness()?;
         let orientation = self.orientation()?;
-        Ok(transform_global_stiffness(&local, &orientation))
+        let global = transform_global_stiffness(&local, &orientation);
+        for row in &global {
+            validate_named_finite_slice("computed global stiffness", row)?;
+        }
+        Ok(global)
     }
 }
 
@@ -666,7 +670,11 @@ impl UserStiffnessElement {
     pub fn global_stiffness(&self) -> Result<Matrix12, FrameKernelError> {
         let local = self.local_stiffness();
         let orientation = self.orientation()?;
-        Ok(transform_global_stiffness(&local, &orientation))
+        let global = transform_global_stiffness(&local, &orientation);
+        for row in &global {
+            validate_named_finite_slice("computed global stiffness", row)?;
+        }
+        Ok(global)
     }
 }
 
@@ -727,6 +735,9 @@ pub fn local_stiffness(properties: FrameProperties) -> Result<Matrix12, FrameKer
     add_bending_z(&mut stiffness, bend_z_12, bend_z_6, bend_z_4, bend_z_2);
     add_bending_y(&mut stiffness, bend_y_12, bend_y_6, bend_y_4, bend_y_2);
 
+    for row in &stiffness {
+        validate_named_finite_slice("computed local stiffness", row)?;
+    }
     Ok(stiffness)
 }
 
@@ -779,6 +790,9 @@ pub fn assemble_global_stiffness_with_user_elements(
         );
     }
 
+    for row in &global {
+        validate_named_finite_slice("assembled stiffness", row)?;
+    }
     Ok(global)
 }
 
@@ -863,6 +877,7 @@ fn reduce_system_for_boundary(
         }
     }
 
+    validate_named_finite_slice("adjusted force", &reduced_force)?;
     Ok(ReducedSystem {
         stiffness: reduced_stiffness,
         force: reduced_force,
@@ -936,6 +951,8 @@ pub fn solve_dense(stiffness: &[Vec<f64>], force: &[f64]) -> Result<DenseVector,
                 *entry -= factor * pivot_entry;
             }
             rhs[row_index] -= factor * rhs[pivot];
+            validate_named_finite_slice("eliminated stiffness", row_values)?;
+            validate_named_finite_slice("eliminated force", &[rhs[row_index]])?;
         }
     }
 
@@ -949,6 +966,7 @@ pub fn solve_dense(stiffness: &[Vec<f64>], force: &[f64]) -> Result<DenseVector,
             return Err(FrameKernelError::SingularSystem { pivot: row });
         }
         solution[row] = sum / matrix[row][row];
+        validate_named_finite_slice("computed solution", &[solution[row]])?;
     }
 
     Ok(solution)
@@ -1172,6 +1190,18 @@ mod tests {
     use super::*;
 
     const ASSERT_TOLERANCE: f64 = 1.0e-9;
+
+    #[test]
+    fn audit_rejects_computed_nonfinite_stiffness_and_solutions() {
+        let section = FrameSection::new(1e308, 1e308, 10., 10., 10., 10.).unwrap();
+        assert!(local_stiffness(FrameProperties::new(section, 1.).unwrap()).is_err());
+        assert!(solve_dense(&[vec![0.5]], &[1e308]).is_err());
+        assert!(solve_dense(&[vec![1e308, 1e308], vec![1e308, -1e308]], &[1e308, -1e308]).is_err());
+        assert_eq!(
+            solve_dense(&[vec![2., 1.], vec![1., 2.]], &[3., 3.]).unwrap(),
+            vec![1., 1.]
+        );
+    }
 
     #[test]
     fn six_dof_mapping_is_stable_and_node_based() {

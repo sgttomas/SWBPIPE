@@ -1,0 +1,14 @@
+{
+  "id": "ACCEPT_P4_KERNEL_CHECKPOINT_V1",
+  "disposition": "Accept bounded kernel checkpoint R01\u2013R04 only",
+  "manifest_sha256": "ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1",
+  "root_verification": "Read ACCEPTANCE and kernel-review backcheck PASS; verified both checkpoint members",
+  "validation": "197 targeted tests PASS; original kernel-review singular-small-block finding fixed and re-reviewed",
+  "limits": "No engineering policy promotion; product integration not yet accepted",
+  "runtime_attribution": "P4 kernel/nonlinear/kernel_review actual children followed by P1 product child launched by manager; exact attribution resides in manager records",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "preservation": "All prior evidence and failed/violation history retained"
+}

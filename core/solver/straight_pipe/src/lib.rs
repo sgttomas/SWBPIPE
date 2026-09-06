@@ -958,6 +958,8 @@ impl StraightPipeElement {
             accumulate_spanned_uniform_station_resultants(&mut resultants, *load, length, distance);
         }
         for load in point_forces {
+            validate_station_fraction("point_force_station_fraction", load.station_fraction)?;
+            validate_finite("point_force", load.force)?;
             accumulate_point_station_resultants(&mut resultants, *load, length, distance);
         }
 
@@ -1511,6 +1513,34 @@ mod tests {
             (actual - expected).abs() < 1.0e-6,
             "expected {actual} to be within tolerance of {expected}"
         );
+    }
+
+    #[test]
+    fn audit_direct_station_api_rejects_invalid_point_literals() {
+        let pipe = element(None);
+        let end = PipeEndResultants {
+            end: PipeEnd::I,
+            axial_force: 0.,
+            shear_force_y: 0.,
+            shear_force_z: 0.,
+            torsional_moment: 0.,
+            bending_moment_y: 0.,
+            bending_moment_z: 0.,
+        };
+        for (fraction, force) in [(2., 10.), (-1., 10.), (0.9, f64::NAN)] {
+            assert!(pipe
+                .station_resultants_from_i_end(
+                    end,
+                    0.5,
+                    &[],
+                    &[PointLocalForce {
+                        station_fraction: fraction,
+                        direction: LocalLoadDirection::X,
+                        force
+                    }]
+                )
+                .is_err());
+        }
     }
 
     #[test]

@@ -1,0 +1,693 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+    "id": "project:invented-loop-01",
+    "name": "Invented Utility Loop Preview",
+    "description": "Small invented centerline model for desktop integration review.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC",
+      "stress": "MPa"
+    }
+  },
+  "materials": [
+    {
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "elastic_modulus": {
+        "value": 200000000000,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example_no_material_standard"
+    }
+  ],
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:N-100",
+      "label": "Pump nozzle",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-110",
+      "label": "Low point elbow",
+      "position": {
+        "x": 3.2,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-120",
+      "label": "Riser elbow",
+      "position": {
+        "x": 3.2,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-130",
+      "label": "Rack turn",
+      "position": {
+        "x": 7.6,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-140",
+      "label": "Terminal tie-in",
+      "position": {
+        "x": 7.6,
+        "y": 2.4,
+        "z": 2.2
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:P-100",
+      "label": "Pump discharge run",
+      "from": "node:N-100",
+      "to": "node:N-110",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-110",
+      "label": "Vertical riser",
+      "from": "node:N-110",
+      "to": "node:N-120",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-120",
+      "label": "Rack span",
+      "from": "node:N-120",
+      "to": "node:N-130",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    },
+    {
+      "id": "pipe:P-130",
+      "label": "Tie-in rise",
+      "from": "node:N-130",
+      "to": "node:N-140",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      },
+      "provenance": "invented_example_no_standard_catalog"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:S-100",
+      "label": "Anchor at pump nozzle",
+      "node": "node:N-100",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:S-120",
+      "label": "Guide on riser",
+      "node": "node:N-120",
+      "family": "guide",
+      "restraints": [
+        "UX",
+        "UZ"
+      ],
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:S-130",
+      "label": "Rack shoe",
+      "node": "node:N-130",
+      "family": "guide",
+      "restraints": [
+        "UY"
+      ],
+      "provenance": "invented_example"
+    },
+    {
+      "id": "support:SH-140",
+      "label": "Invented variable spring hanger",
+      "node": "node:N-140",
+      "family": "variable_spring_hanger",
+      "restraints": [],
+      "hanger": {
+        "hanger_type": "variable_spring_hanger",
+        "stiffness": {
+          "dof": "UZ",
+          "value": {
+            "value": 42000,
+            "unit": "N/m"
+          }
+        },
+        "installed_load": {
+          "value": 460,
+          "unit": "N"
+        },
+        "cold_load": {
+          "value": 430,
+          "unit": "N"
+        },
+        "hot_load": {
+          "value": 390,
+          "unit": "N"
+        },
+        "travel_range": {
+          "value": 0.045,
+          "unit": "m"
+        },
+        "manufacturer_reference": "invented_user_entered_variable_hanger_reference_no_catalog",
+        "source_reference": "invented_user_entered_spring_hanger_values_no_catalog",
+        "load_side_review_reference": "invented_review_only_hot_cold_load_metadata",
+        "mechanics_consumption": "linear_spring_primitive_user_stiffness"
+      },
+      "provenance": "invented_example_user_entered_variable_spring_hanger_no_catalog"
+    },
+    {
+      "id": "support:CE-120",
+      "label": "Invented constant-effort support",
+      "node": "node:N-120",
+      "family": "constant_effort_support",
+      "restraints": [],
+      "hanger": {
+        "hanger_type": "constant_effort_support",
+        "constant_load": {
+          "value": 375,
+          "unit": "N"
+        },
+        "travel_range": {
+          "value": 0.04,
+          "unit": "m"
+        },
+        "manufacturer_reference": "invented_user_entered_constant_effort_reference_no_catalog",
+        "source_reference": "invented_user_entered_constant_effort_values_no_catalog",
+        "load_side_review_reference": "review_only_constant_load_not_combined_as_load_effect",
+        "mechanics_consumption": "load_side_review_only_no_global_solve_consumption"
+      },
+      "provenance": "invented_example_user_entered_constant_effort_support_no_catalog"
+    }
+  ],
+  "components": [
+    {
+      "id": "component:C-110",
+      "label": "Invented elbow marker",
+      "kind": "bend",
+      "node": "node:N-110",
+      "geometry": {
+        "bend_radius": {
+          "value": 0.45,
+          "unit": "m"
+        },
+        "bend_angle": {
+          "value": 1.5707963268,
+          "unit": "rad"
+        },
+        "bend_plane_orientation": "global_xy_preview",
+        "bend_geometry_source_reference": "invented_user_entered_preview_geometry"
+      },
+      "modifiers": {
+        "sif_user_value": {
+          "value": 1.15,
+          "unit": "none"
+        },
+        "flexibility_factor_user_value": {
+          "value": 1.08,
+          "unit": "none"
+        },
+        "source_reference": "invented_user_entered_preview_no_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-110:bend-geometry",
+          "status": "complete",
+          "diagnostic_code": "BEND_GEOMETRY_INCOMPLETE",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_bend_values_no_code_table"
+    },
+    {
+      "id": "component:C-120",
+      "label": "Invented branch connection marker",
+      "kind": "branch",
+      "node": "node:N-120",
+      "geometry": {
+        "branch_header_pipe_ref": "pipe:P-120",
+        "branch_branch_pipe_ref": "pipe:P-110",
+        "branch_run_size": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "branch_header_size": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "branch_connection_angle": {
+          "value": 1.5707963268,
+          "unit": "rad"
+        },
+        "branch_connection_type": "invented_unreinforced_tee_preview",
+        "branch_reinforcement_reference": "invented_user_entered_no_reinforcement_for_preview",
+        "branch_geometry_source_reference": "invented_user_entered_branch_preview_geometry"
+      },
+      "modifiers": {
+        "branch_header_sif_user_value": {
+          "value": 1.22,
+          "unit": "none"
+        },
+        "branch_branch_sif_user_value": {
+          "value": 1.31,
+          "unit": "none"
+        },
+        "flexibility_factor_user_value": {
+          "value": 1.05,
+          "unit": "none"
+        },
+        "source_reference": "invented_user_entered_branch_modifiers_no_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-120:branch-geometry",
+          "status": "complete",
+          "diagnostic_code": "BRANCH_RULE_INPUT_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_branch_values_no_code_table"
+    },
+    {
+      "id": "component:C-130",
+      "label": "Invented semi-rigid valve marker",
+      "kind": "valve",
+      "node": "node:N-130",
+      "geometry": {
+        "rigid_pipe_ref": "pipe:P-130",
+        "rigid_body_length": {
+          "value": 0.72,
+          "unit": "m"
+        },
+        "end_a_size": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "end_b_size": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "weight": {
+          "value": 420,
+          "unit": "N"
+        },
+        "center_of_gravity": {
+          "x": 0.12,
+          "y": 0.02,
+          "z": 0.0,
+          "unit": "m"
+        },
+        "connection_end_a_reference": "invented_user_entered_end_a_connection",
+        "connection_end_b_reference": "invented_user_entered_end_b_connection",
+        "stiffness_behavior_reference": "invented_user_entered_semi_rigid_behavior_no_catalog",
+        "rigid_component_source_reference": "invented_user_entered_rigid_component_preview_geometry"
+      },
+      "modifiers": {
+        "stiffness_scaling_user_value": {
+          "value": 15.0,
+          "unit": "none"
+        },
+        "linear_stiffness_user_value": {
+          "value": 15000000,
+          "unit": "N/m"
+        },
+        "rotational_stiffness_user_value": {
+          "value": 850000,
+          "unit": "N*m/rad"
+        },
+        "source_reference": "invented_user_entered_rigid_stiffness_no_catalog_or_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_only",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-130:rigid-component",
+          "status": "complete",
+          "diagnostic_code": "RIGID_COMPONENT_STIFFNESS_DATA_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_rigid_component_values_no_catalog"
+    },
+    {
+      "id": "component:C-140",
+      "label": "Invented tie-in marker",
+      "kind": "terminal",
+      "node": "node:N-140",
+      "provenance": "invented_example"
+    },
+    {
+      "id": "component:C-150",
+      "label": "Invented expansion joint marker",
+      "kind": "expansion_joint",
+      "node": "node:N-140",
+      "geometry": {
+        "expansion_joint_pipe_ref": "pipe:P-130",
+        "effective_area": {
+          "value": 0.018,
+          "unit": "m^2"
+        },
+        "movement_limit": {
+          "value": 0.045,
+          "unit": "m"
+        },
+        "hardware_reference": "invented_user_entered_tie_rod_limit_metadata_no_catalog",
+        "manufacturer_reference": "invented_user_entered_manufacturer_reference_no_catalog",
+        "pressure_thrust_reference": "load_side_pressure_thrust_user_review_required",
+        "expansion_joint_source_reference": "invented_user_entered_expansion_joint_preview_geometry"
+      },
+      "modifiers": {
+        "axial_stiffness_user_value": {
+          "value": 3200000,
+          "unit": "N/m"
+        },
+        "lateral_stiffness_user_value": {
+          "value": 900000,
+          "unit": "N/m"
+        },
+        "angular_stiffness_user_value": {
+          "value": 480000,
+          "unit": "N*m/rad"
+        },
+        "torsional_stiffness_user_value": {
+          "value": 620000,
+          "unit": "N*m/rad"
+        },
+        "source_reference": "invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table"
+      },
+      "mechanics_interface": {
+        "solver_consumption": "mechanics_geometry_and_user_flexibility",
+        "rule_check_consumption": "user_rule_pack_inputs_only"
+      },
+      "completeness": [
+        {
+          "finding_id": "finding:C-150:expansion-joint",
+          "status": "complete",
+          "diagnostic_code": "EXPANSION_JOINT_STIFFNESS_DATA_MISSING",
+          "missing_field_kinds": []
+        }
+      ],
+      "provenance": "invented_example_user_entered_expansion_joint_values_no_catalog"
+    }
+  ],
+  "load_cases": [
+    {
+      "id": "load:L-100",
+      "label": "Invented operating gravity and pressure preview",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:L-100-Z",
+          "category": "weight",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-120"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": -190,
+            "unit": "N/m"
+          },
+          "dimension": "force_per_length",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-Y",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-140"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 350,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-P",
+          "category": "pressure",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-120"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 1200000,
+            "unit": "Pa"
+          },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-100-P-EJ",
+          "category": "pressure",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-130"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 1200000,
+            "unit": "Pa"
+          },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input_expansion_joint_effective_area_pressure"
+        },
+        {
+          "id": "load:L-100-T",
+          "category": "thermal",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-120"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": 12.5,
+            "unit": "degC"
+          },
+          "dimension": "temperature_interval",
+          "provenance": "invented_example_user_input"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination"
+    },
+    {
+      "id": "load:L-200",
+      "label": "Invented alternate gravity and pressure preview",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:L-200-Z",
+          "category": "weight",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-120"
+          },
+          "direction": "global_z",
+          "magnitude": {
+            "value": -95,
+            "unit": "N/m"
+          },
+          "dimension": "force_per_length",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-Y",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:N-140"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 125,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-P",
+          "category": "pressure",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-120"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 600000,
+            "unit": "Pa"
+          },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input"
+        },
+        {
+          "id": "load:L-200-P-EJ",
+          "category": "pressure",
+          "target": {
+            "type": "element",
+            "pipe": "pipe:P-130"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 600000,
+            "unit": "Pa"
+          },
+          "dimension": "pressure",
+          "provenance": "invented_example_user_input_expansion_joint_effective_area_pressure"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination"
+    }
+  ],
+  "combinations": [
+    {
+      "id": "combination:C-OPER-ALT",
+      "label": "Invented explicit operating plus alternate preview",
+      "basis": "mechanics",
+      "terms": [
+        {
+          "load_case": "load:L-100",
+          "factor": 1.0
+        },
+        {
+          "load_case": "load:L-200",
+          "factor": 0.5
+        }
+      ],
+      "provenance": "invented_example_user_defined_mechanics_combination_no_code_default"
+    }
+  ],
+  "diagnostics": [
+    {
+      "code": "RULE_INPUTS_MISSING",
+      "severity": "warning",
+      "message": "Rule-check inputs are intentionally absent from this invented preview.",
+      "source": "fixtures/product_preview/invented_preview_model.json"
+    }
+  ]
+}

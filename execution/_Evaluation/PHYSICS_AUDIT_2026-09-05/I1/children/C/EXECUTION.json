@@ -1,0 +1,252 @@
+[
+  {
+    "fixture": "distributed.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "distributed.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "duplicate_node.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "duplicate_node.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "five_rigid_plus_contact.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "five_rigid_plus_contact.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "five_rigid_plus_spring.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "five_rigid_plus_spring.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "huge_finite_coordinate.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "huge_finite_coordinate.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "large_origin.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "large_origin.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "linear_spring.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "linear_spring.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_length.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_length.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_material.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_material.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_target.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "missing_target.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "mixed_units.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "mixed_units.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "nonlinear_nospring.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "nonlinear_nospring.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "nonlinear_spring.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "nonlinear_spring.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_in.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_in.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_m.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_m.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_mm.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "original_mm.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "pressure_MPa.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "pressure_MPa.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "pressure_Pa.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "pressure_Pa.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "pure_moment.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "pure_moment.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "rotated_z90.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "rotated_z90.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "spring_stabilized.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "spring_stabilized.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "thermal_C.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "thermal_C.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "thermal_F.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "thermal_F.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "translated.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "translated.json",
+    "mode": "dense",
+    "returncode": 0
+  },
+  {
+    "fixture": "wrong_length.json",
+    "mode": "sparse",
+    "returncode": 0
+  },
+  {
+    "fixture": "wrong_length.json",
+    "mode": "dense",
+    "returncode": 0
+  }
+]

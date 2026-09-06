@@ -1,0 +1,7 @@
+{
+  "basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "files_checked": 168,
+  "mismatches": [],
+  "status": "PASS",
+  "test_assertions_unchanged": "Each mutation patch changes only production wrapper or reaction expression; seven include_str relocations change file lookup only; fixture files hashed unchanged."
+}

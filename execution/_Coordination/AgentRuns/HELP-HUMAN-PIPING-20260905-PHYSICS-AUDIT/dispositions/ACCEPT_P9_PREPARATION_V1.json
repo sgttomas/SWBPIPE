@@ -1,0 +1,14 @@
+{
+  "id": "ACCEPT_P9_PREPARATION_V1",
+  "disposition": "Accept PREPARATION only, not product behavior closure",
+  "manifest_sha256": "b42dcaf85ccea5fa8917c303b38672ee9b0951ce2b254c6e032b856b88156fe9",
+  "root_verification": "Read handoff and verified three members",
+  "validation": "Independent 18 numerical reference review and test-code review PASS after unit-label assertion repair",
+  "current_behavior": "10 actual-product tests red before integration; not behavioral closure",
+  "scope_amendment": "Root amended P9 suite path to validation/benchmarks/physics_audit_regression for existing discovery; sealed P9 V2 owns exact path",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "preservation": "All prior evidence and failed/violation history retained"
+}

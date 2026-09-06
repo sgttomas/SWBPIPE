@@ -1,0 +1,26 @@
+{
+  "id": "AMEND_F1_FIXTURE_CONSUMER_TESTS_V3",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "instance": "F1",
+  "runtime_id": "/root/fixture_regeneration",
+  "status": "active exact consumer-test synchronization",
+  "V1": "Deterministic regenerated fixture; 138 product tests PASS",
+  "V2": {
+    "authorized_path": "{WORKING_ROOT}/apps/desktop/src/services/previewService.test.ts",
+    "scope": "Two fixture-value/comment synchronizations",
+    "validation": "16 PASS"
+  },
+  "current_full_vitest": "744 PASS and four App.test fixture-check failures; no full PASS claimed",
+  "V3_exact_extension": {
+    "path": "{WORKING_ROOT}/apps/desktop/src/App.test.tsx",
+    "scope": "Exact four failing fixture-dependent test cases; independently derive fixture values/counts, preserve behavioral assertions",
+    "exclusions": [
+      "No engine changes",
+      "No blanket assertion weakening",
+      "No additional source paths"
+    ]
+  },
+  "final_gate": "Fresh full changed-source/test/fixture review and F2 final verification remain required"
+}

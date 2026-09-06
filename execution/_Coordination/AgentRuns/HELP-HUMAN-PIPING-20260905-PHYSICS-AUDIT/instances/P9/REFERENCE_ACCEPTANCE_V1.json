@@ -1,0 +1,8 @@
+{
+  "status": "accepted_reference_only",
+  "manifest_sha256": "c30fa7d0fa082332fafd439a712aae0169f951497d371915b1bbc5c4974995bb",
+  "verified_members": 3,
+  "test_review": "pending",
+  "production_acceptance": "pending",
+  "root_compile_grant": "one isolated lightweight slot; preintegration checkpoint only"
+}

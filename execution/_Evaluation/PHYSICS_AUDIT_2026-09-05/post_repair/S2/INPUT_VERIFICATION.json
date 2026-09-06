@@ -1,0 +1,113 @@
+{
+  "status": "PASS",
+  "base": "WORKING_ROOT",
+  "packets": [
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/MANIFEST_V3.json",
+      "sha256": "e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f",
+      "verified_members": 33
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4/FINAL_MANIFEST.json",
+      "sha256": "4820759d2bb32768ec8f31034c91e6c001775f448517ab38ba19ff6852b69a8e",
+      "verified_members": 30
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/final_package_v1/MANIFEST.json",
+      "sha256": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1",
+      "verified_members": 7
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/final_package_v1/MANIFEST.json",
+      "sha256": "b13ec5c533f1a571b8314b680b8985ed73dfcd44c53ffd2c5901339395b413bc",
+      "verified_members": 4
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/R1/backcheck_v3/MANIFEST.json",
+      "sha256": "45de32ea6e0e52a9afa903887a2c62c9ad9fdedc93e49bac2a960b8c64958e08",
+      "verified_members": 2
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/N1/MANIFEST.json",
+      "sha256": "352d61ba457c1b1e5ecc937d8d279547991d53cddc930dc817726ffd7bd59b6c",
+      "verified_members": 17
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/D1/MANIFEST.json",
+      "sha256": "663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766",
+      "verified_members": 21
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1R/MANIFEST.json",
+      "sha256": "c3ecacc20f98410de76776556aae763c4d7f20b60d34c8b5a00c53601da58493",
+      "verified_members": 9
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/PRODUCT_CHECKPOINT_V1/MANIFEST.json",
+      "sha256": "6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed",
+      "verified_members": 3
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KERNEL_CHECKPOINT_V1/MANIFEST.json",
+      "sha256": "ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1",
+      "verified_members": 2
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/PR/MANIFEST.json",
+      "sha256": "0762d8376ae861e51dc41b9d278ea6e45ee85237f963b58ea5b27dd9f0092a79",
+      "verified_members": 5
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/P1/MANIFEST.json",
+      "sha256": "30600919d738e858ce002fb402762f3955ccaa4082ffb5cef50239b408e38369",
+      "verified_members": 67
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KR/MANIFEST.json",
+      "sha256": "73e6a12c1fbe313cb9ca26ee44776a42e6ebe64b6361486b0f54dd157ad66df3",
+      "verified_members": 6
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/K1/MANIFEST.json",
+      "sha256": "ef3a24881f0130a4c1a9c8b137499942a1deb61a6d4ea387c2d829b4e4e6c35c",
+      "verified_members": 12
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KR/backcheck_v1/MANIFEST.json",
+      "sha256": "3581650c71241bd181dfca577a9586932b81d6bc247368f00c2fde32fd39eb07",
+      "verified_members": 3
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/implementation/MANIFEST.json",
+      "sha256": "98aa267b9f0f20b165c7ca9948063d23e7250722eaa252c29975a1837ce366de",
+      "verified_members": 22
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json",
+      "sha256": "76fde1685dcec11047f577b285fb8e335804b3071115cc0074bf4921c1a50bf7",
+      "verified_members": 6
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json",
+      "sha256": "52f01076ce97337cca7d8efb02cf3497120f4773a43c7810f5a4474f4e38270e",
+      "verified_members": 51
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/p5_candidate_v1/MANIFEST.json",
+      "sha256": "6c6cac8ed0f320fa110a18c67c8cb1597e47e54bd3bfc0f70d51fd882fba659b",
+      "verified_members": 17
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/MANIFEST.json",
+      "sha256": "640ffc02310d59c6f90a4bf94188a127617ee57815cd5d1bdf01513d44bb34ca",
+      "verified_members": 12,
+      "authority": "supplemental progress; not root final integration acceptance"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v2/MANIFEST.json",
+      "sha256": "5118ee810aa2d3db266da6f1a1f58b735abbb4f1ff456bcde4bcfcfc257a060c",
+      "verified_members": 10,
+      "authority": "supplemental progress; not root final integration acceptance"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+# Physics audit handoff — accepted baseline; repair integration in progress
+
+Whole baseline accepted at S1 V3 e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f with final R1 PASS45de32ea6e0e52a9afa903887a2c62c9ad9fdedc93e49bac2a960b8c64958e08 and all prior manager/review packets. Source basis2be412ccea62bdc4bd96deb082c46d7a792076ea; decomp0.12/SCA009/DAG010 unchanged. All evaluation/control outputs remain derivative evidence; baseline completeness is not engine correctness.
+
+Actual repair managers P4/P5/P9 launched under explicit root R01–R11 activation. P4 kernel R01–R04 checkpoint accepted: ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1, two members verified,197targetedPASS and fresh kernel review/backcheck including repaired singular-small-block finding. This accepts kernel checkpoint only, not product integration or engineering policy. P4 manager owns actual child records; current P1 exclusively edits product_physics/nonlinear_integration.
+
+P9 preparation accepted only at b42dcaf85ccea5fa8917c303b38672ee9b0951ce2b254c6e032b856b88156fe9, three members verified. Independent18numeric-reference and test-code reviews passed after unit-label assertion repair. Ten actual-product tests are red before integration and do not establish behavior closure. Root amended exclusive suite path to validation/benchmarks/physics_audit_regression for existing discovery in sealed P9V2.
+
+P5 planning complete at2b24ceafd39c3ee88f2d854d6ca35671ea4f243d0efbbbee7e9f66e2b39cad6f; technical design qualified by independent check. Recon compliance VIOLATION from temporary undeclared redirect is preserved (redirect removed); no compliance PASS claimed. P5 source writes remain held until P4 frozen accepted handoff and root transfer.
+
+Remaining gates: complete P4 product review/fan-in, explicit source transfer, P5 bounded load/recovery/algebra integration, independent matching P9 regressions, original-witness before/after, fresh full production diff review, native/integration checks, complete clean registered DEC025 and CHANGE reviewed PR. D01–D06 remain held; no numerical policy/public/schema/pressure/friction/connector assumptions promoted. Standard claim fence applies(F-PIP-2;DEC-081). No lifecycle or whole-engine closure. C1 only updates controls; managers own product/evaluation/child records.

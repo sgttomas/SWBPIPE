@@ -1,0 +1,11 @@
+{
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "exit_code": 0,
+  "manifest_count": 37,
+  "passed_tests": 971,
+  "failed": 0,
+  "ignored": 0,
+  "test_summary_lines": 89,
+  "raw_log_sha256": "d10c7dbda54eca39f5903bf80a4f44b46dc6b93cd0036c69758d2dd3b0810bce",
+  "limitation": "Passing suites do not establish independent reference coverage or physics validity."
+}

@@ -1,0 +1,399 @@
+{
+  "status": "PASS",
+  "checks": [
+    {
+      "check": "nine observations",
+      "pass": true
+    },
+    {
+      "check": "exact ordered fixture IDs",
+      "pass": true
+    },
+    {
+      "check": "nine distinct practical size bands",
+      "pass": true
+    },
+    {
+      "check": "host RSS observed positive; no threshold",
+      "pass": true
+    },
+    {
+      "check": "dependency/control hash stability",
+      "pass": true
+    },
+    {
+      "check": "accepted checkpoint ACCEPTANCE.md",
+      "pass": true
+    },
+    {
+      "check": "accepted checkpoint SOURCE_HASHES.json",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-8 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-24 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-48 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-4x3 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-6x8 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-7x8 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x5 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-cantilever-chain-32 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 required metrics present",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 all numeric observations finite",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 required numbers not null",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 established parity",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 established residual",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 established repeat",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 established pivot count",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 condition >=1 and pivot proxy positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 observed timing/storage positive",
+      "pass": true
+    },
+    {
+      "check": "invented-grid-frame-5x6 historical mechanics and fixture fields unchanged",
+      "pass": true
+    },
+    {
+      "check": "sandbox and host numeric mechanics identical",
+      "pass": true
+    }
+  ],
+  "criteria_source": "validation/benchmarks/sparse_default_promotion_policy.dec053.json",
+  "scope": "bounded historical observation criteria and metadata invariants only; no production equilibrium acceptance or unit-normalized admission"
+}

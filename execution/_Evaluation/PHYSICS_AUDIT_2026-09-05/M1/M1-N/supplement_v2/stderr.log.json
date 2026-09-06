@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "sha256": "97401c1ae7bb5bc58ef6f6d11de5c97e8c331a2bd9eb3555e3535633ca8f0a44",
+  "text": "   Compiling m1_n_coverage_v2 v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.29s\n     Running `projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/target/debug/m1_n_coverage_v2`\n"
+}

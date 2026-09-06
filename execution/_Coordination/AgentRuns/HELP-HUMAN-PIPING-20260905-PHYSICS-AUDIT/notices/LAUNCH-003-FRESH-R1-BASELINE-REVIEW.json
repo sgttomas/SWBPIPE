@@ -1,0 +1,24 @@
+{
+  "id": "LAUNCH-003-FRESH-R1-BASELINE-REVIEW",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "instance": "R1",
+  "runtime_id": "/root/audit_baseline_review",
+  "role": "fresh direct Agent 2 TASK",
+  "status": "launched",
+  "write_scope": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/R1 only",
+  "subject_scope": "Full 44 findings, coverage, references and repair gates, including R11 existing mechanical-load integration activation question",
+  "subject_access": "All production source and accepted evidence read-only",
+  "exclusions": [
+    "No experiments",
+    "No Git",
+    "No source mutations",
+    "No false Owner approval"
+  ],
+  "acceptance": "Challenge completeness, calibration, reference independence, reproduction sufficiency and repair fences; preserve uncertainties and exact Owner authority",
+  "model": "unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "production_barrier": "R1 PASS and root whole-baseline acceptance required",
+  "future_templates": "C1 may prepare versioned repair activation templates after R1, but no actual activation or source writes"
+}

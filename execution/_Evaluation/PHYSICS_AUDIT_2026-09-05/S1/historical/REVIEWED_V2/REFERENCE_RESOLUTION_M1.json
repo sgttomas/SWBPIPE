@@ -1,0 +1,407 @@
+[
+  {
+    "finding": "M1-E-001",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-001",
+    "original": "raw.json#user_rigid_rotation",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#user_rigid_rotation"
+  },
+  {
+    "finding": "M1-E-001",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md"
+  },
+  {
+    "finding": "M1-E-001",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-002",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-002",
+    "original": "raw.json#negative_only_accepted",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#negative_only_accepted"
+  },
+  {
+    "finding": "M1-E-002",
+    "original": "raw.json#multidof_only_accepted",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#multidof_only_accepted"
+  },
+  {
+    "finding": "M1-E-002",
+    "original": "raw.json#negative_multidof_spring",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#negative_multidof_spring"
+  },
+  {
+    "finding": "M1-E-002",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-003",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-003",
+    "original": "raw.json#overflow_stiffness_nonfinite_count",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#overflow_stiffness_nonfinite_count"
+  },
+  {
+    "finding": "M1-E-003",
+    "original": "harness/src/main.rs",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/harness/src/main.rs"
+  },
+  {
+    "finding": "M1-E-003",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-004",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-004",
+    "original": "raw.json#invalid_station_point_accepted",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#invalid_station_point_accepted"
+  },
+  {
+    "finding": "M1-E-004",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-W3",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-W3",
+    "original": "raw.json#reactions",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#reactions"
+  },
+  {
+    "finding": "M1-E-W3",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md"
+  },
+  {
+    "finding": "M1-E-W3",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-W5",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-W5",
+    "original": "raw.json#clamped_uniform_stations",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json#clamped_uniform_stations"
+  },
+  {
+    "finding": "M1-E-W5",
+    "original": "comparison.json#stations",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/comparison.json#stations"
+  },
+  {
+    "finding": "M1-E-W5",
+    "original": "SOURCE_MANIFEST.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json"
+  },
+  {
+    "finding": "M1-E-005",
+    "original": "M1-E/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-E-005",
+    "original": "COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/COVERAGE.csv"
+  },
+  {
+    "finding": "M1-E-005",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md"
+  },
+  {
+    "finding": "M1-E-005",
+    "original": "EXISTING_TEST_EVIDENCE.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/EXISTING_TEST_EVIDENCE.json"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "M1-L/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "REPORT.md#condition-observation",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md#condition-observation"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "COMPARISON_V2.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COMPARISON_V2.json"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "raw_v2.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "EXPECTED_V1.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V1.md"
+  },
+  {
+    "finding": "M1-L-001",
+    "original": "ENVIRONMENT.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/ENVIRONMENT.json"
+  },
+  {
+    "finding": "M1-L-002",
+    "original": "M1-L/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-L-002",
+    "original": "REPORT.md#nonfinite-success",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md#nonfinite-success"
+  },
+  {
+    "finding": "M1-L-002",
+    "original": "raw_v2.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json"
+  },
+  {
+    "finding": "M1-L-002",
+    "original": "EXPECTED_V2.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V2.md"
+  },
+  {
+    "finding": "M1-L-002",
+    "original": "SOURCE_BINDING_V1.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/SOURCE_BINDING_V1.json"
+  },
+  {
+    "finding": "M1-L-003",
+    "original": "M1-L/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-L-003",
+    "original": "REPORT.md#residual-observation",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md#residual-observation"
+  },
+  {
+    "finding": "M1-L-003",
+    "original": "raw_v2.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json"
+  },
+  {
+    "finding": "M1-L-003",
+    "original": "EXPECTED_V2.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V2.md"
+  },
+  {
+    "finding": "M1-L-004",
+    "original": "M1-L/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-L-004",
+    "original": "raw_v2.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json"
+  },
+  {
+    "finding": "M1-L-004",
+    "original": "EXPECTED_V1.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V1.md"
+  },
+  {
+    "finding": "M1-L-004",
+    "original": "core/solver/sparse_direct/README.md",
+    "normalized": "core/solver/sparse_direct/README.md"
+  },
+  {
+    "finding": "M1-L-005",
+    "original": "M1-L/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-L-005",
+    "original": "COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COVERAGE.csv"
+  },
+  {
+    "finding": "M1-L-005",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REFERENCES.md"
+  },
+  {
+    "finding": "M1-L-005",
+    "original": "REPORT.md#limitations",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md#limitations"
+  },
+  {
+    "finding": "M1-N-001",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-001",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md"
+  },
+  {
+    "finding": "M1-N-001",
+    "original": "OBSERVATIONS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json"
+  },
+  {
+    "finding": "M1-N-001",
+    "original": "core/solver/nonlinear_supports/src/lib.rs:573-606",
+    "normalized": "core/solver/nonlinear_supports/src/lib.rs:573-606"
+  },
+  {
+    "finding": "M1-N-002",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-002",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md"
+  },
+  {
+    "finding": "M1-N-002",
+    "original": "OBSERVATIONS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json"
+  },
+  {
+    "finding": "M1-N-002",
+    "original": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+    "normalized": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md"
+  },
+  {
+    "finding": "M1-N-003",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-003",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md"
+  },
+  {
+    "finding": "M1-N-003",
+    "original": "OBSERVATIONS.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json"
+  },
+  {
+    "finding": "M1-N-004",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-004",
+    "original": "ROBUSTNESS_EXPECTATIONS.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md"
+  },
+  {
+    "finding": "M1-N-004",
+    "original": "robustness_stdout.log.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json"
+  },
+  {
+    "finding": "M1-N-004",
+    "original": "robustness_stderr.log.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stderr.log.json"
+  },
+  {
+    "finding": "M1-N-005",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-005",
+    "original": "ROBUSTNESS_EXPECTATIONS.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md"
+  },
+  {
+    "finding": "M1-N-005",
+    "original": "robustness_stdout.log.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json"
+  },
+  {
+    "finding": "M1-N-006",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-006",
+    "original": "ROBUSTNESS_EXPECTATIONS.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md"
+  },
+  {
+    "finding": "M1-N-006",
+    "original": "robustness_stdout.log.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json"
+  },
+  {
+    "finding": "M1-N-007",
+    "original": "M1-N/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-007",
+    "original": "COVERAGE.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/COVERAGE.csv"
+  },
+  {
+    "finding": "M1-N-007",
+    "original": "REFERENCES.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md"
+  },
+  {
+    "finding": "M1-N-007",
+    "original": "core/product_physics/src/lib.rs:923-925,1126-1450,1616-1676",
+    "normalized": "core/product_physics/src/lib.rs:923-925,1126-1450,1616-1676"
+  },
+  {
+    "finding": "M1-N-008",
+    "original": "M1-N/supplement_v2/FINDINGS.csv",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/FINDINGS.csv"
+  },
+  {
+    "finding": "M1-N-008",
+    "original": "EXPECTATIONS.md",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/EXPECTATIONS.md"
+  },
+  {
+    "finding": "M1-N-008",
+    "original": "SUMMARY.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/SUMMARY.json"
+  },
+  {
+    "finding": "M1-N-008",
+    "original": "COMPARISON.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/COMPARISON.json"
+  },
+  {
+    "finding": "M1-N-008",
+    "original": "stdout.log.json",
+    "normalized": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/stdout.log.json"
+  }
+]

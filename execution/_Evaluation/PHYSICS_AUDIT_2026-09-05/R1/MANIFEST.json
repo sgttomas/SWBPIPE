@@ -1,0 +1,15 @@
+{
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "review_verdict": "CHANGES_REQUIRED",
+  "files": {
+    "EVIDENCE_INTEGRITY.json": "c8ee379bce8a609480dd0fa3373372677eb19a19acc6c9a395cbcc47999ee558",
+    "FINDING_REVIEW.csv": "8225becd1e613da57dc76afcffa9d0fb669c0701b5994fc4365ad406910e9eb2",
+    "INIT-TASK.json": "eaef3e5233f9f39956efe6958f720cb6c43d29ec78ee663a07749fc547467c06",
+    "OBSERVATIONS.json": "d85cf6d35ce164ceaa94ee3c0cb4617203b3c180739fe5bad734886941a5c134",
+    "RETURN.md": "fe0755c159fae8e4cf09921482346163d1cf3ccd8c3958f639239b375ab7a732",
+    "SCOPE_JUDGMENT.md": "6839d55c86c159fe77e31b1bfcb2c37ba3d326533856b1ec7ebb97ef39727c54",
+    "STATUS.json": "5a87da7a09b2bf846badbd3e5b5023b0c63e79e778cbd6986cc41cec3c798caf",
+    "_run_records/TASK_RUN_2026-09-05_R1.md": "a0bc52aa4112444f1430fbb5e2709f46c13d675e9503d389679bc882e8305cab"
+  }
+}

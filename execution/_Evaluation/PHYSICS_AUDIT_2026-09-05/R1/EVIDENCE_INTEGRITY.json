@@ -1,0 +1,1170 @@
+{
+  "findings": [
+    {
+      "finding": "M1-E-001",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md",
+          "sha256": "9ef80e2b4b9afe26b0b5877ed4ffd42945bdb40066edfcfcd72a585b05b0e5d1",
+          "bytes": 3741
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "M1-E-002",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "M1-E-003",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/harness/src/main.rs",
+          "sha256": "f2b43f6860b7c25c7b8216baed54d733e5d221434d46f1308d5126c7754e6a3f",
+          "bytes": 7993
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "M1-E-004",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "M1-E-005",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/COVERAGE.csv",
+          "sha256": "d69f87917c6c13410cf98262d494ede35dcb7c33a88d48b7514d442fb26daca9",
+          "bytes": 3196
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md",
+          "sha256": "9ef80e2b4b9afe26b0b5877ed4ffd42945bdb40066edfcfcd72a585b05b0e5d1",
+          "bytes": 3741
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/EXISTING_TEST_EVIDENCE.json",
+          "sha256": "c0c743e941f51a92cc69556222579f464cf380b7a463d6233458be1f396e62ae",
+          "bytes": 724
+        }
+      ]
+    },
+    {
+      "finding": "M1-L-001",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+          "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+          "bytes": 3542
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md",
+          "sha256": "bd2aa331155ae52c2011e11a0aca2b634d300b2a56188e4b2d1061d08db40a10",
+          "bytes": 7757
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COMPARISON_V2.json",
+          "sha256": "07dac26135d7ea3c8cf2beeed514e0d84d2f877a16e981ff12c1268347af9d19",
+          "bytes": 6333
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json",
+          "sha256": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a",
+          "bytes": 48301
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V1.md",
+          "sha256": "cf2e0a423dce4f7a518bc3c9822c927eba4f3d50182e0c00a79253cc6172fcaf",
+          "bytes": 2584
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/ENVIRONMENT.json",
+          "sha256": "b5a9fa367f5d59d2a147d106d6e6b2dc0bee9d1a5ac4c3ad65d1c3b226c2d32b",
+          "bytes": 2733
+        }
+      ]
+    },
+    {
+      "finding": "M1-L-002",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+          "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+          "bytes": 3542
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md",
+          "sha256": "bd2aa331155ae52c2011e11a0aca2b634d300b2a56188e4b2d1061d08db40a10",
+          "bytes": 7757
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json",
+          "sha256": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a",
+          "bytes": 48301
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V2.md",
+          "sha256": "dc46be12082a22900e0dfe7e05f9759cfa2a7057dcd12dbdde7540bc992e8351",
+          "bytes": 570
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/SOURCE_BINDING_V1.json",
+          "sha256": "09cd5b48bc100012d421a34e8b77743ce71eee726e4d62d042f1d3528789d850",
+          "bytes": 620
+        }
+      ]
+    },
+    {
+      "finding": "M1-L-003",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+          "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+          "bytes": 3542
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md",
+          "sha256": "bd2aa331155ae52c2011e11a0aca2b634d300b2a56188e4b2d1061d08db40a10",
+          "bytes": 7757
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json",
+          "sha256": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a",
+          "bytes": 48301
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V2.md",
+          "sha256": "dc46be12082a22900e0dfe7e05f9759cfa2a7057dcd12dbdde7540bc992e8351",
+          "bytes": 570
+        }
+      ]
+    },
+    {
+      "finding": "M1-L-004",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+          "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+          "bytes": 3542
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json",
+          "sha256": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a",
+          "bytes": 48301
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V1.md",
+          "sha256": "cf2e0a423dce4f7a518bc3c9822c927eba4f3d50182e0c00a79253cc6172fcaf",
+          "bytes": 2584
+        },
+        {
+          "path": "core/solver/sparse_direct/README.md",
+          "sha256": "47dcd22e13523c1431e0b93089b6e87b252d2166e3400ebf2b082c607a0c9acc",
+          "bytes": 5996
+        }
+      ]
+    },
+    {
+      "finding": "M1-L-005",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+          "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+          "bytes": 3542
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COVERAGE.csv",
+          "sha256": "72a32d7ea14b2daecbf60a3eebc3fbe583b06fd041edcbf1be78c04f36f90563",
+          "bytes": 8288
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REFERENCES.md",
+          "sha256": "a65bdf57e8fc92068769c3b737bba894cc5690e58a85c89984c86986ee02c03d",
+          "bytes": 3484
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REPORT.md",
+          "sha256": "bd2aa331155ae52c2011e11a0aca2b634d300b2a56188e4b2d1061d08db40a10",
+          "bytes": 7757
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-001",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+          "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+          "bytes": 1957
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json",
+          "sha256": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+          "bytes": 171744
+        },
+        {
+          "path": "core/solver/nonlinear_supports/src/lib.rs",
+          "sha256": "6caba773225584a610dcd39500242fae403c9f077f1cff646f3e9acfdaa913f6",
+          "bytes": 43359
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-002",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+          "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+          "bytes": 1957
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json",
+          "sha256": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+          "bytes": 171744
+        },
+        {
+          "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+          "sha256": "82251da858ea2c11f40f5eeb84565852be99785dcbd5913e314bea8c408a257b",
+          "bytes": 4453
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-003",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+          "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+          "bytes": 1957
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json",
+          "sha256": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+          "bytes": 171744
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-004",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md",
+          "sha256": "699e684796effeedf742476c982c471b5b347ba9e39200a3c26b9a1c67372cfb",
+          "bytes": 789
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json",
+          "sha256": "0a8fb1b888cf5085fc56cd29c1fccf2b0aecd86d6c93bc8fcadf15ea51e5c610",
+          "bytes": 5555
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stderr.log.json",
+          "sha256": "0898cecf14e9494eb2ac2cf77edb0d6a338b131870ffc79f26dbdb26636239c8",
+          "bytes": 844
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-005",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md",
+          "sha256": "699e684796effeedf742476c982c471b5b347ba9e39200a3c26b9a1c67372cfb",
+          "bytes": 789
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json",
+          "sha256": "0a8fb1b888cf5085fc56cd29c1fccf2b0aecd86d6c93bc8fcadf15ea51e5c610",
+          "bytes": 5555
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-006",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/ROBUSTNESS_EXPECTATIONS.md",
+          "sha256": "699e684796effeedf742476c982c471b5b347ba9e39200a3c26b9a1c67372cfb",
+          "bytes": 789
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/robustness_stdout.log.json",
+          "sha256": "0a8fb1b888cf5085fc56cd29c1fccf2b0aecd86d6c93bc8fcadf15ea51e5c610",
+          "bytes": 5555
+        }
+      ]
+    },
+    {
+      "finding": "M1-N-008",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/FINDINGS.csv",
+          "sha256": "406a49b0019ffc35275bd5e5fafbca9d1fb096e668bccd57f5c8f9737efb5acf",
+          "bytes": 778
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/EXPECTATIONS.md",
+          "sha256": "58eca8ddda2948bfe37bbbff74872b23b4ccc16c092212738e895797aae94cbd",
+          "bytes": 2065
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/SUMMARY.json",
+          "sha256": "970a90e05ec3b51bfd44975138f7effe72e5d2a2469db48c11b2fe599c24241d",
+          "bytes": 16419
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/COMPARISON.json",
+          "sha256": "a9d5f81e946d482272a902549049d645867d16edcfd40570c7fdb9fca35a91ee",
+          "bytes": 5773
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/stdout.log.json",
+          "sha256": "592261bea84459c41047f023d7549ca91d38b31bca6015906a6bb41e001ff8cc",
+          "bytes": 500472
+        }
+      ]
+    },
+    {
+      "finding": "V1R-01",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCE_CORRECTIONS_AND_LIMITS.md",
+          "sha256": "a49e9267256861df6be8e7404b6070211f03154e9ae5716fdafea361c5d5884a",
+          "bytes": 3831
+        }
+      ]
+    },
+    {
+      "finding": "V1R-02",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EARLY_REFERENCE_CRITERIA.md",
+          "sha256": "b398c429603b40a4bda2cc034d2eeb4a96adc2beb526a8b48b7a9160ea90ff68",
+          "bytes": 4460
+        }
+      ]
+    },
+    {
+      "finding": "V1R-03",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "validation/hand_calcs/nonlinear/convergence_observations.md",
+          "sha256": "de2ff6e77e3417a31d5caa9a6f9622492ef73222b7ce6c4c0d1bac77d7403d15",
+          "bytes": 7371
+        },
+        {
+          "path": "validation/hand_calcs/nonlinear/assembled_multi_support_multi_dof_acceptance.md",
+          "sha256": "4bfb2990bc53257e19319db6c160e4bcdf1d60d1ef083eb5e934887c5eea4e04",
+          "bytes": 3536
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCES.csv",
+          "sha256": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782",
+          "bytes": 42511
+        }
+      ]
+    },
+    {
+      "finding": "V1R-04",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "validation/benchmarks/mechanics/src/lib.rs",
+          "sha256": "18e7c1865dbd5fd07891562b98ea54c794b0227d7bf056c95e567c6e6de3c2b5",
+          "bytes": 327272
+        },
+        {
+          "path": "validation/hand_calcs/mechanics/expansion_loop_curved_bend_thermal.md",
+          "sha256": "15255d0d07b75b48043e3ca6a8c4a6852bfc8b55bf965872812eb240d48d8c8f",
+          "bytes": 19059
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/POLICY_RECORDS.json",
+          "sha256": "d16a50f39e526ce3cb1609432b30daceedef40fd5c4f4e7225525d366920e690",
+          "bytes": 49207
+        }
+      ]
+    },
+    {
+      "finding": "V1R-05",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/independent_oracles.py",
+          "sha256": "49dc05a9b7757a33aa557e8a2fae6cc01c0e909b91ef6a62b2857ec9db645b0d",
+          "bytes": 4570
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/INDEPENDENT_ORACLE_RESULTS.json",
+          "sha256": "6abf9a504d9be55bc235d6810ae921d5c71e7de8c09c151d96249392cfb96cb7",
+          "bytes": 9834
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/ARC_REFERENCE_COMPARISON.json",
+          "sha256": "f578052f4bf4a4cb8f935d35369688153b234e7cf88825829f856cb8e5d9ad9c",
+          "bytes": 6254
+        }
+      ]
+    },
+    {
+      "finding": "V1R-06",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+          "sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+          "bytes": 3446
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/EVALUATION_REPORT.md",
+          "sha256": "c61c74cc40b5a9008d2e970585a941579e7f94e0ca2f4e604c2dc8edbe4d9c49",
+          "bytes": 9295
+        },
+        {
+          "path": "tests/test_calculation_witness.py",
+          "sha256": "b8f597acae522244a02a2f4f45968981dd320e21ea082414ad3b38d47a8fdbbd",
+          "bytes": 6479
+        },
+        {
+          "path": "validation/witness/tools/witness_validator.py",
+          "sha256": "7f7c26cbcb2b4fe0b60e30b4ff330166ca35bb700aca0576877f4e73bbbf3857",
+          "bytes": 20858
+        },
+        {
+          "path": "validation/hand_calcs/stress/README.md",
+          "sha256": "b9607ca24a92a145478ad391d3e555a5144d0ef8054bb24297f06bad17307b5b",
+          "bytes": 3923
+        }
+      ]
+    },
+    {
+      "finding": "V1-C-01",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv",
+          "sha256": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07",
+          "bytes": 2007
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md",
+          "sha256": "7ee23a210322013c14a062d66e5c988ed5b0640cfad5282a3eb507fd1f46bf23",
+          "bytes": 9200
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_W5_zero_interpolated_stations.json",
+          "sha256": "2fda629ba202e314c6a457de03941ead4b2a2c51924ad5e7adb2ea8b52f517e5",
+          "bytes": 14863
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PATCHES.json",
+          "sha256": "3481bd45743f27950b8e7046c7075c221d3c22dc890b4ab3211c11b9b367cd3b",
+          "bytes": 7213
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv",
+          "sha256": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+          "bytes": 47798
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv",
+          "sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+          "bytes": 10419
+        }
+      ]
+    },
+    {
+      "finding": "V1-C-02",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv",
+          "sha256": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07",
+          "bytes": 2007
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md",
+          "sha256": "7ee23a210322013c14a062d66e5c988ed5b0640cfad5282a3eb507fd1f46bf23",
+          "bytes": 9200
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_W3_force_only_reaction.json",
+          "sha256": "e7ab2712642d658936a3a450c664f61ad4d68a42447feac218153cdf3f1daf65",
+          "bytes": 14856
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PATCHES.json",
+          "sha256": "3481bd45743f27950b8e7046c7075c221d3c22dc890b4ab3211c11b9b367cd3b",
+          "bytes": 7213
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv",
+          "sha256": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+          "bytes": 47798
+        }
+      ]
+    },
+    {
+      "finding": "V1-C-03",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv",
+          "sha256": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07",
+          "bytes": 2007
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md",
+          "sha256": "7ee23a210322013c14a062d66e5c988ed5b0640cfad5282a3eb507fd1f46bf23",
+          "bytes": 9200
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv",
+          "sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+          "bytes": 10419
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/WITNESS_COVERAGE.csv",
+          "sha256": "d3702b2f6b754a16675929eaf97d4786477e89e7ae947aecfa9d2b8e2fc3178b",
+          "bytes": 880
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/TEST_ASSERTIONS.json",
+          "sha256": "dfa0f1690dbc5bad50f38a361396976f91a2193aad65bfe420a97a925ad580fb",
+          "bytes": 813252
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/EVALUATION_REPORT.md",
+          "sha256": "7ee23a210322013c14a062d66e5c988ed5b0640cfad5282a3eb507fd1f46bf23",
+          "bytes": 9200
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-01",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json",
+          "sha256": "42605d5903a76ac0c5c9b8015eee150c57522332ab593beb7e959039356883db",
+          "bytes": 1529
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/pure_moment_sparse.json",
+          "sha256": "18f72f524faf3a5bd18251f67956b83ddd1054bd78350c9e12a5efe2f75c2a3e",
+          "bytes": 41012
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/original_m_sparse.json",
+          "sha256": "d5c0d999a1c6bc542f535c17c90eab9c06f247bba2e6233b5c76a2e0784dee52",
+          "bytes": 41033
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md",
+          "sha256": "9ef80e2b4b9afe26b0b5877ed4ffd42945bdb40066edfcfcd72a585b05b0e5d1",
+          "bytes": 3741
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-02",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json",
+          "sha256": "42605d5903a76ac0c5c9b8015eee150c57522332ab593beb7e959039356883db",
+          "bytes": 1529
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/nonlinear_spring_sparse.json",
+          "sha256": "e90a1acea484ac089c442b750d36ab90b56080e5ac654f80a637d3d5161d5272",
+          "bytes": 50409
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/nonlinear_nospring_sparse.json",
+          "sha256": "9be0779f47b2ad06a70e075c87a94d5ebe3757e48623f77bf2470ebdcfd11015",
+          "bytes": 50102
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/linear_spring_sparse.json",
+          "sha256": "94460435c157d5233665f19b97d8c78186fb37adc8aa89012332db8e5958c02c",
+          "bytes": 41340
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/COVERAGE.csv",
+          "sha256": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77",
+          "bytes": 1924
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+          "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+          "bytes": 1957
+        },
+        {
+          "path": "core/product_physics/src/lib.rs",
+          "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+          "bytes": 627819
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-03",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json",
+          "sha256": "42605d5903a76ac0c5c9b8015eee150c57522332ab593beb7e959039356883db",
+          "bytes": 1529
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/spring_stabilized_sparse.json",
+          "sha256": "484dd9bf979e05897962438ad1954a5cf1f153d07f0333cffc9d080c11f42a1e",
+          "bytes": 1964
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/five_rigid_plus_spring_sparse.json",
+          "sha256": "8053efd230d2961ae4e55d92d0be40c909c9405c36cbba8dc195b1077f679aa2",
+          "bytes": 1694
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-04",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/EXPECTED_BEFORE_RUN.json",
+          "sha256": "42605d5903a76ac0c5c9b8015eee150c57522332ab593beb7e959039356883db",
+          "bytes": 1529
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/results/linear_spring_sparse.json",
+          "sha256": "94460435c157d5233665f19b97d8c78186fb37adc8aa89012332db8e5958c02c",
+          "bytes": 41340
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-05",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/EXPECTED_BEFORE_RUN.json",
+          "sha256": "cd2a7bf043ea5d0ed9fbed97f9e48aee3fc3bf515dd08550a50e7d0c1b7667f2",
+          "bytes": 880
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/wind_sparse.json",
+          "sha256": "ba09db506333643cae63545339c19f9d4e282a633a4cf4971149db543b051750",
+          "bytes": 41030
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/wind_duplicate_sparse.json",
+          "sha256": "c3684040b490d1161e9f7f1094eeecfa70353464f4047146a7b6d28f02976e7e",
+          "bytes": 41033
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-06",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/EXPECTED_BEFORE_RUN.json",
+          "sha256": "5eb8a222b7735d58c598e2d68a2240b7fedc6564e1d32171e4c91b1cdd37a1ec",
+          "bytes": 422
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_selected_alpha_sparse.out.json",
+          "sha256": "105fe456753cca461f716fa3989139fbe294831a58d6e2bedaee56233fa01694",
+          "bytes": 41835
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_base_alpha_sparse.out.json",
+          "sha256": "d78350a24d9c41424a9b9b6010096547d21600cac61599ffebc54a7a4377f42a",
+          "bytes": 1535
+        }
+      ]
+    },
+    {
+      "finding": "I1-C-07",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/schema_rechecks/canonical_analytical.out.json",
+          "sha256": "1ee2a11e33706dd324d7af03300e09d5bdb64b454bf82c462925e58d30a8e902",
+          "bytes": 61
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/unknown_imposed_field_sparse.json",
+          "sha256": "d5c0d999a1c6bc542f535c17c90eab9c06f247bba2e6233b5c76a2e0784dee52",
+          "bytes": 41033
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-01",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/axial_gap_v2_sparse.json",
+          "sha256": "9d2082c915cb694fb2fbc5cf620472d05cb0fe1ff889301d5546cfb2449e946e",
+          "bytes": 54942
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+          "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+          "bytes": 3457
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/COVERAGE.csv",
+          "sha256": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77",
+          "bytes": 1924
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+          "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+          "bytes": 1957
+        },
+        {
+          "path": "core/product_physics/src/lib.rs",
+          "sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+          "bytes": 627819
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-02",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/EXPECTED_BEFORE_RUN.json",
+          "sha256": "a2c7d1ca9da7ca07d802b6c3a3654e69909f12e8935eaefea4bf16e5172e1790",
+          "bytes": 1942
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/comparison.json",
+          "sha256": "1f73d2ad19e5f7c0aceaa44dfc7aae3b2e528d20e3220d9636435ebfca90bd8b",
+          "bytes": 9941
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-03",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/opposite_combinations_v2_sparse.json",
+          "sha256": "d7b604663c178cfe807f8fcfb471e1d2a41a0aac130eb77d1394fa74c7a25782",
+          "bytes": 415128
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-04",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/overflow_sparse.json",
+          "sha256": "91c93138cc65a71c0ce329363c194466282b2053fbc07a2bd9136beab785f677",
+          "bytes": 29664
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_explicit_overflow.json",
+          "sha256": "e41b1706e1dd527c0fc028d21824337fae159c3914ef77ab22212c6b9b11e6fa",
+          "bytes": 738399
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/manager_overflow/OBSERVATION.json",
+          "sha256": "46bb13beeb30a11fd2d1bfc4ebc52dda43d1aef97653094018bd4c0937b8740a",
+          "bytes": 1310
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/manager_overflow/EXPECTED_BEFORE.json",
+          "sha256": "e6c9ec7b09a391bbd455d523dd632e90e8222ef8da5b365af7284b0b0e4bcaea",
+          "bytes": 335
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-05",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+          "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+          "bytes": 4395
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+          "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+          "bytes": 39960
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/comparison.json",
+          "sha256": "1f73d2ad19e5f7c0aceaa44dfc7aae3b2e528d20e3220d9636435ebfca90bd8b",
+          "bytes": 9941
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/SOURCE_MANIFEST.json",
+          "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf",
+          "bytes": 2020
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-06",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/EXPECTED_SUPPLEMENT_BEFORE_RUN.json",
+          "sha256": "9031baa70b23ad3f7353c45b33bc570d96134a767a2733e6a8cc2b0e1a53a4dc",
+          "bytes": 660
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/pressure_sparse.json",
+          "sha256": "309b146cbad0f16c01fb23d4a5e9c79442b0755ec714add63a1a6735a24a6fb1",
+          "bytes": 44093
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-07",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/SOURCE_REF_CHECK.json",
+          "sha256": "169fa458f9fffe48bc2c6012b9e622c07faf5a7bcc46bd66f8b8a7956b3a1616",
+          "bytes": 6711
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/invented_nonlinear_sparse.json",
+          "sha256": "154da81a6025f3509395f3c00803e6bd40e3c77c25d47e8ce544d293c0ee5e6e",
+          "bytes": 593741
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-08",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/COMPARISON.json",
+          "sha256": "91e66add7436d6d16422a16df1f820b2576b539b2fb66dc7d8791284f5f8b5a0",
+          "bytes": 11714
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/analysis_run_identity_base.json",
+          "sha256": "ee1d466585e395e4c5132f97650d7caf6ea9a17aef2a3f869f893f1c4a6b4ce9",
+          "bytes": 89964
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-10",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/REPORT.md",
+          "sha256": "974495c369fe4454faa4588f0358b4d69903d4438dec3366d1b5805833d4f0af",
+          "bytes": 2906
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-09-S1",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/OBSERVATIONS.json",
+          "sha256": "fdeab9300994f2b2a47c55a4c1ebff34cd4197b71d1d90fadbb344abfa3f8028",
+          "bytes": 1553497
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/EXECUTION.json",
+          "sha256": "11705a684c04d0ebe3b899acba95ac50b574c56db82ecf58af4e9f9a14cdc5da",
+          "bytes": 775
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/REPORT.md",
+          "sha256": "690eb1e3721213a2811bf585a3a8e1676b715447a829e6f84eb78c5d6b419a58",
+          "bytes": 3808
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/manager_service_replay/COMPARISON.json",
+          "sha256": "e53098355bf1267a147dfb0602ab54749211b1f1300157f87c89fdacd4d27110",
+          "bytes": 815
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+          "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+          "bytes": 18418
+        }
+      ]
+    },
+    {
+      "finding": "I1-R-10-S1",
+      "evidence": [
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/ROUNDING_REPORT.md",
+          "sha256": "ebb25791dc773a6324c0bdacaf69a5e52207c177b2a3b775086eb60336d0f761",
+          "bytes": 2433
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/EXPECTED_BEFORE.json",
+          "sha256": "5dbdf5c59c090cd6994e13d617436f9e39f4982b921f607b99aa1f22f0a8533f",
+          "bytes": 849
+        },
+        {
+          "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/OBSERVATION.json",
+          "sha256": "9d322d9d7fa9ad1a35adfce3a8264f158baed2c1f9ff538e01fd8d4b90e30d9f",
+          "bytes": 9428
+        }
+      ]
+    }
+  ],
+  "missing": []
+}

@@ -475,3 +475,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
   content, private data, lifecycle transition, release-readiness claim,
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+## 2026-09-05 — Physics audit bounded product repairs (R11)
+
+Root separately dispatched the existing OUT-001/R7 product-integration exception: supported authored/generated full and partial straight translational mechanical distributed loads now use the already-implemented equivalent-nodal, fixed-end and section-recovery APIs coherently. This is direct StraightPipeElement helper reuse, without lower-kernel changes or new native station/local/span fields. Independent full/partial, orientation, reversed-axis, disjoint/adjacent span, equilibrium and off-grid extremum tests support this bounded implementation. Broader public interface/persistence/reporting and production-policy boundaries remain separately governed.
+
+Accepted source for this bounded handoff: product SHA256 `93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc`, following accepted P4 selected-state integration. Fresh read-only review covered the complete frozen product diff and returned PASS with no actionable finding. Manager replayed 20 unchanged original audit inputs in both solver modes, with 314 checks passing. Final author crate run passed 137 tests; the single enabled stale browser-fixture assertion remains for root-owned F1 regeneration and full rerun. No global pass is inferred.
+
+Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json`, manager replay at `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json`, and package record `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Root owns final fixture generation, independent P9 binding, clean DEC-025/native/CI checks and Git closeout. State remains IN_PROGRESS; broader lifecycle, release and professional reliance are not advanced. D01–D06 held decisions remain.

@@ -1,0 +1,8 @@
+{
+  "kind": "immutable additive calibration manifest",
+  "basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "original_manifest_sha256": "a236f7f088431512b15a8f416205665109df2374e397b3a0bfcb35726306d518",
+  "files": {
+    "SOURCE_SCOPE_CALIBRATION.json": "5ef95f48354925ff598c4935f1690ea623d1f4e23cbb68a77d5881ca099595dc"
+  }
+}

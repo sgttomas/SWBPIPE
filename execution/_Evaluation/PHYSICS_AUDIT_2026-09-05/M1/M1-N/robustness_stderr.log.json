@@ -1,0 +1,5 @@
+{
+  "encoding": "utf-8",
+  "sha256": "03b7fa03b034246635aa96ee0b50a57c0246189e8036cebf21c7096e4f65dd84",
+  "text": "   Compiling m1_n_audit v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness)\n    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.10s\n     Running `projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness/target/debug/robustness`\n\nthread 'main' (33167779) panicked at /Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs:503:5:\ninternal error: entered unreachable code: positive max_iterations loop must return on the capped final iteration\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n"
+}

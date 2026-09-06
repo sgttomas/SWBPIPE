@@ -1,7 +1,7 @@
 # Status: DEL-04-03 Linear support and restraint models
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-08-21
+**Last Updated:** 2026-09-05
 
 ## Remaining
 
@@ -21,3 +21,5 @@
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 4 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-07-19 - Constant-effort spring-hanger assembled-solve consumption landed under CB-2026-07-19-T2-DEL-04-03-CONSTANT-EFFORT-001 (R14-W1-T2): data-driven opt-in constant nodal force at the per-load-case force-assembly seam, non-consumption warnings, per-load-case applied-load rows, user-limit warnings, superposition hand-calc witness, and additive MECH-CONSTANT-EFFORT-SUPPORT-APPLIED-LOAD suite fixture. The sole Remaining item was struck; catalog sizing and protected/default values remain excluded per DEC-049. No lifecycle, review, threshold, or issuance act.
+
+- 2026-09-05 - P4 physics audit repair checkpoint accepted for R02/R06/R07 linear spring validity and actions. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.

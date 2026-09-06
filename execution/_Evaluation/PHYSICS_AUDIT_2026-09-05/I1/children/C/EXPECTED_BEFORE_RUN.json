@@ -1,0 +1,27 @@
+{
+  "frozen_before_actual_utc": "2026-09-05T22:34:16.144290+00:00",
+  "basis": "independent Euler-Bernoulli closed-form derivation using elementary equilibrium and curvature EI v_second=M; circular annulus geometric integrals; not extracted corpus or production output",
+  "definitions": {
+    "D_m": 0.168,
+    "t_m": 0.007,
+    "L_m": 2.0,
+    "E_Pa": 200000000000.0,
+    "F_N": 350.0,
+    "A_m2": 0.003540574920595698,
+    "I_m4": 1.1493591335983794e-05,
+    "cantilever_tip_stiffness_N_per_m": 862019.3501987845
+  },
+  "expected": {
+    "tip_force_disp_mm": 0.406023368175307,
+    "tip_force_anchor_force_N": 350,
+    "tip_force_anchor_moment_Nm": 700,
+    "pure_moment_anchor_force_N": 0,
+    "pure_moment_anchor_moment_Nm": 100,
+    "spring_tip_displacement_mm": 0.18796797141911276,
+    "nonlinear_open_gap_with_spring_mm": 0.18796797141911276,
+    "thermal_free_extension_mm": 2.4000000000000004,
+    "pressure_free_extension_mm": 0.05260869565217389,
+    "uniform_load_tip_disp_mm": 0.30451752613148025
+  },
+  "criteria": "Published quantities are round6; compare analytical observations with display quantization +/-0.5e-6 and floating error. This is numerical comparison, not adopted engineering acceptance. Equivalent untouched m/mm/in envelopes expected exact identical; transformed components map under rotation. Stable positive-definite spring systems should reach solve, not rigid-count rejection. Source preservation uses input-file SHA equality. Inactive 1m gap must not alter submillimetre spring response."
+}

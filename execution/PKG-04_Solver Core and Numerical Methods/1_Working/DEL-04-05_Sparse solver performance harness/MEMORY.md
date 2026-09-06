@@ -347,3 +347,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 - Fixture unit metadata remains a reproducibility basis only and supplies no conversion catalog or dimensional-suitability validation.
 - The PKG-02 review finding still requires its owning human disposition; PDU-035 remains held without a release or engineering-validation inference.
+
+## 2026-09-05 — Physics audit repair checkpoint: R03 corrected condition and residual observations
+
+Converged pair-local cyclic Jacobi observations preserve small spectra and report unresolved/singular cases through existing unavailable/error paths. Residual/delta overflow cannot become zero or purported valid JSON data. Fresh review caught and backchecked a tiny coupled singular-block case. New nine-row dirty-source derivative D1 capture preserves all historical DEC053 observation/policy bytes. Corrected condition estimates differ while stored solve parity/residual/repeat/pivot/storage values match history. No conditioning/performance threshold, unit-separated backfill, release or CI policy adopted.
+
+Evidence: `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KERNEL_CHECKPOINT_V1/MANIFEST.json` (ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1), `PRODUCT_CHECKPOINT_V1/MANIFEST.json` (6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed), fresh KR plus backcheck and PR review packets, and D1 current derivative manifest663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766 under that P4 root. Manager orchestration is in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4/`.
+
+This is bounded technical checkpoint acceptance, not lifecycle, engineering, release, or complete deliverable closure. State remains IN_PROGRESS and existing Remaining rows/Owner holds remain. Kernel targeted evidence197 PASS; P1 nonlinear22 PASS and product129 PASS with one enabled stale generated-fixture FAIL. Root separately owns final browser fixture regeneration after P5 integration; full P9/product/registered clean DEC025/native gates remain required. No global product PASS claimed. P5 receives exact frozen product source only after root accepts transfer.

@@ -389,3 +389,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-09-05 — Physics audit repair checkpoint: R02 direct station point-input validation
+
+Direct station recovery now validates point-load location fractions and finite force before location-based accumulation. Existing valid scalar/point-jump behavior remains. Later R08/R11 station-sign and consistent-distributed integration are PKG05 obligations; this entry does not claim their completion.
+
+Evidence: `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KERNEL_CHECKPOINT_V1/MANIFEST.json` (ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1), `PRODUCT_CHECKPOINT_V1/MANIFEST.json` (6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed), fresh KR plus backcheck and PR review packets, and D1 current derivative manifest663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766 under that P4 root. Manager orchestration is in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4/`.
+
+This is bounded technical checkpoint acceptance, not lifecycle, engineering, release, or complete deliverable closure. State remains IN_PROGRESS and existing Remaining rows/Owner holds remain. Kernel targeted evidence197 PASS; P1 nonlinear22 PASS and product129 PASS with one enabled stale generated-fixture FAIL. Root separately owns final browser fixture regeneration after P5 integration; full P9/product/registered clean DEC025/native gates remain required. No global product PASS claimed. P5 receives exact frozen product source only after root accepts transfer.

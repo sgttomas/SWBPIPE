@@ -1,0 +1,13 @@
+{
+  "id": "ACCEPT_I1_SERVICE_SUPPLEMENT_V1",
+  "disposition": "Accept bounded I1 service supplement",
+  "manifest_sha256": "77f2f1f44cd6c14e1cdaa89bda2837d29260d370bec0c45922fb5e20a4e20cba",
+  "root_verification": "Root read supplement and verified all 34 members",
+  "calibration": "R09 disclosed fallback observation and R10 actual component quantization support R09 internal precision repair framing; exact source findings remain owning evidence",
+  "effect": "Release accepted supplement to S1",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "production_barrier": "R1 PASS plus root whole-baseline acceptance still required before production changes"
+}

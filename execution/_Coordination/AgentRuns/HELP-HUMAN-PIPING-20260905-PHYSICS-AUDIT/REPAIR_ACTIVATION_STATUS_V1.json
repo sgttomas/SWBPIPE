@@ -1,0 +1,16 @@
+{
+  "status": "PREPARED, HELD \u2014 not activated or launched",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "release_gate": "Final corrected synthesis binding + fresh R1 PASS + explicit root whole-baseline acceptance and repair activation",
+  "current_review": "Original R1 CHANGES_REQUIRED preserved; V2 substantive three corrections pass but malformed review-manifest reference requires V3 reseal/final binding",
+  "root_verification": "Root independently verified 32 V2 members with no errors; no final baseline acceptance inferred",
+  "user_scope": "Full approved audit then bounded repairs, including internal design choices",
+  "owner_holds": [
+    "D01 friction history/current-normal",
+    "D02 finite-end connector physical model",
+    "D03 pressure basis",
+    "D04 scale/initialization guarantees",
+    "D05 public compatibility/durable identity",
+    "D06 new physical/acceptance scope"
+  ]
+}

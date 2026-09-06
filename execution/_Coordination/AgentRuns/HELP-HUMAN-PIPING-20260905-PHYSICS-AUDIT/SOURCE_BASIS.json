@@ -1,0 +1,12 @@
+{
+  "git_source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "branch": "codex/piping-physics-audit",
+  "origin_main_verified_by": "C0",
+  "PR724_merge_ancestor": "39f51f1",
+  "intervening_piping": "None; no intervening Piping files/commits per C0",
+  "before_after_git": "clean per C0; C1 independently observed clean branch before control writes",
+  "decomposition": "0.12",
+  "scope_change": "SCA-009",
+  "dag": "DAG-010",
+  "pointer_verification": "C1 read live pointers; managers verify their numerical authority and live selected deliverable contexts/status with paired memory"
+}

@@ -1,0 +1,6 @@
+{
+  "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+  "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+  "projects/chirality-piping/apps/desktop/src/App.test.tsx": "be226fb62c1b5fbc2a501ca8fb79d06f5eefd817b5b77eedfa02f04560f43664",
+  "projects/chirality-piping/core/product_physics/src/lib.rs": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc"
+}

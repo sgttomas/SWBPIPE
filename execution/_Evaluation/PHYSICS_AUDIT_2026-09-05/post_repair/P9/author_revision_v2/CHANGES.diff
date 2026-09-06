@@ -1,0 +1,51 @@
+--- before/src/lib.rs
++++ after/src/lib.rs
+@@ -95,10 +95,38 @@
+             })
+             .collect()
+     }
++    // Fixture-local dimensional contract, independently fixed by the oracle quantities.
++    // This suite's nonlinear DOFs are translational; rotational cases must add rad/N*m.
++    fn expected_unit(kind: &str) -> &'static str {
++        match kind {
++            "global_nodal_displacement_x"
++            | "global_nodal_displacement_y"
++            | "displacement_magnitude"
++            | "nonlinear_support_final_displacement" => "mm",
++            "reaction_resultant"
++            | "nonlinear_support_final_reaction"
++            | "element_local_axial_force"
++            | "element_local_shear_force_y" => "N",
++            "element_local_bending_moment_z" | "element_local_torsional_moment" => "N*m",
++            "element_local_axial_normal_stress" | "element_local_torsional_shear_stress" => "MPa",
++            // Existing public enum encoding; not a physical dimensionless scalar.
++            "nonlinear_support_active_set_state_code" => "state_code",
++            _ => panic!("fixture unit contract missing for {kind}"),
++        }
++    }
++    fn checked_value(row: &ResultItem) -> f64 {
++        assert_eq!(
++            row.unit,
++            expected_unit(&row.kind),
++            "incorrect published unit for {}",
++            row.id
++        );
++        row.value
++    }
+     fn scalar(out: &MechanicsEnvelope, entity: &str, kind: &str, case: &str) -> f64 {
+         let found = rows(out, entity, kind, case);
+         assert_eq!(found.len(), 1, "missing/ambiguous {entity} {kind} {case}");
+-        found[0].value
++        checked_value(found[0])
+     }
+     fn station(out: &MechanicsEnvelope, kind: &str, location: &str, case: &str) -> f64 {
+         let found: Vec<_> = rows(out, "pipe:beam", kind, case)
+@@ -110,7 +138,7 @@
+             1,
+             "missing/ambiguous station {kind} {location} {case}"
+         );
+-        found[0].value
++        checked_value(found[0])
+     }
+     fn gap(dof: &str, size: f64) -> Value {
+         json!({"id":"support:gap","node":"node:tip","family":"nonlinear","restraints":[],

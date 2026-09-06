@@ -1,0 +1,31 @@
+{
+  "id": "LAUNCH-007-F1-FIXTURE-REGENERATION",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "instance": "F1",
+  "runtime_id": "/root/fixture_regeneration",
+  "role": "bounded direct Agent2",
+  "status": "actually launched under prepared F1 brief and explicit root release",
+  "brief": "briefs/F1_FIXTURE_REGENERATION_V1.md",
+  "accepted_product_source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "write_scope": [
+    "fixtures/product_preview/invented_mechanics_result.json only product path",
+    "own instances/F1 and post_repair/F1 evidence",
+    "declared isolated temporary/build outputs"
+  ],
+  "compile_slot": "one lightweight slot granted",
+  "validation": [
+    "Deterministic generator regeneration",
+    "Full product tests"
+  ],
+  "exclusions": [
+    "No manual expected-value edits",
+    "No additional fixture/source/schema writes",
+    "No Git",
+    "No children"
+  ],
+  "model": "unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "next_gate": "Separate fresh fixture/source review and final integration; F2 remains held for clean commit and required acceptances"
+}

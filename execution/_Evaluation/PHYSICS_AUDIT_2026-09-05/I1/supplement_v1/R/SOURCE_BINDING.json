@@ -1,0 +1,9 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "files": {
+    "apps/desktop/src/services/previewService.ts": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+    "apps/desktop/src/App.tsx": "72f1d67875de11108c696a0923463a4d4c6f8216d391c84b3da1c94ab4ca9a66",
+    "fixtures/product_preview/invented_preview_model.json": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "fixtures/product_preview/invented_mechanics_result.json": "4611c29ea5a08b792a25aaee101964f0b8369e8846a38101c2f082ea27e8c571"
+  }
+}

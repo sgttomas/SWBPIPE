@@ -1,0 +1,21 @@
+{
+  "record_kind": "new_derivative_current_repaired_kernel_capture",
+  "capture_id": "PHYSICS-AUDIT-20260905-P4-D1",
+  "source_head": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "working_tree_dirty": true,
+  "source_before": "source_before.json",
+  "source_after": "source_after.json",
+  "source_hashes_unchanged": true,
+  "accepted_kernel_manifest_sha256": "ff28049d1ff3ea27feb8f8ec9759cef10335792797a01a4dede03b897de5eae1",
+  "raw_emitter": "emitter.raw.json",
+  "legacy_label_notice": "All record_id, tranche_id, solver_version, status and CI labels inside raw emitter JSON are retained historical emitter metadata. This is a NEW dirty working-tree derivative observation, not replay or renewal of historical acceptance and not a completed DEC025 sweep.",
+  "policy_boundary": "Existing DEC053 bounded observation criteria only; timing, RSS and true condition number have no new release thresholds. Unit-separated design not implemented or backfilled.",
+  "dependency_crates": [
+    "projects/chirality-piping/core/loads/primitive_loads",
+    "projects/chirality-piping/core/solver/diagnostics",
+    "projects/chirality-piping/core/solver/frame_kernel",
+    "projects/chirality-piping/core/solver/linear_supports",
+    "projects/chirality-piping/core/solver/performance_harness",
+    "projects/chirality-piping/core/solver/sparse_direct"
+  ]
+}

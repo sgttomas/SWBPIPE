@@ -1,0 +1,4 @@
+{
+  "time": "2026-09-05T22:38:23.695429+00:00",
+  "expected": "Thermal solve with selected missing alpha must block; no fallback/no silent thermal omission. Selected present alpha2e-5 and delta100K L2m gives4mm free expansion; base alpha absent should not be needed when selected exact basis supplies it. Basis: existing materials_for_modulus_basis exact selection and no-fallback contract, independent alpha deltaT L."
+}

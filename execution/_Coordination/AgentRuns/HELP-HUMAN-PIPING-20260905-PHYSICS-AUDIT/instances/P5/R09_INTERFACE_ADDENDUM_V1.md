@@ -1,0 +1,5 @@
+# R09 internal reaction vector interface clarification
+
+Baseline inspection finds public signed nodal displacement components but only reaction_resultant per support. D05 excludes new public component rows. Therefore reaction combination must consume an internal per-case HashMap keyed support ID carrying the actual selected [Fx,Fy,Fz] actions, with full precision and explicit completeness. P4 may supply it; otherwise P5 adds it after source transfer using the accepted P4 support-action calculation. This supersedes the broad planning suggestion that all derived norms can cite combined signed public rows: displacement can cite those rows, while reaction retains existing primitive reaction source references and documents the internal signed-vector computation basis using existing metadata if compatible. No public result-schema expansion. Missing internal vectors withhold combined reaction magnitude with an explicit diagnostic.
+
+Root notified through parent message before source edit. Range/envelope retains existing scalar semantics.

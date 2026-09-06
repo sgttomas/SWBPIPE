@@ -1,0 +1,71 @@
+{
+  "authored_before_execution": true,
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "independence": "Closed-form section integrals and static free-body equilibrium authored independently of product outputs. Existing fixture input values only; no old outputs used.",
+  "criteria": "Exact mechanical identities compared with 1e-6 published scalar quantization floor; analytical errors reported, not engineering acceptance thresholds.",
+  "section": {
+    "A": 0.003540574920595698,
+    "I": 1.1493591335983794e-05,
+    "J": 2.2987182671967588e-05
+  },
+  "axial": {
+    "end_i_N": -350,
+    "end_j_N": 350,
+    "interior_absolute_N": [
+      350,
+      350,
+      350
+    ],
+    "tip_mm": 0.0009885400192043185,
+    "stress_absolute_MPa": 0.09885400192043185
+  },
+  "torsion": {
+    "end_i_Nm": -350,
+    "end_j_Nm": 350,
+    "interior_absolute_Nm": [
+      350,
+      350,
+      350
+    ],
+    "tip_rad": 0.00039547730666426005,
+    "stress_absolute_MPa": 1.278973609752217
+  },
+  "shear_y": {
+    "end_i_N": -350,
+    "end_j_N": 350,
+    "interior_absolute_N": [
+      350,
+      350,
+      350
+    ],
+    "moment_absolute_Nm": [
+      525.0,
+      350.0,
+      175.0
+    ],
+    "tip_mm": 0.406023368175307
+  },
+  "uniform": {
+    "root_force_N": -200,
+    "root_moment_Nm": -200.0,
+    "tip_force_N": 0,
+    "tip_moment_Nm": 0,
+    "interior_absolute_shear_N": [
+      150.0,
+      100.0,
+      50.0
+    ],
+    "interior_absolute_moment_Nm": [
+      112.5,
+      50.0,
+      12.5
+    ],
+    "tip_mm_Euler_Bernoulli": 0.08700500746613722
+  },
+  "opposite_combinations": {
+    "summed_displacement_components": 0,
+    "summed_displacement_magnitude": 0,
+    "summed_reaction_resultant": 0
+  },
+  "nonlinear": "Within the same successful solution/basis, ordinary node component must equal nonlinear support component at same node/DOF; compare published quantization floor, no correctness claim for either numerical state."
+}

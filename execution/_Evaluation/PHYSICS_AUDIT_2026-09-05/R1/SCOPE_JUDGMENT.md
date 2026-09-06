@@ -1,0 +1,9 @@
+# R11 independent scope judgment
+
+The proposed narrowly bounded R11 activation is supported by existing scope; no material new physics or SCOPE_CHANGE need was established by this review.
+
+DEL-05-05 `Concentrated and distributed user load application/ScopeOfWork.md` binds SOW-052/SOW-013 at lines 6 and 16. OUT-001 covers full/partial distributed loads and oriented straight-pipe equivalent recovery. R7 (line 175) requires equivalent global nodal contributions for full and valid partial translational distributions. Existing `apply_straight_pipe_equivalent_user_loads` and the straight-pipe cut-section APIs supply the declared mechanics. The integration exclusion at lines 159–160 explicitly allows separately dispatched integration. DEL-04-02 covers resultants/spanned loads; DEL-05-03 RQ-001 and RQ-008 cover force/station stress consumption.
+
+Agent 0 may therefore issue an explicit integration brief connecting EXISTING authored/generated mechanical loads coherently through consistent assembly, fixed-end correction, cut-section recovery and current result consumers. Root authorization must name shared product-adapter ownership and packet dependencies. Scope judgment is not activation or Owner approval.
+
+Acceptance must include full/partial distributed force and moment equilibrium, work consistency, reversed/oriented members, point discontinuity behavior at the lower supported API, and coherent stress/extrema consumers. Do not infer new native point/local/public input fields merely from lower-kernel capability. Existing pressure/thermal behavior must be regression checked and kept distinct from mechanical fixed-load correction; the pressure physical-basis conflict remains held. No public schema, arbitrary-load-shape, new physical formulation or production tolerance adoption follows from this judgment. R06 selected solution must be integrated before final R11 consumer acceptance; R08/R09 overlap requires one adapter owner.

@@ -1,0 +1,14 @@
+{
+  "status": "accepted execution scope via user direction; choice transcription evidence, not agent-authored Owner ruling",
+  "source": "Parent /root explicitly supplied exact user choices; read_thread omitted relevant latest-turn items",
+  "choices": {
+    "audit_breadth": "Full numerical pipeline (Recommended)",
+    "audit_repairs": "Audit then bounded fixes",
+    "reference_basis": "Vetted and open references (Recommended)",
+    "audit_reporting": "Full baseline, then repairs (Recommended)",
+    "fix_boundary": "Include internal design choices"
+  },
+  "interpretation_limit": "The displayed '(Recommended)' labels grant no authority beyond the selected choice.",
+  "approved_plan_text": "APPROVED_PLAN.md \u2014 faithful parent-transmitted semantic copy; not raw UI byte recovery",
+  "current_user_direction": "Implement the proposed plan."
+}

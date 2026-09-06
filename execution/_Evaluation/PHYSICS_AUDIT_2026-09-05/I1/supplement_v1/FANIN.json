@@ -1,0 +1,43 @@
+{
+  "child_manifest_sha": "c6107dd2bb79cdeae922c3aaadfe842e794f36e5dbbd07b74d5f61b3528c8b3d",
+  "child_members": 10,
+  "bad_child_members": [],
+  "original_I1_manifest_sha": "57753421814d4d5690da827830d644918a003c0efe2d987c137a7aa16c91e9f6",
+  "original_members_unchanged": true,
+  "bad_original_members": [],
+  "manager_service_exact_replay": {
+    "exact_observations_equal": true,
+    "cases": [
+      {
+        "edited": false,
+        "receipt": {
+          "mode": "browser_fixture_no_backend_job"
+        },
+        "status": {
+          "mechanics": "MECHANICS_SOLVED",
+          "rule_check": "RULE_INPUTS_INCOMPLETE",
+          "professional_acceptance": "NOT_PROVIDED"
+        },
+        "rows": 830,
+        "equals_browser_fixture": true,
+        "native_error_marker_in_result": false
+      },
+      {
+        "edited": true,
+        "receipt": {
+          "mode": "browser_fixture_no_backend_job"
+        },
+        "status": {
+          "mechanics": "MODEL_INCOMPLETE",
+          "rule_check": "RULE_INPUTS_INCOMPLETE",
+          "professional_acceptance": "NOT_PROVIDED"
+        },
+        "rows": 0,
+        "equals_browser_fixture": true,
+        "native_error_marker_in_result": false
+      }
+    ]
+  },
+  "production_git_diff": "",
+  "accepted": "ADDITIVE_BOUNDED_EVIDENCE_WITH_EXPLICIT_LIMITS"
+}

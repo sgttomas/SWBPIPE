@@ -1,0 +1,14 @@
+{
+  "id": "ACCEPT_M1_NUMERICAL_BASELINE_PACKET",
+  "manager": "M1",
+  "runtime_id": "/root/audit_numerics",
+  "manifest_sha256": "e6c86c697ca9efdfce94b26ec5b1870cce347e8c739f4f0769e0cdbc4f6cffb0",
+  "root_verification": "Root read report and 20 finding rows, independently verified 107 members",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "disposition": "Accept bounded manager baseline packet and release to S1",
+  "claim_limit": "Whole baseline not yet accepted; fresh R1 review pending; no repair release",
+  "preservation": "Accepted original manager packet immutable"
+}

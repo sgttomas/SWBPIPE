@@ -1,0 +1,34 @@
+[
+  {
+    "case": "wind",
+    "input_sha256": "2a63bdb596a8128bd2ac23a639b75b962588e2ff4805d68072fa95ef2428dfa2",
+    "same": true,
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "max_displacement": {
+      "value": 0.194891,
+      "unit": "mm",
+      "location_ref": "node:N-110",
+      "result_ref": "result:disp:node-N-110"
+    }
+  },
+  {
+    "case": "wind_duplicate",
+    "input_sha256": "a19c33a576c1c1236915d9e551033e8d465dd1c73b5617ef737f24e951251711",
+    "same": true,
+    "status": {
+      "mechanics": "MECHANICS_SOLVED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "max_displacement": {
+      "value": 0.389782,
+      "unit": "mm",
+      "location_ref": "node:N-110",
+      "result_ref": "result:disp:node-N-110"
+    }
+  }
+]

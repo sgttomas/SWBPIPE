@@ -1,0 +1,100 @@
+[
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/original_m.json",
+    "sha256": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8",
+    "mode": "dense",
+    "output": "original_m_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/original_m.json",
+    "sha256": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8",
+    "mode": "sparse",
+    "output": "original_m_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/pure_moment.json",
+    "sha256": "0e2040361e1909cff78d5d188505caa58057ef897d6db13207b685db317f2589",
+    "mode": "dense",
+    "output": "pure_moment_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/pure_moment.json",
+    "sha256": "0e2040361e1909cff78d5d188505caa58057ef897d6db13207b685db317f2589",
+    "mode": "sparse",
+    "output": "pure_moment_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/linear_spring.json",
+    "sha256": "5bd5b3db2aabebbfd70de250edbb66387d208b74e4be7f5bca3fff81486bce7a",
+    "mode": "dense",
+    "output": "linear_spring_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/linear_spring.json",
+    "sha256": "5bd5b3db2aabebbfd70de250edbb66387d208b74e4be7f5bca3fff81486bce7a",
+    "mode": "sparse",
+    "output": "linear_spring_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/nonlinear_spring.json",
+    "sha256": "80f0383ffe4ec886c3c0e428c9f36bcbd72eb329eb4cbe04e6cf4eac3442426e",
+    "mode": "dense",
+    "output": "nonlinear_spring_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/nonlinear_spring.json",
+    "sha256": "80f0383ffe4ec886c3c0e428c9f36bcbd72eb329eb4cbe04e6cf4eac3442426e",
+    "mode": "sparse",
+    "output": "nonlinear_spring_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/nonlinear_nospring.json",
+    "sha256": "966d589db89863d2379efdda3d27cfe195fe3fb9a0b365f36ceacb66f94927b7",
+    "mode": "dense",
+    "output": "nonlinear_nospring_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/nonlinear_nospring.json",
+    "sha256": "966d589db89863d2379efdda3d27cfe195fe3fb9a0b365f36ceacb66f94927b7",
+    "mode": "sparse",
+    "output": "nonlinear_nospring_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/spring_stabilized.json",
+    "sha256": "17591452de3165a9e6d5dbbead9fa551c4b5a6cb83672c94a58609cb0409e472",
+    "mode": "dense",
+    "output": "spring_stabilized_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/spring_stabilized.json",
+    "sha256": "17591452de3165a9e6d5dbbead9fa551c4b5a6cb83672c94a58609cb0409e472",
+    "mode": "sparse",
+    "output": "spring_stabilized_sparse.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/five_rigid_plus_spring.json",
+    "sha256": "2bbb6ec9a5aad12562083325ec2219232586a7bf4cac719508efc6c5e7048301",
+    "mode": "dense",
+    "output": "five_rigid_plus_spring_dense.json",
+    "exit": 0
+  },
+  {
+    "input": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/fixtures/five_rigid_plus_spring.json",
+    "sha256": "2bbb6ec9a5aad12562083325ec2219232586a7bf4cac719508efc6c5e7048301",
+    "mode": "sparse",
+    "output": "five_rigid_plus_spring_sparse.json",
+    "exit": 0
+  }
+]

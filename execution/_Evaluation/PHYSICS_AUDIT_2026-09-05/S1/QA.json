@@ -1,0 +1,40 @@
+{
+  "status": "PASS",
+  "schema_columns": [
+    "FindingID",
+    "Concern",
+    "Classification",
+    "Severity",
+    "Scope",
+    "Claim",
+    "EvidenceRefs",
+    "Status",
+    "RecommendedOwner",
+    "RerunRequirement"
+  ],
+  "source_rows": 48,
+  "consolidated_rows": 44,
+  "coverage_rows": 228,
+  "reference_rows": 106,
+  "finding_refs_resolved": 189,
+  "requirement_bindings": 23,
+  "accepted_manifest_members_verified": {
+    "M1": 107,
+    "I1": 423,
+    "V1": 110,
+    "I1_supplement": 34
+  },
+  "errors": [],
+  "calibrations": [
+    "native GUI not exercised",
+    "thin product calls do not constitute GUI invocation",
+    "I1 stale entrypoint pending wording superseded by accepted final report",
+    "nonlinear integration cutoff blank1461 accounted",
+    "unconfirmed fallback superseded by disclosed service route observation",
+    "premature signed-component quantization separate from norms and broad precision unknown",
+    "43 original canonical entries expanded to44 with supplement refinement"
+  ],
+  "production_edits": "none by S1",
+  "new_experiments": "none by S1",
+  "independent_review": "PENDING"
+}

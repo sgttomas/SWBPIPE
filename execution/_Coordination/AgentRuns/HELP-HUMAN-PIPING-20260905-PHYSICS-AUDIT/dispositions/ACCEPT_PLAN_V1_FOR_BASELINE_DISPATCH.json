@@ -1,0 +1,15 @@
+{
+  "id": "ACCEPT_PLAN_V1_FOR_BASELINE_DISPATCH",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept frozen full plan and manager launch briefs for baseline dispatch",
+  "verification": "Root read all three briefs, independently verified all 11 PLAN_V1 manifest members and all four C0 members",
+  "plan_manifest_sha256": "4732089daf9fbed72d25cbe9e8c57072211b64eb5956d55f096a340d5176d4c2",
+  "source_frozen": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "authority": "User already approved full fanout; no additional user gate for each child",
+  "release": "Static inspection, independent oracle and scaffold work",
+  "heavy_builds": "Root allocates exclusive slots to avoid contention",
+  "existing_suites": "V1 owns existing suite coordination; no production full sweep during baseline",
+  "production_changes": "Prohibited before accepted whole baseline and fresh independent report review"
+}

@@ -779,3 +779,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Residuals remain: sparse live-path adoption (`D-17`), broader live-solver
   coverage, governed threshold promotion under `DEC-046`, and the R4 exit
   evidence package.
+
+## 2026-09-05 — Physics audit R10 independent regression evidence
+
+- Added the independent actual-product suite in `validation/benchmarks/physics_audit_regression`; original analytical expectations were frozen before comparisons and independently reviewed.
+- Root accepted matching reviewed-source verification: all 10 tests pass through both solver modes; deliberate dimensional-mixing and actual station-zero mutations fail the intended numerical assertions, and the restored control passes.
+- Evidence and scope mapping: `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_R10.md`. Existing status/Remaining, acceptance thresholds, canonical-unit, release and Owner gates are unchanged.

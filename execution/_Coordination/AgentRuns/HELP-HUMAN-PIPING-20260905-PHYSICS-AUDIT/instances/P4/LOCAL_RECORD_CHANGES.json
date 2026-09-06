@@ -1,0 +1,50 @@
+{
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md": {
+    "before": "5537a1d54d053fce74ec1b1a65b3e5c9fde32aa721f9fb8315329a88b3d605e5",
+    "after": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md": {
+    "before": "758921a020b87dc345d29d279747f4c8ff68279ddafb5eb925488f07a5c179f0",
+    "after": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md": {
+    "before": "8641b993b24443d365b8448f042a467fbdb6b02286a1c5b59c799dd44f862605",
+    "after": "8fed6f9fe0f5f57e6ed910d55db497e7180d0ab909325915e784979de9c59d19"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md": {
+    "before": "bffc84545c0434a62541c03916a55f9c83023948fa0e60f9e781dfb3b44f0c23",
+    "after": "9c47f104f443d3382f239097e4baaa46aeb34eeb60e94afebd79cc4d23299979"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/MEMORY.md": {
+    "before": "352fd8e3973427877d38ff0c91da7ff56c7534d5d7e683ac591fc1fbe05ba960",
+    "after": "489fadc92dbc581ab627e0862337166cafb04fab5c89ca28af879082a3a2bdba"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md": {
+    "before": "60d5ee09522d73a999aa05cd78228ad9d039ca8de38adc9f06f9538072c6d5ee",
+    "after": "e3e1395ad1d8ba90420832f390180a529c10a3cea4d68b5a9172ed3daa036af9"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": {
+    "before": "cf930c05e43710813283684b244580140de122f3d70e5e32b073d23e3029c3b5",
+    "after": "ccb6ea80b7b989e063b676fbb08626685bf139973ee716ebaabd9dc51c92005a"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": {
+    "before": "82251da858ea2c11f40f5eeb84565852be99785dcbd5913e314bea8c408a257b",
+    "after": "547a749fa4855f8c5c36ade89426893796967c6963999a9b155ab22e939f1125"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/MEMORY.md": {
+    "before": "1f525aade1dddba0ae20934b974c5cfecfe48fce0b32dae98ce654de3fcac002",
+    "after": "96989f7240295adc568ebb229102a06d07caf84d4f981c183827295046d46f15"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_STATUS.md": {
+    "before": "f4e5a383439065654f358d9ef507dea07a1b50718cc303345ed641a7807323dc",
+    "after": "f316e8a62eb3ffd2ab034179d6624482b15f833db5530d744e08ccfda18237a5"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md": {
+    "before": "afb29b77022f391bcd4576c54ff63d6378ec67253f9619c6b56e204cf2d12908",
+    "after": "96d54e49bebf93fa73c80f945219a82348e410196697ecd2c005d73e8c42341f"
+  },
+  "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md": {
+    "before": "e0fd91bb6f62b5b97e8ea1d3c3dee84bcebbc495c1d9e5f3024ba4c4a1ffd520",
+    "after": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b"
+  }
+}

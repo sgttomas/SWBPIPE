@@ -1,0 +1,11 @@
+{
+  "status": "sealed additive phase C preparation; not whole baseline acceptance",
+  "prior_plan_manifest_sha256": "4732089daf9fbed72d25cbe9e8c57072211b64eb5956d55f096a340d5176d4c2",
+  "files": {
+    "snapshots/PHASE_C_PREPARATION_V1/S1_LAUNCH.json": "77b0601de6f7e598941c94805dc7a73f4638c7a47047c0d2e04c120589aea313",
+    "snapshots/PHASE_C_PREPARATION_V1/V1_ACCEPTANCE.json": "f71dd4beb43637ca1b162414497896a48c7d92d424773ab2e4ea83794115a59c",
+    "snapshots/PHASE_C_PREPARATION_V1/WORK_GRAPH.json": "ea73e034fa8d0402c1f8d658a6f27dff4f60fda9f411cd10c67418e3b989bb7e"
+  },
+  "gate": "S1 final synthesis waits M1/I1 accepted; repairs wait whole-baseline fresh R1 review",
+  "write_limit": "C1 control only; no evaluator/source/receipt writes"
+}

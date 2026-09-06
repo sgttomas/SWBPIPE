@@ -1,0 +1,178 @@
+{
+  "raw_sha256": "8ea07a4defca6a2b96f9d1274174b7355201fcde95dd244d934e0b2292fc23a8",
+  "numpy_version": "2.5.1",
+  "linear_cases": [
+    {
+      "solver": "DENSE",
+      "case": "spd1",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd1",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd1",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "DENSE",
+      "case": "spd2",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd2",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd2",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "DENSE",
+      "case": "spd3",
+      "max_forward_error": 0.0,
+      "residual_inf_decimal": "0",
+      "backward_error_decimal": "0"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd3",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "6.7945649107059580273926258087158203125E-14",
+      "backward_error_decimal": "7.4420207127118926915581881804116323247535596933187294633077765607886089813800657E-17"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd3",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "6.7945649107059580273926258087158203125E-14",
+      "backward_error_decimal": "7.4420207127118926915581881804116323247535596933187294633077765607886089813800657E-17"
+    },
+    {
+      "solver": "DENSE",
+      "case": "spd6",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "2.631240370556823073560750928558660283740584310849331401544436149E-13",
+      "backward_error_decimal": "7.3539417846753020501977387606446626152615548095285953089559422833985466741196199E-17"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd6",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "2.6167956690414939657784998416900634765625E-13",
+      "backward_error_decimal": "7.3135709028549300329192281768867061949762437115707098937954164337618781442146451E-17"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd6",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "2.6167956690414939657784998416900634765625E-13",
+      "backward_error_decimal": "7.3135709028549300329192281768867061949762437115707098937954164337618781442146451E-17"
+    },
+    {
+      "solver": "DENSE",
+      "case": "spd12",
+      "max_forward_error": 6.661338147750939e-16,
+      "residual_inf_decimal": "1.5677918022945051321484510288453588141077454187496650531543143647E-12",
+      "backward_error_decimal": "1.0928424663979542256715816456471203221160918853685104232220231177331660393140945E-16"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd12",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "1.031136113993635916585844825021922588348388671875E-12",
+      "backward_error_decimal": "7.1876210371785573581948262046034730433369802432476504591364870152033754522728966E-17"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd12",
+      "max_forward_error": 4.440892098500626e-16,
+      "residual_inf_decimal": "1.031136113993635916585844825021922588348388671875E-12",
+      "backward_error_decimal": "7.1876210371785573581948262046034730433369802432476504591364870152033754522728966E-17"
+    },
+    {
+      "solver": "DENSE",
+      "case": "spd24",
+      "max_forward_error": 1.3322676295501878e-15,
+      "residual_inf_decimal": "1.2407869158713426838461132791821121932390752803124899723602632406E-11",
+      "backward_error_decimal": "2.1789981488002781765117027837260708129686955758850251536572422439423418886938091E-16"
+    },
+    {
+      "solver": "SPARSE",
+      "case": "spd24",
+      "max_forward_error": 8.881784197001252e-16,
+      "residual_inf_decimal": "8.245904393328062909063191909808665513992309570312500E-12",
+      "backward_error_decimal": "1.4480979915578846012364786811544305806610544101295199890686806294598604191687775E-16"
+    },
+    {
+      "solver": "ENTRY",
+      "case": "spd24",
+      "max_forward_error": 8.881784197001252e-16,
+      "residual_inf_decimal": "8.245904393328062909063191909808665513992309570312500E-12",
+      "backward_error_decimal": "1.4480979915578846012364786811544305806610544101295199890686806294598604191687775E-16"
+    }
+  ],
+  "condition_checks": [
+    {
+      "case": "tridiag32",
+      "production_condition": 87.92827178907146,
+      "reference_condition": 440.68856038366675,
+      "analytical_condition": 440.6885603836566,
+      "eigen_min": 0.009056154853830616,
+      "eigen_max": 3.99094384514617,
+      "eigenpair_residual_2": 3.238706286842717e-15,
+      "orthogonality_error_2": 2.142653875578841e-15,
+      "ratio_production_to_reference": 0.1995247430805112
+    },
+    {
+      "case": "eigen_floor",
+      "production_condition": 1.0,
+      "reference_condition": 10000000000.0,
+      "analytical_condition": 10000000000.0,
+      "eigen_min": 1e-10,
+      "eigen_max": 1.0,
+      "eigenpair_residual_2": 0.0,
+      "orthogonality_error_2": 0.0,
+      "ratio_production_to_reference": 1e-10
+    },
+    {
+      "case": "singular_eigen",
+      "production_condition": 1.0,
+      "reference_condition": null,
+      "analytical_condition": null,
+      "eigen_min": 0.0,
+      "eigen_max": 1.0,
+      "eigenpair_residual_2": 0.0,
+      "orthogonality_error_2": 0.0,
+      "ratio_production_to_reference": null
+    },
+    {
+      "case": "existing_chain8",
+      "production_condition": 619027.975799394,
+      "reference_condition": 2158698.8565037264,
+      "analytical_condition": null,
+      "eigen_min": 3580.8092890441017,
+      "eigen_max": 7729888917.617424,
+      "eigenpair_residual_2": 3.9691675331566536e-06,
+      "orthogonality_error_2": 3.130301174736201e-15,
+      "ratio_production_to_reference": 0.28675976453797014
+    }
+  ]
+}

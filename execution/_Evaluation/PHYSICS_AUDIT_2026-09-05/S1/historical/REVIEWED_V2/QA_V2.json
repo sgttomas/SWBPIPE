@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "consolidated_rows": 44,
+  "finding_refs_resolve": 189,
+  "preserved_V1_members": 27,
+  "changes": "R1-01/02/03 and nonblocking historical-coverage/R11 clarification",
+  "frozen_oracle": "I1/children/C/EXPECTED_BEFORE_RUN.json:20-21",
+  "independent_backcheck": "PENDING"
+}

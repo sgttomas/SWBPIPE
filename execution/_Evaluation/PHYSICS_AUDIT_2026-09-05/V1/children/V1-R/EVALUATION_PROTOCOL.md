@@ -1,0 +1,5 @@
+# Reference audit protocol
+
+Accepted basis: frozen source2be412ccea62bdc4bd96deb082c46d7a792076ea; decomp0.12/SCA009/DAG010; root APPROVED_PLAN.md and USER_CHOICES.json. TASK+evaluation-protocol under EVALUATION V1. Scope: all existing hand-calculation lineage, numerical-policy applicability, independent criteria for seven leads and representative implemented families. Writes exact V1-R only. No children, heavy builds, existing suites, source edits, or Git mutations. Parent owns production comparisons and accepts fan-in. No rubric or score.
+
+Freeze criteria before comparisons; inventory and hash all 73 handcalcs; inspect source executable lineage; evaluate independent exact-rational elementary and quadrature arc references; retain separate algorithm-observation and physical-oracle classifications; preserve explicit gaps. External primary sources corroborate method only. New convergence/engineering acceptance thresholds and physics assumptions route to Owner; no threshold is adopted here.

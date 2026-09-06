@@ -1,0 +1,3 @@
+# P5 final selected-material consumer notice to HELP_HUMAN / PKG03
+
+R05 consumer validation implemented and reviewed on product93d182. Targeted thermal loads require explicitly selected effective alpha; exact/interpolated selection and original base-input requirements unchanged. No new defaults/material law/schema or PKG03 truth/source change. Original selected-alpha silent drop now blocks through existing diagnostic mechanism. Root should retain/routably record this consumer notice; no PKG03 remediation is requested for this bounded repair. Final P5 packet at post_repair/P5/final_package_v1 records scope and verification; global release/native gates remain root-owned.

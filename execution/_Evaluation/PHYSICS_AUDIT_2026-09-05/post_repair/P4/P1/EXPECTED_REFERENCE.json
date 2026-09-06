@@ -1,0 +1,49 @@
+{
+  "frozen_utc": "2026-09-05T23:18:26.168930+00:00",
+  "before_any_product_execution": true,
+  "basis": "Original elementary statics, circular annulus integration, Euler-Bernoulli curvature integration; vetted baseline V1-R EARLY_REFERENCE_CRITERIA.md and I1 C/R EXPECTED_BEFORE_RUN.json. No repaired output dependency.",
+  "comparison": "Published round6 scalar: absolute error <= 0.5e-6 + 1e-10 (floating arithmetic allowance), existing I1 expectation criterion; software fixture only, not engineering policy.",
+  "inputs": {
+    "D_m": 0.168,
+    "t_m": 0.007,
+    "L_m": 2.0,
+    "E_Pa": 200000000000.0,
+    "G_Pa": 77000000000.0,
+    "F_N": 350,
+    "T_Nm": 350,
+    "ks_N_per_m": 1000000.0
+  },
+  "equations": {
+    "A": "pi*(D^2-(D-2t)^2)/4",
+    "I": "pi*(D^4-(D-2t)^4)/64",
+    "point_tip_u_mm": "1000*F*L^3/(3EI)",
+    "spring_u_mm": "1000*F/(3EI/L^3+ks)",
+    "section_end_force": "F (constant, positive cut convention); anchor action -F",
+    "point_bending_magnitude_Nm": "F*(L-x)",
+    "distributed_tip_mm": "1000*q/(6EI)*[L*s^3-s^4/4] from a to b",
+    "distributed_shear_magnitude_N": "q*max(b-max(a,x),0)",
+    "distributed_moment_magnitude_Nm": "q/2*max((b-x)^2-max(a-x,0)^2,0), zero for x>b"
+  },
+  "expected": {
+    "I_m4": 1.1493591335983794e-05,
+    "A_m2": 0.003540574920595698,
+    "point_tip_mm": 0.40602336817530704,
+    "root_force_N": 350,
+    "root_moment_Nm": 700,
+    "pure_moment_root_force_N": 0,
+    "pure_moment_root_moment_Nm": 100,
+    "spring_u_mm": 0.18796797141911276,
+    "spring_action_N": 187.96797141911276,
+    "closed_zero_gap_axial_u_mm": 0,
+    "closed_zero_gap_pipe_axial_N": 0,
+    "constant_axial_N": 350,
+    "constant_torsion_Nm": 350,
+    "constant_shear_N": 350,
+    "sum_opposites_components_and_norms": 0,
+    "tiny_then_1e6_mm": 0.40602336817530704,
+    "uniform_q100_tip_mm": 0.08700500746613722,
+    "partial_q100_a05_b15_tip_mm": 0.03806469076643504,
+    "source_ref_invariant": "Each derived source resolves within same primitive case, unless explicit combination operand linkage."
+  },
+  "observations": "Both modes; metadata kind/entity/location/basis selectors on actual run_linear_static_preview_with_mode ResultItem; no literal-only claimed recovery."
+}

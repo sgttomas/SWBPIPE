@@ -1,0 +1,30 @@
+{
+  "id": "ACCEPT_WHOLE_BASELINE_AND_ACTIVATE_R01_R11",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept complete baseline and explicitly activate bounded R01\u2013R11 under user program direction and existing requirements",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "baseline_manifest_sha256": "e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f",
+  "root_baseline_verification": "All 33 S1 V3 members independently verified; metadata-only diff verified",
+  "R1_final_manifest_sha256": "45de32ea6e0e52a9afa903887a2c62c9ad9fdedc93e49bac2a960b8c64958e08",
+  "R1_verdict": "PASS read at R1/backcheck_v3/RETURN.md; no actionable findings remain",
+  "accepted_basis": "Prior accepted M1/I1/V1/I1 supplement, whole S1 V3 and complete R1 original/substantive/backcheck chain",
+  "closure_limit": "Baseline complete with recorded defects/unknowns, not engine correctness",
+  "repair_nodes": {
+    "P4": "PKG04 kernel R01\u201304 and product R01/R06/R07 first exclusive owner",
+    "P5": "PKG05 R05/R08/R09/R11, shared writes after accepted frozen P4 handoff",
+    "P9": "PKG09 R10 independent references/new regression files under validation/tests only; no production/core-test conflicts"
+  },
+  "R11_rationale": "Existing DEL05-05 OUT001/R7 separately-dispatched integration exception, supported independently by R1; connect existing mechanical consistent-load/recovery APIs only, pressure semantics remain held",
+  "held_decisions": [
+    "D01",
+    "D02",
+    "D03",
+    "D04",
+    "D05",
+    "D06"
+  ],
+  "authority_limit": "User-approved program execution and existing scope; no invented Owner physical/public-policy decision",
+  "C1_scope": "Control only; no production/evaluator/receipt writes"
+}

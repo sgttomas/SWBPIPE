@@ -1,0 +1,36 @@
+{
+  "id": "RECORD_E1_COMPLETE_AND_RELEASE_V1_TRANSPORT",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "E1": {
+    "status": "Complete packet; fresh review pending",
+    "manifest_sha256": "e707cc995798d08973cfd3b8072a958da0d8964bd661c1282ef5075b3536c373",
+    "members": 10,
+    "attributes": "Exact67CSV entries retain blank-at-eol/blank-at-eof/space-before-tab plus cr-at-eol",
+    "toy_controls": "Genuine whitespace errors fail"
+  },
+  "remaining_cached_failure": "Only V1/baseline/cargo.log terminal blank EOF",
+  "V1_transport_release": {
+    "runtime_id": "/root/audit_verification",
+    "scope": [
+      "own auditroot/V1",
+      "instances/V1_TRANSPORT"
+    ],
+    "objective": "Lossless representation-only transport of completed V1 packet",
+    "preserve": "Entire original110-member packet plus original FINAL_MANIFEST27ba19b9429bff886238db135ffed9f8cb4baa67de0adf8f65e49f503ff0c5a1 archived base64 with exact decoded hashes",
+    "change": "Only raw log representation becomes encoded; original logical historical manifest/bytes preserved; materialization mapping explicit",
+    "consumers": "S1/S2 historical references remain resolvable via archive; future S2 final explains representation-only change",
+    "exclusions": [
+      "No audit result change",
+      "No production source change",
+      "No CSV change",
+      "No whitespace waiver",
+      "No staging by authors"
+    ]
+  },
+  "review_gate": "Actual F3 resumed read-only for E1 then V1 final packet when ready",
+  "publication_gate": "CHANGE held until review/SOURCE_READY_V2/rootrelease",
+  "production_integrity": "All15productionfiles unchanged",
+  "receipt": "none before F2"
+}

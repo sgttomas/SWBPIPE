@@ -1,0 +1,8 @@
+WitnessID,CoverageIDs,Disposition
+W1,C01,Existing repaired unit regression present; original witness replay belongs integration manager; no new physical reproduction claimed
+W2,C19;C20;C22,Separate nonlinear/support and linear/ordinary assertions; no selected-state equality witnessed here
+W3,C23,Reaction norm perturbation executed: 127 product tests passed; original dimensional defect evaluated by integration manager
+W4,C09;C19,Spring mapping and nonlinear tests separately present; combined spring transfer numerical end-to-end gap
+W5,C20,Kernel equilibrium tests present; zeroing interpolated product station values executed: 127 product tests passed
+W6,C09;C15;C18,Under-restraint negative test exists; spring-only/active-support stabilization absent in named reviewed product regressions
+W7,C23,"Determinism checked, changed-model/settings unique association remains gap"

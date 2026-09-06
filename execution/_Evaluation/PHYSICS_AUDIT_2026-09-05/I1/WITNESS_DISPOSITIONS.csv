@@ -1,0 +1,8 @@
+Witness,Lead,Disposition,Evidence,RemainingBoundary
+W1 units,C,Original unchanged m/mm/in complete envelopes identical; translated/rotated and supported quantity representations corroborate,children/C/COMPARISON.json;children/C/REPORT.md,Representative invariants only; not exhaustive transformations
+W2 selected state,R,"Confirmed ordinary and nonlinear state divergence, minimal axial contact and larger fixture; actual headless repeats",children/R/REPORT.md;manager_replay/R_SUPPLEMENT_REPLAY.json,M1 convergence/friction findings separately; no new solver policy
+W3 reaction dimensions,C,Confirmed pure moment becomes force magnitude; spring force also omitted,manager_replay/REPLAY.json,Reaction components/public compatibility must be explicit in repair
+W4 spring transfer,C,Confirmed positive elastic spring disappears from nonlinear assembled solve,manager_replay/REPLAY.json,Coordinate selected solution and reaction recovery
+W5 interior stations,R,Constant-field sign defect confirmed; UDL approximation documented and pressure basis conflicts,children/R/REPORT.md;manager_replay/R_REPLAY.json,Consistent-load integration scope must be activated; pressure interpretation Owner gate
+W6 stability,C,Positive grounding springs falsely rejected; contact-only initialization separately unresolved,manager_replay/REPLAY.json,No unsupported initial-active-state correctness claim
+W7 identity,R,Repeated raw labels reproduced; wrapper hashes partly distinguish models; same-case trace corruption confirmed separately,children/R/REPORT.md;manager_replay/SOURCE_REF_CHECK.json,Raw/request/actual model identity and durable history must not be conflated

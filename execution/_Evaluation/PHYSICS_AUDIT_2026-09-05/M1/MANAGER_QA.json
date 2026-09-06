@@ -1,0 +1,16 @@
+{
+  "source_hashes_unchanged": true,
+  "all_four_child_manifests_verified": true,
+  "findings_rows": 20,
+  "required_report_sections": true,
+  "scoring_rubric": null,
+  "all_children_completed": true,
+  "no_production_mutations": "Instruction asserted plus scoped source hash verification; other agents external state excluded",
+  "replays": {
+    "E": "exact stdout",
+    "N": "exact stdout",
+    "N supplement": "exact stdout",
+    "L": "numeric/diagnostics exact; elapsed_nanos excluded"
+  },
+  "status": "PASS_WITH_EXPLICIT_FINDINGS_AND_LIMITATIONS"
+}

@@ -1,0 +1,22 @@
+{
+  "source_sha256": "887fb99ce98cc6e08f65fcbb87c970ce71a9df5e3bbe282406a738a3e67752ce",
+  "mutation": "Zero all default force/moment/stress published values; IDs, units, metadata, other rows unchanged",
+  "predeclared_tests": [
+    {
+      "test": "valid_invented_model_exposes_element_force_components",
+      "baseline_expected_exit": 0,
+      "mutant_expected_exit": 0
+    },
+    {
+      "test": "valid_invented_model_exposes_endpoint_stress_components",
+      "baseline_expected_exit": 0,
+      "mutant_expected_exit": 0
+    },
+    {
+      "test": "fixed_fixed_thermal_load_applies_axial_fixed_end_correction",
+      "baseline_expected_exit": 0,
+      "mutant_expected_exit": 101
+    }
+  ],
+  "claim_boundary": "Two selected metadata tests are insensitive; numeric thermal control sensitive. Not full-suite mutation score or physical correctness."
+}

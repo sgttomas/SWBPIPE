@@ -1,0 +1,74 @@
+[
+  {
+    "path": "core/solver/curved_bend/src/lib.rs",
+    "sha256": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+    "lines": 2391,
+    "owner": "M1-E",
+    "first_test_cfg_line": 1063,
+    "production_prefix_lines": 1062
+  },
+  {
+    "path": "core/solver/diagnostics/src/lib.rs",
+    "sha256": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+    "lines": 1173,
+    "owner": "M1-L",
+    "first_test_cfg_line": 763,
+    "production_prefix_lines": 762
+  },
+  {
+    "path": "core/solver/frame_kernel/src/lib.rs",
+    "sha256": "e5b7346448841f9f2bdaa360102f976638c52967860fe9ee8ad8896a69f925f7",
+    "lines": 1873,
+    "owner": "M1-E + M1-L",
+    "first_test_cfg_line": 1170,
+    "production_prefix_lines": 1169
+  },
+  {
+    "path": "core/solver/linear_supports/src/lib.rs",
+    "sha256": "1b23899cc93f5d4a56742cb3ba5c617d1d4b401c903e42412300e86c803de50e",
+    "lines": 957,
+    "owner": "M1-E",
+    "first_test_cfg_line": 673,
+    "production_prefix_lines": 672
+  },
+  {
+    "path": "core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "9ae6eb2cab93ed034b394fc12d99e6dd7f555359b77bb5eafb9d7ccc9fa4bd93",
+    "lines": 2238,
+    "owner": "M1-N",
+    "first_test_cfg_line": 1462,
+    "production_prefix_lines": 1461
+  },
+  {
+    "path": "core/solver/nonlinear_supports/src/lib.rs",
+    "sha256": "6caba773225584a610dcd39500242fae403c9f077f1cff646f3e9acfdaa913f6",
+    "lines": 1235,
+    "owner": "M1-N",
+    "first_test_cfg_line": 725,
+    "production_prefix_lines": 724
+  },
+  {
+    "path": "core/solver/performance_harness/src/lib.rs",
+    "sha256": "7debffb199616f976d688ed809fa487bc75fe402822a953330fe8be37f11bd17",
+    "lines": 2115,
+    "owner": "M1-L",
+    "first_test_cfg_line": 1417,
+    "production_prefix_lines": 1416
+  },
+  {
+    "path": "core/solver/sparse_direct/src/lib.rs",
+    "sha256": "7a9468285b6719576fe0c3595baeb9e43a87009138aeefb198c98274e69542cd",
+    "lines": 1236,
+    "owner": "M1-L",
+    "first_test_cfg_line": 806,
+    "production_prefix_lines": 805
+  },
+  {
+    "path": "core/solver/straight_pipe/src/lib.rs",
+    "sha256": "67565f4a5d0389100ead5d218f40e167e08d674568133db002cc8868145b4f79",
+    "lines": 2369,
+    "owner": "M1-E",
+    "first_test_cfg_line": 1481,
+    "production_prefix_lines": 1480
+  }
+]

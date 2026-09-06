@@ -1,0 +1,24 @@
+{
+  "id": "F3_FIXTURE_FRESH_REVIEW_BRIEF",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "role": "fresh direct Agent2 TASK",
+  "TaskSkill": "software-code-review",
+  "AllowedWriteTargets": [],
+  "ApplyEdits": false,
+  "tools": "read-only source/diff/evidence/hash inspection",
+  "exclusions": [
+    "No children",
+    "No builds",
+    "No source/evidence writes by F3"
+  ],
+  "objective": "Review 100% three-file fixture/consumer-test delta and F1 independent derivations; bind existing P4/P5/P9 source-review coverage without re-auditing unchanged core",
+  "frozen_files": {
+    "fixtures/product_preview/invented_mechanics_result.json": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "apps/desktop/src/App.test.tsx": "be226fb62c1b5fbc2a501ca8fb79d06f5eefd817b5b77eedfa02f04560f43664"
+  },
+  "expected_return": "Fresh full-diff findings/verdict and exact fingerprints/claim limits; root transmits structured return for C1 persistence",
+  "authority_limit": "No final PASS inferred; no engine changes or relaxed assertion semantics"
+}

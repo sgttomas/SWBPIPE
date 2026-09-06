@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "cargo",
+    "run",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "core/solver/performance_harness/Cargo.toml",
+    "--example",
+    "sparse_default_promotion_observation"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping",
+  "env_override": {
+    "CARGO_TARGET_DIR": "/tmp/piping-physics-audit-p4-d1-target"
+  },
+  "start_utc": "2026-09-05T23:41:19.541108+00:00",
+  "end_utc": "2026-09-05T23:41:25.519394+00:00",
+  "exit_code": 0,
+  "stdout_sha256": "9c1776c1bd46b74e4b089574a650738ef7f9a3eeeffd966b1cb9c3de850e1adb",
+  "stderr_sha256": "cb13ae0a311c8385529b57c0e63617781c6fe76bcf4d66c8c438c5c3bc7d876a",
+  "stderr_base64": "ICAgIEZpbmlzaGVkIGBkZXZgIHByb2ZpbGUgW3Vub3B0aW1pemVkICsgZGVidWdpbmZvXSB0YXJnZXQocykgaW4gMC4wMHMKICAgICBSdW5uaW5nIGAvdG1wL3BpcGluZy1waHlzaWNzLWF1ZGl0LXA0LWQxLXRhcmdldC9kZWJ1Zy9leGFtcGxlcy9zcGFyc2VfZGVmYXVsdF9wcm9tb3Rpb25fb2JzZXJ2YXRpb25gCg==",
+  "cargo_version": "cargo 1.97.1 (c980f4866 2026-06-30)",
+  "rustc_version": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+}

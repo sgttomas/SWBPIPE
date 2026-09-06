@@ -1,0 +1,31 @@
+{
+  "time_before_run": "2026-09-05T22:34:54.582704+00:00",
+  "note": "Static parser inspection corrected authored tokens before first actual run: RZ, degC/degF intervals. Oracle unchanged. Accepted V1 criteria b398c429603b40a4bda2cc034d2eeb4a96adc2beb526a8b48b7a9160ea90ff68 read before first run.",
+  "fixtures": {
+    "thermal_F.json": "cbb8fc6c0fd7db263247f94aa7730d4aac398332c32ca18199161ccbc7353e6d",
+    "huge_finite_coordinate.json": "56e1e938d11f59cea65c5fbbec3685170cc55ed181fc576be43375dacf833300",
+    "large_origin.json": "d39aec5e54764ecc323a3d41f8761e40f093378c226be67ac879ed96713ae03e",
+    "five_rigid_plus_spring.json": "2bbb6ec9a5aad12562083325ec2219232586a7bf4cac719508efc6c5e7048301",
+    "translated.json": "4a0d42f001334de68f069d9460e585fb5f775687a238293ce5bb0217cef5637a",
+    "missing_target.json": "105382ae35904282b26482c629badec428d5778d54f7de75b05562de8fe14b32",
+    "original_in.json": "ebf926782836f1a7628972971ee7e2cef2b10001993ab81ea098b8ee6b6281c8",
+    "rotated_z90.json": "66f9aec4fd42418038db528e3f28abfcf7fa1c333e356f78d300f68e808b83dc",
+    "pure_moment.json": "0e2040361e1909cff78d5d188505caa58057ef897d6db13207b685db317f2589",
+    "pressure_MPa.json": "0104ce4c61576aeac98af43baf18c0c675fcc4d68cf7ef8ac3b2156da98a4015",
+    "nonlinear_spring.json": "80f0383ffe4ec886c3c0e428c9f36bcbd72eb329eb4cbe04e6cf4eac3442426e",
+    "distributed.json": "a6e0e60b50a2cfbaf0b738fe10df81a671077d693d15dc7474c740645eea4307",
+    "thermal_C.json": "5b6c0fcfd198f38ae6e68e6b4142bc384eef6479c84d0d2a3d1d131a87e6fc6e",
+    "original_mm.json": "ab709ba3609b316c2119a42cccaf815c98c869eece6f04bcf31f357656b96b77",
+    "pressure_Pa.json": "c7eb40fd4a8be209c4d0377f8bfedc341a31f19bd5555b92deeba20f758527a1",
+    "duplicate_node.json": "e58fe8afcedecf2fe34675c78196d09c5384f56c84bba285403fe0fbd7078f62",
+    "original_m.json": "625bb034c4fe3f6d59d4adb14026b87c3a6f3fcec494249e01ed4bbbcb097bc8",
+    "linear_spring.json": "5bd5b3db2aabebbfd70de250edbb66387d208b74e4be7f5bca3fff81486bce7a",
+    "mixed_units.json": "fa97ffb1adf92d2df5fb9509e0cec27b1c7c1eb7cef8f9c9cbede2a193dbd523",
+    "spring_stabilized.json": "17591452de3165a9e6d5dbbead9fa551c4b5a6cb83672c94a58609cb0409e472",
+    "nonlinear_nospring.json": "966d589db89863d2379efdda3d27cfe195fe3fb9a0b365f36ceacb66f94927b7",
+    "missing_length.json": "4efa6a2362af9b3056a5c5561dfdcec4613b03a24fdee8487de308573cef4da4",
+    "five_rigid_plus_contact.json": "f52f286abb112e6f5f900ef1fd4faa845ba40ea26fe0b627a03d3a841d612f38",
+    "wrong_length.json": "7e55b629cbacee797fa603586b0a01d7c6cb82d3b0bb8e2aee4725c63dc711ac",
+    "missing_material.json": "412285e05bd39e91a6196e5805846fffe46580ca6948295c1807bd4c32ca7868"
+  }
+}

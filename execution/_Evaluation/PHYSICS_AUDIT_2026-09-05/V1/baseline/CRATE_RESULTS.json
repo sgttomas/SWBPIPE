@@ -1,0 +1,224 @@
+[
+  {
+    "crate": "core/gui/viewport_editor",
+    "passed": 6,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/library_import/library_import_document",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/loads/load_case_algebra",
+    "passed": 18,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/loads/primitive_loads",
+    "passed": 49,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/loads/self_weight_wasm",
+    "passed": 4,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/loads/stress_recovery",
+    "passed": 26,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/loads/user_loads",
+    "passed": 28,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/model_operations/operation_applier",
+    "passed": 145,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/product_physics",
+    "passed": 127,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/audit_manifest",
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/pdf_emitter",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/protected_content_linter",
+    "passed": 15,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/report_generator",
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/report_package",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/report_renderer",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/report_sections",
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/reporting/result_export",
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/rules/completeness_checker",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/rules/expression_evaluator",
+    "passed": 32,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/rules/rule_check_runner",
+    "passed": 20,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/rules/rule_pack_document",
+    "passed": 10,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/rules/rule_pack_lifecycle",
+    "passed": 12,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/runner/headless",
+    "passed": 54,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/serialization/canonical_json",
+    "passed": 8,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/curved_bend",
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/diagnostics",
+    "passed": 24,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/frame_kernel",
+    "passed": 36,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/linear_supports",
+    "passed": 14,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/nonlinear_integration",
+    "passed": 17,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/nonlinear_supports",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/performance_harness",
+    "passed": 20,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/sparse_direct",
+    "passed": 20,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/solver/straight_pipe",
+    "passed": 33,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "core/units",
+    "passed": 13,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "validation/benchmarks/mechanics",
+    "passed": 41,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "validation/benchmarks/nonlinear",
+    "passed": 19,
+    "failed": 0,
+    "ignored": 0
+  },
+  {
+    "crate": "validation/benchmarks/stress",
+    "passed": 23,
+    "failed": 0,
+    "ignored": 0
+  }
+]

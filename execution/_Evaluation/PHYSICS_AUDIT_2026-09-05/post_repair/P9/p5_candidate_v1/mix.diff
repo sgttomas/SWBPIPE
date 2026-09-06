@@ -1,0 +1,14 @@
+--- accepted-candidate/lib.rs
++++ mix/lib.rs
+@@ -1453,7 +1453,10 @@
+                 }
+             }
+             require_finite_mechanics(vector)?;
+-            let magnitude = vector[0].hypot(vector[1]).hypot(vector[2]);
++            let magnitude = vector[0].hypot(vector[1]).hypot(vector[2])
++                .hypot(reactions[index * DOF_PER_NODE + 3])
++                .hypot(reactions[index * DOF_PER_NODE + 4])
++                .hypot(reactions[index * DOF_PER_NODE + 5]);
+             support_force_vectors.insert(support.id.clone(), vector);
+             results.push(ResultItem {
+                 id: format!("result:reaction:{}", stable_suffix(&support.id)),

@@ -1,0 +1,22 @@
+{
+  "findings_rows": 17,
+  "classifications": {
+    "CONFLICT": 1,
+    "NON_CONFORMANCE": 11,
+    "OBSERVATION": 3,
+    "UNKNOWN": 2
+  },
+  "missing_evidence_refs": [],
+  "child_fanin": [
+    "ACCEPTED_WITH_EXPLICIT_COVERAGE_GAPS",
+    "ACCEPTED_WITH_EXPLICIT_COVERAGE_GAPS"
+  ],
+  "source_final": {
+    "head": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+    "initial_source_hashes_unchanged": true,
+    "changed_source_bindings": [],
+    "production_git_diff": ""
+  },
+  "required_artifacts_present": true,
+  "score": "not selected; none produced"
+}

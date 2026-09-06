@@ -1,0 +1,40 @@
+{
+  "status": "PASS all15livehashes match accepted review/source bindings",
+  "source_basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "files": {
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "01ac02c48411813d57adf39b4dd97659f19941628002379890e792b2600e5934",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "9efaf77796932174cc4efc53cdb43161235cf5150090f40cbe6e1722ba6a75c0",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.toml": "55f28a0a7980548c816c6f67be46d8279af8ec067b147bb5eb132c3f19793dec",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/README.md": "886d6e043f65c02817febde2b2717a703c1f24f87c8febd3481a04acc4eee107",
+    "projects/chirality-piping/validation/benchmarks/physics_audit_regression/src/lib.rs": "572fc020de423ba64afd2ef300b6ab76c26a274c7596c41c3b340628a83c4534",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "be226fb62c1b5fbc2a501ca8fb79d06f5eefd817b5b77eedfa02f04560f43664"
+  },
+  "sorted_compact_mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d",
+  "review_manifest_sha256": {
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KR/MANIFEST.json": "73e6a12c1fbe313cb9ca26ee44776a42e6ebe64b6361486b0f54dd157ad66df3",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/KR/backcheck_v1/MANIFEST.json": "3581650c71241bd181dfca577a9586932b81d6bc247368f00c2fde32fd39eb07",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P4/PR/MANIFEST.json": "0762d8376ae861e51dc41b9d278ea6e45ee85237f963b58ea5b27dd9f0092a79",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4/FINAL_MANIFEST.json": "4820759d2bb32768ec8f31034c91e6c001775f448517ab38ba19ff6852b69a8e",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/final_package_v1/MANIFEST.json": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json": "76fde1685dcec11047f577b285fb8e335804b3071115cc0074bf4921c1a50bf7",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/code_review/MANIFEST.json": "c75527650a7a9f981b4af32d1869936d4999af256ebeebe03ef0dc87bba8fe6a",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/code_review_backcheck/MANIFEST.json": "c9e5941283a5077769d346135f10d491d41fa2ff5d25ab66abd5a8485dcc9656",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/final_package_v1/MANIFEST.json": "b13ec5c533f1a571b8314b680b8985ed73dfcd44c53ffd2c5901339395b413bc"
+  },
+  "coverage": {
+    "core_files": 8,
+    "P9_files": 4,
+    "F1_files": 3
+  },
+  "verification_attribution": "F3 independently verified coverage per parent terminal return; C1 additionally read SOURCE_HASHES/P9 backcheck bindings and recomputed all current file/review-manifest hashes",
+  "limits": "No re-audit of unchanged core; changed sources require fresh review"
+}

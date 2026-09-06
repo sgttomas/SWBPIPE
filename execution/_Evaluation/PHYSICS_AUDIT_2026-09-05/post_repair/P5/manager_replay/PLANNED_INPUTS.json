@@ -1,0 +1,132 @@
+{
+  "status": "frozen before repaired executions",
+  "inputs": [
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/axial.json",
+      "sha256": "eb4ed592c9ca525b2899f4af21eaf975b582077f6712b7cad0e6a558181a8024",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/torsion.json",
+      "sha256": "771bae44c19b282ae8d0757f1e59277f268f05f686761af677344ddb6dcecd84",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_y.json",
+      "sha256": "7874f10167f3f3e309916177cebdd3f9b84697d3497615889636b567b7baa40c",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_z.json",
+      "sha256": "cc35aee281398edc0add82d818852f682564454090c208cb83d979b043ab865e",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/thermal_fixed.json",
+      "sha256": "310d0cd1e2eea5d21f7f54cde4809d8b621ff22984960cbf3abd9074306e2604",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure.json",
+      "sha256": "5b009b30f6889098f93328a75be24a9493bb43d8f1030ceb98444d7bdb843262",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure_fixed.json",
+      "sha256": "015d38c03e9d506bcb61ec685ef4913e4a507f35afe91b420ccaedab06a4fb82",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/uniform.json",
+      "sha256": "a3e90efe34dca4e2b6882405e1f3539b95877941168d30b85710a4bc3ece1917",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/partial.json",
+      "sha256": "a2118c8b67640e5cfa6c14dfd2e90bdff40aac23cf4c21569a5b69e99f2ebed5",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_selected_alpha.json",
+      "sha256": "73ee51235fd12230c181a926ff4cc1cf00c0dc4ee245facedbf7f9af1b79c7c8",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_base_alpha.json",
+      "sha256": "7bb7fb0cbb3cf6256100e77ec8f81eddb4ce9f50a30bccdf6920804322c86ed0",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/scaled_combinations.input.json",
+      "sha256": "b0f95ceba8199ce650af84bd856503a68a0c895b1cfaa1b2b9ac811f56697655",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct2.input.json",
+      "sha256": "db3d99f9a5b4d0f2da93264e5a1f93d01ad0f36ef97abb05847229895fff6905",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct1e6.input.json",
+      "sha256": "e08cde695d0551de88b877bd68864f8d968541e966017f676ea3fd5a3ae78336",
+      "modes": [
+        "sparse",
+        "dense"
+      ]
+    }
+  ],
+  "expected_basis": [
+    "I1 original EXPECTED_BEFORE_RUN packets",
+    "P9 EXPECTED_BEFORE_RUN69b58a92b893589bb693e3b5a6acf43477bc53f9be03e908b3d2d9995005b5a3"
+  ],
+  "scope": "existing product entrypoint and model deserialization; no GUI claim",
+  "source_binding": "will freeze after P5 author terminal return",
+  "build_hold": "one compile slot assigned author; manager waits or obtains root slot"
+}

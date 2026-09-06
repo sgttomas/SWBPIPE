@@ -1,0 +1,15 @@
+{
+  "child": "R",
+  "manifest_sha256": "d2aafae2a933a0913f01467d46b678e3247b7e43b3d1402f5aab7b0629423e39",
+  "member_count": 114,
+  "bad_members": [],
+  "findings_count": 10,
+  "schema_valid": true,
+  "manager_replays": [
+    "manager_replay/R_REPLAY.json",
+    "manager_replay/R_SUPPLEMENT_REPLAY.json",
+    "manager_replay/SOURCE_REF_CHECK.json",
+    "manager_overflow/OBSERVATION.json"
+  ],
+  "verdict": "ACCEPTED_WITH_EXPLICIT_COVERAGE_GAPS"
+}

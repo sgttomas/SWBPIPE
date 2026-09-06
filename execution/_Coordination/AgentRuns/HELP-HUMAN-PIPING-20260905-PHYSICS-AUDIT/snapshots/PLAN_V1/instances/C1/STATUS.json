@@ -1,0 +1,11 @@
+{
+  "instance": "C1",
+  "runtime_id": "/root/implementation_coordination",
+  "parent": "/root",
+  "role": "bounded ephemeral Agent 2 control-plane recorder",
+  "status": "full approved plan, source basis and manager briefs frozen; ready for root dispatch",
+  "model": "unknown if unexposed",
+  "delegation": "none",
+  "enforcement": "native instruction+config asserted; not mechanism-proven",
+  "write_scope": "new runroot root control records/briefs/snapshots and own C1 only; later exact receipt release required"
+}

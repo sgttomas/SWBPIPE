@@ -1,0 +1,27 @@
+{
+  "python": "3.13.14",
+  "numpy": "2.5.1",
+  "numpy_config": "Build Dependencies:\n  blas:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\n  lapack:\n    detection method: system\n    found: true\n    include directory: unknown\n    lib directory: unknown\n    name: accelerate\n    openblas configuration: unknown\n    pc file directory: unknown\n    version: unknown\nCompilers:\n  c:\n    commands: cc\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  c++:\n    commands: c++\n    linker: ld64\n    name: clang\n    version: 15.0.0\n  cython:\n    commands: cython\n    linker: cython\n    name: cython\n    version: 3.2.8\nMachine Information:\n  build:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\n  host:\n    cpu: aarch64\n    endian: little\n    family: aarch64\n    system: darwin\nPython Information:\n  path: /private/var/folders/g3/pffjr_y96bq06blnkf72x_hw0000gn/T/build-env-3avvqm00/bin/python\n  version: '3.13'\nSIMD Extensions:\n  baseline:\n  - NEON\n  - NEON_FP16\n  - NEON_VFPV4\n  - ASIMD\n  found:\n  - ASIMDHP\n  - ASIMDDP\n  not found:\n  - ASIMDFHM\n\n",
+  "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)\nbinary: rustc\ncommit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452\ncommit-date: 2026-07-14\nhost: aarch64-apple-darwin\nrelease: 1.97.1\nLLVM version: 22.1.6\n",
+  "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+  "source_copy": {
+    "original_bytes": 84632,
+    "original_sha256": "7debffb199616f976d688ed809fa487bc75fe402822a953330fe8be37f11bd17",
+    "copy_sha256": "ee5c6149d4d5ae975f5790fc2a09cb4598df2feb6a1c22e11575abde4d7d200d",
+    "appended_wrapper": "\npub fn audit_condition(a: &DenseMatrix) -> Result<f64,HarnessError> {true_symmetric_condition_number_2norm(a)}\npub fn audit_eigen(a: &DenseMatrix) -> Result<Vec<f64>,HarnessError> {jacobi_symmetric_eigenvalues(a)}\n"
+  },
+  "current_production_hashes_match": true,
+  "commands": [
+    {
+      "cwd": "M1/M1-L/harness",
+      "command": "CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=\"$PWD/target\" cargo run --offline --manifest-path Cargo.toml > ../raw_v1.txt 2> ../compile_v1.txt",
+      "exit": 0
+    },
+    {
+      "cwd": "M1/M1-L/harness",
+      "command": "CARGO_NET_OFFLINE=true CARGO_TARGET_DIR=\"$PWD/target\" cargo run --offline --manifest-path Cargo.toml > ../raw_v2.txt 2> ../compile_v2.txt",
+      "exit": 0
+    }
+  ],
+  "limitations": "V1 source run not frozen separately before V2 harness additions; V2 repeats all V1 cases and is authoritative reproducible final harness. Raw V1 preserved historical."
+}

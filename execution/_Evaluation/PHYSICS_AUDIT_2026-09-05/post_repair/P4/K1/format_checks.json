@@ -1,0 +1,32 @@
+[
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/diagnostics/src/lib.rs",
+    "exit": 0,
+    "output": ""
+  }
+]

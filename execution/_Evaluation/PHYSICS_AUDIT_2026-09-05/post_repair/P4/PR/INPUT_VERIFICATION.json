@@ -1,0 +1,9 @@
+{
+  "manifest_sha256": "30600919d738e858ce002fb402762f3955ccaa4082ffb5cef50239b408e38369",
+  "members_verified": 67,
+  "failures": [],
+  "source_hashes": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "171a63860bb9d105e2336bb76be6a71b26032cca5795d55ba3556f8c08ba3d26",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439"
+  }
+}

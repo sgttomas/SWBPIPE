@@ -1,0 +1,1 @@
+Root F1 V3 release: only four identified App.test.tsx fixture consumer cases, fixture-derived expected literals and adjacent explanation; preserve all behavior/actions/assertions. No source/fixture/other tests/Git/app/children. Derive counts from fixture and existing transforms before edits. Targeted then full Vitest; fresh root review pending. V1/V2 remain immutable.

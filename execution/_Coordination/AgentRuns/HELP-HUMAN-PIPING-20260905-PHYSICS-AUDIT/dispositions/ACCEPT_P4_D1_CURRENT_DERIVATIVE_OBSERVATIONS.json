@@ -1,0 +1,18 @@
+{
+  "id": "ACCEPT_P4_D1_CURRENT_DERIVATIVE_OBSERVATIONS",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept bounded current derivative observation refresh",
+  "manifest_sha256": "663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766",
+  "root_verification": "Read HANDOFF and verified all 21 members",
+  "scope": "Nine current observation derivatives",
+  "source_binding": "HEAD plus dirty source hashes; not clean-source DEC-025 evidence",
+  "calibration": [
+    "Raw emitter legacy labels disclaimed",
+    "Existing bounds do not adopt new condition policy",
+    "Historical evidence acceptance unchanged"
+  ],
+  "rerun": "Rerun if emitter or dependencies change",
+  "remaining": "Final complete clean sweep still required"
+}

@@ -1,0 +1,34 @@
+[
+  {
+    "child": "M1-E",
+    "manifest": "M1-E/MANIFEST.json",
+    "sha256": "2735eda6807889b5d0a81492518ea134fc7bbee814b602ec6284b9575b33bf0a",
+    "members_verified": 26,
+    "verdict": "ACCEPTED_BOUNDED_AUDIT_WITH_FINDINGS",
+    "review": "Manager read return, findings, coverage, reference criteria; source hashes and actual critical binary replay verified. See manager replay files."
+  },
+  {
+    "child": "M1-L",
+    "manifest": "M1-L/MANIFEST.json",
+    "sha256": "52005c32ddcb7d86db3adf4026f4759fe9fb3b8902ca46edd58505839f773809",
+    "members_verified": 24,
+    "verdict": "ACCEPTED_BOUNDED_AUDIT_WITH_FINDINGS",
+    "review": "Manager read return, findings, coverage, reference criteria; source hashes and actual critical binary replay verified. See manager replay files."
+  },
+  {
+    "child": "M1-N",
+    "manifest": "M1-N/MANIFEST.json",
+    "sha256": "2c7571d70edaef98091340d4e4801ea8cb141d71f1c705a10704ee82132a8c51",
+    "members_verified": 20,
+    "verdict": "ACCEPTED_BOUNDED_AUDIT_WITH_FINDINGS",
+    "review": "Manager read return, findings, coverage, reference criteria; source hashes and actual critical binary replay verified. See manager replay files."
+  },
+  {
+    "child": "M1-N/supplement_v2",
+    "manifest": "M1-N/supplement_v2/MANIFEST.json",
+    "sha256": "281bf48163221e77725a72988f19a1217926c0fa8264696b100aa996c1356cda",
+    "members_verified": 16,
+    "verdict": "ACCEPTED_BOUNDED_AUDIT_WITH_FINDINGS",
+    "review": "Manager read return, findings, coverage, reference criteria; source hashes and actual critical binary replay verified. See manager replay files."
+  }
+]

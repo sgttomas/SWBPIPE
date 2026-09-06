@@ -1,0 +1,7 @@
+{
+  "changed_after_checkpoint": [
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs"
+  ],
+  "scope": "This mutable preintegration execution is not final repair acceptance; exact current source hashes bound before run."
+}

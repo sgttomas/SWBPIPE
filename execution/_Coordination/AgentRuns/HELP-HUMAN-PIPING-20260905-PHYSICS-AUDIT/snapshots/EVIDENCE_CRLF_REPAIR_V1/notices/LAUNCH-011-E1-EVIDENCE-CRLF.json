@@ -1,0 +1,25 @@
+{
+  "id": "LAUNCH-011-E1-EVIDENCE-CRLF",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "instance": "E1",
+  "runtime_id": "/root/evidence_crlf",
+  "role": "actual bounded direct Agent2",
+  "status": "launched for exact evidence CRLF handling",
+  "write_scope": [
+    "auditroot/.gitattributes exact67CSVentries only",
+    "instances/E1",
+    "auditroot/post_repair/E1",
+    "declared temporary isolated Git experiment"
+  ],
+  "exclusions": [
+    "No other source/configuration",
+    "No CSV byte rewriting",
+    "No broad glob/exemption",
+    "No production Git mutations"
+  ],
+  "model": "unexposed",
+  "enforcement": "Native instruction+config asserted; not mechanism-proven",
+  "review_gate": "Fresh F3 backcheck before SOURCE_READY_V2/root CHANGE release"
+}

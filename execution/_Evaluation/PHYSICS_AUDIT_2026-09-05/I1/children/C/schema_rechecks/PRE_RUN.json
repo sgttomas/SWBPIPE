@@ -1,0 +1,9 @@
+{
+  "time": "2026-09-05T22:37:41.255930+00:00",
+  "expected": "Complete shared section should solve equal base; stale cache blocks; canonical analytical payload does not match native preview shape and should deserialize error. Earlier missing-name errors preserved, not a production defect.",
+  "hashes": {
+    "canonical_analytical.json": "6d574e2ed6d27b3ea6f3b96c4db472dd3135b5735dc8f631629322ba4f01723e",
+    "shared_section.json": "a80439f3ceab21f04c74634126dda0daa41b2380363fcd4908435aff77b849ed",
+    "shared_cache_stale.json": "a958a369e9ef38798fabcb0b41f2038ce62e900d689a22d804be397431959838"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "manager": "/root/audit_integration",
+  "execution_class": "delegated-harness-native",
+  "model": "unknown",
+  "role_enforcement": "instruction+config asserted",
+  "children": [
+    {
+      "id": "C",
+      "agent": "/root/audit_integration/compilation",
+      "status": "running",
+      "brief": "children/C/INIT-TASK.md"
+    },
+    {
+      "id": "R",
+      "agent": "/root/audit_integration/recovery",
+      "status": "running",
+      "brief": "children/R/INIT-TASK.md"
+    }
+  ]
+}

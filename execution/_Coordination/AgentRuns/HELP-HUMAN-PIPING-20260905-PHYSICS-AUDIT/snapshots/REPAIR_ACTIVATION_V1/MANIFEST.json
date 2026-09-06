@@ -1,0 +1,21 @@
+{
+  "status": "root accepted wholebaseline and activated R01\u2013R11; actual launches pending",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "baseline_manifest_sha256": "e0fc4c26455067eca2a22864d82d75cfed884d60f16d7d10543682fbe05fe75f",
+  "R1_final_manifest_sha256": "45de32ea6e0e52a9afa903887a2c62c9ad9fdedc93e49bac2a960b8c64958e08",
+  "files": {
+    "snapshots/REPAIR_ACTIVATION_V1/HANDOFF_STATE.md": "47a70eaa53bb2a5766f398edb27fcdb60260f3a6e4782b22d405d4f5ad1d8390",
+    "snapshots/REPAIR_ACTIVATION_V1/REPAIR_ACTIVATION_PLAN_V2.md": "13aca0623e073f4da498d90fdcf89ba5884d0352e8cec673d86d35f56e1f09cb",
+    "snapshots/REPAIR_ACTIVATION_V1/WORK_GRAPH.json": "a54e915da9c12b9944b309ff77d581b13745ae79f9a8f0dda6ed85ca7e1dc4cd",
+    "snapshots/REPAIR_ACTIVATION_V1/briefs/P4_REPAIR_LAUNCH_BRIEF_V2.md": "c2ff8272bdabb7daface18f010301b4f1a85a1a9abed506445957157aeda4e87",
+    "snapshots/REPAIR_ACTIVATION_V1/briefs/P5_REPAIR_LAUNCH_BRIEF_V2.md": "28ccc4447780b1d8a7c4afd09c062e94fa33bc49b5079a96aa39f0fe4b0cb19e",
+    "snapshots/REPAIR_ACTIVATION_V1/briefs/P9_REPAIR_LAUNCH_BRIEF_V2.md": "b742d7f0ef8e0c735e65e32f32382d0075e410f2dc5079d64a121b087c48874b",
+    "snapshots/REPAIR_ACTIVATION_V1/dispositions/ACCEPT_WHOLE_BASELINE_AND_ACTIVATE_R01_R11.json": "b61d8b477e3629b094c80f5c57ca2cba491eae000d04ae844abe2f80c6b7e06e"
+  },
+  "gates": [
+    "P5 shared source after P4acceptedhandoff",
+    "D01\u2013D06held",
+    "fresh fullproductionreview and fullcleanDEC025/native beforepublication"
+  ],
+  "prepared_snapshot_preserved": "REPAIR_ACTIVATION_PREPARED_V1"
+}

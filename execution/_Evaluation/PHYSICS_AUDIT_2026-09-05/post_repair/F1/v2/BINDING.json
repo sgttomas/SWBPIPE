@@ -1,0 +1,11 @@
+{
+  "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "fixture_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+  "consumer_sha256": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+  "v1_manifest_sha256": "640ffc02310d59c6f90a4bf94188a127617ee57815cd5d1bdf01513d44bb34ca",
+  "expected_derivation": "Exact values of rows result:nonlinear-support:support-NL-130-FRIC:uz-reaction and result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction in accepted generator output. Service transport/parity assertions only, not independent physics or final-normal friction correctness.",
+  "generated_values": {
+    "uz-reaction": 0.411514,
+    "friction-normal-reaction": 41.120255
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "accepted_by_parent": "/root",
+  "criteria_path": "../V1/children/V1-R/EARLY_REFERENCE_CRITERIA.md",
+  "criteria_sha256": "b398c429603b40a4bda2cc034d2eeb4a96adc2beb526a8b48b7a9160ea90ff68",
+  "authority": "audit expectation only, no production policy",
+  "manager_read": true,
+  "independent_replays": "manager_replay/*REPLAY.json",
+  "reference_lineage": "independently derived equations/cut equilibrium by V1; C/R analytical before-run supplements are distinct artifacts, no parameter/output-fitting"
+}

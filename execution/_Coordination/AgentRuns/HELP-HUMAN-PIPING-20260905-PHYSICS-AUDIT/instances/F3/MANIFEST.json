@@ -1,0 +1,9 @@
+{
+  "status": "root accepted F3 terminalPASS semantic return and exact source coverage",
+  "files": {
+    "RETURN.md": "c7f505f612ede7abeaf89050df8182db4830b652003f09cbec35bf82442b2092",
+    "SOURCE_REVIEW_COVERAGE.json": "490e8ae3b4b31e617eb5e8313fad1f8c6415997923be82dcae0a013a2061196d",
+    "STATUS.json": "478ad4dac1aa79ec8e4314af2da6b47c3a188bdf55e50151f59213e045e1e854"
+  },
+  "mapping_sha256": "3a3a07be924d56a03aaddf2a10c14c26bb0de11ada6b422f37a054f3e72aa42d"
+}

@@ -826,17 +826,25 @@ pub fn run_fixture_repeat(
     let mut repeat_observations = vec![RepeatRunObservation {
         repeat_index: 0,
         max_abs_solution_delta_from_first: 0.0,
-        max_abs_residual: max_abs_residual(&reduced.stiffness, &first_solution, &reduced.force),
+        max_abs_residual: finite_observation(max_abs_residual(
+            &reduced.stiffness,
+            &first_solution,
+            &reduced.force,
+        ))?,
     }];
     for _ in 1..settings.repeat_count {
         let repeat_index = repeat_observations.len();
         let solution = solve_dense(&reduced.stiffness, &reduced.force)?;
-        let repeat_delta = max_abs_delta(&first_solution, &solution);
+        let repeat_delta = finite_observation(max_abs_delta(&first_solution, &solution))?;
         max_abs_solution_delta = max_abs_solution_delta.max(repeat_delta);
         repeat_observations.push(RepeatRunObservation {
             repeat_index,
             max_abs_solution_delta_from_first: repeat_delta,
-            max_abs_residual: max_abs_residual(&reduced.stiffness, &solution, &reduced.force),
+            max_abs_residual: finite_observation(max_abs_residual(
+                &reduced.stiffness,
+                &solution,
+                &reduced.force,
+            ))?,
         });
     }
 
@@ -908,8 +916,9 @@ fn observe_sparse_path(
     let mut max_abs_repeat_solution_delta: f64 = 0.0;
     for _ in 1..settings.repeat_count {
         let repeat = solve_symmetric_system(reduced_stiffness, reduced_force)?;
-        max_abs_repeat_solution_delta =
-            max_abs_repeat_solution_delta.max(max_abs_delta(&first.solution, &repeat.solution));
+        max_abs_repeat_solution_delta = max_abs_repeat_solution_delta.max(finite_observation(
+            max_abs_delta(&first.solution, &repeat.solution),
+        )?);
     }
 
     let observation = SparseSolveObservation {
@@ -930,8 +939,13 @@ fn observe_sparse_path(
         pivot_condition_ratio_estimate: first.factorization.pivot_condition_ratio_estimate,
         nonpositive_pivot_count: first.factorization.nonpositive_pivot_count,
         max_abs_sparse_dense_solution_delta: dense_first_solution
-            .map(|dense| max_abs_delta(dense, &first.solution)),
-        max_abs_residual: max_abs_residual(reduced_stiffness, &first.solution, reduced_force),
+            .map(|dense| finite_observation(max_abs_delta(dense, &first.solution)))
+            .transpose()?,
+        max_abs_residual: finite_observation(max_abs_residual(
+            reduced_stiffness,
+            &first.solution,
+            reduced_force,
+        ))?,
         repeat_count: settings.repeat_count,
         max_abs_repeat_solution_delta,
         first_solve_elapsed_nanos,
@@ -955,27 +969,25 @@ fn true_condition_number_for_fixture(fixture: &BenchmarkFixture) -> Result<f64, 
 
 fn true_symmetric_condition_number_2norm(matrix: &DenseMatrix) -> Result<f64, HarnessError> {
     let eigenvalues = jacobi_symmetric_eigenvalues(matrix)?;
-    let mut min_positive = f64::INFINITY;
+    let mut min_abs = f64::INFINITY;
     let mut max_abs = 0.0;
     for value in eigenvalues {
         let magnitude = value.abs();
         if magnitude > max_abs {
             max_abs = magnitude;
         }
-        if value > SPARSE_SOLVE_TRUE_CONDITION_EIGEN_FLOOR && value < min_positive {
-            min_positive = value;
+        if magnitude < min_abs {
+            min_abs = magnitude;
         }
     }
-    if !min_positive.is_finite() || max_abs == 0.0 {
+    if !min_abs.is_finite() || min_abs == 0.0 || !(max_abs / min_abs).is_finite() {
         return Err(HarnessError::InvalidSetting {
             name: "true_condition_number_2norm",
-            detail: "reduced matrix did not expose a positive eigenvalue spectrum",
+            detail: "matrix is singular or its spectral condition cannot be represented",
         });
     }
-    Ok(max_abs / min_positive)
+    Ok(max_abs / min_abs)
 }
-
-const SPARSE_SOLVE_TRUE_CONDITION_EIGEN_FLOOR: f64 = 1.0e-9;
 
 fn jacobi_symmetric_eigenvalues(matrix: &DenseMatrix) -> Result<Vec<f64>, HarnessError> {
     let dimension = matrix.len();
@@ -1004,61 +1016,98 @@ fn jacobi_symmetric_eigenvalues(matrix: &DenseMatrix) -> Result<Vec<f64>, Harnes
         }
     }
 
-    let tolerance = 1.0e-8;
-    let max_sweeps = dimension.saturating_mul(12).max(24);
-    for _ in 0..max_sweeps {
-        let mut pivot_row = 0usize;
-        let mut pivot_col = 1usize.min(dimension - 1);
-        let mut max_off_diagonal = 0.0;
+    // Normalize to make this diagnostic independent of matrix units and avoid
+    // overflow in rotations. This is an eigensolver accuracy criterion, not
+    // an engineering conditioning or production solve acceptance threshold.
+    let scale = values.iter().flatten().map(|x| x.abs()).fold(0.0, f64::max);
+    if scale == 0.0 {
+        return Ok(vec![0.0; dimension]);
+    }
+    for row in &mut values {
+        for value in row {
+            *value /= scale;
+        }
+    }
+    for row in 0..dimension {
+        for col in (row + 1)..dimension {
+            if values[row][col] != values[col][row] {
+                return Err(HarnessError::InvalidSetting {
+                    name: "true_condition_matrix",
+                    detail: "matrix must be symmetric",
+                });
+            }
+        }
+    }
+    // A global matrix-scale cutoff would ignore a small coupled block.
+    // Compare each plane to its own diagonal scale instead. Square roots
+    // before multiplication avoid underflow in the product of tiny diagonals.
+    let plane_resolved = |app: f64, aqq: f64, apq: f64| {
+        apq.abs() <= f64::EPSILON * app.abs().sqrt() * aqq.abs().sqrt()
+    };
+    // Each sweep visits every plane once; a post-sweep convergence check is
+    // mandatory. The cap bounds evidence generation, never returns unfinished
+    // diagonal entries as eigenvalues.
+    for _ in 0..50 {
+        let mut converged = true;
         for row in 0..dimension {
             for col in (row + 1)..dimension {
-                let candidate = values[row][col].abs();
-                if candidate > max_off_diagonal {
-                    max_off_diagonal = candidate;
-                    pivot_row = row;
-                    pivot_col = col;
+                converged &= plane_resolved(values[row][row], values[col][col], values[row][col]);
+            }
+        }
+        if converged {
+            return Ok((0..dimension).map(|index| values[index][index]).collect());
+        }
+        for pivot_row in 0..dimension {
+            for pivot_col in (pivot_row + 1)..dimension {
+                if plane_resolved(
+                    values[pivot_row][pivot_row],
+                    values[pivot_col][pivot_col],
+                    values[pivot_row][pivot_col],
+                ) {
+                    continue;
                 }
+                let app = values[pivot_row][pivot_row];
+                let aqq = values[pivot_col][pivot_col];
+                let apq = values[pivot_row][pivot_col];
+                if apq == 0.0 {
+                    continue;
+                }
+                let tau = (aqq - app) / (2.0 * apq);
+                let t = if tau >= 0.0 {
+                    1.0 / (tau + tau.hypot(1.0))
+                } else {
+                    -1.0 / (-tau + tau.hypot(1.0))
+                };
+                let c = 1.0 / (1.0 + t * t).sqrt();
+                let s = t * c;
+
+                for index in 0..dimension {
+                    if index != pivot_row && index != pivot_col {
+                        let aip = values[index][pivot_row];
+                        let aiq = values[index][pivot_col];
+                        let next_ip = c * aip - s * aiq;
+                        let next_iq = s * aip + c * aiq;
+                        values[index][pivot_row] = next_ip;
+                        values[pivot_row][index] = next_ip;
+                        values[index][pivot_col] = next_iq;
+                        values[pivot_col][index] = next_iq;
+                    }
+                }
+
+                // Equivalent Jacobi diagonal update avoids separate c² terms
+                // losing the exact zero of a rank-one 2x2 block to cancellation.
+                values[pivot_row][pivot_row] = app - t * apq;
+                values[pivot_col][pivot_col] = aqq + t * apq;
+                values[pivot_row][pivot_col] = 0.0;
+                values[pivot_col][pivot_row] = 0.0;
             }
         }
-        if max_off_diagonal <= tolerance {
-            break;
-        }
-
-        let app = values[pivot_row][pivot_row];
-        let aqq = values[pivot_col][pivot_col];
-        let apq = values[pivot_row][pivot_col];
-        if apq == 0.0 {
-            continue;
-        }
-        let tau = (aqq - app) / (2.0 * apq);
-        let t = if tau >= 0.0 {
-            1.0 / (tau + (1.0 + tau * tau).sqrt())
-        } else {
-            -1.0 / (-tau + (1.0 + tau * tau).sqrt())
-        };
-        let c = 1.0 / (1.0 + t * t).sqrt();
-        let s = t * c;
-
-        for index in 0..dimension {
-            if index != pivot_row && index != pivot_col {
-                let aip = values[index][pivot_row];
-                let aiq = values[index][pivot_col];
-                let next_ip = c * aip - s * aiq;
-                let next_iq = s * aip + c * aiq;
-                values[index][pivot_row] = next_ip;
-                values[pivot_row][index] = next_ip;
-                values[index][pivot_col] = next_iq;
-                values[pivot_col][index] = next_iq;
-            }
-        }
-
-        values[pivot_row][pivot_row] = c * c * app - 2.0 * s * c * apq + s * s * aqq;
-        values[pivot_col][pivot_col] = s * s * app + 2.0 * s * c * apq + c * c * aqq;
-        values[pivot_row][pivot_col] = 0.0;
-        values[pivot_col][pivot_row] = 0.0;
     }
 
-    Ok((0..dimension).map(|index| values[index][index]).collect())
+    Err(HarnessError::InvalidSetting {
+        name: "true_condition_matrix",
+        detail: "symmetric eigenvalue iteration did not converge",
+    })
 }
 
 fn suite_record(
@@ -1351,7 +1400,7 @@ fn observe_diagonal_conditioning(matrix: &DenseMatrix) -> ConditioningObservatio
     }
 
     let diagonal_condition_ratio_estimate = if min_diag.is_finite() && min_diag > 0.0 {
-        Some(max_diag / min_diag)
+        Some(max_diag / min_diag).filter(|ratio| ratio.is_finite())
     } else {
         None
     };
@@ -1392,11 +1441,31 @@ fn storage_ratio(numerator_bytes: usize, denominator_bytes: usize) -> f64 {
     }
 }
 
+fn finite_observation(value: f64) -> Result<f64, HarnessError> {
+    if value.is_finite() {
+        Ok(value)
+    } else {
+        Err(HarnessError::InvalidSetting {
+            name: "numerical_observation",
+            detail: "computed residual or solution delta is nonfinite",
+        })
+    }
+}
+
+// Infinity is an explicit failed observation; never let f64::max hide NaN.
+fn finite_max_or_infinity(left: f64, right: f64) -> f64 {
+    if !left.is_finite() || !right.is_finite() {
+        f64::INFINITY
+    } else {
+        left.max(right)
+    }
+}
+
 fn max_abs_delta(left: &[f64], right: &[f64]) -> f64 {
     left.iter()
         .zip(right.iter())
         .map(|(a, b)| (a - b).abs())
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max_or_infinity)
 }
 
 fn max_abs_residual(matrix: &DenseMatrix, solution: &[f64], force: &[f64]) -> f64 {
@@ -1411,13 +1480,115 @@ fn max_abs_residual(matrix: &DenseMatrix, solution: &[f64], force: &[f64]) -> f6
                 .sum();
             (lhs - rhs).abs()
         })
-        .fold(0.0, f64::max)
+        .fold(0.0, finite_max_or_infinity)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use open_pipe_stress_solver_diagnostics::SolverDiagnosticCode;
+
+    #[test]
+    fn audit_condition_resolves_tiny_coupled_blocks() {
+        for scale in [1e-100, 1., 1e100] {
+            for block in [[[1., 1.], [1., 1.]], [[1., 2.], [2., 4.]]] {
+                let a = vec![
+                    vec![scale, 0., 0.],
+                    vec![0., block[0][0] * 1e-20 * scale, block[0][1] * 1e-20 * scale],
+                    vec![0., block[1][0] * 1e-20 * scale, block[1][1] * 1e-20 * scale],
+                ];
+                assert!(
+                    true_symmetric_condition_number_2norm(&a).is_err(),
+                    "singular {a:?}"
+                );
+            }
+            for block in [[[2., 1.], [1., 2.]], [[1.5, -0.5], [-0.5, 1.5]]] {
+                let a = vec![
+                    vec![scale, 0., 0.],
+                    vec![0., block[0][0] * 1e-20 * scale, block[0][1] * 1e-20 * scale],
+                    vec![0., block[1][0] * 1e-20 * scale, block[1][1] * 1e-20 * scale],
+                ];
+                let actual = true_symmetric_condition_number_2norm(&a).unwrap();
+                assert!((actual / 1e20 - 1.).abs() < 1e-12, "SPD {actual}");
+            }
+        }
+    }
+
+    #[test]
+    fn audit_condition_matches_analytic_spectra_and_scaling() {
+        assert!(
+            (true_symmetric_condition_number_2norm(&vec![vec![1e-10, 0.], vec![0., 1.]]).unwrap()
+                / 1e10
+                - 1.)
+                .abs()
+                < 1e-12
+        );
+        assert!(true_symmetric_condition_number_2norm(&vec![vec![0., 0.], vec![0., 1.]]).is_err());
+        assert_eq!(
+            true_symmetric_condition_number_2norm(&vec![vec![-2., 0.], vec![0., 1.]]).unwrap(),
+            2.
+        );
+        let n = 32;
+        let expected = (2. + 2. * (std::f64::consts::PI / 33.).cos())
+            / (2. - 2. * (std::f64::consts::PI / 33.).cos());
+        for scale in [1e-100, 1., 1e100] {
+            let mut a = vec![vec![0.; n]; n];
+            for i in 0..n {
+                a[i][i] = 2. * scale;
+                if i > 0 {
+                    a[i][i - 1] = -scale;
+                    a[i - 1][i] = -scale;
+                }
+            }
+            let actual = true_symmetric_condition_number_2norm(&a).unwrap();
+            assert!(
+                (actual / expected - 1.).abs() < 1e-10,
+                "{actual} versus {expected}"
+            );
+        }
+    }
+    #[test]
+    fn audit_condition_chain_matches_frozen_independent_reference() {
+        // M1-L independent NumPy eigh reference, frozen before this repair.
+        let fixture = invented_cantilever_chain_fixture(8).unwrap();
+        let actual = true_condition_number_for_fixture(&fixture).unwrap();
+        let expected = 2158698.8565037264;
+        assert!((actual / expected - 1.0).abs() < 1e-8, "{actual}");
+    }
+
+    #[test]
+    fn audit_nonfinite_observations_fail_before_record_publication() {
+        let overflow = max_abs_residual(&vec![vec![1e308, -1e308]], &[2., 2.], &[0.]);
+        assert!(finite_observation(overflow).is_err());
+        // Both exact solution components are representable, while A*x in
+        // the residual overflows before cancellation. The observation fails.
+        let matrix = vec![vec![1e308, -1e308], vec![-1e308, 1.5e308]];
+        let force = [1e308, -0.5e308];
+        let solution = solve_symmetric_system(&matrix, &force).unwrap().solution;
+        assert!(solution.iter().all(|value| value.is_finite()));
+        assert!(observe_sparse_path(&matrix, &force, &HarnessSettings::default(), None).is_err());
+        // Sparse solution is finite here; the comparison delta overflows.
+        assert!(observe_sparse_path(
+            &vec![vec![1.]],
+            &[1e308],
+            &HarnessSettings::default(),
+            Some(&[-1e308])
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn audit_nonfinite_diagnostics_are_not_zero() {
+        assert_eq!(
+            observe_diagonal_conditioning(&vec![vec![1e-11, 0.], vec![0., 1e308]])
+                .diagonal_condition_ratio_estimate,
+            None
+        );
+
+        assert!(!max_abs_delta(&[f64::NAN], &[0.]).is_finite());
+        assert!(!max_abs_delta(&[f64::INFINITY], &[f64::INFINITY]).is_finite());
+        assert!(!max_abs_residual(&vec![vec![1e308, -1e308]], &[2., 2.], &[0.]).is_finite());
+    }
 
     #[test]
     fn invented_fixture_produces_deterministic_repeat_record() {

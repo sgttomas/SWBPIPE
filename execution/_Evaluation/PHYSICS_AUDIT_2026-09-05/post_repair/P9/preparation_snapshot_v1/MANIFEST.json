@@ -1,0 +1,11 @@
+{
+  "status": "PREPARATION_ACCEPTED_VERIFICATION_PENDING",
+  "derivative": true,
+  "files": {
+    "SOURCE_BINDING.json": "8933380b8b44a9a6cd3a1f65ae5ffa2ed6e3236fa00850463cf432be1130f1d2",
+    "HANDOFF.md": "d06fb3577c4b19580d1977e688b1bed1ab8442970b3474f2d6e8cbda7f27f7f9",
+    "RUNTIME_SUMMARY.json": "6990934b3e712a4d4c88e39fe30aec54da067bd7ac18e66ccb28a2c3b9d221b5"
+  },
+  "accepted_reference_manifest": "c30fa7d0fa082332fafd439a712aae0169f951497d371915b1bbc5c4974995bb",
+  "accepted_test_review_manifest": "c9e5941283a5077769d346135f10d491d41fa2ff5d25ab66abd5a8485dcc9656"
+}

@@ -1,0 +1,538 @@
+[
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/COVERAGE.csv",
+    "bytes": 54923,
+    "crlf_lines": 177,
+    "sha256_before": "9fff8d7a614a3b969dfa5a98661e62e567e0b91c30120bc37640e74240cbacf7",
+    "index_sha256": "9fff8d7a614a3b969dfa5a98661e62e567e0b91c30120bc37640e74240cbacf7",
+    "sha256_after": "9fff8d7a614a3b969dfa5a98661e62e567e0b91c30120bc37640e74240cbacf7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/ENTRYPOINT_COVERAGE.csv",
+    "bytes": 1873,
+    "crlf_lines": 8,
+    "sha256_before": "cca3c300e038df92913a7dc693194585d5a655cea1476741b1ecf2f8ac323261",
+    "index_sha256": "cca3c300e038df92913a7dc693194585d5a655cea1476741b1ecf2f8ac323261",
+    "sha256_after": "cca3c300e038df92913a7dc693194585d5a655cea1476741b1ecf2f8ac323261"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/FINDINGS.csv",
+    "bytes": 9428,
+    "crlf_lines": 18,
+    "sha256_before": "f242ff582ce6d809ce7643ac09027b2ab3e9e3689682344dd7a68331d6abb1c4",
+    "index_sha256": "f242ff582ce6d809ce7643ac09027b2ab3e9e3689682344dd7a68331d6abb1c4",
+    "sha256_after": "f242ff582ce6d809ce7643ac09027b2ab3e9e3689682344dd7a68331d6abb1c4"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/MANAGER_FINDINGS.csv",
+    "bytes": 888,
+    "crlf_lines": 2,
+    "sha256_before": "8a68d1736693f5344fcd7e144f5d62226ef38ff88d3b23bc73e2506340b11590",
+    "index_sha256": "8a68d1736693f5344fcd7e144f5d62226ef38ff88d3b23bc73e2506340b11590",
+    "sha256_after": "8a68d1736693f5344fcd7e144f5d62226ef38ff88d3b23bc73e2506340b11590"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/REFERENCES.csv",
+    "bytes": 3480,
+    "crlf_lines": 13,
+    "sha256_before": "4c53e49bb51709d8899293bf2fde7486eb00629e9fd88328f6064032fb58ce64",
+    "index_sha256": "4c53e49bb51709d8899293bf2fde7486eb00629e9fd88328f6064032fb58ce64",
+    "sha256_after": "4c53e49bb51709d8899293bf2fde7486eb00629e9fd88328f6064032fb58ce64"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/WITNESS_DISPOSITIONS.csv",
+    "bytes": 1661,
+    "crlf_lines": 8,
+    "sha256_before": "2b6712169b5a261ff11e5009d5b5fda3c685a03d9bc60a9094f2a6207b59b2db",
+    "index_sha256": "2b6712169b5a261ff11e5009d5b5fda3c685a03d9bc60a9094f2a6207b59b2db",
+    "sha256_after": "2b6712169b5a261ff11e5009d5b5fda3c685a03d9bc60a9094f2a6207b59b2db"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/COVERAGE.csv",
+    "bytes": 46556,
+    "crlf_lines": 138,
+    "sha256_before": "2a4afc7009085a59bd490be1f1de2a3e258e8fe72109db5854434e3462e0fddb",
+    "index_sha256": "2a4afc7009085a59bd490be1f1de2a3e258e8fe72109db5854434e3462e0fddb",
+    "sha256_after": "2a4afc7009085a59bd490be1f1de2a3e258e8fe72109db5854434e3462e0fddb"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/FAMILY_COVERAGE.csv",
+    "bytes": 4187,
+    "crlf_lines": 16,
+    "sha256_before": "a68715ca86e3e06850f46f77e1b5f42675228fe99439b6fe35069e3067b1c717",
+    "index_sha256": "a68715ca86e3e06850f46f77e1b5f42675228fe99439b6fe35069e3067b1c717",
+    "sha256_after": "a68715ca86e3e06850f46f77e1b5f42675228fe99439b6fe35069e3067b1c717"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/REFERENCES.csv",
+    "bytes": 1598,
+    "crlf_lines": 6,
+    "sha256_before": "42faad8bfa476423cdce89fdc222d26e10453a1122adc93a13a3b82df3cb84d6",
+    "index_sha256": "42faad8bfa476423cdce89fdc222d26e10453a1122adc93a13a3b82df3cb84d6",
+    "sha256_after": "42faad8bfa476423cdce89fdc222d26e10453a1122adc93a13a3b82df3cb84d6"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/FINDINGS.csv",
+    "bytes": 1328,
+    "crlf_lines": 3,
+    "sha256_before": "716f0eb59851fb3218fdc9da28787573d8d7c0abf98bd8e65e13c3359e9224b7",
+    "index_sha256": "716f0eb59851fb3218fdc9da28787573d8d7c0abf98bd8e65e13c3359e9224b7",
+    "sha256_after": "716f0eb59851fb3218fdc9da28787573d8d7c0abf98bd8e65e13c3359e9224b7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/FINDINGS.csv",
+    "bytes": 628,
+    "crlf_lines": 2,
+    "sha256_before": "52655d397bbafa9aff620c5c03e0d960f0c91de7961ee7ec78337138b68c09d9",
+    "index_sha256": "52655d397bbafa9aff620c5c03e0d960f0c91de7961ee7ec78337138b68c09d9",
+    "sha256_after": "52655d397bbafa9aff620c5c03e0d960f0c91de7961ee7ec78337138b68c09d9"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COVERAGE.csv",
+    "bytes": 8288,
+    "crlf_lines": 24,
+    "sha256_before": "72a32d7ea14b2daecbf60a3eebc3fbe583b06fd041edcbf1be78c04f36f90563",
+    "index_sha256": "72a32d7ea14b2daecbf60a3eebc3fbe583b06fd041edcbf1be78c04f36f90563",
+    "sha256_after": "72a32d7ea14b2daecbf60a3eebc3fbe583b06fd041edcbf1be78c04f36f90563"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+    "bytes": 3542,
+    "crlf_lines": 6,
+    "sha256_before": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+    "index_sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+    "sha256_after": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/COVERAGE.csv",
+    "bytes": 1924,
+    "crlf_lines": 5,
+    "sha256_before": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77",
+    "index_sha256": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77",
+    "sha256_after": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+    "bytes": 3457,
+    "crlf_lines": 8,
+    "sha256_before": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+    "index_sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+    "sha256_after": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/COVERAGE.csv",
+    "bytes": 1004,
+    "crlf_lines": 6,
+    "sha256_before": "4852ce02a2f7cf7985cbfd72f9bf693d814c791bdb4cee2a3460b2cf1a5b0d29",
+    "index_sha256": "4852ce02a2f7cf7985cbfd72f9bf693d814c791bdb4cee2a3460b2cf1a5b0d29",
+    "sha256_after": "4852ce02a2f7cf7985cbfd72f9bf693d814c791bdb4cee2a3460b2cf1a5b0d29"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/FINDINGS.csv",
+    "bytes": 778,
+    "crlf_lines": 2,
+    "sha256_before": "406a49b0019ffc35275bd5e5fafbca9d1fb096e668bccd57f5c8f9737efb5acf",
+    "index_sha256": "406a49b0019ffc35275bd5e5fafbca9d1fb096e668bccd57f5c8f9737efb5acf",
+    "sha256_after": "406a49b0019ffc35275bd5e5fafbca9d1fb096e668bccd57f5c8f9737efb5acf"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/R1/FINDING_REVIEW.csv",
+    "bytes": 7980,
+    "crlf_lines": 45,
+    "sha256_before": "8225becd1e613da57dc76afcffa9d0fb669c0701b5994fc4365ad406910e9eb2",
+    "index_sha256": "8225becd1e613da57dc76afcffa9d0fb669c0701b5994fc4365ad406910e9eb2",
+    "sha256_after": "8225becd1e613da57dc76afcffa9d0fb669c0701b5994fc4365ad406910e9eb2"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/COVERAGE.csv",
+    "bytes": 113978,
+    "crlf_lines": 229,
+    "sha256_before": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "index_sha256": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "sha256_after": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/COVERAGE_M1_V1.csv",
+    "bytes": 22775,
+    "crlf_lines": 44,
+    "sha256_before": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "index_sha256": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "sha256_after": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/FINDINGS.csv",
+    "bytes": 37421,
+    "crlf_lines": 45,
+    "sha256_before": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f",
+    "index_sha256": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f",
+    "sha256_after": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/FINDING_CROSSWALK.csv",
+    "bytes": 5844,
+    "crlf_lines": 49,
+    "sha256_before": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "index_sha256": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "sha256_after": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/I1_FINDINGS_NORMALIZED.csv",
+    "bytes": 12020,
+    "crlf_lines": 18,
+    "sha256_before": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb",
+    "index_sha256": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb",
+    "sha256_after": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv",
+    "bytes": 1776,
+    "crlf_lines": 3,
+    "sha256_before": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "index_sha256": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "sha256_after": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/M1_FINDINGS_NORMALIZED.csv",
+    "bytes": 16478,
+    "crlf_lines": 21,
+    "sha256_before": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "index_sha256": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "sha256_after": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REFERENCES.csv",
+    "bytes": 55003,
+    "crlf_lines": 107,
+    "sha256_before": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "index_sha256": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "sha256_after": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REFERENCES_V1_NORMALIZED.csv",
+    "bytes": 40613,
+    "crlf_lines": 74,
+    "sha256_before": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "index_sha256": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "sha256_after": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REQUIREMENT_BINDINGS.csv",
+    "bytes": 17725,
+    "crlf_lines": 24,
+    "sha256_before": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "index_sha256": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "sha256_after": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/SOURCE_FINDINGS_NORMALIZED.csv",
+    "bytes": 38027,
+    "crlf_lines": 49,
+    "sha256_before": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5",
+    "index_sha256": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5",
+    "sha256_after": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/V1_FINDINGS_NORMALIZED.csv",
+    "bytes": 8080,
+    "crlf_lines": 10,
+    "sha256_before": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "index_sha256": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "sha256_after": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/COVERAGE.csv",
+    "bytes": 113978,
+    "crlf_lines": 229,
+    "sha256_before": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "index_sha256": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "sha256_after": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/COVERAGE_M1_V1.csv",
+    "bytes": 22775,
+    "crlf_lines": 44,
+    "sha256_before": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "index_sha256": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "sha256_after": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/FINDINGS.csv",
+    "bytes": 36866,
+    "crlf_lines": 45,
+    "sha256_before": "afb56552f28724ccb6688ca076c5c1fe53b59d05412cc62f3edebd5775105d61",
+    "index_sha256": "afb56552f28724ccb6688ca076c5c1fe53b59d05412cc62f3edebd5775105d61",
+    "sha256_after": "afb56552f28724ccb6688ca076c5c1fe53b59d05412cc62f3edebd5775105d61"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/FINDING_CROSSWALK.csv",
+    "bytes": 5844,
+    "crlf_lines": 49,
+    "sha256_before": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "index_sha256": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "sha256_after": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/I1_FINDINGS_NORMALIZED.csv",
+    "bytes": 11628,
+    "crlf_lines": 18,
+    "sha256_before": "308a3f6fc03fa1740633764e6ad02de03acf3e7a2f30341c05cb7a360ad4fd01",
+    "index_sha256": "308a3f6fc03fa1740633764e6ad02de03acf3e7a2f30341c05cb7a360ad4fd01",
+    "sha256_after": "308a3f6fc03fa1740633764e6ad02de03acf3e7a2f30341c05cb7a360ad4fd01"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv",
+    "bytes": 1776,
+    "crlf_lines": 3,
+    "sha256_before": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "index_sha256": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "sha256_after": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/M1_FINDINGS_NORMALIZED.csv",
+    "bytes": 16478,
+    "crlf_lines": 21,
+    "sha256_before": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "index_sha256": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "sha256_after": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REFERENCES.csv",
+    "bytes": 55003,
+    "crlf_lines": 107,
+    "sha256_before": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "index_sha256": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "sha256_after": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REFERENCES_V1_NORMALIZED.csv",
+    "bytes": 40613,
+    "crlf_lines": 74,
+    "sha256_before": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "index_sha256": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "sha256_after": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REQUIREMENT_BINDINGS.csv",
+    "bytes": 17725,
+    "crlf_lines": 24,
+    "sha256_before": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "index_sha256": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "sha256_after": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/SOURCE_FINDINGS_NORMALIZED.csv",
+    "bytes": 37635,
+    "crlf_lines": 49,
+    "sha256_before": "ab1706a3cd389b0d3acba1145de233052496096bf2bc24ce33ccf3fc6df37ab7",
+    "index_sha256": "ab1706a3cd389b0d3acba1145de233052496096bf2bc24ce33ccf3fc6df37ab7",
+    "sha256_after": "ab1706a3cd389b0d3acba1145de233052496096bf2bc24ce33ccf3fc6df37ab7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/V1_FINDINGS_NORMALIZED.csv",
+    "bytes": 8080,
+    "crlf_lines": 10,
+    "sha256_before": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "index_sha256": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "sha256_after": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/COVERAGE.csv",
+    "bytes": 113978,
+    "crlf_lines": 229,
+    "sha256_before": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "index_sha256": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545",
+    "sha256_after": "6372cdc5b41edb693de246d1e7d4dd352913de03c6afb04d1b4a7bdec0df9545"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/COVERAGE_M1_V1.csv",
+    "bytes": 22775,
+    "crlf_lines": 44,
+    "sha256_before": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "index_sha256": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f",
+    "sha256_after": "c8191e158d4642885d63c462d306cdaa10ca815da4b19a83158f4476d339716f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/FINDINGS.csv",
+    "bytes": 37421,
+    "crlf_lines": 45,
+    "sha256_before": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f",
+    "index_sha256": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f",
+    "sha256_after": "c03718159b7cdec0234031fa421976a186d0a3c00c71571fc3b832e6bef3f02f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/FINDING_CROSSWALK.csv",
+    "bytes": 5844,
+    "crlf_lines": 49,
+    "sha256_before": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "index_sha256": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d",
+    "sha256_after": "d0e53574837bf85a4bd5cbb80e593b21c30f604edc376a35a19538726d1ef79d"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/I1_FINDINGS_NORMALIZED.csv",
+    "bytes": 12020,
+    "crlf_lines": 18,
+    "sha256_before": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb",
+    "index_sha256": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb",
+    "sha256_after": "a46aac3fa230979cf322e7679e83d77665efc66a4bb39842087f16cfc68d8dbb"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv",
+    "bytes": 1776,
+    "crlf_lines": 3,
+    "sha256_before": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "index_sha256": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4",
+    "sha256_after": "03b2dc8d348baf0b6d1b7443d41b0e945ef3efabb8b42e3f03ac7469a894ffc4"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/M1_FINDINGS_NORMALIZED.csv",
+    "bytes": 16478,
+    "crlf_lines": 21,
+    "sha256_before": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "index_sha256": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e",
+    "sha256_after": "3ddf44635d94e37f289e144fb79ada955c0de3570af6c109c3407a760612502e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REFERENCES.csv",
+    "bytes": 55003,
+    "crlf_lines": 107,
+    "sha256_before": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "index_sha256": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f",
+    "sha256_after": "d99217436f684d74823c7e575aae3e34c17d86bb157f6b8a484f8a72656c110f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REFERENCES_V1_NORMALIZED.csv",
+    "bytes": 40613,
+    "crlf_lines": 74,
+    "sha256_before": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "index_sha256": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f",
+    "sha256_after": "dcdc67125a25e98064361ccc6d96ce107ef4315e00494aefe22523ca79df829f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REQUIREMENT_BINDINGS.csv",
+    "bytes": 17725,
+    "crlf_lines": 24,
+    "sha256_before": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "index_sha256": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e",
+    "sha256_after": "c1064229f3e2ac2959c3cfd0f610d72b8e05fc5fb64c0f5ff31098dea0d8d55e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/SOURCE_FINDINGS_NORMALIZED.csv",
+    "bytes": 38027,
+    "crlf_lines": 49,
+    "sha256_before": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5",
+    "index_sha256": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5",
+    "sha256_after": "554a340ed2d7aef52743d8818c79c8102f97f28cd662f5f6dbe27de517400cf5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/V1_FINDINGS_NORMALIZED.csv",
+    "bytes": 8080,
+    "crlf_lines": 10,
+    "sha256_before": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "index_sha256": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404",
+    "sha256_after": "cbead551ace4f55a98f41e1bf1e91622d6749e67240a76011e98222f732a9404"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/COVERAGE.csv",
+    "bytes": 10419,
+    "crlf_lines": 25,
+    "sha256_before": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "index_sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "sha256_after": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/REFERENCES.csv",
+    "bytes": 42511,
+    "crlf_lines": 74,
+    "sha256_before": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782",
+    "index_sha256": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782",
+    "sha256_after": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv",
+    "bytes": 10419,
+    "crlf_lines": 25,
+    "sha256_before": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "index_sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "sha256_after": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv",
+    "bytes": 2007,
+    "crlf_lines": 4,
+    "sha256_before": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07",
+    "index_sha256": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07",
+    "sha256_after": "cf83bb848506384c32fb347f21b8b20a4daf75728c66d2cbb2fb98d0f5deaa07"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv",
+    "bytes": 47798,
+    "crlf_lines": 509,
+    "sha256_before": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+    "index_sha256": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+    "sha256_after": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/REFERENCES.csv",
+    "bytes": 1171,
+    "crlf_lines": 6,
+    "sha256_before": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545",
+    "index_sha256": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545",
+    "sha256_after": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/COVERAGE.csv",
+    "bytes": 10419,
+    "crlf_lines": 25,
+    "sha256_before": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "index_sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+    "sha256_after": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/FINDINGS.csv",
+    "bytes": 1852,
+    "crlf_lines": 4,
+    "sha256_before": "42f3b73d4a3295c9945beb9ecb849bf3834a121e9a26672034de7fc3a39c5dc3",
+    "index_sha256": "42f3b73d4a3295c9945beb9ecb849bf3834a121e9a26672034de7fc3a39c5dc3",
+    "sha256_after": "42f3b73d4a3295c9945beb9ecb849bf3834a121e9a26672034de7fc3a39c5dc3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/MUTATION_PER_TEST.csv",
+    "bytes": 47798,
+    "crlf_lines": 509,
+    "sha256_before": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+    "index_sha256": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+    "sha256_after": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/REFERENCES.csv",
+    "bytes": 1171,
+    "crlf_lines": 6,
+    "sha256_before": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545",
+    "index_sha256": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545",
+    "sha256_after": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/COVERAGE.csv",
+    "bytes": 4536,
+    "crlf_lines": 22,
+    "sha256_before": "24e2a379f70b73425a87d10aaeb48345651b5726610e185824430f13b7e82baa",
+    "index_sha256": "24e2a379f70b73425a87d10aaeb48345651b5726610e185824430f13b7e82baa",
+    "sha256_after": "24e2a379f70b73425a87d10aaeb48345651b5726610e185824430f13b7e82baa"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv",
+    "bytes": 3446,
+    "crlf_lines": 7,
+    "sha256_before": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+    "index_sha256": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc",
+    "sha256_after": "b342fb6c305a421b29ac2e93b3bd963590a1369d53b21676bf61c1419a099ffc"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCES.csv",
+    "bytes": 42511,
+    "crlf_lines": 74,
+    "sha256_before": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782",
+    "index_sha256": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782",
+    "sha256_after": "6b422f9b29f59f3e5709e80361bb2a222a79b0d4f48e8ab502f342c171fc4782"
+  }
+]

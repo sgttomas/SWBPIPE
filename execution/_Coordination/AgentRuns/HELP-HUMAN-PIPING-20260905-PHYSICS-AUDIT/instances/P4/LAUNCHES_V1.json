@@ -1,0 +1,6 @@
+{
+  "K1": "/root/repair_pkg04/kernel",
+  "N1": "/root/repair_pkg04/nonlinear",
+  "model": "unknown; runtime unexposed",
+  "role_enforcement": "instruction+config asserted"
+}

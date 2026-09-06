@@ -1,0 +1,12 @@
+{
+  "status": "PASS accepted by root",
+  "runtime_id": "/root/fixture_review",
+  "parent": "/root",
+  "role": "TASKsoftware-code-review1",
+  "model": "unknown",
+  "write_scope_by_child": [],
+  "delegation": "none",
+  "ToolPolicy": "PASS",
+  "enforcement": "native instruction+config asserted",
+  "return_persisted_by": "C1 parent-approved semantic transcription"
+}

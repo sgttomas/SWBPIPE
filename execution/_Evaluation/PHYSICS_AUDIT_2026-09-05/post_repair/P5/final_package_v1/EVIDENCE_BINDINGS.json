@@ -1,0 +1,33 @@
+{
+  "base": "WORKING_ROOT",
+  "files": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/implementation/MANIFEST.json",
+      "sha256": "98aa267b9f0f20b165c7ca9948063d23e7250722eaa252c29975a1837ce366de"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json",
+      "sha256": "76fde1685dcec11047f577b285fb8e335804b3071115cc0074bf4921c1a50bf7"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json",
+      "sha256": "52f01076ce97337cca7d8efb02cf3497120f4773a43c7810f5a4474f4e38270e"
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/p5_candidate_v1/MANIFEST.json",
+      "sha256": "6c6cac8ed0f320fa110a18c67c8cb1597e47e54bd3bfc0f70d51fd882fba659b"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/snapshots/PLANNING_V1/PLANNING_MANIFEST_V1.json",
+      "sha256": "2b24ceafd39c3ee88f2d854d6ca35671ea4f243d0efbbbee7e9f66e2b39cad6f"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/transport_archive/REVIEW_ORIGINAL_V1/ARCHIVE.json",
+      "sha256": "3a4cb4f77442a38155214c1fbadaf9769b37e1df9e3d53e315c322828b7986ea"
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/transport_archive/IMPLEMENTATION_ORIGINAL_V1/ARCHIVE.json",
+      "sha256": "fa04875f0a3300304dce2304cb0302a7011e76d5cb149820657cb3a9a2f4180e"
+    }
+  ]
+}

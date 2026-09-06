@@ -1,0 +1,2262 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-14-02",
+  "package_id": "PKG-14",
+  "scope_item": "SOW-072",
+  "objectives": [
+    "OBJ-016"
+  ],
+  "run_contract_status": {
+    "record_contract": "schema_first_analysis_run_records",
+    "model_state_binding": "schemas/model_state.schema.json",
+    "result_binding": "schemas/results.schema.yaml",
+    "physical_project_container": {
+      "profile": "sqlite_local_project_store",
+      "decision_ref": "SCA-003",
+      "storage_role": "local_store_index_projection",
+      "canonical_truth": "sorted_compact_json_payload",
+      "sql_public_contract": false,
+      "direct_sql_access_allowed": false,
+      "hosted_db_allowed": false,
+      "network_required": false,
+      "sidecars_rebuildable": true
+    },
+    "external_validation_boundary": "reference_only_not_determined_by_software"
+  },
+  "analysis_run": {
+    "run_id": "run:preview-linear-static-001",
+    "run_name": "run:preview-linear-static-001 preview mechanics run",
+    "run_kind": "mechanics_solve",
+    "created_at": "2026-05-10T00:00:00Z",
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:project:invented-loop-01"
+    },
+    "solver_version": {
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0",
+      "build_ref": {
+        "object_type": "ExternalReference",
+        "ref": "build:TBD"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+        "source_location": "core/analysis_runs/records.py",
+        "source_license": "project-governed",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "settings_ref": {
+      "object_type": "SolverSettings",
+      "ref": "settings:run:preview-linear-static-001"
+    },
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "SI-preview-units"
+    },
+    "load_basis_refs": [
+      {
+        "object_type": "LoadCase",
+        "ref": "loadcase:preview"
+      }
+    ],
+    "diagnostics": [
+      {
+        "code": "RULE_CHECK_INPUTS_MISSING",
+        "class": "ASSUMPTION_WARNING",
+        "severity": "warning",
+        "source": {
+          "object_type": "ExternalReference",
+          "ref": "core/product_physics"
+        },
+        "affected_object": {
+          "object_type": "Diagnostic",
+          "ref": "diagnostic:physics:rule-inputs-missing"
+        },
+        "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        "remediation": "Review the computed preview diagnostic before relying on this analysis run record.",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "result_refs": [
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100"
+            },
+            "payload_scope": "result_value",
+            "value": "d87e3097d6dbc9553707705ec7282dc5d38e397249bcdd5cb9479c0fa13d78c0"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:rx"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:rx"
+            },
+            "payload_scope": "result_value",
+            "value": "c7436f898692919a3f45e7ef1bdb62182a3426c943c09be0bafa82e8a94fa9c5"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:ry"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:ry"
+            },
+            "payload_scope": "result_value",
+            "value": "a0058d4a4242fb869950767468a9faea77b0283ce3d6af3ddb1e39b75ce507de"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:rz"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:rz"
+            },
+            "payload_scope": "result_value",
+            "value": "858ed04677e8704b48dfb337c98005b456bae10551d386117d3aa83819c8592f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:ux"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:ux"
+            },
+            "payload_scope": "result_value",
+            "value": "4942c3e25fc0f44500168e6d51625291026a5cce5e6aad4745a63c7e3b41feba"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:uy"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:uy"
+            },
+            "payload_scope": "result_value",
+            "value": "addb9994476bf7fdf20b03be99916b10d5265d80e39539b432b80e2b1bd78657"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-100:uz"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-100:uz"
+            },
+            "payload_scope": "result_value",
+            "value": "2c21b158115990a77abd189628798582a497a22ea116469b85c40c4f5ac99f05"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110"
+            },
+            "payload_scope": "result_value",
+            "value": "f427fd80680be463fe8e045bdaa7fa77bdf715b0eb32e745852831240a9e441d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:rx"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:rx"
+            },
+            "payload_scope": "result_value",
+            "value": "e6584b45166a2bf009fb0db97715870147021fcda2752c9318e0be94cf8e753a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:ry"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:ry"
+            },
+            "payload_scope": "result_value",
+            "value": "ca3c0117b2eef6096e271b51091dffbbaf49f9f064cf0f7484d01edc4dfd0971"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:rz"
+        },
+        "result_family": "rotation",
+        "source_dimension": "angle",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:rz"
+            },
+            "payload_scope": "result_value",
+            "value": "39d5762b6457c52b7c673333e6db7a53b20789326a4e5fe1d8181c1ce4dd30e9"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:ux"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:ux"
+            },
+            "payload_scope": "result_value",
+            "value": "e8b475936944cc9c006a5a30fb90923a9b9fb81fd1f853c8e78e3dc7f491cc7c"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:uy"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:uy"
+            },
+            "payload_scope": "result_value",
+            "value": "8fe02c7ca900d5afb347d0e11b5f14f470af8cf70ce3c3e9a460ba66fd1f59e7"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-N-110:uz"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-N-110:uz"
+            },
+            "payload_scope": "result_value",
+            "value": "f9698377cecca5347c224e486bc10cfa0ccf498870d957039db40a42330d141a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:axial"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:axial"
+            },
+            "payload_scope": "result_value",
+            "value": "caedffdfc769c80ece97304797ddbb3406f292ffe9cb9c3455cfbc1d8d7a52f9"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:axial:end-j"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:axial:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "c8e3b21194f10794f8536a799ef74bd456d6af75d7fc0759912f7fa1fe0e9bbe"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:midspan:axial"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:midspan:axial"
+            },
+            "payload_scope": "result_value",
+            "value": "0e5c268b125985839c329f0fb256538af643f8e4cad897e30493a6f0368fd14b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:midspan:shear-y"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:midspan:shear-y"
+            },
+            "payload_scope": "result_value",
+            "value": "2c4b235480339ad08f07d145d560d32324642b1d4ac0a94d062dfc2a060750b3"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:midspan:shear-z"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:midspan:shear-z"
+            },
+            "payload_scope": "result_value",
+            "value": "bd48a9dce6bbfef7cc88a39d5cf1e830f1ebe29e871fa396e1410f12eefe1597"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-1:axial"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-1:axial"
+            },
+            "payload_scope": "result_value",
+            "value": "8e79cf4ba2b8e8b56eaa2776926aa6d2abbfcf29de5a404f28c9083c1e0af93a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-1:shear-y"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-1:shear-y"
+            },
+            "payload_scope": "result_value",
+            "value": "4c72d2067c7563c2cb3cf42c2d030f6bd7fe6e65f8a9cebcdaffa38e8c52a920"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-1:shear-z"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-1:shear-z"
+            },
+            "payload_scope": "result_value",
+            "value": "b6c1cbdf27f3eadcaf06cfeea6e6003b2e1277ceef921298d573b3b6950dd583"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-3:axial"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-3:axial"
+            },
+            "payload_scope": "result_value",
+            "value": "9e0e03499731aed5e9ce3713ce1d234e63ea898df1d690cb48315cf51b979bd3"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-3:shear-y"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-3:shear-y"
+            },
+            "payload_scope": "result_value",
+            "value": "0275882d86ef0be255edd58704cb8fd86cfbed839d995c72ef7eaf029827cb6b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:quarter-3:shear-z"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:quarter-3:shear-z"
+            },
+            "payload_scope": "result_value",
+            "value": "171c62c0b4059fd487e8ce8a7b801429943b8e8e99bc707f0d40f8e387b055a0"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:shear-y"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:shear-y"
+            },
+            "payload_scope": "result_value",
+            "value": "7288a4ae203fc9a9b80d10470e4e5b30d1147807d5bba8ecacfe6e403945573d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:shear-y:end-j"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:shear-y:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "becd156b8f276f7f1254340f755ec0c3cfc0b54099aaff8416763da31a80609e"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:shear-z"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:shear-z"
+            },
+            "payload_scope": "result_value",
+            "value": "3c4dca6596d0d1dbccae99b3110012ea620cf816cdcddb57e7435b42ebcd8889"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-P-100:shear-z:end-j"
+        },
+        "result_family": "force",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-P-100:shear-z:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "e452d463c83c101ac33cd2369a465964cb201f2af4c1e2cb7421114e658f2511"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:bending-y"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:bending-y"
+            },
+            "payload_scope": "result_value",
+            "value": "7605f84692821eea7b028834bb3ccaced8f67689e8ec63af91b11646eda7175e"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:bending-y:end-j"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:bending-y:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "f28ba16202bd136f1a896030b0fef3ae885db38efc81b3b4b7a0bd12954c525d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:bending-z"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:bending-z"
+            },
+            "payload_scope": "result_value",
+            "value": "5d5c108f3e4d103abd1cf0f6f93d1e5e936809ab23030bd8cda295fba77ea5b7"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:bending-z:end-j"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:bending-z:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "f1ce313fd2743cbc700af09d3d92e49e3301c9d945ccc9f56f05dd6946187a60"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:midspan:bending-y"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:midspan:bending-y"
+            },
+            "payload_scope": "result_value",
+            "value": "061abd687761f22e5b9e37ca6d98ab209f50da23d1419e82ab36cadbc1fe4693"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:midspan:bending-z"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:midspan:bending-z"
+            },
+            "payload_scope": "result_value",
+            "value": "ad0ce0fc5e4b94db50b8642557fc14bcf813279b2797926d6cc1042bf6959564"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:midspan:torsion"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:midspan:torsion"
+            },
+            "payload_scope": "result_value",
+            "value": "645a4fcc8a0df962ff3fd1e6959e92b3cd1bf579ccdcbf1e72b4ab5c69a2e244"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-1:bending-y"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-1:bending-y"
+            },
+            "payload_scope": "result_value",
+            "value": "3692d00bd8791d8ee117335341d0a0bff2be73be1824aedfeebf9032f960ddea"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-1:bending-z"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-1:bending-z"
+            },
+            "payload_scope": "result_value",
+            "value": "a7fa6545bca369296ba8ecae993fbb1b030516271ba2a5b5cfdec100b1755d90"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-1:torsion"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-1:torsion"
+            },
+            "payload_scope": "result_value",
+            "value": "0c8af1f673031bb8afe762f39a7d42e6a658512559a1518b77b51e9f5fa3dd2e"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-3:bending-y"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-3:bending-y"
+            },
+            "payload_scope": "result_value",
+            "value": "9fa51daab5941cb68c13cdf2e336af915699927815a915616f288ca648de2c17"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-3:bending-z"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-3:bending-z"
+            },
+            "payload_scope": "result_value",
+            "value": "b1e8194146b485ec51d3680319d772ef2b336833649bcbea7a25323164f80d6d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:quarter-3:torsion"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:quarter-3:torsion"
+            },
+            "payload_scope": "result_value",
+            "value": "80e4b7b4667810e715c8ac4ad6c42911803534c6ccdde11d4a8f1a1fe65000de"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:torsion"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:torsion"
+            },
+            "payload_scope": "result_value",
+            "value": "0af4578c2de0c8b38cadba48d313d97107cbb2ff1318a77eeb134abc979e353f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-P-100:torsion:end-j"
+        },
+        "result_family": "moment",
+        "source_dimension": "moment",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-P-100:torsion:end-j"
+            },
+            "payload_scope": "result_value",
+            "value": "e8ebf677e9f46dfc178d2cf72ae75a315be7a04bd776b991dac85f83f5d68c87"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:reaction:support-S-100"
+        },
+        "result_family": "reaction",
+        "source_dimension": "force",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:reaction:support-S-100"
+            },
+            "payload_scope": "result_value",
+            "value": "dd0151ebf0f26b19a0b7a672754bd08b830256b20b6967322b08d5b34130f3fa"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:solver-mode:linear-solve-basis"
+        },
+        "result_family": "ratio",
+        "source_dimension": "dimensionless",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:solver-mode:linear-solve-basis"
+            },
+            "payload_scope": "result_value",
+            "value": "cb0097ee948793364db6930ce970fd678eb24c04beba510fc465dc849f23ec11"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100"
+            },
+            "payload_scope": "result_value",
+            "value": "97332173c74c22f478ca7d957b65a164b2bad50ddd0aadc4f01e57bf5d854e7b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-i:axial-normal"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-i:axial-normal"
+            },
+            "payload_scope": "result_value",
+            "value": "d785bb746a0d8092b6d20b9b80621bcf35533c0b0674c4ff219b2137857144bc"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-i:bending-normal-y"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-i:bending-normal-y"
+            },
+            "payload_scope": "result_value",
+            "value": "a2047f6d01362eb9c5a483d6795e2ee55341fd7e413f03dcffe0318e221a3bb1"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-i:bending-normal-z"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-i:bending-normal-z"
+            },
+            "payload_scope": "result_value",
+            "value": "fe85353a0eeda3630c7003960feb0cb42359c8834422d340eb98869bb9e85a62"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-i:torsional-shear"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-i:torsional-shear"
+            },
+            "payload_scope": "result_value",
+            "value": "23d83f0af8198052eeb2855ab733fbfa3a1f7d1716162baf64ec2e6cd740303f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-j:axial-normal"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-j:axial-normal"
+            },
+            "payload_scope": "result_value",
+            "value": "028bb9ac17cbb5b44c5a320f0fef52883c63dc63d8c046741c4cf3112677513d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-j:bending-normal-y"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-j:bending-normal-y"
+            },
+            "payload_scope": "result_value",
+            "value": "6d6d85ea048e79d9f3984a8b7c15adaa450e7f0bc800d9a129d9556afd161732"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-j:bending-normal-z"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-j:bending-normal-z"
+            },
+            "payload_scope": "result_value",
+            "value": "6fea1b6ad7a61b60aab330d0f8ef18ce627d54851bcb31e3d4410c59749d606a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:end-j:torsional-shear"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:end-j:torsional-shear"
+            },
+            "payload_scope": "result_value",
+            "value": "03f51740de6bcc510eea3d38989d65a2ad68bb7756920c069f6fe603d57f1a22"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:midspan:axial-normal"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:midspan:axial-normal"
+            },
+            "payload_scope": "result_value",
+            "value": "e3f9ee3f3fd5f6d49fddb61c3fa58ece9f4731b00124f3e19bf928e386d00457"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:midspan:bending-normal-y"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:midspan:bending-normal-y"
+            },
+            "payload_scope": "result_value",
+            "value": "347d8ed219382fce673e70107784c23ee70c7317f10a59bddbcda88a7e9ecaba"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:midspan:bending-normal-z"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:midspan:bending-normal-z"
+            },
+            "payload_scope": "result_value",
+            "value": "91e7113bb717327ab7928229b78c2337fe7843db8f7c8823c146a32754cc38db"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:midspan:torsional-shear"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:midspan:torsional-shear"
+            },
+            "payload_scope": "result_value",
+            "value": "5b8bb93b7e31533e537225cd8c5e785ce4a0a7be4ccbf94b27cc343e16ab03f3"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-1:axial-normal"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-1:axial-normal"
+            },
+            "payload_scope": "result_value",
+            "value": "7aada135bfa5689482d76dded74cf3fb48d3ca85381dd812c7ec9f58955cf49f"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-1:bending-normal-y"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-1:bending-normal-y"
+            },
+            "payload_scope": "result_value",
+            "value": "adc75797236766371904640be7dd5d5877e71fae5962a9e7fd12a5eb336af4b3"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-1:bending-normal-z"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-1:bending-normal-z"
+            },
+            "payload_scope": "result_value",
+            "value": "561285e7b6ded04c1321fb87f252ef6fa0adc5e2ea433b128801afe331e4eb0a"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-1:torsional-shear"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-1:torsional-shear"
+            },
+            "payload_scope": "result_value",
+            "value": "e6bff19c6af6d6ddbb9309de1aafca4474a05b73fd827c4d35d83838d8b57c5b"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-3:axial-normal"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-3:axial-normal"
+            },
+            "payload_scope": "result_value",
+            "value": "c28c3446ee6fc0e90fe7467a9fd74f1bbc6a771bcffeaac88fcde78e8513ef7d"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-3:bending-normal-y"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-3:bending-normal-y"
+            },
+            "payload_scope": "result_value",
+            "value": "d056854bff84ad5ee0f83c66b8b0e969809930755738017eff8bb8870b568832"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-3:bending-normal-z"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-3:bending-normal-z"
+            },
+            "payload_scope": "result_value",
+            "value": "bc1b338546858bcbc5711bc1c81c2beef076326f6000f4c5c964994a99aa0383"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-P-100:quarter-3:torsional-shear"
+        },
+        "result_family": "stress",
+        "source_dimension": "stress",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-P-100:quarter-3:torsional-shear"
+            },
+            "payload_scope": "result_value",
+            "value": "73477e9cdcaf9834cb36540d8ea4fcf2f2eccc2e6482ee5e130495d049ad0818"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "library_refs": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:preview-linear-static-001"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "3e1474947fdde0467b11d81253c9ae42d988a220e6a600d5826e1f4e2a464244"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:preview-linear-static-001"
+        },
+        "payload_scope": "result_envelope",
+        "value": "c570548bf04989b2a6d9a4289a56015c0836bb663f7061ab7f973c38a8936c31"
+      }
+    ],
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "reproducibility": {
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:project-invented-loop-01:210423c191f38e1ccadc3632978888e50dfe2f3b57c24cbf612660e66144d7ea"
+        }
+      ],
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:project-invented-loop-01:210423c191f38e1ccadc3632978888e50dfe2f3b57c24cbf612660e66144d7ea"
+          },
+          "payload_scope": "input_manifest",
+          "value": "210423c191f38e1ccadc3632978888e50dfe2f3b57c24cbf612660e66144d7ea"
+        }
+      ],
+      "environment_refs": [
+        {
+          "object_type": "ExternalReference",
+          "ref": "environment:local-preview"
+        }
+      ],
+      "determinism_notes": [
+        "analysis run record was generated from an already computed invented preview mechanics result",
+        "canonical hashes use stable JSON key ordering",
+        "source result dimensions are explicit declarations and are not inferred from unit text"
+      ],
+      "unresolved_tbd": [
+        "physical project container",
+        "release-grade solver build provenance"
+      ]
+    },
+    "immutability_policy": {
+      "run_record_is_read_only": true,
+      "mutation_policy": "changes_create_new_analysis_run",
+      "new_run_required_for_change": true,
+      "hash_invalidates_external_acceptance": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "provenance": {
+      "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+      "source_location": "core/analysis_runs/records.py",
+      "source_license": "project-governed",
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending",
+      "privacy_classification": "invented_public_example"
+    }
+  }
+}

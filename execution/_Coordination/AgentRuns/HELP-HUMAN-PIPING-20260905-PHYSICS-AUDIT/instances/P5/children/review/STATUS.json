@@ -1,0 +1,12 @@
+{
+  "status": "COMPLETE",
+  "role": "TASK software-code-review",
+  "model": "unknown",
+  "write_targets": [],
+  "parent": "/root/repair_pkg05",
+  "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "actual_agent": "/root/repair_pkg05/product_review",
+  "context": "fresh fork_turns none",
+  "verdict": "PASS",
+  "actionable_findings": 0
+}

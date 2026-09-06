@@ -1,0 +1,57 @@
+{
+  "role": "E1",
+  "parent": "/root",
+  "status": "BOUNDED_COMPLETE_WITH_EXTERNAL_STAGED_CHECK_BLOCKER",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/.gitattributes",
+      "sha256": "f6aaa4d033abcb81da1adadfd4b73b0873b11198fb9c2353ab2087824d8def6f",
+      "bytes": 6977
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/ATTRIBUTES_DIFF.txt",
+      "sha256": "144473226a43bed940c13e4798c39f181cff20393836a233c60f7992e02b13f8",
+      "bytes": 7169
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/BEFORE.json",
+      "sha256": "1298010ad9e4ea3a8b32b910759c511b8b19ac7611f33e714cb4655d62461332",
+      "bytes": 42333
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/BYTE_PRESERVATION.json",
+      "sha256": "7a8e48b4d704d23c33c40947a1dc3e86fb96ad189cd928697cae2aa1a9054a49",
+      "bytes": 29463
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/CHECKS.json",
+      "sha256": "85d9f3a2777031a29cd9b5cca50873e6ae16d57490710d2a154d05fa9dc3311b",
+      "bytes": 13979
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/INSTALLED_GIT_DOCUMENTATION.json",
+      "sha256": "808add764c2e95cb58a04df7ea05a36a7697c0859585f68fc5a15ffe49349bd7",
+      "bytes": 2965
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/RETURN.md",
+      "sha256": "539f24e7791476e1d2a158251f9e078b0dd81b08407a32ee78df5b61e9451c40",
+      "bytes": 2509
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/E1/verify.py",
+      "sha256": "1332a3cf335437db3c2fed14ddea90f62993f91111b8789c17000f645100457b",
+      "bytes": 4572
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/E1/BRIEF.md",
+      "sha256": "f76d79221d46a2e30b8cab0a84ec6c5afe147b8a474ad3312641bfa128fb807c",
+      "bytes": 856
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/E1/RETURN.md",
+      "sha256": "539f24e7791476e1d2a158251f9e078b0dd81b08407a32ee78df5b61e9451c40",
+      "bytes": 2509
+    }
+  ]
+}

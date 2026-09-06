@@ -1,0 +1,41 @@
+{
+  "untracked_count": 1353,
+  "total_bytes": 68613442,
+  "trailing_whitespace": [],
+  "large_files": [
+    [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/transport_archive/IMPLEMENTATION_ORIGINAL_V1/ARCHIVE.json",
+      2045109
+    ],
+    [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/transport_archive/REVIEW_ORIGINAL_V1/ARCHIVE.json",
+      1044743
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_axial_gap_v2.json",
+      1085233
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_explicit_axial_gap_v2.json",
+      1177512
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_explicit_opposite_combinations_v2.json",
+      8161951
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/headless_opposite_combinations_v2.json",
+      7492384
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/OBSERVATIONS.json",
+      1553497
+    ],
+    [
+      "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/manager_service_replay/OBSERVATIONS.json",
+      1553497
+    ]
+  ],
+  "binary_files": [],
+  "cache_paths": []
+}

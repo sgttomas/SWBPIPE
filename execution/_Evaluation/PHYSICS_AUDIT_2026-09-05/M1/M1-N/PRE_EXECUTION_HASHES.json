@@ -1,0 +1,14 @@
+{
+  "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+  "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness/src/main.rs": "30b972c19585e201795f96d46e772dd36b8d946551ff0c7927df36eff1d7e3f9",
+  "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness/Cargo.toml": "e316645992c6f965803ce4ed462ee96a7bc860764fd50b71d53d9114ad960968",
+  "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "6caba773225584a610dcd39500242fae403c9f077f1cff646f3e9acfdaa913f6",
+  "projects/chirality-piping/core/solver/performance_harness/src/lib.rs": "7debffb199616f976d688ed809fa487bc75fe402822a953330fe8be37f11bd17",
+  "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "9ae6eb2cab93ed034b394fc12d99e6dd7f555359b77bb5eafb9d7ccc9fa4bd93",
+  "projects/chirality-piping/core/solver/curved_bend/src/lib.rs": "6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b",
+  "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "67565f4a5d0389100ead5d218f40e167e08d674568133db002cc8868145b4f79",
+  "projects/chirality-piping/core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1",
+  "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "e5b7346448841f9f2bdaa360102f976638c52967860fe9ee8ad8896a69f925f7",
+  "projects/chirality-piping/core/solver/linear_supports/src/lib.rs": "1b23899cc93f5d4a56742cb3ba5c617d1d4b401c903e42412300e86c803de50e",
+  "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs": "7a9468285b6719576fe0c3595baeb9e43a87009138aeefb198c98274e69542cd"
+}

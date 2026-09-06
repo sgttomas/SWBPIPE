@@ -1,0 +1,7 @@
+{
+  "pressure": "Closed end straight free axial pipe wall tension p*A_internal, longitudinal stress N/A_metal; no independent longitudinal-pressure duplicate when same load already carried by axial wall force. Confirm declared pressure treatment applicability.",
+  "pressure_thrust_N": 18626.502843133883,
+  "thermal": "Uniform free thermal expansion alpha*deltaT*L=.0012m, zero internal force; full axial restraint compression -EAalphaDeltaT.",
+  "thermal_free_mm": 1.2,
+  "overflow": "Finite accepted inputs must never silently serialize nonfinite result scalars as null while reporting solved; explicit block/diagnostic required, no numerical threshold."
+}

@@ -1,0 +1,33 @@
+{
+  "child": "/root/audit_verification/references",
+  "verdict": "ACCEPTED",
+  "manifest_sha256": "a236f7f088431512b15a8f416205665109df2374e397b3a0bfcb35726306d518",
+  "members_checked": 19,
+  "bad_members": [],
+  "reference_inventory_checked": 73,
+  "findings_schema": [
+    "FindingID",
+    "Concern",
+    "Classification",
+    "Severity",
+    "Scope",
+    "Claim",
+    "EvidenceRefs",
+    "Status",
+    "RecommendedOwner",
+    "RerunRequirement"
+  ],
+  "source_hashes_checked": 96,
+  "manager_review": [
+    "Read report/findings/correction/oracle script. Independently reran entire oracle script in tmp with byte-identical output.",
+    "Compared73reference rows to actual hand_calcs inventory no missing/extra.",
+    "Checked production-derived TP014constructor and independent fixed-number validation.",
+    "Checked Decimal witness calculator comparison/evaluator imports; initial circularity concern refuted.",
+    "Checked later DEC046 release-countpolicy scope; oldpacket preserved and additivecorrection accepted."
+  ],
+  "limits": [
+    "Not all arithmetic lines of73references recomputed.",
+    "Arc corroboration matches declared macroelement assumptions, not empirical validation.",
+    "Full physics outcomes for sevenwitnesses depend on M1/I1."
+  ]
+}

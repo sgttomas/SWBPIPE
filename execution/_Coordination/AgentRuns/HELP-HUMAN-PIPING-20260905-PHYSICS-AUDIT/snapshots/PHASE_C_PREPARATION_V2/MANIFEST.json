@@ -1,0 +1,11 @@
+{
+  "status": "all original manager packets accepted; S1 final seal contingent on I1 supplement; whole baseline unaccepted",
+  "previous_manifest_sha256": "f3bce9fb91c78f30f73d6c41b02a04d0bf20d61f8258b0c9e62b85d511772348",
+  "files": {
+    "snapshots/PHASE_C_PREPARATION_V2/ACCEPT_I1_INTEGRATION_BASELINE_PACKET.json": "470b3e062390bd78afc134c5ab150b15fb80da3ad65a1d897a54124745234453",
+    "snapshots/PHASE_C_PREPARATION_V2/ACCEPT_M1_NUMERICAL_BASELINE_PACKET.json": "d029b37626bad91ffa34ddd9e9fa9cb59784ce80a4104e802364b00c603a678b",
+    "snapshots/PHASE_C_PREPARATION_V2/I1_SUPPLEMENT_AMENDMENT.json": "d130beddd0d355eb635e51617967682d97e7984e3abc09ddb02a752012531721",
+    "snapshots/PHASE_C_PREPARATION_V2/WORK_GRAPH.json": "28fa7002fbc016a374af5aaebced1ea9afde83e3384c8af2eeb8b4e8a7f155c5"
+  },
+  "repair_gate": "whole-baseline acceptance and fresh R1 still required"
+}

@@ -1,0 +1,42 @@
+{
+  "base": "WORKING_ROOT",
+  "files": [
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+      "sha256": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+      "sha256": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/MEMORY.md",
+      "sha256": "08012b4f96791513a240d4b66743d490c1a8b722f9936811568a7975463c9841"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-02_Load-case algebra engine/_STATUS.md",
+      "sha256": "d5c7ea2af58ac57c7ae9acccbad4e0f7581ae46cf9d26cdf3ac9d5016582c788"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "sha256": "2d4231dad1c28cb2d04777e66238f46b042cbcfdcaa86a87746fb60441671e52"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",
+      "sha256": "bfc411a70954ff264d182d653c6a64648311e6e1a02d5686cb14621da5af9410"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/MEMORY.md",
+      "sha256": "6b771d5dd28d6abec772ad7039c4479ad4126251d6c932880665561fe944a30e"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_STATUS.md",
+      "sha256": "933c42079b56224e26360ffa58ecf5c2d790c069e18ab6cbe16a320360d3e4ac"
+    },
+    {
+      "path": "execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md",
+      "sha256": "25aa8c3ebb36ae9498afa3831079c1e7c47e03a196d4a1b663240a1a1cd17a4c"
+    }
+  ],
+  "lifecycle": "IN_PROGRESS unchanged"
+}

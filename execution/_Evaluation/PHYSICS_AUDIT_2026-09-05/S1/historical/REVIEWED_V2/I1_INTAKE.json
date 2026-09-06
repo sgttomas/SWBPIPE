@@ -1,0 +1,6 @@
+{
+  "parent_acceptance": "explicit",
+  "manifest_sha256": "57753421814d4d5690da827830d644918a003c0efe2d987c137a7aa16c91e9f6",
+  "members_verified": 423,
+  "stale_entrypoint_note": "I1 ENTRYPOINT_COVERAGE pending child execution wording superseded by final accepted I1 report: product and CLI executed; packaged GUI not executed."
+}

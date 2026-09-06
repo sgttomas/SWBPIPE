@@ -1,7 +1,7 @@
 # Status: DEL-04-01 3D frame stiffness kernel
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-19
+**Last Updated:** 2026-09-05
 
 ## Remaining
 - Verify mechanics-program §5 completion: assessment gap rows G1/G2/G4 and M2/M3 methods defects closed or explicitly re-dispositioned by owner ruling (see also DEL-04-04, DEL-05-01, DEL-05-02) (gated: owner re-disposition where not closed by evidence) (source: mechanics plan §5 / DEC-066–070)
@@ -21,3 +21,5 @@
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 2 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 - 2026-07-19 - R14-W1-T3 (CB-2026-07-19-T3-DEL-04-01-ARC-PRESSURE-THRUST-001): arc pressure-thrust Remaining item closed — macro-realized bend spans now assemble the complete self-equilibrated arc pressure system (end-cap forces along the validated end tangents plus the exact work-equivalent consistent nodal vector of the outward radial wall load, closed form in `core/solver/curved_bend`), with equilibrium-consistent recovery and stations reporting the membrane wall tension +pA along the local tangent; witnessed by `validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md` and fixture `MECH-CURVED-BEND-PRESSURE-THRUST-ARC`. State remains IN_PROGRESS; the owner-gated G1/G2/G4+M2/M3 row is untouched; no review, validation, issuance, or lifecycle ruling was made.
+
+- 2026-09-05 - P4 physics audit repair checkpoint accepted for R01/R06 finite kernel and selected-state integration. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.

@@ -1,0 +1,25 @@
+{
+  "basis": "P4 launch v2; derivative run plan, not decomposition truth",
+  "files": {
+    "N1_BRIEF_V1.md": {
+      "sha256": "e92be5975a3f24474e30fca0fa6ee5b78c79d93b06887683bf3be582dd1e0279",
+      "bytes": 2686
+    },
+    "WORK_GRAPH_V1.md": {
+      "sha256": "75456d536a72235db9f925d1c7f47c256b75c55bab688f78d0f909b32bc10c11",
+      "bytes": 406
+    },
+    "LAUNCHES_V1.json": {
+      "sha256": "d8da8f585a25e74f260c45930fe9f97436cf5f5ddb62d8049d0107158d1d5c65",
+      "bytes": 174
+    },
+    "ACTIVATION_INVENTORY.json": {
+      "sha256": "c0e985c89df000ecb84aa1e9c2a0dd5550cbdf0fee8772dcefc171d5fd788083",
+      "bytes": 6020
+    },
+    "K1_BRIEF_V1.md": {
+      "sha256": "a0d4018a2939d30c7fb22bca3182a0ccffac2fc5cc4e9b5413edd141b6965c2f",
+      "bytes": 3185
+    }
+  }
+}

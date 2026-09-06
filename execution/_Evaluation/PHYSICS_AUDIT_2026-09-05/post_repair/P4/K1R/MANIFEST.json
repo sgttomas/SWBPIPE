@@ -1,0 +1,50 @@
+{
+  "schema": "k1r-remediation-evidence/v1",
+  "files": [
+    {
+      "path": "BEFORE.rs.txt",
+      "sha256": "7a1734766ceb7a0836be9a432d66dcee4931bb8807f54f2c93d1c0e363fd2561",
+      "bytes": 89924
+    },
+    {
+      "path": "EXPECTED_BEFORE_RUN.md",
+      "sha256": "c722f93d5caa09d3851fb486b39128f3582e4058fc22850f091652ada2bd6507",
+      "bytes": 611
+    },
+    {
+      "path": "FORMAT.json",
+      "sha256": "46eb70fbd73d915e221637a0ba9a575466939c4d59cfd06e8ee02fbb128e0d02",
+      "bytes": 32
+    },
+    {
+      "path": "FULL_TESTS.json",
+      "sha256": "e750e547b6665b6980066d24b8089a0bc4d93036d668bc9897095f0edf9df913",
+      "bytes": 3532
+    },
+    {
+      "path": "PATCH.json",
+      "sha256": "aa74bcf79b79d6c8736367b7ebb349b90a1bb1c812b0b3309e966aa31a40f401",
+      "bytes": 5448
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "2581bdf5236bea27fa2ff8ddcedfd116c9d41153b0c82a907269217a56d7729c",
+      "bytes": 2217
+    },
+    {
+      "path": "SCOPE.json",
+      "sha256": "713c5e78b8125200d5ab494172a066c0b84a1c9d703a9e6db3ee7f6b678de4fc",
+      "bytes": 1290
+    },
+    {
+      "path": "SOURCE.json",
+      "sha256": "f20d979a5d3bfa858a3a1e45e546c35d2da4b179c9adbf844719720183555bba",
+      "bytes": 258
+    },
+    {
+      "path": "_run_records/TASK_RUN_K1R.md",
+      "sha256": "0e3356f4e9dbc153ed3964adda58d17454e7274f435dc4e0322b32598949377f",
+      "bytes": 657
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+[
+  {
+    "name": "pressure",
+    "mode": "sparse",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "pressure",
+    "mode": "dense",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "thermal",
+    "mode": "sparse",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "thermal",
+    "mode": "dense",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "overflow",
+    "mode": "sparse",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "overflow",
+    "mode": "dense",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "pressure_fixed",
+    "mode": "sparse",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "pressure_fixed",
+    "mode": "dense",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "thermal_fixed",
+    "mode": "sparse",
+    "exit": 0,
+    "stderr": ""
+  },
+  {
+    "name": "thermal_fixed",
+    "mode": "dense",
+    "exit": 0,
+    "stderr": ""
+  }
+]

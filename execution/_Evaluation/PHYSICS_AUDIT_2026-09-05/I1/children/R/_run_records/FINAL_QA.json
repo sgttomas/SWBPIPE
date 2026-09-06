@@ -1,0 +1,17 @@
+{
+  "source_bindings_unchanged": {
+    "core/product_physics/src/lib.rs": true,
+    "core/loads/stress_recovery/src/lib.rs": true,
+    "core/loads/load_case_algebra/src/lib.rs": true,
+    "core/runner/headless/src/lib.rs": true,
+    "apps/desktop/src-tauri/src/lib.rs": true,
+    "apps/desktop/src/services/previewService.ts": true,
+    "core/analysis_runs/records.py": true
+  },
+  "csv_schemas": "PASS",
+  "required_outputs": "PASS",
+  "expected_before_execution_manifests_preserved": true,
+  "source_status_command": "git status --short on core and native/frontend source emitted no changes",
+  "review_scope": "No coverage score; family-specific gaps preserved",
+  "artifact_bytes": 31758800
+}

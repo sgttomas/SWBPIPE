@@ -1,0 +1,38 @@
+{
+  "parent": "/root/audit_numerics",
+  "delegation": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted",
+  "model": "unknown (not exposed)",
+  "source": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "children": [
+    {
+      "id": "M1-E",
+      "task": "/root/audit_numerics/elements",
+      "status": "completed",
+      "brief": "M1-E/INIT-TASK.md",
+      "return": "M1-E/RETURN.md"
+    },
+    {
+      "id": "M1-L",
+      "task": "/root/audit_numerics/linear",
+      "status": "completed",
+      "brief": "M1-L/INIT-TASK.md",
+      "return": "M1-L/RETURN.md"
+    },
+    {
+      "id": "M1-N",
+      "task": "/root/audit_numerics/nonlinear",
+      "status": "completed",
+      "brief": "M1-N/INIT-TASK.md",
+      "return": "M1-N/RETURN.md"
+    }
+  ],
+  "supplement": {
+    "task": "/root/audit_numerics/nonlinear",
+    "method": "followup_task",
+    "scope": "M1-N/supplement_v2",
+    "purpose": "Address initial explicit multi-support/rotational/user/changing-normal coverage gaps with independent bounded numerical specimens; preserve prior packet",
+    "status": "completed",
+    "return": "M1-N/supplement_v2/RETURN.md"
+  }
+}

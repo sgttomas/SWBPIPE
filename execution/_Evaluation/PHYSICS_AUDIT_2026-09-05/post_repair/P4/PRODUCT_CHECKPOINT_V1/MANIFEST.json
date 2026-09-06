@@ -1,0 +1,17 @@
+{
+  "schema": "p4-product-checkpoint/v1",
+  "files": [
+    {
+      "path": "ACCEPTANCE.md",
+      "sha256": "31b75174ada46aaea8d7ff305775804ec841bc87886ea670cbc44fa329edb0e1"
+    },
+    {
+      "path": "P5_HANDOFF.md",
+      "sha256": "fdecf54a58851de24baf1825cddad360ed9df811fa9957931e7d59c8251b9beb"
+    },
+    {
+      "path": "SOURCE_HASHES.json",
+      "sha256": "cffd921c1e6b6473a72699fe367a9aa2967e93f7828ac6541b040d9be751e2cd"
+    }
+  ]
+}

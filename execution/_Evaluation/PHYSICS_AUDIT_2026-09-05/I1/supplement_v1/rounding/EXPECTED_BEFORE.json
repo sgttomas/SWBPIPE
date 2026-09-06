@@ -1,0 +1,12 @@
+{
+  "frozen_before_actual": true,
+  "source": "Euler Bernoulli u=F L^3/(3EI), annulus I=pi(Do^4-Di^4)/64; authored unchanged geometry; no production reference values",
+  "oracle": {
+    "I": 1.1493591335983794e-05,
+    "primitive_displacement_mm": 4.06023368175307e-07,
+    "factor2_displacement_mm": 8.12046736350614e-07,
+    "factor1e6_displacement_mm": 0.406023368175307
+  },
+  "question": "Does linear combination use full-precision numerical components then round for publication, or already-rounded result rows? Compare primitive plus scale-combination with directly scaled load.",
+  "criteria": "Record exact discrepancies and stage of quantization. No new engineering or precision acceptance threshold; label policy question separately from reproduced behavior. Derived magnitude scalar defect avoided by inspecting signed UY components."
+}

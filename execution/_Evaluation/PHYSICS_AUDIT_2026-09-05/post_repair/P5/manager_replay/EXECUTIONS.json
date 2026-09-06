@@ -1,0 +1,405 @@
+{
+  "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+  "executions": [
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/axial.json",
+      "input_sha256": "eb4ed592c9ca525b2899f4af21eaf975b582077f6712b7cad0e6a558181a8024",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "c88e314b4f18d24b05aec4ffced1c3e3792bea2b1f30f81676efdc7c8b9bf0e5",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/axial.json",
+      "input_sha256": "eb4ed592c9ca525b2899f4af21eaf975b582077f6712b7cad0e6a558181a8024",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "f202223dab3470ef3527d54cf9cb03c1383464c07adb47786e678dd0977c96c0",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/torsion.json",
+      "input_sha256": "771bae44c19b282ae8d0757f1e59277f268f05f686761af677344ddb6dcecd84",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "5470852c4d97b66813a0b2b1d499764e6cd54a2331ad0f61501665c6670468f5",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/torsion.json",
+      "input_sha256": "771bae44c19b282ae8d0757f1e59277f268f05f686761af677344ddb6dcecd84",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "487ee825461dc04c4b2ccca45527ea976c904786c8e5376a3634cb792904a3ce",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_y.json",
+      "input_sha256": "7874f10167f3f3e309916177cebdd3f9b84697d3497615889636b567b7baa40c",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "1b8de5abc5cc2adb4c85ba88713b66354c902e76a57008870cb1f838ad7d3374",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_y.json",
+      "input_sha256": "7874f10167f3f3e309916177cebdd3f9b84697d3497615889636b567b7baa40c",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "4833ec9550279c1d5f3f58e39125dee9ef5673ed4acf76738370f6c586d26e3b",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_z.json",
+      "input_sha256": "cc35aee281398edc0add82d818852f682564454090c208cb83d979b043ab865e",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "39ae7d8f0400304aeaf1f9bf96a97005d971f0cf0ac2592ef7f31e32c17ec069",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/shear_z.json",
+      "input_sha256": "cc35aee281398edc0add82d818852f682564454090c208cb83d979b043ab865e",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "3ab708c3a95f9a28559cf0c56063f94da05abff16daf636337edd994cd243353",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/thermal_fixed.json",
+      "input_sha256": "310d0cd1e2eea5d21f7f54cde4809d8b621ff22984960cbf3abd9074306e2604",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "dbae794ec863ff1b140e3bee02b6b7b3c2740d6237afc6d3134555abd2c2b1c0",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/thermal_fixed.json",
+      "input_sha256": "310d0cd1e2eea5d21f7f54cde4809d8b621ff22984960cbf3abd9074306e2604",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "628fd791b1fcc513fa57680a4e7a651e62a6ebf54b5cddff36da68b953329c93",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure.json",
+      "input_sha256": "5b009b30f6889098f93328a75be24a9493bb43d8f1030ceb98444d7bdb843262",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "f012cdcb939cd1f19635a82c083f28ee504e4cda60b6e2aee09af5655532480e",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure.json",
+      "input_sha256": "5b009b30f6889098f93328a75be24a9493bb43d8f1030ceb98444d7bdb843262",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "0f0c8abb902e3aa671b720f91480af0aa09fdfb8f1aa79f87fa37e4b92ae572d",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure_fixed.json",
+      "input_sha256": "015d38c03e9d506bcb61ec685ef4913e4a507f35afe91b420ccaedab06a4fb82",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "2ccd2e0b537bc9f9b701d1dbab332afd7d7aafe71b84ee29f803b5604e59bc21",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure_fixed.json",
+      "input_sha256": "015d38c03e9d506bcb61ec685ef4913e4a507f35afe91b420ccaedab06a4fb82",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "1d1e91523018c2f74c3a8cac3b0ce97ef9aa8f28d5d560af66274a36b353b8ea",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/uniform.json",
+      "input_sha256": "a3e90efe34dca4e2b6882405e1f3539b95877941168d30b85710a4bc3ece1917",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "75c340c07498a79cdda64c256f931e483e3aa5fd1c8295b67030d99317688a98",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/uniform.json",
+      "input_sha256": "a3e90efe34dca4e2b6882405e1f3539b95877941168d30b85710a4bc3ece1917",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "36b67fb4164e585632fe1c82d72c67efb8974486ddb556326ff6b27bbb104896",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/partial.json",
+      "input_sha256": "a2118c8b67640e5cfa6c14dfd2e90bdff40aac23cf4c21569a5b69e99f2ebed5",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "75c340c07498a79cdda64c256f931e483e3aa5fd1c8295b67030d99317688a98",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/partial.json",
+      "input_sha256": "a2118c8b67640e5cfa6c14dfd2e90bdff40aac23cf4c21569a5b69e99f2ebed5",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "36b67fb4164e585632fe1c82d72c67efb8974486ddb556326ff6b27bbb104896",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "input_sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "069a3dde110d2464c87c104b04e7d2c502cd707d2d9a6717ec894f27767f0d7a",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "input_sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "b2922d23cf2099b7809c142cc5982db0028a07c1c1a765b6d0dcd7f92928ae23",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_selected_alpha.json",
+      "input_sha256": "73ee51235fd12230c181a926ff4cc1cf00c0dc4ee245facedbf7f9af1b79c7c8",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "a24b4d3aea1b68bc414576093ade910bbd8cc4b8bb6cfddf7b85fa307ebfc7ca",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_selected_alpha.json",
+      "input_sha256": "73ee51235fd12230c181a926ff4cc1cf00c0dc4ee245facedbf7f9af1b79c7c8",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "a24b4d3aea1b68bc414576093ade910bbd8cc4b8bb6cfddf7b85fa307ebfc7ca",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_base_alpha.json",
+      "input_sha256": "7bb7fb0cbb3cf6256100e77ec8f81eddb4ce9f50a30bccdf6920804322c86ed0",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "d78350a24d9c41424a9b9b6010096547d21600cac61599ffebc54a7a4377f42a",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/thermal_basis/missing_base_alpha.json",
+      "input_sha256": "7bb7fb0cbb3cf6256100e77ec8f81eddb4ce9f50a30bccdf6920804322c86ed0",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "d78350a24d9c41424a9b9b6010096547d21600cac61599ffebc54a7a4377f42a",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/scaled_combinations.input.json",
+      "input_sha256": "b0f95ceba8199ce650af84bd856503a68a0c895b1cfaa1b2b9ac811f56697655",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "27ee3b35a74e7992e341c87f4979230826b752cde153148a6ed0e70fdefb2463",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/scaled_combinations.input.json",
+      "input_sha256": "b0f95ceba8199ce650af84bd856503a68a0c895b1cfaa1b2b9ac811f56697655",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "6c82594306d3f67c88255c2b7ebebd61f19b21c835a69dffdf46442cc01d9068",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct2.input.json",
+      "input_sha256": "db3d99f9a5b4d0f2da93264e5a1f93d01ad0f36ef97abb05847229895fff6905",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "2ec0627610b448d4b4464a2d0fd9914960bf93389c94422575e182a0f3aaf883",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct2.input.json",
+      "input_sha256": "db3d99f9a5b4d0f2da93264e5a1f93d01ad0f36ef97abb05847229895fff6905",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "1b4721b03a188237844de85f1a590abf1b9ba46534fd21cde111a64defb83f77",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct1e6.input.json",
+      "input_sha256": "e08cde695d0551de88b877bd68864f8d968541e966017f676ea3fd5a3ae78336",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "c40fd42e325b3c7d16634b56ba755ff0738bd2e22db0879d940bbcb1a3258ec6",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/rounding/direct1e6.input.json",
+      "input_sha256": "e08cde695d0551de88b877bd68864f8d968541e966017f676ea3fd5a3ae78336",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "82e93b8d1892afb4bff2bbccc789aa2feda32b0dbcea8c53883ef5485651d140",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind.json",
+      "input_sha256": "2a63bdb596a8128bd2ac23a639b75b962588e2ff4805d68072fa95ef2428dfa2",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "34a062a5d26f8664937e870999472446046be70b9134c9b5a53aa117fd56ae14",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind.json",
+      "input_sha256": "2a63bdb596a8128bd2ac23a639b75b962588e2ff4805d68072fa95ef2428dfa2",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "a1fa82b0172d2d977145424ff0c487493747bea45450c6da62fcf1a30b641b7c",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_partial.json",
+      "input_sha256": "39a5fc98776ace075fa67a5e062c586a02dd09ddc8dda960efbf0b53a2784a8a",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "47ceb8e77ff765acbe58ba38be4d5aad8cd9aead12bc6c2c36fd14db7952aee4",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_partial.json",
+      "input_sha256": "39a5fc98776ace075fa67a5e062c586a02dd09ddc8dda960efbf0b53a2784a8a",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "db54a20c9d9b0482d3e1dc2b89df05c48b12dda169c3fb4fc878bdf7496297e9",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_duplicate.json",
+      "input_sha256": "a19c33a576c1c1236915d9e551033e8d465dd1c73b5617ef737f24e951251711",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "c19f79a79693cabe8105cb2741932cdb971d2869824056d26c37e800ce3f39d6",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_duplicate.json",
+      "input_sha256": "a19c33a576c1c1236915d9e551033e8d465dd1c73b5617ef737f24e951251711",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "c19f79a79693cabe8105cb2741932cdb971d2869824056d26c37e800ce3f39d6",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_overlap.json",
+      "input_sha256": "850c3eefdcc3450bcec6a1d4647571c87260b5121adc3f97656d5f27868d0cce",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "d1d0388f995339c633a10b6e4ea544e52587bfd07df857673fade42adc613c1d",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/wind_overlap.json",
+      "input_sha256": "850c3eefdcc3450bcec6a1d4647571c87260b5121adc3f97656d5f27868d0cce",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "d1d0388f995339c633a10b6e4ea544e52587bfd07df857673fade42adc613c1d",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/invented_nonlinear.json",
+      "input_sha256": "fb374cc68aaa3e2db9fce70251c4d90e4a3084c989ff4caa28180597433b2b3c",
+      "mode": "sparse",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    },
+    {
+      "input": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/invented_nonlinear.json",
+      "input_sha256": "fb374cc68aaa3e2db9fce70251c4d90e4a3084c989ff4caa28180597433b2b3c",
+      "mode": "dense",
+      "returncode": 0,
+      "stderr_base64": "",
+      "stdout_sha256": "d052ed6d87d1fa7d6deafd51d6ce27beacb71e9ffbab491f357cbcb73811420f",
+      "source_sha256": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+      "binary_sha256": "07a4d97108433135bee97efdddbfab93cbb896be7ac354fb3b749348137065c0"
+    }
+  ]
+}

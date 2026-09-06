@@ -1,0 +1,32 @@
+{
+  "schema": "audit-evidence-manifest-v1",
+  "basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "closure": "BOUNDED_BASELINE_COMPLETE_WITH_FINDINGS_AND_EXPLICIT_GAPS",
+  "files": {
+    "COMPARISON_V1.json": "9bc570c4dab4fdab30193d4603acbaaada2f9c0bfdb77d083d4e4c201d33db45",
+    "COMPARISON_V2.json": "07dac26135d7ea3c8cf2beeed514e0d84d2f877a16e981ff12c1268347af9d19",
+    "COVERAGE.csv": "72a32d7ea14b2daecbf60a3eebc3fbe583b06fd041edcbf1be78c04f36f90563",
+    "ENVIRONMENT.json": "b5a9fa367f5d59d2a147d106d6e6b2dc0bee9d1a5ac4c3ad65d1c3b226c2d32b",
+    "EXPECTED_V1.md": "cf2e0a423dce4f7a518bc3c9822c927eba4f3d50182e0c00a79253cc6172fcaf",
+    "EXPECTED_V2.md": "dc46be12082a22900e0dfe7e05f9759cfa2a7057dcd12dbdde7540bc992e8351",
+    "FINDINGS.csv": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+    "INIT-TASK.md": "c0b02a4d5ac60d7e67e7aae7241d8a8aad58ca54be4d0870a29e40f57500dfb7",
+    "REFERENCES.md": "a65bdf57e8fc92068769c3b737bba894cc5690e58a85c89984c86986ee02c03d",
+    "REPORT.md": "bd2aa331155ae52c2011e11a0aca2b634d300b2a56188e4b2d1061d08db40a10",
+    "RERUN.md": "5baead0f783ffdb769a3085206096409ca324f22e1f4af890555741938dd9aa5",
+    "RETURN.md": "9658c3819257c3226c30f25f0defea6689c726e43d2eabc087579749cf9db099",
+    "SOURCE_BINDING_V1.json": "09cd5b48bc100012d421a34e8b77743ce71eee726e4d62d042f1d3528789d850",
+    "_run_records/TASK_RUN_2026-09-05_M1-L.md": "6f43b30f9255d7ac3b3a0d7c5b4ef7815f2d0b2858da5ba6c764efc5a27587db",
+    "compare_v1.py": "7854f80338d6574674c32bbe34939af00df10c332a92a78185522fec17fd9086",
+    "compare_v2.py": "f30f75cbbec4d1809c0c64d31310f425d483b0343681712b02bc04ba065db630",
+    "compile_v1.json": "e7ac14ac771b3314c779db1d84bfaa35c530ebe9f8845272321e214e314155af",
+    "compile_v2.json": "a8abbeea6e787ec538d7fbaed485417afcbda7a23b3bda2d03a6f67218310fa9",
+    "harness/Cargo.lock": "94489091e712057a5b816379259e5f131a22d3ed1c3872a9846ddb138f275e78",
+    "harness/Cargo.toml": "ffcb66a549ad3dc6ee7aad874f85311f911a4f37da716ab4969226eb8734ec76",
+    "harness/src/main.rs": "d30bf5d7ab6f356e43f9519e1040228f08e1376cc10cb44883bf901ad83db55a",
+    "harness/src/performance_exact.rs": "ee5c6149d4d5ae975f5790fc2a09cb4598df2feb6a1c22e11575abde4d7d200d",
+    "raw_v1.json": "be15003e57e4b0a1594eb717ef5219b2ae296c5e739f06d9da042ff030ab6aaa",
+    "raw_v2.json": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a"
+  }
+}

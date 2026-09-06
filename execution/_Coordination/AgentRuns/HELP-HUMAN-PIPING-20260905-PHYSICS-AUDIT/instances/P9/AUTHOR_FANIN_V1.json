@@ -1,0 +1,10 @@
+{
+  "status": "accepted_for_review_only",
+  "author_manifest": "1693dbbb74f534c82ede08ebe7c59e319b42c5a48906953c30c2a52dea26c1c2",
+  "verified_evidence_members": 18,
+  "verified_new_source_files": 4,
+  "semantic_acceptance": "pending corresponding production repairs",
+  "checkpoint": "compiles; ten sparse-first failures; concurrent kernel hash drift recorded, no exact final source acceptance",
+  "reference_review": "PASS accepted; supplementary expectations and authored code under independent review",
+  "build_slot": "released"
+}

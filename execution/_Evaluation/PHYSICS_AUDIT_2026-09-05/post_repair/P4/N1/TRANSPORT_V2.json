@@ -1,0 +1,13 @@
+{
+  "previous_manifest_sha256": "b9428401dde2031ed33138b0cbe8feca6470464e93429050ab96f5afd35df4cc",
+  "old_path": "FROZEN.patch",
+  "new_path": "FROZEN.patch.json",
+  "payload_sha256": "2988c23f4534c459af20646dd9f5595a310a2b2d9cfe8d13911da1573a5c1fa7",
+  "source_changed": false,
+  "tests_rerun": false,
+  "before_snapshot_trailing_whitespace": {
+    "nonlinear_integration.before.rs": [],
+    "nonlinear_supports.before.rs": []
+  },
+  "historical_note": "V1 manifest is preserved verbatim; its original raw patch and return/run-record bytes are recoverable from base64 transport artifacts."
+}

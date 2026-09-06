@@ -1,0 +1,9 @@
+{
+  "id": "RECORD_P9_POST_P4_CHECKPOINT",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "checkpoint_sha256": "7800d6fe985ad6d30ca22052de4913ce515dacab175f93a1855b91c597de4ece",
+  "outcomes": "Two both-mode cases PASS; eight expected P5-dependent failures; no drift",
+  "claim_limit": "Intermediate checkpoint only, not final regression or behavior closure"
+}

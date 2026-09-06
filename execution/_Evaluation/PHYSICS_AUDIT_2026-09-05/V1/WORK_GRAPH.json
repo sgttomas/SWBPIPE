@@ -1,0 +1,24 @@
+{
+  "parent": "/root/audit_verification",
+  "nodes": [
+    "V1-R",
+    "V1-C",
+    "V1-suite-baseline",
+    "V1-fanin"
+  ],
+  "edges": [
+    [
+      "V1-R",
+      "V1-fanin"
+    ],
+    [
+      "V1-C",
+      "V1-fanin"
+    ],
+    [
+      "V1-suite-baseline",
+      "V1-fanin"
+    ]
+  ],
+  "shared_resources": "Root-serialized Cargo slot; parent owns suites; children no heavy execution initially"
+}

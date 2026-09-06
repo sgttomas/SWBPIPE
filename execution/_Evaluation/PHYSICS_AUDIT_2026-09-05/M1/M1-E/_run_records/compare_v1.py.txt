@@ -1,0 +1,69 @@
+"""Independent geometry/quadrature and elementary-beam references; no production imports."""
+import json,math
+from pathlib import Path
+
+def dot(a,b):return sum(x*y for x,y in zip(a,b))
+def cross(a,b):return [a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+def add(a,b):return [x+y for x,y in zip(a,b)]
+def mul(a,s):return [x*s for x in a]
+def sub(a,b):return [x-y for x,y in zip(a,b)]
+def integrate(fn,end,n=1024):
+ h=end/n; rows=[fn(h*i) for i in range(n+1)]
+ return [h/3*sum(row[j]*(1 if i in (0,n) else (4 if i%2 else 2)) for i,row in enumerate(rows)) for j in range(len(rows[0]))]
+def flex(phi,ki,ko,n):
+ R=2.;end=[R*math.cos(phi),R*math.sin(phi),0.]
+ def terms(theta):
+  t=[-math.sin(theta),math.cos(theta),0.];r=[math.cos(theta),math.sin(theta),0.];arm=sub(end,mul(r,R));acts=[]
+  for j in range(6):
+   f=[float(j==a) for a in range(3)];c=[float(j==a+3) for a in range(3)];m=add(c,cross(arm,f));acts.append([dot(f,t),m[2],dot(m,r),dot(m,t)])
+  weights=[1/(2e11*.003),ki/(2e11*5e-6),ko/(2e11*5e-6),1/(8e10*9e-6)]
+  return [R*sum(acts[a][q]*acts[b][q]*weights[q] for q in range(4)) for a in range(6) for b in range(6)]
+ return integrate(terms,phi,n)
+def stations(phi,fraction):
+ R=2.;theta=phi*fraction;p=[R*math.cos(theta),R*math.sin(theta),0.];end=[R*math.cos(phi),R*math.sin(phi),0.]
+ force=[3.,5.,7.];moment=add([11.,13.,17.],cross(sub(end,p),force))
+ def terms(u):
+  a=theta+(phi-theta)*u;r=[math.cos(a),math.sin(a),0.];q=add([37.,-61.,83.],mul(r,120/R));df=mul(q,R*(phi-theta));return df+cross(sub(mul(r,R),p),df)
+ integrated=integrate(terms,1.,1024);force=add(force,integrated[:3]);moment=add(moment,integrated[3:]);t=[-math.sin(theta),math.cos(theta),0.];inward=[-math.cos(theta),-math.sin(theta),0.];z=[0.,0.,1.]
+ return [dot(force,t),dot(force,inward),dot(force,z),dot(moment,t),dot(moment,inward),dot(moment,z)]
+# Construct all reference values independently before loading actual output.
+E=2e11;G=8e10;A=.003;Iy=5e-6;Iz=7e-6;J=9e-6;L=2.;Fx,Fy,Fz,Mx,My,Mz=120.,350.,-240.,80.,-60.,45.
+expected_tip=[Fx*L/(E*A),Fy*L**3/(3*E*Iz)+Mz*L**2/(2*E*Iz),Fz*L**3/(3*E*Iy)-My*L**2/(2*E*Iy),Mx*L/(G*J),-Fz*L**2/(2*E*Iy)+My*L/(E*Iy),Fy*L**2/(2*E*Iz)+Mz*L/(E*Iz)]
+expected_reactions=[-Fx,-Fy,-Fz,-Mx,-My+L*Fz,-Mz-L*Fy]
+expected_stations=[{'x':x,'vy':100-100*x,'mz':100/3-100*x+50*x*x} for x in [0.,.5,1.,1.5,2.]]
+refs=[]
+for phi in [.05,.2,.7,math.pi/2,2.5]:
+ for ki,ko in [(1.,1.),(2.,3.)]:
+  seq=[flex(phi,ki,ko,n) for n in (256,512,1024)]
+  refs.append({'phi':phi,'factors':[ki,ko],'flexibility':seq[-1],'refinement_max_abs_256_512':max(abs(a-b) for a,b in zip(seq[0],seq[1])),'refinement_max_abs_512_1024':max(abs(a-b) for a,b in zip(seq[1],seq[2])),'stations':[stations(phi,s) for s in [0.,.25,.5,.75,1.]]})
+reference={'tip':expected_tip,'reactions':expected_reactions,'stations':expected_stations,'bends':refs}
+Path('expected.json').write_text(json.dumps(reference,indent=2)+'\n')
+actual=json.loads(Path('raw.json').read_text())
+def compare(a,b):
+ errors=[abs(x-y) for x,y in zip(a,b)];scale=max(abs(v) for v in b)
+ return {'max_absolute_error':max(errors),'max_error_over_max_expected':max(errors)/scale if scale else None}
+out={'tip':compare(actual['tip_displacements'],expected_tip),'reactions':compare(actual['reactions'][:6],expected_reactions),'stations':compare([s['mz'] for s in actual['clamped_uniform_stations']],[s['mz'] for s in expected_stations]),'bends':[]}
+for b,r in zip(actual['bends'],refs):
+ phi=b['phi'];uf=[2*phi*v for v in [37.,-61.,83.]];arm=[4*(math.sin(phi)-phi),4*(1-math.cos(phi)),0.];um=cross(arm,[37.,-61.,83.]);pf=[120*math.sin(phi),120*(1-math.cos(phi)),0.];pm=[0.,0.,240*(math.cos(phi)-1)]
+ out['bends'].append({'phi':phi,'factors':b['factors'],'flexibility':compare(sum(b['flexibility'],[]),r['flexibility']),'stations':compare(sum(b['stations'],[]),sum(r['stations'],[])),'uniform_force':compare(b['uniform_resultants']['force'],uf),'uniform_moment':compare(b['uniform_resultants']['moment_about_i'],um),'pressure_force':compare(b['pressure_resultants']['force'],pf),'pressure_moment':compare(b['pressure_resultants']['moment_about_i'],pm),'reference_refinement_512_1024':r['refinement_max_abs_512_1024'],'max_rigid_force':max(b['rigid'])})
+Path('comparison.json').write_text(json.dumps(out,indent=2)+'\n')
+print(json.dumps(out,indent=2))
+# Independent load-work verification: numerical segment integration, then virtual work.
+def load_tip(phi,ki,ko,radial,n):
+ R=2.;end=[R*math.cos(phi),R*math.sin(phi),0.]
+ def at(theta):
+  r=[math.cos(theta),math.sin(theta),0.];t=[-r[1],r[0],0.];p=mul(r,R)
+  def q(u):
+   alpha=theta+(phi-theta)*u;rr=[math.cos(alpha),math.sin(alpha),0.];w=mul(rr,120/R) if radial else [37.,-61.,83.];df=mul(w,R*(phi-theta));return df+cross(sub(mul(rr,R),p),df)
+  resultant=integrate(q,1.,64);force=resultant[:3];moment=resultant[3:];load=[dot(force,t),moment[2],dot(moment,r),dot(moment,t)];weights=[1/(2e11*.003),ki/(2e11*5e-6),ko/(2e11*5e-6),1/(8e10*9e-6)];values=[]
+  for j in range(6):
+   f=[float(j==a) for a in range(3)];c=[float(j==a+3) for a in range(3)];m=add(c,cross(sub(end,p),f));act=[dot(f,t),m[2],dot(m,r),dot(m,t)];values.append(R*sum(x*y*w for x,y,w in zip(act,load,weights)))
+  return values
+ return integrate(at,phi,n)
+work=[]
+for b in actual['bends']:
+ phi=b['phi'];ki,ko=b['factors'];refF=flex(phi,ki,ko,1024)
+ for radial in [False,True]:
+  r1=load_tip(phi,ki,ko,radial,256);r2=load_tip(phi,ki,ko,radial,512);nodal=b['pressure_nodal' if radial else 'uniform_nodal'][6:];computed=[sum(refF[6*i+j]*nodal[j] for j in range(6)) for i in range(6)]
+  work.append({'phi':phi,'factors':[ki,ko],'load':'radial_pressure' if radial else 'uniform','expected_tip_virtual_work':r2,'F_times_production_pj':computed,'comparison':compare(computed,r2),'refinement_max_abs':max(abs(x-y) for x,y in zip(r1,r2))})
+Path('curved_load_work.json').write_text(json.dumps(work,indent=2)+'\n')

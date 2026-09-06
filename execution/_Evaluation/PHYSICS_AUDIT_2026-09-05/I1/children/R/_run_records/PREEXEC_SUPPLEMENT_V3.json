@@ -1,0 +1,12 @@
+[
+  {
+    "input": "axial_gap_v2.json",
+    "sha256": "e6fcd257cb2c82f5800181e1e1e73ee659222d4b7beedd013be383917a7c9eca",
+    "oracle": "EXPECTED_BEFORE_RUN.json unchanged; schema-only fixture correction"
+  },
+  {
+    "input": "opposite_combinations_v2.json",
+    "sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+    "oracle": "EXPECTED_BEFORE_RUN.json unchanged; schema-only fixture correction"
+  }
+]

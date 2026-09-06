@@ -1,0 +1,26 @@
+{
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "files": {
+    "COVERAGE.csv": "587dfb88645c3bd105e88aa9d7bccff8f9df8d7593ea9ac05a4dd058b7c1aa77",
+    "COVERAGE_LIMITATIONS.md": "fbc4aa0547087b56f32c1ffc89373d49b2806ca191efae7c1aef133802ee4b35",
+    "FINDINGS.csv": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+    "INIT-TASK.md": "8fd3bf4b5f616c2f45ad4eee01f735a6af3bd53e163e59e6bcd5f394253bebed",
+    "OBSERVATIONS.json": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+    "PRE_EXECUTION_HASHES.json": "9139aa34b6503940d5c7c31a83b41b8f5830acb33b9acaa5f7d1dd2b2b79fc6a",
+    "REFERENCES.md": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+    "RERUN.md": "55237d0195fe6d30efc3d93c4527a43a4fc0c6f01ee72cfd215d3e72eaf77be7",
+    "RETURN.md": "c46f826ce3f396bbf350ff57558fa93a3e3d1af9231d4130aaad4f4167b112e8",
+    "ROBUSTNESS_EXPECTATIONS.md": "699e684796effeedf742476c982c471b5b347ba9e39200a3c26b9a1c67372cfb",
+    "ROBUSTNESS_PRE_EXECUTION_HASHES.json": "9d61d2c1517d06a0bcee82c2e499d2a88d55e51d7fab41a5e5f20d69d9511849",
+    "_run_records/TASK_RUN_2026-09-05_M1-N.md": "067d4ca2b55c9374127a346f68d141e03d1d47d0e4b0b9d68fb2123ab424a2ab",
+    "harness/Cargo.lock": "3e7b26fce7707d3dbfd62b453a90af604ec5f639cc2979e7ccb2a6fabb152b88",
+    "harness/Cargo.toml": "e316645992c6f965803ce4ed462ee96a7bc860764fd50b71d53d9114ad960968",
+    "harness/src/bin/robustness.rs": "c26939a10ca5005037428e65b3529df3e558bb8e08682aba1826a23c43d38dd8",
+    "harness/src/main.rs": "30b972c19585e201795f96d46e772dd36b8d946551ff0c7927df36eff1d7e3f9",
+    "robustness_stderr.log.json": "0898cecf14e9494eb2ac2cf77edb0d6a338b131870ffc79f26dbdb26636239c8",
+    "robustness_stdout.log.json": "0a8fb1b888cf5085fc56cd29c1fccf2b0aecd86d6c93bc8fcadf15ea51e5c610",
+    "witness_stderr.log.json": "6bda30f448ab5b4ff074264eb29576ca69fd65dac8fbec7e569436c3232d9012",
+    "witness_stdout.log.json": "8e9b96db389b3cdd7ea39ed634f8aa6ad190972136e3697402866b7282d7b13b"
+  }
+}

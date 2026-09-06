@@ -1,0 +1,16 @@
+{
+  "verdict": "CHANGES_REQUIRED",
+  "actionable_findings": [
+    "P9-R2-001"
+  ],
+  "full_four_file_review": true,
+  "scope_validation": "PASS",
+  "selected_checks": [
+    "evidence-sweep",
+    "piping-pytest",
+    "harness-self-check"
+  ],
+  "product_execution": false,
+  "source_test_writes": false,
+  "engineering_acceptance": false
+}

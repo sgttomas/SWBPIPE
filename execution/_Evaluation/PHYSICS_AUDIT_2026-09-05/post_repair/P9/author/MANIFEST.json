@@ -1,0 +1,23 @@
+{
+  "status": "authored; repair verification pending",
+  "files": {
+    "PREINTEGRATION_SOURCE_BINDING_V3.json": "81aa94fd6305558e8f402000d0eb3e21cfc997da7482c93e412e2adbff2fa799",
+    "PREINTEGRATION_SOURCE_BINDING_V2.json": "d8a94600861b83e53a6cfc485de686a81c81081a8d2c5ba65a5938b88d1b95f5",
+    "preintegration_v1.log.json": "3d24d529328a0e74c205f202a5edf81abfa273914c5c19dbe1a2bc861011cc23",
+    "RETURN.md": "7e58674727307094b2036e44af89c616ad4d31377cb17d20bf9d17d1ef37633a",
+    "POSTCHECK_SOURCE_DRIFT.json": "122b426364106dab01fbbc5935514e88f0d956a808adac82f0b6c33428eaddcc",
+    "EXPECTED_MANIFEST.json": "51465611bebef370b1542308bcb93e89be09b0ea3b3fa3dbc963015415d92d1a",
+    "AUTHORED_SOURCE_FINAL.json": "5c25d9dac2469f8ecbf67dcf030fe8f73af685c983999dc0bee98ff0cb463c4b",
+    "AUTHORED_SOURCE_V1.json": "91bec3e80bdb611e38cad200dd24c03fe8eb58189ddfb516a2031c79ebcf346f",
+    "EXPECTED_BEFORE_RUN.json": "69b58a92b893589bb693e3b5a6acf43477bc53f9be03e908b3d2d9995005b5a3",
+    "authored_pre_interface_correction.rs": "b5da759d7273131931c48fe666f3ba9b77755d984f3b98829bebc8c9fc8245c4",
+    "COVERAGE.md": "1d92cd6e46d75a55564c79647e5fa60269ad105fe30ba87a8fdca5444020e332",
+    "authored_pre_fixture_correction.rs": "b695562d01fe2ee207f51f43a81af592da17526e02358885981e34baf4794882",
+    "PREINTEGRATION_SOURCE_BINDING_V1.json": "534bef96533088b91d2c29b99cc14f423b0bcc07fc35420846da80dd5f19a793",
+    "EXPECTED_SUPPLEMENT_V1.json": "df025c4f0c93ce0be1e8545d3da7451c5162bcb1d4d163ad5fd718553bec54e4",
+    "FIXTURE_CORRECTIONS.md": "0949ba44b2b1137a76cff256d197727936edc18b5e341ab152798320b92c3f65",
+    "preintegration_v3.log.json": "d7541e84c532aa918302d09f87d673761601d15bf5ddfa4f01d2f92c1a6f55c5",
+    "preintegration_v2.log.json": "ab30190f846d2b88bcc088c91b219673b3afa87525d299920efcc473726d3f76",
+    "_run_records/TASK_RUN_P9_A.md": "c818ce0cc8d25f96f9cb944f5839ca5e0aa998a8a5d93e4f240f35d0d4b9c6ea"
+  }
+}

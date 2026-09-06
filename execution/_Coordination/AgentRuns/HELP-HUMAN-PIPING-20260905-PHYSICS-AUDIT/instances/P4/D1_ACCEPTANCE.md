@@ -1,0 +1,2 @@
+# D1 acceptance
+Manager verified all21 manifest members, read handoff/provenance and independently checked9 raw rows finite and existing parity/residual/repeat/pivot bounds. Accept manifest663f30bafbfa9841a99baa1da79943d9f4811fc24b7c2040382d4ba7ae7ba766 as current dirty-source derivative observation capture under accepted kernel checkpoint. Historical observation/policy remain immutable; no authority pointer or policy change. Final clean-source global sweep/capture remains root-owned as applicable. Re-run if captured emitter/dependency hashes change.

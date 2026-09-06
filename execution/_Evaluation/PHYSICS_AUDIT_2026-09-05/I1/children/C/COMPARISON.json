@@ -1,0 +1,23 @@
+{
+  "source_head": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "binary_sha256": "bc0c42d0c428546325e72bc57077ef93629aff959f1e2c514604496efc9f7984",
+  "originals_identical_envelopes": true,
+  "translation_identical_envelope": true,
+  "large_translation_identical_envelope": true,
+  "independent_expected": {
+    "tip_force_disp_mm": 0.406023368175307,
+    "tip_force_anchor_force_N": 350,
+    "tip_force_anchor_moment_Nm": 700,
+    "pure_moment_anchor_force_N": 0,
+    "pure_moment_anchor_moment_Nm": 100,
+    "spring_tip_displacement_mm": 0.18796797141911276,
+    "nonlinear_open_gap_with_spring_mm": 0.18796797141911276,
+    "thermal_free_extension_mm": 2.4000000000000004,
+    "pressure_free_extension_mm": 0.05260869565217389,
+    "uniform_load_tip_disp_mm": 0.30451752613148025
+  },
+  "source_unchanged": true,
+  "fixtures_unchanged_since_prerun": true,
+  "runs": 89,
+  "count_note": "Actual saved stdout count; excludes stderr and metadata. Success/errors/blocked outputs explicitly distinguished."
+}

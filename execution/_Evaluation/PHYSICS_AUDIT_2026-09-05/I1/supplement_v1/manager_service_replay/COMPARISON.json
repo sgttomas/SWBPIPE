@@ -1,0 +1,33 @@
+{
+  "exact_observations_equal": true,
+  "cases": [
+    {
+      "edited": false,
+      "receipt": {
+        "mode": "browser_fixture_no_backend_job"
+      },
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "rows": 830,
+      "equals_browser_fixture": true,
+      "native_error_marker_in_result": false
+    },
+    {
+      "edited": true,
+      "receipt": {
+        "mode": "browser_fixture_no_backend_job"
+      },
+      "status": {
+        "mechanics": "MODEL_INCOMPLETE",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "rows": 0,
+      "equals_browser_fixture": true,
+      "native_error_marker_in_result": false
+    }
+  ]
+}

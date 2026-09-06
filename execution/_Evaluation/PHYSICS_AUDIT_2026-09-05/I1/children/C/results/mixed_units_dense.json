@@ -1,0 +1,67 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "run_id": "run:preview-linear-static-blocked",
+  "model_ref": "project:invented-loop-01",
+  "status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+  },
+  "summary": {
+    "node_count": 2,
+    "segment_count": 1,
+    "support_count": 1,
+    "load_case_count": 1,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "component_pressure_thrust_load_count": 0,
+    "spring_hanger_user_input_count": 0,
+    "max_displacement": null,
+    "max_open_formula_stress": null
+  },
+  "results": [],
+  "diagnostics": [
+    {
+      "id": "diagnostic:unit:material:material-invented-carbon-steel:elastic-modulus",
+      "code": "UNIT_INPUT_INVALID",
+      "severity": "blocking",
+      "message": "preview mechanics input requires a unit compatible with stress (canonical Pa); got GPa: GPa is not in the catalog for stress",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "material:invented-carbon-steel",
+        "elastic_modulus"
+      ]
+    },
+    {
+      "id": "diagnostic:unit:material:material-invented-carbon-steel:shear-modulus",
+      "code": "UNIT_INPUT_INVALID",
+      "severity": "blocking",
+      "message": "preview mechanics input requires a unit compatible with stress (canonical Pa); got GPa: GPa is not in the catalog for stress",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "material:invented-carbon-steel",
+        "shear_modulus"
+      ]
+    },
+    {
+      "id": "diagnostic:unit:load:load-A2-invented:magnitude",
+      "code": "UNIT_INPUT_INVALID",
+      "severity": "blocking",
+      "message": "preview mechanics input requires a unit compatible with force (canonical N); got kN: kN is not in the catalog for force",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "load:A2-invented",
+        "magnitude"
+      ]
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  },
+  "accepted_model_state_mutated": false
+}

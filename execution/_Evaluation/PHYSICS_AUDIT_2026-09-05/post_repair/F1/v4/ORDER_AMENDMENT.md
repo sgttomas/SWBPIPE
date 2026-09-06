@@ -1,0 +1,1 @@
+Root explicitly authorizes moving the unchanged N140 UZ presence assertion after the existing next-page action where row51 resides. All pagination actions/assertions and other coverage preserved; no UI change.

@@ -1,0 +1,281 @@
+{
+  "driver_sha": "bc0c42d0c428546325e72bc57077ef93629aff959f1e2c514604496efc9f7984",
+  "runs": [
+    {
+      "case": "scaled_combinations",
+      "mode": "dense",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        },
+        {
+          "id": "result:combination:combination-audit-scale2:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "combination",
+            "ref_id": "combination:audit-scale2"
+          },
+          "source_result_refs": [
+            "result:disp:node-N-110:uy"
+          ],
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "explicit_user_linear_combination",
+            "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+          }
+        },
+        {
+          "id": "result:combination:combination-audit-scale1e6:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "combination",
+            "ref_id": "combination:audit-scale1e6"
+          },
+          "source_result_refs": [
+            "result:disp:node-N-110:uy"
+          ],
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "explicit_user_linear_combination",
+            "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "7cc953f9802ae5a74ee826294a7a64cfe60e5b77cce4a2ee4c1e72fa5660978e"
+    },
+    {
+      "case": "scaled_combinations",
+      "mode": "sparse",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        },
+        {
+          "id": "result:combination:combination-audit-scale2:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "combination",
+            "ref_id": "combination:audit-scale2"
+          },
+          "source_result_refs": [
+            "result:disp:node-N-110:uy"
+          ],
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "explicit_user_linear_combination",
+            "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+          }
+        },
+        {
+          "id": "result:combination:combination-audit-scale1e6:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.0,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "combination",
+            "ref_id": "combination:audit-scale1e6"
+          },
+          "source_result_refs": [
+            "result:disp:node-N-110:uy"
+          ],
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "explicit_user_linear_combination",
+            "sign_convention": "positive value follows explicit user linear combination of matching source result sign conventions"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "6890753072ac213f07d41da522efaf036fe02cc1beeaf5582266068e02ab6cb4"
+    },
+    {
+      "case": "direct2",
+      "mode": "dense",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 1e-06,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "9851550c091d3eafa5397be8c31d623a4cfa6777eea4b6a8788c8529788a2d64"
+    },
+    {
+      "case": "direct2",
+      "mode": "sparse",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 1e-06,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "e517024753b3d3c56fe0b80c5a051fe2a9fa9df630d113e3f5300b5d51add1f4"
+    },
+    {
+      "case": "direct1e6",
+      "mode": "dense",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.406023,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "a849a37d1383134b617b559b6ffa503e83bd60e026fa2670bf629ff97c4f0ad4"
+    },
+    {
+      "case": "direct1e6",
+      "mode": "sparse",
+      "status": {
+        "mechanics": "MECHANICS_SOLVED",
+        "rule_check": "RULE_INPUTS_INCOMPLETE",
+        "professional_acceptance": "NOT_PROVIDED"
+      },
+      "exit": 0,
+      "rows": [
+        {
+          "id": "result:disp:node-N-110:uy",
+          "kind": "global_nodal_displacement_y",
+          "value": 0.406023,
+          "unit": "mm",
+          "entity_ref": "node:N-110",
+          "basis_ref": {
+            "ref_type": "load_case",
+            "ref_id": "load:L-100"
+          },
+          "metadata": {
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "basis": "solved_from_global_linear_system",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        }
+      ],
+      "stderr": "",
+      "output_sha": "d5c0d999a1c6bc542f535c17c90eab9c06f247bba2e6233b5c76a2e0784dee52"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "id": "ACCEPT_P4_PRODUCT_CHECKPOINT_AND_TRANSFER_P5",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept P4 product checkpoint and transfer exclusive product ownership P4\u2192P5",
+  "checkpoint_manifest_sha256": "6541b981c4a9b2dc5568f1d47531d67049b129db5392147a99b1bfe8aef34bed",
+  "root_verification": "Verified three members; read ACCEPTANCE, P5 handoff and fresh product review PASS",
+  "fresh_product_review_sha256": "0762d8376ae861e51dc41b9d278ea6e45ee85237f963b58ea5b27dd9f0092a79",
+  "source_transfer": {
+    "product_physics_sha256": "171a63860bb9d105e2336bb76be6a71b26032cca5795d55ba3556f8c08ba3d26",
+    "new_exclusive_owner": "P5 /root/repair_pkg05",
+    "nonlinear_integration_sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+    "nonlinear_owner": "P4 frozen; no P5 kernel source extension"
+  },
+  "actual_runtime": "Existing P5 follow-up resumed now",
+  "P4_scope": "Own records closeout only; production source frozen",
+  "compile_allocation": "P5 one lightweight slot; other slot idle; heavy resources root controlled",
+  "product_test_status": "129 PASS and one stale enabled-fixture FAIL, not full product suite closure",
+  "fixture_follow_on": "F1 after accepted final P5 source; existing gate remains",
+  "remaining": "P5 repair/review and P9 matching regressions, F1 fixture regeneration, final integrated review/native/cleanDEC025"
+}

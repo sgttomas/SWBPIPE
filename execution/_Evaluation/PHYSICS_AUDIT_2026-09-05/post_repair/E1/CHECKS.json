@@ -1,0 +1,98 @@
+{
+  "real_cached_check": {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "exit": 2,
+    "stdout": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/baseline/cargo.log:1757: new blank line at EOF.\n",
+    "stderr": ""
+  },
+  "attributes_after": {
+    "command": [
+      "git",
+      "check-attr",
+      "whitespace",
+      "--stdin"
+    ],
+    "exit": 0,
+    "stdout": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/ENTRYPOINT_COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/MANAGER_FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/WITNESS_DISPOSITIONS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/FAMILY_COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/R/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/R1/FINDING_REVIEW.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/COVERAGE_M1_V1.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/FINDING_CROSSWALK.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/I1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/M1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REFERENCES_V1_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REQUIREMENT_BINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/SOURCE_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/V1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/COVERAGE_M1_V1.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/FINDING_CROSSWALK.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/I1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/M1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REFERENCES_V1_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/REQUIREMENT_BINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/SOURCE_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V1/V1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/COVERAGE_M1_V1.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/FINDING_CROSSWALK.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/I1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/I1_SUPPLEMENT_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/M1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REFERENCES_V1_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/REQUIREMENT_BINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/SOURCE_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/historical/REVIEWED_V2/V1_FINDINGS_NORMALIZED.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/MUTATION_PER_TEST.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/MUTATION_PER_TEST.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-C/snapshots/PRE_SCOPE_CORRECTION_V1/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/COVERAGE.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/FINDINGS.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\nprojects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1/children/V1-R/REFERENCES.csv: whitespace: blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol\n",
+    "stderr": ""
+  },
+  "toy_path": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/piping-physics-crlf-spj5yd57",
+  "toy_cases": {
+    "valid_crlf": {
+      "input_hex": "612c620d0a312c320d0a",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "space_before_crlf": {
+      "input_hex": "612c62200d0a",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 2,
+      "stdout": "sample.csv:1: trailing whitespace.\n+a,b \r\n",
+      "stderr": ""
+    },
+    "tab_before_crlf": {
+      "input_hex": "612c62090d0a",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 2,
+      "stdout": "sample.csv:1: trailing whitespace.\n+a,b\t\r\n",
+      "stderr": ""
+    },
+    "blank_at_eof": {
+      "input_hex": "612c620d0a0d0a",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 2,
+      "stdout": "sample.csv:2: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    "space_before_tab": {
+      "input_hex": "2009612c620d0a",
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 2,
+      "stdout": "sample.csv:1: space before tab in indent.\n+ \ta,b\r\n",
+      "stderr": ""
+    },
+    "unlisted_crlf": {
+      "command": [
+        "git",
+        "diff",
+        "--cached",
+        "--check"
+      ],
+      "exit": 2,
+      "stdout": "unlisted.csv:1: trailing whitespace.\n+a,b\r\n",
+      "stderr": ""
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "allowed": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "projects/chirality-piping/core/solver/diagnostics/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "paths": [
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "projects/chirality-piping/core/solver/sparse_direct/src/lib.rs",
+    "projects/chirality-piping/core/solver/linear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+    "projects/chirality-piping/core/solver/performance_harness/src/lib.rs",
+    "projects/chirality-piping/core/solver/diagnostics/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "schema": "chirality-change-scope/v1",
+  "status": "PASS",
+  "violations": []
+}

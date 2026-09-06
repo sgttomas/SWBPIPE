@@ -547,6 +547,15 @@ fn prepare_spring(
         return;
     };
 
+    if support.restrained_dofs.len() != 1 {
+        findings.push(SupportFinding::new(
+            FindingCode::InvalidSupportDof,
+            &support.support_id,
+            "scalar spring support requires exactly one affected DOF",
+        ));
+        return;
+    }
+
     let Some(stiffness) = support.stiffness.clone() else {
         findings.push(SupportFinding::new(
             FindingCode::MissingSupportStiffness,
@@ -555,6 +564,15 @@ fn prepare_spring(
         ));
         return;
     };
+
+    if !stiffness.value.is_finite() || stiffness.value < 0.0 {
+        findings.push(SupportFinding::new(
+            FindingCode::MissingSupportStiffness,
+            &support.support_id,
+            "spring support requires finite nonnegative stiffness",
+        ));
+        return;
+    }
 
     if !dimension_matches_dof(stiffness.dimension, dof, true) {
         findings.push(SupportFinding::new(
@@ -674,6 +692,33 @@ fn validate_positive_finite(name: &'static str, value: f64) -> Result<(), Linear
 mod tests {
     use super::*;
     use open_pipe_stress_frame_kernel::{RX, RY, RZ, UX, UY, UZ};
+
+    #[test]
+    fn audit_spring_literals_are_validated_without_rejecting_zero() {
+        for value in [-1., f64::NAN, f64::INFINITY] {
+            let support = LinearSupport::spring(
+                "s",
+                0,
+                FrameDof::Ux,
+                Some(SupportQuantity {
+                    value,
+                    dimension: QuantityDimension::TranslationalStiffness,
+                    unit_system_ref: None,
+                    unit_metadata: None,
+                }),
+            );
+            assert!(prepare_boundary(1, &[support]).is_blocked());
+        }
+        let mut support = LinearSupport::spring(
+            "s",
+            0,
+            FrameDof::Ux,
+            Some(SupportQuantity::new(0., QuantityDimension::TranslationalStiffness).unwrap()),
+        );
+        assert!(!prepare_boundary(1, &[support.clone()]).is_blocked());
+        support.restrained_dofs.push(FrameDof::Uy);
+        assert!(prepare_boundary(1, &[support]).is_blocked());
+    }
 
     #[test]
     fn frame_dof_reexport_matches_frame_kernel_boundary() {

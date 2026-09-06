@@ -1,0 +1,142 @@
+{
+  "basis": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "derivative": true,
+  "status": "bounded output complete; parent acceptance pending",
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "77af9b6431ba2ef1252c4224dc5a9c7a83f533357e362d694c4fe792e2d28615",
+      "bytes": 30
+    },
+    {
+      "path": "CARGO_MANIFEST_INVENTORY.json",
+      "sha256": "70848dd3b624fc149316e78fb7e99390374baed11d7cf157f3d1207b51f959a2",
+      "bytes": 24609
+    },
+    {
+      "path": "COVERAGE.csv",
+      "sha256": "4b43a082a661a1fb2a009f19e513d08329b2e4823a2548485807bf9aa0b63876",
+      "bytes": 10419
+    },
+    {
+      "path": "EVALUATION_PROTOCOL.md",
+      "sha256": "eae9daff5b35ded326e7bfb36857aecac5da16593553cd56a22bd47df89ceddf",
+      "bytes": 706
+    },
+    {
+      "path": "EVALUATION_REPORT.md",
+      "sha256": "7ee23a210322013c14a062d66e5c988ed5b0640cfad5282a3eb507fd1f46bf23",
+      "bytes": 9200
+    },
+    {
+      "path": "FINDINGS.csv",
+      "sha256": "42f3b73d4a3295c9945beb9ecb849bf3834a121e9a26672034de7fc3a39c5dc3",
+      "bytes": 1852
+    },
+    {
+      "path": "HANDOFF.md",
+      "sha256": "bbc7572b3f2661d276f5e086f95aee3d2acb7eb26a66640fdc3e0aaeba2b1d31",
+      "bytes": 2072
+    },
+    {
+      "path": "INIT-TASK.md",
+      "sha256": "07411eb4a6342e7aca96e530d1d9df9607fa8b8e2d38ba7b6263a20496505511",
+      "bytes": 2399
+    },
+    {
+      "path": "MUTATION_EXPECTATIONS.json",
+      "sha256": "f6edeb2cd2a4214294cfa0c3415d39e4f5bba634a10abbd1491d6bd5d247b619",
+      "bytes": 855
+    },
+    {
+      "path": "MUTATION_EXPECTATIONS_V2.json",
+      "sha256": "a7921006d973fcf7a1fe3a911ad0929475dbe979ed1dc896bb36801cf095b04f",
+      "bytes": 854
+    },
+    {
+      "path": "MUTATION_PATCHES.json",
+      "sha256": "3481bd45743f27950b8e7046c7075c221d3c22dc890b4ab3211c11b9b367cd3b",
+      "bytes": 7213
+    },
+    {
+      "path": "MUTATION_PER_TEST.csv",
+      "sha256": "91df0166cc2309010bb94d8270d9ed5a07caa6027aa36ce09370a9abca1a73e1",
+      "bytes": 47798
+    },
+    {
+      "path": "MUTATION_RESULTS.json",
+      "sha256": "ed5fe86a6090cf4eb74d263f14bbc69c2e90b55811aa7705c38a64542392a82c",
+      "bytes": 783
+    },
+    {
+      "path": "MUTATION_W3_force_only_reaction.json",
+      "sha256": "e7ab2712642d658936a3a450c664f61ad4d68a42447feac218153cdf3f1daf65",
+      "bytes": 14856
+    },
+    {
+      "path": "MUTATION_W5_zero_interpolated_stations.json",
+      "sha256": "2fda629ba202e314c6a457de03941ead4b2a2c51924ad5e7adb2ea8b52f517e5",
+      "bytes": 14863
+    },
+    {
+      "path": "MUTATION_baseline.json",
+      "sha256": "8177bf4ab25a0e947960373b5ddec721de4fb5e2ff76a6c772269620d0ae293a",
+      "bytes": 17758
+    },
+    {
+      "path": "MUTATION_positive_zero_force_stress.json",
+      "sha256": "44aba41350b22f2368192948c269482e66b70678c85f412c424b89bc325d49b7",
+      "bytes": 21494
+    },
+    {
+      "path": "PYTHON_TEST_INVENTORY.json",
+      "sha256": "6e2c43be829b686b1842a987754804d2dbb14c09eed3c414974cd489e238cb45",
+      "bytes": 225342
+    },
+    {
+      "path": "QA.json",
+      "sha256": "13813ac38ab928ed8bd99a22f48b6f90b88fd9e0defa205b992ee151ce10b0fe",
+      "bytes": 103
+    },
+    {
+      "path": "REFERENCES.csv",
+      "sha256": "d8f724b5ae50958d994288a89ef897f5c8fc9997390d6881d1cea953734b9545",
+      "bytes": 1171
+    },
+    {
+      "path": "SOURCE_INPUTS.json",
+      "sha256": "fb9098391f2ede26b9b8c0171aebb1004e5896e4498bb0bfce07c1feea713526",
+      "bytes": 26371
+    },
+    {
+      "path": "SOURCE_UNCHANGED.json",
+      "sha256": "a19f790a8616da72e84995a14134b8de94e9336fda68a6ab26666c61d9fdea17",
+      "bytes": 319
+    },
+    {
+      "path": "TEST_ASSERTIONS.json",
+      "sha256": "dfa0f1690dbc5bad50f38a361396976f91a2193aad65bfe420a97a925ad580fb",
+      "bytes": 813252
+    },
+    {
+      "path": "WITNESS_COVERAGE.csv",
+      "sha256": "d3702b2f6b754a16675929eaf97d4786477e89e7ae947aecfa9d2b8e2fc3178b",
+      "bytes": 880
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_V1-C.md",
+      "sha256": "8c44d39042fdba4b962f7617dc7810a2dd97a536f195c6e203cccd43252de53f",
+      "bytes": 2580
+    },
+    {
+      "path": "mutation_probe.py",
+      "sha256": "459509a319d1b0d43a376b4e90b4779f59c03f363107b6fc7e96719777f9b948",
+      "bytes": 3665
+    },
+    {
+      "path": "write_coverage.py",
+      "sha256": "4b114123f4c09a3e60e7754bb928e550162255d13befce238db2a45e46323041",
+      "bytes": 12007
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "status": "future fixture work prepared only; no release/session",
+  "files": {
+    "snapshots/F1_PREPARED_V1/BRIEF.md": "fb11575751ab20f4691e65cf55e5f874e44b039946caace3d04ecc0272314389",
+    "snapshots/F1_PREPARED_V1/NOTICE.json": "d97e4f62dc9902626b6c9688c2704c51b9cc0051684de9acdf375cafa910c3d4",
+    "snapshots/F1_PREPARED_V1/WORK_GRAPH.json": "634c3ac354efc2dc2016897dbd7a5cb2ad203becc909888467feb8f68dabde51"
+  },
+  "gate": "P5 final accepted source and explicit root activation"
+}

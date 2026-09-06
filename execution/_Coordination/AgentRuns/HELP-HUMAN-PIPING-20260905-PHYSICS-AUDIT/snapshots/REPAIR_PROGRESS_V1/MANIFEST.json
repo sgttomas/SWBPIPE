@@ -1,0 +1,11 @@
+{
+  "status": "bounded kernel checkpoint/preparation accepted; product integration and P5 transfer pending",
+  "files": {
+    "snapshots/REPAIR_PROGRESS_V1/ACCEPT_P4_KERNEL_CHECKPOINT_V1.json": "693883974eaf72d39dc56fcd716a2922a671e59bed8743ba22592225fe5140cc",
+    "snapshots/REPAIR_PROGRESS_V1/ACCEPT_P9_PREPARATION_V1.json": "68f268f6477ccd831e45d9d88e436e7bafb8498b77a92fa1177a8334e2f86758",
+    "snapshots/REPAIR_PROGRESS_V1/HANDOFF_STATE.md": "3fb3dee88c2a2551346c3e6073da050c60f1f09ef4d514cae1d9083f26f648f3",
+    "snapshots/REPAIR_PROGRESS_V1/RECORD_P5_QUALIFIED_PLANNING_RETURN.json": "75a4e51f1f73621bd55f5e0c9fdd557a6269a8f2f05938b8bc4fb6993cf44905",
+    "snapshots/REPAIR_PROGRESS_V1/WORK_GRAPH.json": "4fdbae5cf018f52b3b770cfb83483b7eefc708877d3f2242f61e4a4b3534a119"
+  },
+  "preserved_limit": "P5 compliance violation retained; no whole repair acceptance"
+}

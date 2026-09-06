@@ -688,3 +688,11 @@ Earlier setup-era statements on this surface are retained as historical setup co
   tolerance/threshold creation, no lifecycle transition, and no
   release-readiness, professional, certification, or code-compliance
   claim.
+
+## 2026-09-05 — Physics audit bounded product repairs (R05 and R11)
+
+The product consumer now requires the selected effective material alpha for each targeted thermal load, blocks duplicate whole-pipe wind markings at the direct boundary, and applies supported straight mechanical distributed contributions using existing consistent equivalent-nodal helpers. Base-material validation and exact/interpolated selection rules remain unchanged; no fallback alpha or new input fields were added. Earlier product lumping records remain historical. Macro-bend and pressure treatment remain separate.
+
+Accepted source for this bounded handoff: product SHA256 `93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc`, following accepted P4 selected-state integration. Fresh read-only review covered the complete frozen product diff and returned PASS with no actionable finding. Manager replayed 20 unchanged original audit inputs in both solver modes, with 314 checks passing. Final author crate run passed 137 tests; the single enabled stale browser-fixture assertion remains for root-owned F1 regeneration and full rerun. No global pass is inferred.
+
+Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json`, manager replay at `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json`, and package record `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Root owns final fixture generation, independent P9 binding, clean DEC-025/native/CI checks and Git closeout. State remains IN_PROGRESS; broader lifecycle, release and professional reliance are not advanced. D01–D06 held decisions remain.

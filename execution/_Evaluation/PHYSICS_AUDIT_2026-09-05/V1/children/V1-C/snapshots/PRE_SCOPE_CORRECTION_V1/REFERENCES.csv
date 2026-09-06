@@ -1,0 +1,6 @@
+ReferenceID,Source,Purpose,Independence,Applicability,ToleranceBasis
+REF-C01,TEST_ASSERTIONS.json,Frozen production-test assertions,Subject under audit; not independent physics reference,Coverage and assertion purposes,Existing assertions only
+REF-C02,MUTATION_EXPECTATIONS_V2.json;MUTATION_PATCHES.json,Predeclared perturbation and exact patch,Experiment independent of changed expected values; no assertions changed,Specific whole-product-unit sensitivity,No new tolerance
+REF-C03,core/runner/headless/src/benchmark_binding.rs:1,Actual benchmark runner contract,Uses suite predicates; not independent numerical oracle,Reachability and claim calibration,Reuses encoded suite criteria
+REF-C04,validation/benchmarks/mechanics/src/lib.rs:5883,Fixed numeric canonical-payload validator,Fixed numbers separate from runtime-generated fixture values; derivation reviewed by V1-R,TP-PHYS-014 only,INTERNAL_ASSERTION_EPSILON scoped
+REF-C05,tests/test_calculation_witness.py:66,Section witness comparison lineage,Independent Decimal interpretation per V1-R examination; this child does not duplicate reference review,Section calculator comparison,Witness declared tolerance

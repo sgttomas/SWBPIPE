@@ -1,0 +1,45 @@
+{
+  "qualification": "Independent manager arithmetic after child findings; corroboration, not pre-execution child expectations or engineering acceptance policy.",
+  "gap_exact_contact": {
+    "u": "1/20",
+    "gap": "1/20",
+    "reaction": "0",
+    "residual": "0"
+  },
+  "finite_end_connector_rigid_rotation": {
+    "length": 2,
+    "lateral_stiffness": 2000,
+    "unit_rotation": 1,
+    "relative_transverse_translation": 2,
+    "force": 4000,
+    "net_moment": 8000,
+    "strain_energy": 4000,
+    "small_rotation_scaling": "forces and net moment proportional to theta, energy proportional to theta squared; theta=1 is a basis vector, not finite-rotation physical assumption"
+  },
+  "tridiag32_analytic_condition": 440.6885603836566,
+  "diagonal_condition": {
+    "diag_1e_minus10_1": "10000000000",
+    "diag_0_1": "singular; no finite inverse condition"
+  },
+  "dense_finite_solution": {
+    "matrix_scale": "1e308",
+    "matrix_unscaled": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        -1
+      ]
+    ],
+    "force_unscaled": [
+      1,
+      -1
+    ],
+    "exact_solution": [
+      0,
+      1
+    ]
+  }
+}

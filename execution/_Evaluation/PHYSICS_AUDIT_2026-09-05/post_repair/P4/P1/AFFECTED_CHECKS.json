@@ -1,0 +1,22 @@
+{
+  "checks": [
+    "evidence-sweep",
+    "harness-self-check",
+    "piping-pytest"
+  ],
+  "paths": [
+    "core/product_physics/src/lib.rs",
+    "core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "reasons": {
+    "evidence-sweep": [
+      "core/product_physics/src/lib.rs",
+      "core/solver/nonlinear_integration/src/lib.rs"
+    ],
+    "piping-pytest": [
+      "core/product_physics/src/lib.rs",
+      "core/solver/nonlinear_integration/src/lib.rs"
+    ]
+  },
+  "schema": "chirality-affected-checks/v1"
+}

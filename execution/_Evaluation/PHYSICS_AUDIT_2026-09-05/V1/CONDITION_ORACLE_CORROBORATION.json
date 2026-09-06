@@ -1,0 +1,29 @@
+{
+  "provenance": "Manager analytical derivation after root relayed actual observations; not a pre-comparison frozen oracle. No production function called.",
+  "tridiagonal32": {
+    "matrix": "diag2/offdiagonal-1",
+    "eigenvalue_formula": "2-2*cos(j*pi/(n+1)) j=1..n",
+    "kappa2": 440.6885603836566
+  },
+  "diag_small_positive": {
+    "diagonal": [
+      1e-10,
+      1.0
+    ],
+    "exact_kappa2": 10000000000.0
+  },
+  "diag_singular": {
+    "diagonal": [
+      0,
+      1
+    ],
+    "kappa2": "infinite; no finite inverse"
+  },
+  "finite_input_overflow": {
+    "a": 0.5,
+    "b": 1e+308,
+    "mathematical_solution": "2e308 > maximum finite f64",
+    "expectation": "must not publish finite-solve success with infinity",
+    "threshold": "no new accuracy tolerance; finite-output validity condition"
+  }
+}

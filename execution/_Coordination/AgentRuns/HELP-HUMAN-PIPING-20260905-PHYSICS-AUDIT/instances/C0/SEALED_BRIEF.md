@@ -1,0 +1,7 @@
+# Sealed C0 brief
+
+Role: Agent 1 CHANGE. Parent: `/root`. Runtime: `/root/sync_main`. No children. Delegation class: delegated-harness-native. Native role/non-delegation is instruction+config asserted, not mechanism-proven. Exact model identifier is not exposed; no substitution is known.
+
+Parent-directed objective: User authorized implementing complete physics audit plus bounded repair plan. First prerequisite only: resolve root, inspect clean task tree, fetch origin, create codex/piping-physics-audit from latest verified origin/main containing PR724 merge39f51f1. Preserve existing branch; no reset/rebase/merge or dirty carry. Inspect intervening Piping changes for scope/basis implications. Read current AGENTS/CHANGE/loop entry. Add committed-HEAD loader, receipt validation before receipt use, current decisions/stage/DAG, deliverable status and harness self-check. No product sweep.
+
+Resolve REPO_ROOT with `git rev-parse --show-toplevel`; WORKING_ROOT is `{REPO_ROOT}/projects/chirality-piping`. Tools: read-only filesystem, Git, Python; exact authorized fetch and branch creation. Write targets: Git refs/checkout and this C0 directory after branch creation only. No source edits, builds, pushes, PRs, prior-run writes, lifecycle/authority changes, or children. Output contract: sealed brief, exact clean-start/frozen basis, intake evidence, bounded return and immutable manifest. Return to root after prerequisite completion; audit activation is separate.

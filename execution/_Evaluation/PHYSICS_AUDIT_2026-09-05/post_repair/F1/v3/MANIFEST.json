@@ -1,0 +1,60 @@
+{
+  "status": "HELD_SELECTION_SCOPE_DECISION",
+  "members": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/AMENDMENT.md",
+      "sha256": "5436ba96fcf3b7bcf1488cf3b68076487cf6ff8c95c251d49e908d7a90e08183",
+      "bytes": 371
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/AMENDMENT_SEAL.json",
+      "sha256": "a19b52c5c57f8f3ea297ecd6c67256f3dad4d32939087de1e9bd9d12a1ad981c",
+      "bytes": 83
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/APP_DIFF.patch",
+      "sha256": "39cca2c2fa91e0596be9d8b03bface1012acb52a1a1a5e08b2d7cda33e87be4a",
+      "bytes": 9009
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/DERIVATION.md",
+      "sha256": "c0263c96e6cdbe5443cf0dc4dd85fa4cde7c1c9033ec9773121e98702e64de94",
+      "bytes": 2524
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/RETURN.md",
+      "sha256": "7e5cd7384052e468864e36fdacbe12590a646f77ab493a3508d484eaeceab2c8",
+      "bytes": 1313
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/before.tsx",
+      "sha256": "a9a05bb5c15aa0fcbd82f52501bda982fe1d2d949db264b0cd50e22e07f58fcc",
+      "bytes": 661368
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/candidate.tsx",
+      "sha256": "203f8c14c42e131482d6041cfa914cfa860220ef273b0f2494c3d71ff9de791e",
+      "bytes": 661368
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/targeted_1_transport.json",
+      "sha256": "b13469c8a02d415608e2a9acf28770e5f6aa97cae1d9ddbf393fb971498c4170",
+      "bytes": 3891
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/targeted_2_transport.json",
+      "sha256": "5e2b6ef9def36b0032fc9ef277ba235acd3d721224a5c0e33d4e7ebb76a5d9b7",
+      "bytes": 3891
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/targeted_3_transport.json",
+      "sha256": "20835ecb1329545913a5a482480a42e08ead6b82b6f7b807c31a24f2b2b07875",
+      "bytes": 4403
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/F1/v3/targeted_4_transport.json",
+      "sha256": "6d73cf72ae99cc627d422ec94125d3b25f2cf71abce8e355a0ce06db777b435e",
+      "bytes": 23579
+    }
+  ]
+}

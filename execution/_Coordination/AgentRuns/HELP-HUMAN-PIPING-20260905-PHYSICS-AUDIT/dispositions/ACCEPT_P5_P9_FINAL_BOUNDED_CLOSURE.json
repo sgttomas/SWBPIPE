@@ -1,0 +1,21 @@
+{
+  "id": "ACCEPT_P5_P9_FINAL_BOUNDED_CLOSURE",
+  "date": "2026-09-05",
+  "authority_actor": "HELP_HUMAN /root",
+  "recorded_by": "C1",
+  "disposition": "Accept final P5 and P9 bounded closures; global gates remain open",
+  "P5": {
+    "manifest_sha256": "b4f0edb15cd2e30d7f2e1cff96dfa788b77626ab3aebfc8500c2ff21bce812a1",
+    "members_verified": 7,
+    "root_read": "handoff",
+    "normalized_review_manifest_sha256": "76fde1685dcec11047f577b285fb8e335804b3071115cc0074bf4921c1a50bf7",
+    "normalized_author_manifest_sha256": "98aa267b9f0f20b165c7ca9948063d23e7250722eaa252c29975a1837ce366de",
+    "preservation": "Original packets losslessly archived; no source change"
+  },
+  "P9": {
+    "manifest_sha256": "b13ec5c533f1a571b8314b680b8985ed73dfcd44c53ffd2c5901339395b413bc",
+    "members_verified": 4,
+    "root_read": "handoff"
+  },
+  "claim_limit": "No final integrated source/native/cleanDEC025/whole-engine closure"
+}

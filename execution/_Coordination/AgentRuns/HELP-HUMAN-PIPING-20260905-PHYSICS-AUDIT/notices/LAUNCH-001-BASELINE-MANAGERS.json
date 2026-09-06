@@ -1,0 +1,40 @@
+{
+  "id": "LAUNCH-001-BASELINE-MANAGERS",
+  "date": "2026-09-05",
+  "parent": "/root",
+  "recorded_by": "C1",
+  "type": "actual native launch receipts per root",
+  "source_frozen": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "instances": [
+    {
+      "id": "M1",
+      "runtime_id": "/root/audit_numerics",
+      "role": "Agent 1 EVALUATION",
+      "initial_children": 3,
+      "write_scope": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1 only"
+    },
+    {
+      "id": "I1",
+      "runtime_id": "/root/audit_integration",
+      "role": "Agent 1 EVALUATION",
+      "initial_children": 2,
+      "write_scope": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1 only"
+    },
+    {
+      "id": "V1",
+      "runtime_id": "/root/audit_verification",
+      "role": "Agent 1 EVALUATION",
+      "initial_children": 2,
+      "write_scope": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/V1 only"
+    }
+  ],
+  "manager_record_ownership": "Each manager owns own protocol/child briefs and evidence only inside assigned evaluation area",
+  "initial_release": "Static/oracle/scaffold work; heavy builds await root slots",
+  "model_override": "none",
+  "actual_model": "unexposed",
+  "enforcement": "delegated-harness-native instruction+config asserted; not mechanism-proven",
+  "permission_calibration": "Full fanout already user-approved; no new per-child gate",
+  "suite_owner": "V1",
+  "full_production_DEC025": "Not part of read-only baseline",
+  "claim_limit": "Actual manager launches recorded; future child runtime IDs not fabricated"
+}

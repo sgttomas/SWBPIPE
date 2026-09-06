@@ -1,0 +1,9 @@
+{
+  "binary_sha256": "bc0c42d0c428546325e72bc57077ef93629aff959f1e2c514604496efc9f7984",
+  "runtime_path": "/tmp/piping-audit-I1-C-target/debug/piping-audit-i1-c-driver",
+  "command": "driver <model-json> <sparse|dense>",
+  "build": "CARGO_NET_OFFLINE=true cargo build --manifest-path <isolated-driver>/Cargo.toml --target-dir <isolated-target>",
+  "source_head": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "source_unchanged": true,
+  "native_relationship": "Same deserialization and public product entrypoint as native wrapper; no GUI/Tauri invoke used"
+}

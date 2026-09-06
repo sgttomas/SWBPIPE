@@ -1,0 +1,23 @@
+{
+  "inputs": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/briefs/F1_FIXTURE_REGENERATION_V1.md": "fb11575751ab20f4691e65cf55e5f874e44b039946caace3d04ecc0272314389",
+    "projects/chirality-piping/package.json": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241",
+    "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+  },
+  "before_sha256": "4611c29ea5a08b792a25aaee101964f0b8369e8846a38101c2f082ea27e8c571",
+  "after_sha256": "5db929c8ad1d5f98ba661d9d25155632609ea848f29f953c976e233ffca0e95d",
+  "deterministic": true,
+  "environment": {
+    "CARGO_TARGET_DIR": "/tmp/piping-physics-audit-f1/target",
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "temporary_scope": "/tmp/piping-physics-audit-f1",
+  "model": "unknown",
+  "role": "Agent 2 ephemeral generalist",
+  "parent": "/root",
+  "runtime": "/root/fixture_regeneration",
+  "enforcement": "instruction+config asserted",
+  "script_equivalence": "Existing generator command, redirected to isolated temporary bytes and atomic replacement only after both successful identical runs."
+}

@@ -1,0 +1,12 @@
+{
+  "I1-C-08": "I1-R-05 (same distributed approximation, both unchanged source records preserved)",
+  "I1-M-001": "I1-R-04 (independent transverse overflow corroborates axial witness)",
+  "counts": {
+    "confirmed_nonconformances": 11,
+    "basis_conflicts": 1,
+    "observations": 3,
+    "unknown_gaps": 2,
+    "total": 17
+  },
+  "count_scope": "I1 only; cross-manager low-level aliases require parent synthesis"
+}

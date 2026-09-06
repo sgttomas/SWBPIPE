@@ -1,0 +1,37 @@
+{
+  "schema": "piping-audit-review/v1",
+  "instance": "KR",
+  "verdict": "CHANGES_REQUIRED",
+  "members": [
+    {
+      "path": "COVERAGE.json",
+      "sha256": "b3b1ba5567a7650554c952b9705570786cb5f1fbc39e9b3a31b2f99bd6d7c91c",
+      "bytes": 4203
+    },
+    {
+      "path": "FINDINGS.json",
+      "sha256": "6c281471aa42d95ea51f61245e8d9b2a59b5861d82c7a33a923c76366b29aee1",
+      "bytes": 402
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "f40444214c1e834ea5006b55ece1c6fdda47285dc4820a422ae37de651171370",
+      "bytes": 5097
+    },
+    {
+      "path": "SOURCE_BINDING.json",
+      "sha256": "c6c54629d56defa16b2767a950e5bbfb648a9fa2445eaff9640664155ddab409",
+      "bytes": 1492
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_KR.md",
+      "sha256": "1dd671bf181a980e1b51bf67347b337b67712340139337ee251be595357230ce",
+      "bytes": 2350
+    },
+    {
+      "path": "scope-check.json",
+      "sha256": "f61cd3b7228aa36e5bd2e22ee59d01a0a16bfe260d8b110a31608cf3f95fb4c2",
+      "bytes": 1276
+    }
+  ]
+}

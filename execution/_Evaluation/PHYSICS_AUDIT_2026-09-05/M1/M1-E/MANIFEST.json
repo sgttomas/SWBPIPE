@@ -1,0 +1,140 @@
+{
+  "status": "FROZEN_DERIVATIVE_AUDIT_EVIDENCE",
+  "source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea",
+  "manifest_excludes": [
+    "MANIFEST.json",
+    "harness/target/**"
+  ],
+  "files": [
+    {
+      "path": "COVERAGE.csv",
+      "size": 3196,
+      "sha256": "d69f87917c6c13410cf98262d494ede35dcb7c33a88d48b7514d442fb26daca9"
+    },
+    {
+      "path": "EXISTING_TEST_EVIDENCE.json",
+      "size": 724,
+      "sha256": "c0c743e941f51a92cc69556222579f464cf380b7a463d6233458be1f396e62ae"
+    },
+    {
+      "path": "FINDINGS.csv",
+      "size": 4395,
+      "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091"
+    },
+    {
+      "path": "INIT-TASK.md",
+      "size": 3514,
+      "sha256": "9cb08e4efa1df58a564351408b7baa45836617fc9bed10d119a432907fc45463"
+    },
+    {
+      "path": "REFERENCES.md",
+      "size": 3741,
+      "sha256": "9ef80e2b4b9afe26b0b5877ed4ffd42945bdb40066edfcfcd72a585b05b0e5d1"
+    },
+    {
+      "path": "RETURN.md",
+      "size": 10536,
+      "sha256": "4d9e1233bffaf3992deafc056ad6bbe156c5542e09a766a73668a165cd8a79f2"
+    },
+    {
+      "path": "SOURCE_MANIFEST.json",
+      "size": 2020,
+      "sha256": "143b9a95db5692dcb0686d3497bf9787a34bc836dec40c38e0c65850d8724bdf"
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-05_M1-E.md",
+      "size": 2017,
+      "sha256": "ca25dd2fa021d1ddcd2a26d16b4c142cb2205a8ee2b77d02d0385ae817c67db1"
+    },
+    {
+      "path": "_run_records/build.log.json",
+      "size": 525,
+      "sha256": "e614bf47933276e087cf096b0084e2a27e4809ea8b20a5c0cacef836a03d9501"
+    },
+    {
+      "path": "_run_records/build_attempt1.json",
+      "size": 2005,
+      "sha256": "dcf1350e6e0adf4c4226d5589e8448f9fc761559877ff9967fe92a4b13c69239"
+    },
+    {
+      "path": "_run_records/build_v1.json",
+      "size": 525,
+      "sha256": "5037969d22e9fdef652aeb685b4cb5968aa9551b830aa7bd91bab2f6f7da5fc4"
+    },
+    {
+      "path": "_run_records/compare_v1.py.txt",
+      "size": 5861,
+      "sha256": "1fbf5ebce2e9b108c5f31d367f9639b5b69233098ae1422c73eccbff0b672d37"
+    },
+    {
+      "path": "_run_records/curved_load_work_quadrature64.json",
+      "size": 13272,
+      "sha256": "94ea71bb6b14902e755f6c76c086e8c78509bf11ce002adf48bac191869a77c8"
+    },
+    {
+      "path": "_run_records/harness_initial.rs.txt",
+      "size": 5786,
+      "sha256": "db7769172db904f785ac9339c850c027c48c1596e4384ffa5ace817989d4583e"
+    },
+    {
+      "path": "_run_records/harness_v1.rs.txt",
+      "size": 5788,
+      "sha256": "0376b9c6f63e7e0142bd57d5b1ea6599547ccf39da12585180ffaef4037418b1"
+    },
+    {
+      "path": "_run_records/raw_v1.json",
+      "size": 31090,
+      "sha256": "2675271b20dff461d49ce2bb7739a9f377a0d3d69c23835a081124b0990ab5e1"
+    },
+    {
+      "path": "build_report.py",
+      "size": 10417,
+      "sha256": "1ea4a58e748addb2122b3af7025becd74fc91a289c3db58f762abb89edbd5cc3"
+    },
+    {
+      "path": "compare.py",
+      "size": 5862,
+      "sha256": "b4e058461d4868f0139a7344dfabe6a0feb76adb93699d30d903d90367443995"
+    },
+    {
+      "path": "comparison.json",
+      "size": 9941,
+      "sha256": "1f73d2ad19e5f7c0aceaa44dfc7aae3b2e528d20e3220d9636435ebfca90bd8b"
+    },
+    {
+      "path": "comparison_console.json",
+      "size": 9941,
+      "sha256": "1f73d2ad19e5f7c0aceaa44dfc7aae3b2e528d20e3220d9636435ebfca90bd8b"
+    },
+    {
+      "path": "curved_load_work.json",
+      "size": 13265,
+      "sha256": "1ffdcd575dbe8b2bdb1616fd3172914811cda9cba167f05670de92d4ed3e4425"
+    },
+    {
+      "path": "expected.json",
+      "size": 20901,
+      "sha256": "1c7119e53e49da9b7ec37a38d2ac7391cf579e2078e50d3158b1acf44eee0652"
+    },
+    {
+      "path": "harness/Cargo.lock",
+      "size": 3229,
+      "sha256": "6d798bd16da427d2769041b0285d596e9f828edda717648b213a1da23bf54ba1"
+    },
+    {
+      "path": "harness/Cargo.toml",
+      "size": 467,
+      "sha256": "4baa234d4b05b765169209c02e23c407d7f160fea38903bd7e6e042c3481263f"
+    },
+    {
+      "path": "harness/src/main.rs",
+      "size": 7993,
+      "sha256": "f2b43f6860b7c25c7b8216baed54d733e5d221434d46f1308d5126c7754e6a3f"
+    },
+    {
+      "path": "raw.json",
+      "size": 39960,
+      "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d"
+    }
+  ]
+}

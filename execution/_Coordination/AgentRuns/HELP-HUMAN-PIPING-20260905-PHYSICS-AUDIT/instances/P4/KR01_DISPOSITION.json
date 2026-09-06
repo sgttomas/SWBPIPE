@@ -1,0 +1,13 @@
+{
+  "detection_layer": "fresh independent review",
+  "failure_class": "numerical observation accuracy",
+  "finding": "KR-01",
+  "disposition": "REMEDIATE",
+  "author": "K1R",
+  "brief": "K1R_BRIEF_V1.md",
+  "held_dependants": [
+    "P1 release"
+  ],
+  "unchanged_source_candidates": "N1 and other K1 files remain frozen without actionable findings",
+  "derivative_status": "Review/repair evidence only; no lifecycle change"
+}

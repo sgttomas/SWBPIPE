@@ -1,0 +1,9 @@
+{
+  "bound_inputs": 82,
+  "bad": [],
+  "generated_cache_inputs": [
+    "projects/chirality-piping/validation/benchmarks/stress/target/debug/build/serde_core-68356cacc7ea2a16/out/private.rs",
+    "projects/chirality-piping/validation/benchmarks/mechanics/target/debug/build/serde_core-68356cacc7ea2a16/out/private.rs"
+  ],
+  "classification_correction": "These generated-cache inputs are incidental captured bytes, not production source authority; child additive calibration requested."
+}
