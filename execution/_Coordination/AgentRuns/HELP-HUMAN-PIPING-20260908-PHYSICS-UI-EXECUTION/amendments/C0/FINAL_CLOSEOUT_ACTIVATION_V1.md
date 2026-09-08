@@ -1,0 +1,5 @@
+# C0 final closeout activation V1
+
+Status: ACTIVE. Parent `/root` authorizes `/root/execution_recorder`, bounded ephemeral Agent 2 using `gpt-5.6-sol` with `high` reasoning and no delegation, to record the additive final acceptance snapshot, current `HANDOFF_STATE.md`, and Receipt 136 after the verified full sweep PASS at source `95a29c444b8d28a7eae0c96922fe6a2abfcdd2fa`. Exact write scope is new files under `RUN_ROOT/snapshots/FINAL_ACCEPTANCE_V1/**`, new `RUN_ROOT/HANDOFF_STATE.md`, and one Receipt 136 append to `loop/LOOP_RECEIPTS.md`; frozen histories, source, decomposition, DAG, lifecycle and other agents' records remain unchanged.
+
+The acceptance is technical evidence/design and test acceptance only. It does not release pending F4/U7 source implementation, answer the Step 1 exception, adopt pressure/reference or public compatibility choices, close requirements/lifecycle, or treat the forthcoming evidence-container commit as swept. CHANGE retains final evidence-container, receipt/path/whitespace, Git/CI/push/PR/merge ownership under the Owner's standing authority.

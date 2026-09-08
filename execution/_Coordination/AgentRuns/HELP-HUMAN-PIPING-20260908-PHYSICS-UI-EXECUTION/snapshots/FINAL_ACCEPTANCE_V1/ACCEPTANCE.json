@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "snapshot": "FINAL_ACCEPTANCE_V1",
+  "status": "TECHNICAL_EVIDENCE_DESIGN_AND_TESTS_ACCEPTED",
+  "accepted_upstream": {
+    "preparation_run": "HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION",
+    "preparation_merge": "779dedb8670625b36af07b89fc5557470e47c50e",
+    "decomposition_revision": "0.12",
+    "scope_change": "SCA-009",
+    "dependency_graph": "DAG-010",
+    "stage": "R5",
+    "parent_receipt": "Receipt-135"
+  },
+  "examined_through": "95a29c444b8d28a7eae0c96922fe6a2abfcdd2fa",
+  "source_state": {
+    "clean_at_sweep": true,
+    "all_writers_stopped_before_freeze": true,
+    "core_or_apps_source_changes": false,
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "original_local_handoff_unchanged": true
+  },
+  "evidence_fan_in": {
+    "path": "../../EVIDENCE_FAN_IN_V1.json",
+    "sha256": "82f474b7f6ece7e8252f3696c9e446eff463a1603928e2686414c8338ee83ba2",
+    "pending_at_cut_discharged": true,
+    "review_state": "RP, RM, RK and staged R technical reviews PASS on their bounded scopes",
+    "derivative_status": "ACCEPTED_FOR_CANDIDATE_USE_ONLY"
+  },
+  "manager_closeouts": [
+    {"node":"F4","path":"../../instances/F4/CLOSEOUT_MANIFEST_V1.json","sha256":"022de04e2895155a64db0eb6ca29df704e86f7854cb164956beafb8e67d86dd6"},
+    {"node":"K8","path":"../../instances/K8/CLOSEOUT_MANIFEST.json","sha256":"bdb543e3eebf6e72ea6bd24003c50b83d55399bfb82be7b7280649559c142419"},
+    {"node":"M9","path":"../../instances/M9/CLOSEOUT_AMENDMENT_MANIFEST.json","sha256":"8009ba041d985ac3ca30f7e4709c1f51d3bdfd97d96c20681c22b71f7c0a1da4"},
+    {"node":"P5","path":"../../../../../PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/CLOSEOUT_MANIFEST_V1.json","sha256":"6836a522b3d281506dc73dc47e2f47ddf226e7b1cda5c5a7bf0d15cfd73960a9"},
+    {"node":"U7","path":"../../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/MEMORY_CLOSEOUT_MANIFEST_V1.json","sha256":"94a5e1fc99dceafb278aff3185ef8975827bd6982367b5bc4d988d4572334602"}
+  ],
+  "closeout_pointer_correction": "The exact P5 and U7 paths above supersede their mislabeled category in the frozen CHANGE SOURCE_FREEZE_PREFLIGHT record; hashes and source/document content are unaffected.",
+  "full_verification": {
+    "sweep_path": "../../../../../../validation/evidence/sweeps/SWEEP_20260908T074812Z_95a29c444b8d.json",
+    "sweep_sha256": "906e7fac800e8f6e98f3ab310246438657708fed2478fc3cf7b41ec8eb418c80",
+    "status": "PASS",
+    "surfaces": 5,
+    "duration_seconds": 407.851,
+    "selection_or_partial_waiver": false,
+    "reported_detail": "38 Rust crate manifests; 1012 Python tests; 748 Vitest tests in 45 files; Playwright 28 development plus 3 distribution tests; production build PASS",
+    "supporting_checks": "self-check exit 0 with baseline INFO 14 / NA 1 / REVIEW 4 / WARN 55; full practitioner harness 379 PASS; receipt validator PASS"
+  },
+  "retained_limitations": [
+    "Recorded procedural nonconformances and retrospective timing disclosures remain active; no pristine-governance claim or waiver is created.",
+    "The source Step 1 exception is UNANSWERED; no new Owner act or F4/U7 source release exists.",
+    "Pressure/reference and canonical public compatibility/migration choices remain unadopted.",
+    "Requirements, dependencies, lifecycle and professional/release status remain unchanged."
+  ],
+  "evidence_container": "FORTHCOMING_AND_NOT_SWEPT; CHANGE must keep it separate from the verified source commit.",
+  "next_owner": "CHANGE for final evidence-container/Receipt-136 verification, path/whitespace checks, Git/CI/push/PR/merge; Owner for source Step 1 and engineering/public choices."
+}
