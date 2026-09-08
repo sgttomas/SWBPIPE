@@ -1,0 +1,3 @@
+# RM manifest release V1
+
+Status: RELEASED after root verifies M9's terminal writer-freeze record. This additive release satisfies the manifest placeholder in `LAUNCH_BRIEF.md` without changing that frozen brief: review `RUN_ROOT/instances/M9/MANIFEST.json` at SHA-256 `02131d46d094484d425825561ef0e6b1784740e6452a9d3f40b7ac9392e732b2` covering 18 files and the DEL-09-01 `PHYSICS_UI_EXECUTION_20260908/MANIFEST.json` at SHA-256 `2eeaddfd63cf05d116b46e031844d1b1d9c028380687facf9808ce0aebc7062b` covering 32 files. All other RM scope, model, tool, nondelegation, write and authority limits remain unchanged.

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "subject_path": "../../../../_DECISIONS/D-66_RULING_2026-09-08.md",
+  "reason": "Remove four Markdown hard-break trailing-space pairs reported by CHANGE preflight.",
+  "original": {
+    "sha256": "6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334",
+    "resolver": "D66_RULING_ORIGINAL_6081276e.b64 decoded as base64",
+    "archive_sha256": "f350047c31f5132f6d3b7011e1541e28d59036cf5403325cf959bc7868ac77c7"
+  },
+  "successor": {
+    "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f",
+    "status": "CURRENT_NORMALIZED_PATH"
+  },
+  "change": "Only two trailing ASCII spaces were removed from each of lines 3 through 6; substantive text is unchanged.",
+  "earlier_freeze_resolution": "CONTROL_FREEZE_V1/V2 D-66 hash resolves to the decoded archive; the current normalized path resolves through the successor hash and a later control freeze.",
+  "validation": "Decoded archive hash matched the original hash; byte comparison confirmed only the four trailing-space pairs changed."
+}

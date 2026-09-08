@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0",
+  "source_fixture": {
+    "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+    "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "description": "original actual authored product fixture; unchanged on disk",
+    "contains": {
+      "load_cases": ["load:L-100", "load:L-200"],
+      "combination": ["combination:C-OPER-ALT"],
+      "pipe_members": ["pipe:P-100", "pipe:P-110", "pipe:P-120", "pipe:P-130"],
+      "component_under_fork": "component:C-150",
+      "retained_spring": "support:SH-140",
+      "one_way_support": "support:NL-140",
+      "friction_support": "support:NL-130-FRIC"
+    }
+  },
+  "selected_pressure_free_L100_seed": {
+    "purpose": "bounded M9 pressure-free calculation; P5 owns pressure",
+    "exact_changes_from_source_fixture": [
+      {
+        "operation": "retain_only_load_case",
+        "retained": ["load:L-100"],
+        "removed": ["load:L-200"]
+      },
+      {
+        "operation": "clear_combinations",
+        "removed": ["combination:C-OPER-ALT"]
+      },
+      {
+        "operation": "remove_pressure_primitives_from_retained_load_case",
+        "removed": ["load:L-100-P", "load:L-100-P-EJ"]
+      }
+    ],
+    "unchanged_L100_primitives": ["load:L-100-Z", "load:L-100-Y", "load:L-100-T"],
+    "numeric_values_changed": false,
+    "pipe_members_changed": false,
+    "supports_changed_at_seed_stage": false,
+    "components_changed_at_seed_stage": false
+  },
+  "variants": [
+    {
+      "id": "physical_frame_frictionless",
+      "basis": "selected_pressure_free_L100_seed",
+      "additional_removed": ["component:C-150", "support:NL-130-FRIC"],
+      "retained": ["pipe:P-130", "support:SH-140", "support:NL-140"],
+      "role": "frictionless pressure-free connector-excluded control"
+    },
+    {
+      "id": "literal_adapter_frictionless",
+      "basis": "selected_pressure_free_L100_seed",
+      "additional_removed": ["support:NL-130-FRIC"],
+      "retained": ["component:C-150", "pipe:P-130", "support:SH-140", "support:NL-140"],
+      "role": "frictionless literal current-adapter diagnostic"
+    },
+    {
+      "id": "physical_frame",
+      "basis": "selected_pressure_free_L100_seed",
+      "additional_removed": ["component:C-150"],
+      "retained": ["pipe:P-130", "support:SH-140", "support:NL-140", "support:NL-130-FRIC"],
+      "role": "pressure-free connector-excluded physical control and independent friction reference"
+    },
+    {
+      "id": "literal_adapter",
+      "basis": "selected_pressure_free_L100_seed",
+      "additional_removed": [],
+      "retained": ["component:C-150", "pipe:P-130", "support:SH-140", "support:NL-140", "support:NL-130-FRIC"],
+      "role": "pressure-free literal current-adapter diagnostic; not full actual-fixture adequacy"
+    }
+  ],
+  "c150_treatment": {
+    "physical_frame_variants": "component:C-150 is removed while pipe:P-130 remains unchanged; this avoids selecting an unresolved connector topology",
+    "literal_adapter_variants": "component:C-150 is retained exactly as authored; the current adapter adds its six relative local stiffnesses between both endpoints of pipe:P-130 in parallel with the unchanged pipe member",
+    "authored_stiffness_order_and_values": {
+      "order": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+      "values": [3200000.0, 900000.0, 900000.0, 620000.0, 480000.0, 480000.0],
+      "units": ["N/m", "N/m", "N/m", "N*m/rad", "N*m/rad", "N*m/rad"]
+    },
+    "classification": "D02 diagnostic only because the literal finite-end relative stiffness generates an uncancelled global couple"
+  },
+  "always_excluded_from_mechanics": {
+    "support:CE-120": "authored as load-side review only; no global-solve consumption",
+    "spring_hanger_load_metadata": ["installed_load", "cold_load", "hot_load", "travel_range"],
+    "spring_interpretation": "support:SH-140 contributes only the authored 42000 N/m UZ stiffness with zero force-free displacement reference"
+  },
+  "claim_limit": "No transformed variant is called the unaltered full actual fixture. The connector-excluded physical-frame result does not establish C-150 adequacy; the literal-adapter result is a mapping and defect diagnostic only."
+}

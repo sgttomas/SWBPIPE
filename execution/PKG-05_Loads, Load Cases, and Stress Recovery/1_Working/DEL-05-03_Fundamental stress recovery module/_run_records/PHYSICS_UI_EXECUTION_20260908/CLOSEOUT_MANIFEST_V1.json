@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "date": "2026-09-08",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "P5",
+  "scope": "evidence_closeout_only",
+  "semantic_delta": "DEL-05-03 memory and Remaining now distinguish the completed candidate four-case investigation from still-open Owner-gated production physics and public-schema work.",
+  "files": [
+    {"path":"CLOSEOUT_SCOPE_AMENDMENT_V1.md","bytes":1414,"sha256":"ef82508286665139546591676c6f2406974ce7005a81553d88bf731616b9d639","role":"pre-edit sealed scope"},
+    {"path":"../../MEMORY.md","bytes":24466,"sha256":"8cd345567c3f5edae7a4a41b902af32bee4f0a7c9e1cc7dda36b4386dc44d29e","role":"durable evidence pointer"},
+    {"path":"../../_STATUS.md","bytes":3099,"sha256":"12547879eb3a59c5a29523088a274f5343b4cd9aab6b36d1a232fd3ed394f81a","role":"remaining-work clarification; lifecycle unchanged"},
+    {"path":"INVESTIGATION_REPORT.md","bytes":16494,"sha256":"736b82572f887cfc367db579d66e5d55d2d3a3d618662b6a17a6c91966c831af","role":"unchanged frozen candidate report"},
+    {"path":"SIGN_CONVENTION_CLARIFICATION_V2.md","bytes":2960,"sha256":"6cffcf8b74bf45526014b3f0a3e797268195c6f31a9035ac68a94b36b3d46bd0","role":"unchanged controlling sign clarification"},
+    {"path":"../../../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/RETURN.md","bytes":1659,"sha256":"939c28a8657cf3fa84a138be592366a6e6c617a2ca62f3a70644dc91b19f1d57","role":"RP technical PASS; no adoption"},
+    {"path":"../../../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/notices/RP_REVIEW_FINAL_20260908.json","bytes":972,"sha256":"0a63d0dfa324de1944ab60f0b454c2eafa930cc5a8c19ee898625be5a81c8d1c","role":"root-accepted review scope notice"}
+  ],
+  "unchanged_boundaries": [
+    "Current State remains IN_PROGRESS",
+    "no lifecycle, dependency, acceptance, physics-authority, or public-schema adoption",
+    "no frozen packet, code, test, threshold, or fixture changes",
+    "no physics or production rerun"
+  ]
+}

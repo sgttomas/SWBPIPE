@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "executed_at": "2026-09-08T00:11:56-0600",
+  "status": "PASS_WITH_DISCLOSED_UPSTREAM_SCHEDULING_DEVIATION",
+  "checks": [
+    {"id":"source_identity","status":"PASS","evidence":"checkout HEAD equals 779dedb8670625b36af07b89fc5557470e47c50e; fixture hash equals 986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"},
+    {"id":"released_manifest_identity","status":"PASS","evidence":"M9 manifest 02131d46... (18 members) and DEL manifest 2eeaddfd... (32 members) exactly match RM release"},
+    {"id":"all_member_hashes_and_sizes","status":"PASS","evidence":"50/50 members independently rehashed; zero hash, byte-size or duplicate-path failures"},
+    {"id":"archive_normalization_lineage","status":"PASS","evidence":"nine RFC 4648 base64 archives strictly decode to every declared original hash; diffs match the normalization record; expected-result hash unchanged"},
+    {"id":"freeze_order","status":"PASS","evidence":"expected mtime 23:11:36, original freeze-manifest birth 23:15:34, first production-output birth 23:16:56; archived original manifest binds the pre-normalization bytes"},
+    {"id":"fresh_manager_recompute","status":"PASS","evidence":"isolated NumPy output is byte-identical to EXPECTED_RESULTS_FROZEN.json, SHA-256 72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245"},
+    {"id":"manager_child_correspondence","status":"PASS","evidence":"198 components; max absolute difference 3.7624658943968825e-10; current-normal difference 7.815970093361102e-14 N; friction difference 7.771561172376096e-16 N"},
+    {"id":"signs_equilibrium_and_units","status":"PASS","evidence":"independent global/element/station checks reproduce the recorded force and moment closure; fixture-local SI values map exactly to the frozen input"},
+    {"id":"direct_current_normal_relation","status":"PASS_OBSERVATION_CONFIRMED","evidence":"physical residual +0.0005818300000000054 N; literal residual +0.0003094999999999626 N; both exceed the exact six-decimal combined rounding uncertainty 0.000000505 N"},
+    {"id":"variant_boundary","status":"PASS","evidence":"source fixture, pressure-free L-100 seed, connector-excluded physical control and literal C-150 mapping diagnostic are explicitly distinct"},
+    {"id":"c150_diagnostic","status":"PASS_OBSERVATION_CONFIRMED","evidence":"connector end-force sum is zero; net connector moment is [0,658.4367607916422,0] N*m; literal whole-frame residual agrees"},
+    {"id":"comparison_mapping","status":"PASS","evidence":"636/636 JSON rows match CSV identities and values; production IDs are unique; every compared row exists with matching unit and L-100 basis; dense/sparse compared values agree"},
+    {"id":"syntax_and_serialization","status":"PASS","evidence":"all manifest JSON/JSONL parses; all Python members parse by AST; all text is LF-only with no trailing whitespace or blank EOF; CSV has 636 data rows"},
+    {"id":"primary_source_and_ocr_fence","status":"PASS","evidence":"official project/vendor documentation plus primary research only; no piping-design OCR/extracted equation used"},
+    {"id":"compile_slot_deviation","status":"DISCLOSED_NONCONFORMITY_NO_REVIEW_CORRUPTION","evidence":"pre-release native comparison violated slot scheduling; isolated target and read-only clean production source preserve frozen oracle and output traceability; HELP_HUMAN retains governance disposition"}
+  ],
+  "commands_excluded_by_brief": ["Cargo", "native build", "product tests", "full harness"],
+  "acceptance_effect": "NONE; no threshold, engineering fork, dependency row or lifecycle state adopted"
+}

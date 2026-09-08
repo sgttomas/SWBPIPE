@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "status": "CURRENT_LOGICAL_TO_PHYSICAL_RESOLVER",
+  "path_basis": "WORKING_ROOT",
+  "resolution_rule": {
+    "historical": "Verify an old logical member against the decoded member in its named serialized-original archive and the predecessor hash in the named correction manifest.",
+    "current": "Verify the current path against the successor hash in the named correction manifest or successor freeze.",
+    "prohibited_claim": "A predecessor manifest does not validate a normalized current path after its bytes changed."
+  },
+  "entries": [
+    {
+      "owner": "C0",
+      "logical_scope": "execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "predecessor_sha256": "6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334",
+      "original_archive": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/_run_records/control_lineage/D66_RULING_ORIGINAL_6081276e.b64",
+      "original_archive_sha256": "f350047c31f5132f6d3b7011e1541e28d59036cf5403325cf959bc7868ac77c7",
+      "correction_manifest": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/_run_records/control_lineage/D66_WHITESPACE_CORRECTION_V1.json",
+      "correction_manifest_sha256": "a38a6e90dedf0a65a202094703a1b216b94cab751c0a4fc1056f72876e4da7e1",
+      "current_sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f",
+      "successor_freeze": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/snapshots/CONTROL_FREEZE_V3.json",
+      "successor_freeze_sha256": "a44ea77f389e48fbb7490619623c3a039908c07f711b1e80208822f06772ed04"
+    },
+    {
+      "owner": "F4",
+      "logical_scope": "F4 INITIAL_PHASE_MANIFEST members",
+      "predecessor_manifest_sha256": "3366721434a079c00b4df6c0bba5fbd24cba2e0f005b60bf752e530c5cd391fa",
+      "original_archive": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_EXECUTION_20260908/formatting_cleanup/SERIALIZED_ORIGINALS_V1.json",
+      "original_archive_sha256": "422272f82746a18e034d646042a2df38f21d3d9a986d0d222f54099e5dbd0c7b",
+      "correction_manifest": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/FORMATTING_SUCCESSOR_MANIFEST_V1.json",
+      "correction_manifest_sha256": "44c6783112b23d4dba0a38f6d322124cd599372bf7aa1fac3763d72e793b1e3b",
+      "current_resolution": "Use each changes[].new_sha256 in the correction manifest."
+    },
+    {
+      "owner": "U7",
+      "logical_scope": "four normalized U7 evidence/control members",
+      "original_archive": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/WHITESPACE_REPAIR_ORIGINALS_V1.json",
+      "original_archive_sha256": "3508836e6cb64bc602fc8fe9aa3e83eb1c68dcdc86a730bff96490d3ab07898b",
+      "correction_manifest": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/WHITESPACE_REPAIR_MANIFEST_V1.json",
+      "correction_manifest_sha256": "403cf4cfef95bae1d7c4147d1a97fce94eb8a845ce5feeda862ea34c7e687b3f",
+      "current_resolution": "Use each members[].successor_sha256 in the correction manifest."
+    },
+    {
+      "owner": "PS",
+      "logical_scope": "seven normalized PS/PS1/candidate members",
+      "original_archive": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/CORRECTIONS/V1/SERIALIZED_ORIGINALS.json",
+      "original_archive_sha256": "6baeccbaf371ff1d9ee5255767a377978d1d0bcf804e77308ac28a9f95678654",
+      "correction_map": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/CORRECTIONS/V1/CORRECTION_MAP.csv",
+      "successor_manifest": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/CORRECTIONS/V1/SUCCESSOR_MANIFEST.sha256",
+      "successor_manifest_sha256": "976b1a012c14f650bb7b2c73500a2384fff47d360660e493d8e7c01caa1b6a04",
+      "highlighted_resolutions": [
+        {"path":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/PS1/RETURN.md","predecessor_sha256":"9ff61400d195cc23412123dadbe71f5e4877e7838b2c04b40a93c34f3804c302","current_sha256":"93e9fa72f5cf46b1d82e79f114502c3b3a76b1004f0bf3df5fd059aa5729881c"},
+        {"path":"execution/_DAG/PHYSICS_UI_EXECUTION_20260908_CANDIDATE/MANIFEST.sha256","predecessor_sha256":"a29a16a8e63deb80e7f7bc1d8127c20787ef3f5cf06ca7cb3b1bdcdd9e51b6f6","current_sha256":"60e70cab2e6bbf99468d006aa2ffe397f3ac8fe2d3a3690e089ac3e890c68a8e"}
+      ]
+    },
+    {
+      "owner": "CHANGE",
+      "logical_scope": "three normalized CHANGE evidence members",
+      "original_archive": "execution/_Change/PHYSICS_UI_EXECUTION_20260908/_run_records/CHANGE_EVIDENCE_CORRECTION_V1_ORIGINALS.json",
+      "original_archive_sha256": "7c21f88e7e53705798eb91250794d5b5b3a44e86270ede46726792747bf38d3a",
+      "correction_manifest": "execution/_Change/PHYSICS_UI_EXECUTION_20260908/CHANGE_EVIDENCE_CORRECTION_V1.json",
+      "correction_manifest_sha256": "33decb4551e58c6503e343d47c001899cfd3af88f6f42466f0d3c067fd0d4f0b",
+      "current_resolution": "Use each successors[].successor_sha256 in the correction manifest."
+    }
+  ],
+  "authority_effect": "NONE; this index resolves evidence bytes only and grants no source, dependency, DAG, lifecycle, engineering or acceptance authority.",
+  "source_release": "F4/UI Owner exception remains pending and is not granted."
+}

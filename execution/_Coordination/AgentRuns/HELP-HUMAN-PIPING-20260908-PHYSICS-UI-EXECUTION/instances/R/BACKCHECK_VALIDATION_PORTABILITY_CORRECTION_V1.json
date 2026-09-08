@@ -1,0 +1,19 @@
+{
+  "schema": "r-backcheck-validation-portability-correction/v1",
+  "path": "instances/R/BACKCHECK_VALIDATION_V2.md",
+  "correction": "replace_one_literal_host_home_prefix_in_a_validation_statement_with_portable_prose",
+  "historical_logical_sha256": "0a8fdd35c69bda9fc8821573474cea417c4a976cd3335774589b76093d6d9f85",
+  "normalized_successor_sha256": "b89751b6b642455a6ea07315b3d2d4afced8be4e76c227898f8503a5a08fbc98",
+  "historical_byte_count": 1490,
+  "normalized_byte_count": 1494,
+  "serialized_original": {
+    "path": "instances/R/_run_records/BACKCHECK_VALIDATION_V2_ORIGINAL.json",
+    "sha256": "14d23eaa6584e30798b535b48a32c067efcbd52099b0a9e9eb8fa549915f2a31",
+    "encoding": "base64"
+  },
+  "semantic_effect": "none",
+  "staged_verdict_changed": false,
+  "finding_closures_changed": false,
+  "mathematical_review_changed": false,
+  "backcheck_inventory_recheck_required": false
+}

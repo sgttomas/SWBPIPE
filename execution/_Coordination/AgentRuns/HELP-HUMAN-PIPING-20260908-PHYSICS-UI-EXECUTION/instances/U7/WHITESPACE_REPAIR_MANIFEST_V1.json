@@ -1,0 +1,62 @@
+{
+  "instance_id": "U7",
+  "members": [
+    {
+      "blank_eof_removed": true,
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/CONSUMED_INTERFACE_EVIDENCE_V1.md",
+      "predecessor_byte_length": 13438,
+      "predecessor_sha256": "27161c9090b34dadb8004a05fcd8ca5857cd120350d846f63b84670366e10419",
+      "successor_byte_length": 13433,
+      "successor_sha256": "93b5be9434a2e34c03002748ecd6c0de4095c7b19d9b99f007b891fb1fd64166",
+      "trailing_whitespace_lines_removed": [
+        3,
+        4
+      ]
+    },
+    {
+      "blank_eof_removed": true,
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/IMPLEMENTATION_BRIEF_V1.md",
+      "predecessor_byte_length": 11645,
+      "predecessor_sha256": "013aec454e7179d96194827b52f8fa0aa49c07e29365f018212aaa1512809461",
+      "successor_byte_length": 11642,
+      "successor_sha256": "23a2ac4595c4b9ee2e18143b057a392f42c34c57051e5f328b45cbfc2ab1f709",
+      "trailing_whitespace_lines_removed": [
+        3
+      ]
+    },
+    {
+      "blank_eof_removed": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/INITIAL_RETURN_V1.md",
+      "predecessor_byte_length": 2195,
+      "predecessor_sha256": "fd4bf9fe538f231ff224cf68027d1e3194d42353659911e8c22a2618c089e983",
+      "successor_byte_length": 2190,
+      "successor_sha256": "336de8d565f97972d8e8d6c2ff85da9665fc4884cbdb57117cf31a126548a527",
+      "trailing_whitespace_lines_removed": [
+        3,
+        4
+      ]
+    },
+    {
+      "blank_eof_removed": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/VALIDATION_V1.md",
+      "predecessor_byte_length": 918,
+      "predecessor_sha256": "55e16fd193df4c082e7e0fc4be4a55eba5c7aa999b038e5fc9387afe9219e7af",
+      "successor_byte_length": 917,
+      "successor_sha256": "2d56df581017fd30c79c8076c522af04f6133eaee4e8625759d79ba2754711f7",
+      "trailing_whitespace_lines_removed": []
+    }
+  ],
+  "record_kind": "explicit_successor_change_mapping",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "schema_version": "1.0",
+  "serialized_original_record": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/U7/WHITESPACE_REPAIR_ORIGINALS_V1.json",
+  "source_binding": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "transformation": {
+    "operations": [
+      "remove trailing ASCII spaces/tabs",
+      "reduce blank EOF to one final LF"
+    ],
+    "scope": "reported_whitespace_only",
+    "semantic_content_changed": false
+  }
+}

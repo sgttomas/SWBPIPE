@@ -1,0 +1,16 @@
+{
+  "status": "WRITER_FROZEN",
+  "candidate_revision": "K8-V4",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "frozen_after": [
+    "child scope and hash fan-in",
+    "manager code review",
+    "V4 adversarial totality test",
+    "V4 builder integration",
+    "path-anchor validation",
+    "candidate-whitespace validation",
+    "manifest hash validation"
+  ],
+  "allowed_next_action": "bounded independent RK V4 backcheck through root mediation",
+  "author_edits_during_review": false
+}

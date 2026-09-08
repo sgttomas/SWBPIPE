@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "status": "TECHNICAL_REVIEWS_PASS_CANDIDATE_USE_ONLY",
+  "source_basis": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "source_state": "core/** and apps/desktop/src/** unchanged",
+  "correction_resolver": {"path":"CORRECTION_INDEX_V2.json","sha256":"8472be2b71f0f35440f59796e9a0e81084b80cbfcb4f00c62fa17c3f2992c02f"},
+  "author_outputs": [
+    {"node":"P5","instance_manifest":"instances/P5/MANIFEST.json","sha256":"172c96a6af9fbeaec30c4c974ed0614cbdfc0632061dcc127efea104cd90e52f","deliverable_manifest_sha256":"07692034d597768ea79864540a08aa3f3d959036ddff7bbc26466643fe2c75f3"},
+    {"node":"M9","instance_manifest":"instances/M9/MANIFEST.json","sha256":"02131d46d094484d425825561ef0e6b1784740e6452a9d3f40b7ac9392e732b2","current_correction_manifest_sha256":"dfac8e3089a60cfe3b4d0bb6fab88c20bc338ebb4746260e1e9214fef17c8471"},
+    {"node":"K8","instance_manifest":"instances/K8/MANIFEST_V4.json","sha256":"a285a7aee0f276919c16db28fb74926257735b9b41dd9c7cc66b554dba1a0941"},
+    {"node":"F4","formatting_manifest_sha256":"44c6783112b23d4dba0a38f6d322124cd599372bf7aa1fac3763d72e793b1e3b","implementation_brief_v2_sha256":"63c0361979c20474cddaada74076705a495a60da1c2d5cb0548a10ac6fd7974c"},
+    {"node":"U7","correction_manifest_sha256":"403cf4cfef95bae1d7c4147d1a97fce94eb8a845ce5feeda862ea34c7e687b3f"},
+    {"node":"PS","r02_successor_manifest_sha256":"fcb9da6f8904eed3f8836f5d32f4746c6e5834a9f45af4ffef979fb8f47acf3f"},
+    {"node":"CHANGE","retrospective_manifest_sha256":"e7ebba5c1944af6320040f8da9375b611abf829e11551927f1b0099e9afbb8bd"}
+  ],
+  "review_outputs": [
+    {"node":"RP","verdict":"PASS","manifest":"instances/RP/MANIFEST_V2.json","sha256":"5e5a5fb5607a9d1a4a94d8d348d48e25555e402f85ff3f1f0347b162c6e82b6e","scope":"P5 pressure evidence only"},
+    {"node":"RM","verdict":"PASS","manifest":"instances/RM/MANIFEST_V2.json","sha256":"237820f21a9a638c7d717ca22a2b0f37aefb6d467942693d8f3df3d00266c858","review_sha256":"4c522ef833733e3ba9247f859eb95653f4951a0aa7fde51e349d01ea7d2b2c60","scope":"M9 mixed-reference evidence only"},
+    {"node":"RK","verdict":"PASS","return":"instances/RK/BACKCHECK_RETURN_V4.md","sha256":"df22ff8bb50a20763e4d35a74ae08fa31696ee9ce222dc1c18f73e5c0709e393","scope":"K8 route-A candidate design only"},
+    {"node":"R","verdict":"STAGED_PASS","return":"instances/R/BACKCHECK_RETURN_V2.md","sha256":"43ec8f31f1120866df2b28f94dc8dacd11c11b00ba7cb946f34d379da0467981","validation_sha256":"b89751b6b642455a6ea07315b3d2d4afced8be4e76c227898f8503a5a08fbc98","path_correction_sha256":"fbc260b618313c60ca6dfe3928badf460e9f7d23182227db0f34755d5a728c79","scope":"frozen controls/PS/F4/U7/CHANGE integration"}
+  ],
+  "root_verification": [
+    "RK: four final outputs and 18 K8 V4 members verified",
+    "R: 51 backcheck members and four outputs verified",
+    "RM: 11 successor members and original archive verified",
+    "RP: 17 subject members and four outputs previously verified; R verified the portable successor"
+  ],
+  "retained_procedural_nonconformances": [
+    "M9 exceeded the allocated compile slot; no retroactive permission is asserted. RM validated source/private-target containment and oracle independence, so timing alone does not require an evidence rerun.",
+    "P5/RP retrospective launch-brief timing and the promptly cleaned wrong-lane two-file attempt remain disclosed.",
+    "K8 direct messaging to an idle RK and root-only release/execution of RK backchecks remain disclosed.",
+    "PS and CHANGE retrospective execution-record repairs remain disclosed; no pristine-governance claim or human-acceptance waiver is made."
+  ],
+  "acceptance_boundary": "Technical evidence is accepted for candidate use only. Pressure/reference, canonical public compatibility/migration, engineering, dependency, lifecycle and release choices remain unadopted unless separately ruled.",
+  "pending": "Five manager closeout-document returns and stopped-writer verification remain pending. F4/U7 source exception remains unanswered and ungranted. No source write, receipt, full-tranche closure or lifecycle closure follows."
+}

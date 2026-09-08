@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "child_id": "C1",
+  "native_task_name": "component_derivation",
+  "display_name": "Huygens",
+  "role": "ephemeral Agent 2 independent component derivation/review",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "delegation": "none; instruction/config asserted",
+  "status": "ACCEPTED_AS_INDEPENDENT_CORROBORATING_EVIDENCE",
+  "authority": "derivative evidence only; manager freeze remains the comparison oracle",
+  "independence_checks": {
+    "read_production_source": false,
+    "read_production_output": false,
+    "read_manager_calculation_or_result": false,
+    "used_bundled_expected_constants": false,
+    "used_protected_OCR_equations": false
+  },
+  "hashes": {
+    "SEALED_BRIEF.md": "4a460472a3ea7efb4b2df891d5f1109d66189c2c25ae12df49e89e1847edc2e1",
+    "derive.py": "2f1775aa450bcf3103f7c7fc303590d4dac76b8db84d3cbf4b6969dea9b9c55c",
+    "DERIVATION.md": "df853f1181becf888f0b5dccf50ffa3cf4b76b0e6820cc6e89c0cf0def0c0e7d",
+    "EXPECTED_RESULTS.json": "da9a142548a2660e6637aef8588295a469d2218fa0115b0e02252e073ef704e8",
+    "RETURN.md": "c334c2dd63fcc115a9ef93b4b2b8cbdafe9dc53d5317f221391a6c0994c929d2"
+  },
+  "pre_portability_returned_hashes": {
+    "SEALED_BRIEF.md": "c9c00623c7b2692d0a1edc12a983d405a4b344fc0e194fcaa131f19088e3e6b5",
+    "DERIVATION.md": "bbe59545fd28a2cc038dbecb572f3a2a85f7931e75079f472aec806ba049c6c8",
+    "RETURN.md": "1ef244c9e255dae5fec4ea698df96c117bd796d461e392a3f8727ae87a47c4a7",
+    "archive_root": "normalization/pre_portability/children/C1 (each original is stored as filename.base64; hashes apply to decoded bytes)"
+  },
+  "manager_comparison": {
+    "case": "load:L-100 pressure-free connector-excluded current-normal zero-reference static branch",
+    "corresponding_nodal_end_station_components": 198,
+    "maximum_absolute_component_difference": 3.7624658943968825e-10,
+    "current_normal_difference_N": 7.815970093361102e-14,
+    "friction_action_difference_N": 7.771561172376096e-16,
+    "branch_agreement": "one admissible NL-140-active, negative-UZ sliding branch"
+  },
+  "accepted_blockers": [
+    "C-150 physical topology/objectivity",
+    "SH-140 force-free/preload reference",
+    "incremental friction history and committed slip reference",
+    "explicit one-way allowed displacement side",
+    "engineering acceptance tolerance"
+  ]
+}

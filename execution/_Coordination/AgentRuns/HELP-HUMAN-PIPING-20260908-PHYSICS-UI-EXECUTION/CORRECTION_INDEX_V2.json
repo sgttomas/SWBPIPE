@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "status": "CURRENT_LOGICAL_TO_PHYSICAL_RESOLVER",
+  "path_basis": "WORKING_ROOT",
+  "predecessor": {
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/CORRECTION_INDEX_V1.json",
+    "sha256": "50a7173e92ddf8adc79bbe645f6504fc48bb59570e36bfd6429c1808fa73fcaa"
+  },
+  "resolution_rule": "Use V1 for C0/F4/U7/PS/CHANGE original-byte archives and first successors. For each later logical correction below, use its manifest/map for predecessor/archive resolution and its current successor hashes; never test an old manifest hash against a changed current path.",
+  "successors": [
+    {"finding":"R-01","owner":"RP","manifest":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/MANIFEST_V2.json","sha256":"5e5a5fb5607a9d1a4a94d8d348d48e25555e402f85ff3f1f0347b162c6e82b6e","correction_map":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/CORRECTION_MAP_R01.json","correction_map_sha256":"40052c37d82c9633d096a31fa4390af8c87e5d5e82f0420dd634d230daf3bfc9","writer_freeze":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/WRITER_FREEZE_R01.json","writer_freeze_sha256":"d09821a0b55ab4c921125d8153da950c5295cdd5d99072151014380c7e80e373","current_launch_brief_sha256":"a9e274403872cc9ad61500956002d50e2007459c614678040d49429956098bc0","predecessor_launch_brief_sha256":"526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"},
+    {"finding":"R-02","owner":"PS","manifest":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/R02/SUCCESSOR_MANIFEST.sha256","sha256":"fcb9da6f8904eed3f8836f5d32f4746c6e5834a9f45af4ffef979fb8f47acf3f"},
+    {"finding":"R-03","owner":"CHANGE","manifest":"execution/_Change/PHYSICS_UI_EXECUTION_20260908/RETROSPECTIVE_CHANGE_MANIFEST_V1.json","sha256":"e7ebba5c1944af6320040f8da9375b611abf829e11551927f1b0099e9afbb8bd","current_launch_brief_sha256":"ae8e6e11e5af5f846371f9c429035083e506bcd6e2290a67b8849a877ac0f306","current_status_sha256":"c53c926d6276a62650162696e3902fdd068175e04e9f4520b792be1b2bf8e2d6"},
+    {"finding":"R-04","owner":"F4","artifact":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/IMPLEMENTATION_BRIEF_V2.md","sha256":"63c0361979c20474cddaada74076705a495a60da1c2d5cb0548a10ac6fd7974c"},
+    {"finding":"PATH-M9","owner":"M9","manifest":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/PATH_ONLY_CORRECTION_MANIFEST_V2.json","sha256":"dfac8e3089a60cfe3b4d0bb6fab88c20bc338ebb4746260e1e9214fef17c8471"},
+    {"finding":"PATH-RM","owner":"RM","manifest":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/MANIFEST_V2.json","sha256":"237820f21a9a638c7d717ca22a2b0f37aefb6d467942693d8f3df3d00266c858"},
+    {"finding":"PATH-RK","owner":"RK","manifest":"execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RK/BACKCHECK_PORTABILITY_AMENDMENT_V2.json","sha256":"dd96da70f9f54b075ce00e2ac49969cd9f025cbc8cf83ade8ca5cfb352eb8670"}
+  ],
+  "authority_effect": "NONE; no source release, engineering/public adoption, dependency/DAG/lifecycle decision, human waiver or phase closure."
+}

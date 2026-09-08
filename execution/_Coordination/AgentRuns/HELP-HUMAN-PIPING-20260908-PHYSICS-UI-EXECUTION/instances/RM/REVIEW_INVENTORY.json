@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "reviewer": "RM fresh ephemeral Agent 2 independent reviewer",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "dispatch": {
+    "launch_brief_sha256": "b3a33c63a705e44204b1848dcb4acd8e91c40fe1bb81aa116ea356deba3a68fb",
+    "manifest_release_sha256": "3dcdf54a5a1471f4689f1c36e3ba892f9902d1bbaf663684d40d8a4978a5ee3e"
+  },
+  "reviewed_manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/MANIFEST.json",
+      "sha256": "02131d46d094484d425825561ef0e6b1784740e6452a9d3f40b7ac9392e732b2",
+      "declared_member_count": 18,
+      "rehashed_member_count": 18,
+      "hash_mismatch_count": 0,
+      "size_mismatch_count": 0,
+      "duplicate_path_count": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/MANIFEST.json",
+      "sha256": "2eeaddfd63cf05d116b46e031844d1b1d9c028380687facf9808ce0aebc7062b",
+      "declared_member_count": 32,
+      "rehashed_member_count": 32,
+      "hash_mismatch_count": 0,
+      "size_mismatch_count": 0,
+      "duplicate_path_count": 0
+    }
+  ],
+  "combined_manifest_member_count": 50,
+  "fixture_sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+  "expected_results_sha256": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245",
+  "archive_lineage": [
+    {"archive":"DEL/normalization/pre_portability/FREEZE_MANIFEST.json.base64","transport_sha256":"ec6bc26ecec3844910a02073eeff1fe6a11858ccf9668298d54354306d16d65f","decoded_sha256":"26cc80861475e3004f892aa64d2f74cb4923ecd8c036d2b7b94333f0c8c76cd7"},
+    {"archive":"DEL/normalization/pre_portability/INPUT_FREEZE.json.base64","transport_sha256":"9bbcb09e87084d068fe1d8147bbd754132f616ab8f151b46db8c8c97ab8f9e82","decoded_sha256":"8fbb9a74ae9f58591a16a1d8c606a16af16f824b1c3d0f60ea0f7a663c6af358"},
+    {"archive":"DEL/normalization/pre_portability/METHOD_AND_SIGNS.md.base64","transport_sha256":"70a8ba3d57fdb243621d9eb1e47ea2238cb1887edf8de85096d789a550b4789d","decoded_sha256":"63e627e2f45ede1cc4d221f375315be2cb3f5c0c144e080bfe6fc8a45f78743f"},
+    {"archive":"DEL/normalization/pre_portability/SOURCE_BASIS.md.base64","transport_sha256":"941ae3abea72d12c4b62714c5252f9d538c25ccfe760814eb1913db567cdc950","decoded_sha256":"6849d256bee1f4ec26ef63928c37449b7f59c63f78194d2c18c6307d2818c2d2"},
+    {"archive":"M9/normalization/pre_portability/SEALED_ACTIVATION.md.base64","transport_sha256":"c400e19c5947aefa1d23d82b613aa99f30de73eb554f2d6e8ec1b2c3a91645b7","decoded_sha256":"2b6ba1e41d8189e3b50af5c23ca2f0a8ef71f37e21ef99bb01127df52958aaf8"},
+    {"archive":"M9/normalization/pre_portability/WORK_GRAPH_V1.md.base64","transport_sha256":"014d4b1aa7a5e971e568c0dcbe20b590ab0b596fac7abb9b4974c7bcdb28d0c5","decoded_sha256":"4ce40b310d814929769eee58be1c0ba71ddf5f5f9621ca3545fcde9db8323288"},
+    {"archive":"M9/normalization/pre_portability/children/C1/SEALED_BRIEF.md.base64","transport_sha256":"8bba68d60090414c45eb08c186c3d1feacd1ac61ca9a4a5d3f81f429b7002356","decoded_sha256":"c9c00623c7b2692d0a1edc12a983d405a4b344fc0e194fcaa131f19088e3e6b5"},
+    {"archive":"M9/normalization/pre_portability/children/C1/DERIVATION.md.base64","transport_sha256":"d9a15abdb34513385df34e2fca8a64fb896c483a079f5a832fd790ca6760e019","decoded_sha256":"bbe59545fd28a2cc038dbecb572f3a2a85f7931e75079f472aec806ba049c6c8"},
+    {"archive":"M9/normalization/pre_portability/children/C1/RETURN.md.base64","transport_sha256":"aeedc9caa1dab3963cae2dbb84287c95a67b57beb398488f826ce867fe981f83","decoded_sha256":"1ef244c9e255dae5fec4ea698df96c117bd796d461e392a3f8727ae87a47c4a7"}
+  ],
+  "inventory_definition": "The two immutable reviewed manifests above are the exact per-member path, byte-size and SHA-256 inventories; RM independently rehashed every listed member rather than duplicating those 50 authoritative rows."
+}

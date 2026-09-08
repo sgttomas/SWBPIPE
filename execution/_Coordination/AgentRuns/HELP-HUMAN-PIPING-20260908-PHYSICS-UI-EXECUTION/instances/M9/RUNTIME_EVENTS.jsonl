@@ -1,0 +1,10 @@
+{"event":"instance_started","time":"2026-09-07T22:57:31-0600","instance":"M9","model":"gpt-5.6-sol","reasoning":"high","source_sha":"779dedb8670625b36af07b89fc5557470e47c50e"}
+{"event":"child_started","time":"2026-09-07T22:57:31-0600","child":"C1","native_task_name":"component_derivation","model":"gpt-5.6-sol","reasoning":"high"}
+{"event":"expected_result_bytes_finalized","time":"2026-09-07T23:11:36-0600","file":"EXPECTED_RESULTS_FROZEN.json","sha256":"72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245"}
+{"event":"child_returned","time":"2026-09-07T23:14:51-0600","child":"C1","status":"COMPLETE_WITH_EXPLICIT_BRANCH_BLOCKERS"}
+{"event":"freeze_manifest_written","time":"2026-09-07T23:15:34-0600","file":"FREEZE_MANIFEST.json"}
+{"event":"production_comparison_first_native_output","time":"2026-09-07T23:16:56-0600","target":"/tmp/m9-cargo-target","scheduling":"exclusive native/Rust slot deviation; release notice not yet received"}
+{"event":"frictionless_production_controls_first_native_output","time":"2026-09-07T23:24:32-0600","target":"/tmp/m9-cargo-target","scheduling":"exclusive native/Rust slot deviation; release notice not yet received"}
+{"event":"production_comparison_finalized","time":"2026-09-07T23:29:13-0600","target":"/tmp/m9-cargo-target","scope":"isolated pressure-free load:L-100; four variants; dense and sparse","scheduling":"exclusive native/Rust slot release notice received later"}
+{"event":"validation_complete","time":"2026-09-07T23:39:31-0600","status":"PASS_WITH_DISCLOSED_SCHEDULING_DEVIATION"}
+{"event":"portability_normalization_and_final_validation_complete","time":"2026-09-07T23:54:55-0600","status":"PASS","expected_result_sha256":"72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245"}

@@ -1,0 +1,49 @@
+{
+  "status": "FROZEN_CANDIDATE_REPAIR_V4",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "candidate_public_version": "0.2.0",
+  "candidate_revision": "K8-V4",
+  "lineage": {
+    "frozen_k8_v3_manifest": {"path":"instances/K8/MANIFEST_V3.json","sha256":"24d368585f1b1a7f01d79dd6201ae44fa0bfb20bc0aea72d41e5ca2c5ffcdf4c"},
+    "rk_v3_backcheck": {"path":"instances/RK/BACKCHECK_RETURN_V3.md","sha256":"50ad5912f72acfca1f06e2868a448e8b60c51d8f817b1629390fe88d6bff5aee"}
+  },
+  "resolved_finding": "RK-V3-001",
+  "preserved_closed_findings": ["RK-V2-002", "RK-V2-003"],
+  "outputs": [
+    {"path":"instances/K8/children/V4_TOTALITY/LAUNCH_BRIEF.md","sha256":"3f2be36a14c3bb9e2a34d165eae7d8ac9a98308007b19b6b4d1dbb735aa7d090"},
+    {"path":"instances/K8/children/V4_TOTALITY/STATUS.json","sha256":"512f9185771737754974a8c638bc0a9ee63c67287a3994de90e47571f2949732"},
+    {"path":"instances/K8/children/V4_TOTALITY/RETURN.md","sha256":"f1b8c69d66bc1cf8c43c5877259e049c3d3871911dc9996078d102129e4bc7d8"},
+    {"path":"instances/K8/CHILD_FAN_IN_V4.json","sha256":"8103fe754d433dd0cc94cb8ba7e25540bc62b2b8379f6c8557f0179a7f07fcf7"},
+    {"path":"instances/K8/STATUS_V4.json","sha256":"ab122400472d77d185cd339c1f17309017dd8979c55b2c926130371c66f63943"},
+    {"path":"instances/K8/WRITER_FREEZE_V4.json","sha256":"18f4f536ef853423882fc1155ad016a5fe9c551097545938b90524af0a293bfe"},
+    {"path":"instances/K8/HANDOFF_V4.md","sha256":"f1068c0dfc612f54c3117394e19fd68095b54555866c35994802a7eb6a95ec00"},
+    {"path":"instances/K8/RETURN_V4.md","sha256":"90959fc1736ac3a9c488033188e1f057e9e119d09c95df04ddfd36229c542129"},
+    {"path":"instances/K8/evidence/semantic_validator_v4.py","sha256":"1ef2e0f7730f3f2590a7e72167f1ce1f893e550e99478a0702eb62cf572f93f9"},
+    {"path":"instances/K8/evidence/adversarial_tests_v4.py","sha256":"6ced8f265facdee383700cbaafde3da744e0857a2fae0cc80a203a7fa1ee3334"},
+    {"path":"instances/K8/evidence/build_candidate_v4.py","sha256":"150c8649fabb6c2e8acae542409077e53737882dbac20e8f61700970bd80e324"},
+    {"path":"instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V4.json","sha256":"398b08671e75f850859a9ccac3b5f071b46d5d5b84f96819398fcc2a2c879252"},
+    {"path":"instances/K8/evidence/SOURCE_KIND_MAPPING_V4.csv","sha256":"4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751"},
+    {"path":"instances/K8/evidence/COVERAGE_VALIDATION_V4.json","sha256":"234f43284e0dd4961a9e19beaa717031bd6f22eca67ddc387e184aaba34c6e8c"},
+    {"path":"instances/K8/evidence/VALIDATION_V4.json","sha256":"13a3c894b788dc3e2bfd1b40588b6f5016d0e2ddfa58c78a6e6547f9a8c70d98"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_REPAIR_V4.md","sha256":"34ab9b1d29d13630d8bd61726097f51af5c056fee11cab42db99b554eca368bf"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V4.md","sha256":"668c35d48ed0e867f37551cef3a8017a7503664814a7b3bc7be819d4ce261bd4"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V4.md","sha256":"53fdf47441af045d0971890deedb8931144b93d375a3bfb8edbec24452c59a45"}
+  ],
+  "validation": {
+    "child_files": "2/2_HASH_EXACT_SCOPE_EXACT",
+    "v4_builder": "PASS",
+    "full_native_rows": 830,
+    "relation_fields": 52,
+    "json_value_classes": 6,
+    "systematic_cases": 312,
+    "writer_reader_calls": 624,
+    "uncaught_exceptions": 0,
+    "path_anchor_findings": 0,
+    "candidate_whitespace": "PASS",
+    "production_writes": false
+  },
+  "next_gate": "bounded independent RK V4 backcheck through root mediation",
+  "public_decision": "candidate K-A+K-U1 remains unselected"
+}

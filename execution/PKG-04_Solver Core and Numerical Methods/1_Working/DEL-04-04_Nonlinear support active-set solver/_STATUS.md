@@ -1,9 +1,10 @@
 # Status: DEL-04-04 Nonlinear support active-set solver
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-05
+**Last Updated:** 2026-09-08
 
 ## Remaining
+- Implement the current-iterate derived-normal `+/- mu*N` repair only after the unanswered Owner Step 1 exception and a root source amendment; diagnosis and the independently backchecked V2 implementation brief are complete, while source and post-change tests remain untouched (evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/RETURN.md`, `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/IMPLEMENTATION_BRIEF_V2.md`, and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/R/BACKCHECK_RETURN_V2.md`).
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)

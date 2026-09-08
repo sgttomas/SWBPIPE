@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "notice_id": "RP_RK_REVIEW_STATUS_20260908",
+  "observed_by": "/root/execution_recorder",
+  "reviews": [
+    {"node":"RP","identity":"/root/pressure_independent_review","model":"gpt-5.6-sol","reasoning":"high","delegation":"prohibited","status":"RUNNING","launch_brief_sha256":"526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"},
+    {"node":"RK","identity":"/root/canonical_independent_review","model":"gpt-5.6-sol","reasoning":"high","delegation":"prohibited","status":"RUNNING","launch_brief_sha256":"91e904fa19fa42c82c04b4d0dca14517c5fdc9ec8782d39e55862497cbbc7273"}
+  ],
+  "authority_limit": "Read-only independent review evidence only; no source, lifecycle, finding-acceptance, dependency, compatibility or engineering authority.",
+  "source_exception": "Owner exception for F4/UI source release remains pending and is not granted."
+}

@@ -1,0 +1,58 @@
+{
+  "status": "CANDIDATE_NOT_ADOPTED",
+  "candidate_bundle": "K-A+K-U1",
+  "public_schema_version": "0.2.0",
+  "writer": {
+    "owner": "PKG10",
+    "module": "core/runner/headless/src/result_export_api.rs",
+    "function": "export_result_document",
+    "request_type": "ResultExportRequest",
+    "required_version_field": "requested_schema_version",
+    "absence_rule": "RESULT_EXPORT_SCHEMA_VERSION_REQUIRED",
+    "write_registry": ["0.2.0"],
+    "outcome_type": "ResultExportOutcome",
+    "success_variant": "Document",
+    "refusal_variant": "Refused"
+  },
+  "reader": {
+    "owner": "PKG08",
+    "function": "validate_result_export_0_2_0",
+    "read_registry_during_migration": ["0.1.0", "0.2.0"],
+    "validation_required_before": [
+      "interpretation",
+      "governed_result_hashing",
+      "report_generation",
+      "conversion",
+      "comparison",
+      "canonical_ui_rendering"
+    ]
+  },
+  "refusal": {
+    "type": "ResultExportRefusal",
+    "fields": ["code", "requested_version", "supported_versions", "native_payload_available"],
+    "unknown_version_code": "RESULT_EXPORT_SCHEMA_VERSION_UNSUPPORTED",
+    "emits_result_document": false,
+    "native_payload_available": true
+  },
+  "report_package": {
+    "request_type": "ReportPackageRequest",
+    "required_version_field": "requested_result_schema_version",
+    "function": "assemble_wire_request",
+    "rule": "all supplied result envelopes equal the requested version and pass the registered reader before conversion or packaging"
+  },
+  "desktop": {
+    "tauri_command": "export_result_document",
+    "cache_key": ["run_id", "requested_schema_version", "native_result_envelope_hash"],
+    "result_export_panel_input": "resultExportDocument",
+    "report_builder_input": "resultExportDocument",
+    "remove_local_producers": [
+      "ResultExportPanel.buildResultExportPacket",
+      "reportPackageRequest independent resultEnvelope construction"
+    ]
+  },
+  "pressure": {
+    "pending_lossless_transport": "permitted_preserve_only",
+    "standardized_interpretation": "requires_PKG04_05_acceptance",
+    "adoption_claim": false
+  }
+}

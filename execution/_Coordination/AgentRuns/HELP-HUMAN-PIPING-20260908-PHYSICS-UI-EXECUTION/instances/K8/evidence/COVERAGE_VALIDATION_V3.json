@@ -1,0 +1,11 @@
+{
+  "status": "PASS_CANDIDATE_V3_NOT_ADOPTED",
+  "candidate_public_version": "0.2.0",
+  "candidate_revision": "K8-V3",
+  "schema_sha256": "e7f2af0188c2a193da13627560cafe91c8c922ee89554566a945213348b62f96",
+  "mapping_rows": 45,
+  "full_native_nonlinear_rows": 830,
+  "writer_reader_round_trip": "PASS",
+  "validator_totality": "TESTED_BY_ADVERSARIAL_VALIDATION_V3",
+  "pressure_rule": "PRESERVE_ONLY_TRANSPORT_ALLOWED_STANDARDIZATION_GATED"
+}

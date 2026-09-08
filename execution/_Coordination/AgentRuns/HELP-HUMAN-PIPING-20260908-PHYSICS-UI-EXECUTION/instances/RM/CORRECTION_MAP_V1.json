@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "recorded_at": "2026-09-08T00:22:24-0600",
+  "status": "PATH_ANCHOR_NORMALIZATION_ONLY",
+  "authority": "root additive path-only amendment",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "change": {
+    "path": "REVIEW.md",
+    "scope": "line 11 temporary Cargo-target wording only",
+    "before": "literal host temporary target path",
+    "after": "symbolic isolated temporary Cargo target plus reference to the M9 structural execution record PRODUCTION_COMPARISON_EXECUTION.md",
+    "math_or_technical_verdict_change": false,
+    "reviewed_subject_bytes_change": false
+  },
+  "original_review": {
+    "sha256": "3200c8f516ed9498ba31fa0eb0e3c81596a51dddde6a06a64b80a7d40d282b23",
+    "bytes": 9227,
+    "archive": "normalization/pre_path_anchor/REVIEW.md.base64",
+    "archive_transport_sha256": "a208e0d6ebd352ac6cb5d2d0058bc846f2ee403ea7571f26d78be148bbd13046",
+    "archive_transport_bytes": 12305,
+    "archive_encoding": "RFC 4648 base64 with LF-terminated transport lines",
+    "decoded_sha256_verified": true
+  },
+  "normalized_review": {
+    "sha256": "4c522ef833733e3ba9247f859eb95653f4951a0aa7fde51e349d01ea7d2b2c60",
+    "bytes": 9303,
+    "literal_temporary_path_present": false
+  },
+  "historical_manifest_lineage": {
+    "manifest": "MANIFEST.json",
+    "manifest_sha256": "c5adeed73bbd53fc4099d8f789a80959f652f687adde04356bc353fa66d8bdbb",
+    "writer_freeze": "WRITER_FREEZE.json",
+    "writer_freeze_sha256": "4f383dbcc7b7eea923ecbf0dd98d99fd623a241991395788ff71486312fe539f",
+    "logical_reconstruction": "The historical seven-member manifest remains byte-identical and valid for the original packet when the decoded archived REVIEW.md bytes are substituted for the normalized active REVIEW.md."
+  },
+  "subject_review": "The M9 18-member and DEL-09-01 32-member manifests remain the exact reviewed subject. Their bytes and RM's PASS verdict are unchanged."
+}

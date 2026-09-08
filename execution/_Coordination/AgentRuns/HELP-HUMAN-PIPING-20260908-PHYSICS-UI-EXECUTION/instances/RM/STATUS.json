@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "instance_id": "RM",
+  "role": "fresh ephemeral Agent 2 independent reviewer",
+  "parent": "/root HELP_HUMAN",
+  "status": "PASS",
+  "phase": "RETURNED_TO_HELP_HUMAN",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "reviewed_member_count": 50,
+  "actionable_finding_count": 0,
+  "upstream_scheduling_deviation": "DISCLOSED_AND_CONTAINED; governance disposition remains with HELP_HUMAN",
+  "authority_effect": "NONE"
+}

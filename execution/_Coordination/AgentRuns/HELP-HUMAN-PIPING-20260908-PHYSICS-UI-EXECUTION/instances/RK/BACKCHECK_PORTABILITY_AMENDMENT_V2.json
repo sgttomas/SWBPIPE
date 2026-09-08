@@ -1,0 +1,28 @@
+{
+  "record": "RK K8 V2 backcheck portability amendment",
+  "scope": "path-anchor portability only; substantive verdict and findings unchanged",
+  "superseded_hashes": {
+    "BACKCHECK_VALIDATION_V2.md": "6511b2b4f14ed01dd576681e5f1538612a6dcdfaf8a46f9ce0b05e2a3e75d69b",
+    "BACKCHECK_REVIEW_INVENTORY_V2.json": "2923bbac6cdf79ea6027b0a172d5564842fedb5adc5d1841b06e52c7b51e9484",
+    "BACKCHECK_STATUS_V2.json": "7c7b99bc306e15649ee62d944bd135b729a82385f3cd7a08d9dd7648707a97d9"
+  },
+  "preserved_hashes": {
+    "BACKCHECK_RELEASE_V2.md": "810523fd4093993a2cff36746602e7c252e0bbd87d55f6d2ee7671adf48bc44d",
+    "BACKCHECK_RETURN_V2.md": "59ab40141c09864d1a77ad45107adaead71bd060a03d1e74299412739c6d28de"
+  },
+  "successor_hashes": {
+    "BACKCHECK_VALIDATION_V2.md": "b49e37498b075d60810589eb2ee44066439d1bd5d3dc906b4e230aadfbb56e9a",
+    "BACKCHECK_REVIEW_INVENTORY_V2.json": "b65ebf7d0bc52f935456333497cf785554bda3969271bcd0223bd3045acb8a2e"
+  },
+  "path_validator": {
+    "command": "python tools/validation/validate_path_anchors.py .",
+    "rk_findings": 0,
+    "remaining_findings_outside_rk": 4,
+    "remaining_paths": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/HANDOFF.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/RUNTIME_SUMMARY.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/REVIEW.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/LAUNCH_BRIEF.md"
+    ]
+  }
+}

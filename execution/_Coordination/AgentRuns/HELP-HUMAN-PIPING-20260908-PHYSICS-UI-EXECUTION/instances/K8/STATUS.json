@@ -1,0 +1,9 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "status": "DESIGN_COMPLETE_OWNER_DECISION_REQUIRED",
+  "phase": "return",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "blockers": ["audit D05 Owner public compatibility selection"],
+  "production_writes": false
+}

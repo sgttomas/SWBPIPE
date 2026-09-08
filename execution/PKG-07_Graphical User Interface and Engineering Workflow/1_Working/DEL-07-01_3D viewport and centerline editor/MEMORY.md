@@ -1,5 +1,10 @@
 # MEMORY - DEL-07-01 3D Viewport and Centerline Editor
 
+## 2026-09-08 - native straight-authoring preparation closeout
+
+- U7 completed preparation only: `_run_records/PHYSICS_UI_EXECUTION_20260908/CONSUMED_INTERFACE_EVIDENCE_V1.md` freezes the current consumed interfaces and `_run_records/PHYSICS_UI_EXECUTION_20260908/IMPLEMENTATION_BRIEF_V1.md` freezes the nine-file source/test fence, input card, and interaction/acceptance plan. R's staged backcheck at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/R/BACKCHECK_RETURN_V2.md` preserves the U7 interface review and held-source boundary; it is not final tranche or native acceptance.
+- The plan reuses the landed compact tool palette and persistent Three canvas. Its new straight-route interaction, Add/Apply controls, product implementation, and isolated native acceptance witness remain unimplemented/unexecuted while the Owner Step 1 exception is unanswered and source writes are held. Lifecycle remains `IN_PROGRESS`; no dependency status or requirement changed.
+
 ## 2026-07-12 - D-41 R5 T5 PDU-008 bounded viewport behavior
 
 - Existing interaction evidence covers structured node and straight-pipe authoring, support handoff, component reference insertion, selection, and inspection through current application seams.

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-08T00:15:58-0600",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM",
+  "exclusions": ["MANIFEST.json", "WRITER_FREEZE.json"],
+  "file_count": 7,
+  "files": [
+    {"path":"LAUNCH_BRIEF.md","bytes":1648,"sha256":"b3a33c63a705e44204b1848dcb4acd8e91c40fe1bb81aa116ea356deba3a68fb","role":"sealed review brief preserved byte-for-byte"},
+    {"path":"MANIFEST_RELEASE_V1.md","bytes":608,"sha256":"3dcdf54a5a1471f4689f1c36e3ba892f9902d1bbaf663684d40d8a4978a5ee3e","role":"root additive manifest release preserved byte-for-byte"},
+    {"path":"REVIEW.md","bytes":9227,"sha256":"3200c8f516ed9498ba31fa0eb0e3c81596a51dddde6a06a64b80a7d40d282b23","role":"independent review verdict and evidence"},
+    {"path":"REVIEW_INVENTORY.json","bytes":4029,"sha256":"0ecbddacbdf5a76ded115b2864d550573689274ab101e92f2eba0319f94cc8cb","role":"released inventory and archive-lineage verification"},
+    {"path":"REVIEW_VALIDATION.json","bytes":3606,"sha256":"ad85bc39b5f128c4c6bb31d52700ccd92dccd22157b65e12223409aafd32f622","role":"machine-readable review checks"},
+    {"path":"RETURN.md","bytes":1646,"sha256":"b97bfeb6d8e6200393fd61b0e6a043859abdf7377f7c581a0e6a3341a7dbc006","role":"return to HELP_HUMAN"},
+    {"path":"STATUS.json","bytes":464,"sha256":"2231474329075404dcd88eac96df872a23ffa8d1b0d62ac9e314653577a2ea12","role":"terminal reviewer status"}
+  ]
+}

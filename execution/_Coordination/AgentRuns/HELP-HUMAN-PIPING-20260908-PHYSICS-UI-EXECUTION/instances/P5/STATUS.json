@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "P5",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-05",
+  "deliverable_id": "DEL-05-03",
+  "state": "SUCCESS",
+  "phase": "TERMINAL_FAN_IN_COMPLETE",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "actual_identity": "/root/pressure_reference",
+  "children_launched": 1,
+  "child_configuration": {
+    "id": "P5-A2-CHECK",
+    "task_identity": "/root/pressure_reference/p5_pressure_check",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "fork_turns": "none",
+    "write_scope": "NONE",
+    "delegation": "PROHIBITED"
+  },
+  "closure": "DEL-05-03 four-case investigation complete; physical adoption and compatibility choices remain Owner-gated",
+  "primary_output": "DEL-05-03/_run_records/PHYSICS_UI_EXECUTION_20260908/INVESTIGATION_REPORT.md read with SIGN_CONVENTION_CLARIFICATION_V2.md",
+  "latest_clarification": "SIGN_CONVENTION_CLARIFICATION_V2 corrects endpoint-action labels only; equations and numerical results unchanged",
+  "validation": "PASS",
+  "notes": "Manager activation persisted before derivation execution. The child received its sealed in-memory brief before execution; the durable mirror was written after child execution started and is not represented as pre-launch evidence. Production writes were prohibited and no production files were changed by P5."
+}

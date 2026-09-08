@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "F4",
+  "status": "FORMATTING_SUCCESSOR_COMPLETE",
+  "scope": "blank-EOF normalization for five named uncommitted F4 artifacts only",
+  "supersedes": {
+    "path": "INITIAL_PHASE_MANIFEST.json",
+    "sha256": "3366721434a079c00b4df6c0bba5fbd24cba2e0f005b60bf752e530c5cd391fa",
+    "original_bytes_preserved": true
+  },
+  "serialized_originals": {
+    "path": "{DELIVERABLE_RUN_RECORD}/formatting_cleanup/SERIALIZED_ORIGINALS_V1.json",
+    "sha256": "422272f82746a18e034d646042a2df38f21d3d9a986d0d222f54099e5dbd0c7b",
+    "encoding": "base64",
+    "decoded_member_hashes_verified": true,
+    "record_class": "STRUCTURAL_EXECUTION_EVIDENCE"
+  },
+  "change_mapping": "FORMATTING_CHANGE_MAPPING_V1.md",
+  "changes": [
+    {
+      "path": "{DELIVERABLE_RUN_RECORD}/CURRENT_NORMAL_EXPECTATIONS_V1.md",
+      "old_bytes": 395,
+      "old_sha256": "fb82b32ea9b79b7c41d3e9c2527ba63e506718b1d0219ac3fad13c8a0326a6d6",
+      "new_bytes": 394,
+      "new_sha256": "540bbe0c408478e3dec6140f647e82531e3a9c50110e7b9e58417ae03ee2bd02"
+    },
+    {
+      "path": "ACTIVATION.md",
+      "old_bytes": 2611,
+      "old_sha256": "19aca1a0804a5cdd7cedd51c3b3e2e91dae19ff7ee11fa7087c2e796ab532abb",
+      "new_bytes": 2610,
+      "new_sha256": "5bdcf28f0b32405eb04975a6caa816f4b6d41971a24ba9b304ce7e2957b8a866"
+    },
+    {
+      "path": "CURRENT_NORMAL_EXPECTATIONS_V1.md",
+      "old_bytes": 1722,
+      "old_sha256": "4de46610000a90b9be3166dace956535613f519416a59f394a6095c6324225ae",
+      "new_bytes": 1721,
+      "new_sha256": "cf250869bc6d531a02b8a009d1a2b864ce842d87dacc93b614e911f9c9cf69c7"
+    },
+    {
+      "path": "WORK_GRAPH_V1.json",
+      "old_bytes": 1556,
+      "old_sha256": "ee459b57655eeb99b0b9d2021a035e7a0bc0e0b45f8af0b14330760447fb9890",
+      "new_bytes": 1555,
+      "new_sha256": "23b0c29005d5585d6e7fd986cc0298467e50d76c555647a2e59871b0c968a7e3"
+    },
+    {
+      "path": "children/D1/LAUNCH_BRIEF.md",
+      "old_bytes": 2959,
+      "old_sha256": "9c8d4f45f03fe496e8f21d0dda7da4130a99dbd0eafdc64450b826a73dcbb3d1",
+      "new_bytes": 2958,
+      "new_sha256": "3510e58d5f82ad9e2c03f9e319910588f902682ca8c805ff8521898fa2baa8ab"
+    }
+  ],
+  "normalization": {
+    "removed_bytes_per_file": 1,
+    "removed_byte": "LF",
+    "terminal_state": "exactly one LF",
+    "non_eof_content_changed": false
+  },
+  "excluded_structural_evidence": {
+    "path": "{DELIVERABLE_RUN_RECORD}/diagnosis/**",
+    "classification": "STRUCTURAL_EXECUTION_EVIDENCE",
+    "exact_host_paths_permitted_as_provenance": true,
+    "modified": false
+  },
+  "source_or_product_changes": []
+}

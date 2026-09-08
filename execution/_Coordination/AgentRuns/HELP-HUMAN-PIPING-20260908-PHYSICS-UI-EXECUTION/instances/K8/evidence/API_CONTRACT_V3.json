@@ -1,0 +1,62 @@
+{
+  "status": "CANDIDATE_NOT_ADOPTED",
+  "candidate_bundle": "K-A+K-U1",
+  "wire_ingress": {
+    "function": "export_result_document_wire",
+    "input": "serde_json::Value",
+    "normalization": "normalize_result_export_wire_request",
+    "version_field": "requested_schema_version",
+    "missing_null_empty": "RESULT_EXPORT_SCHEMA_VERSION_REQUIRED",
+    "unknown": "RESULT_EXPORT_SCHEMA_VERSION_UNSUPPORTED",
+    "wrong_type": "RESULT_EXPORT_SCHEMA_INVALID"
+  },
+  "normalized_writer": {
+    "function": "export_result_document",
+    "request": "ResultExportRequest",
+    "version_type": "SupportedResultExportWriteVersion",
+    "write_versions": ["0.2.0"],
+    "validator": "validate_result_export_0_2_0"
+  },
+  "wire_outcome": {
+    "type": "ResultExportWireOutcome",
+    "serde_representation": "internally_tagged",
+    "tag": "outcome",
+    "variants": {
+      "document": ["schema_version", "document"],
+      "refused": ["refusal"]
+    },
+    "refusal_fields": ["code", "requested_version", "supported_versions", "native_payload_available"]
+  },
+  "read_registry": {
+    "owner": "PKG08",
+    "entries": [
+      {
+        "version": "0.1.0",
+        "schema": "schemas/results/0.1.0/results.schema.json",
+        "validator": "validate_result_export_0_1_0_legacy",
+        "capability": "legacy_partial_read_only_no_upgrade"
+      },
+      {
+        "version": "0.2.0",
+        "schema": "schemas/results/0.2.0/results.schema.json",
+        "validator": "validate_result_export_0_2_0",
+        "capability": "complete_lossless_route_a"
+      }
+    ]
+  },
+  "tauri": {
+    "command": "export_result_document",
+    "parameter_type": "serde_json::Value",
+    "return_type": "ResultExportWireOutcome",
+    "rule": "raw normalization precedes typed request construction"
+  },
+  "report_cli": {
+    "raw_field": "export_results",
+    "version_field": "requested_result_schema_version",
+    "pre_deserialize_function": "normalize_report_result_schema_version",
+    "cli_output_field": "result_export_outcome",
+    "refusal_exit_code": 1,
+    "rule": "version normalization precedes ReportPackageRequest deserialization; other malformed DTO fields retain HEADLESS_RUNNER_EXPORT_RESULTS_PAYLOAD_INVALID"
+  },
+  "compatibility_implication": "K-A dual-read is implemented by a bounded immutable 0.1 legacy handler plus the complete 0.2 handler; 0.1 is never treated as complete or upgraded by inference"
+}

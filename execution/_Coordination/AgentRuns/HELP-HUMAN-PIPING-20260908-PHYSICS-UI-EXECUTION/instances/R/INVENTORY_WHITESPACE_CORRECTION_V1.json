@@ -1,0 +1,17 @@
+{
+  "schema": "r-inventory-whitespace-correction-v1",
+  "path": "instances/R/REVIEWED_INVENTORY_V1.sha256",
+  "correction": "removed_one_extra_terminal_blank_line_only",
+  "historical_logical_sha256": "9f59ef28fd7267ba95f2749e1ac81ab1cd4f8f27e90a24422c82a7e30058ad89",
+  "normalized_successor_sha256": "63927c7d566217d04bd93cccdc790fb55d8463ee2f31307989e536025aec4a9c",
+  "historical_byte_count": 23246,
+  "normalized_byte_count": 23245,
+  "serialized_original": {
+    "path": "instances/R/_run_records/REVIEWED_INVENTORY_V1_ORIGINAL.json",
+    "sha256": "c5430470d7f9840c97c2653145b363a6ab5cc49318ee3f33b3af22ee539776ca",
+    "encoding": "base64"
+  },
+  "semantic_effect": "none",
+  "subject_inventory_members_changed": false,
+  "subject_inventory_rehash_required": false
+}

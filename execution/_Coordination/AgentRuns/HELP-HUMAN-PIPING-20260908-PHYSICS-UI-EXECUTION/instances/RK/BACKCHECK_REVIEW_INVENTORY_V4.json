@@ -1,0 +1,184 @@
+{
+  "review": "RK independent K8 V4 closure backcheck",
+  "verdict": "PASS",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "release": {
+    "path": "instances/RK/BACKCHECK_RELEASE_V4.md",
+    "sha256": "d8c96a2b395d9f067fdd56da193a0d1e70976547445dfccc81fb4f6083fe947b"
+  },
+  "subject_manifest": {
+    "path": "instances/K8/MANIFEST_V4.json",
+    "expected_sha256": "a285a7aee0f276919c16db28fb74926257735b9b41dd9c7cc66b554dba1a0941",
+    "actual_sha256": "a285a7aee0f276919c16db28fb74926257735b9b41dd9c7cc66b554dba1a0941"
+  },
+  "v3_manifest_sha256": "24d368585f1b1a7f01d79dd6201ae44fa0bfb20bc0aea72d41e5ca2c5ffcdf4c",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/children/V4_TOTALITY/LAUNCH_BRIEF.md",
+      "manifest_path": "instances/K8/children/V4_TOTALITY/LAUNCH_BRIEF.md",
+      "expected_sha256": "3f2be36a14c3bb9e2a34d165eae7d8ac9a98308007b19b6b4d1dbb735aa7d090",
+      "actual_sha256": "3f2be36a14c3bb9e2a34d165eae7d8ac9a98308007b19b6b4d1dbb735aa7d090",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/children/V4_TOTALITY/STATUS.json",
+      "manifest_path": "instances/K8/children/V4_TOTALITY/STATUS.json",
+      "expected_sha256": "512f9185771737754974a8c638bc0a9ee63c67287a3994de90e47571f2949732",
+      "actual_sha256": "512f9185771737754974a8c638bc0a9ee63c67287a3994de90e47571f2949732",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/children/V4_TOTALITY/RETURN.md",
+      "manifest_path": "instances/K8/children/V4_TOTALITY/RETURN.md",
+      "expected_sha256": "f1b8c69d66bc1cf8c43c5877259e049c3d3871911dc9996078d102129e4bc7d8",
+      "actual_sha256": "f1b8c69d66bc1cf8c43c5877259e049c3d3871911dc9996078d102129e4bc7d8",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/CHILD_FAN_IN_V4.json",
+      "manifest_path": "instances/K8/CHILD_FAN_IN_V4.json",
+      "expected_sha256": "8103fe754d433dd0cc94cb8ba7e25540bc62b2b8379f6c8557f0179a7f07fcf7",
+      "actual_sha256": "8103fe754d433dd0cc94cb8ba7e25540bc62b2b8379f6c8557f0179a7f07fcf7",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/STATUS_V4.json",
+      "manifest_path": "instances/K8/STATUS_V4.json",
+      "expected_sha256": "ab122400472d77d185cd339c1f17309017dd8979c55b2c926130371c66f63943",
+      "actual_sha256": "ab122400472d77d185cd339c1f17309017dd8979c55b2c926130371c66f63943",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/WRITER_FREEZE_V4.json",
+      "manifest_path": "instances/K8/WRITER_FREEZE_V4.json",
+      "expected_sha256": "18f4f536ef853423882fc1155ad016a5fe9c551097545938b90524af0a293bfe",
+      "actual_sha256": "18f4f536ef853423882fc1155ad016a5fe9c551097545938b90524af0a293bfe",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/HANDOFF_V4.md",
+      "manifest_path": "instances/K8/HANDOFF_V4.md",
+      "expected_sha256": "f1068c0dfc612f54c3117394e19fd68095b54555866c35994802a7eb6a95ec00",
+      "actual_sha256": "f1068c0dfc612f54c3117394e19fd68095b54555866c35994802a7eb6a95ec00",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/RETURN_V4.md",
+      "manifest_path": "instances/K8/RETURN_V4.md",
+      "expected_sha256": "90959fc1736ac3a9c488033188e1f057e9e119d09c95df04ddfd36229c542129",
+      "actual_sha256": "90959fc1736ac3a9c488033188e1f057e9e119d09c95df04ddfd36229c542129",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/semantic_validator_v4.py",
+      "manifest_path": "instances/K8/evidence/semantic_validator_v4.py",
+      "expected_sha256": "1ef2e0f7730f3f2590a7e72167f1ce1f893e550e99478a0702eb62cf572f93f9",
+      "actual_sha256": "1ef2e0f7730f3f2590a7e72167f1ce1f893e550e99478a0702eb62cf572f93f9",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/adversarial_tests_v4.py",
+      "manifest_path": "instances/K8/evidence/adversarial_tests_v4.py",
+      "expected_sha256": "6ced8f265facdee383700cbaafde3da744e0857a2fae0cc80a203a7fa1ee3334",
+      "actual_sha256": "6ced8f265facdee383700cbaafde3da744e0857a2fae0cc80a203a7fa1ee3334",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/build_candidate_v4.py",
+      "manifest_path": "instances/K8/evidence/build_candidate_v4.py",
+      "expected_sha256": "150c8649fabb6c2e8acae542409077e53737882dbac20e8f61700970bd80e324",
+      "actual_sha256": "150c8649fabb6c2e8acae542409077e53737882dbac20e8f61700970bd80e324",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V4.json",
+      "manifest_path": "instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V4.json",
+      "expected_sha256": "398b08671e75f850859a9ccac3b5f071b46d5d5b84f96819398fcc2a2c879252",
+      "actual_sha256": "398b08671e75f850859a9ccac3b5f071b46d5d5b84f96819398fcc2a2c879252",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/SOURCE_KIND_MAPPING_V4.csv",
+      "manifest_path": "instances/K8/evidence/SOURCE_KIND_MAPPING_V4.csv",
+      "expected_sha256": "4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751",
+      "actual_sha256": "4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/COVERAGE_VALIDATION_V4.json",
+      "manifest_path": "instances/K8/evidence/COVERAGE_VALIDATION_V4.json",
+      "expected_sha256": "234f43284e0dd4961a9e19beaa717031bd6f22eca67ddc387e184aaba34c6e8c",
+      "actual_sha256": "234f43284e0dd4961a9e19beaa717031bd6f22eca67ddc387e184aaba34c6e8c",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/VALIDATION_V4.json",
+      "manifest_path": "instances/K8/evidence/VALIDATION_V4.json",
+      "expected_sha256": "13a3c894b788dc3e2bfd1b40588b6f5016d0e2ddfa58c78a6e6547f9a8c70d98",
+      "actual_sha256": "13a3c894b788dc3e2bfd1b40588b6f5016d0e2ddfa58c78a6e6547f9a8c70d98",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_REPAIR_V4.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_REPAIR_V4.md",
+      "expected_sha256": "34ab9b1d29d13630d8bd61726097f51af5c056fee11cab42db99b554eca368bf",
+      "actual_sha256": "34ab9b1d29d13630d8bd61726097f51af5c056fee11cab42db99b554eca368bf",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V4.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V4.md",
+      "expected_sha256": "668c35d48ed0e867f37551cef3a8017a7503664814a7b3bc7be819d4ce261bd4",
+      "actual_sha256": "668c35d48ed0e867f37551cef3a8017a7503664814a7b3bc7be819d4ce261bd4",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V4.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V4.md",
+      "expected_sha256": "53fdf47441af045d0971890deedb8931144b93d375a3bfb8edbec24452c59a45",
+      "actual_sha256": "53fdf47441af045d0971890deedb8931144b93d375a3bfb8edbec24452c59a45",
+      "match": true,
+      "read": true
+    }
+  ],
+  "all_18_match": true,
+  "isolated_reproduction": {
+    "temporary_directory": "{TASK_TEMP}/rk-k8v4-backcheck",
+    "build_candidate_v4": "PASS",
+    "adversarial_tests_v4": "PASS",
+    "adversarial_tests_v3_regression": "PASS",
+    "regenerated_outputs_byte_match": true
+  },
+  "closure": {
+    "RK-V3-001": "CLOSED",
+    "RK-V2-002": "REMAINS_CLOSED",
+    "RK-V2-003": "REMAINS_CLOSED"
+  },
+  "findings": [],
+  "limits": [
+    "V4 successor scope only",
+    "no Cargo",
+    "no full harness",
+    "no product or native build",
+    "no source or author writes",
+    "candidate design only",
+    "no public or physics adoption"
+  ]
+}

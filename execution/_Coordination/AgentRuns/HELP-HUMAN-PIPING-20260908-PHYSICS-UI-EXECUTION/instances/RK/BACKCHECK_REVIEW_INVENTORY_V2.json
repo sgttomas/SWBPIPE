@@ -1,0 +1,153 @@
+{
+  "review": "RK independent K8 V2 successor backcheck",
+  "verdict": "CHANGES_REQUIRED",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "release": {
+    "path": "instances/RK/BACKCHECK_RELEASE_V2.md",
+    "sha256": "810523fd4093993a2cff36746602e7c252e0bbd87d55f6d2ee7671adf48bc44d"
+  },
+  "subject_manifest": {
+    "path": "instances/K8/MANIFEST_V2.json",
+    "expected_sha256": "ee4fcf91cf7eb818b2f85403c4819322df24d6070c94f62b7aeaee70e875725a",
+    "actual_sha256": "ee4fcf91cf7eb818b2f85403c4819322df24d6070c94f62b7aeaee70e875725a"
+  },
+  "v1_manifest_unchanged_sha256": "a6ad4f8ab2881801a2ebabb483e5c22e4cafaa029e07cc398bf420013b576a65",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/STATUS_V2.json",
+      "manifest_path": "instances/K8/STATUS_V2.json",
+      "expected_sha256": "3764c4ad9ee428f367cb014956cfaad85b47594bf9dc595c11fcc23e9a69f571",
+      "actual_sha256": "3764c4ad9ee428f367cb014956cfaad85b47594bf9dc595c11fcc23e9a69f571",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/HANDOFF_V2.md",
+      "manifest_path": "instances/K8/HANDOFF_V2.md",
+      "expected_sha256": "c72eeaa33c8cf95125fd460313d44a9ac3cf9a52ff4e454f607e1a5cde8331a8",
+      "actual_sha256": "c72eeaa33c8cf95125fd460313d44a9ac3cf9a52ff4e454f607e1a5cde8331a8",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/RETURN_V2.md",
+      "manifest_path": "instances/K8/RETURN_V2.md",
+      "expected_sha256": "cc0cd260f8d106ea4f641762524da84de174f24ede0fd83b87d3a36e362a8e61",
+      "actual_sha256": "cc0cd260f8d106ea4f641762524da84de174f24ede0fd83b87d3a36e362a8e61",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/build_candidate_v2.py",
+      "manifest_path": "instances/K8/evidence/build_candidate_v2.py",
+      "expected_sha256": "4b5169e0cc4009ce67ea0c63fc1a03eb3b720703c4e751018ce10afbf6df8e2f",
+      "actual_sha256": "4b5169e0cc4009ce67ea0c63fc1a03eb3b720703c4e751018ce10afbf6df8e2f",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/semantic_validator_v2.py",
+      "manifest_path": "instances/K8/evidence/semantic_validator_v2.py",
+      "expected_sha256": "e540b0b935535e983759621779a0e509fc0487800bcf4126544195773d96c144",
+      "actual_sha256": "e540b0b935535e983759621779a0e509fc0487800bcf4126544195773d96c144",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/adversarial_tests_v2.py",
+      "manifest_path": "instances/K8/evidence/adversarial_tests_v2.py",
+      "expected_sha256": "7060a7fa9740e0b8833fbc6cfb5f808146a988f783f6ec350884b63f444faf9a",
+      "actual_sha256": "7060a7fa9740e0b8833fbc6cfb5f808146a988f783f6ec350884b63f444faf9a",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V2.json",
+      "manifest_path": "instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V2.json",
+      "expected_sha256": "fd7f8202b7b04b18cf457c8c07724fa92c51dae2138222055f1ee22b385b9e32",
+      "actual_sha256": "fd7f8202b7b04b18cf457c8c07724fa92c51dae2138222055f1ee22b385b9e32",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/SOURCE_KIND_MAPPING_V2.csv",
+      "manifest_path": "instances/K8/evidence/SOURCE_KIND_MAPPING_V2.csv",
+      "expected_sha256": "4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751",
+      "actual_sha256": "4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/COVERAGE_VALIDATION_V2.json",
+      "manifest_path": "instances/K8/evidence/COVERAGE_VALIDATION_V2.json",
+      "expected_sha256": "c47c8e4b74d6a0966bdf56df43f1e75930c4378aa326d98d6ab1aa957af903e5",
+      "actual_sha256": "c47c8e4b74d6a0966bdf56df43f1e75930c4378aa326d98d6ab1aa957af903e5",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/ADVERSARIAL_VALIDATION_V2.json",
+      "manifest_path": "instances/K8/evidence/ADVERSARIAL_VALIDATION_V2.json",
+      "expected_sha256": "223ac364b8448365d8194f53616676501e0b3d68a3337b9c72fef7f5a4e3b473",
+      "actual_sha256": "223ac364b8448365d8194f53616676501e0b3d68a3337b9c72fef7f5a4e3b473",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/K8/evidence/API_CONTRACT_V2.json",
+      "manifest_path": "instances/K8/evidence/API_CONTRACT_V2.json",
+      "expected_sha256": "6b13c73f767946d86ac7455e7b4523d3977cc8a549c9b301a2ecea0081cb5988",
+      "actual_sha256": "6b13c73f767946d86ac7455e7b4523d3977cc8a549c9b301a2ecea0081cb5988",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_DESIGN_V2.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_DESIGN_V2.md",
+      "expected_sha256": "47405ff938c3dc6bdf4275b6f945155fc8b3abf2eeace177820710250a5d35b6",
+      "actual_sha256": "47405ff938c3dc6bdf4275b6f945155fc8b3abf2eeace177820710250a5d35b6",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V2.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V2.md",
+      "expected_sha256": "6ad26f9a7db6083d3e38a77165f05e6d7559162f22111abab11364b3fd72d595",
+      "actual_sha256": "6ad26f9a7db6083d3e38a77165f05e6d7559162f22111abab11364b3fd72d595",
+      "match": true,
+      "read": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V2.md",
+      "manifest_path": "../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V2.md",
+      "expected_sha256": "78a35cec0a41edb48b493e38c6079cd3c52d2f2ed85c0958c3b9f1f9be6d4e5c",
+      "actual_sha256": "78a35cec0a41edb48b493e38c6079cd3c52d2f2ed85c0958c3b9f1f9be6d4e5c",
+      "match": true,
+      "read": true
+    }
+  ],
+  "all_14_match": true,
+  "isolated_reproduction": {
+    "temporary_directory": "{TASK_TEMP}/rk-k8v2-backcheck",
+    "build_candidate_v2": "PASS",
+    "adversarial_tests_v2": "PASS",
+    "regenerated_outputs_byte_match": true
+  },
+  "closure": {
+    "RK-001": "REOPENED_BY_RK-V2-001_AFTER_SUBSTANTIAL_PARTIAL_CLOSURE",
+    "RK-002": "OPEN_RK-V2-002",
+    "RK-003": "CLOSED"
+  },
+  "findings": [
+    "RK-V2-001",
+    "RK-V2-002"
+  ],
+  "limits": [
+    "no full harness",
+    "no product tests",
+    "no Cargo or native build",
+    "no source edits",
+    "candidate design only",
+    "no physical approval"
+  ]
+}

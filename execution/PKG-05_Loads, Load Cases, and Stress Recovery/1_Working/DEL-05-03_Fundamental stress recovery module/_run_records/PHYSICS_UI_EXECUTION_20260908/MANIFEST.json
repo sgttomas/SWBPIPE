@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "P5",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "artifact_class": "derivative_candidate_investigation",
+  "reading_order": ["INVESTIGATION_REPORT.md", "SIGN_CONVENTION_CLARIFICATION_V2.md"],
+  "files": [
+    {"path":"INVESTIGATION_REPORT.md","bytes":16494,"sha256":"736b82572f887cfc367db579d66e5d55d2d3a3d618662b6a17a6c91966c831af"},
+    {"path":"REFERENCE_RESULTS.json","bytes":3606,"sha256":"012a2d6290036c8fa229c312624d7ac255709ab53fda2654720ada07d88032fb"},
+    {"path":"SOURCES.json","bytes":5149,"sha256":"0d87c978d3f492f9576c0fb6e97484520fd69fedafbcf6cb95bca0e6e8db5b64"},
+    {"path":"calculate_reference.py","bytes":7342,"sha256":"55e96a889a1998770088855c39afa22d40a9bec814728b2c904694e8f7c128a0"},
+    {"path":"VALIDATION.json","bytes":2505,"sha256":"75bedae8359a63d52b2e42f06b6fcb314470f112fe45bbb7857c228d9d78fd45"},
+    {"path":"HANDOFF.md","bytes":1852,"sha256":"78dcd353c4eaf4f6a5307bd3766d318841c40594be3d190d90e8f47357307905"},
+    {"path":"SIGN_CONVENTION_CLARIFICATION_V2.md","bytes":2960,"sha256":"6cffcf8b74bf45526014b3f0a3e797268195c6f31a9035ac68a94b36b3d46bd0"}
+  ],
+  "lineage": "SIGN_CONVENTION_CLARIFICATION_V2.md preserves the frozen report at its listed hash and supersedes endpoint-action labels only."
+}

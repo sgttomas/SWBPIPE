@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "RP",
+  "repair_id": "R-01",
+  "state": "WRITER_FROZEN",
+  "writer": "/root/pressure_independent_review",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "write_scope": "{RUN_ROOT}/instances/RP/**",
+  "artifacts": [
+    {"path":"LAUNCH_BRIEF.md","bytes":3417,"sha256":"a9e274403872cc9ad61500956002d50e2007459c614678040d49429956098bc0","role":"active portable successor"},
+    {"path":"_run_records/R-01_PORTABILITY_REPAIR_20260908/ORIGINAL_LAUNCH_BRIEF.base64.json","bytes":4803,"sha256":"42102c7d78502552dc19acd0ae764114b68e7478fdfa1e822749dd0a2b9d2655","role":"exact original-byte archive"},
+    {"path":"CORRECTION_MAP_R01.json","bytes":2688,"sha256":"40052c37d82c9633d096a31fa4390af8c87e5d5e82f0420dd634d230daf3bfc9","role":"predecessor logical-member resolver"},
+    {"path":"R01_RETURN.md","bytes":1806,"sha256":"d7fde933e2f7293a889dc09690422eac0ed4cc73c110019279c638412650babb","role":"repair return"},
+    {"path":"MANIFEST_V2.json","bytes":3182,"sha256":"5e5a5fb5607a9d1a4a94d8d348d48e25555e402f85ff3f1f0347b162c6e82b6e","role":"successor manifest"}
+  ],
+  "preserved": [
+    {"path":"MANIFEST.json","sha256":"89d474de34d00c82676675865b746945866f346efdda04592b056260892deb7c"},
+    {"path":"INVESTIGATION_REPORT.md","sha256":"746b0def10e7ac42dd6598cdeb9e39f188bb91e474f3e615450301bd0c58fa4b"},
+    {"path":"RETURN.md","sha256":"939c28a8657cf3fa84a138be592366a6e6c617a2ca62f3a70644dc91b19f1d57"},
+    {"path":"REVIEWED_INVENTORY.sha256","sha256":"6676c17a5b8cea47e09a1bcedd13261f5ad9fa45ac608c117aa966c048c5579d"}
+  ],
+  "validation": {
+    "archive_decode_hash_and_byte_compare": "PASS",
+    "successor_manifest_member_validation": "PASS",
+    "active_machine_path_scan": "PASS",
+    "active_portable_anchor_scan": "PASS",
+    "timing_and_wrong_lane_disclosure_exactly_preserved": true,
+    "physics_report_or_return_rewritten": false,
+    "math_rerun": false,
+    "subject_source_or_test_write": false,
+    "harness_cargo_or_native_build": false
+  },
+  "closure": "R-01 own-control portability repair complete; no further RP writer action authorized or required."
+}

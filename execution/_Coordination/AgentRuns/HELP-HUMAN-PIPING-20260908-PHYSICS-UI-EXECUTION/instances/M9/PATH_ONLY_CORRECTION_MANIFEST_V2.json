@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "status": "SUCCESSOR_PATH_ONLY_NORMALIZATION_AFTER_WRITER_FREEZE",
+  "created_at": "2026-09-08T00:22:37-0600",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "scope": "exactly two current portable control paths; no mechanics, evidence, expected-result, production-output, source, Cargo, status, or DAG change",
+  "predecessor_controls": {
+    "MANIFEST.json": {
+      "sha256": "02131d46d094484d425825561ef0e6b1784740e6452a9d3f40b7ac9392e732b2",
+      "disposition": "byte-identical and retained"
+    },
+    "WRITER_FREEZE.json": {
+      "sha256": "393d8f506c785f035ec4609cce9f4cf32c9021c323564ab50bc64d451e2e95bf",
+      "disposition": "byte-identical and retained"
+    },
+    "logical_resolution": "For the two corrected logical paths only, predecessor MANIFEST.json resolves to the decoded archived bytes named below. Every other predecessor manifest row resolves unchanged."
+  },
+  "corrections": [
+    {
+      "path": "HANDOFF.md",
+      "replacement": "prior host-literal native build target -> {TASK_TEMP}/m9-cargo-target; raw host resolution delegated to the unchanged DEL PRODUCTION_COMPARISON_EXECUTION.md",
+      "before_sha256": "02e9fc9f709b704799f87b4e4915d234e2ac87210ace0c42f18e0162c7488284",
+      "before_bytes": 3273,
+      "serialized_original": "normalization/post_writer_freeze_path_only_20260908/HANDOFF.md.base64",
+      "serialized_transport_sha256": "aa12014740e8514b164212e7ab69c7cbbba07e7e31f2abf4f412addb2d3d1925",
+      "archive_encoding": "RFC 4648 base64; before hash applies to decoded bytes",
+      "after_sha256": "1f8b92dcd9376deef617601fa9da032648bc8fe2dde8b1ab704be4373ed1e4a3",
+      "after_bytes": 3319
+    },
+    {
+      "path": "RUNTIME_SUMMARY.json",
+      "replacement": "native_build_target prior host literal -> {TASK_TEMP}/m9-cargo-target plus structural raw-provenance reference",
+      "before_sha256": "c25c0640f1cb997dcee48a15aa31a1e7e9ecba3299bb8aeddc92ae7ae550e6dd",
+      "before_bytes": 762,
+      "serialized_original": "normalization/post_writer_freeze_path_only_20260908/RUNTIME_SUMMARY.json.base64",
+      "serialized_transport_sha256": "4ea96fc5db7630f6ef011645800b6a777445ae0fe4a87e89dfbda60f93181c24",
+      "archive_encoding": "RFC 4648 base64; before hash applies to decoded bytes",
+      "after_sha256": "dd1341ef0dad4f50c7898745101ca0e594f124fb330f52e8196fc8f0b770a80f",
+      "after_bytes": 848
+    }
+  ],
+  "unchanged_reference": {
+    "expected_result_sha256": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245",
+    "DEL_PRODUCTION_COMPARISON_EXECUTION.md": "unchanged raw path authority",
+    "reference_math_and_evidence": "unchanged"
+  }
+}

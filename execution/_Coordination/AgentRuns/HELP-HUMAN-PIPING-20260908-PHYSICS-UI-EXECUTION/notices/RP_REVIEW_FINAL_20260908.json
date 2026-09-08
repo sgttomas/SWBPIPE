@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "notice_id": "RP_REVIEW_FINAL_20260908",
+  "node": "RP",
+  "identity": "/root/pressure_independent_review",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "status": "COMPLETED",
+  "verdict": "PASS",
+  "manifest_sha256": "89d474de34d00c82676675865b746945866f346efdda04592b056260892deb7c",
+  "root_backcheck": "All four reviewer outputs and 17 subject-inventory members independently rehashed PASS.",
+  "accepted_scope": "Independent review PASS for the P5 packet plus controlling sign clarification only; no physics, schema, compatibility, lifecycle or engineering adoption.",
+  "procedural_deviation": "The correct-lane launch mirror was retrospective after a promptly cleaned wrong-lane two-file attempt; no persistent sibling change remained. Full durable-prelaunch conformance is not claimed.",
+  "rk_status_at_notice": "RUNNING",
+  "source_exception": "Owner exception for F4/UI source release remains pending and is not granted."
+}

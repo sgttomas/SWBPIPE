@@ -1,0 +1,28 @@
+{
+  "status": "PASS",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "commands": {
+    "v2_regression": "PASS",
+    "v3_candidate_build": "PASS",
+    "v3_adversarial_totality_and_ingress": "PASS",
+    "path_anchor_validator": {
+      "checked_files": 3946,
+      "findings": 0,
+      "unacknowledged_control": 0,
+      "active_unclassified": 0,
+      "policy_issues": 0
+    },
+    "candidate_whitespace": "PASS"
+  },
+  "v3": {
+    "full_native_rows": 830,
+    "exact_source_records": "830/830",
+    "top_level_malformed_shapes_writer_reader": 5,
+    "nested_malformed_shapes_writer_reader": 9,
+    "wire_boundary_version_case_results": 15,
+    "uncaught_exceptions": 0,
+    "legacy_read_handler_bound": "validate_result_export_0_1_0_legacy",
+    "current_read_handler_bound": "validate_result_export_0_2_0"
+  },
+  "production_writes": false
+}

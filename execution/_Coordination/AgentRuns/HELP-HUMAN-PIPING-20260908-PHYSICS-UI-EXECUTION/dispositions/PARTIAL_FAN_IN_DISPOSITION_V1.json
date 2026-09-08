@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "disposition_id": "PARTIAL_FAN_IN_DISPOSITION_V1",
+  "status": "ACTIVE_PARTIAL_FAN_IN",
+  "recorded_by": "/root/execution_recorder",
+  "review_launches": [
+    {"node":"RM","identity":"/root/mixed_independent_review","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none","delegation":"prohibited"},
+    {"node":"R","identity":"/root/integration_independent_review","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none","delegation":"prohibited"}
+  ],
+  "root_dispositions": {
+    "P5": "Technical independent evidence accepted for candidate use only; RP physics PASS remains unchanged. No physics, schema, compatibility or engineering adoption.",
+    "M9": "Technical independent evidence accepted for candidate use only. The compile-slot violation remains a procedural nonconformance with no retroactive permission. RM validated source/private-target containment and oracle independence, so no evidence rerun is required solely for timing.",
+    "RM": "Root reviewed the report and previously rehashed all 50 subject members. Root verification of the corrected RM V2 manifest remains pending; no completion is inferred.",
+    "R": "CHANGES_REQUIRED with four repairs routed. F4 IMPLEMENTATION_BRIEF_V2 and PS R-02 successor are awaiting R backcheck; R closure is not asserted.",
+    "RK": "K8 direct messaging to an idle RK and root-only release/execution of the RK backcheck remain disclosed. RK V2 backcheck is CHANGES_REQUIRED; no pending V3 result is represented as complete.",
+    "procedural_disclosures": "P5/RP retrospective launch-brief limitations remain disclosed. No pristine-governance claim or human-acceptance waiver is made."
+  },
+  "correction_index": {"path":"../CORRECTION_INDEX_V2.json","status":"CURRENT","sha256":"8472be2b71f0f35440f59796e9a0e81084b80cbfcb4f00c62fa17c3f2992c02f"},
+  "source_authority": "F4/U7 source writes remain HELD; the Owner exception remains unanswered and ungranted.",
+  "closure": "OPEN; do not append a receipt or claim phase closure."
+}

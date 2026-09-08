@@ -1,0 +1,103 @@
+{
+  "exclusions": [
+    "MANIFEST.json",
+    "WRITER_FREEZE.json"
+  ],
+  "file_count": 18,
+  "files": [
+    {
+      "bytes": 2356,
+      "path": "CHILD_ACCEPTANCE.json",
+      "sha256": "3b8887993f4a1388aa59f209e0162afa87511863f37778eae5418b57d5113709"
+    },
+    {
+      "bytes": 3273,
+      "path": "HANDOFF.md",
+      "sha256": "02e9fc9f709b704799f87b4e4915d234e2ac87210ace0c42f18e0162c7488284"
+    },
+    {
+      "bytes": 1790,
+      "path": "RETURN.md",
+      "sha256": "36ed92b2711a567f81882ccfa0fa20a423f1f0e959bc7c50911c6a738cf55f6b"
+    },
+    {
+      "bytes": 1756,
+      "path": "RUNTIME_EVENTS.jsonl",
+      "sha256": "9a97ca73b4052309f1dc8e19484683fd52764b25a72fc03406db2292a97816e5"
+    },
+    {
+      "bytes": 762,
+      "path": "RUNTIME_SUMMARY.json",
+      "sha256": "c25c0640f1cb997dcee48a15aa31a1e7e9ecba3299bb8aeddc92ae7ae550e6dd"
+    },
+    {
+      "bytes": 5229,
+      "path": "SEALED_ACTIVATION.md",
+      "sha256": "577431f8ca2d2521d322b0db93ffa65bb1b2e8aaffdc4c548ace767676b6c416"
+    },
+    {
+      "bytes": 984,
+      "path": "STATUS.json",
+      "sha256": "157ee8fe7575d6a6fa3550e304bbf8b01880dc2fb615c857c03754616fe41184"
+    },
+    {
+      "bytes": 1263,
+      "path": "WORK_GRAPH_V1.md",
+      "sha256": "30c08355d4ca8d6e6ebe4df0c0780504fe68e18f89839c67c87a3bc28129ba56"
+    },
+    {
+      "bytes": 12117,
+      "path": "children/C1/DERIVATION.md",
+      "sha256": "df853f1181becf888f0b5dccf50ffa3cf4b76b0e6820cc6e89c0cf0def0c0e7d"
+    },
+    {
+      "bytes": 380411,
+      "path": "children/C1/EXPECTED_RESULTS.json",
+      "sha256": "da9a142548a2660e6637aef8588295a469d2218fa0115b0e02252e073ef704e8"
+    },
+    {
+      "bytes": 7427,
+      "path": "children/C1/RETURN.md",
+      "sha256": "c334c2dd63fcc115a9ef93b4b2b8cbdafe9dc53d5317f221391a6c0994c929d2"
+    },
+    {
+      "bytes": 2885,
+      "path": "children/C1/SEALED_BRIEF.md",
+      "sha256": "4a460472a3ea7efb4b2df891d5f1109d66189c2c25ae12df49e89e1847edc2e1"
+    },
+    {
+      "bytes": 22843,
+      "path": "children/C1/derive.py",
+      "sha256": "2f1775aa450bcf3103f7c7fc303590d4dac76b8db84d3cbf4b6969dea9b9c55c"
+    },
+    {
+      "bytes": 7093,
+      "path": "normalization/pre_portability/SEALED_ACTIVATION.md.base64",
+      "sha256": "c400e19c5947aefa1d23d82b613aa99f30de73eb554f2d6e8ec1b2c3a91645b7"
+    },
+    {
+      "bytes": 1711,
+      "path": "normalization/pre_portability/WORK_GRAPH_V1.md.base64",
+      "sha256": "014d4b1aa7a5e971e568c0dcbe20b590ab0b596fac7abb9b4974c7bcdb28d0c5"
+    },
+    {
+      "bytes": 16377,
+      "path": "normalization/pre_portability/children/C1/DERIVATION.md.base64",
+      "sha256": "d9a15abdb34513385df34e2fca8a64fb896c483a079f5a832fd790ca6760e019"
+    },
+    {
+      "bytes": 10047,
+      "path": "normalization/pre_portability/children/C1/RETURN.md.base64",
+      "sha256": "aeedc9caa1dab3963cae2dbb84287c95a67b57beb398488f826ce867fe981f83"
+    },
+    {
+      "bytes": 3915,
+      "path": "normalization/pre_portability/children/C1/SEALED_BRIEF.md.base64",
+      "sha256": "8bba68d60090414c45eb08c186c3d1feacd1ac61ca9a4a5d3f81f429b7002356"
+    }
+  ],
+  "generated_at": "2026-09-07T23:54:55-0600",
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9",
+  "schema_version": "1.0",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e"
+}

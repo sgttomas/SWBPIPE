@@ -1,0 +1,4 @@
+path	bytes	sha256
+projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/Cargo.lock	1538	ac1abea2355eafb839ee15c8dbde2cb500710b66217106c9b036b59d54461cd4
+projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/Cargo.toml	377	326677deba0692d4eb2bebbb4c4bd009c805fc0a742197798a072afaf4924558
+projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/src/main.rs	3208	dd1ba87ada7a0193e892e900b3bfbc93f1110febda769d099693d38f74260ef7

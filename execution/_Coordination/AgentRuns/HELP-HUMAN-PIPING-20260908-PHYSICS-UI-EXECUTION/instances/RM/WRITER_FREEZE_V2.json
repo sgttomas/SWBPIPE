@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "writer": "RM fresh ephemeral Agent 2 independent reviewer",
+  "frozen_at": "2026-09-08T00:23:51-0600",
+  "status": "PATH_ANCHOR_CORRECTION_WRITES_COMPLETE_RETURN_TO_HELP_HUMAN",
+  "verdict": "PASS_UNCHANGED",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/MANIFEST_V2.json",
+    "sha256": "237820f21a9a638c7d717ca22a2b0f37aefb6d467942693d8f3df3d00266c858",
+    "file_count": 11
+  },
+  "predecessor_manifest_sha256": "c5adeed73bbd53fc4099d8f789a80959f652f687adde04356bc353fa66d8bdbb",
+  "original_review_decoded_sha256": "3200c8f516ed9498ba31fa0eb0e3c81596a51dddde6a06a64b80a7d40d282b23",
+  "normalized_review_sha256": "4c522ef833733e3ba9247f859eb95653f4951a0aa7fde51e349d01ea7d2b2c60",
+  "technical_verdict_change": false,
+  "reviewed_subject_change": false,
+  "further_rm_writes_authorized": false
+}

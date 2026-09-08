@@ -1,0 +1,3114 @@
+{
+  "calculation_basis": {
+    "common_included": [
+      "four straight Euler-Bernoulli pipe members",
+      "SH-140 UZ ground spring",
+      "P-120 full uniform global-Z load",
+      "N-140 global-Y nodal force",
+      "P-120 uniform thermal strain",
+      "S-100/S-120/S-130 rigid restraints",
+      "NL-140 unilateral UY",
+      "NL-130-FRIC UZ current-normal Coulomb branch"
+    ],
+    "excluded_from_both": [
+      "pressure loads and pressure thrust",
+      "constant-effort metadata with no solve consumption",
+      "rule checks",
+      "large displacement",
+      "load-step/cyclic friction history"
+    ],
+    "expansion_joint_local_stiffness_order_UX_UY_UZ_RX_RY_RZ": [
+      3200000.0,
+      900000.0,
+      900000.0,
+      620000.0,
+      480000.0,
+      480000.0
+    ],
+    "fixture": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+    "fixture_sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "literal_adapter_case": "adds the exact C-150 authored local relative stiffness in parallel with P-130; retained only as an algebraic adapter mapping diagnostic, not a physically balanced whole-frame oracle",
+    "load_case": "load:L-100",
+    "material": {
+      "E_Pa": 200000000000.0,
+      "G_Pa": 77000000000.0,
+      "alpha_per_K": 1.2e-05
+    },
+    "physical_frame_case": "excludes C-150 relative stiffness because its unresolved finite-end formulation produces an unbalanced global moment; this case establishes the objective frame/support/load reference without deciding audit D02",
+    "pressure_primitive_loads_omitted": [
+      "load:L-100-P",
+      "load:L-100-P-EJ"
+    ],
+    "unit_scope": "explicit fixture-local SI only; no project-wide canonical conversion acceptance",
+    "units": {
+      "force": "N",
+      "length": "m",
+      "moment": "N*m",
+      "rotation": "rad",
+      "stress_or_modulus": "Pa"
+    }
+  },
+  "controls": {
+    "distributed_load": {
+      "expected": {
+        "root_reaction_mz_N_m": 200.0,
+        "root_reaction_y_N": 200.0,
+        "tip_y_m": -9.999999999999999e-05
+      },
+      "identities": [
+        "v(L)=qL^4/(8EI)",
+        "Ry=-qL",
+        "Mz=-qL^2/2"
+      ],
+      "input": {
+        "E_Pa": 200000000000.0,
+        "I_m4": 1e-05,
+        "L_m": 2.0,
+        "q_y_N_per_m": -100.0
+      }
+    },
+    "frictionless_unilateral_contact": {
+      "complementarity": {
+        "gap_definition": "g=-u >= 0",
+        "lambda_definition": "lambda=-R >= 0",
+        "lambda_times_g": 0.0
+      },
+      "expected_active_branch": {
+        "displacement_m": 0.0,
+        "lambda_N": 10.0,
+        "reaction_N": -10.0
+      },
+      "input": {
+        "active_when": "negative_reaction",
+        "force_N": 10.0,
+        "k_N_per_m": 100.0
+      }
+    },
+    "order": [
+      "distributed_load",
+      "retained_spring",
+      "frictionless_unilateral_contact"
+    ],
+    "retained_spring": {
+      "expected": {
+        "displacement_m": 0.008333333333333333,
+        "spring_action_N": -350.0
+      },
+      "input": {
+        "force_N": 350.0,
+        "k_N_per_m": 42000.0
+      }
+    }
+  },
+  "interpretation_forks": {
+    "direction_at_zero": "OPEN only if a nonzero prior slip/reference is asserted; zero-reference static branch determines direction from returned displacement",
+    "incremental_history": "OPEN: fixture has an initial state but no ordered load increments, committed slip/reference state, rollback rule, or prior converged load-step history",
+    "pressure": "omitted by the selected pressure-free case; P5 owns pressure matrix",
+    "zero_reference_static": "calculated branch; current-return normal and friction action solved simultaneously"
+  },
+  "literal_adapter_mapping_diagnostic": {
+    "applicability": "algebraic fixture-to-adapter mapping only; nonzero external moment-balance residual is the independently exposed D02 connector-formulation limitation",
+    "branch_inventory": [
+      {
+        "contact_R_N": 0.0,
+        "contact_active": false,
+        "contact_u_m": 0.00032296310303330455,
+        "friction_R_N": 0.0,
+        "friction_state": "none",
+        "friction_u_m": -0.003834554694539834,
+        "mu_abs_normal_N": 3.4999999999999996,
+        "normal_R_N": -349.99999999999994,
+        "overall_admissible": false,
+        "slip_sign": null
+      },
+      {
+        "contact_R_N": 0.0,
+        "contact_active": false,
+        "contact_u_m": 0.00035880354706583565,
+        "friction_R_N": 453.4351772737265,
+        "friction_state": "stick",
+        "friction_u_m": 0.0,
+        "mu_abs_normal_N": 3.4999999999999996,
+        "normal_R_N": -349.99999999999994,
+        "overall_admissible": false,
+        "slip_sign": null
+      },
+      {
+        "contact_R_N": 0.0,
+        "contact_active": false,
+        "contact_u_m": 0.0003232397501934743,
+        "friction_R_N": 3.4999999999999996,
+        "friction_state": "slip",
+        "friction_u_m": -0.0038049563261212597,
+        "mu_abs_normal_N": 3.4999999999999996,
+        "normal_R_N": -349.99999999999994,
+        "overall_admissible": false,
+        "slip_sign": -1
+      },
+      {
+        "contact_R_N": 0.0,
+        "contact_active": false,
+        "contact_u_m": 0.0003226864558731348,
+        "friction_R_N": -3.4999999999999996,
+        "friction_state": "slip",
+        "friction_u_m": -0.003864153062958409,
+        "mu_abs_normal_N": 3.5,
+        "normal_R_N": -350.0,
+        "overall_admissible": false,
+        "slip_sign": 1
+      },
+      {
+        "contact_R_N": -309.0596832867407,
+        "contact_active": true,
+        "contact_u_m": 0.0,
+        "friction_R_N": 0.0,
+        "friction_state": "none",
+        "friction_u_m": -0.00385898340416962,
+        "mu_abs_normal_N": 0.40940316713259267,
+        "normal_R_N": -40.940316713259264,
+        "overall_admissible": true,
+        "slip_sign": null
+      },
+      {
+        "contact_R_N": -343.6001297681045,
+        "contact_active": true,
+        "contact_u_m": 0.0,
+        "friction_R_N": 456.6467056522523,
+        "friction_state": "stick",
+        "friction_u_m": 0.0,
+        "mu_abs_normal_N": 0.06399870231895488,
+        "normal_R_N": -6.3998702318954885,
+        "overall_admissible": false,
+        "slip_sign": null
+      },
+      {
+        "contact_R_N": -309.0906268585674,
+        "contact_active": true,
+        "contact_u_m": 0.0,
+        "friction_R_N": 0.40909373141432565,
+        "friction_state": "slip",
+        "friction_u_m": -0.003855526276589945,
+        "mu_abs_normal_N": 0.4090937314143258,
+        "normal_R_N": -40.90937314143258,
+        "overall_admissible": true,
+        "slip_sign": -1
+      },
+      {
+        "contact_R_N": -309.0286928684648,
+        "contact_active": true,
+        "contact_u_m": 0.0,
+        "friction_R_N": -0.40971307131535184,
+        "friction_state": "slip",
+        "friction_u_m": -0.00386244576560376,
+        "mu_abs_normal_N": 0.4097130713153519,
+        "normal_R_N": -40.97130713153519,
+        "overall_admissible": false,
+        "slip_sign": 1
+      }
+    ],
+    "frictionless": {
+      "c150_relative_stiffness_diagnostic": {
+        "enabled": true,
+        "global_end_vector_N_Nm": [
+          -299.6568546727529,
+          0.0,
+          -1.59528610419384,
+          14.175936131250912,
+          103.75875846013471,
+          0.0,
+          299.6568546727529,
+          0.0,
+          1.59528610419384,
+          -14.175936131250912,
+          -103.75875846013471,
+          0.0
+        ],
+        "net_force_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "net_moment_about_origin_N_m": [
+          0.0,
+          659.2450802800564,
+          0.0
+        ]
+      },
+      "checks": {
+        "assembled_equation_max_abs_residual_free_dof": 2.83648660115432e-10,
+        "global_force_balance_N": [
+          -1.4551915228366852e-11,
+          1.4210854715202004e-14,
+          1.4568968254025094e-10
+        ],
+        "global_force_balance_max_abs_N": 1.4568968254025094e-10,
+        "global_moment_balance_about_origin_N_m": [
+          3.4992808650713414e-10,
+          659.2450802789494,
+          5.5649707064731047e-11
+        ],
+        "global_moment_balance_max_abs_N_m": 659.2450802789494,
+        "stiffness_symmetry_max_abs": 0.0
+      },
+      "constraint_action_global_by_node": {
+        "N-100": [
+          0.0,
+          0.0,
+          -89.90268549422206,
+          -125.69774841696217,
+          -179.21832082104447,
+          0.0
+        ],
+        "N-110": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-120": [
+          -1.4551915228366852e-11,
+          0.0,
+          763.8463206493611,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-130": [
+          0.0,
+          -40.940316713259264,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-140": [
+          0.0,
+          -309.0596832867407,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "element_results": {
+        "P-100": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            -2.8421709430404007e-13
+          ],
+          "length_m": 3.2,
+          "local_axes_rows_global": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.0006127703232494296,
+            0.0,
+            0.0002272484891323518,
+            0.0,
+            -0.00044972904731751173
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            0.0,
+            -89.90268549422206,
+            0.0,
+            -125.69774841696217,
+            0.0,
+            179.21832082104447,
+            0.0,
+            89.90268549422206,
+            0.0,
+            125.69774841696217,
+            0.0,
+            -466.90691440255534
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422206,
+                0.0,
+                125.69774841696217,
+                0.0,
+                -179.21832082104447
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422206,
+                0.0,
+                125.69774841696217,
+                0.0,
+                -251.1404692164221
+              ],
+              "x_m": 0.8
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422206,
+                0.0,
+                125.69774841696217,
+                0.0,
+                -323.06261761179974
+              ],
+              "x_m": 1.6
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422206,
+                0.0,
+                125.69774841696217,
+                0.0,
+                -394.9847660071774
+              ],
+              "x_m": 2.4000000000000004
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422206,
+                0.0,
+                125.69774841696217,
+                0.0,
+                -466.90691440255506
+              ],
+              "x_m": 3.2
+            }
+          ]
+        },
+        "P-110": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            2.2737367544323206e-13
+          ],
+          "length_m": 2.4,
+          "local_axes_rows_global": [
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            -0.0006127703232494296,
+            0.0,
+            0.00044972904731751173,
+            0.0,
+            0.0002272484891323518,
+            0.0,
+            0.0,
+            0.0,
+            0.0010828184952175444,
+            0.0,
+            0.0002458479245601169
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            0.0,
+            -89.90268549422183,
+            0.0,
+            -466.90691440255557,
+            0.0,
+            -125.69774841696199,
+            0.0,
+            89.90268549422183,
+            0.0,
+            466.90691440255557,
+            0.0,
+            -90.06869676917017
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422183,
+                0.0,
+                466.90691440255557,
+                0.0,
+                125.69774841696199
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422183,
+                0.0,
+                466.90691440255557,
+                0.0,
+                71.75613712042889
+              ],
+              "x_m": 0.6
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422183,
+                0.0,
+                466.90691440255557,
+                0.0,
+                17.814525823895792
+              ],
+              "x_m": 1.2
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422183,
+                0.0,
+                466.90691440255557,
+                0.0,
+                -36.127085472637276
+              ],
+              "x_m": 1.7999999999999998
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.90268549422183,
+                0.0,
+                466.90691440255557,
+                0.0,
+                -90.0686967691704
+              ],
+              "x_m": 2.4
+            }
+          ]
+        },
+        "P-120": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            -6.821210263296962e-13
+          ],
+          "length_m": 4.3999999999999995,
+          "local_axes_rows_global": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            0.0,
+            0.0,
+            0.0002458479245601169,
+            0.0,
+            -0.0010828184952175444,
+            0.00066,
+            -0.00385898340416962,
+            0.0,
+            2.194999213534771e-05,
+            0.0,
+            -0.00031200170706109225
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            -190.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            -1.4551915228366852e-11,
+            673.9436351551394,
+            0.0,
+            90.06869676917043,
+            0.0,
+            466.90691440255534,
+            1.4551915228366852e-11,
+            162.05636484486044,
+            0.0,
+            -90.06869676917043,
+            0.0,
+            659.2450802800574
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -673.9436351551394,
+                0.0,
+                -90.06869676917043,
+                0.0,
+                -466.90691440255534
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -464.9436351551394,
+                0.0,
+                -90.06869676917043,
+                0.0,
+                159.48108426809796
+              ],
+              "x_m": 1.0999999999999999
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -255.94363515513948,
+                0.0,
+                -90.06869676917043,
+                0.0,
+                555.9690829387514
+              ],
+              "x_m": 2.1999999999999997
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -46.94363515513942,
+                0.0,
+                -90.06869676917043,
+                0.0,
+                722.5570816094048
+              ],
+              "x_m": 3.3
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                162.05636484486047,
+                0.0,
+                -90.06869676917043,
+                0.0,
+                659.2450802800583
+              ],
+              "x_m": 4.3999999999999995
+            }
+          ]
+        },
+        "P-130": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            -4.547473508864641e-13,
+            0.0
+          ],
+          "length_m": 2.2,
+          "local_axes_rows_global": [
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            -0.00385898340416962,
+            0.0,
+            -0.00066,
+            0.0,
+            0.00031200170706109225,
+            -2.194999213534771e-05,
+            -0.0038584848772620596,
+            0.0,
+            -0.0009929520607475032,
+            0.0,
+            9.583762693581157e-05,
+            7.58320813809169e-06
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            -160.461078740843,
+            -40.940316713259264,
+            -299.65685467275364,
+            0.0,
+            555.4863218199228,
+            -75.8927606379195,
+            160.461078740843,
+            40.940316713259264,
+            299.65685467275364,
+            0.0,
+            103.7587584601348,
+            -14.175936131250896
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                160.461078740843,
+                40.940316713259264,
+                299.65685467275364,
+                0.0,
+                -555.4863218199228,
+                75.8927606379195
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                160.461078740843,
+                40.940316713259264,
+                299.65685467275364,
+                0.0,
+                -390.6750517499082,
+                53.375586445626894
+              ],
+              "x_m": 0.55
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                160.461078740843,
+                40.940316713259264,
+                299.65685467275364,
+                0.0,
+                -225.86378167989375,
+                30.8584122533343
+              ],
+              "x_m": 1.1
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                160.461078740843,
+                40.940316713259264,
+                299.65685467275364,
+                0.0,
+                -61.05251160987922,
+                8.341238061041707
+              ],
+              "x_m": 1.6500000000000001
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                160.461078740843,
+                40.940316713259264,
+                299.65685467275364,
+                0.0,
+                103.75875846013525,
+                -14.175936131250893
+              ],
+              "x_m": 2.2
+            }
+          ]
+        }
+      },
+      "nodal_displacements_global": {
+        "N-100": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-110": [
+          0.0,
+          0.0,
+          -0.0006127703232494296,
+          0.0002272484891323518,
+          0.00044972904731751173,
+          0.0
+        ],
+        "N-120": [
+          0.0,
+          0.0,
+          0.0,
+          0.0002458479245601169,
+          0.0010828184952175444,
+          0.0
+        ],
+        "N-130": [
+          0.00066,
+          0.0,
+          -0.00385898340416962,
+          2.194999213534771e-05,
+          0.00031200170706109225,
+          0.0
+        ],
+        "N-140": [
+          0.0009929520607475032,
+          0.0,
+          -0.0038584848772620596,
+          -7.58320813809169e-06,
+          9.583762693581157e-05,
+          0.0
+        ]
+      },
+      "state": {
+        "admissible": true,
+        "contact": {
+          "admissible": true,
+          "complementarity_lambda_g_N_m": -0.0,
+          "displacement_u_m": 0.0,
+          "gap_feasible": true,
+          "gap_g_minus_u_m": -0.0,
+          "lambda_minus_R_N": 309.0596832867407,
+          "multiplier_feasible": true,
+          "reaction_R_N": -309.0596832867407,
+          "state": "active"
+        },
+        "friction": {
+          "current_normal_magnitude_N": 40.940316713259264,
+          "current_normal_reaction_N": -40.940316713259264,
+          "mu": 0.01,
+          "mu_times_current_normal_N": 0.40940316713259267,
+          "opposes_displacement_or_sticks": true,
+          "relation_error_N": 0.0,
+          "tangential_action_N": 0.0,
+          "tangential_displacement_m": -0.00385898340416962
+        }
+      },
+      "support_actions": {
+        "NL-130-FRIC": [
+          0.0
+        ],
+        "NL-140": [
+          -309.0596832867407
+        ],
+        "S-100": [
+          0.0,
+          0.0,
+          -89.90268549422206,
+          -125.69774841696217,
+          -179.21832082104447,
+          0.0
+        ],
+        "S-120": [
+          -1.4551915228366852e-11,
+          763.8463206493611
+        ],
+        "S-130": [
+          -40.940316713259264
+        ],
+        "SH-140": [
+          162.0563648450065
+        ]
+      }
+    },
+    "zero_reference_current_normal_static": {
+      "c150_relative_stiffness_diagnostic": {
+        "enabled": true,
+        "global_end_vector_N_Nm": [
+          -299.28943672347367,
+          0.0,
+          -1.593856943448667,
+          14.165221653857873,
+          103.63153684094362,
+          0.0,
+          299.28943672347367,
+          0.0,
+          1.593856943448667,
+          -14.165221653857873,
+          -103.63153684094362,
+          0.0
+        ],
+        "net_force_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "net_moment_about_origin_N_m": [
+          0.0,
+          658.4367607916422,
+          0.0
+        ]
+      },
+      "checks": {
+        "assembled_equation_max_abs_residual_free_dof": 1.5450041246367618e-10,
+        "global_force_balance_N": [
+          -1.4551915228366852e-11,
+          0.0,
+          1.4568968254025094e-10
+        ],
+        "global_force_balance_max_abs_N": 1.4568968254025094e-10,
+        "global_moment_balance_about_origin_N_m": [
+          3.5015546018257737e-10,
+          658.4367607905363,
+          4.871480996371247e-11
+        ],
+        "global_moment_balance_max_abs_N_m": 658.4367607905363,
+        "stiffness_symmetry_max_abs": 0.0
+      },
+      "constraint_action_global_by_node": {
+        "N-100": [
+          0.0,
+          0.0,
+          -89.83473511109517,
+          -125.6027433554763,
+          -179.08286375993214,
+          0.0
+        ],
+        "N-110": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-120": [
+          -1.4551915228366852e-11,
+          0.0,
+          763.5144571354315,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-130": [
+          0.0,
+          -40.90937314143258,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-140": [
+          0.0,
+          -309.0906268585674,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "element_results": {
+        "P-100": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            -2.8421709430404007e-13
+          ],
+          "length_m": 3.2,
+          "local_axes_rows_global": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            -0.0006123071782609934,
+            0.0,
+            0.00022707672983710196,
+            0.0,
+            -0.00044938913243176013
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            0.0,
+            -89.83473511109514,
+            0.0,
+            -125.6027433554763,
+            0.0,
+            179.08286375993214,
+            0.0,
+            89.83473511109514,
+            0.0,
+            125.6027433554763,
+            0.0,
+            -466.55401611543687
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                125.6027433554763,
+                0.0,
+                -179.08286375993214
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                125.6027433554763,
+                0.0,
+                -250.95065184880826
+              ],
+              "x_m": 0.8
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                125.6027433554763,
+                0.0,
+                -322.8184399376844
+              ],
+              "x_m": 1.6
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                125.6027433554763,
+                0.0,
+                -394.6862280265605
+              ],
+              "x_m": 2.4000000000000004
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                125.6027433554763,
+                0.0,
+                -466.5540161154366
+              ],
+              "x_m": 3.2
+            }
+          ]
+        },
+        "P-110": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            3.694822225952521e-13
+          ],
+          "length_m": 2.4,
+          "local_axes_rows_global": [
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            -0.0006123071782609934,
+            0.0,
+            0.00044938913243176013,
+            0.0,
+            0.00022707672983710196,
+            0.0,
+            0.0,
+            0.0,
+            0.0010820000777119663,
+            0.0,
+            0.00024566210741157465
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            0.0,
+            -89.83473511109514,
+            0.0,
+            -466.554016115437,
+            0.0,
+            -125.60274335547615,
+            0.0,
+            89.83473511109514,
+            0.0,
+            466.554016115437,
+            0.0,
+            -90.00062091115183
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                466.554016115437,
+                0.0,
+                125.60274335547615
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                466.554016115437,
+                0.0,
+                71.70190228881907
+              ],
+              "x_m": 0.6
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                466.554016115437,
+                0.0,
+                17.801061222161977
+              ],
+              "x_m": 1.2
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                466.554016115437,
+                0.0,
+                -36.09977984449509
+              ],
+              "x_m": 1.7999999999999998
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                0.0,
+                89.83473511109514,
+                0.0,
+                466.554016115437,
+                0.0,
+                -90.0006209111522
+              ],
+              "x_m": 2.4
+            }
+          ]
+        },
+        "P-120": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            0.0,
+            -6.821210263296962e-13
+          ],
+          "length_m": 4.3999999999999995,
+          "local_axes_rows_global": [
+            [
+              1.0,
+              0.0,
+              0.0
+            ],
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              -1.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            0.0,
+            0.0,
+            0.0,
+            0.00024566210741157465,
+            0.0,
+            -0.0010820000777119663,
+            0.00066,
+            -0.003855526276589945,
+            0.0,
+            2.1933401859239378e-05,
+            0.0,
+            -0.0003116191527307226
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            -190.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            -1.4551915228366852e-11,
+            673.6797220243363,
+            0.0,
+            90.00062091115166,
+            0.0,
+            466.5540161154363,
+            1.4551915228366852e-11,
+            162.32027797566357,
+            0.0,
+            -90.00062091115166,
+            0.0,
+            658.4367607916429
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -673.6797220243363,
+                0.0,
+                -90.00062091115166,
+                0.0,
+                -466.5540161154363
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -464.67972202433634,
+                0.0,
+                -90.00062091115166,
+                0.0,
+                159.54367811133358
+              ],
+              "x_m": 1.0999999999999999
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -255.6797220243364,
+                0.0,
+                -90.00062091115166,
+                0.0,
+                555.7413723381035
+              ],
+              "x_m": 2.1999999999999997
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                -46.67972202433634,
+                0.0,
+                -90.00062091115166,
+                0.0,
+                722.0390665648736
+              ],
+              "x_m": 3.3
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                1.4551915228366852e-11,
+                162.32027797566354,
+                0.0,
+                -90.00062091115166,
+                0.0,
+                658.4367607916436
+              ],
+              "x_m": 4.3999999999999995
+            }
+          ]
+        },
+        "P-130": {
+          "element_force_balance_N": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "element_moment_balance_about_i_N_m": [
+            0.0,
+            -1.0231815394945443e-12,
+            0.0
+          ],
+          "length_m": 2.2,
+          "local_axes_rows_global": [
+            [
+              0.0,
+              0.0,
+              1.0
+            ],
+            [
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              -1.0,
+              0.0,
+              0.0
+            ]
+          ],
+          "local_displacement_vector_m_rad": [
+            -0.003855526276589945,
+            0.0,
+            -0.00066,
+            0.0,
+            0.0003116191527307226,
+            -2.1933401859239378e-05,
+            -0.0038550281962951177,
+            0.0,
+            -0.0009925438185816374,
+            0.0,
+            9.572011764542339e-05,
+            7.5774765862978586e-06
+          ],
+          "local_distributed_force_N_per_m": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "local_end_vector_N_Nm": [
+            -160.3173273009053,
+            -40.90937314143258,
+            -299.2894367234746,
+            0.0,
+            554.8052239506993,
+            -75.83539925729382,
+            160.3173273009053,
+            40.90937314143258,
+            299.2894367234746,
+            0.0,
+            103.6315368409438,
+            -14.165221653857873
+          ],
+          "section": {
+            "A_m2": 0.003540574920595698,
+            "Iy_m4": 1.1493591335983794e-05,
+            "Iz_m4": 1.1493591335983794e-05,
+            "J_m4": 2.2987182671967588e-05
+          },
+          "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+          "stations": [
+            {
+              "fraction": 0.0,
+              "local_cut_vector_N_Nm": [
+                160.3173273009053,
+                40.90937314143258,
+                299.2894367234746,
+                0.0,
+                -554.8052239506993,
+                75.83539925729382
+              ],
+              "x_m": 0.0
+            },
+            {
+              "fraction": 0.25,
+              "local_cut_vector_N_Nm": [
+                160.3173273009053,
+                40.90937314143258,
+                299.2894367234746,
+                0.0,
+                -390.19603375278825,
+                53.335244029505894
+              ],
+              "x_m": 0.55
+            },
+            {
+              "fraction": 0.5,
+              "local_cut_vector_N_Nm": [
+                160.3173273009053,
+                40.90937314143258,
+                299.2894367234746,
+                0.0,
+                -225.58684355487725,
+                30.835088801717973
+              ],
+              "x_m": 1.1
+            },
+            {
+              "fraction": 0.75,
+              "local_cut_vector_N_Nm": [
+                160.3173273009053,
+                40.90937314143258,
+                299.2894367234746,
+                0.0,
+                -60.97765335696624,
+                8.334933573930044
+              ],
+              "x_m": 1.6500000000000001
+            },
+            {
+              "fraction": 1.0,
+              "local_cut_vector_N_Nm": [
+                160.3173273009053,
+                40.90937314143258,
+                299.2894367234746,
+                0.0,
+                103.63153684094482,
+                -14.16522165385787
+              ],
+              "x_m": 2.2
+            }
+          ]
+        }
+      },
+      "nodal_displacements_global": {
+        "N-100": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "N-110": [
+          0.0,
+          0.0,
+          -0.0006123071782609934,
+          0.00022707672983710196,
+          0.00044938913243176013,
+          0.0
+        ],
+        "N-120": [
+          0.0,
+          0.0,
+          0.0,
+          0.00024566210741157465,
+          0.0010820000777119663,
+          0.0
+        ],
+        "N-130": [
+          0.00066,
+          0.0,
+          -0.003855526276589945,
+          2.1933401859239378e-05,
+          0.0003116191527307226,
+          0.0
+        ],
+        "N-140": [
+          0.0009925438185816374,
+          0.0,
+          -0.0038550281962951177,
+          -7.5774765862978586e-06,
+          9.572011764542339e-05,
+          0.0
+        ]
+      },
+      "state": {
+        "admissible": true,
+        "contact": {
+          "admissible": true,
+          "complementarity_lambda_g_N_m": -0.0,
+          "displacement_u_m": 0.0,
+          "gap_feasible": true,
+          "gap_g_minus_u_m": -0.0,
+          "lambda_minus_R_N": 309.0906268585674,
+          "multiplier_feasible": true,
+          "reaction_R_N": -309.0906268585674,
+          "state": "active"
+        },
+        "friction": {
+          "current_normal_magnitude_N": 40.90937314143258,
+          "current_normal_reaction_N": -40.90937314143258,
+          "mu": 0.01,
+          "mu_times_current_normal_N": 0.4090937314143258,
+          "opposes_displacement_or_sticks": true,
+          "relation_error_N": 1.6653345369377348e-16,
+          "tangential_action_N": 0.40909373141432565,
+          "tangential_displacement_m": -0.003855526276589945
+        }
+      },
+      "support_actions": {
+        "NL-130-FRIC": [
+          0.40909373141432565
+        ],
+        "NL-140": [
+          -309.0906268585674
+        ],
+        "S-100": [
+          0.0,
+          0.0,
+          -89.83473511109517,
+          -125.6027433554763,
+          -179.08286375993214,
+          0.0
+        ],
+        "S-120": [
+          -1.4551915228366852e-11,
+          763.5144571354315
+        ],
+        "S-130": [
+          -40.90937314143258
+        ],
+        "SH-140": [
+          161.91118424439495
+        ]
+      }
+    }
+  },
+  "physical_frame_branch_inventory": [
+    {
+      "contact_R_N": 0.0,
+      "contact_active": false,
+      "contact_admissible": false,
+      "contact_u_m": 0.005349142626045173,
+      "friction_R_N": 0.0,
+      "friction_admissible": true,
+      "friction_state": "none",
+      "friction_u_m": -0.006058796582381241,
+      "mu_abs_normal_N": 3.5000000000000004,
+      "normal_R_N": -350.00000000000006,
+      "overall_admissible": false,
+      "slip_sign": null
+    },
+    {
+      "contact_R_N": 0.0,
+      "contact_active": false,
+      "contact_admissible": false,
+      "contact_u_m": 0.006058680728426501,
+      "friction_R_N": 355.4837893537415,
+      "friction_admissible": false,
+      "friction_state": "stick",
+      "friction_u_m": 0.0,
+      "mu_abs_normal_N": 3.5000000000000013,
+      "normal_R_N": -350.0000000000001,
+      "overall_admissible": false,
+      "slip_sign": null
+    },
+    {
+      "contact_R_N": 0.0,
+      "contact_active": false,
+      "contact_admissible": false,
+      "contact_u_m": 0.005356128551796807,
+      "friction_R_N": 3.4999999999999587,
+      "friction_admissible": true,
+      "friction_state": "slip",
+      "friction_u_m": -0.005999143262951721,
+      "mu_abs_normal_N": 3.4999999999999982,
+      "normal_R_N": -349.99999999999983,
+      "overall_admissible": false,
+      "slip_sign": -1
+    },
+    {
+      "contact_R_N": 0.0,
+      "contact_active": false,
+      "contact_admissible": false,
+      "contact_u_m": 0.005342156700293539,
+      "friction_R_N": -3.5000000000000426,
+      "friction_admissible": false,
+      "friction_state": "slip",
+      "friction_u_m": -0.006118449901810759,
+      "mu_abs_normal_N": 3.49999999999999,
+      "normal_R_N": -349.999999999999,
+      "overall_admissible": false,
+      "slip_sign": 1
+    },
+    {
+      "contact_R_N": -297.5685654865984,
+      "contact_active": true,
+      "contact_admissible": true,
+      "contact_u_m": 0.0,
+      "friction_R_N": 0.0,
+      "friction_admissible": true,
+      "friction_state": "none",
+      "friction_u_m": -0.006652737126526824,
+      "mu_abs_normal_N": 0.524314345134016,
+      "normal_R_N": -52.4314345134016,
+      "overall_admissible": true,
+      "slip_sign": null
+    },
+    {
+      "contact_R_N": -341.47991809321115,
+      "contact_active": true,
+      "contact_admissible": true,
+      "contact_u_m": 0.0,
+      "friction_R_N": 395.4740761690749,
+      "friction_admissible": false,
+      "friction_state": "stick",
+      "friction_u_m": 0.0,
+      "mu_abs_normal_N": 0.0852008190678885,
+      "normal_R_N": -8.52008190678885,
+      "overall_admissible": false,
+      "slip_sign": null
+    },
+    {
+      "contact_R_N": -297.62671801267015,
+      "contact_active": true,
+      "contact_admissible": true,
+      "contact_u_m": 0.0,
+      "friction_R_N": 0.5237328198732987,
+      "friction_admissible": true,
+      "friction_state": "slip",
+      "friction_u_m": -0.0066439267973924755,
+      "mu_abs_normal_N": 0.5237328198732987,
+      "normal_R_N": -52.37328198732987,
+      "overall_admissible": true,
+      "slip_sign": -1
+    },
+    {
+      "contact_R_N": -297.51028367799125,
+      "contact_active": true,
+      "contact_admissible": true,
+      "contact_u_m": 0.0,
+      "friction_R_N": -0.5248971632200874,
+      "friction_admissible": false,
+      "friction_state": "slip",
+      "friction_u_m": -0.006661567042457572,
+      "mu_abs_normal_N": 0.5248971632200875,
+      "normal_R_N": -52.48971632200875,
+      "overall_admissible": false,
+      "slip_sign": 1
+    }
+  ],
+  "physical_frame_frictionless_actual_control": {
+    "c150_relative_stiffness_diagnostic": {
+      "enabled": false
+    },
+    "checks": {
+      "assembled_equation_max_abs_residual_free_dof": 3.6629899113904685e-10,
+      "global_force_balance_N": [
+        0.0,
+        0.0,
+        -2.602291715447791e-10
+      ],
+      "global_force_balance_max_abs_N": 2.602291715447791e-10,
+      "global_moment_balance_about_origin_N_m": [
+        -6.242544259293936e-10,
+        1.9776962290052325e-09,
+        1.375610736431554e-11
+      ],
+      "global_moment_balance_max_abs_N_m": 1.9776962290052325e-09,
+      "stiffness_symmetry_max_abs": 0.0
+    },
+    "constraint_action_global_by_node": {
+      "N-100": [
+        0.0,
+        0.0,
+        -116.69017222390039,
+        -164.70725740787717,
+        -236.52603140405705,
+        0.0
+      ],
+      "N-110": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-120": [
+        0.0,
+        0.0,
+        673.3116682512955,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-130": [
+        0.0,
+        -52.4314345134016,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-140": [
+        0.0,
+        -297.5685654865984,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "element_results": {
+      "P-100": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          -5.684341886080801e-13
+        ],
+        "length_m": 3.2,
+        "local_axes_rows_global": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0008040555619203959,
+          0.0,
+          0.0002977736345038823,
+          0.0,
+          -0.0005891704962744046
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          -116.69017222390039,
+          0.0,
+          -164.70725740787717,
+          0.0,
+          236.5260314040571,
+          0.0,
+          116.69017222390039,
+          0.0,
+          164.70725740787717,
+          0.0,
+          -609.9345825205389
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390039,
+              0.0,
+              164.70725740787717,
+              0.0,
+              -236.5260314040571
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390039,
+              0.0,
+              164.70725740787717,
+              0.0,
+              -329.8781691831774
+            ],
+            "x_m": 0.8
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390039,
+              0.0,
+              164.70725740787717,
+              0.0,
+              -423.23030696229773
+            ],
+            "x_m": 1.6
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390039,
+              0.0,
+              164.70725740787717,
+              0.0,
+              -516.5824447414182
+            ],
+            "x_m": 2.4000000000000004
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390039,
+              0.0,
+              164.70725740787717,
+              0.0,
+              -609.9345825205384
+            ],
+            "x_m": 3.2
+          }
+        ]
+      },
+      "P-110": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          2.2737367544323206e-13
+        ],
+        "length_m": 2.4,
+        "local_axes_rows_global": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          -0.0008040555619203959,
+          0.0,
+          0.0005891704962744046,
+          0.0,
+          0.0002977736345038823,
+          0.0,
+          0.0,
+          0.0,
+          0.0014161943337713625,
+          0.0,
+          0.0003235400464297343
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          -116.69017222390016,
+          0.0,
+          -609.9345825205393,
+          0.0,
+          -164.7072574078769,
+          0.0,
+          116.69017222390016,
+          0.0,
+          609.9345825205393,
+          0.0,
+          -115.34915592948323
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390016,
+              0.0,
+              609.9345825205393,
+              0.0,
+              164.7072574078769
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390016,
+              0.0,
+              609.9345825205393,
+              0.0,
+              94.69315407353682
+            ],
+            "x_m": 0.6
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390016,
+              0.0,
+              609.9345825205393,
+              0.0,
+              24.679050739196725
+            ],
+            "x_m": 1.2
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390016,
+              0.0,
+              609.9345825205393,
+              0.0,
+              -45.33505259514337
+            ],
+            "x_m": 1.7999999999999998
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.69017222390016,
+              0.0,
+              609.9345825205393,
+              0.0,
+              -115.34915592948346
+            ],
+            "x_m": 2.4
+          }
+        ]
+      },
+      "P-120": {
+        "element_force_balance_N": [
+          0.0,
+          -1.1368683772161603e-13,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          -4.547473508864641e-13
+        ],
+        "length_m": 4.3999999999999995,
+        "local_axes_rows_global": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          0.0,
+          0.0,
+          0.0003235400464297343,
+          0.0,
+          -0.0014161943337713625,
+          0.0006599999999999999,
+          -0.006652737126526824,
+          0.0,
+          3.679849863381025e-05,
+          0.0,
+          -0.0014131967567216604
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          -190.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          556.6214960273951,
+          0.0,
+          115.34915592948357,
+          0.0,
+          609.9345825205389,
+          0.0,
+          279.37850397260473,
+          0.0,
+          -115.34915592948357,
+          0.0,
+          0.0
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -556.6214960273951,
+              0.0,
+              -115.34915592948357,
+              0.0,
+              -609.9345825205389
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -347.6214960273951,
+              0.0,
+              -115.34915592948357,
+              0.0,
+              -112.60093689040438
+            ],
+            "x_m": 1.0999999999999999
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -138.62149602739515,
+              0.0,
+              -115.34915592948357,
+              0.0,
+              154.8327087397302
+            ],
+            "x_m": 2.1999999999999997
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              70.3785039726049,
+              0.0,
+              -115.34915592948357,
+              0.0,
+              192.3663543698649
+            ],
+            "x_m": 3.3
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              279.3785039726048,
+              0.0,
+              -115.34915592948357,
+              0.0,
+              0.0
+            ],
+            "x_m": 4.3999999999999995
+          }
+        ]
+      },
+      "P-130": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          -2.3646862246096135e-12,
+          0.0
+        ],
+        "length_m": 2.2,
+        "local_axes_rows_global": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          -0.006652737126526824,
+          0.0,
+          -0.0006599999999999999,
+          0.0,
+          0.0014131967567216604,
+          -3.679849863381025e-05,
+          -0.006651869142198679,
+          0.0,
+          -0.0037690328647876532,
+          0.0,
+          0.0014131967567216604,
+          1.8399249316905125e-05
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          -279.37850397256506,
+          -52.4314345134016,
+          0.0,
+          0.0,
+          0.0,
+          -115.34915592948353,
+          279.37850397256506,
+          52.4314345134016,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              279.37850397256506,
+              52.4314345134016,
+              0.0,
+              0.0,
+              0.0,
+              115.34915592948353
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              279.37850397256506,
+              52.4314345134016,
+              0.0,
+              0.0,
+              0.0,
+              86.51186694711265
+            ],
+            "x_m": 0.55
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              279.37850397256506,
+              52.4314345134016,
+              0.0,
+              0.0,
+              0.0,
+              57.674577964741765
+            ],
+            "x_m": 1.1
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              279.37850397256506,
+              52.4314345134016,
+              0.0,
+              0.0,
+              0.0,
+              28.837288982370893
+            ],
+            "x_m": 1.6500000000000001
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              279.37850397256506,
+              52.4314345134016,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "x_m": 2.2
+          }
+        ]
+      }
+    },
+    "nodal_displacements_global": {
+      "N-100": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-110": [
+        0.0,
+        0.0,
+        -0.0008040555619203959,
+        0.0002977736345038823,
+        0.0005891704962744046,
+        0.0
+      ],
+      "N-120": [
+        0.0,
+        0.0,
+        0.0,
+        0.0003235400464297343,
+        0.0014161943337713625,
+        0.0
+      ],
+      "N-130": [
+        0.0006599999999999999,
+        0.0,
+        -0.006652737126526824,
+        3.679849863381025e-05,
+        0.0014131967567216604,
+        0.0
+      ],
+      "N-140": [
+        0.0037690328647876532,
+        0.0,
+        -0.006651869142198679,
+        -1.8399249316905125e-05,
+        0.0014131967567216604,
+        0.0
+      ]
+    },
+    "state": {
+      "admissible": true,
+      "contact": {
+        "admissible": true,
+        "complementarity_lambda_g_N_m": -0.0,
+        "displacement_u_m": 0.0,
+        "gap_feasible": true,
+        "gap_g_minus_u_m": -0.0,
+        "lambda_minus_R_N": 297.5685654865984,
+        "multiplier_feasible": true,
+        "reaction_R_N": -297.5685654865984,
+        "state": "active"
+      },
+      "friction": {
+        "current_normal_magnitude_N": 52.4314345134016,
+        "current_normal_reaction_N": -52.4314345134016,
+        "mu": 0.01,
+        "mu_times_current_normal_N": 0.524314345134016,
+        "opposes_displacement_or_sticks": true,
+        "relation_error_N": 0.0,
+        "tangential_action_N": 0.0,
+        "tangential_displacement_m": -0.006652737126526824
+      }
+    },
+    "support_actions": {
+      "NL-130-FRIC": [
+        0.0
+      ],
+      "NL-140": [
+        -297.5685654865984
+      ],
+      "S-100": [
+        0.0,
+        0.0,
+        -116.69017222390039,
+        -164.70725740787717,
+        -236.52603140405705,
+        0.0
+      ],
+      "S-120": [
+        0.0,
+        673.3116682512955
+      ],
+      "S-130": [
+        -52.4314345134016
+      ],
+      "SH-140": [
+        279.37850397234456
+      ]
+    }
+  },
+  "physical_frame_zero_reference_current_normal_static_result": {
+    "c150_relative_stiffness_diagnostic": {
+      "enabled": false
+    },
+    "checks": {
+      "assembled_equation_max_abs_residual_free_dof": 2.646629582159221e-10,
+      "global_force_balance_N": [
+        0.0,
+        -2.1316282072803006e-14,
+        -2.602291715447791e-10
+      ],
+      "global_force_balance_max_abs_N": 2.602291715447791e-10,
+      "global_moment_balance_about_origin_N_m": [
+        -6.236859917407855e-10,
+        1.976331986952573e-09,
+        -3.865352482534945e-12
+      ],
+      "global_moment_balance_max_abs_N_m": 1.976331986952573e-09,
+      "stiffness_symmetry_max_abs": 0.0
+    },
+    "constraint_action_global_by_node": {
+      "N-100": [
+        0.0,
+        0.0,
+        -116.56074932434537,
+        -164.52457800630236,
+        -236.263696674223,
+        0.0
+      ],
+      "N-110": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-120": [
+        0.0,
+        0.0,
+        673.0284980771014,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-130": [
+        0.0,
+        -52.37328198732987,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-140": [
+        0.0,
+        -297.62671801267015,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    "element_results": {
+      "P-100": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          -9.094947017729282e-13
+        ],
+        "length_m": 3.2,
+        "local_axes_rows_global": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          -0.0008031637712901823,
+          0.0,
+          0.0002974433690971722,
+          0.0,
+          -0.0005885170380396021
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          -116.56074932434535,
+          0.0,
+          -164.52457800630236,
+          0.0,
+          236.26369667422296,
+          0.0,
+          116.56074932434535,
+          0.0,
+          164.52457800630236,
+          0.0,
+          -609.258094512129
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434535,
+              0.0,
+              164.52457800630236,
+              0.0,
+              -236.26369667422296
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434535,
+              0.0,
+              164.52457800630236,
+              0.0,
+              -329.51229613369924
+            ],
+            "x_m": 0.8
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434535,
+              0.0,
+              164.52457800630236,
+              0.0,
+              -422.7608955931755
+            ],
+            "x_m": 1.6
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434535,
+              0.0,
+              164.52457800630236,
+              0.0,
+              -516.0094950526518
+            ],
+            "x_m": 2.4000000000000004
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434535,
+              0.0,
+              164.52457800630236,
+              0.0,
+              -609.2580945121281
+            ],
+            "x_m": 3.2
+          }
+        ]
+      },
+      "P-110": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          -3.979039320256561e-13
+        ],
+        "length_m": 2.4,
+        "local_axes_rows_global": [
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          -0.0008031637712901823,
+          0.0,
+          0.0005885170380396021,
+          0.0,
+          0.0002974433690971722,
+          0.0,
+          0.0,
+          0.0,
+          0.0014146236104317935,
+          0.0,
+          0.0003231812030915752
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          -116.56074932434467,
+          0.0,
+          -609.2580945121287,
+          0.0,
+          -164.52457800630202,
+          0.0,
+          116.56074932434467,
+          0.0,
+          609.2580945121287,
+          0.0,
+          -115.22122037212557
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434467,
+              0.0,
+              609.2580945121287,
+              0.0,
+              164.52457800630202
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434467,
+              0.0,
+              609.2580945121287,
+              0.0,
+              94.58812841169522
+            ],
+            "x_m": 0.6
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434467,
+              0.0,
+              609.2580945121287,
+              0.0,
+              24.651678817088424
+            ],
+            "x_m": 1.2
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434467,
+              0.0,
+              609.2580945121287,
+              0.0,
+              -45.28477077751836
+            ],
+            "x_m": 1.7999999999999998
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              116.56074932434467,
+              0.0,
+              609.2580945121287,
+              0.0,
+              -115.22122037212517
+            ],
+            "x_m": 2.4
+          }
+        ]
+      },
+      "P-120": {
+        "element_force_balance_N": [
+          0.0,
+          1.1368683772161603e-13,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          0.0,
+          -1.1368683772161603e-12
+        ],
+        "length_m": 4.3999999999999995,
+        "local_axes_rows_global": [
+          [
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            -1.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          0.0,
+          0.0,
+          0.0,
+          0.0003231812030915752,
+          0.0,
+          -0.0014146236104317935,
+          0.0006599999999999999,
+          -0.0066439267973924755,
+          0.0,
+          3.675768484202555e-05,
+          0.0,
+          -0.0014109785970956442
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          -190.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          0.0,
+          556.4677487527565,
+          0.0,
+          115.22122037212573,
+          0.0,
+          609.2580945121283,
+          0.0,
+          279.53225124724344,
+          0.0,
+          -115.22122037212573,
+          0.0,
+          0.0
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -556.4677487527565,
+              0.0,
+              -115.22122037212573,
+              0.0,
+              -609.2580945121283
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -347.4677487527565,
+              0.0,
+              -115.22122037212573,
+              0.0,
+              -112.0935708840962
+            ],
+            "x_m": 1.0999999999999999
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              -138.46774875275656,
+              0.0,
+              -115.22122037212573,
+              0.0,
+              155.17095274393597
+            ],
+            "x_m": 2.1999999999999997
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              70.5322512472435,
+              0.0,
+              -115.22122037212573,
+              0.0,
+              192.53547637196812
+            ],
+            "x_m": 3.3
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              0.0,
+              279.5322512472434,
+              0.0,
+              -115.22122037212573,
+              0.0,
+              0.0
+            ],
+            "x_m": 4.3999999999999995
+          }
+        ]
+      },
+      "P-130": {
+        "element_force_balance_N": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "element_moment_balance_about_i_N_m": [
+          0.0,
+          9.094947017729282e-13,
+          0.0
+        ],
+        "length_m": 2.2,
+        "local_axes_rows_global": [
+          [
+            0.0,
+            0.0,
+            1.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            -1.0,
+            0.0,
+            0.0
+          ]
+        ],
+        "local_displacement_vector_m_rad": [
+          -0.0066439267973924755,
+          0.0,
+          -0.0006599999999999999,
+          0.0,
+          0.0014109785970956442,
+          -3.675768484202555e-05,
+          -0.006643059962550245,
+          0.0,
+          -0.003764152913610418,
+          0.0,
+          0.0014109785970956446,
+          1.8378842421012776e-05
+        ],
+        "local_distributed_force_N_per_m": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "local_end_vector_N_Nm": [
+          -279.0085184270668,
+          -52.37328198732987,
+          0.0,
+          0.0,
+          0.0,
+          -115.22122037212571,
+          279.0085184270668,
+          52.37328198732987,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "section": {
+          "A_m2": 0.003540574920595698,
+          "Iy_m4": 1.1493591335983794e-05,
+          "Iz_m4": 1.1493591335983794e-05,
+          "J_m4": 2.2987182671967588e-05
+        },
+        "station_cut_vector_definition": "action on positive-x cut face of left segment; [Nx,Vy,Vz,Mx,My,Mz]",
+        "stations": [
+          {
+            "fraction": 0.0,
+            "local_cut_vector_N_Nm": [
+              279.0085184270668,
+              52.37328198732987,
+              0.0,
+              0.0,
+              0.0,
+              115.22122037212571
+            ],
+            "x_m": 0.0
+          },
+          {
+            "fraction": 0.25,
+            "local_cut_vector_N_Nm": [
+              279.0085184270668,
+              52.37328198732987,
+              0.0,
+              0.0,
+              0.0,
+              86.41591527909429
+            ],
+            "x_m": 0.55
+          },
+          {
+            "fraction": 0.5,
+            "local_cut_vector_N_Nm": [
+              279.0085184270668,
+              52.37328198732987,
+              0.0,
+              0.0,
+              0.0,
+              57.61061018606286
+            ],
+            "x_m": 1.1
+          },
+          {
+            "fraction": 0.75,
+            "local_cut_vector_N_Nm": [
+              279.0085184270668,
+              52.37328198732987,
+              0.0,
+              0.0,
+              0.0,
+              28.80530509303142
+            ],
+            "x_m": 1.6500000000000001
+          },
+          {
+            "fraction": 1.0,
+            "local_cut_vector_N_Nm": [
+              279.0085184270668,
+              52.37328198732987,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "x_m": 2.2
+          }
+        ]
+      }
+    },
+    "nodal_displacements_global": {
+      "N-100": [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "N-110": [
+        0.0,
+        0.0,
+        -0.0008031637712901823,
+        0.0002974433690971722,
+        0.0005885170380396021,
+        0.0
+      ],
+      "N-120": [
+        0.0,
+        0.0,
+        0.0,
+        0.0003231812030915752,
+        0.0014146236104317935,
+        0.0
+      ],
+      "N-130": [
+        0.0006599999999999999,
+        0.0,
+        -0.0066439267973924755,
+        3.675768484202555e-05,
+        0.0014109785970956442,
+        0.0
+      ],
+      "N-140": [
+        0.003764152913610418,
+        0.0,
+        -0.006643059962550245,
+        -1.8378842421012776e-05,
+        0.0014109785970956446,
+        0.0
+      ]
+    },
+    "state": {
+      "admissible": true,
+      "contact": {
+        "admissible": true,
+        "complementarity_lambda_g_N_m": -0.0,
+        "displacement_u_m": 0.0,
+        "gap_feasible": true,
+        "gap_g_minus_u_m": -0.0,
+        "lambda_minus_R_N": 297.62671801267015,
+        "multiplier_feasible": true,
+        "reaction_R_N": -297.62671801267015,
+        "state": "active"
+      },
+      "friction": {
+        "current_normal_magnitude_N": 52.37328198732987,
+        "current_normal_reaction_N": -52.37328198732987,
+        "mu": 0.01,
+        "mu_times_current_normal_N": 0.5237328198732987,
+        "opposes_displacement_or_sticks": true,
+        "relation_error_N": 0.0,
+        "tangential_action_N": 0.5237328198732987,
+        "tangential_displacement_m": -0.0066439267973924755
+      }
+    },
+    "support_actions": {
+      "NL-130-FRIC": [
+        0.5237328198732987
+      ],
+      "NL-140": [
+        -297.62671801267015
+      ],
+      "S-100": [
+        0.0,
+        0.0,
+        -116.56074932434537,
+        -164.52457800630236,
+        -236.263696674223,
+        0.0
+      ],
+      "S-120": [
+        0.0,
+        673.0284980771014
+      ],
+      "S-130": [
+        -52.37328198732987
+      ],
+      "SH-140": [
+        279.0085184271103
+      ]
+    }
+  },
+  "schema_version": "1.0",
+  "status": "INDEPENDENT_EXPECTATION_FROZEN_BEFORE_PRODUCTION_COMPARISON"
+}

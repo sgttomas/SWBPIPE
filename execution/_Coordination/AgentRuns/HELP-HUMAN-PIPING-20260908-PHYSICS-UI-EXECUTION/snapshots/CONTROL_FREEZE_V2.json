@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "freeze": "CONTROL_FREEZE_V2",
+  "status": "FROZEN_FOR_LAUNCH",
+  "purpose": "Correct only the path basis for the two D-66 members in CONTROL_FREEZE_V1.",
+  "supersedes": {
+    "path": "snapshots/CONTROL_FREEZE_V1.json",
+    "sha256": "77c383fc713ec5ab01c46e0c813493609d14ecea5b7f060ed14c986a3ddcdda2"
+  },
+  "path_basis": "RUN_ROOT",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "original_members_changed": false,
+  "files": [
+    {"path":"OWNER_DIRECTION.md","exists":true,"sha256":"eb67263fbe30bcefb7f4f43450cf96346cdab7370315ff9f924b433bdd4e9174"},
+    {"path":"SESSION_CONTINUITY.md","exists":true,"sha256":"3789dc08a728a0d1cab12dd13382846ef3a7c292c81b1c3bd619c7685baed221"},
+    {"path":"SHARED_LAUNCH_CONTRACT_V1.md","exists":true,"sha256":"2561ff7ccdf66f836d1a56b1c753680126750d923f99d622580364d48f6dc80b"},
+    {"path":"ORCHESTRATION_PLAN_V1.md","exists":true,"sha256":"16379ef4f902f267c3f6d50020edab2bc512f9837574f0d8bf8bde315325139e"},
+    {"path":"WORK_GRAPH_V1.json","exists":true,"sha256":"eb5e09a70f1e7e8c7be2a80123657c386b6b9ca2c2fc094b447e7916c1744223"},
+    {"path":"../../_DECISIONS/D-66_RULING_2026-09-08.md","exists":true,"sha256":"6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334"},
+    {"path":"../../_DECISIONS/_REGISTER.md","exists":true,"sha256":"dc141013a5d30f6d58c1f392a6c6f4f0af2e8f1b7dd809ea3c11ddfef5116679"}
+  ],
+  "verification": {
+    "all_seven_members_exist": true,
+    "all_seven_sha256_match": true,
+    "control_freeze_v1_unchanged": true,
+    "frozen_launch_members_unchanged": true
+  }
+}

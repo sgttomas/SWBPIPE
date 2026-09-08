@@ -1,0 +1,173 @@
+{
+  "exclusions": [
+    "MANIFEST.json",
+    "WRITER_FREEZE.json"
+  ],
+  "file_count": 32,
+  "files": [
+    {
+      "bytes": 153546,
+      "path": "COMPARISON.csv",
+      "sha256": "3b546fd53b37a32f797318fa5800d2ee59aa3525f22f471927c297469df41d27"
+    },
+    {
+      "bytes": 506062,
+      "path": "COMPARISON.json",
+      "sha256": "162054de124961a1a739656f92e9183838724f511ee3a22688ef0b9347e7f651"
+    },
+    {
+      "bytes": 4436,
+      "path": "CONSUMER_INTEGRATION_EVIDENCE.md",
+      "sha256": "d998770e55f66a0533f4e41bea7ad68d8a100d198128a337d3ab5890ceabb823"
+    },
+    {
+      "bytes": 78282,
+      "path": "EXPECTED_RESULTS_FROZEN.json",
+      "sha256": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245"
+    },
+    {
+      "bytes": 3732,
+      "path": "FREEZE_MANIFEST.json",
+      "sha256": "4b1a5745dcef6d09aa113c4ba963de21a05f8ffb00569ee5c5e2b054581fc542"
+    },
+    {
+      "bytes": 3340,
+      "path": "INPUT_FREEZE.json",
+      "sha256": "0703c80d07490d3fd557b31c01ee890dd9d1a9dc5e599accea17072d7f8d2104"
+    },
+    {
+      "bytes": 4798,
+      "path": "METHOD_AND_SIGNS.md",
+      "sha256": "3bfb4732f9fded5068907cf32fa30be2c0c18541328d6f279f198e1dd0f01ba0"
+    },
+    {
+      "bytes": 4518,
+      "path": "PORTABILITY_NORMALIZATION.json",
+      "sha256": "9d6d680160eb6b59e60d569264397dbf8dae1cf0f9c478232e0d037c9a33bc8f"
+    },
+    {
+      "bytes": 3380,
+      "path": "PRODUCTION_COMPARISON_EXECUTION.md",
+      "sha256": "48e74e2577f780d0177893c89a2bdb89ead7713fd705790c3c0bf04f9d0284ce"
+    },
+    {
+      "bytes": 2025,
+      "path": "PRODUCTION_RELATION_CHECKS.json",
+      "sha256": "c2ab7baa671ec4e845aa7b203c7765c4ea188e37b69ae41b9582f7a5cd8bc588"
+    },
+    {
+      "bytes": 11279,
+      "path": "REPORT.md",
+      "sha256": "a33173c9d97b9c1d6745a5b2f2d46dd011023911d00cc023ac32eb51863f9655"
+    },
+    {
+      "bytes": 2532,
+      "path": "SOURCE_BASIS.md",
+      "sha256": "d45912676a3d39cd31b42c03fdb4ee81af69725e20a9f1a1141a2d1bee2aef83"
+    },
+    {
+      "bytes": 2151,
+      "path": "VALIDATION.json",
+      "sha256": "4b7fc7b88d1fab97939b1e1667111af2634c8b46f1dec450321c86298816d7f5"
+    },
+    {
+      "bytes": 4224,
+      "path": "VARIANT_LEDGER.json",
+      "sha256": "2ad7f540694e17d0103af493f41e7f310116f50554a1e4904b72df575709d872"
+    },
+    {
+      "bytes": 8973,
+      "path": "compare_frozen_to_production.py",
+      "sha256": "e76eb33fb0fa34d1855ad7139623b841cf27cd517ff2b649e8841c19eec382fd"
+    },
+    {
+      "bytes": 32111,
+      "path": "independent_mixed_reference.py",
+      "sha256": "6d946755ca2748094f0856bf30018cfc4620bb82c6b7d2223ab9b9a7aaf59b13"
+    },
+    {
+      "bytes": 4325,
+      "path": "normalization/pre_portability/FREEZE_MANIFEST.json.base64",
+      "sha256": "ec6bc26ecec3844910a02073eeff1fe6a11858ccf9668298d54354306d16d65f"
+    },
+    {
+      "bytes": 4515,
+      "path": "normalization/pre_portability/INPUT_FREEZE.json.base64",
+      "sha256": "9bbcb09e87084d068fe1d8147bbd754132f616ab8f151b46db8c8c97ab8f9e82"
+    },
+    {
+      "bytes": 6485,
+      "path": "normalization/pre_portability/METHOD_AND_SIGNS.md.base64",
+      "sha256": "70a8ba3d57fdb243621d9eb1e47ea2238cb1887edf8de85096d789a550b4789d"
+    },
+    {
+      "bytes": 3425,
+      "path": "normalization/pre_portability/SOURCE_BASIS.md.base64",
+      "sha256": "941ae3abea72d12c4b62714c5252f9d538c25ccfe760814eb1913db567cdc950"
+    },
+    {
+      "bytes": 4994,
+      "path": "production_comparison_harness/Cargo.lock",
+      "sha256": "4e9752028350c5a8bfec231e3e1f75373d10a21d06ac9e377ffc1ea4402bea7e"
+    },
+    {
+      "bytes": 226,
+      "path": "production_comparison_harness/Cargo.toml",
+      "sha256": "70ae830a84d5783cb9efa2eb15d1bb958dad67e28e1b1cf5cd61a4abbfd6f391"
+    },
+    {
+      "bytes": 2631,
+      "path": "production_comparison_harness/src/main.rs",
+      "sha256": "39f2178b04ff18b27230bc455f2d72940e5a812f6c97ad4c2d9b230ab39d0cd2"
+    },
+    {
+      "bytes": 204961,
+      "path": "production_outputs/literal_adapter.dense_scrutiny.json",
+      "sha256": "f2824e29c2c0098add9e519232c2286f52e2302b6a0cefab5f0b3e3e3ef0f800"
+    },
+    {
+      "bytes": 203797,
+      "path": "production_outputs/literal_adapter.sparse_interactive.json",
+      "sha256": "d677661bbab47465c508d5fe888006975f42ee7ca5b4634a471ec886671545aa"
+    },
+    {
+      "bytes": 196442,
+      "path": "production_outputs/literal_adapter_frictionless.dense_scrutiny.json",
+      "sha256": "161de558b9e112c40affc662437276b0538634a1e43fdf0f0ce18c9cb13996e0"
+    },
+    {
+      "bytes": 195242,
+      "path": "production_outputs/literal_adapter_frictionless.sparse_interactive.json",
+      "sha256": "ba0ac88416d5c9490a8b2456d9971d4a7fb9ea2ad207224bac8557e4bc356f71"
+    },
+    {
+      "bytes": 200694,
+      "path": "production_outputs/physical_frame.dense_scrutiny.json",
+      "sha256": "2baf7f377ad349a027f3b04f1a40254410abf0bc0bb815dac177791acaf3102f"
+    },
+    {
+      "bytes": 199530,
+      "path": "production_outputs/physical_frame.sparse_interactive.json",
+      "sha256": "bfed7a0518580f87d156e10cac62b0f6a075118eb190a5e14402107e81f6b3ec"
+    },
+    {
+      "bytes": 192162,
+      "path": "production_outputs/physical_frame_frictionless.dense_scrutiny.json",
+      "sha256": "51cce8e67dc4a7dff0ff34ae848f336216fa12462242cf517ce2e162932058d4"
+    },
+    {
+      "bytes": 190962,
+      "path": "production_outputs/physical_frame_frictionless.sparse_interactive.json",
+      "sha256": "efbe367dae8b334ca21752b206ecb8cce9ec35e91d9578c9199085a7ec89a97a"
+    },
+    {
+      "bytes": 3888,
+      "path": "verify_frozen_reference.py",
+      "sha256": "274c378c17c908ebc0dab4798dbd4ec88540603e5cb1c8650db8ba5025332de4"
+    }
+  ],
+  "generated_at": "2026-09-07T23:54:55-0600",
+  "root": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908",
+  "schema_version": "1.0",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e"
+}

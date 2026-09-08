@@ -1,0 +1,3 @@
+# PHYSICS_UI_EXECUTION_20260908 — DEL-04-04 activation
+
+F4 activates only the narrow D-35 / DEC-067 current-normal consistency restoration at source `779dedb8670625b36af07b89fc5557470e47c50e`. Initial work is evidence-only: E006–E009 consumed-interface evidence, independently frozen current-normal expectations, unchanged M1-N-008 replay, and an exact implementation brief. Product/source writes remain held pending a versioned root amendment. Direction/reference/history/new threshold choices are not adopted. Manager evidence is under `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/`.

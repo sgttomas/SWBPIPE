@@ -1,0 +1,84 @@
+{
+  "schema_version": "1.0",
+  "status": "ADDITIVE_BYTE_LINEAGE_RECORD",
+  "reason": "final packet portability audit",
+  "performed_after_production_comparison": true,
+  "semantic_change": false,
+  "numeric_change": false,
+  "expected_result_changed": false,
+  "expected_result_sha256": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245",
+  "run_record_files": [
+    {
+      "path": "INPUT_FREEZE.json",
+      "change": "remove one blank EOF line",
+      "original_archive": "normalization/pre_portability/INPUT_FREEZE.json.base64",
+      "original_sha256": "8fbb9a74ae9f58591a16a1d8c606a16af16f824b1c3d0f60ea0f7a663c6af358",
+      "normalized_sha256": "0703c80d07490d3fd557b31c01ee890dd9d1a9dc5e599accea17072d7f8d2104"
+    },
+    {
+      "path": "METHOD_AND_SIGNS.md",
+      "change": "remove one blank EOF line",
+      "original_archive": "normalization/pre_portability/METHOD_AND_SIGNS.md.base64",
+      "original_sha256": "63e627e2f45ede1cc4d221f375315be2cb3f5c0c144e080bfe6fc8a45f78743f",
+      "normalized_sha256": "3bfb4732f9fded5068907cf32fa30be2c0c18541328d6f279f198e1dd0f01ba0"
+    },
+    {
+      "path": "SOURCE_BASIS.md",
+      "change": "remove one blank EOF line",
+      "original_archive": "normalization/pre_portability/SOURCE_BASIS.md.base64",
+      "original_sha256": "6849d256bee1f4ec26ef63928c37449b7f59c63f78194d2c18c6307d2818c2d2",
+      "normalized_sha256": "d45912676a3d39cd31b42c03fdb4ee81af69725e20a9f1a1141a2d1bee2aef83"
+    },
+    {
+      "path": "REPORT.md",
+      "change": "replace host-specific Python path with {PYTHON_WITH_NUMPY} and repair Markdown fences; report was post-freeze and required no original serialization"
+    },
+    {
+      "path": "production_comparison_harness/Cargo.toml",
+      "change": "remove one blank EOF line; post-freeze harness"
+    }
+  ],
+  "instance_files": [
+    {
+      "path": "SEALED_ACTIVATION.md",
+      "change": "remove Markdown hard-break trailing spaces and one blank EOF line",
+      "original_archive": "normalization/pre_portability/SEALED_ACTIVATION.md.base64",
+      "original_sha256": "2b6ba1e41d8189e3b50af5c23ca2f0a8ef71f37e21ef99bb01127df52958aaf8",
+      "normalized_sha256": "577431f8ca2d2521d322b0db93ffa65bb1b2e8aaffdc4c548ace767676b6c416"
+    },
+    {
+      "path": "WORK_GRAPH_V1.md",
+      "change": "remove one blank EOF line",
+      "original_archive": "normalization/pre_portability/WORK_GRAPH_V1.md.base64",
+      "original_sha256": "4ce40b310d814929769eee58be1c0ba71ddf5f5f9621ca3545fcde9db8323288",
+      "normalized_sha256": "30c08355d4ca8d6e6ebe4df0c0780504fe68e18f89839c67c87a3bc28129ba56"
+    },
+    {
+      "path": "children/C1/SEALED_BRIEF.md",
+      "change": "remove Markdown hard-break trailing spaces and one blank EOF line",
+      "original_archive": "normalization/pre_portability/children/C1/SEALED_BRIEF.md.base64",
+      "original_sha256": "c9c00623c7b2692d0a1edc12a983d405a4b344fc0e194fcaa131f19088e3e6b5",
+      "normalized_sha256": "4a460472a3ea7efb4b2df891d5f1109d66189c2c25ae12df49e89e1847edc2e1"
+    },
+    {
+      "path": "children/C1/DERIVATION.md",
+      "change": "remove Markdown hard-break trailing spaces",
+      "original_archive": "normalization/pre_portability/children/C1/DERIVATION.md.base64",
+      "original_sha256": "bbe59545fd28a2cc038dbecb572f3a2a85f7931e75079f472aec806ba049c6c8",
+      "normalized_sha256": "df853f1181becf888f0b5dccf50ffa3cf4b76b0e6820cc6e89c0cf0def0c0e7d"
+    },
+    {
+      "path": "children/C1/RETURN.md",
+      "change": "remove Markdown hard-break trailing spaces, replace host-specific Python path with a symbolic runtime description, and refresh hashes to normalized active files",
+      "original_archive": "normalization/pre_portability/children/C1/RETURN.md.base64",
+      "original_sha256": "1ef244c9e255dae5fec4ea698df96c117bd796d461e392a3f8727ae87a47c4a7",
+      "normalized_sha256": "c334c2dd63fcc115a9ef93b4b2b8cbdafe9dc53d5317f221391a6c0994c929d2"
+    }
+  ],
+  "pre_normalization_freeze_manifest": {
+    "path": "normalization/pre_portability/FREEZE_MANIFEST.json.base64",
+    "sha256": "26cc80861475e3004f892aa64d2f74cb4923ecd8c036d2b7b94333f0c8c76cd7"
+  },
+  "archive_encoding": "RFC 4648 base64 with 76-character LF-terminated transport lines; recorded original hashes apply to decoded bytes",
+  "interpretation": "Serialized originals preserve the exact pre-comparison and child-return byte lineage. Active copies differ only by the listed portability normalization; the numerical oracle and production outputs are unchanged."
+}

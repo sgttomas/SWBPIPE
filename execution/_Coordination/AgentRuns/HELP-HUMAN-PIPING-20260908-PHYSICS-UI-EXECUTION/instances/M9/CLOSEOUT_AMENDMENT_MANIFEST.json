@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "status": "EVIDENCE_PHASE_CLOSEOUT_AMENDMENT_COMPLETE",
+  "created_at": "2026-09-08T01:22:13-0600",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "scope_record": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/CLOSEOUT_AMENDMENT_SCOPE.md",
+    "sha256": "521a020ae4b0b44aa53b311a7ba518b5e689caf6707a4280b57ed291ff3b5584",
+    "bytes": 1054,
+    "timing": "written before deliverable closeout edit"
+  },
+  "deliverable_delta": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md",
+      "operation": "append concise 2026-09-08 independent mixed-reference evidence entry",
+      "before_sha256": "b822f3ea38e34972f067b69a370619b380264b841413e1f4e9da8da6a4f4f41f",
+      "after_sha256": "3bec36bb4fbab84369bf8c8eceef89a1feb437a9fb6de75b169aba8056f6e1b5",
+      "after_bytes": 49823
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md",
+      "operation": "inspected and left unchanged because Remaining already contains only open work and does not state that the independent reference is pending",
+      "before_sha256": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404",
+      "after_sha256": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404",
+      "bytes": 5335
+    }
+  ],
+  "accepted_reference_pointers": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/REPORT.md",
+      "sha256": "a33173c9d97b9c1d6745a5b2f2d46dd011023911d00cc023ac32eb51863f9655"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/MANIFEST.json",
+      "sha256": "2eeaddfd63cf05d116b46e031844d1b1d9c028380687facf9808ce0aebc7062b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/PATH_ONLY_CORRECTION_MANIFEST_V2.json",
+      "sha256": "dfac8e3089a60cfe3b4d0bb6fab88c20bc338ebb4746260e1e9214fef17c8471"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/REVIEW.md",
+      "sha256": "4c522ef833733e3ba9247f859eb95653f4951a0aa7fde51e349d01ea7d2b2c60",
+      "verdict": "PASS accepted by root"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/MANIFEST_V2.json",
+      "sha256": "237820f21a9a638c7d717ca22a2b0f37aefb6d467942693d8f3df3d00266c858"
+    }
+  ],
+  "preserved_boundaries": {
+    "reference_math_code_expected_outputs": "byte-identical",
+    "physical_case": "pressure-free L-100 connector-excluded control",
+    "literal_case": "C-150 current-adapter diagnostic only",
+    "current_normal_mismatch": "+0.0005818300000000054 N raw algebraic observation",
+    "threshold_or_whole_fixture_adequacy": "not asserted",
+    "production_repair_source_acceptance_engineering_and_dependencies": "open",
+    "lifecycle_or_dependency_row_effect": "none"
+  },
+  "tests_or_cargo_rerun": false
+}

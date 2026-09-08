@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "freeze": "CONTROL_FREEZE_V3",
+  "status": "CURRENT_CORRECTED_CONTROL_FREEZE",
+  "supersedes": {
+    "path": "snapshots/CONTROL_FREEZE_V2.json",
+    "sha256": "00032a3ed70b5ea3e70e997e5ad4981548e95db704465244c9156816fa70d87b"
+  },
+  "path_basis": "RUN_ROOT",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "files": [
+    {"path":"OWNER_DIRECTION.md","sha256":"eb67263fbe30bcefb7f4f43450cf96346cdab7370315ff9f924b433bdd4e9174"},
+    {"path":"SESSION_CONTINUITY.md","sha256":"3789dc08a728a0d1cab12dd13382846ef3a7c292c81b1c3bd619c7685baed221"},
+    {"path":"SHARED_LAUNCH_CONTRACT_V1.md","sha256":"2561ff7ccdf66f836d1a56b1c753680126750d923f99d622580364d48f6dc80b"},
+    {"path":"ORCHESTRATION_PLAN_V1.md","sha256":"16379ef4f902f267c3f6d50020edab2bc512f9837574f0d8bf8bde315325139e"},
+    {"path":"WORK_GRAPH_V1.json","sha256":"eb5e09a70f1e7e8c7be2a80123657c386b6b9ca2c2fc094b447e7916c1744223"},
+    {"path":"../../_DECISIONS/D-66_RULING_2026-09-08.md","sha256":"578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f"},
+    {"path":"../../_DECISIONS/_REGISTER.md","sha256":"dc141013a5d30f6d58c1f392a6c6f4f0af2e8f1b7dd809ea3c11ddfef5116679"}
+  ],
+  "lineage": {
+    "changed_current_paths_since_v2": ["../../_DECISIONS/D-66_RULING_2026-09-08.md"],
+    "original_d66_sha256": "6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334",
+    "original_d66_resolver": "_run_records/control_lineage/D66_RULING_ORIGINAL_6081276e.b64 decoded as base64",
+    "original_archive_sha256": "f350047c31f5132f6d3b7011e1541e28d59036cf5403325cf959bc7868ac77c7",
+    "correction_record": "_run_records/control_lineage/D66_WHITESPACE_CORRECTION_V1.json",
+    "correction_record_sha256": "a38a6e90dedf0a65a202094703a1b216b94cab751c0a4fc1056f72876e4da7e1",
+    "unchanged_substantive_content": true
+  },
+  "validation": {
+    "all_seven_current_members_exist_and_hash_match": true,
+    "decoded_original_exists_and_hash_matches_v1_v2": true,
+    "normalized_change_is_only_four_trailing_space_pairs": true
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "manifest_id": "K8-DEL-08-04-EVIDENCE-CLOSEOUT-20260908",
+  "recorded_date": "2026-09-08",
+  "scope": "DEL-08-04 durable evidence pointer only",
+  "source_head": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "decision_state": {
+    "candidate": "K-A + K-U1",
+    "candidate_design_validation": "complete",
+    "independent_backcheck": "PASS",
+    "public_api_schema_compatibility_adoption": "pending_owner_decision",
+    "pressure_mechanics_adoption": "pending_owning_physics_review"
+  },
+  "outputs": [
+    {
+      "path": "instances/K8/CLOSEOUT_AMENDMENT_RECORD.md",
+      "sha256": "b79e497906b1ee634129183bad92359772ee7b08a9fbb127a4c9ce12658d794a"
+    },
+    {
+      "path": "DEL-08-04_Result export format/MEMORY.md",
+      "sha256_before": "78155fa2faf8c5879f2f1bbedb1f4ca0b7b8a3e169f742fd638554f26b9bf411",
+      "sha256_after": "eeaa25850a0880708f876e602aa6039eaf566313bce4cc4326032ae524add63a"
+    }
+  ],
+  "observed_unchanged": [
+    {
+      "path": "DEL-08-04_Result export format/_STATUS.md",
+      "sha256": "58d5ba902653bd3b8658ffef9af88e246cc2ac7d456aae66bbd394b073144d61",
+      "reason": "Current IN_PROGRESS state and Remaining entry remain accurate."
+    }
+  ],
+  "accepted_evidence": [
+    {
+      "path": "instances/K8/MANIFEST_V4.json",
+      "sha256": "a285a7aee0f276919c16db28fb74926257735b9b41dd9c7cc66b554dba1a0941"
+    },
+    {
+      "path": "instances/RK/BACKCHECK_RETURN_V4.md",
+      "sha256": "df22ff8bb50a20763e4d35a74ae08fa31696ee9ce222dc1c18f73e5c0709e393",
+      "verdict": "PASS"
+    }
+  ],
+  "assertions": {
+    "lifecycle_changed": false,
+    "dependencies_changed": false,
+    "requirements_deleted": false,
+    "frozen_v1_v2_v3_v4_changed": false,
+    "production_schema_or_adapter_changed": false
+  }
+}

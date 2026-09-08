@@ -1,0 +1,9 @@
+[package]
+name = "m9_production_comparison_harness"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+open_pipe_stress_product_physics = { path = "../../../../../../../core/product_physics" }
+serde_json = "1"

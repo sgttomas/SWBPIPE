@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "freeze": "CONTROL_FREEZE_V1",
+  "status": "FROZEN_FOR_LAUNCH",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "files": [
+    {"path":"OWNER_DIRECTION.md","sha256":"eb67263fbe30bcefb7f4f43450cf96346cdab7370315ff9f924b433bdd4e9174"},
+    {"path":"SESSION_CONTINUITY.md","sha256":"3789dc08a728a0d1cab12dd13382846ef3a7c292c81b1c3bd619c7685baed221"},
+    {"path":"SHARED_LAUNCH_CONTRACT_V1.md","sha256":"2561ff7ccdf66f836d1a56b1c753680126750d923f99d622580364d48f6dc80b"},
+    {"path":"ORCHESTRATION_PLAN_V1.md","sha256":"16379ef4f902f267c3f6d50020edab2bc512f9837574f0d8bf8bde315325139e"},
+    {"path":"WORK_GRAPH_V1.json","sha256":"eb5e09a70f1e7e8c7be2a80123657c386b6b9ca2c2fc094b447e7916c1744223"},
+    {"path":"../../../_DECISIONS/D-66_RULING_2026-09-08.md","sha256":"6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334"},
+    {"path":"../../../_DECISIONS/_REGISTER.md","sha256":"dc141013a5d30f6d58c1f392a6c6f4f0af2e8f1b7dd809ea3c11ddfef5116679"}
+  ],
+  "validation": {
+    "work_graph_json": "PASS",
+    "git_diff_check": "PASS",
+    "register_update_scope": "D-66 row only"
+  }
+}

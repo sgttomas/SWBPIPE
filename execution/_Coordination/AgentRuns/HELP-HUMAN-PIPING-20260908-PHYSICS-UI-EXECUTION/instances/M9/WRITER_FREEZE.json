@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "writer": "M9 WORKING_ITEMS",
+  "frozen_at": "2026-09-07T23:56:19-0600",
+  "status": "WRITES_COMPLETE_RETURN_TO_HELP_HUMAN",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "expected_result_sha256": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245",
+  "manifests": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/MANIFEST.json",
+      "sha256": "2eeaddfd63cf05d116b46e031844d1b1d9c028380687facf9808ce0aebc7062b",
+      "file_count": 32
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/M9/MANIFEST.json",
+      "sha256": "02131d46d094484d425825561ef0e6b1784740e6452a9d3f40b7ac9392e732b2",
+      "file_count": 18
+    }
+  ],
+  "manifest_exclusion": "Each manifest excludes itself and WRITER_FREEZE.json; this record binds both manifest bytes and is the final M9 write.",
+  "dependency_effect": "NONE",
+  "production_writes": "NONE",
+  "further_m9_writes_authorized": false
+}

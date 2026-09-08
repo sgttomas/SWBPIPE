@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "instance_id": "M9",
+  "started_at": "2026-09-07T22:57:31-0600",
+  "validated_at": "2026-09-07T23:54:55-0600",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "child_count": 1,
+  "child_model": "gpt-5.6-sol",
+  "child_reasoning": "high",
+  "production_writes": "none",
+  "native_build_target": "{TASK_TEMP}/m9-cargo-target; host resolution is retained in the DEL production-comparison execution record",
+  "governance_conformance": "PASS_EXCEPT_DISCLOSED_NATIVE_SLOT_SCHEDULING_DEVIATION",
+  "scheduling_deviation": "M9 invoked native Rust compilation/comparison before receiving notice that F4's exclusive native/Rust slot had been released; private target and read-only production imports prevented shared-state writes",
+  "output_status": "COMPLETE_BOUNDED_DERIVATIVE_REFERENCE_PACKAGE"
+}

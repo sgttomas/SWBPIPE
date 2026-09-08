@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "version": 1,
+  "status": "FROZEN_FOR_LAUNCH",
+  "selection_authority": "HUMAN",
+  "posture": "MIXED",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "model_contract": {"model": "gpt-5.6-sol", "reasoning": "high", "exception_requires_owner": true},
+  "nodes": [
+    {"id":"C0","role":"ephemeral Agent2 control recorder","package":null,"depends_on":[],"phase":"control","writes":"RUN_ROOT root controls and instances/C0 only","return":"five-file control freeze","source_write":"none","state":"complete_when_hash_frozen"},
+    {"id":"PS","role":"PROJECT_SETUP Agent1","package":"dependency evidence","depends_on":["C0"],"phase":"evidence","writes":"instances/PS, exact dispatched dependency run record, new _DAG candidate-evidence subtree","return":"row-specific D evidence and exact dispositions; no accepted mutation","source_write":"none","state":"ready"},
+    {"id":"P5","role":"WORKING_ITEMS Agent1","package":"PKG-05","depends_on":["C0"],"phase":"evidence","writes":"instances/P5 and exact PKG05 deliverable run record","return":"independently frozen four-case pressure reference investigation","source_write":"none","state":"ready"},
+    {"id":"M9","role":"WORKING_ITEMS Agent1","package":"PKG-09","depends_on":["C0"],"phase":"evidence","writes":"instances/M9 and exact PKG09 deliverable run record","return":"independent mixed reference with frictionless controls first","source_write":"none","state":"ready"},
+    {"id":"K8","role":"WORKING_ITEMS Agent1","package":"PKG-08","depends_on":["C0"],"phase":"design","writes":"instances/K8 and exact PKG08 deliverable run record","return":"complete canonical route-A version/schema/consumer migration design","source_write":"none","state":"ready"},
+    {"id":"F4","role":"WORKING_ITEMS Agent1","package":"PKG-04","depends_on":["C0"],"phase":"prerequisite_and_reproduction","writes":"instances/F4 and exact DEL-04-04 run record","return":"prerequisite disposition, unchanged M1-N-008 reproduction, frozen current-normal expectations, exact implementation brief","source_write":"held_pending_root_amendment","state":"ready_evidence_only"},
+    {"id":"U7","role":"WORKING_ITEMS Agent1","package":"PKG-07","depends_on":["C0"],"phase":"consumed_interface_and_brief","writes":"instances/U7 and exact DEL-07-01 run record","return":"exact consumed-interface evidence and implementation brief adopting W7 V1+V2+V3","source_write":"held_pending_root_amendment","state":"ready_evidence_only"},
+    {"id":"R","role":"REVIEW Agent1","package":null,"depends_on":["PS","P5","M9","K8","F4","U7"],"phase":"fresh_review","writes":"instances/R only","return":"independent 100-percent frozen-tranche verdict","source_write":"none","state":"held_for_frozen_fan_in"},
+    {"id":"CHANGE","role":"CHANGE Agent1","package":null,"depends_on":["R"],"phase":"closeout","writes":"instances/CHANGE and exact change/receipt evidence released by root","return":"final checks, scoped Git/PR/merge closeout","source_write":"no product authoring","state":"held_for_root_acceptance"}
+  ],
+  "shared_owners": {
+    "nonlinear_integration_and_product_physics": "F4",
+    "desktop_app_integration": "U7",
+    "slot_and_cross_package_coordination": "/root"
+  },
+  "retained_later_options": ["U-B","C","N","I","X","B"],
+  "human_decision_points": ["new physical/reference acceptance", "public compatibility or migration choice", "unresolved formal dependency ruling", "any expansion beyond the selected first wave"],
+  "failure_isolation": "Hold only declared dependants; continue independent evidence/design nodes."
+}

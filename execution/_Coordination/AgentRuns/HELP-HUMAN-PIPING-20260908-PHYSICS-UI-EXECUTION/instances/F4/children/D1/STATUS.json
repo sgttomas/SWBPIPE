@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "parent_instance_id": "F4",
+  "instance_id": "F4-D1",
+  "role": "TASK",
+  "task_skill": "software-defect-diagnosis",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "state": "COMPLETE",
+  "result": "SUCCESS",
+  "runtime_identity": "/root/friction_execution/f4_d1_diagnosis",
+  "model_requested": "gpt-5.6-sol",
+  "reasoning_requested": "high",
+  "actual_model_visibility": "not_exposed_to_instance",
+  "source_write": "NONE",
+  "historical_evidence_write": "NONE",
+  "temporary_workspace_removed": true,
+  "return_path": "RETURN_V2.md",
+  "return_sha256": "9fb615627f7f7202f31317d2fbfc98590504e0385a3b35a7933b60af97ee1818",
+  "superseded_return": {
+    "path": "{WORKING_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_EXECUTION_20260908/diagnosis/evidence/RETURN_V1_CONTROL_PRESERVED.md",
+    "sha256": "429b638e827f16779449840e1e200ea32160a04d2ff27970e87fac4d70227de6",
+    "reason": "portable control-path successor; original bytes preserved"
+  },
+  "evidence_path": "../../../../../../../PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_EXECUTION_20260908/diagnosis/evidence/diagnosis.json",
+  "evidence_sha256": "f7d1fc0b8b6f571ba994d86c3214d69d861e34ae51da0b5f54783db4f579baf2",
+  "replay_exit_status": 0,
+  "extension_exit_status": 0
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "M9",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-09",
+  "deliverable_id": "DEL-09-01",
+  "status": "COMPLETE_WITH_RETAINED_DECISIONS_AND_DISCLOSED_SCHEDULING_DEVIATION",
+  "phase": "RETURNED_TO_HELP_HUMAN",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "fixture": "fixtures/product_preview/invented_preview_model.json",
+  "production_writes": "NONE",
+  "dependency_effect": "NONE",
+  "completed_at": "2026-09-07T23:54:55-0600",
+  "reference_package": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908",
+  "validation": "PASS",
+  "scheduling_deviation": "native Rust comparison invoked before M9 received F4 slot-release notice; isolated private target and no production writes"
+}

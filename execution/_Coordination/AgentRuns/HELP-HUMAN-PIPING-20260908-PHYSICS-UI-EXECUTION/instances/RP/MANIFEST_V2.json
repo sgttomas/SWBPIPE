@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "RP",
+  "manifest_version": 2,
+  "status": "R01_CONTROL_REPAIR_COMPLETE",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "successor_of": {
+    "path": "MANIFEST.json",
+    "bytes": 4389,
+    "sha256": "89d474de34d00c82676675865b746945866f346efdda04592b056260892deb7c"
+  },
+  "correction": {
+    "finding": "R-01",
+    "scope": "active LAUNCH_BRIEF.md path portability only",
+    "map_path": "CORRECTION_MAP_R01.json",
+    "map_sha256": "40052c37d82c9633d096a31fa4390af8c87e5d5e82f0420dd634d230daf3bfc9"
+  },
+  "predecessor_logical_member_resolver": {
+    "logical_path": "LAUNCH_BRIEF.md",
+    "predecessor_sha256": "526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47",
+    "resolve_to": "_run_records/R-01_PORTABILITY_REPAIR_20260908/ORIGINAL_LAUNCH_BRIEF.base64.json#base64(content_base64)",
+    "decoded_bytes": 3332,
+    "decoded_sha256": "526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"
+  },
+  "active_logical_member": {
+    "path": "LAUNCH_BRIEF.md",
+    "bytes": 3417,
+    "sha256": "a9e274403872cc9ad61500956002d50e2007459c614678040d49429956098bc0"
+  },
+  "files": [
+    {"path":"MANIFEST.json","bytes":4389,"sha256":"89d474de34d00c82676675865b746945866f346efdda04592b056260892deb7c","status":"preserved_predecessor"},
+    {"path":"LAUNCH_BRIEF.md","bytes":3417,"sha256":"a9e274403872cc9ad61500956002d50e2007459c614678040d49429956098bc0","status":"active_portable_successor"},
+    {"path":"_run_records/R-01_PORTABILITY_REPAIR_20260908/ORIGINAL_LAUNCH_BRIEF.base64.json","bytes":4803,"sha256":"42102c7d78502552dc19acd0ae764114b68e7478fdfa1e822749dd0a2b9d2655","status":"historical_original_bytes"},
+    {"path":"CORRECTION_MAP_R01.json","bytes":2688,"sha256":"40052c37d82c9633d096a31fa4390af8c87e5d5e82f0420dd634d230daf3bfc9","status":"active_resolver"},
+    {"path":"R01_RETURN.md","bytes":1806,"sha256":"d7fde933e2f7293a889dc09690422eac0ed4cc73c110019279c638412650babb","status":"control_repair_return"},
+    {"path":"INVESTIGATION_REPORT.md","bytes":7162,"sha256":"746b0def10e7ac42dd6598cdeb9e39f188bb91e474f3e615450301bd0c58fa4b","status":"unchanged_accepted_physics_review"},
+    {"path":"RETURN.md","bytes":1659,"sha256":"939c28a8657cf3fa84a138be592366a6e6c617a2ca62f3a70644dc91b19f1d57","status":"unchanged_accepted_physics_return"},
+    {"path":"REVIEWED_INVENTORY.sha256","bytes":4050,"sha256":"6676c17a5b8cea47e09a1bcedd13261f5ad9fa45ac608c117aa966c048c5579d","status":"unchanged_physics_review_inventory"}
+  ],
+  "validation": {
+    "predecessor_manifest_preserved": true,
+    "original_decoded_bytes_match_predecessor_member": true,
+    "active_machine_path_scan": "PASS",
+    "active_portable_anchor_scan": "PASS",
+    "timing_and_wrong_lane_disclosure_exactly_preserved": true,
+    "physics_report_unchanged": true,
+    "physics_return_unchanged": true,
+    "math_rerun": false,
+    "subject_or_source_write": false
+  },
+  "authority_boundary": "control-evidence correction only; no change to physics verdict, engineering adoption, compatibility, dependency, lifecycle, DAG, Git, or publication state"
+}

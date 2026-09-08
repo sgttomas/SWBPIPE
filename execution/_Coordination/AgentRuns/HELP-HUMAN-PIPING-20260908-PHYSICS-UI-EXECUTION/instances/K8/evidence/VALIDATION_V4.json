@@ -1,0 +1,38 @@
+{
+  "status": "PASS",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "child_fan_in": "PASS",
+  "candidate_builder": "PASS",
+  "v4_schema_integration": {
+    "full_native_rows": 830,
+    "exact_source_records": "830/830",
+    "relation_fields": 52,
+    "json_value_classes": 6,
+    "systematic_cases": 312,
+    "writer_reader_calls": 624,
+    "uncaught_exceptions": 0
+  },
+  "named_regressions": {
+    "kind_array_object_number": "PASS_WRITER_READER",
+    "unit_array_object": "PASS_WRITER_READER",
+    "writer_non_string_key": "PASS",
+    "well_typed_semantic_codes": "PASS",
+    "non_finite_numbers": "PASS",
+    "version_ingress": "PASS",
+    "pressure_preserve_only": "PASS"
+  },
+  "frozen_predecessors": {
+    "v1_outputs": "12/12_HASH_EXACT",
+    "v2_outputs": "14/14_HASH_EXACT",
+    "v3_outputs": "16/16_HASH_EXACT"
+  },
+  "path_anchor_validator": {
+    "checked_files": 3979,
+    "findings": 0,
+    "unacknowledged_control": 0,
+    "active_unclassified": 0,
+    "policy_issues": 0
+  },
+  "candidate_whitespace": "PASS",
+  "production_writes": false
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "U7",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-07",
+  "deliverable_ids": ["DEL-07-01", "DEL-07-02_CONDITIONAL"],
+  "state": "READY_HELD",
+  "phase": "AWAITING_ROOT_SOURCE_RELEASE",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "actual_identity": "/root/native_authoring",
+  "children_launched": 0,
+  "product_source_write": "HELD_PENDING_ROOT_AMENDMENT",
+  "notes": "Consumed-interface evidence and exact implementation brief are frozen. Product source remains held pending root amendment and formal dependency disposition."
+}

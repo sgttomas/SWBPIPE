@@ -1,0 +1,14 @@
+{
+  "status": "WRITER_FROZEN",
+  "candidate_revision": "K8-V3",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "frozen_after": [
+    "v2 regression",
+    "v3 candidate reproduction",
+    "v3 totality and ingress adversarial tests",
+    "path-anchor validation",
+    "candidate-whitespace validation"
+  ],
+  "allowed_next_action": "bounded independent RK backcheck through root mediation",
+  "author_edits_during_review": false
+}

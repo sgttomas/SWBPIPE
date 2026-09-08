@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "package_id": "PKG-08",
+  "selected_deliverables": ["DEL-08-04"],
+  "version": 1,
+  "status": "FROZEN_FOR_DIRECT_EXECUTION",
+  "selection_authority": "HUMAN_THROUGH_ROOT_LAUNCH",
+  "posture": "SINGLE_DELIVERABLE_DIRECT",
+  "nodes": [
+    {"id":"K8-D1","objective":"freeze exact W10 and live-source coverage basis","depends_on":[],"writes":"instances/K8/evidence only","return":"source bindings and coverage"},
+    {"id":"K8-D2","objective":"generate complete 0.2.0 candidate schema and kind mapping","depends_on":["K8-D1"],"writes":"instances/K8/evidence only","return":"schema, mapping, validation"},
+    {"id":"K8-D3","objective":"specify consumers, negotiation, migration and public choices","depends_on":["K8-D2"],"writes":"instances/K8 and exact DEL-08-04 run record","return":"implementation-ready design and audit-D05 packet"}
+  ],
+  "edges": [
+    {"from":"K8-D1","to":"K8-D2","gate":"exact observed kinds and W10 hashes bound"},
+    {"from":"K8-D2","to":"K8-D3","gate":"schema and mapping checks pass"}
+  ],
+  "concurrency": "serial; one direct integration owner",
+  "integration_owner": "K8 WORKING_ITEMS",
+  "fan_in_gate": "all outputs present, hashes bound, validation pass, public choices remain candidate",
+  "escalation_points": ["public version/cutover/unknown-version policy","new mechanics meaning","source or accepted-basis drift"]
+}

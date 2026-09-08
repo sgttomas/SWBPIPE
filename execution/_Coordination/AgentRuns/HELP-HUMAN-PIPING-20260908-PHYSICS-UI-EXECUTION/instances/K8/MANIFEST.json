@@ -1,0 +1,36 @@
+{
+  "status": "FROZEN_CANDIDATE_DESIGN",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "accepted_preparation": "HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION",
+  "candidate_schema_version": "0.2.0",
+  "outputs": [
+    {"path":"instances/K8/ACTIVATION.md","sha256":"83beaf91384e82bf757c6e2606e409358b3cfb50c2891841964e2ae635f35256"},
+    {"path":"instances/K8/WORK_GRAPH_V1.json","sha256":"a328123b76633c8bf1cdc02b06fb6cddbd066737302cf54b66c9d969037091c1"},
+    {"path":"instances/K8/STATUS.json","sha256":"21743522793431f138f01fbc54a47eeaedc33b695d903a85866358f5d351f7bc"},
+    {"path":"instances/K8/HANDOFF.md","sha256":"f29497a27fbde654c8dbb70c683474b83c2e51fd488cbbdb6009cccc51967c56"},
+    {"path":"instances/K8/RETURN.md","sha256":"95fa6fd3a21d513918db6eebb0b444e6e0fb13175d24123f0c24b4a603035fca"},
+    {"path":"instances/K8/evidence/COVERAGE_VALIDATION.json","sha256":"19d5ab3546a56267f0b05d60a9d1953ffdf5b5a2b9a0aa888e492bdf7ac1aca6"},
+    {"path":"instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE.json","sha256":"89f8bb5acc2d93735f44bbea0aabf669433ef9a1ac9a205cf76b86b2bdc38098"},
+    {"path":"instances/K8/evidence/SOURCE_KIND_MAPPING.csv","sha256":"d407ecc092ccdd2064e1d3af06503eef037e4bfc733498a1e3c0b41776013ab9"},
+    {"path":"instances/K8/evidence/build_candidate.py","sha256":"8e9d77b69f6b06bf92e56696e01b92adab57907a0d5e489d7543ce24d3d7df05"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_DESIGN.md","sha256":"1c7697d9f4d1e701bd10003d963e79189167f11f3b80f029d5e64e52e37255f7"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/PUBLIC_COMPATIBILITY_DECISION.md","sha256":"d26828130287fa73bbf2b1885cbd06675970baf2094c90ca5d69a9410956423c"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD.md","sha256":"22421000dd3d0f63d363290adf133b8b18c414cec92ac396d631b85f27e4f301"}
+  ],
+  "validation": {
+    "draft_2020_12_meta_schema": "PASS",
+    "full_native_nonlinear_rows": 830,
+    "observed_kind_unit_pairs": 45,
+    "unknown_version_rejected": true,
+    "unknown_kind_unit_rejected": true,
+    "exact_omitted_rows": {"linear":9,"nonlinear":33,"zero_pressure":39},
+    "referenced_digest_triplets_preserved": true,
+    "lf": "PASS",
+    "write_containment": "PASS"
+  },
+  "decision_required": "audit D05 Owner selection: K-A/K-B/K-C plus K-U1/K-U2",
+  "recommendation": "K-A + K-U1",
+  "production_writes": false
+}

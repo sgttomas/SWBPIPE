@@ -769,3 +769,10 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Added the independent actual-product suite in `validation/benchmarks/physics_audit_regression`; original analytical expectations were frozen before comparisons and independently reviewed.
 - Root accepted matching reviewed-source verification: all 10 tests pass through both solver modes; deliberate dimensional-mixing and actual station-zero mutations fail the intended numerical assertions, and the restored control passes.
 - Evidence and scope mapping: `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_R10.md`. Existing status/Remaining, acceptance thresholds, canonical-unit, release and Owner gates are unchanged.
+
+## 2026-09-08 — Independent mixed-reference evidence
+
+- The final derivative reference packet is `_run_records/PHYSICS_UI_EXECUTION_20260908/REPORT.md`, with its frozen expected results and manifest in the same directory. The corrected independent RM review is `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM/REVIEW.md`, bound by `MANIFEST_V2.json`; root accepted its technical `PASS`.
+- The pressure-free L-100 connector-excluded physical control remains distinct from the literal C-150 current-adapter diagnostic. Neither is unaltered whole-fixture adequacy; the literal adapter retains the independently exposed C-150 moment imbalance as an open physical-formulation fork.
+- Production's physical-case friction action exceeds `mu` times its same-return-state current normal by `+0.0005818300000000054 N`. This is a raw algebraic observation, not an adopted comparison threshold or engineering acceptance.
+- Production repair, source acceptance, C-150 topology/objectivity, spring preload/reference, friction history, one-way direction, engineering thresholds, canonical units, and dependency rows `DAG-002-E0532`, `DAG-002-E0533`, and `TP-DAG-004-DEL-09-01-E001` remain open. No lifecycle, dependency-row, release, reliance, or professional-acceptance change follows from the reference or RM review.

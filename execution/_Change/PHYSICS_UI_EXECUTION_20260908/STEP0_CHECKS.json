@@ -1,0 +1,74 @@
+{
+  "status": "PASS_WITH_RECORDED_SELF_CHECK_FINDINGS",
+  "recorded_utc": "2026-09-08T04:42:02Z",
+  "basis": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "python": {
+    "path": "{PREPARATION_PYTHON_VENV}/bin/python",
+    "host_path_record": "_run_records/TOOLCHAIN_HOST_PATHS.json#python_venv",
+    "version": "Python 3.13.14",
+    "intact": true
+  },
+  "checks": [
+    {
+      "name": "committed_loop_loader",
+      "result": "PASS",
+      "selected_path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "tree_entry": "100644 blob 61dbbca25b9be766383aa1e5a743a021ce4d63d1"
+    },
+    {
+      "name": "receipt_validator",
+      "command": "python tools/validation/validate_piping_loop_receipts.py --repo-root .",
+      "exit": 0,
+      "summary": "versioned receipt contract satisfied; latest applicable committed cursor is Receipt-135"
+    },
+    {
+      "name": "dag_and_stage_discovery",
+      "result": "PASS",
+      "approved_dag": "DAG-010",
+      "target_stage": "PRD R5 exit criterion",
+      "latest_decision_row": "D-66 PROPOSED"
+    },
+    {
+      "name": "deliverable_status",
+      "command": "PYTHONDONTWRITEBYTECODE=1 python projects/chirality-piping/tools/coordination/list_deliverable_status.py --dag DAG-010 --format table --summary",
+      "exit": 0,
+      "summary": {
+        "rows": 102,
+        "status_counts": {
+          "IN_PROGRESS": 100,
+          "ISSUED": 1,
+          "OPEN": 1
+        },
+        "remaining_items": 125,
+        "deliverables_with_remaining": 63,
+        "relevant_rows": {
+          "DEL-07-01": {
+            "status": "IN_PROGRESS",
+            "remaining_items": 2
+          },
+          "DEL-07-02": {
+            "status": "IN_PROGRESS",
+            "remaining_items": 6
+          },
+          "DEL-07-09": {
+            "status": "OPEN",
+            "remaining_items": 4
+          }
+        }
+      }
+    },
+    {
+      "name": "repo_self_check",
+      "command": "python tools/practitioner_harness/harness.py self-check",
+      "exit": 0,
+      "summary": "INFO=14, NOT_APPLICABLE=1, REVIEW=4, WARN=55; reported findings remain visible and no repair was attempted outside this setup write scope"
+    }
+  ],
+  "failed_attempts": [
+    {
+      "name": "deliverable_status_path_form",
+      "exit": 1,
+      "reason": "The tool resolves --dag relative to execution/_DAG; passing the full project path duplicated that prefix. Rerun with --dag DAG-010 passed."
+    }
+  ]
+}

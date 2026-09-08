@@ -1,5 +1,9 @@
 # MEMORY - DEL-05-03 Fundamental Stress Recovery Module
 
+## 2026-09-08 - Candidate four-case pressure-reference investigation
+
+P5 completed the candidate-only free-closed, restrained-closed, remote-closure/open-boundary-compensation, and thermal-plus-pressure investigation in the frozen [reference report](_run_records/PHYSICS_UI_EXECUTION_20260908/INVESTIGATION_REPORT.md), read with its additive [V2 node-on-element sign clarification](_run_records/PHYSICS_UI_EXECUTION_20260908/SIGN_CONVENTION_CLARIFICATION_V2.md). The independent [RP final review](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/RETURN.md) returned technical PASS, and [root's final notice](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/notices/RP_REVIEW_FINAL_20260908.json) accepted that review scope. This completes investigation evidence only: Poisson/material authority, closure topology/defaults, public wall/effective/action/cut schema and migration, curved/expansion-joint treatment, thresholds, and verification fixtures remain Owner-gated production choices. No pressure physics, public schema, lifecycle, dependency, or acceptance state was adopted.
+
 ## 2026-06-21 - TP-R4-D2-BRANCHSTRESS-001 branch component multiplier review rows
 
 WORKING_ITEMS landed the stress-recovery side of the D2 branch connection

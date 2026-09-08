@@ -1,0 +1,4477 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://openpipestress.org/schemas/results/0.2.0/results.schema.json",
+  "title": "OpenPipeStress Result Export Schema 0.2.0 \u2014 CANDIDATE",
+  "description": "Route-A candidate revision V2. Native source_record controls, runtime semantic validation is mandatory, and source-specific or pending rows are not standardized mechanics.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "deliverable_id",
+    "package_id",
+    "scope_item",
+    "objectives",
+    "export_format_status",
+    "result_envelope"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "0.2.0"
+    },
+    "deliverable_id": {
+      "const": "DEL-08-04"
+    },
+    "package_id": {
+      "const": "PKG-08"
+    },
+    "scope_item": {
+      "const": "SOW-046"
+    },
+    "objectives": {
+      "type": "array",
+      "minItems": 2,
+      "contains": {
+        "enum": [
+          "OBJ-007",
+          "OBJ-009"
+        ]
+      },
+      "items": {
+        "type": "string",
+        "enum": [
+          "OBJ-007",
+          "OBJ-009"
+        ]
+      }
+    },
+    "export_format_status": {
+      "$ref": "#/$defs/ExportFormatStatus"
+    },
+    "result_envelope": {
+      "$ref": "#/$defs/ResultEnvelope"
+    }
+  },
+  "$defs": {
+    "AnalysisStatus": {
+      "type": "string",
+      "description": "Automatic software-emitted analysis statuses allowed in result exports. Human project acceptance is external and hash-bound.",
+      "enum": [
+        "MODEL_INCOMPLETE",
+        "MECHANICS_SOLVED",
+        "RULE_INPUTS_INCOMPLETE",
+        "USER_RULE_CHECKED",
+        "USER_RULE_FAILED",
+        "HUMAN_REVIEW_REQUIRED"
+      ]
+    },
+    "Checksum": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "algorithm",
+        "canonicalization",
+        "payload_ref",
+        "value",
+        "canonicalization_claim"
+      ],
+      "properties": {
+        "algorithm": {
+          "type": "string",
+          "enum": [
+            "sha256",
+            "sha512",
+            "TBD"
+          ]
+        },
+        "canonicalization": {
+          "type": "string",
+          "enum": [
+            "JCS",
+            "rfc8785_jcs",
+            "NONE",
+            "TBD"
+          ]
+        },
+        "payload_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
+        },
+        "canonicalization_claim": {
+          "type": "string",
+          "enum": [
+            "rfc8785_conformant",
+            "implementation_label_only_conformance_not_established",
+            "no_canonicalization",
+            "undetermined"
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "canonicalization": {
+                "const": "JCS"
+              }
+            },
+            "required": [
+              "canonicalization"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canonicalization_claim": {
+                "const": "rfc8785_conformant"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "canonicalization": {
+                "const": "rfc8785_jcs"
+              }
+            },
+            "required": [
+              "canonicalization"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canonicalization_claim": {
+                "const": "implementation_label_only_conformance_not_established"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "canonicalization": {
+                "const": "NONE"
+              }
+            },
+            "required": [
+              "canonicalization"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canonicalization_claim": {
+                "const": "no_canonicalization"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "canonicalization": {
+                "const": "TBD"
+              }
+            },
+            "required": [
+              "canonicalization"
+            ]
+          },
+          "then": {
+            "properties": {
+              "canonicalization_claim": {
+                "const": "undetermined"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "Diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "class",
+        "severity",
+        "source",
+        "affected_object",
+        "message",
+        "remediation",
+        "provenance"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "minLength": 1
+        },
+        "class": {
+          "type": "string",
+          "enum": [
+            "SOLVE_BLOCKING",
+            "RULE_CHECK_BLOCKING",
+            "PROVENANCE_WARNING",
+            "ASSUMPTION_WARNING",
+            "NONLINEAR_WARNING",
+            "IP_BOUNDARY_WARNING",
+            "UNIT_WARNING",
+            "EXPORT_BLOCKING",
+            "TBD"
+          ]
+        },
+        "severity": {
+          "type": "string",
+          "enum": [
+            "info",
+            "warning",
+            "blocking"
+          ]
+        },
+        "source": {
+          "$ref": "#/$defs/Reference"
+        },
+        "affected_object": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "remediation": {
+          "type": "string",
+          "minLength": 1
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "ResultTraceLink": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional per-value trace link for result-boundary evidence. This records references across existing governed boundaries only; it does not infer missing provenance or expand solver behavior.",
+      "required": [
+        "trace_id",
+        "trace_type",
+        "source_ref",
+        "target_ref",
+        "provenance"
+      ],
+      "properties": {
+        "trace_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "trace_type": {
+          "type": "string",
+          "enum": [
+            "physical_source_to_analytical_model",
+            "analytical_model_to_adapter_dto",
+            "adapter_dto_to_solver_input",
+            "solver_input_to_result_value",
+            "section_property_evidence_to_result_value",
+            "source_trace_link_reference",
+            "TBD"
+          ]
+        },
+        "source_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional field-scalar path within source_ref. When present, target_field_path is also required."
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional field-scalar path within target_ref. When present, source_field_path is also required."
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        }
+      },
+      "dependentRequired": {
+        "source_field_path": [
+          "target_field_path"
+        ],
+        "target_field_path": [
+          "source_field_path"
+        ]
+      }
+    },
+    "UnitPreservationQuantity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "value",
+        "unit",
+        "dimension"
+      ],
+      "properties": {
+        "value": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/DimensionId"
+        }
+      }
+    },
+    "UnitPreservationWitness": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Optional result-envelope witness proving an exported result row preserves its source value, unit, and dimension without conversion. This is local unit I/O evidence only and does not create a cross-boundary trace chain.",
+      "required": [
+        "witness_id",
+        "source_result_ref",
+        "source_field_path",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance"
+      ],
+      "properties": {
+        "witness_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_quantity_policy": {
+          "const": "exported_result_row_preserves_source_value_unit_and_dimension"
+        },
+        "export_unit_policy": {
+          "const": "preserve_source_result_unit_and_dimension"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      }
+    },
+    "DimensionId": {
+      "type": "string",
+      "enum": [
+        "dimensionless",
+        "length",
+        "angle",
+        "force",
+        "moment",
+        "stress",
+        "area",
+        "section_modulus",
+        "second_moment_area",
+        "ratio",
+        "time",
+        "temperature",
+        "pressure",
+        "linear_stiffness",
+        "rotational_stiffness",
+        "TBD",
+        "energy",
+        "count",
+        "boolean",
+        "state_code",
+        "mode_code"
+      ]
+    },
+    "DownstreamUse": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "review",
+        "regression_comparison",
+        "report_consumption",
+        "headless_automation",
+        "governed_downstream_tooling",
+        "additional_export_formats"
+      ],
+      "properties": {
+        "review": {
+          "const": true
+        },
+        "regression_comparison": {
+          "const": true
+        },
+        "report_consumption": {
+          "const": true
+        },
+        "headless_automation": {
+          "const": true
+        },
+        "governed_downstream_tooling": {
+          "const": true
+        },
+        "additional_export_formats": {
+          "const": "TBD"
+        }
+      }
+    },
+    "ExportFormatStatus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseline_format",
+        "additional_formats",
+        "public_transport_protocol",
+        "local_fea_package_format",
+        "external_adapter_formats"
+      ],
+      "properties": {
+        "baseline_format": {
+          "const": "schema_first_json_result_envelope"
+        },
+        "additional_formats": {
+          "const": "TBD"
+        },
+        "public_transport_protocol": {
+          "const": "TBD"
+        },
+        "local_fea_package_format": {
+          "const": "TBD"
+        },
+        "external_adapter_formats": {
+          "const": "TBD"
+        }
+      }
+    },
+    "Id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "ProfessionalBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "human_review_required",
+        "software_makes_compliance_claim",
+        "software_makes_certification_claim",
+        "software_makes_sealing_claim",
+        "software_makes_approval_claim",
+        "software_makes_authentication_claim"
+      ],
+      "properties": {
+        "human_review_required": {
+          "const": true
+        },
+        "software_makes_compliance_claim": {
+          "const": false
+        },
+        "software_makes_certification_claim": {
+          "const": false
+        },
+        "software_makes_sealing_claim": {
+          "const": false
+        },
+        "software_makes_approval_claim": {
+          "const": false
+        },
+        "software_makes_authentication_claim": {
+          "const": false
+        }
+      }
+    },
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_name",
+        "source_location",
+        "source_license",
+        "contributor",
+        "contributor_certification",
+        "redistribution_status",
+        "review_status"
+      ],
+      "properties": {
+        "source_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contributor_certification": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "review_status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "accepted",
+            "rejected",
+            "quarantined",
+            "TBD"
+          ]
+        }
+      }
+    },
+    "QuantityResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "family": {
+                "enum": [
+                  "force",
+                  "moment",
+                  "section_property"
+                ]
+              }
+            },
+            "required": [
+              "family"
+            ]
+          },
+          "then": {
+            "required": [
+              "metadata"
+            ]
+          }
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "component_user_stiffness_macro_element_review"
+                    },
+                    "unit": {
+                      "const": "N*m/rad"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stiffness"
+                },
+                "dimension": {
+                  "const": "rotational_stiffness"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "stiffness"
+                    },
+                    "canonical_dimension": {
+                      "const": "rotational_stiffness"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "component_user_stiffness_macro_element_review"
+                    },
+                    "unit": {
+                      "const": "N/m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stiffness"
+                },
+                "dimension": {
+                  "const": "linear_stiffness"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "stiffness"
+                    },
+                    "canonical_dimension": {
+                      "const": "linear_stiffness"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "component_user_stress_multiplier_review"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "constant_effort_user_input_review"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "constant_effort_user_input_review"
+                    },
+                    "unit": {
+                      "const": "m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "displacement_magnitude"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_axial_force"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_axial_normal_stress"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_bending_moment_y"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "moment"
+                },
+                "dimension": {
+                  "const": "moment"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "moment"
+                    },
+                    "canonical_dimension": {
+                      "const": "moment"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_bending_moment_z"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "moment"
+                },
+                "dimension": {
+                  "const": "moment"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "moment"
+                    },
+                    "canonical_dimension": {
+                      "const": "moment"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_bending_normal_stress_y"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_bending_normal_stress_z"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_shear_force_y"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_shear_force_z"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_torsional_moment"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "moment"
+                },
+                "dimension": {
+                  "const": "moment"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "moment"
+                    },
+                    "canonical_dimension": {
+                      "const": "moment"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "element_local_torsional_shear_stress"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "expansion_joint_pressure_thrust_load_review"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "pressure_response"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized_pending_P5"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_displacement_x"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_displacement_y"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_displacement_z"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_rotation_x"
+                    },
+                    "unit": {
+                      "const": "rad"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "rotation"
+                },
+                "dimension": {
+                  "const": "angle"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "rotation"
+                    },
+                    "canonical_dimension": {
+                      "const": "angle"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_rotation_y"
+                    },
+                    "unit": {
+                      "const": "rad"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "rotation"
+                },
+                "dimension": {
+                  "const": "angle"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "rotation"
+                    },
+                    "canonical_dimension": {
+                      "const": "angle"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "global_nodal_rotation_z"
+                    },
+                    "unit": {
+                      "const": "rad"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "rotation"
+                },
+                "dimension": {
+                  "const": "angle"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "nodal_kinematic"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_metadata_standardized"
+                    },
+                    "canonical_family": {
+                      "const": "rotation"
+                    },
+                    "canonical_dimension": {
+                      "const": "angle"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "linear_solver_mode_basis"
+                    },
+                    "unit": {
+                      "const": "mode_code"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "mode_code"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "mode_code"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_active_set_converged_flag"
+                    },
+                    "unit": {
+                      "const": "boolean"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "boolean"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "boolean"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_active_set_final_residual_count"
+                    },
+                    "unit": {
+                      "const": "count"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "count"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "count"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_active_set_iteration_count"
+                    },
+                    "unit": {
+                      "const": "count"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "count"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "count"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_active_set_state_code"
+                    },
+                    "unit": {
+                      "const": "state_code"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "state_code"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "state_code"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_final_displacement"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "support_response"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_final_reaction"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "reaction"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "support_response"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "reaction"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_free_dof_work_residual"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "energy"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "energy"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_friction_normal_reaction_derived"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "reaction"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "support_response"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "reaction"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_free_dof_force_residual"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_free_dof_moment_residual"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "moment"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "moment"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_max_force_reaction_delta"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_max_moment_reaction_delta"
+                    },
+                    "unit": {
+                      "const": "N*m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "moment"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "moment"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_max_rotation_delta"
+                    },
+                    "unit": {
+                      "const": "rad"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "angle"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "angle"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "nonlinear_support_observed_max_translation_delta"
+                    },
+                    "unit": {
+                      "const": "mm"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "solver_observation"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "solver_observation"
+                    },
+                    "semantic_status": {
+                      "const": "transport_observation_only"
+                    },
+                    "canonical_family": {
+                      "const": "solver_observation"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "open_formula_stress_summary"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "element_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "pipe_section_pressure_hoop_stress"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "pressure_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_pressure_source_label_preserved_pending_P5"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "pipe_section_pressure_longitudinal_stress"
+                    },
+                    "unit": {
+                      "const": "MPa"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stress"
+                },
+                "dimension": {
+                  "const": "stress"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "pressure_response"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized_pending_P5"
+                    },
+                    "canonical_family": {
+                      "const": "stress"
+                    },
+                    "canonical_dimension": {
+                      "const": "stress"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "reaction_resultant"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "reaction"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "support_response"
+                    },
+                    "semantic_status": {
+                      "const": "existing_canonical_category"
+                    },
+                    "canonical_family": {
+                      "const": "reaction"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG08_TRANSPORT_ONLY"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "spring_hanger_user_input_review"
+                    },
+                    "unit": {
+                      "const": "N"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "force"
+                },
+                "dimension": {
+                  "const": "force"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "force"
+                    },
+                    "canonical_dimension": {
+                      "const": "force"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "spring_hanger_user_input_review"
+                    },
+                    "unit": {
+                      "const": "N/m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "stiffness"
+                },
+                "dimension": {
+                  "const": "linear_stiffness"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "stiffness"
+                    },
+                    "canonical_dimension": {
+                      "const": "linear_stiffness"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "source_record": {
+                  "type": "object",
+                  "properties": {
+                    "kind": {
+                      "const": "spring_hanger_user_input_review"
+                    },
+                    "unit": {
+                      "const": "m"
+                    }
+                  },
+                  "required": [
+                    "kind",
+                    "unit"
+                  ]
+                },
+                "family": {
+                  "const": "displacement"
+                },
+                "dimension": {
+                  "const": "length"
+                },
+                "classification": {
+                  "type": "object",
+                  "properties": {
+                    "source_family": {
+                      "const": "user_review"
+                    },
+                    "semantic_status": {
+                      "const": "source_specific_unstandardized"
+                    },
+                    "canonical_family": {
+                      "const": "displacement"
+                    },
+                    "canonical_dimension": {
+                      "const": "length"
+                    },
+                    "owner_semantics": {
+                      "const": "PKG04_05_MECHANICS"
+                    }
+                  },
+                  "required": [
+                    "source_family",
+                    "semantic_status",
+                    "canonical_family",
+                    "canonical_dimension",
+                    "owner_semantics"
+                  ]
+                }
+              },
+              "required": [
+                "source_record",
+                "family",
+                "dimension",
+                "classification"
+              ]
+            }
+          ]
+        }
+      ],
+      "required": [
+        "result_id",
+        "family",
+        "object_ref",
+        "basis_ref",
+        "magnitude",
+        "unit",
+        "dimension",
+        "provenance",
+        "source_record",
+        "classification"
+      ],
+      "properties": {
+        "result_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "family": {
+          "$ref": "#/$defs/ResultFamily"
+        },
+        "object_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "station_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "magnitude": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/DimensionId"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "metadata": {
+          "$ref": "#/$defs/ResultMetadata"
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "trace_chain": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ResultTraceLink"
+          }
+        },
+        "source_record": {
+          "$ref": "#/$defs/NativeResultRecord"
+        },
+        "classification": {
+          "$ref": "#/$defs/ResultClassification"
+        },
+        "source_result_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Id"
+          },
+          "description": "Ordered compatibility projection equal in presence and value to source_record.source_result_refs; enforced by the mandatory runtime validator."
+        }
+      }
+    },
+    "ResultMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Compatibility projection equal to source_record.metadata when metadata exists; equality is an adapter acceptance check.",
+      "required": [
+        "component",
+        "coordinate_system",
+        "location",
+        "basis",
+        "sign_convention"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coordinate_system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sign_convention": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "Reference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ref_type",
+        "ref_id"
+      ],
+      "properties": {
+        "ref_type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ref_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "display_name": {
+          "type": "string"
+        }
+      }
+    },
+    "Reproducibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "model_hash",
+        "run_hashes",
+        "audit_manifest_ref",
+        "deterministic_ordering"
+      ],
+      "properties": {
+        "model_hash": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "run_hashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Checksum"
+          }
+        },
+        "audit_manifest_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "deterministic_ordering": {
+          "const": true
+        }
+      }
+    },
+    "ResultEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "envelope_id",
+        "model_ref",
+        "run_ref",
+        "solver_version",
+        "unit_system_ref",
+        "load_basis_refs",
+        "result_sets",
+        "diagnostics",
+        "provenance",
+        "reproducibility",
+        "analysis_status",
+        "professional_boundary",
+        "downstream_use",
+        "version_contract"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": "0.2.0"
+        },
+        "envelope_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "model_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "run_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "solver_version": {
+          "$ref": "#/$defs/SolverVersion"
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "load_basis_refs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/Reference"
+          }
+        },
+        "result_sets": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/ResultSet"
+          }
+        },
+        "unit_witness_policy": {
+          "const": "preserve_source_result_value_unit_and_dimension_per_exported_result_row"
+        },
+        "unit_preservation_witnesses": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UnitPreservationWitness"
+          }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Diagnostic"
+          }
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "reproducibility": {
+          "$ref": "#/$defs/Reproducibility"
+        },
+        "analysis_status": {
+          "type": "array",
+          "minItems": 1,
+          "contains": {
+            "const": "HUMAN_REVIEW_REQUIRED"
+          },
+          "items": {
+            "$ref": "#/$defs/AnalysisStatus"
+          }
+        },
+        "rule_pack_refs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RulePackRef"
+          }
+        },
+        "professional_boundary": {
+          "$ref": "#/$defs/ProfessionalBoundary"
+        },
+        "downstream_use": {
+          "$ref": "#/$defs/DownstreamUse"
+        },
+        "version_contract": {
+          "$ref": "#/$defs/VersionContract"
+        }
+      }
+    },
+    "ResultFamily": {
+      "type": "string",
+      "enum": [
+        "displacement",
+        "rotation",
+        "force",
+        "moment",
+        "reaction",
+        "stress",
+        "section_property",
+        "ratio",
+        "rule_check",
+        "stiffness",
+        "solver_observation"
+      ]
+    },
+    "ResultSetType": {
+      "type": "string",
+      "description": "First-class result-set categories for governed result-boundary evidence. These categories classify exported evidence only; they do not define solver behavior, rule checks, report rendering, CLI/API behavior, or professional conclusions.",
+      "enum": [
+        "mechanics",
+        "stress_recovery",
+        "load_vector_evidence",
+        "station_resultants",
+        "section_property_evidence",
+        "user_rule_check",
+        "diagnostic_only",
+        "TBD"
+      ]
+    },
+    "ResultSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "set_id",
+        "set_type",
+        "basis_ref",
+        "values"
+      ],
+      "properties": {
+        "set_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "set_type": {
+          "$ref": "#/$defs/ResultSetType"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/QuantityResult"
+          }
+        }
+      }
+    },
+    "RulePackRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rule_pack_id",
+        "version",
+        "checksum",
+        "source_notice",
+        "redistribution_status",
+        "completeness_status",
+        "private_payload_redacted"
+      ],
+      "properties": {
+        "rule_pack_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "checksum": {
+          "$ref": "#/$defs/Checksum"
+        },
+        "source_notice": {
+          "type": "string",
+          "minLength": 1
+        },
+        "redistribution_status": {
+          "type": "string",
+          "enum": [
+            "public_permissive",
+            "private_only",
+            "unknown",
+            "protected_suspected",
+            "invented_non_engineering_example",
+            "TBD"
+          ]
+        },
+        "completeness_status": {
+          "type": "string",
+          "enum": [
+            "complete_for_user_rule_check",
+            "missing_required_inputs",
+            "not_checked",
+            "TBD"
+          ]
+        },
+        "private_payload_redacted": {
+          "const": true
+        }
+      }
+    },
+    "SolverVersion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "solver_name",
+        "solver_version",
+        "solver_build_ref"
+      ],
+      "properties": {
+        "solver_name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "solver_build_ref": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "VersionContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_id",
+        "document_version",
+        "minimum_reader_version",
+        "unknown_version_policy"
+      ],
+      "properties": {
+        "schema_id": {
+          "const": "https://openpipestress.org/schemas/results/0.2.0/results.schema.json"
+        },
+        "document_version": {
+          "const": "0.2.0"
+        },
+        "minimum_reader_version": {
+          "const": "0.2.0"
+        },
+        "unknown_version_policy": {
+          "const": "reject_unsupported_schema_version"
+        }
+      }
+    },
+    "NativeResultMetadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Exact five-string metadata from the native ResultItem. These strings are preserved, not normalized semantics.",
+      "required": [
+        "component",
+        "coordinate_system",
+        "location",
+        "basis",
+        "sign_convention"
+      ],
+      "properties": {
+        "component": {
+          "type": "string",
+          "minLength": 1
+        },
+        "coordinate_system": {
+          "type": "string",
+          "minLength": 1
+        },
+        "location": {
+          "type": "string",
+          "minLength": 1
+        },
+        "basis": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sign_convention": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "NativeResultRecord": {
+      "allOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "value",
+            "unit",
+            "entity_ref"
+          ],
+          "properties": {
+            "id": {
+              "$ref": "#/$defs/Id"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "value": {
+              "type": "number"
+            },
+            "unit": {
+              "type": "string",
+              "minLength": 1
+            },
+            "entity_ref": {
+              "type": "string",
+              "minLength": 1
+            },
+            "basis_ref": {
+              "$ref": "#/$defs/Reference"
+            },
+            "source_result_refs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Id"
+              }
+            },
+            "metadata": {
+              "$ref": "#/$defs/NativeResultMetadata"
+            }
+          }
+        },
+        {
+          "oneOf": [
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "component_user_stiffness_macro_element_review"
+                },
+                "unit": {
+                  "const": "N*m/rad"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "component_user_stiffness_macro_element_review"
+                },
+                "unit": {
+                  "const": "N/m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "component_user_stress_multiplier_review"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "constant_effort_user_input_review"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "constant_effort_user_input_review"
+                },
+                "unit": {
+                  "const": "m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "displacement_magnitude"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_axial_force"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_axial_normal_stress"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_bending_moment_y"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_bending_moment_z"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_bending_normal_stress_y"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_bending_normal_stress_z"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_shear_force_y"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_shear_force_z"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_torsional_moment"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "element_local_torsional_shear_stress"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "expansion_joint_pressure_thrust_load_review"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_displacement_x"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_displacement_y"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_displacement_z"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_rotation_x"
+                },
+                "unit": {
+                  "const": "rad"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_rotation_y"
+                },
+                "unit": {
+                  "const": "rad"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "global_nodal_rotation_z"
+                },
+                "unit": {
+                  "const": "rad"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "linear_solver_mode_basis"
+                },
+                "unit": {
+                  "const": "mode_code"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_active_set_converged_flag"
+                },
+                "unit": {
+                  "const": "boolean"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_active_set_final_residual_count"
+                },
+                "unit": {
+                  "const": "count"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_active_set_iteration_count"
+                },
+                "unit": {
+                  "const": "count"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_active_set_state_code"
+                },
+                "unit": {
+                  "const": "state_code"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_final_displacement"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_final_reaction"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_free_dof_work_residual"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_friction_normal_reaction_derived"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_free_dof_force_residual"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_free_dof_moment_residual"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_max_force_reaction_delta"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_max_moment_reaction_delta"
+                },
+                "unit": {
+                  "const": "N*m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_max_rotation_delta"
+                },
+                "unit": {
+                  "const": "rad"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "nonlinear_support_observed_max_translation_delta"
+                },
+                "unit": {
+                  "const": "mm"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "open_formula_stress_summary"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "pipe_section_pressure_hoop_stress"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "pipe_section_pressure_longitudinal_stress"
+                },
+                "unit": {
+                  "const": "MPa"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "reaction_resultant"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "spring_hanger_user_input_review"
+                },
+                "unit": {
+                  "const": "N"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "spring_hanger_user_input_review"
+                },
+                "unit": {
+                  "const": "N/m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            },
+            {
+              "type": "object",
+              "properties": {
+                "kind": {
+                  "const": "spring_hanger_user_input_review"
+                },
+                "unit": {
+                  "const": "m"
+                }
+              },
+              "required": [
+                "kind",
+                "unit"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "ResultClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_family",
+        "semantic_status",
+        "canonical_family",
+        "canonical_dimension",
+        "owner_semantics"
+      ],
+      "properties": {
+        "source_family": {
+          "type": "string",
+          "enum": [
+            "element_response",
+            "nodal_kinematic",
+            "pressure_response",
+            "solver_observation",
+            "support_response",
+            "user_review"
+          ]
+        },
+        "semantic_status": {
+          "type": "string",
+          "enum": [
+            "existing_canonical_category",
+            "existing_pressure_source_label_preserved_pending_P5",
+            "source_specific_metadata_standardized",
+            "source_specific_unstandardized",
+            "source_specific_unstandardized_pending_P5",
+            "transport_observation_only"
+          ]
+        },
+        "canonical_family": {
+          "$ref": "#/$defs/ResultFamily"
+        },
+        "canonical_dimension": {
+          "$ref": "#/$defs/DimensionId"
+        },
+        "owner_semantics": {
+          "type": "string",
+          "enum": [
+            "PKG04_05_MECHANICS",
+            "PKG13_MODEL_BRIDGE",
+            "PKG08_TRANSPORT_ONLY"
+          ]
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "$comment": "K8 candidate revision V2; public schema version remains candidate 0.2.0."
+}

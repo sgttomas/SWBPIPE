@@ -1,0 +1,91 @@
+{
+  "schema_version": "1.0",
+  "record_type": "RETROSPECTIVE_CHILD_STATUS",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "PS1",
+  "runtime_identity": "/root/dependency_currency/ps1_interface_backcheck",
+  "parent_runtime_identity": "/root/dependency_currency",
+  "parent_role": "PROJECT_SETUP Agent 1",
+  "execution_form": "ephemeral bounded Agent 2",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "state": "COMPLETE",
+  "verdict": "PASS_FACTUAL_INTERFACE_BACKCHECK_ONLY",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "fork_turns": "none",
+  "actual_runtime_model_attestation": "NOT_RETURNED_BY_DELEGATION_RESULT",
+  "delegation": {
+    "tool": "collaboration.spawn_agent",
+    "task_name_argument": "ps1_interface_backcheck",
+    "canonical_task_name_returned": "/root/dependency_currency/ps1_interface_backcheck",
+    "child_delegation_allowed": false,
+    "children_launched": 0
+  },
+  "scope": {
+    "dependency_ids": [
+      "TP-DAG-004-DEL-04-04-E006",
+      "TP-DAG-004-DEL-04-04-E007",
+      "TP-DAG-004-DEL-04-04-E008",
+      "DAG-002-E0478",
+      "DAG-002-E0479",
+      "DAG-002-E0480",
+      "DAG-002-E0481"
+    ],
+    "write_scope": [
+      "RUN_ROOT/instances/PS/PS1/**"
+    ],
+    "excluded": [
+      "other 26 Q1 nonaccepted rows",
+      "source edits",
+      "DAG or pointer edits",
+      "dependency or lifecycle edits",
+      "human engineering review or row satisfaction",
+      "full harness or heavy Rust build"
+    ]
+  },
+  "tools_and_evidence": {
+    "parent_brief_write_tool": "functions.apply_patch",
+    "delegation_tool": "collaboration.spawn_agent",
+    "child_reported_operations": [
+      "read frozen evidence and cited current source/test files",
+      "scoped git diff --quiet",
+      "SHA-256 verification"
+    ],
+    "child_specific_read_or_write_tool_event_log": "NOT_SEPARATELY_SERIALIZED",
+    "return_persisted": true
+  },
+  "chronology": [
+    {
+      "order": 1,
+      "event": "Parent persisted PS1/SEALED_BRIEF.md",
+      "evidence": "parent runtime apply_patch result"
+    },
+    {
+      "order": 2,
+      "event": "Parent invoked collaboration.spawn_agent with fork_turns none and configured gpt-5.6-sol/high",
+      "evidence": "parent runtime delegation call and returned canonical task name"
+    },
+    {
+      "order": 3,
+      "event": "Child performed the bounded seven-row factual source/interface backcheck",
+      "evidence": "PS1/RETURN.md"
+    },
+    {
+      "order": 4,
+      "event": "Child persisted RETURN.md and sent PASS to parent",
+      "evidence": "child message/final return and RETURN.md"
+    },
+    {
+      "order": 5,
+      "event": "Parent independently read, hashed, and scope-validated RETURN.md",
+      "evidence": "PS/VALIDATION.md and parent runtime checks"
+    }
+  ],
+  "timestamps": "NOT_RECONSTRUCTED_NO_DURABLE_TIMESTAMP_EVIDENCE",
+  "return_path": "RETURN.md",
+  "return_sha256": "93e9fa72f5cf46b1d82e79f114502c3b3a76b1004f0bf3df5fd059aa5729881c",
+  "return_pre_format_sha256": "9ff61400d195cc23412123dadbe71f5e4877e7838b2c04b40a93c34f3804c302",
+  "status_record_timing": "RETROSPECTIVELY_ADDED_AFTER_R_REVIEW_FINDING_R_02",
+  "status_record_prelaunch_persisted": false,
+  "authority_effect": "NONE"
+}

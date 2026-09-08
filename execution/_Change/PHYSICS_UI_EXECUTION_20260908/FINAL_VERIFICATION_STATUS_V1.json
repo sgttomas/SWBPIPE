@@ -1,0 +1,38 @@
+{
+  "schema": "change-final-verification-status/v1",
+  "recorded_utc": "2026-09-08T07:35:44Z",
+  "instance": "/root/implementation_change",
+  "role": "CHANGE Agent 1",
+  "parent": "/root HELP_HUMAN Agent 0",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": "none",
+  "branch": "codex/piping-physics-ui-execution-20260908",
+  "activation_head": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "release_document": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/VERIFICATION_RELEASE_V1.md",
+  "release_document_sha256": "f3899e3a62baf9d03d4a3b6ee6170b645441ce41d7338f753e04c83a372fe831",
+  "release_act": "root confirmed all release conditions and explicitly released final evidence-phase verification and Git closeout",
+  "standing_git_authority": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/OWNER_DIRECTION.md",
+  "state": "ACTIVATED_PREFLIGHT_PENDING",
+  "source_freeze_commit": null,
+  "evidence_container_commit": null,
+  "sweep_summary": null,
+  "receipt": null,
+  "pull_request": null,
+  "merge_commit": null,
+  "product_source_writes_authorized": false,
+  "step1_source_exception_granted": false,
+  "partial_sweep_waiver": false,
+  "final_closeout_claims": [
+    "evidence-phase verification and Git container closeout only"
+  ],
+  "excluded_claims": [
+    "Owner act",
+    "public physics adoption",
+    "public schema adoption",
+    "lifecycle promotion",
+    "dependency closure",
+    "whole first-wave closure",
+    "release or professional reliance"
+  ]
+}

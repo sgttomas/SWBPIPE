@@ -1,0 +1,45 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "RK",
+  "review": "K8-V3 final successor backcheck",
+  "verdict": "CHANGES_REQUIRED",
+  "subject_manifest_sha256": "24d368585f1b1a7f01d79dd6201ae44fa0bfb20bc0aea72d41e5ca2c5ffcdf4c",
+  "subject_outputs_verified": "16/16",
+  "isolated_reproduction": "PASS_BYTE_IDENTICAL_WITH_V2_REGRESSION",
+  "finding_ids": [
+    "RK-V3-001"
+  ],
+  "closure": {
+    "RK-V2-001": "OPEN_THROUGH_RK-V3-001",
+    "RK-V2-002": "CLOSED_AT_CANDIDATE_DESIGN_BOUNDARY",
+    "RK-V2-003": "CLOSED"
+  },
+  "records": {
+    "release": {
+      "path": "instances/RK/BACKCHECK_RELEASE_V3.md",
+      "sha256": "21a2fde92d1ee655e35dbf8446b313fba553b13389d2e6660a7c13d939e9143a"
+    },
+    "return": {
+      "path": "instances/RK/BACKCHECK_RETURN_V3.md",
+      "sha256": "50ad5912f72acfca1f06e2868a448e8b60c51d8f817b1629390fe88d6bff5aee"
+    },
+    "validation": {
+      "path": "instances/RK/BACKCHECK_VALIDATION_V3.md",
+      "sha256": "d33237498b0ccc63e95ec2f606da2be51d617c5249987d925cde802c100dd704"
+    },
+    "inventory": {
+      "path": "instances/RK/BACKCHECK_REVIEW_INVENTORY_V3.json",
+      "sha256": "3d0674654824fc78f0dbbfefcf5afe8aba644fa3dacda87c2e0f4f877a355a7c"
+    }
+  },
+  "public_adoption": false,
+  "pressure_physics_adoption": false,
+  "production_writes": false,
+  "next_gate": "repair RK-V3-001 and release a frozen successor for bounded RK backcheck",
+  "final_freeze_hygiene": {
+    "candidate_whitespace": "PASS",
+    "path_anchor_rk_findings": 0,
+    "path_anchor_remaining_outside_rk": 1,
+    "remaining_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/R/BACKCHECK_VALIDATION_V2.md"
+  }
+}

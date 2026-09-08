@@ -1,0 +1,11 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "RK",
+  "status": "COMPLETE_CHANGES_REQUIRED",
+  "verdict": "CHANGES_REQUIRED",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "reviewed_manifest_sha256": "a6ad4f8ab2881801a2ebabb483e5c22e4cafaa029e07cc398bf420013b576a65",
+  "findings": ["RK-001", "RK-002", "RK-003"],
+  "production_writes": false,
+  "next_owner": "/root"
+}

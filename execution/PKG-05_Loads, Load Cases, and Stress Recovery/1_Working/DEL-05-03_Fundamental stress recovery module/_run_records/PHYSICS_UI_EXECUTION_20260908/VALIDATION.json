@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "P5",
+  "deliverable_id": "DEL-05-03",
+  "verdict": "PASS",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "branch": "codex/piping-physics-ui-execution-20260908",
+  "checks": [
+    {
+      "id": "CALC-REPRODUCIBILITY",
+      "result": "PASS",
+      "evidence": "Fresh calculate_reference.py return exactly equals parsed REFERENCE_RESULTS.json."
+    },
+    {
+      "id": "INDEPENDENT-FAN-IN",
+      "result": "PASS",
+      "evidence": "One read-only gpt-5.6-sol/high/fork-none Agent 2 independently reproduced the equations, signs, values, current mismatch, and Option C recommendation; manager normalization is recorded in CHILD_FAN_IN_VALIDATION.md."
+    },
+    {
+      "id": "SOW-FORMAT",
+      "result": "PASS",
+      "evidence": "tools/scope_of_work/validate_scope_of_work.py returned PASS format=SOW_V1 for DEL-05-03."
+    },
+    {
+      "id": "SOURCE-PINS",
+      "result": "PASS",
+      "evidence": "All nine local source SHA-256 values in SOURCES.json were recomputed and matched."
+    },
+    {
+      "id": "E1-TO-CURRENT-SOURCE-CONTINUITY",
+      "result": "PASS",
+      "evidence": "Git diff was empty for product_physics, stress_recovery, and straight_pipe from E1 SHA 35249accf139f52478d029458946e50ed25ee5dc to current SHA 779dedb8670625b36af07b89fc5557470e47c50e."
+    },
+    {
+      "id": "JSON-AND-LINE-ENDINGS",
+      "result": "PASS",
+      "evidence": "Run JSON parsed successfully; all P5/run-record files checked before close used LF line endings."
+    },
+    {
+      "id": "SCOPE-COVERAGE",
+      "result": "PASS",
+      "evidence": "Report covers all four required cases, free bodies, constitutive relation, wall/effective/end/cut signs, cap and radius conventions, exact/thin comparison, Poisson/material contract, support paths, numerical cases, future test expectations, current comparison, and Owner choices."
+    },
+    {
+      "id": "WRITE-CONTAINMENT",
+      "result": "PASS",
+      "evidence": "This instance wrote only instances/P5/** and the DEL-05-03 PHYSICS_UI_EXECUTION_20260908 run-record subtree. Other shared-worktree changes are sibling/root work and were not modified by P5."
+    }
+  ],
+  "not_performed": [
+    "production solver execution for deriving the reference",
+    "production source or test edits",
+    "threshold or public-output migration",
+    "authority, register, pointer, receipt, DAG, or deliverable-status mutation"
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "calculation_boundary": "independent_standard_library_arithmetic_no_production_import",
+  "cases": {
+    "free_closed_pressure_only": {
+      "axial_strain": 1.0521739130434783e-05,
+      "effective_force_n": 0.0,
+      "support_reaction_n_each": 0.0,
+      "tip_displacement_m": 2.1043478260869565e-05,
+      "wall_force_n": 18626.502843133887,
+      "wall_stress_pa": 5260869.565217391
+    },
+    "free_closed_thermal_plus_pressure": {
+      "axial_strain": 0.0009105217391304348,
+      "effective_force_n": 0.0,
+      "tip_displacement_m": 0.0018210434782608695,
+      "wall_force_n": 18626.502843133887,
+      "wall_stress_pa": 5260869.565217391
+    },
+    "open_or_separately_supported_closures_free_barrel": {
+      "axial_strain": -1.578260869565217e-05,
+      "closure_support_reaction_outward_pressure_thrust_n_each": 18626.502843133887,
+      "effective_force_if_fluid_cut_convention_is_declared_n": -18626.502843133887,
+      "tip_displacement_m": -3.156521739130434e-05,
+      "wall_force_n": 0.0,
+      "wall_stress_pa": 0.0
+    },
+    "restrained_closed_pressure_only": {
+      "axial_strain": 0.0,
+      "effective_force_n": -7450.601137253556,
+      "support_on_complete_vessel_inward_magnitude_n_each": 7450.601137253556,
+      "wall_force_n": 11175.901705880331,
+      "wall_stress_pa": 3156521.739130434
+    },
+    "restrained_closed_thermal_plus_pressure": {
+      "axial_strain": 0.0,
+      "effective_force_n": -644754.0868444793,
+      "support_on_complete_vessel_inward_magnitude_n_each": 644754.0868444793,
+      "thermal_restraint_force_magnitude_n": 637303.4857072257,
+      "thermal_strain": 0.0009,
+      "wall_force_n": -626127.5840013454,
+      "wall_stress_pa": -176843478.2608696
+    }
+  },
+  "geometry_and_pressure": {
+    "inner_radius_m": 0.077,
+    "internal_area_m2": 0.018626502843133885,
+    "mean_radius_cap_proxy_n": 20358.305793425257,
+    "mean_radius_cap_proxy_relative_to_bore_thrust": 0.0929752066115701,
+    "mean_radius_m": 0.0805,
+    "outer_radius_m": 0.084,
+    "pressure_thrust_n": 18626.502843133887,
+    "thickness_over_inner_radius": 0.09090909090909091,
+    "wall_area_m2": 0.003540574920595698
+  },
+  "identity_checks": {
+    "free_closed_wall_force_equals_cap_thrust": 18626.502843133887,
+    "lame_radial_plus_hoop_pa": 10521739.130434781,
+    "open_free_wall_force_zero": 0.0,
+    "restrained_closed_force_equals_2nuP": 11175.901705880331
+  },
+  "inputs": {
+    "candidate_alpha_per_k": 1.2e-05,
+    "candidate_delta_t_k": 75.0,
+    "candidate_poisson_ratio": 0.3,
+    "elastic_modulus_pa": 200000000000.0,
+    "internal_pressure_pa": 1000000.0,
+    "length_m": 2.0,
+    "outer_diameter_m": 0.168,
+    "wall_thickness_m": 0.007
+  },
+  "schema_version": "1.0",
+  "signs": {
+    "effective_internal_only_closed_end": "S = Nw - P",
+    "member_endpoint_action_pair_for_positive_tension": [
+      "-Nw",
+      "+Nw"
+    ],
+    "section_cut": "Nw tension positive",
+    "section_cut_from_member_endpoint_actions": [
+      "Ncut_i=-Fi_x",
+      "Ncut_j=+Fj_x"
+    ]
+  },
+  "stress_models_pa": {
+    "exact_closed_end_lame_longitudinal": 5260869.565217391,
+    "exact_diametral_ligament_average_hoop": 11000000.0,
+    "exact_lame_hoop_inner": 11521739.130434781,
+    "exact_lame_hoop_outer": 10521739.130434781,
+    "mean_radius_hoop_relative_to_exact_inner_surface": -0.0018867924528300772,
+    "mean_radius_longitudinal_relative_to_exact": 0.09297520661157033,
+    "thin_inner_radius_hoop": 11000000.0,
+    "thin_inner_radius_longitudinal": 5500000.0,
+    "thin_mean_radius_hoop": 11500000.0,
+    "thin_mean_radius_longitudinal": 5750000.0
+  }
+}

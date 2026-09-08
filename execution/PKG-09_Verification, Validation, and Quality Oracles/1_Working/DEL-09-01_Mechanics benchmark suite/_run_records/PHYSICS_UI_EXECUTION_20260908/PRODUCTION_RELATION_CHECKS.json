@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "status": "POST_FREEZE_OBSERVATION",
+  "friction_coefficient": 0.01,
+  "cases": [
+    {
+      "case": "physical_frame",
+      "solver_modes": ["dense_scrutiny", "sparse_interactive"],
+      "modes_identical_at_emitted_precision": true,
+      "production_returned_tangential_action_N": 0.524314,
+      "production_returned_current_normal_magnitude_N": 52.373217,
+      "mu_times_same_production_returned_normal_N": 0.52373217,
+      "production_action_minus_mu_current_normal_N": 0.0005818300000000054,
+      "independent_expected_tangential_action_N": 0.5237328198732987,
+      "production_action_minus_independent_expected_N": 0.0005811801267012751,
+      "interpretation": "the returned sliding action does not equal mu times the current normal reaction from the same returned state"
+    },
+    {
+      "case": "literal_adapter",
+      "solver_modes": ["dense_scrutiny", "sparse_interactive"],
+      "modes_identical_at_emitted_precision": true,
+      "production_returned_tangential_action_N": 0.409403,
+      "production_returned_current_normal_magnitude_N": 40.90935,
+      "mu_times_same_production_returned_normal_N": 0.40909350000000005,
+      "production_action_minus_mu_current_normal_N": 0.0003094999999999626,
+      "independent_expected_tangential_action_N": 0.40909373141432565,
+      "production_action_minus_independent_expected_N": 0.00030926858567437154,
+      "interpretation": "the returned sliding action does not equal mu times the current normal reaction from the same returned state"
+    }
+  ],
+  "control_summary": {
+    "physical_frame_frictionless_rows": 157,
+    "physical_frame_frictionless_equal_after_independent_value_rounding_to_product_six_decimals": 157,
+    "literal_adapter_frictionless_rows": 157,
+    "literal_adapter_frictionless_equal_after_independent_value_rounding_to_product_six_decimals": 157
+  },
+  "threshold_statement": "These are signed raw differences and exact algebraic relation checks. M9 introduces no engineering acceptance threshold."
+}

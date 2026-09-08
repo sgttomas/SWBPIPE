@@ -1,0 +1,17 @@
+{
+  "status": "PASS_CANDIDATE_V4_NOT_ADOPTED",
+  "candidate_public_version": "0.2.0",
+  "candidate_revision": "K8-V4",
+  "schema_sha256": "398b08671e75f850859a9ccac3b5f071b46d5d5b84f96819398fcc2a2c879252",
+  "mapping_rows": 45,
+  "full_native_nonlinear_rows": 830,
+  "writer_reader_round_trip": "PASS",
+  "validator_order": [
+    "host_json_representability",
+    "structural_type_schema",
+    "version_dispatch",
+    "semantic_relations",
+    "full_schema"
+  ],
+  "api_legacy_pressure_design": "UNCHANGED_FROM_FROZEN_V3"
+}

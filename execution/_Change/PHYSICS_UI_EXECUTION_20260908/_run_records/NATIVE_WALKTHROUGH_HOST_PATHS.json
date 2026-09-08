@@ -1,0 +1,34 @@
+{
+  "recorded_at_utc": "2026-09-08T05:25:37Z",
+  "basis_commit": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908/projects/chirality-piping",
+  "overlay": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908/projects/chirality-piping/execution/_Change/PHYSICS_UI_EXECUTION_20260908/_run_records/NATIVE_WALKTHROUGH_TAURI_OVERLAY.json",
+  "overlay_sha256": "6132c122f5e2cbc3bec475ac7d08780e1c860ebe6695ee99855c468ccee34c6f",
+  "identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-779dedb8-20260908",
+  "product_name": "OpenPipeStress Technical Preview Walkthrough 779dedb8 20260908",
+  "bundle": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Walkthrough 779dedb8 20260908.app",
+  "binary": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Walkthrough 779dedb8 20260908.app/Contents/MacOS/openpipestress-desktop",
+  "isolated_store_directory": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-779dedb8-20260908",
+  "isolated_store": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-779dedb8-20260908/openpipestress-projects.sqlite3",
+  "preflight": {
+    "isolated_store_directory": "ABSENT",
+    "unique_bundle": "ABSENT",
+    "normal_application_directory_exists_probe": "PRESENT",
+    "normal_application_directory_enumerated": false,
+    "normal_application_store_contents_accessed": false,
+    "normal_application_store_modified": false,
+    "home_changed": false,
+    "native_build_run": false,
+    "native_app_launched": false,
+    "merged_config_changed_top_level_keys": [
+      "identifier",
+      "productName"
+    ],
+    "build_config_inherited": true,
+    "app_config_inherited": true,
+    "bundle_config_inherited": true,
+    "window_title_inherited": "OpenPipeStress Technical Preview",
+    "identifier_schema_characters_valid": true,
+    "product_name_schema_characters_valid": true
+  }
+}

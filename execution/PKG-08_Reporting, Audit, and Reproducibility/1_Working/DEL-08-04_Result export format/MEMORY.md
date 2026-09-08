@@ -1,5 +1,26 @@
 # MEMORY - DEL-08-04 Result Export Format
 
+## 2026-09-08 - K8 canonical result-export candidate design closeout
+
+- The latest candidate is the recommended `K-A + K-U1`: a single complete
+  `0.2.0` writer, bounded `0.1.0`/`0.2.0` dual-read migration, and structured
+  refusal of unknown or unimplemented versions. This remains a candidate; it
+  has not been adopted as a public compatibility contract.
+- K8 V4 preserves all 830 native source records exactly, including native
+  values, units, metadata, source references, and `preserve_only` pressure
+  rows. Its total validator proof covers all 52 relation-consumed fields with
+  312 JSON-class substitutions and 624 writer/reader boundary calls, with zero
+  escaped exceptions.
+- Evidence: K8 `MANIFEST_V4.json` SHA-256
+  `a285a7aee0f276919c16db28fb74926257735b9b41dd9c7cc66b554dba1a0941`;
+  independent RK `BACKCHECK_RETURN_V4.md` SHA-256
+  `df22ff8bb50a20763e4d35a74ae08fa31696ee9ce222dc1c18f73e5c0709e393`,
+  verdict `PASS` with no actionable bounded-scope finding.
+- This closes candidate-design validation evidence only. Public API, schema,
+  compatibility, and production adoption remain pending Owner decisions;
+  standardizing or changing pressure mechanics meaning remains gated on the
+  owning physics review. No lifecycle or dependency state changes here.
+
 ## 2026-06-18 - TP-UNITS-BTAIL-RESULTEXPORTLINTUNITS-001 supporting result-export inventory evidence
 
 - Supporting role for DEL-08-05 report-lint inventory: the desktop Report

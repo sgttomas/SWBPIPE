@@ -1,0 +1,12 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "candidate_revision": "K8-V2",
+  "status": "REPAIR_COMPLETE_RK_BACKCHECK_REQUIRED",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "resolved_findings": ["RK-001", "RK-002", "RK-003"],
+  "blockers": ["fresh RK successor backcheck", "audit D05 Owner public compatibility selection"],
+  "production_writes": false,
+  "public_adoption": false,
+  "pressure_physics_adoption": false
+}

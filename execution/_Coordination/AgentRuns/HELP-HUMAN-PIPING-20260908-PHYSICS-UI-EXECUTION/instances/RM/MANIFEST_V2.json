@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-08T00:23:03-0600",
+  "status": "SUCCESSOR_PATH_ANCHOR_NORMALIZATION",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RM",
+  "predecessor_manifest_sha256": "c5adeed73bbd53fc4099d8f789a80959f652f687adde04356bc353fa66d8bdbb",
+  "exclusions": ["MANIFEST_V2.json", "WRITER_FREEZE_V2.json"],
+  "file_count": 11,
+  "files": [
+    {"path":"CORRECTION_MAP_V1.json","bytes":1927,"sha256":"aac0c603d96fab3a498ed9367af84e8c27b9e57516fbb2856c25babb7d2fd801","role":"path-anchor correction and predecessor logical-lineage map"},
+    {"path":"LAUNCH_BRIEF.md","bytes":1648,"sha256":"b3a33c63a705e44204b1848dcb4acd8e91c40fe1bb81aa116ea356deba3a68fb","role":"sealed review brief preserved byte-for-byte"},
+    {"path":"MANIFEST.json","bytes":1543,"sha256":"c5adeed73bbd53fc4099d8f789a80959f652f687adde04356bc353fa66d8bdbb","role":"immutable predecessor manifest"},
+    {"path":"MANIFEST_RELEASE_V1.md","bytes":608,"sha256":"3dcdf54a5a1471f4689f1c36e3ba892f9902d1bbaf663684d40d8a4978a5ee3e","role":"root additive manifest release preserved byte-for-byte"},
+    {"path":"REVIEW.md","bytes":9303,"sha256":"4c522ef833733e3ba9247f859eb95653f4951a0aa7fde51e349d01ea7d2b2c60","role":"path-anchor-normalized independent review verdict and evidence"},
+    {"path":"REVIEW_INVENTORY.json","bytes":4029,"sha256":"0ecbddacbdf5a76ded115b2864d550573689274ab101e92f2eba0319f94cc8cb","role":"released inventory and archive-lineage verification"},
+    {"path":"REVIEW_VALIDATION.json","bytes":3606,"sha256":"ad85bc39b5f128c4c6bb31d52700ccd92dccd22157b65e12223409aafd32f622","role":"machine-readable review checks"},
+    {"path":"RETURN.md","bytes":1646,"sha256":"b97bfeb6d8e6200393fd61b0e6a043859abdf7377f7c581a0e6a3341a7dbc006","role":"unchanged return to HELP_HUMAN"},
+    {"path":"STATUS.json","bytes":464,"sha256":"2231474329075404dcd88eac96df872a23ffa8d1b0d62ac9e314653577a2ea12","role":"unchanged terminal reviewer status"},
+    {"path":"WRITER_FREEZE.json","bytes":686,"sha256":"4f383dbcc7b7eea923ecbf0dd98d99fd623a241991395788ff71486312fe539f","role":"immutable predecessor writer freeze"},
+    {"path":"normalization/pre_path_anchor/REVIEW.md.base64","bytes":12305,"sha256":"a208e0d6ebd352ac6cb5d2d0058bc846f2ee403ea7571f26d78be148bbd13046","role":"exact original REVIEW.md bytes in RFC 4648 base64"}
+  ],
+  "technical_verdict_change": false,
+  "reviewed_subject_change": false
+}

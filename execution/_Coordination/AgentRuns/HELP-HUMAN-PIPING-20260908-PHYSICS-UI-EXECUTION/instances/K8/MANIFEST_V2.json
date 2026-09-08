@@ -1,0 +1,53 @@
+{
+  "status": "FROZEN_CANDIDATE_REPAIR_V2",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "K8",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "candidate_public_version": "0.2.0",
+  "candidate_revision": "K8-V2",
+  "lineage": {
+    "frozen_k8_v1_manifest": {
+      "path": "instances/K8/MANIFEST.json",
+      "sha256": "a6ad4f8ab2881801a2ebabb483e5c22e4cafaa029e07cc398bf420013b576a65"
+    },
+    "rk_first_pass_return": {
+      "path": "instances/RK/RETURN.md",
+      "sha256": "1e6deabb8b0ec0971b342ba0db47e5b80aad970ec2d36c408060d9a068e90e57"
+    },
+    "rk_first_pass_validation": {
+      "path": "instances/RK/VALIDATION.md",
+      "sha256": "1e4e1a2c866108423a1a57060d73eaa0bd9924738fbd2e40e90b2274ba687d08"
+    }
+  },
+  "resolved_findings": ["RK-001", "RK-002", "RK-003"],
+  "outputs": [
+    {"path":"instances/K8/STATUS_V2.json","sha256":"3764c4ad9ee428f367cb014956cfaad85b47594bf9dc595c11fcc23e9a69f571"},
+    {"path":"instances/K8/HANDOFF_V2.md","sha256":"c72eeaa33c8cf95125fd460313d44a9ac3cf9a52ff4e454f607e1a5cde8331a8"},
+    {"path":"instances/K8/RETURN_V2.md","sha256":"cc0cd260f8d106ea4f641762524da84de174f24ede0fd83b87d3a36e362a8e61"},
+    {"path":"instances/K8/evidence/build_candidate_v2.py","sha256":"4b5169e0cc4009ce67ea0c63fc1a03eb3b720703c4e751018ce10afbf6df8e2f"},
+    {"path":"instances/K8/evidence/semantic_validator_v2.py","sha256":"e540b0b935535e983759621779a0e509fc0487800bcf4126544195773d96c144"},
+    {"path":"instances/K8/evidence/adversarial_tests_v2.py","sha256":"7060a7fa9740e0b8833fbc6cfb5f808146a988f783f6ec350884b63f444faf9a"},
+    {"path":"instances/K8/evidence/RESULTS_SCHEMA_0_2_0_CANDIDATE_V2.json","sha256":"fd7f8202b7b04b18cf457c8c07724fa92c51dae2138222055f1ee22b385b9e32"},
+    {"path":"instances/K8/evidence/SOURCE_KIND_MAPPING_V2.csv","sha256":"4f6075b3fc78af2e56b5eb2bf47c521be544315fd15c661d2ae4989d43ca4751"},
+    {"path":"instances/K8/evidence/COVERAGE_VALIDATION_V2.json","sha256":"c47c8e4b74d6a0966bdf56df43f1e75930c4378aa326d98d6ab1aa957af903e5"},
+    {"path":"instances/K8/evidence/ADVERSARIAL_VALIDATION_V2.json","sha256":"223ac364b8448365d8194f53616676501e0b3d68a3337b9c72fef7f5a4e3b473"},
+    {"path":"instances/K8/evidence/API_CONTRACT_V2.json","sha256":"6b13c73f767946d86ac7455e7b4523d3977cc8a549c9b301a2ecea0081cb5988"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/ROUTE_A_DESIGN_V2.md","sha256":"47405ff938c3dc6bdf4275b6f945155fc8b3abf2eeace177820710250a5d35b6"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/VALIDATOR_CONTRACT_V2.md","sha256":"6ad26f9a7db6083d3e38a77165f05e6d7559162f22111abab11364b3fd72d595"},
+    {"path":"../../../PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_run_records/PHYSICS_UI_EXECUTION_20260908/RUN_RECORD_V2.md","sha256":"78a35cec0a41edb48b493e38c6079cd3c52d2f2ed85c0958c3b9f1f9be6d4e5c"}
+  ],
+  "validation": {
+    "draft_2020_12_meta_schema": "PASS",
+    "full_native_nonlinear_rows": 830,
+    "exact_source_records": "830/830",
+    "mapping_branches_with_owner_const": "45/45",
+    "writer_reader_round_trip": "PASS",
+    "adversarial_invariants": 13,
+    "strict_nan_and_infinity_refusal": "PASS",
+    "row_status_over_set_type": "PASS",
+    "frozen_v1_manifest_unchanged": true,
+    "production_writes": false
+  },
+  "next_gate": "fresh RK successor backcheck",
+  "public_decision": "candidate K-A+K-U1 remains unselected"
+}

@@ -1,0 +1,8 @@
+{
+  "schema": "change-evidence-host-paths/v1",
+  "classification": "raw observational host paths; never durable execution anchors",
+  "recorded_utc": "2026-09-08T05:49:00Z",
+  "execution_worktree": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908",
+  "project_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-execution-20260908/projects/chirality-piping",
+  "preparation_python_executable": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python"
+}

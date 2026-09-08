@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "F4",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "phase": "STEP5_EVIDENCE_CLOSEOUT",
+  "status": "FROZEN_COMPLETE_SOURCE_HELD",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "amendment": {
+    "path": "CLOSEOUT_AMENDMENT_V1.md",
+    "sha256": "06df8c07a1872b362143aebc114b7d37e83451e8970ecda071ba2a184a988586"
+  },
+  "changed_paths": [
+    {
+      "path": "{WORKING_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "before_sha256": "ccb6ea80b7b989e063b676fbb08626685bf139973ee716ebaabd9dc51c92005a",
+      "after_sha256": "8e864403e29a2b49b1fca5abd0ff6f27d35830660f046c5715ef63fdae4c0e13",
+      "semantic_delta": "one 2026-09-08 evidence-only entry links accepted F4 evidence, implementation brief V2, and the R-04 backcheck while retaining implementation and all holds"
+    },
+    {
+      "path": "{WORKING_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "before_sha256": "547a749fa4855f8c5c36ade89426893796967c6963999a9b155ab22e939f1125",
+      "after_sha256": "3b27f3a84e911b10733193ed24552eb830b739c6426b75d3a9ba008c562701a2",
+      "semantic_delta": "Last Updated advances to 2026-09-08 and one Remaining pointer distinguishes completed diagnosis/brief from held implementation and post-change tests"
+    }
+  ],
+  "accepted_evidence_bindings": [
+    {
+      "path": "RETURN.md",
+      "sha256": "5b2aebdc274fc8f216c2855f3b684519191dd38a06e1cb7fdce752a16629d5a8"
+    },
+    {
+      "path": "FORMATTING_SUCCESSOR_MANIFEST_V1.json",
+      "sha256": "44c6783112b23d4dba0a38f6d322124cd599372bf7aa1fac3763d72e793b1e3b"
+    },
+    {
+      "path": "IMPLEMENTATION_BRIEF_V2.md",
+      "sha256": "63c0361979c20474cddaada74076705a495a60da1c2d5cb0548a10ac6fd7974c"
+    },
+    {
+      "path": "../R/BACKCHECK_RETURN_V2.md",
+      "sha256": "43ec8f31f1120866df2b28f94dc8dacd11c11b00ba7cb946f34d379da0467981",
+      "verdict": "STAGED_PASS_R04_CLOSED"
+    }
+  ],
+  "preserved": {
+    "lifecycle": "IN_PROGRESS",
+    "remaining_items_removed": 0,
+    "implementation": "OPEN_AND_HELD",
+    "source_changes": [],
+    "test_runs": [],
+    "dependency_or_decision_changes": [],
+    "physics_or_criteria_changes": []
+  },
+  "resume_gate": "unanswered Owner Step 1 exception plus root source amendment"
+}

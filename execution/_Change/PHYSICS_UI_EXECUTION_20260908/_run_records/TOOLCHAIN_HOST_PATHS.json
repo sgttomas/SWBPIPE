@@ -1,0 +1,8 @@
+{
+  "classification": "raw observational host paths; never durable execution anchors",
+  "recorded_utc": "2026-09-08T05:08:53Z",
+  "python_venv": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv",
+  "playwright_chromium": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing",
+  "system_chrome": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "xcode_clang": "/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang"
+}

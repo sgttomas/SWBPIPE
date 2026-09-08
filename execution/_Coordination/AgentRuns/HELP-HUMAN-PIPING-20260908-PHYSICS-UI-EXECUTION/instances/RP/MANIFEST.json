@@ -1,0 +1,68 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "RP",
+  "role": "fresh_ephemeral_agent2_independent_reviewer",
+  "parent": "/root",
+  "actual_identity": "/root/pressure_independent_review",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": "PROHIBITED",
+  "descendant_count": 0,
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "verdict": "PASS",
+  "authority_boundary": "independent review for root fan-in only; no engineering adoption, schema acceptance, lifecycle, DAG, dependency, publication, or source-write authority",
+  "reviewed_inputs": {
+    "p5_instance_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/P5/MANIFEST.json",
+      "sha256": "172c96a6af9fbeaec30c4c974ed0614cbdfc0632061dcc127efea104cd90e52f"
+    },
+    "del_05_03_manifest": {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/MANIFEST.json",
+      "sha256": "07692034d597768ea79864540a08aa3f3d959036ddff7bbc26466643fe2c75f3"
+    },
+    "transitive_inventory": {
+      "path": "REVIEWED_INVENTORY.sha256",
+      "sha256": "6676c17a5b8cea47e09a1bcedd13261f5ad9fa45ac608c117aa966c048c5579d",
+      "file_count": 17,
+      "declared_member_count": 15,
+      "construction": "both bound manifests plus all declared members; repository-relative paths sorted lexicographically; sha256sum format with LF"
+    }
+  },
+  "controls": [
+    {"path":"AGENTS.md","sha256":"377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3"},
+    {"path":"projects/chirality-piping/AGENTS.md","sha256":"33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"},
+    {"path":"SHARED_LAUNCH_CONTRACT_V1.md","sha256":"2561ff7ccdf66f836d1a56b1c753680126750d923f99d622580364d48f6dc80b"},
+    {"path":"OWNER_DIRECTION.md","sha256":"eb67263fbe30bcefb7f4f43450cf96346cdab7370315ff9f924b433bdd4e9174"},
+    {"path":"SESSION_CONTINUITY.md","sha256":"3789dc08a728a0d1cab12dd13382846ef3a7c292c81b1c3bd619c7685baed221"},
+    {"path":"ORCHESTRATION_PLAN_V1.md","sha256":"16379ef4f902f267c3f6d50020edab2bc512f9837574f0d8bf8bde315325139e"},
+    {"path":"WORK_GRAPH_V1.json","sha256":"eb5e09a70f1e7e8c7be2a80123657c386b6b9ca2c2fc094b447e7916c1744223"},
+    {"path":"snapshots/CONTROL_FREEZE_V2.json","sha256":"00032a3ed70b5ea3e70e997e5ad4981548e95db704465244c9156816fa70d87b"},
+    {"path":"amendments/R/R_ROLE_AMENDMENT_V1.md","sha256":"a5bd2cd54065f0baf3ddcbbc2c4c0ef76dc23c22544ecc2caa8927ca81dd7ab1"},
+    {"path":"amendments/R/REVIEW_RELEASE_V1.md","sha256":"a46f089d92ee540fc6964bd5483fe5757390e59f6ad20d1ba24f629d082b146a"},
+    {"path":"../../_DECISIONS/D-66_RULING_2026-09-08.md","sha256":"6081276ec7504a12db95d7d555e0a555791febc72e1904af718b3dca9bb95334"}
+  ],
+  "files": [
+    {"path":"LAUNCH_BRIEF.md","bytes":3332,"sha256":"526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"},
+    {"path":"REVIEWED_INVENTORY.sha256","bytes":4050,"sha256":"6676c17a5b8cea47e09a1bcedd13261f5ad9fa45ac608c117aa966c048c5579d"},
+    {"path":"INVESTIGATION_REPORT.md","bytes":7162,"sha256":"746b0def10e7ac42dd6598cdeb9e39f188bb91e474f3e615450301bd0c58fa4b"},
+    {"path":"RETURN.md","bytes":1659,"sha256":"939c28a8657cf3fa84a138be592366a6e6c617a2ca62f3a70644dc91b19f1d57"}
+  ],
+  "verification": {
+    "manifest_hashes_match_release": true,
+    "all_declared_bytes_and_hashes_match": true,
+    "calculator_stdout_byte_matches_reference_results": true,
+    "independent_arithmetic_matches": true,
+    "json_parse": "PASS",
+    "line_endings": "LF",
+    "production_imports": false,
+    "production_source_diff_from_bound_base": "CLEAN",
+    "full_harness_run": false,
+    "dec_025_run": false,
+    "native_build_run": false
+  },
+  "nonblocking_observations": [
+    "EXT-04's year-specific Abaqus 2023 URL returned HTTP 404; the same ESF1 definition was verified directly on the publisher's current 2025 Beam Element Library page linked from EXT-03."
+  ],
+  "timing_limitation": "The correct-lane LAUNCH_BRIEF.md was persisted after substantive review began following correction of an immediately cleaned sibling-checkout patch-target error; it is neither pre-launch nor pre-review durable evidence."
+}

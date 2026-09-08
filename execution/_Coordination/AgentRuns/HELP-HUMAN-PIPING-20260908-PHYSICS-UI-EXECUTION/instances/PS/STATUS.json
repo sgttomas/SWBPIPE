@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "record_type": "RETROSPECTIVE_MANAGER_STATUS",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "PS",
+  "runtime_identity": "/root/dependency_currency",
+  "role": "PROJECT_SETUP Agent 1",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "state": "EVIDENCE_COMPLETE_HANDOFF_READY_OWNER_EXCEPTION_PENDING",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "actual_runtime_model_attestation": "NOT_EXPOSED_TO_INSTANCE",
+  "child_count": 1,
+  "child": {
+    "runtime_identity": "/root/dependency_currency/ps1_interface_backcheck",
+    "state": "COMPLETE",
+    "verdict": "PASS_FACTUAL_INTERFACE_BACKCHECK_ONLY",
+    "status_path": "PS1/STATUS.json",
+    "return_path": "PS1/RETURN.md",
+    "return_sha256": "93e9fa72f5cf46b1d82e79f114502c3b3a76b1004f0bf3df5fd059aa5729881c"
+  },
+  "manager_tools_evidenced": [
+    "functions.exec with read-only exec_command",
+    "functions.apply_patch",
+    "collaboration.spawn_agent",
+    "collaboration.send_message",
+    "collaboration.wait_agent",
+    "collaboration.list_agents"
+  ],
+  "outputs": {
+    "candidate_package": "execution/_DAG/PHYSICS_UI_EXECUTION_20260908_CANDIDATE/",
+    "manager_return": "RETURN.md",
+    "manager_validation": "VALIDATION.md",
+    "work_graph": "INTERNAL_WORK_GRAPH_V1.json",
+    "handoff": "HANDOFF.md"
+  },
+  "r02": {
+    "finding": "R-02",
+    "state": "REPAIRED_PENDING_REVIEW_BACKCHECK",
+    "review_return_sha256": "acc4e16d5c710ab89a5193806730a497a6c0f41492d346d376e7c4dbfa7249f3",
+    "record_timing": "RETROSPECTIVELY_ADDED_AFTER_R_REVIEW",
+    "record_prelaunch_persisted": false
+  },
+  "source_writes": "HELD_PENDING_OWNER_ONE_TIME_STEP1_EXCEPTION",
+  "owner_exception": "PENDING_NO_APPROVAL_INFERRED",
+  "dependency_authority_mutation": false,
+  "source_mutation": false,
+  "authority_effect": "NONE",
+  "timestamps": "NOT_RECONSTRUCTED_NO_DURABLE_TIMESTAMP_EVIDENCE"
+}

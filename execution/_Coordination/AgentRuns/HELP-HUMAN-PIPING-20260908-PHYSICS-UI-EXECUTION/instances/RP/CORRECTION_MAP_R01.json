@@ -1,0 +1,63 @@
+{
+  "schema_version": "1.0",
+  "correction_id": "R-01",
+  "status": "ACTIVE",
+  "correction_class": "byte_only_control_portability_successor",
+  "scope": "instances/RP/LAUNCH_BRIEF.md path anchors only",
+  "predecessor_manifest": {
+    "path": "MANIFEST.json",
+    "bytes": 4389,
+    "sha256": "89d474de34d00c82676675865b746945866f346efdda04592b056260892deb7c",
+    "preserved_unchanged": true
+  },
+  "logical_member_resolution": {
+    "logical_path": "LAUNCH_BRIEF.md",
+    "predecessor_expected": {
+      "bytes": 3332,
+      "sha256": "526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"
+    },
+    "predecessor_resolves_to": {
+      "path": "_run_records/R-01_PORTABILITY_REPAIR_20260908/ORIGINAL_LAUNCH_BRIEF.base64.json",
+      "container_bytes": 4803,
+      "container_sha256": "42102c7d78502552dc19acd0ae764114b68e7478fdfa1e822749dd0a2b9d2655",
+      "selector": "decode JSON field content_base64 as base64",
+      "decoded_bytes": 3332,
+      "decoded_sha256": "526aa77f53b4d949bc0a0b5f217dfe0e3c7c43eefbb27016d0d49d2cb346cb47"
+    },
+    "successor_active": {
+      "path": "LAUNCH_BRIEF.md",
+      "bytes": 3417,
+      "sha256": "a9e274403872cc9ad61500956002d50e2007459c614678040d49429956098bc0"
+    }
+  },
+  "correction": {
+    "removed": [
+      "machine-specific Lane value",
+      "unanchored repository-relative Write scope value"
+    ],
+    "added": [
+      "{REPO_ROOT} checkout anchor resolved with git rev-parse --show-toplevel",
+      "{WORKING_ROOT} derived from {REPO_ROOT}",
+      "{RUN_ROOT} derived from {WORKING_ROOT}",
+      "{RUN_ROOT}/instances/RP/** write-scope anchor"
+    ],
+    "all_non_path_brief_bytes_semantically_unchanged": true,
+    "timing_and_wrong_lane_disclosure_preserved_exactly": true
+  },
+  "resolver": {
+    "for_MANIFEST_json": "Resolve only logical member LAUNCH_BRIEF.md to the decoded archived original; resolve every other predecessor member at its listed active path.",
+    "for_MANIFEST_V2_json": "Use the successor active LAUNCH_BRIEF.md and the explicit V2 file inventory.",
+    "predecessor_manifest_is_historical_not_invalidated": true
+  },
+  "unchanged_subject_evidence": [
+    {"path":"INVESTIGATION_REPORT.md","sha256":"746b0def10e7ac42dd6598cdeb9e39f188bb91e474f3e615450301bd0c58fa4b"},
+    {"path":"RETURN.md","sha256":"939c28a8657cf3fa84a138be592366a6e6c617a2ca62f3a70644dc91b19f1d57"},
+    {"path":"REVIEWED_INVENTORY.sha256","sha256":"6676c17a5b8cea47e09a1bcedd13261f5ad9fa45ac608c117aa966c048c5579d"}
+  ],
+  "excluded": [
+    "physics report or review-return rewrite",
+    "mathematical replay",
+    "subject source or test change",
+    "harness, Cargo, native build, lifecycle, DAG, or Git action"
+  ]
+}

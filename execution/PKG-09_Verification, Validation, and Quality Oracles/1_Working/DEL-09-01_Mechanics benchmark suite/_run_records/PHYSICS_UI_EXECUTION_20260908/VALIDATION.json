@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "executed_at": "2026-09-07T23:54:55-0600",
+  "status": "PASS_WITH_DISCLOSED_NATIVE_SLOT_SCHEDULING_DEVIATION",
+  "checks": [
+    {
+      "id": "frozen_reference_self_check",
+      "status": "PASS",
+      "evidence": "closed-form controls, contact/friction branch conditions, force/moment balances and C-150 diagnostic"
+    },
+    {
+      "id": "independent_reference_determinism",
+      "status": "PASS",
+      "evidence": "fresh temporary output byte-identical to EXPECTED_RESULTS_FROZEN.json"
+    },
+    {
+      "id": "comparison_determinism",
+      "status": "PASS",
+      "evidence": "fresh COMPARISON.json and COMPARISON.csv byte-identical to retained files"
+    },
+    {
+      "id": "freeze_hashes",
+      "status": "PASS",
+      "evidence": "every active file in FREEZE_MANIFEST.json matches its SHA-256"
+    },
+    {
+      "id": "child_hashes",
+      "status": "PASS",
+      "evidence": "every active child file in CHILD_ACCEPTANCE.json matches its SHA-256"
+    },
+    {
+      "id": "normalization_lineage",
+      "status": "PASS",
+      "evidence": "each base64 archive decodes to the recorded pre-normalization SHA-256; expected result hash unchanged"
+    },
+    {
+      "id": "syntax_and_structure",
+      "status": "PASS",
+      "evidence": "four Python files compile; all JSON parses; report Markdown fence pair is complete"
+    },
+    {
+      "id": "portable_text",
+      "status": "PASS",
+      "evidence": "LF-only text and CSV, no trailing whitespace, no blank EOF lines, no in-tree target or __pycache__ directory"
+    },
+    {
+      "id": "production_comparison",
+      "status": "OBSERVATION_COMPLETE",
+      "evidence": "eight L-100-only product envelopes; all MECHANICS_SOLVED; dense/sparse values identical at emitted precision"
+    },
+    {
+      "id": "native_slot_schedule",
+      "status": "DEVIATION_DISCLOSED",
+      "evidence": "native Rust invocations preceded receipt of F4 slot-release notice; /tmp private target, read-only production dependencies and no production write"
+    }
+  ],
+  "acceptance_limit": "No engineering comparison threshold or dependency satisfaction is asserted."
+}

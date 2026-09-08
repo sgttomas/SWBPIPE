@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "notice_id": "LAUNCH_RELEASE_20260908",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "issued_by": "/root",
+  "status": "RELEASED",
+  "basis": "CONTROL_FREEZE_V1",
+  "launches": [
+    {"node":"PS","identity":"/root/dependency_currency","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"},
+    {"node":"P5","identity":"/root/pressure_reference","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"},
+    {"node":"M9","identity":"/root/mixed_reference","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"},
+    {"node":"K8","identity":"/root/canonical_design","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"},
+    {"node":"F4","identity":"/root/friction_execution","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"},
+    {"node":"U7","identity":"/root/native_authoring","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none"}
+  ],
+  "sealed_activation_rule": "Each manager persists the exact root dispatch as its own sealed activation before work.",
+  "initial_native_rust_compile_slot": "F4",
+  "other_build_coordination_owner": "/root",
+  "source_write_state": {"F4":"HOLD","U7":"HOLD"},
+  "scope_effect": "No change to frozen controls, decomposition, DAG, product source, dependency truth or acceptance."
+}

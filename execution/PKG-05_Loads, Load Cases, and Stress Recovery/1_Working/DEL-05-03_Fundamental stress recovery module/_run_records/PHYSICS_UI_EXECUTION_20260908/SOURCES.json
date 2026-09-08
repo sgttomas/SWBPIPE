@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "retrieval_date": "2026-09-07",
+  "source_policy": "Primary publisher-hosted engineering sources support candidate formulation only; they are not Owner-vetted project authority. No domains/piping-design OCR equations were used.",
+  "external": [
+    {
+      "id": "EXT-01",
+      "title": "Pressure Vessels",
+      "publisher": "MIT OpenCourseWare",
+      "author": "David Roylance",
+      "url": "https://ocw.mit.edu/courses/3-91-mechanical-behavior-of-plastics-spring-2007/0be49aef0263a94601f18b28c64af705_06_pv.pdf",
+      "checked_sections": "pp. 2-3 closed-end axial and hoop equilibrium; pp. 5-7 plane-stress Poisson strain and separately restrained end plates",
+      "applicability": "Thin-wall equilibrium, tension-positive signs, and Poisson coupling. Does not establish project approximation limits, thick-wall behavior, or acceptance tolerances."
+    },
+    {
+      "id": "EXT-02",
+      "title": "Structural Mechanics in Nuclear Power Technology, Note L.4",
+      "publisher": "MIT OpenCourseWare",
+      "url": "https://ocw.mit.edu/courses/22-314j-structural-mechanics-in-nuclear-power-technology-fall-2006/137e6469e37e9d347b7b3b69292da2f3_l4_2.pdf",
+      "checked_sections": "pp. 22-24 exact annulus area, closed-end average axial stress, thin-wall reduction and strain; pp. 27-30 thick-cylinder generalized plane-strain/Lame solution",
+      "applicability": "Axisymmetric homogeneous isotropic linear-elastic cylinder away from end discontinuities. Supplies the thick-wall oracle and restrained axial relation; it does not cover bend ovalization, expansion joints, nonlinear material response, or project thresholds."
+    },
+    {
+      "id": "EXT-03",
+      "title": "Distributed Loads — Pressure on Pipe and Elbow Elements",
+      "publisher": "Dassault Systemes SIMULIA Abaqus 2025 documentation",
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEPRCRefMap/simaprc-c-loaddistributed.htm",
+      "checked_sections": "Pressure on Pipe and Elbow Elements",
+      "applicability": "Independent confirmation that a pipe-element load convention must identify closed ends, internal cancellation, and explicit open-end compensation. Product documentation is comparative terminology, not a numerical oracle or Chirality authority."
+    },
+    {
+      "id": "EXT-04",
+      "title": "Beam Element Library — Section Forces",
+      "publisher": "Dassault Systemes SIMULIA Abaqus 2023 documentation",
+      "url": "https://docs.software.vt.edu/abaqusv2023/English/SIMACAEELMRefMap/simaelm-r-beamlibrary.htm",
+      "checked_sections": "Section Forces / ESF1",
+      "applicability": "Independent confirmation of a separately named effective axial force, ESF1=SF1+peAe-piAi. It does not require Chirality to adopt another product's naming, sign convention, or implementation."
+    }
+  ],
+  "local": [
+    {"path":"projects/chirality-piping/core/product_physics/src/lib.rs","sha256":"e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903","applicability":"current pressure assembly, recovery, material and result metadata"},
+    {"path":"projects/chirality-piping/core/loads/stress_recovery/src/lib.rs","sha256":"0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2","applicability":"current mean-radius membrane recovery"},
+    {"path":"projects/chirality-piping/core/solver/straight_pipe/src/lib.rs","sha256":"22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09","applicability":"current endpoint and station resultant transforms"},
+    {"path":"projects/chirality-piping/docs/PRD.md","sha256":"9c3bccd8d2eb8e68c10e05d50bdd29619892196c98069a2587ba3a1ff4880793","applicability":"accepted product requirement that material records support Poisson ratio"},
+    {"path":"projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/EVALUATION_REPORT.md","sha256":"609cb06ad3212b946f5ad3584a6e37d856a78d7b0e3205153d888bceaf5a35d0","applicability":"accepted manager selection of Option C"},
+    {"path":"projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/pressure/DECISION_BRIEF.md","sha256":"10e4e03f84a6fd85fdd31f97e84df0b6f224ee41a080de5f5a1de8ee02a45ad8","applicability":"preserved limited Option A and current mismatch trace"},
+    {"path":"projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md","sha256":"7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b","applicability":"historical limited-bar mixed case; not upgraded to full constitutive oracle"},
+    {"path":"projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md","sha256":"69bd7291abe3a1d00379523e1fa946a5e3706b57e7749cb52540a1c058bdf00f","applicability":"accepted cap/wall equilibrium for curved macro; no Poisson coupling"},
+    {"path":"projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md","sha256":"ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28","applicability":"live DEL-05-03 SOW_V1 contract"}
+  ]
+}

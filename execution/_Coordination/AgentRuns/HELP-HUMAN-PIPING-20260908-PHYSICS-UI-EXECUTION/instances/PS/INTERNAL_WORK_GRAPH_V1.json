@@ -1,0 +1,119 @@
+{
+  "schema_version": "1.0",
+  "record_type": "RETROSPECTIVE_INTERNAL_WORK_GRAPH",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "PS",
+  "runtime_identity": "/root/dependency_currency",
+  "role": "PROJECT_SETUP Agent 1",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "actual_runtime_model_attestation": "NOT_EXPOSED_TO_INSTANCE",
+  "status": "EVIDENCE_COMPLETE_OWNER_EXCEPTION_PENDING",
+  "record_timing": "RETROSPECTIVELY_ADDED_AFTER_R_REVIEW_FINDING_R_02",
+  "record_prelaunch_persisted": false,
+  "chronology_basis": "actual parent runtime delegation/tool sequence plus persisted PS and PS1 evidence; no timestamps reconstructed",
+  "nodes": [
+    {
+      "order": 1,
+      "id": "PS-SEAL",
+      "executor": "/root/dependency_currency",
+      "objective": "persist the PROJECT_SETUP sealed brief",
+      "tools_evidenced": ["functions.apply_patch"],
+      "writes": ["RUN_ROOT/instances/PS/SEALED_BRIEF.md"],
+      "state": "COMPLETE"
+    },
+    {
+      "order": 2,
+      "id": "PS-DIRECT-EVIDENCE",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["PS-SEAL"],
+      "objective": "revalidate Q1's 33 nonaccepted rows and map exact F/U/M dispositions without replaying the 107-row archive",
+      "tools_evidenced": ["functions.exec with read-only exec_command", "functions.apply_patch"],
+      "writes": ["RUN_ROOT/instances/PS/**", "execution/_DAG/PHYSICS_UI_EXECUTION_20260908_CANDIDATE/**"],
+      "state": "COMPLETE"
+    },
+    {
+      "order": 3,
+      "id": "PS1-BRIEF",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["PS-DIRECT-EVIDENCE", "root request for bounded factual backcheck"],
+      "objective": "persist the exact seven-row child brief before delegation",
+      "tools_evidenced": ["functions.apply_patch"],
+      "writes": ["RUN_ROOT/instances/PS/PS1/SEALED_BRIEF.md"],
+      "state": "COMPLETE"
+    },
+    {
+      "order": 4,
+      "id": "PS1-SPAWN",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["PS1-BRIEF"],
+      "objective": "start one ephemeral bounded Agent 2 with fork_turns none and configured gpt-5.6-sol/high",
+      "tools_evidenced": ["collaboration.spawn_agent"],
+      "result": "/root/dependency_currency/ps1_interface_backcheck",
+      "state": "COMPLETE"
+    },
+    {
+      "order": 5,
+      "id": "PS1-CHECK",
+      "executor": "/root/dependency_currency/ps1_interface_backcheck",
+      "depends_on": ["PS1-SPAWN"],
+      "objective": "fact-check E006-E008 and E0478-E0481 only",
+      "tools_evidenced": ["reported read-only source/evidence inspection", "reported scoped git diff --quiet", "reported SHA-256 checks"],
+      "tool_event_limit": "child-specific tool invocation log was not separately serialized",
+      "writes": ["RUN_ROOT/instances/PS/PS1/RETURN.md"],
+      "state": "COMPLETE_PASS_FACTUAL_ONLY"
+    },
+    {
+      "order": 6,
+      "id": "PS-FANIN",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["PS1-CHECK"],
+      "objective": "read, hash, validate, and route the child result to root",
+      "tools_evidenced": ["functions.exec with read-only exec_command", "collaboration.send_message", "functions.apply_patch"],
+      "writes": ["RUN_ROOT/instances/PS/RETURN.md", "RUN_ROOT/instances/PS/VALIDATION.md"],
+      "state": "COMPLETE"
+    },
+    {
+      "order": 7,
+      "id": "PS-FORMAT-SUCCESSOR",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["PS-FANIN"],
+      "objective": "normalize identified whitespace while preserving exact predecessor bytes and explicit successor hashes",
+      "tools_evidenced": ["functions.exec with read-only exec_command", "functions.apply_patch"],
+      "writes": ["RUN_ROOT/instances/PS/CORRECTIONS/V1/**", "whitespace-only successors in PS and candidate scopes"],
+      "state": "COMPLETE"
+    },
+    {
+      "order": 8,
+      "id": "PS-R02-REPAIR",
+      "executor": "/root/dependency_currency",
+      "depends_on": ["R finding R-02", "PS-FORMAT-SUCCESSOR"],
+      "objective": "add missing durable child status, manager work graph/status, and handoff without redoing the seven-row check",
+      "tools_evidenced": ["functions.exec with read-only exec_command", "functions.apply_patch"],
+      "writes": ["new R02 evidence records under RUN_ROOT/instances/PS/**"],
+      "state": "COMPLETE"
+    }
+  ],
+  "edges": [
+    {
+      "from": "PS1-BRIEF",
+      "to": "PS1-SPAWN",
+      "gate": "sealed brief persisted before delegation"
+    },
+    {
+      "from": "PS1-CHECK",
+      "to": "PS-FANIN",
+      "gate": "child terminal PASS returned"
+    },
+    {
+      "from": "PS-FANIN",
+      "to": "root",
+      "gate": "manager validation and exact hash"
+    }
+  ],
+  "delegation_count": 1,
+  "child": "/root/dependency_currency/ps1_interface_backcheck",
+  "child_delegation_count": 0,
+  "authority_effect": "NONE"
+}

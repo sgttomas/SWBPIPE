@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "freeze_status": "FROZEN_BEFORE_PRODUCTION_COMPARISON",
+  "freeze_order": [
+    "fixture identity and case transformation",
+    "independent method and signs",
+    "independent executable calculation",
+    "expected results",
+    "deterministic self-check",
+    "production comparison only after this manifest"
+  ],
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "files": [
+    {"path":"projects/chirality-piping/fixtures/product_preview/invented_preview_model.json","sha256":"986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c","role":"authored product input only"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/INPUT_FREEZE.json","sha256":"0703c80d07490d3fd557b31c01ee890dd9d1a9dc5e599accea17072d7f8d2104","role":"portable-normalized independent frozen input and branch fence"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/METHOD_AND_SIGNS.md","sha256":"3bfb4732f9fded5068907cf32fa30be2c0c18541328d6f279f198e1dd0f01ba0","role":"portable-normalized independent method and sign convention"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/SOURCE_BASIS.md","sha256":"d45912676a3d39cd31b42c03fdb4ee81af69725e20a9f1a1141a2d1bee2aef83","role":"portable-normalized rights and public-reference basis"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/independent_mixed_reference.py","sha256":"6d946755ca2748094f0856bf30018cfc4620bb82c6b7d2223ab9b9a7aaf59b13","role":"standalone oracle calculation"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/EXPECTED_RESULTS_FROZEN.json","sha256":"72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245","role":"expected result frozen before comparison"},
+    {"path":"projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/verify_frozen_reference.py","sha256":"274c378c17c908ebc0dab4798dbd4ec88540603e5cb1c8650db8ba5025332de4","role":"deterministic independent-package self-check"}
+  ],
+  "portability_normalization": {
+    "record": "PORTABILITY_NORMALIZATION.json",
+    "semantic_or_numeric_change": false,
+    "expected_result_sha256_unchanged": "72a5db983ac43aebd881941161899a5e51191a417d0a86bf5215b40939787245",
+    "pre_normalization_manifest": "normalization/pre_portability/FREEZE_MANIFEST.json.base64 (base64; hash is of decoded bytes)",
+    "pre_normalization_manifest_sha256": "26cc80861475e3004f892aa64d2f74cb4923ecd8c036d2b7b94333f0c8c76cd7"
+  },
+  "independence_statement": "No production result, DEL-04-01/04-02 generated output, or bundled expected constant was read to derive the frozen values. Product source was inspected only to identify live input-field/adapter semantics and the exact retained-spring test target.",
+  "dependency_statement": "The package is derivative evidence only. DAG-002-E0532, DAG-002-E0533 and TP-DAG-004-DEL-09-01-E001 remain unresolved; explicit fixture-local SI does not satisfy canonical conversion acceptance or the human hold."
+}

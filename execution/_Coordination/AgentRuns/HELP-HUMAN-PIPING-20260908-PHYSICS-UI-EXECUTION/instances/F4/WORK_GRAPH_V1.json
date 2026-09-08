@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "F4",
+  "version": 1,
+  "status": "FROZEN_EVIDENCE_STAGE",
+  "selection_authority": "HUMAN_VIA_ROOT_CONTROLS",
+  "posture": "MIXED",
+  "package_id": "PKG-04",
+  "selected_deliverables": ["DEL-04-04"],
+  "nodes": [
+    {
+      "id": "F4-MANAGER",
+      "role": "WORKING_ITEMS Agent1",
+      "depends_on": ["C0"],
+      "objective": "activation, prerequisite evidence, independent expectations, fan-in, exact implementation brief",
+      "writes": ["RUN_ROOT/instances/F4/**", "DEL-04-04/_run_records/PHYSICS_UI_EXECUTION_20260908/**"]
+    },
+    {
+      "id": "F4-D1",
+      "role": "TASK Agent2",
+      "skill": "software-defect-diagnosis",
+      "depends_on": ["F4-MANAGER:brief_frozen"],
+      "objective": "unchanged M1-N-008 isolated replay and causal diagnosis",
+      "writes": ["RUN_ROOT/instances/F4/children/D1/**", "DEL-04-04/_run_records/PHYSICS_UI_EXECUTION_20260908/diagnosis/**"]
+    }
+  ],
+  "edges": [{"from": "F4-D1", "to": "F4-MANAGER", "gate": "terminal return validated"}],
+  "concurrency": "one Agent2 only; root reserved the Rust/native execution slot for F4",
+  "integration_owner": "F4 conditional on versioned root amendment",
+  "fan_in_gate": "witness hashes, exact command/target, both seeds/modes, raw failure-preserving evidence, causal chain, write containment",
+  "escalation": "root for prerequisite disposition, any source-write release, any new physical/reference/history/tolerance choice, or scope expansion"
+}

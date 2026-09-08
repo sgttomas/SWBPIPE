@@ -1,0 +1,12 @@
+{
+  "instance_id": "C0",
+  "identity": "/root/execution_recorder",
+  "role": "bounded ephemeral Agent2 control recorder",
+  "status": "COMPLETE",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "actual_model_identity": "not separately exposed to the instance",
+  "delegation": "none",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "validation": ["WORK_GRAPH_V1.json parsed", "git diff --check passed"]
+}

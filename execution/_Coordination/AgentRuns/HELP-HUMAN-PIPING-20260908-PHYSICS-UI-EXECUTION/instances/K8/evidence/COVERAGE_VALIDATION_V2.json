@@ -1,0 +1,13 @@
+{
+  "status": "PASS_CANDIDATE_V2_NOT_ADOPTED",
+  "candidate_public_version": "0.2.0",
+  "candidate_revision": "K8-V2",
+  "schema_sha256": "fd7f8202b7b04b18cf457c8c07724fa92c51dae2138222055f1ee22b385b9e32",
+  "mapping_rows": 45,
+  "full_native_nonlinear_rows": 830,
+  "mandatory_semantic_validator": "semantic_validator_v2.py",
+  "writer_reader_round_trip": "PASS",
+  "source_record_json_value_equality": "830/830",
+  "pressure_pending_transport": "PERMITTED_CANDIDATE_PRESERVE_ONLY",
+  "pressure_standardization": "PKG04_05_ACCEPTANCE_REQUIRED"
+}

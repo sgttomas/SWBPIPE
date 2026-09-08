@@ -5,6 +5,8 @@
 
 ## Remaining
 
+- The 2026-09-08 four-case pressure-reference investigation is complete as candidate evidence; read its frozen report with `SIGN_CONVENTION_CLARIFICATION_V2.md`. RP technical PASS validates that packet only. Production pressure-physics and public-schema adoption remain open to Owner rulings on Poisson/material authority, closure topology/defaults, typed force/result compatibility, curved and expansion-joint treatment, thresholds, and verification fixtures. No lifecycle, dependency, or acceptance change is implied.
+
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
 - 2026-04-30 - Four-document setup evidence drafted (TASK+four-documents P1_P2)

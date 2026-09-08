@@ -1,0 +1,129 @@
+{
+  "schema": "chirality-piping-m1-n-008-diagnosis/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "F4-D1",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "source": {
+    "expected_commit": "779dedb8670625b36af07b89fc5557470e47c50e",
+    "observed_commit": "779dedb8670625b36af07b89fc5557470e47c50e",
+    "match": true,
+    "files": {
+      "core/solver/nonlinear_integration/src/lib.rs": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+      "core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "core/solver/diagnostics/src/lib.rs": "b9092ce5a8b3f38b9124c14f8dbd5853ca250b41c1b7571cc02b913bb74fdfa1"
+    },
+    "historical_witness_source_commit": "2be412ccea62bdc4bd96deb082c46d7a792076ea"
+  },
+  "witness": {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness",
+    "pre_copy_manifest": "original_witness_hashes_pre_copy.tsv",
+    "pre_copy_manifest_sha256": "7b5fb66cd67ec128f75f719a612576e61d77e6c8a52e8454c33d06a711740e51",
+    "files": {
+      "Cargo.lock": {"bytes": 1538, "sha256": "ac1abea2355eafb839ee15c8dbde2cb500710b66217106c9b036b59d54461cd4"},
+      "Cargo.toml": {"bytes": 377, "sha256": "326677deba0692d4eb2bebbb4c4bd009c805fc0a742197798a072afaf4924558"},
+      "src/main.rs": {"bytes": 3139, "sha256": "5b4671282466232902d42daeb6ec12391654381c067c9b9276cc6dbd6253ed2d"}
+    },
+    "historical_hash_comparison": {
+      "PRE_EXECUTION_HASHES_V2.json_main_rs_match": true,
+      "PRE_EXECUTION_HASHES_V2.json_Cargo_toml_match": true,
+      "MANIFEST.json_Cargo_lock_match": true,
+      "drift": false
+    },
+    "copy_manifest": "copied_witness_hashes_before_execution.tsv",
+    "copy_manifest_sha256": "1ff59f4b777bc74761c57e9dad34d23d2338f8c2a85ed3f4e039edd8d6b170eb",
+    "replay_copy_matches_original_before_and_after": true,
+    "original_matches_pre_copy_after_execution": true
+  },
+  "isolation": {
+    "temporary_root": "/tmp/chirality-f4-d1.EflygK",
+    "replay_copy": "/tmp/chirality-f4-d1.EflygK/replay/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness",
+    "extension_copy": "/tmp/chirality-f4-d1.EflygK/extension/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness",
+    "source_binding": "temporary core symlink to the read-only current worktree source at the accepted commit",
+    "cargo_targets": [
+      "/tmp/chirality-f4-d1.EflygK/targets/replay",
+      "/tmp/chirality-f4-d1.EflygK/targets/extension"
+    ],
+    "network": "disabled by CARGO_NET_OFFLINE=true and --offline",
+    "removed_after_evidence_capture": true
+  },
+  "commands": {
+    "replay": "CARGO_TARGET_DIR=/tmp/chirality-f4-d1.EflygK/targets/replay CARGO_NET_OFFLINE=true cargo run --locked --offline --manifest-path /tmp/chirality-f4-d1.EflygK/replay/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/Cargo.toml",
+    "extension": "CARGO_TARGET_DIR=/tmp/chirality-f4-d1.EflygK/targets/extension CARGO_NET_OFFLINE=true cargo run --locked --offline --manifest-path /tmp/chirality-f4-d1.EflygK/extension/projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/Cargo.toml"
+  },
+  "raw_logs": {
+    "encoding": "raw bytes; observed content is UTF-8 text",
+    "replay_stdout": {"path": "replay.stdout.raw", "bytes": 485000, "sha256": "a52a0e015c46f36b871827c955d0102b2988749ec739ad1c9e4f36f591cbc47b"},
+    "replay_stderr": {"path": "replay.stderr.raw", "bytes": 153, "sha256": "7612d816b0427e51e1bc3222228bdcae0906156a6f5b152954c070ac8d404d60"},
+    "extension_stdout": {"path": "extension.stdout.raw", "bytes": 539242, "sha256": "11a3026cd2f574dca6eb0e6e9e2c42d71971d4a66d99e70a6460de4eca4e52e2"},
+    "extension_stderr": {"path": "extension.stderr.raw", "bytes": 1510, "sha256": "fcd8b9e2ae23815654cc2629bd42bace94abb9738384e21b02264e4cc7123569"}
+  },
+  "execution": {
+    "replay_exit_status": 0,
+    "extension_exit_status": 0,
+    "compilation_failure": false,
+    "case_count": {"replay_coupled": 4, "extension_coupled": 8},
+    "mode_parity": "exact for the reported coupled result fields",
+    "cases": [
+      {"lane": "replay", "force_x": 10.0, "seed": "Sticking", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": 0.046666666666666676, "friction_reaction": -3.0, "current_normal": 7.666666666666668, "current_mu_n": 2.3000000000000003, "signed_current_bound_force": -2.3000000000000003, "signed_force_discrepancy": -0.6999999999999997, "magnitude_discrepancy": 0.6999999999999997, "normal_used_for_applied_force": 10.0},
+      {"lane": "replay", "force_x": 10.0, "seed": "Sliding", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": 0.053333333333333344, "friction_reaction": -2.0000000000000004, "current_normal": 7.333333333333335, "current_mu_n": 2.2000000000000006, "signed_current_bound_force": -2.2000000000000006, "signed_force_discrepancy": 0.20000000000000018, "magnitude_discrepancy": -0.20000000000000018, "normal_used_for_applied_force": 6.666666666666668},
+      {"lane": "extension", "force_x": 10.0, "seed": "Sticking", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": 0.046666666666666676, "friction_reaction": -3.0, "current_normal": 7.666666666666668, "current_mu_n": 2.3000000000000003, "signed_current_bound_force": -2.3000000000000003, "signed_force_discrepancy": -0.6999999999999997, "magnitude_discrepancy": 0.6999999999999997, "normal_used_for_applied_force": 10.0},
+      {"lane": "extension", "force_x": 10.0, "seed": "Sliding", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": 0.053333333333333344, "friction_reaction": -2.0000000000000004, "current_normal": 7.333333333333335, "current_mu_n": 2.2000000000000006, "signed_current_bound_force": -2.2000000000000006, "signed_force_discrepancy": 0.20000000000000018, "magnitude_discrepancy": -0.20000000000000018, "normal_used_for_applied_force": 6.666666666666668},
+      {"lane": "extension", "force_x": -10.0, "seed": "Sticking", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": -0.046666666666666676, "friction_reaction": 3.0, "current_normal": 12.333333333333332, "current_mu_n": 3.6999999999999997, "signed_current_bound_force": 3.6999999999999997, "signed_force_discrepancy": -0.6999999999999997, "magnitude_discrepancy": -0.6999999999999997, "normal_used_for_applied_force": 10.0},
+      {"lane": "extension", "force_x": -10.0, "seed": "Sliding", "modes": ["SparseInteractive", "DenseScrutiny"], "converged": true, "final_state": "Sliding", "iterations": 2, "u_x": -0.04000000000000001, "friction_reaction": 3.9999999999999996, "current_normal": 11.999999999999998, "current_mu_n": 3.5999999999999996, "signed_current_bound_force": 3.5999999999999996, "signed_force_discrepancy": 0.3999999999999999, "magnitude_discrepancy": 0.3999999999999999, "normal_used_for_applied_force": 13.333333333333332}
+    ]
+  },
+  "independent_static_oracles": {
+    "positive_force": {"u_x": 0.05185185185185185, "normal": 7.407407407407407, "friction": -2.2222222222222223, "exact": "u=7/135, N=200/27, Rf=-20/9"},
+    "negative_force": {"u_x": -0.04242424242424243, "normal": 12.121212121212121, "friction": 3.6363636363636362, "exact": "u=-7/165, N=400/33, Rf=40/11"}
+  },
+  "diagnosis": {
+    "confidence": "high",
+    "root_cause": "The loop assembles a sliding force before the current linear solve and derives its magnitude from iterations.last().reactions. In a coupled fixture, that force changes u_x and therefore the newly solved normal reaction, but convergence is accepted as soon as the active-set state is unchanged. The returned friction force therefore remains mu times the prior normal rather than mu times the returned current normal.",
+    "earliest_divergent_state": "At iteration 2 force assembly in nonlinear_integration/src/lib.rs:427-433 and 727-733: the normal passed to the applied force comes from the iteration-1 reaction vector. After the solve, build_trial_states at lines 451-457 and 1375-1382 sees the iteration-2 current normal, but lines 466-490 can terminate on zero state-change residual without requiring applied-force/current-normal consistency.",
+    "contributing_condition": "nonlinear_supports/src/lib.rs:524-536 preserves Sliding when a prior Sliding support has nonzero displacement even if the current classifier would return Sticking. This explains unchanged-state convergence for the under-bound cases; the over-bound cases also terminate because Sliding remains Sliding.",
+    "not_mode_specific": true,
+    "not_direction_specific": true,
+    "alternatives_rejected": [
+      "Witness drift: rejected by matching historical, pre-copy, copied, and post-execution hashes.",
+      "Wrong source revision: rejected because observed HEAD equals the accepted source commit.",
+      "Sparse solver discrepancy: rejected by exact DenseScrutiny parity.",
+      "Friction direction reversal: rejected because the applied force opposes nonzero displacement for both signs.",
+      "Floating-point tolerance noise: rejected because the current-bound discrepancies are 0.2 to 0.7 N and arise algebraically while the state-change residual is exactly zero."
+    ]
+  },
+  "repair_and_verification": {
+    "likely_minimal_source_surface": [
+      "core/solver/nonlinear_integration/src/lib.rs: the sliding-force update and convergence acceptance around lines 413-490 and helper lines 691-743",
+      "core/solver/nonlinear_supports/src/lib.rs: only if the chosen repair changes Sliding-to-Sticking anti-chatter semantics; not required merely to add force/current-normal consistency"
+    ],
+    "repair_options": [
+      "Extend nonlinear convergence so unchanged support labels cannot terminate while the applied sliding force differs from the force implied by the newly solved normal; continue with an updated force under an already-authorized numerical policy.",
+      "For a fixed sliding branch and direction, assemble the derived-normal Coulomb relation into the linearized equations so force and normal are simultaneous, avoiding a newly selected iteration tolerance."
+    ],
+    "verification": [
+      "Promote the unchanged positive witness plus the temporary negative mirror into bounded regression cases only after repair authority is granted.",
+      "Assert both seeds and both modes return the same state, displacement, normal, and friction for each sign.",
+      "Assert signed Rf equals the opposing +/-mu*N formed from the returned current normal, and assert the independent rational oracles for this fixture.",
+      "Retain full iteration evidence and add a mutation check that reintroduces previous-reaction scaling or premature state-only convergence.",
+      "Cover zero mu, zero normal, threshold touch, changing normal, repeated solves, and max-iteration failure without selecting a new threshold in this diagnostic tranche."
+    ],
+    "remaining_unknowns": [
+      "Which repair algorithm is selected: iterative current-normal closure or simultaneous branch assembly.",
+      "If iteration is selected, what already-authorized residual policy governs force/current-normal closure when the current witness uses zero state-change tolerance.",
+      "Whether anti-chatter semantics need adjustment after the primary convergence repair."
+    ]
+  },
+  "wrapper_attempt": {
+    "status": "FAILED_WRAPPER_AFTER_CARGO_COMPLETED",
+    "exit_status": 1,
+    "cause": "The shell used zsh's read-only variable name status while capturing Cargo's status.",
+    "preserved": [
+      {"path": "replay_attempt1.stdout.raw", "bytes": 485000, "sha256": "a52a0e015c46f36b871827c955d0102b2988749ec739ad1c9e4f36f591cbc47b"},
+      {"path": "replay_attempt1.stderr.raw", "bytes": 1480, "sha256": "4d6039336526fa12a69b5a0f6e0d0bf2852859950a98cae21888d616f04dcfa7"},
+      {"path": "replay_attempt1.wrapper.stderr.raw", "bytes": 34, "sha256": "a4cf4ddfab2837b1dc25a57eb5fa243d5c796e4a3da62721d96edf69711ca1e2"}
+    ],
+    "effect_on_primary_result": "none; a second unchanged run captured exit status 0 and byte-identical stdout"
+  }
+}

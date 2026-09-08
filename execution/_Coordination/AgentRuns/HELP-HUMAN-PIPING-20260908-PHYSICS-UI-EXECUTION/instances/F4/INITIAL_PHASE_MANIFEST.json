@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "F4",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "phase": "INITIAL_DIAGNOSIS_AND_IMPLEMENTATION_FREEZE",
+  "status": "COMPLETE_SOURCE_HELD",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "source_changes": [],
+  "compile_slot": "RELEASED",
+  "dependency_gate": {
+    "E006_E008": "CURRENT_FACTUAL_INTERFACES_CONFIRMED_PENDING_OWNING_DISPOSITION",
+    "E009": "OWNER_ACT_REQUIRED_FOR_PDU035_FORMAL_HOLD",
+    "accepted_dag_mutated": false
+  },
+  "members": [
+    {"path": "ACTIVATION.md", "sha256": "19aca1a0804a5cdd7cedd51c3b3e2e91dae19ff7ee11fa7087c2e796ab532abb"},
+    {"path": "WORK_GRAPH_V1.json", "sha256": "ee459b57655eeb99b0b9d2021a035e7a0bc0e0b45f8af0b14330760447fb9890"},
+    {"path": "CURRENT_NORMAL_EXPECTATIONS_V1.md", "sha256": "4de46610000a90b9be3166dace956535613f519416a59f394a6095c6324225ae"},
+    {"path": "PREREQUISITE_INTERFACE_EVIDENCE_V1.md", "sha256": "a42912f4acb005ad5b6d7731271454b0bd1fd47e55ae3ce2cda3b1679791d9ee"},
+    {"path": "IMPLEMENTATION_BRIEF_V1.md", "sha256": "a6fb3b29a39188fd13e83d9a199ae23f9a876f922dd843551060ff1bd51a103b"},
+    {"path": "children/D1/STATUS.json", "sha256": "c11be056bb4161f19cc4851aadcb1b1f8526f3c6e1a8b705576d2c2cbfb8bb42"},
+    {"path": "children/D1/RETURN_V2.md", "sha256": "9fb615627f7f7202f31317d2fbfc98590504e0385a3b35a7933b60af97ee1818"},
+    {"path": "{DELIVERABLE_RUN_RECORD}/diagnosis/evidence/diagnosis.json", "sha256": "f7d1fc0b8b6f571ba994d86c3214d69d861e34ae51da0b5f54783db4f579baf2"},
+    {"path": "{DELIVERABLE_RUN_RECORD}/FOCUSED_BOUNDARY_RUN_V1.md", "sha256": "b3cfe3c470231024614b79202d20fdc27970642cffcd96ab9ccf07d0e8c53801"}
+  ],
+  "validation": {
+    "witness_source_hashes_match": true,
+    "witness_replay_exit": 0,
+    "sign_extension_exit": 0,
+    "focused_boundary_tests_passed": 6,
+    "focused_boundary_tests_failed": 0,
+    "active_F4_machine_absolute_paths": 0,
+    "json_parse": "PASS",
+    "lf": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "resume_only_after": [
+    "owner dependency act covering E009",
+    "root versioned amendment naming exact source/test write paths",
+    "root assignment of an isolated compile slot"
+  ]
+}

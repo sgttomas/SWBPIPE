@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "P5",
+  "package_id": "PKG-05",
+  "selected_deliverables": ["DEL-05-03"],
+  "version": 1,
+  "status": "FROZEN_FOR_EXECUTION",
+  "selection_authority": "HUMAN_THROUGH_ROOT_FROZEN_GRAPH",
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "nodes": [
+    {
+      "id": "P5-MANAGER-DERIVATION",
+      "role": "WORKING_ITEMS",
+      "depends_on": [],
+      "writes": ["instances/P5/**", "DEL-05-03/_run_records/PHYSICS_UI_EXECUTION_20260908/**"],
+      "return": "independently frozen four-case derivation, current-output comparison, recommendation, owner choices"
+    },
+    {
+      "id": "P5-A2-CHECK",
+      "role": "ephemeral Agent2 generalist",
+      "depends_on": [],
+      "writes": [],
+      "return": "fresh independent derivation and sign/limit checks to manager",
+      "optional": true,
+      "maximum_instances": 1
+    },
+    {
+      "id": "P5-FAN-IN",
+      "role": "WORKING_ITEMS",
+      "depends_on": ["P5-MANAGER-DERIVATION", "P5-A2-CHECK"],
+      "writes": ["instances/P5/**", "DEL-05-03/_run_records/PHYSICS_UI_EXECUTION_20260908/**"],
+      "return": "validated P5 package return to /root"
+    }
+  ],
+  "concurrency": "manager derivation and one read-only child may proceed independently; manager alone integrates",
+  "integration_owner": "/root/pressure_reference",
+  "fan_in_gates": [
+    "expectations frozen before current-output comparison",
+    "primary-source applicability checked",
+    "four required cases covered",
+    "force and sign conventions explicit",
+    "remaining Owner choices explicit",
+    "write containment and manifest verified"
+  ],
+  "escalation_points": [
+    "new physical/reference acceptance",
+    "public compatibility or migration choice",
+    "cross-package source/interface change",
+    "any expansion beyond the selected investigation"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "checks": {
+    "duplicate_result_id": "PASS",
+    "mirror_id": "PASS",
+    "mirror_value": "PASS",
+    "mirror_unit": "PASS",
+    "metadata_value_and_presence": "PASS",
+    "object_reference": "PASS",
+    "basis_reference": "PASS",
+    "source_result_ref_order": "PASS",
+    "nonfinite_writer_and_reader": "PASS_NAN_AND_POSITIVE_INFINITY",
+    "owner_runtime_and_schema": "PASS",
+    "unsupported_kind_unit": "PASS",
+    "row_status_over_set_type": "PASS",
+    "valid_writer_reader_round_trip": "PASS",
+    "total_adversarial_invariants": 13
+  }
+}

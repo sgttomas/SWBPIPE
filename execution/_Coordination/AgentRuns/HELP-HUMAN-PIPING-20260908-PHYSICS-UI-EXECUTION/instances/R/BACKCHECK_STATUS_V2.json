@@ -1,0 +1,30 @@
+{
+  "schema": "r-bounded-successor-backcheck-status/v2",
+  "instance": "R",
+  "parent": "/root",
+  "source": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "state": "complete",
+  "verdict": "STAGED_PASS",
+  "finding_closure": {
+    "R-01": "CLOSED",
+    "R-02": "CLOSED",
+    "R-03": "CLOSED",
+    "R-04": "CLOSED"
+  },
+  "backcheck_inventory": "instances/R/BACKCHECK_REVIEWED_INVENTORY_V2.sha256",
+  "backcheck_inventory_count": 51,
+  "backcheck_inventory_sha256": "625bd8741855c39552b8c83b2bc811cc7f2f20583d57239ce356a8b9b9421e92",
+  "root_correction_index_v2_sha256": "8472be2b71f0f35440f59796e9a0e81084b80cbfcb4f00c62fa17c3f2992c02f",
+  "partial_fan_in_disposition_v1_sha256": "ebfda222665d55a857dd50ddec729ac192bd5bb064d8a2cedcfc7efb42010082",
+  "own_inventory_correction_sha256": "63fa4d10e33ffb89eb528d317c422631adfc5083de8001b2d76d53c2846d5d4d",
+  "remaining_gates": [
+    "RK final V3 backcheck",
+    "required post-change tests",
+    "Owner one-time Step 1 exception before F4/U7 source writes"
+  ],
+  "final_tranche_acceptance": false,
+  "source_writes": "HELD_PENDING_OWNER_STEP1_EXCEPTION",
+  "tests_run": false,
+  "git_writes": false,
+  "delegation": false
+}

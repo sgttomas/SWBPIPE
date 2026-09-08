@@ -1,0 +1,20 @@
+{
+  "instance": "R",
+  "role": "fresh bounded ephemeral Agent 2 independent reviewer",
+  "parent": "/root",
+  "state": "complete",
+  "verdict": "CHANGES_REQUIRED",
+  "source": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": false,
+  "reviewed_inventory": "instances/R/REVIEWED_INVENTORY_V1.sha256",
+  "reviewed_inventory_count": 105,
+  "reviewed_inventory_sha256": "9f59ef28fd7267ba95f2749e1ac81ab1cd4f8f27e90a24422c82a7e30058ad89",
+  "actionable_findings": 4,
+  "remaining_evidence_checks": 0,
+  "source_writes": "HELD_PENDING_OWNER_STEP1_EXCEPTION",
+  "excluded_bodies": ["P5", "K8", "M9", "RK", "RM"],
+  "tests_run": false,
+  "git_writes": false
+}

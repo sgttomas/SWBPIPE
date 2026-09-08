@@ -1,0 +1,89 @@
+{
+  "schema": "change-retrospective-manifest/v1",
+  "status": "R03_ADDITIVE_EVIDENCE_COMPLETE",
+  "created_utc": "2026-09-08T06:19:53Z",
+  "basis_commit": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "finding": "instances/R/RETURN.md R-03",
+  "record_timing": "retrospective_after_execution_and_after_R03",
+  "new_records": [
+    {
+      "path": "LAUNCH_BRIEF.md",
+      "sha256": "ae8e6e11e5af5f846371f9c429035083e506bcd6e2290a67b8849a877ac0f306",
+      "purpose": "canonical retrospective launch entrypoint"
+    },
+    {
+      "path": "STATUS.json",
+      "sha256": "c53c926d6276a62650162696e3902fdd068175e04e9f4520b792be1b2bf8e2d6",
+      "purpose": "canonical retrospective status entrypoint"
+    },
+    {
+      "path": "RETROSPECTIVE_LAUNCH_BRIEF_V1.md",
+      "sha256": "b93b930415263665c1d0639a506ba5b588d24f5ece5ab9af82ee90bb7fc0afd8",
+      "purpose": "complete actual-scope and chronology disclosure"
+    },
+    {
+      "path": "RETROSPECTIVE_STATUS_V1.json",
+      "sha256": "89430b7984949c48c3fd5c8eabe07c33103718d0bb00735f9b2feaca649ca28d",
+      "purpose": "structured actual-scope, authority, actions, chronology, and state"
+    }
+  ],
+  "preexisting_records_verified_unchanged": [
+    {
+      "path": "CHANGE_EVIDENCE_CORRECTION_V1.json",
+      "sha256": "33decb4551e58c6503e343d47c001899cfd3af88f6f42466f0d3c067fd0d4f0b"
+    },
+    {
+      "path": "MERGE_AND_LANE_SETUP.md",
+      "sha256": "ac5483c1c92161e06cee026676837735f96a59d0eaabf2be2a86486ffa24298f"
+    },
+    {
+      "path": "NATIVE_WALKTHROUGH_ISOLATION.md",
+      "sha256": "c0504e328f8cbaaa066224a2f29a559eecfc82d560b652064077acdb8878a410"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "06f6bd1cefe3c52d1c7c762a1bdcff77e6589fcf8ffc88f1c0b4e7e014539c09"
+    },
+    {
+      "path": "STEP0_CHECKS.json",
+      "sha256": "3d4d20e5b724544be6ad5e72b4c6b6ebb994c591107c7de91b824a6fb4377637"
+    },
+    {
+      "path": "TOOLCHAIN_READINESS.json",
+      "sha256": "09ca25f491f2aaabef8f052fa713ed6ef2f2f6e130dccc447e990f6772a81121"
+    },
+    {
+      "path": "TOOLCHAIN_READINESS.md",
+      "sha256": "1258d4da8d7b980d54b1f8072144640e11ec280ea58ad01b43d8dcf94d459d3a"
+    },
+    {
+      "path": "_run_records/CHANGE_EVIDENCE_CORRECTION_V1_ORIGINALS.json",
+      "sha256": "7c21f88e7e53705798eb91250794d5b5b3a44e86270ede46726792747bf38d3a"
+    },
+    {
+      "path": "_run_records/CHANGE_EVIDENCE_HOST_PATHS.json",
+      "sha256": "5b7527006519de6bf37b05c9d4525e60fc4af3cda8c757bcd159125093f7825a"
+    },
+    {
+      "path": "_run_records/NATIVE_WALKTHROUGH_HOST_PATHS.json",
+      "sha256": "06ccac8196c309ae528be67f662d0c449f995a35f55eaa49589f148ece252e31"
+    },
+    {
+      "path": "_run_records/NATIVE_WALKTHROUGH_TAURI_OVERLAY.json",
+      "sha256": "6132c122f5e2cbc3bec475ac7d08780e1c860ebe6695ee99855c468ccee34c6f"
+    },
+    {
+      "path": "_run_records/TOOLCHAIN_HOST_PATHS.json",
+      "sha256": "86ba998e29f8a6d5f467b0855a35a956ce67ea8479aa0411f5cc4b122b186314"
+    }
+  ],
+  "scope_assertions": {
+    "additive_only": true,
+    "preexisting_change_records_modified": false,
+    "product_source_modified": false,
+    "git_index_modified": false,
+    "git_commit_created": false,
+    "native_build_or_test_run": false
+  },
+  "handoff": "Root may include these retrospective records in the next review inventory; final CHANGE closeout remains held until root releases it after required review PASS."
+}

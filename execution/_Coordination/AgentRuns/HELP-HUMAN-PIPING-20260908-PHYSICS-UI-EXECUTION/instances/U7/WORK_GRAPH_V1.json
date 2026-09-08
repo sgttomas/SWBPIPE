@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION",
+  "instance_id": "U7",
+  "package_id": "PKG-07",
+  "selected_deliverables": ["DEL-07-01", "DEL-07-02_CONDITIONAL"],
+  "version": 1,
+  "status": "EVIDENCE_AND_BRIEF_COMPLETE_IMPLEMENTATION_HELD",
+  "selection_authority": "HUMAN_THROUGH_ROOT_FROZEN_GRAPH",
+  "posture": "MIXED",
+  "nodes": [
+    {
+      "id": "U7-EVIDENCE",
+      "role": "WORKING_ITEMS",
+      "depends_on": [],
+      "writes": ["instances/U7/**", "DEL-07-01/_run_records/PHYSICS_UI_EXECUTION_20260908/**"],
+      "return": "complete: CONSUMED_INTERFACE_EVIDENCE_V1.md"
+    },
+    {
+      "id": "U7-BRIEF",
+      "role": "WORKING_ITEMS",
+      "depends_on": ["U7-EVIDENCE"],
+      "writes": ["instances/U7/**", "DEL-07-01/_run_records/PHYSICS_UI_EXECUTION_20260908/**"],
+      "return": "complete: IMPLEMENTATION_BRIEF_V1.md"
+    },
+    {
+      "id": "U7-IMPLEMENT",
+      "role": "WORKING_ITEMS or bounded Agent2 under a later amendment",
+      "depends_on": ["U7-BRIEF", "ROOT_PREREQUISITE_RELEASE"],
+      "writes": [],
+      "return": "held; no source grant in V1"
+    },
+    {
+      "id": "U7-FRESH-REVIEW",
+      "role": "TASK plus software-code-review",
+      "depends_on": ["U7-IMPLEMENT"],
+      "writes": [],
+      "return": "100 percent frozen product diff PASS; held until implementation exists"
+    }
+  ],
+  "concurrency": "Initial manager evidence and brief are serial. Product integration is reserved to U7 and remains held. Root coordinates any future child slot.",
+  "integration_owner": "/root/native_authoring",
+  "fan_in_gates": [
+    "all selected dependency rows have exact consumed-interface evidence",
+    "no code existence claim is treated as formal row satisfaction",
+    "node-only incomplete persistence remains preserved",
+    "source and tests are an exact minimal fence",
+    "invented inputs are frozen before native execution",
+    "fresh software-code-review covers 100 percent of any later product diff",
+    "H4 and DEC-025 remain mandatory after implementation"
+  ],
+  "escalation_points": [
+    "unresolved dependency instrument blocks source release",
+    "producer/backend contract change becomes necessary",
+    "conditional PropertyInspector change would activate unresolved rows",
+    "scope expands into DEL-07-03/04/05/07 or another package"
+  ]
+}

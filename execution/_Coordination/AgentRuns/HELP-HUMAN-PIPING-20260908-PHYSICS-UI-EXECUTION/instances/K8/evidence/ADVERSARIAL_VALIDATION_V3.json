@@ -1,0 +1,35 @@
+{
+  "status": "PASS",
+  "valid_830_row_round_trip": "PASS",
+  "top_level_shape_cases": 5,
+  "nested_shape_cases": {
+    "result_envelope_null": "PASS_WRITER_READER",
+    "result_sets_null": "PASS_WRITER_READER",
+    "result_set_scalar": "PASS_WRITER_READER",
+    "values_scalar": "PASS_WRITER_READER",
+    "row_null": "PASS_WRITER_READER",
+    "source_record_null": "PASS_WRITER_READER",
+    "classification_null": "PASS_WRITER_READER",
+    "classification_scalar": "PASS_WRITER_READER",
+    "object_ref_null": "PASS_WRITER_READER"
+  },
+  "unknown_outer_inner_version": "PASS_WRITER_READER",
+  "ingress_cases": {
+    "direct_writer_absent": "PASS",
+    "direct_writer_null": "PASS",
+    "direct_writer_empty": "PASS",
+    "direct_writer_unknown": "PASS",
+    "direct_writer_supported": "PASS",
+    "tauri_raw_command_absent": "PASS",
+    "tauri_raw_command_null": "PASS",
+    "tauri_raw_command_empty": "PASS",
+    "tauri_raw_command_unknown": "PASS",
+    "tauri_raw_command_supported": "PASS",
+    "report_package_cli_absent": "PASS",
+    "report_package_cli_null": "PASS",
+    "report_package_cli_empty": "PASS",
+    "report_package_cli_unknown": "PASS",
+    "report_package_cli_supported": "PASS"
+  },
+  "uncaught_exceptions": 0
+}

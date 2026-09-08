@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "status": "FROZEN_BEFORE_PRODUCTION_COMPARISON",
+  "source_sha": "779dedb8670625b36af07b89fc5557470e47c50e",
+  "fixture": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+  "fixture_sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+  "unit_basis": {
+    "scope": "fixture-local explicit SI calculation; no project-wide canonical unit/conversion acceptance",
+    "length": "m",
+    "force": "N",
+    "moment": "N*m",
+    "rotation": "rad",
+    "stress_and_modulus": "Pa",
+    "temperature_interval": "K-equivalent delta degC"
+  },
+  "nodes_xyz_m": {
+    "N-100": [0.0, 0.0, 0.0],
+    "N-110": [3.2, 0.0, 0.0],
+    "N-120": [3.2, 2.4, 0.0],
+    "N-130": [7.6, 2.4, 0.0],
+    "N-140": [7.6, 2.4, 2.2]
+  },
+  "members": [
+    {"id":"P-100","from":"N-100","to":"N-110","length_m":3.2,"y_reference":[0,0,1]},
+    {"id":"P-110","from":"N-110","to":"N-120","length_m":2.4,"y_reference":[0,0,1]},
+    {"id":"P-120","from":"N-120","to":"N-130","length_m":4.4,"y_reference":[0,0,1]},
+    {"id":"P-130","from":"N-130","to":"N-140","length_m":2.2,"y_reference":[0,1,0]}
+  ],
+  "section_and_material": {
+    "outside_diameter_m": 0.168,
+    "wall_thickness_m": 0.007,
+    "inside_diameter_m": 0.154,
+    "area_m2": 0.003540574920595698,
+    "second_moment_y_z_m4": 0.000011493591335983794,
+    "torsion_constant_m4": 0.000022987182671967588,
+    "elastic_modulus_Pa": 200000000000.0,
+    "shear_modulus_Pa": 77000000000.0,
+    "thermal_expansion_per_K": 0.000012
+  },
+  "rigid_supports": {
+    "S-100": {"node":"N-100","dofs":["UX","UY","UZ","RX","RY","RZ"]},
+    "S-120": {"node":"N-120","dofs":["UX","UZ"]},
+    "S-130": {"node":"N-130","dofs":["UY"]}
+  },
+  "retained_spring": {"id":"SH-140","node":"N-140","dof":"UZ","stiffness_N_per_m":42000.0},
+  "unilateral_support": {"id":"NL-140","node":"N-140","dof":"UY","initial_state_input":"active","active_when":"negative_reaction","reference_condition":"g=-u>=0; lambda=-R>=0; lambda*g=0"},
+  "friction": {"id":"NL-130-FRIC","node":"N-130","dof":"UZ","initial_state_input":"sliding","mu":0.01,"current_normal_source":{"support":"S-130","dof":"UY"}},
+  "pressure_free_load_case_L100": {
+    "included": [
+      {"id":"L-100-Z","type":"uniform_member_force","member":"P-120","global_vector_N_per_m":[0,0,-190]},
+      {"id":"L-100-Y","type":"nodal_force","node":"N-140","global_vector_N":[0,350,0]},
+      {"id":"L-100-T","type":"uniform_member_temperature_interval","member":"P-120","delta_K":12.5}
+    ],
+    "omitted": [
+      {"id":"L-100-P","reason":"selected pressure-free calculation; P5 owns pressure matrix"},
+      {"id":"L-100-P-EJ","reason":"selected pressure-free calculation; P5 owns pressure matrix"}
+    ]
+  },
+  "formulation_branches": {
+    "physical_frame": "four objective pipe-frame members; C-150 held out because D02 finite-end connector mechanics are unresolved",
+    "literal_adapter_mapping": "adds input C-150 relative local stiffness [3.2e6,0.9e6,0.9e6,0.62e6,0.48e6,0.48e6] in UX,UY,UZ,RX,RY,RZ order; diagnostic mapping only",
+    "zero_reference_static_friction": "solve stick/slip admissibility against the same returned normal reaction",
+    "incremental_history": "unresolved: no ordered increments, committed slip reference, rollback, or prior converged state are supplied"
+  }
+}
