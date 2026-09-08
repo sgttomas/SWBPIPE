@@ -1,0 +1,79 @@
+{
+  "recorded_at_utc": "2026-09-08T03:32:58.968655+00:00",
+  "authority": "Parent /root explicit acceptance and release message",
+  "accepted_launch_snapshot": "snapshots/LAUNCH_FREEZE_V4.json",
+  "accepted_launch_snapshot_sha256": "5b6dd41664b7a2e01e9138c462e58bd0127386c54b681052c11d36b668b96d68",
+  "parent": "/root",
+  "parent_role": "HELP_HUMAN Agent 0",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted; not mechanically proven",
+  "model_override": false,
+  "model_identity": "exact runtime identity unexposed; not inferred",
+  "instances": [
+    {
+      "id": "E1",
+      "runtime_agent": "/root/physics_preparation",
+      "role": "EVALUATION Agent 1",
+      "status": "LAUNCHED",
+      "brief": "briefs/E1_V1.md",
+      "amendments": [
+        "LAUNCH_AMENDMENT_V2.md",
+        "LAUNCH_AMENDMENT_V3.md",
+        "LAUNCH_AMENDMENT_V4.md"
+      ],
+      "evidence_source": "Parent reports actual sessions launched; execution returns pending"
+    },
+    {
+      "id": "W10",
+      "runtime_agent": "/root/canonical_preparation",
+      "role": "WORKING_ITEMS Agent 1 PKG-10",
+      "status": "LAUNCHED",
+      "brief": "briefs/W10_V1.md",
+      "amendments": [
+        "LAUNCH_AMENDMENT_V2.md",
+        "LAUNCH_AMENDMENT_V3.md",
+        "LAUNCH_AMENDMENT_V4.md"
+      ],
+      "evidence_source": "Parent reports actual sessions launched; execution returns pending"
+    },
+    {
+      "id": "W7",
+      "runtime_agent": "/root/ui_preparation",
+      "role": "WORKING_ITEMS Agent 1 PKG-07",
+      "status": "LAUNCHED",
+      "brief": "briefs/W7_V1.md",
+      "amendments": [
+        "LAUNCH_AMENDMENT_V2.md",
+        "LAUNCH_AMENDMENT_V3.md",
+        "LAUNCH_AMENDMENT_V4.md"
+      ],
+      "evidence_source": "Parent reports actual sessions launched; execution returns pending"
+    },
+    {
+      "id": "Q1",
+      "runtime_agent": "/root/readiness_preparation",
+      "role": "Ephemeral Agent 2",
+      "status": "LAUNCHED",
+      "brief": "briefs/Q1_V1.md",
+      "amendments": [
+        "LAUNCH_AMENDMENT_V2.md",
+        "LAUNCH_AMENDMENT_V3.md",
+        "LAUNCH_AMENDMENT_V4.md"
+      ],
+      "evidence_source": "Parent reports actual sessions launched; execution returns pending"
+    },
+    {
+      "id": "C0",
+      "runtime_agent": "/root/prepare_change",
+      "role": "CHANGE Agent 1",
+      "status": "TERMINAL_SETUP_AND_TOOLING",
+      "parent_disposition": "Accepted as bounded setup/tooling evidence only",
+      "checks": {
+        "selfcheck": "exit 0; 4 REVIEW / 55 WARN",
+        "full_harness": "379 PASS"
+      },
+      "rerun_requirement": "Rerun current checks after final preparation freeze; no final tranche validation inferred"
+    }
+  ],
+  "status_note": "Frozen work-graph initial statuses remain historical; this additive parent-reported release records actual execution."
+}

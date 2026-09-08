@@ -1,0 +1,136 @@
+{
+  "status": "PASS",
+  "linked_local_targets": 24,
+  "links": [
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "instances/S1/SOURCE_INTAKE_V1.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/EVALUATION_REPORT.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/pressure/DECISION_BRIEF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/friction/DECISION_BRIEF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/connector_numerics/DECISION_BRIEF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "instances/W10/CANDIDATE_REPAIR_BRIEF.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "instances/W10/CLARIFICATION_V2.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "target": "../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/REPORT.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "../../../_Decomposition/SOFTWARE_DECOMP.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "../../../_ScopeChange/SCA-009_2026-08-20_0000/",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "../../../_DAG/DAG-010/APPROVAL_RECORD.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "../../../_DAG/_LATEST.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "DECISION_INTERFACE.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "instances/S1/PROPOSED_D66_REGISTER_ROW_PATCH_V1.txt",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "target": "instances/S1/SOURCE_INTAKE_V1.json",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../DECISION_INTERFACE.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../../../../_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/CANDIDATE_NATIVE_AUTHORING_SLICE_V1.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/DEPENDENCY_AND_CASE_ADDENDUM_V2.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/EDIT_READINESS_CLARIFICATION_V3.md",
+      "exists": true
+    },
+    {
+      "source": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "target": "../../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/SCENARIO_AND_ACCEPTANCE_V1.md",
+      "exists": true
+    }
+  ],
+  "containment": "All S1 writes limited to instances/S1/** plus named root DECISION_INTERFACE.md and HANDOFF_STATE.md; no source/register/receipt/sibling writes.",
+  "decision_interface_word_count": 1145,
+  "D66_unused": true,
+  "builds_or_harness": "NOT_RUN; root/CHANGE ownership",
+  "intake_manifest_member_counts": [
+    28,
+    6,
+    17,
+    14
+  ]
+}

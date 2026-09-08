@@ -1,0 +1,7 @@
+# Final staged closeout V4
+
+This additive record supersedes V3 publication readiness. The first staged Git whitespace check detected three CRLF CSV representations that the earlier untracked scan did not flag. C1 preserved exact originals in gzip and changed only line terminators; parsed rows remain identical. The CSV relocation map resolves historical manifest hashes. Fresh R1 affected review V4 passed (manifest `dd5144f6a4983017d184e66bdebc8487f091342686da73ae5f884368dce5cf1e`); root accepted that representation.
+
+After restaging, complete `git diff --cached --check` passes. Required self-check, full practitioner-harness pytest and receipt validation all pass again; exact results/logs are in `FINAL_COMMANDS_V4.json`. `FINAL_INTEGRITY_V4.json` verifies all 129 historical members via explicit transport maps, successor identities, exact register/receipt postimages and allowed scope. Failed attempts remain observable. No product source, numerical semantics or governance policy changed. DEC-025/H4/native remain inapplicable to this documentation/evidence preparation, as recorded in V3.
+
+Source-control publication may proceed on the scoped task branch. Accepted preparation remains derivative decision support; D-66 remains PROPOSED, all future engineering/implementation choices remain for Owner selection. No merge is authorized. Commit/PR/exact-head hosted CI are reported after this evidence-container commit.

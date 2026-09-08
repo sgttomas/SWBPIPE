@@ -1,0 +1,123 @@
+{
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "57ec736545a843a671111ad86b858ed964675a4a4a6ef49e9bfce759b1ab44d1"
+    },
+    {
+      "path": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+      "sha256": "f97af1d323524f9a2be1dab8b5b33c1350c8f48c38cd3c6f8d0f8a9cd9821ea2"
+    },
+    {
+      "path": ".github/workflows/piping-desktop-e2e.yml",
+      "sha256": "4db4a1e95a581e3eeaaff39a59b359c53635cf90ec080093bbe661f6600ee86f"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e"
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b"
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/canonical_hash/README.md",
+      "sha256": "0048b9ede01b35c0d1957ec94daea54f275babdd0506b99cb21486c14903c1a2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md",
+      "sha256": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/REPORT.md",
+      "sha256": "cd5b067dd7cfce88dcc7f678885cdbeb7aac2f28faa1e7395fd1baefdd1153ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_CONTEXT.md",
+      "sha256": "2da0a9b25a7cb4ef8998a90ced1ddbf0ec81ccb4e4396bec9ae2cb626dddb654"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_STATUS.md",
+      "sha256": "304cb989054c4b4c72e779f02debcfd1455af6ffa890e88bb43aa06a9ea7a9ed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md",
+      "sha256": "e5b331a9f5ac58ba174bcdc8193b79ff3b31c27b7549554aedd2958fd37f3917"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/Dependencies.csv",
+      "sha256": "9d2a4e09cf49bb1a37a04e9496e768271eb6adf0fd7152f8c1ce711dd6e2b3ae"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_REFERENCES.md",
+      "sha256": "0db1c8975ed68d12d26fb1cadf628a6a6b3cc0ed9aa8b7f7a911e8c95f31bde9"
+    }
+  ],
+  "temporary_diagnostic_source_sha256": "8b626508f3b0a80a00b065c5c10407a8cdd9b6c70a11b4a6cc4ac4388cddc63d",
+  "diagnostic_source_note": "original executed source is embedded in REPRODUCTION.md with portable doc_dir/input override clarification; diagnostic logic unchanged",
+  "external_primary_source": {
+    "url": "https://www.rfc-editor.org/rfc/rfc8785",
+    "sections": [
+      "3.1",
+      "3.2.2.3"
+    ],
+    "accessed": "2026-09-08 UTC",
+    "scope": "JCS representability/serialization only; no local RFC conformance certification"
+  }
+}

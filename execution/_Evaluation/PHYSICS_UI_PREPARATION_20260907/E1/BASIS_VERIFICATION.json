@@ -1,0 +1,129 @@
+{
+  "git_head": "35249accf139f52478d029458946e50ed25ee5dc",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3"
+    },
+    {
+      "path": "agents/AGENT_EVALUATION.md",
+      "sha256": "49f11c18efe3b2b88bdb2f6fb377d3f5013e84753e8fd1f074715a322b906cc7"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983"
+    },
+    {
+      "path": "skills/evaluation-protocol/SKILL.md",
+      "sha256": "7efbb4d3826a6a12d1eb7f6bf71c3665c26d2f267bd1d233a1abcf2ce4cf5884"
+    },
+    {
+      "path": "skills/evaluation-protocol/BRIEF_SCHEMA.md",
+      "sha256": "564105f30786063ce911a4ef68b59940a56f0b32a819eea3f1db43996b501377"
+    },
+    {
+      "path": "skills/evaluation-protocol/TOOL_POLICY.md",
+      "sha256": "a4f6df7ac94db86debaecc342129395aa1246b78c0f7791979488fdb458f7146"
+    },
+    {
+      "path": "skills/evaluation-protocol/QA_CHECKS.md",
+      "sha256": "3e41e890c19932d2a2173d4eac623710bff1b8b42a4d2dc17af2dc721e069e7b"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "93606f156d79a5c541938358be298720c5315bd9193c6984ce891ca87ed6ef2a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-35_RULING_2026-07-09.md",
+      "sha256": "0054732952cabd4b591f247510007a8c51bc4a2b42749144f35b8f4da4932302"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-37_RULING_2026-07-09.md",
+      "sha256": "492d7158aa2e18e28a3facdac8f4d939608730eb116a509cf47d4d4e43128088"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-54_reasoned_discretion_standing_approval_refinement.md",
+      "sha256": "8d078777a4f77879aca2ff334e6b045e01c63d3d304fd068b9397f1010e10525"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md",
+      "sha256": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/REPORT.md",
+      "sha256": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/FINDING_DISPOSITIONS.csv",
+      "sha256": "f652c562da54224af13b8a29ce5b85fc90c31dde5df4adca7c2d2312839cda88"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/ORCHESTRATION_PLAN_V1.md",
+      "sha256": "725cb68ec0cb07ffbeb94989bb30b68f877edf960f92cc4e6d7300b0c5d7ce89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V2.md",
+      "sha256": "c0a3a66c2e44feeab01c04efb4f836f733e93c68c80bbc234a9d887c9af29175"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V3.md",
+      "sha256": "b0b88161c04a39fd5489e8beb61d87e7abfba32840a63ff892d33914ffda886f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V4.md",
+      "sha256": "de77065c7f3d7d5932ca511736cfddb560e392cc01a7c4d89d3d928709b42d7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/WORK_GRAPH_V3.json",
+      "sha256": "588b6d6406a96c8a3cd7e149a82ca23e9a4e7998e298880e03c9dcf589aaf91e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/E1_V1.md",
+      "sha256": "69bd0da0b72882a7e6c5f2a5fba566b4a8d56665ee75d4123ac9bfa70f1ba4eb"
+    }
+  ],
+  "basis": {
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010"
+  },
+  "read_method": "Manager direct reads; child source inventories supplement topical evidence. Complete decomposition digest binds basis, not claim of whole-document semantic review.",
+  "step0": "Root/CHANGE validator and harness ownership per launch V2; not duplicated by E1. Original local handoff preserved by root/CHANGE; no E1 access or copy.",
+  "committed_plan": {
+    "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+    "selection": "last bytewise WORKPLAN_*.md committed regular blob, tree inspected"
+  }
+}

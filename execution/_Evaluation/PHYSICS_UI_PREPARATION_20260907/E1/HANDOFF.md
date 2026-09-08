@@ -1,0 +1,9 @@
+# E1 handoff
+
+Accepted upstream: source 35249accf139f52478d029458946e50ed25ee5dc; decomposition 0.12 / SCA-009 / DAG-010; prior Receipt 134 via root/CHANGE. Root V4 launch freeze 5b6dd41664b7a2e01e9138c462e58bd0127386c54b681052c11d36b668b96d68; Owner preparation/concurrency direction. Historical S1 repair queue and S2 accepted bounded repairs preserved. Original local handoff was neither accessed nor changed by E1.
+
+Derivative status: CANDIDATE preparation snapshot; not decomposition truth. Closure: PREPARATION_COMPLETE_PENDING_ROOT_AND_INDEPENDENT_REVIEW; physics OPEN. Three required child returns valid, no waivers. No production edits/builds/replays, authority/pointer/receipt/status changes or new thresholds. No affected product derivatives were regenerated; future implementation owns that obligation after source acceptance.
+
+Next owner: HELP_HUMAN synthesis/review then Owner. Recommend pressure four-case reference investigation, narrow current-normal defect repair selection under existing D35 (no reapproval), and independent mixed fixture evidence; connector and numerical studies follow in disjoint scopes. Exact actions and boundaries are in EVALUATION_REPORT.md and three child briefs. Current pressure Option A is an explicitly limited alternative, never full pressure closure.
+
+Remaining blockers: physical/output reference choices, conditional friction history/reference decisions, audit hold release/brief adoption, exact dependency currency/formal unit holds, missing mixed-fixture reference and broader guarantee/acceptance policy. Rerun exact original witnesses on future source, freeze independent expectations before production comparison, obtain fresh full-diff review and appropriate loop verification/derivative refresh. No automatic restart of historical R01–R11. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

@@ -1,0 +1,9 @@
+{
+  "original_logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/BUILD_CONTEXT.json",
+  "original_sha256": "d33140013dfc0c61b573357aab517b70f51a55d82a247d52689dd273bb7a22e3",
+  "preserved_historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/_run_records/PORTABILITY_ORIGINALS_V1/BUILD_CONTEXT.json",
+  "preserved_sha256": "d33140013dfc0c61b573357aab517b70f51a55d82a247d52689dd273bb7a22e3",
+  "normalized_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/BUILD_CONTEXT.json",
+  "normalized_sha256": "0e0ea599e28c4e71f611257a80b4160647a9e74ef96ee2bdf54f9c43cc499a9d",
+  "rule": "Historical V1/V2 manifest entry for original BUILD_CONTEXT.json resolves to preserved_historical_path; current V3 resolves normalized_path."
+}

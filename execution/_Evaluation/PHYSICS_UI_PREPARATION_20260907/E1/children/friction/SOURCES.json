@@ -1,0 +1,179 @@
+{
+  "basis": "35249accf139f52478d029458946e50ed25ee5dc",
+  "retrieved_at_utc": "2026-09-08",
+  "local_sources": [
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/ScopeLedger.csv",
+      "sha256": "97f5a113739e193f07f6d1dfac36f43e08642e12c983f3a3b597a31abe553238",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-35_RULING_2026-07-09.md",
+      "sha256": "0054732952cabd4b591f247510007a8c51bc4a2b42749144f35b8f4da4932302",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md",
+      "sha256": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/REPORT.md",
+      "sha256": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/FINDINGS.csv",
+      "sha256": "0a8df58687a5661718c06f5603e3bf3e1f78bc789f0247d2f4e4a9061d7d2ae3",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+      "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json",
+      "sha256": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/EXPECTATIONS.md",
+      "sha256": "58eca8ddda2948bfe37bbbff74872b23b4ccc16c092212738e895797aae94cbd",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/FINDINGS.csv",
+      "sha256": "406a49b0019ffc35275bd5e5fafbca9d1fb096e668bccd57f5c8f9737efb5acf",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/RETURN.md",
+      "sha256": "74084bc03e33421915088d6f8e14a2ceaf0ec5ea4619d481578835eabe671b87",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/COMPARISON.json",
+      "sha256": "a9d5f81e946d482272a902549049d645867d16edcfd40570c7fdb9fca35a91ee",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md",
+      "sha256": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "sha256": "547a749fa4855f8c5c36ade89426893796967c6963999a9b155ab22e939f1125",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "sha256": "ccb6ea80b7b989e063b676fbb08626685bf139973ee716ebaabd9dc51c92005a",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/Dependencies.csv",
+      "sha256": "5d84f9425ab765c404ee355ce1a3d70e9da87681e8d7b8e0e0616e2177d6e03c",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_CONTEXT.md",
+      "sha256": "c6bdb71713a30193c17d59a093bb0b2270931ddc4591c2f7891da0ed4084cf71",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_STATUS.md",
+      "sha256": "933c42079b56224e26360ffa58ecf5c2d790c069e18ab6cbe16a320360d3e4ac",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/MEMORY.md",
+      "sha256": "6b771d5dd28d6abec772ad7039c4479ad4126251d6c932880665561fe944a30e",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/Dependencies.csv",
+      "sha256": "b326fa5520ab83da81930b17eea043ac18b6feac5a3a01713557b20c40add9f6",
+      "applicability": "Instruction, authority, scope, implementation or historical audit evidence as cited in DECISION_BRIEF; local code/history is not external physical validation."
+    }
+  ],
+  "external_sources": [
+    {
+      "url": "https://doc.comsol.com/6.4/doc/com.comsol.help.sme/sme_ug_theory.06.088.html",
+      "retrieved_at_utc": "2026-09-08",
+      "applicability": "Official contact theory; distinction between increment and iteration; not Owner-vetted frame-support formulation or tolerance."
+    },
+    {
+      "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6056201/",
+      "doi": "10.1115/1.4040497",
+      "retrieved_at_utc": "2026-09-08",
+      "applicability": "Original finite-deformation friction contact research; supports separate constitutive verification; not a direct piping frame benchmark."
+    }
+  ]
+}

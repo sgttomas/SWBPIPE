@@ -1,0 +1,486 @@
+{
+  "kind": "derivative_candidate_source_manifest",
+  "base_sha": "35249accf139f52478d029458946e50ed25ee5dc",
+  "path_basis": "WORKING_ROOT",
+  "files": [
+    {
+      "path": "docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "93606f156d79a5c541938358be298720c5315bd9193c6984ce891ca87ed6ef2a",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "loop/LOOP_INIT.md",
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/solver/frame_kernel/src/lib.rs",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/solver/sparse_direct/src/lib.rs",
+      "sha256": "b480d2978c42517b156ec013a7c637b31db80a99953947e6788616d9cc8b5b71",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/solver/sparse_direct/README.md",
+      "sha256": "47dcd22e13523c1431e0b93089b6e87b252d2166e3400ebf2b082c607a0c9acc",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md",
+      "sha256": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/REPORT.md",
+      "sha256": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/harness/src/main.rs",
+      "sha256": "f2b43f6860b7c25c7b8216baed54d733e5d221434d46f1308d5126c7754e6a3f",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/raw.json",
+      "sha256": "16012890c89ffd8f54ed39998c63c340e95c16d684f696cbccc923bba028eb1d",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/REFERENCES.md",
+      "sha256": "9ef80e2b4b9afe26b0b5877ed4ffd42945bdb40066edfcfcd72a585b05b0e5d1",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/FINDINGS.csv",
+      "sha256": "8903693649d6266db6a0f3613d5621ab7a35e25b846a8181d947fb4aeb471091",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/FINDINGS.csv",
+      "sha256": "9255837cd6c91300a8c436feb6aaacc9b8609a4f19444b9a7a3039b26dd4379f",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/EXPECTED_V1.md",
+      "sha256": "cf2e0a423dce4f7a518bc3c9822c927eba4f3d50182e0c00a79253cc6172fcaf",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/raw_v2.json",
+      "sha256": "790918ee0fa611a90cc1482635d1f0d7b6b4d7be8cdb686429d8fb84230bdc1a",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/REFERENCES.md",
+      "sha256": "a65bdf57e8fc92068769c3b737bba894cc5690e58a85c89984c86986ee02c03d",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/REFERENCES.md",
+      "sha256": "7e3cd0e239692a3350e32c62f0f4795e124f475ac1252804da78f4e6c94d7a56",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness/src/main.rs",
+      "sha256": "30b972c19585e201795f96d46e772dd36b8d946551ff0c7927df36eff1d7e3f9",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/OBSERVATIONS.json",
+      "sha256": "5825a47033477f2dbfb0aed99b80792208105c2ef544191d16c3866e4317d9ad",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_CONTEXT.md",
+      "sha256": "bdb1df1b6260380a8a105a6efc9cefb9090c017cbc1423c05400eaf38dd002b2",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_STATUS.md",
+      "sha256": "06a92c876098f082dc4947fee1e4bc076fe3c5bd0599da97f4c4709d81123290",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Dependencies.csv",
+      "sha256": "966c97839e50bf8d27591ca35b2aeda7f3271c9df9af9f65ceb0969122522b41",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_CONTEXT.md",
+      "sha256": "7a01c5f73c77c3a6ddf9e0a1e1fc7a5b0374849956b89f1c9cd896a4b64829d7",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+      "sha256": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+      "sha256": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/Dependencies.csv",
+      "sha256": "c9b779dd0a5a0e7af11fa905be1b146bbe7d4a76367dcb75a1f1cb7e12ae1b51",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md",
+      "sha256": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "sha256": "547a749fa4855f8c5c36ade89426893796967c6963999a9b155ab22e939f1125",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "sha256": "ccb6ea80b7b989e063b676fbb08626685bf139973ee716ebaabd9dc51c92005a",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/Dependencies.csv",
+      "sha256": "5d84f9425ab765c404ee355ce1a3d70e9da87681e8d7b8e0e0616e2177d6e03c",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_CONTEXT.md",
+      "sha256": "786c5f0182340cfd4ea082f84eefda8221a4cf2114bb60e3f6c598a10c0efb28",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/_STATUS.md",
+      "sha256": "f316e8a62eb3ffd2ab034179d6624482b15f833db5530d744e08ccfda18237a5",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/MEMORY.md",
+      "sha256": "96989f7240295adc568ebb229102a06d07caf84d4f981c183827295046d46f15",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-05_Sparse solver performance harness/Dependencies.csv",
+      "sha256": "338d2a60fb1aff489098dc1c9e5f35ba4f2017ae9eae8df8b6155c0baa2cd7c9",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_CONTEXT.md",
+      "sha256": "af6fbf705f275d4579ab4ef124b60f8da22102d5df68150edd8aed2443149558",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md",
+      "sha256": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md",
+      "sha256": "96d54e49bebf93fa73c80f945219a82348e410196697ecd2c005d73e8c42341f",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/Dependencies.csv",
+      "sha256": "b51e705aabfcb6f652273379ee76b036b928f30a15b77a4ff341f93b0f37a05f",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_CONTEXT.md",
+      "sha256": "dad32d9ce8dcf336cfeb374855b2767a1b3497fb98b9b04b0d6fa5a48bcd0e50",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md",
+      "sha256": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md",
+      "sha256": "b822f3ea38e34972f067b69a370619b380264b841413e1f4e9da8da6a4f4f41f",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/Dependencies.csv",
+      "sha256": "28e5cd04820392fb605ba07b669195685133783450a3c314ff38a7abf743166e",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/_CONTEXT.md",
+      "sha256": "0eaaf507fd54ab933320465758fde16c19db5529ed0625a43ccb891c2caab03c",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/_STATUS.md",
+      "sha256": "ecff53f21f6f75da30b88cb0e0f1eb6141f490d97813d4c1504c455b6ccf7900",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/MEMORY.md",
+      "sha256": "88cf6c1586d2630ed5c90bd6adb23badce215a5a8cbe691a4edae80bbf2dd7ac",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-02_Stress recovery benchmark suite/Dependencies.csv",
+      "sha256": "42e8d738b9d71404a5cdec0ac4a2a4d3267071658be7714638d0d34db07f6686",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_CONTEXT.md",
+      "sha256": "32e89adf16efa57982f054fbf5b96a6b1548ef7e04dd3600b3d8a0cd000a16f3",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md",
+      "sha256": "7dad038c7f42942195a416202319d9a4ce8bffb377eac645e01d70c8bedcdfa6",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md",
+      "sha256": "24fc34ec5d3e054818a31126df43c56bbd82f2b193cbd1f6d59e06e0908fc285",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    },
+    {
+      "path": "execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/Dependencies.csv",
+      "sha256": "5e726dd2aed9b89fc67bf3009f32e4b6da276c1a14ff7fabc3a00050ca88f514",
+      "applicability": "Local implementation, accepted context or prior audit evidence; no new numerical verification."
+    }
+  ],
+  "web": [
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-spring.htm",
+      "retrieved": "2026-09-08",
+      "applicability": "Vendor-authored Abaqus 2025 documentation hosted by Virginia Tech: fixed-direction vs line-following springs. Not a bellows constitutive reference.",
+      "project_owner_vetted": false
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connelastbehav.htm",
+      "retrieved": "2026-09-08",
+      "applicability": "Vendor-authored documentation: elastic components require declared relative-motion definitions; does not validate candidate B.",
+      "project_owner_vetted": false
+    },
+    {
+      "url": "https://www.netlib.org/lapack/explore-html/d6/d44/group__posvx_gae23dac18e7ec69c36fd2a2648a470dc3.html",
+      "retrieved": "2026-09-08",
+      "applicability": "Primary LAPACK SPD solver method: equilibration/refinement/condition and backward errors; no piping acceptance authority.",
+      "project_owner_vetted": false
+    },
+    {
+      "url": "https://doc.comsol.com/6.4/doc/com.comsol.help.sme/sme_ug_modeling.05.149.html",
+      "retrieved": "2026-09-08",
+      "applicability": "Primary COMSOL 6.4 documentation: initially unconstrained contact and strategy alternatives; not directly adopted.",
+      "project_owner_vetted": false
+    },
+    {
+      "url": "https://doc.comsol.com/6.4/doc/com.comsol.help.sme/sme_ug_solid.07.131.html",
+      "retrieved": "2026-09-08",
+      "applicability": "Primary COMSOL 6.4 documentation: temporary stabilization and contamination/removal concern; no tolerance adopted.",
+      "project_owner_vetted": false
+    }
+  ],
+  "unresolved_active_execution_upstream_edges": [
+    {
+      "DependencyID": "DAG-002-E0418",
+      "FromDeliverableID": "DEL-03-06",
+      "TargetDeliverableID": "DEL-03-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0419",
+      "FromDeliverableID": "DEL-03-06",
+      "TargetDeliverableID": "DEL-02-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0420",
+      "FromDeliverableID": "DEL-03-06",
+      "TargetDeliverableID": "DEL-01-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "TP-DAG-004-DEL-04-04-E006",
+      "FromDeliverableID": "DEL-04-04",
+      "TargetDeliverableID": "DEL-04-03",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "TP-DAG-004-DEL-04-04-E007",
+      "FromDeliverableID": "DEL-04-04",
+      "TargetDeliverableID": "DEL-04-01",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "TP-DAG-004-DEL-04-04-E008",
+      "FromDeliverableID": "DEL-04-04",
+      "TargetDeliverableID": "DEL-04-06",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "TP-DAG-004-DEL-04-04-E009",
+      "FromDeliverableID": "DEL-04-04",
+      "TargetDeliverableID": "DEL-02-02",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0444",
+      "FromDeliverableID": "DEL-04-05",
+      "TargetDeliverableID": "DEL-04-01",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0445",
+      "FromDeliverableID": "DEL-04-05",
+      "TargetDeliverableID": "DEL-04-06",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0438",
+      "FromDeliverableID": "DEL-04-06",
+      "TargetDeliverableID": "DEL-04-01",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0439",
+      "FromDeliverableID": "DEL-04-06",
+      "TargetDeliverableID": "DEL-02-03",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0440",
+      "FromDeliverableID": "DEL-04-06",
+      "TargetDeliverableID": "DEL-02-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0532",
+      "FromDeliverableID": "DEL-09-01",
+      "TargetDeliverableID": "DEL-04-01",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0533",
+      "FromDeliverableID": "DEL-09-01",
+      "TargetDeliverableID": "DEL-04-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "TP-DAG-004-DEL-09-01-E001",
+      "FromDeliverableID": "DEL-09-01",
+      "TargetDeliverableID": "DEL-02-02",
+      "SatisfactionStatus": "TBD",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0537",
+      "FromDeliverableID": "DEL-09-02",
+      "TargetDeliverableID": "DEL-05-03",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0538",
+      "FromDeliverableID": "DEL-09-02",
+      "TargetDeliverableID": "DEL-03-08",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0540",
+      "FromDeliverableID": "DEL-09-02",
+      "TargetDeliverableID": "DEL-01-02",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0541",
+      "FromDeliverableID": "DEL-09-03",
+      "TargetDeliverableID": "DEL-04-04",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    },
+    {
+      "DependencyID": "DAG-002-E0542",
+      "FromDeliverableID": "DEL-09-03",
+      "TargetDeliverableID": "DEL-04-06",
+      "SatisfactionStatus": "PENDING",
+      "RequiredMaturity": "SEMANTIC_READY"
+    }
+  ],
+  "limitations": [
+    "Selected relevant passages read; file hashes identify complete source bytes, not a claim of exhaustive content review.",
+    "External documents read through web search/read tool; no protected standards or extracted corpus equations used.",
+    "Prior raw outcomes referenced without rerunning their harness."
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 3,
+  "status": "CANDIDATE_FROZEN_FOR_PARENT_SYNTHESIS_AND_REVIEW",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/CANDIDATE_NATIVE_AUTHORING_SLICE_V1.md",
+      "sha256": "5e1d3f4b890bf6e10973ef53d4c39f3e7a4a3cfb974daddec8a5afdb16a91787"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/DEPENDENCY_AND_CASE_ADDENDUM_V2.md",
+      "sha256": "84e7faaa54899e866de865c290864ac1dc7d92895701b54c103514b7e0e87a39"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/EDIT_READINESS_CLARIFICATION_V3.md",
+      "sha256": "46a6c32c9dd7994bb0fa931cebad5ee668bdd8cbc3c99fdffc517bfc69a71fb2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/SCENARIO_AND_ACCEPTANCE_V1.md",
+      "sha256": "941a3761fccece3c4e86f152384e8aa5c5d64c5aa9bd55e621dab59d522f0a07"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/DEPENDENCY_EXTRACT_V1.json",
+      "sha256": "1279c882448af43623f2fd69854ae670b2b7e55f94f4c4b19591156c2477cb89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/OUTPUT_MANIFEST_V1.json",
+      "sha256": "79c1d4d13cb74b72fe60c2164200e7df40eac55eeb0bffe7415715dcd7834e92"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/OUTPUT_MANIFEST_V2.json",
+      "sha256": "4effce6726ca0cdf7fb08d9cbb24520047fe1ea02b8facf4e964c9e3062c905f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/RETURN_V1.md",
+      "sha256": "fb28303dc9bb06bf9a196b70ba3070dd14e80e55d7663ba9156515f2f9de6636"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/RETURN_V2.md",
+      "sha256": "ea7052bf33c10a331144240c306b83e2f4abd8b760579c33bea7a9c580e4f06f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/RETURN_V3.md",
+      "sha256": "9dc1d21f43208f2098094ef7f4af8cb8371645441eaee5cbbef7f6ced4f7cf74"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/SOURCE_ADDITIONS_V2.json",
+      "sha256": "38c0c0b405b9f25119d11e6f2710abc92ae3a5c7d0dd9ebcf69933740662df88"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/SOURCE_ADDITIONS_V3.json",
+      "sha256": "76ece83414ad9158d1bcbd7ca6e5982ee78c2421ef5089d11d010014f9f699ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/SOURCE_HASHES_V1.json",
+      "sha256": "082a0bea8eb3bd63f7b3a7bf3a12a3817a731215e927d265cd3824a5b2cb32e8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/VALIDATION_V2.json",
+      "sha256": "0a776c4e8217566edd6d345d6791a7ca73972c06cc3e4664ab99b97db28cef4d"
+    }
+  ]
+}

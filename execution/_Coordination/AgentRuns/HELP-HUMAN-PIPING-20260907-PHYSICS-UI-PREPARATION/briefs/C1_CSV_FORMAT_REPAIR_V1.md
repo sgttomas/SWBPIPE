@@ -1,0 +1,3 @@
+# C1 CSV representation-only amendment V1
+
+Parent `/root` assigns C1 as sole mechanical formatting integration owner for exactly the three CSV paths in CHANGE/STAGED_WHITESPACE_FAILURE_V1.json: W10 FIELD_MAPPING.csv, E1 FINDINGS.csv and Q1 READINESS_MATRIX.csv. Preserve original bytes losslessly compressed under `_run_records/CSV_ORIGINALS_V1/`; replace CRLF with LF only; prove entire csv.reader row equality; publish explicit decoded-original old/new hash map and successor freeze. No semantic management, source/criteria/decision/receipt changes. Existing manifests remain unchanged and historical hashes resolve through this map. Do not stage; CHANGE restages after R1 affected review. Run only worktree git diff --check; no full checks.

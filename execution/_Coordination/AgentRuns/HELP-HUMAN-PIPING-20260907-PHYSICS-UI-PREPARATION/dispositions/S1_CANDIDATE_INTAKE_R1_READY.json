@@ -1,0 +1,16 @@
+{
+  "recorded_at_utc": "2026-09-08T03:55:41.832998+00:00",
+  "actor": "/root HELP_HUMAN",
+  "recorder": "/root/prep_recorder C1",
+  "disposition": "S1_CANDIDATE_ACCEPTED_FOR_INDEPENDENT_REVIEW",
+  "S1_manifest_sha256": "c4c31dba3bb959a750cbd12da84130f6b09deb58818e3048e8a97950ba9b21a9",
+  "members_verified_by_root": 14,
+  "root_reads": [
+    "decision interface",
+    "handoff",
+    "proposed register patch"
+  ],
+  "R1_status": "READY_AFTER_THIS_WHOLE_PACKAGE_FREEZE",
+  "R1_brief": "briefs/R1_V1.md plus briefs/R1_AMENDMENT_V2.md and launch amendments V2\u2013V4",
+  "limits": "Candidate review readiness only; no final acceptance, register application, implementation or engineering ruling"
+}

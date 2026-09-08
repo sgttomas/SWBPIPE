@@ -1,0 +1,71 @@
+{
+  "status": "FROZEN_CANDIDATE_PENDING_R1_ROOT",
+  "base": "35249accf139f52478d029458946e50ed25ee5dc",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+      "sha256": "4ec4dc636d91ed380403acc7f57832330f927e76587ea47f46c48bc9c88cbce5",
+      "bytes": 10118
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+      "sha256": "3a10af1f805e9d2263eeb291a2b2df85d56ef1803037f5dbed123203a65b8e91",
+      "bytes": 4418
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/NEXT_BOUNDED_GRAPH_V1.md",
+      "sha256": "5ba0f354eb1fd80a299f190bede4d461680a358a5f49f5f0f0bc4cefc62b5a94",
+      "bytes": 9421
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/PROPOSED_D66_REGISTER_ROW_PATCH_V1.txt",
+      "sha256": "88623c29f2370f50e91945217be244155d1db9d9e42a0cfbd86336896c849b20",
+      "bytes": 2254
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/SOURCE_INTAKE_V1.json",
+      "sha256": "e6be0e126c3d8736e63965779d028b046214fa18656c602beb02c69aba0a42ec",
+      "bytes": 2978
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/VALIDATION_V1.json",
+      "sha256": "db293201b016405d3149b3f43c591a9335ba061c35864a7e7fc984342b73f228",
+      "bytes": 7229
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/RETURN_V1.md",
+      "sha256": "1f794155b08488b39a3245da4374131dbbe6dce02fd1ccb5062cb5bc734f35a9",
+      "bytes": 1329
+    }
+  ],
+  "snapshot": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/DECISION_INTERFACE.md",
+      "sha256": "4ec4dc636d91ed380403acc7f57832330f927e76587ea47f46c48bc9c88cbce5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/HANDOFF_STATE.md",
+      "sha256": "3a10af1f805e9d2263eeb291a2b2df85d56ef1803037f5dbed123203a65b8e91"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/NEXT_BOUNDED_GRAPH_V1.md",
+      "sha256": "5ba0f354eb1fd80a299f190bede4d461680a358a5f49f5f0f0bc4cefc62b5a94"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/PROPOSED_D66_REGISTER_ROW_PATCH_V1.txt",
+      "sha256": "88623c29f2370f50e91945217be244155d1db9d9e42a0cfbd86336896c849b20"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/RETURN_V1.md",
+      "sha256": "1f794155b08488b39a3245da4374131dbbe6dce02fd1ccb5062cb5bc734f35a9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/SOURCE_INTAKE_V1.json",
+      "sha256": "e6be0e126c3d8736e63965779d028b046214fa18656c602beb02c69aba0a42ec"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/S1/snapshots/V1/VALIDATION_V1.json",
+      "sha256": "db293201b016405d3149b3f43c591a9335ba061c35864a7e7fc984342b73f228"
+    }
+  ]
+}

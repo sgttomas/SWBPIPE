@@ -1,0 +1,15 @@
+{
+  "verdict": "PASS",
+  "historic_members_resolved": 129,
+  "maps": [
+    "C1 portability V1/V2",
+    "W10 context V3/witness V4",
+    "CSV_FORMAT_REPAIR_V1"
+  ],
+  "csv_parsed_rows_and_crlf_only_transform_verified": true,
+  "csv_successor_freeze_verified": true,
+  "register_receipt_postimages_unchanged": true,
+  "staged_scope_preserved": true,
+  "source_preserved": true,
+  "utc": "2026-09-08T04:17:05.126545+00:00"
+}

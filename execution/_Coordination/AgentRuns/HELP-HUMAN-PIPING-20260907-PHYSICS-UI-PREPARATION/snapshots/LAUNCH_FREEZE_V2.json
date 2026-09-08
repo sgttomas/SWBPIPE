@@ -1,0 +1,27 @@
+{
+  "frozen_at_utc": "2026-09-08T03:29:53.747015+00:00",
+  "files": {
+    "LAUNCH_AMENDMENT_V2.md": "c0a3a66c2e44feeab01c04efb4f836f733e93c68c80bbc234a9d887c9af29175",
+    "ORCHESTRATION_PLAN_V1.md": "725cb68ec0cb07ffbeb94989bb30b68f877edf960f92cc4e6d7300b0c5d7ce89",
+    "OWNER_DIRECTION.md": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+    "WORK_GRAPH_V1.json": "6e03bb142438cf6d4ecbea05a9ee14864723e4f972f89163397af4bc9acb9fdf",
+    "briefs/C0_V1.md": "76c29c13edcc37adffc7788e0abe117f76895646301745003fd0d113647ee167",
+    "briefs/C1_V1.md": "2d6c989f934d9217eb7cce78840eb87c9d7b7d9301c9ed0e27af371ae8887e28",
+    "briefs/C2_V1.md": "c951c9bd3db1c0430f365096451512cd9f6f991e9e637040f28f074eb8471925",
+    "briefs/E1_V1.md": "69bd0da0b72882a7e6c5f2a5fba566b4a8d56665ee75d4123ac9bfa70f1ba4eb",
+    "briefs/Q1_V1.md": "6fa16b232a5b250c966a98919a331e3af8d4d95daaf7e7daa2d5e7ddf47950bc",
+    "briefs/R1_V1.md": "21d34336a6e00f02a5b483277767a342cce01c8daa553087a5002504fe01abb9",
+    "briefs/S1_V1.md": "9f2b497295c2da18c0a5c2ae3228ca5835f1b2ed7c249d17abf80807c020298a",
+    "briefs/W10_V1.md": "7491312411829da9d3feefcb173f3977dcf1091f2db31da6007b587bd74df252",
+    "briefs/W7_V1.md": "4957f0bbf5c2740c5e1faf6cbd26ef447285ed48d04e2b61372a57cd06f9b918",
+    "instances/C1/RETURN.md": "4c8675f162e59654a6e58d9168e0612cd0a9007e79e5aac26452198e0b4c2fcf",
+    "instances/C1/STATUS.json": "eebc6a61f8f6a1dcf08ec813b10bd9f868354e6d4b167be6ae5cba2ea60dc453"
+  },
+  "supersedes": "CONTROL_FREEZE_V1 only as clarified by LAUNCH_AMENDMENT_V2; V1 bytes preserved",
+  "ready_nodes": [
+    "E1",
+    "W10",
+    "W7",
+    "Q1"
+  ]
+}

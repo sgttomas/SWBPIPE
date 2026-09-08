@@ -1,0 +1,31 @@
+{
+  "status": "CANDIDATE_PREPARATION_COMPLETE_WITH_HOLDS",
+  "basis": "35249accf139f52478d029458946e50ed25ee5dc",
+  "files": [
+    {
+      "path": "DECISION_BRIEF.md",
+      "sha256": "79fdd9e18d42a0f2594131030cdc3b9263822583d0e44beb80b0473261dd87fb",
+      "bytes": 13565
+    },
+    {
+      "path": "INIT-TASK.md",
+      "sha256": "c38f24e2994c5446e9139b2483d903812026a050ab42417e21bd1478a8f8855d",
+      "bytes": 3993
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "5a7ec6f270acc1b1a390fb171aacc1bdad72980559319fc1750c2a69aa057126",
+      "bytes": 2348
+    },
+    {
+      "path": "SOURCES.json",
+      "sha256": "418b8cef5133fc143e4d1e0489fb5839dbbce9c0d61a8a53d114af55a246a254",
+      "bytes": 13283
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-08_0334.md",
+      "sha256": "0aa3e4b7349ae29523140c8ad10a050c8da94c6e31ff6dffb2f4c05a7354d94f",
+      "bytes": 2532
+    }
+  ]
+}

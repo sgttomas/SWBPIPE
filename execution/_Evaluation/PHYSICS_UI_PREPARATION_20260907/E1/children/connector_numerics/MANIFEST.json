@@ -1,0 +1,32 @@
+{
+  "kind": "candidate_preparation_manifest",
+  "task": "/root/physics_preparation/connector_numerics",
+  "base_sha": "35249accf139f52478d029458946e50ed25ee5dc",
+  "files": [
+    {
+      "path": "DECISION_BRIEF.md",
+      "sha256": "7dba35e532357a029bb760396ffb107a8882715c5792d661aedee84ce79b2f8a",
+      "bytes": 17954
+    },
+    {
+      "path": "INIT-TASK.md",
+      "sha256": "105909c9612532e976cc1b8d19fbbbb0919a61bf3e8cfac21a5e20831482f9d9",
+      "bytes": 3922
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "d1d5f0076bea89fc1141561bbf822b355c0476bb2164e1abf53bc37302123f14",
+      "bytes": 4262
+    },
+    {
+      "path": "SOURCES.json",
+      "sha256": "01f6db92f3207388fbfc99f252c455123f16bdfcf53721cbdc9b734ce4590375",
+      "bytes": 26031
+    },
+    {
+      "path": "_run_records/TASK_RUN_2026-09-07_1800.md",
+      "sha256": "d037008136dd284a145dcbca0ef191b8769859cef05d03bf2fbbc0e6920981f5",
+      "bytes": 2444
+    }
+  ]
+}

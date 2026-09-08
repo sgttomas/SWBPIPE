@@ -1,0 +1,3188 @@
+{
+  "linear": {
+    "sha256": "c150b35c4ca35bc6145834510a33cf22269b540998fe7919fb177b8edfa686d3",
+    "matches_prior_actual_bytes": true,
+    "quantity_rows": 777,
+    "metadata_rows": 739,
+    "invalid_metadata_rows": 109,
+    "whole_document_errors": 160,
+    "metadata_field_errors": 158,
+    "after_label_only_errors": 158,
+    "label_only_preserves_all_quantities_and_referenced_checksums": true,
+    "errors": [
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/6/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/7/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/8/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/9/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/10/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/11/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/12/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/13/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/14/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/15/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/16/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/17/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/18/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/19/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/20/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/21/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/22/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/23/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/24/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/25/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/26/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/27/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/28/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/29/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/30/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/31/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/32/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/33/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/34/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/35/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/92/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/92/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/92/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/92/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/145/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/145/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/145/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/145/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/202/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/202/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/202/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/202/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/259/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/259/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/259/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/265/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/271/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/272/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/273/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/274/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/275/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/276/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/277/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/278/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/279/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/280/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/281/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/282/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/283/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/284/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/285/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/286/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/287/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/288/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/289/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/290/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/291/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/292/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/293/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/294/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/351/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/351/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/351/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/351/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/403/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/403/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/403/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/403/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/404/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/404/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/404/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/404/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/461/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/461/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/461/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/461/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/519/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/520/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/521/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/522/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/523/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/524/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/526/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/527/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/528/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/529/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/530/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/531/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/533/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/534/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/535/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/536/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/537/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/538/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/540/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/541/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/542/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/543/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/544/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/545/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/547/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/548/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/549/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/550/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/551/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/552/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/673/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/673/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/680/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/680/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/680/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/681/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/681/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/681/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/682/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/682/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/682/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_installed_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:installed-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/774/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_cold_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/774/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/774/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:cold-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/774/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=cold-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/775/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_hot_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/775/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/775/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:hot-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/775/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=hot-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/776/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "constant_effort_support_constant_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/776/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/776/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-120:constant-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/776/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/model_hash/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/run_hashes/0/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      }
+    ],
+    "accepted_document_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/author/linear_canonical_document.json"
+  },
+  "nonlinear": {
+    "sha256": "ad121d3859d1159edae80f20175e649462a6d2c112a069c70743b87febf30be9",
+    "matches_prior_actual_bytes": true,
+    "quantity_rows": 797,
+    "metadata_rows": 753,
+    "invalid_metadata_rows": 123,
+    "whole_document_errors": 212,
+    "metadata_field_errors": 210,
+    "after_label_only_errors": 210,
+    "label_only_preserves_all_quantities_and_referenced_checksums": true,
+    "errors": [
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "friction_normal_reaction_derived",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/0/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/1/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/1/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/1/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/1/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/2/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/2/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/2/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/2/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/3/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/3/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/3/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/3/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/4/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/4/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/4/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/4/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/5/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/5/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/5/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/11/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/12/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/13/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/14/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/15/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/16/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/17/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/18/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/19/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/20/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/21/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/22/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/23/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/24/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/25/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/26/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/27/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/28/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/29/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/30/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/31/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/32/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/33/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/34/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/35/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/36/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/37/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/38/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/39/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/40/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/99/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/99/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/99/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/99/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/151/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/151/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/151/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/151/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/152/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/152/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/152/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/152/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/209/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/209/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/209/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/209/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "friction_normal_reaction_derived",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:S-130; source_dof=uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sliding",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/271/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/271/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/271/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/277/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/278/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/279/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/280/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/281/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/282/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/283/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/284/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/285/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/286/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/287/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/288/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/289/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/290/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/291/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/292/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/293/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/294/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/295/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/296/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/297/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/298/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/299/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/300/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/301/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/302/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/303/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/304/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/305/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/306/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/365/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/365/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/365/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/365/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/417/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/417/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/417/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/417/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/418/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/418/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/418/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/418/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/475/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/475/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/475/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/475/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/533/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/534/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/535/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/536/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/537/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/538/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/540/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/541/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/542/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/543/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/544/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/545/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/547/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/548/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/549/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/550/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/551/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/552/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/554/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/555/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/556/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/557/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/558/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/559/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/561/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/562/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/563/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/564/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/565/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/566/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/687/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/687/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/687/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/688/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/688/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/688/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uz",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/689/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_displacement",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/689/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/689/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/690/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nonlinear_support_final_reaction",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/690/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "solver_iteration",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/690/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "uy",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/691/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "expansion_joint_pressure_thrust",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/691/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-130",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/699/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/699/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/699/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/700/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/700/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/700/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/701/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/701/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/701/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/702/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/702/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/702/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/793/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_installed_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/793/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/793/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:installed-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/793/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/794/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_cold_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/794/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/794/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:cold-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/794/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=cold-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/795/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_hot_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/795/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/795/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:hot-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/795/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=hot-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/796/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "constant_effort_support_constant_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/796/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/796/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-120:constant-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/796/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/model_hash/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/run_hashes/0/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      }
+    ],
+    "accepted_document_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/author/nonlinear_canonical_document.json"
+  },
+  "zero_pressure": {
+    "sha256": "ecdfbb7e5cf1cb22a4e1776a31115d9991dde11a3f58f839d5e77e4744b0632d",
+    "matches_prior_actual_bytes": true,
+    "quantity_rows": 774,
+    "metadata_rows": 736,
+    "invalid_metadata_rows": 106,
+    "whole_document_errors": 152,
+    "metadata_field_errors": 150,
+    "after_label_only_errors": 150,
+    "label_only_preserves_all_quantities_and_referenced_checksums": true,
+    "errors": [
+      {
+        "path": "/result_envelope/result_sets/0/values/5/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/6/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/7/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/8/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/9/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/10/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/11/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/12/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/13/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/14/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/15/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/16/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/17/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/18/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/19/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/20/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/21/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/22/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/23/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/24/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/25/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/26/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/27/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/28/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/29/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/30/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/31/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/32/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/33/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/34/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/91/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/91/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/91/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/91/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/143/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/143/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/143/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/143/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/144/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/201/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/201/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/201/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/201/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/263/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/264/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/265/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/266/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/267/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/268/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/269/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/270/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/271/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/272/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/273/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/274/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/275/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/276/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/277/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/278/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/279/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/280/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/281/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/282/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/283/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/284/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/285/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/286/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/287/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/288/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/289/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/290/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/291/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/292/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/349/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/349/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/349/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/349/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/401/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/401/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/401/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/401/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/402/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/402/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/402/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/402/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/459/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/459/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/459/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/459/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/517/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/518/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/519/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/520/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/521/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/522/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/524/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/525/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/526/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/527/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/528/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/529/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/531/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/532/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/533/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/534/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/535/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/536/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/538/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/539/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/540/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/541/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/542/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/543/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/545/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/546/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/547/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_rotation_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/548/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_x",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/549/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_y",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/550/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "nodal_displacement_z",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/676/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/676/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/676/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-100:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/677/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/677/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/677/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/678/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/678/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/678/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-110:end_j",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "user_entered_component_stress_multiplier",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "component_review",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/679/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "pipe:P-120:end_i",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/770/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_installed_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/770/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/770/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:installed-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/770/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/771/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_cold_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/771/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/771/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:cold-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/771/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=cold-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/772/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "variable_spring_hanger_hot_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/772/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/772/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-140:hot-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/772/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=variable_spring_hanger;field=hot-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/component",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum",
+        "value": "constant_effort_support_constant_load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/coordinate_system",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum",
+        "value": "support_local_preview",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/location",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum",
+        "value": "node:N-120:constant-load",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/result_sets/0/values/773/metadata/basis",
+        "schema_path": "/properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum",
+        "value": "support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/model_hash/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      },
+      {
+        "path": "/result_envelope/reproducibility/run_hashes/0/canonicalization",
+        "schema_path": "/properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum",
+        "value": "rfc8785_jcs",
+        "validator": "enum"
+      }
+    ],
+    "accepted_document_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/compatibility_v1/author/zero_pressure_canonical_document.json"
+  }
+}

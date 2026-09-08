@@ -1,0 +1,66 @@
+{
+  "verdict": "PASS",
+  "reviewer": "/root/preparation_review",
+  "scope": "Three CSV representation changes only",
+  "checks": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/FIELD_MAPPING.csv",
+      "rows_including_header": 92,
+      "decoded_original_hash_verified": true,
+      "exact_crlf_only": true,
+      "all_csv_cells_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/FINDINGS.csv",
+      "rows_including_header": 7,
+      "decoded_original_hash_verified": true,
+      "exact_crlf_only": true,
+      "all_csv_cells_equal": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "rows_including_header": 108,
+      "decoded_original_hash_verified": true,
+      "exact_crlf_only": true,
+      "all_csv_cells_equal": true
+    }
+  ],
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/CSV_FORMAT_REPAIR_V1/SUCCESSOR_FREEZE.json",
+      "sha256": "ae029fb9cea9e91299346b9dd25026b51ef515917aecff79680983f704916a7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/C1_CSV_FORMAT_REPAIR_V1.md",
+      "sha256": "a9b7c2ee6164508938ff46fe49d848593dce6c345c47937e95f3fd3f4178fe3e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/CSV_FORMAT_REPAIR_V1/RELOCATION_MAP.json",
+      "sha256": "5ca4410debab3d49d1fc55fb8a7b6ed38066f4b386ea8647166be0f9943a0b5b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/W10_FIELD_MAPPING.csv.gz",
+      "sha256": "60e4eca6577c8257123e2a67dad9df9b31d81cab17ddf2398cc72911f9711e2f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/FIELD_MAPPING.csv",
+      "sha256": "5806b14fc03f0ed39560e0c5915ce7fe3b5cfdd436a14ed13bc2c4f29873a8fe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/E1_FINDINGS.csv.gz",
+      "sha256": "9f64533c921706990186ddafa96aeee734aaa4b6a98ee32f1f7f74a405cf2e43"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/FINDINGS.csv",
+      "sha256": "875c876a119000f9416d10419dbe24c64e00779e94d3e09309184f8b49cbdcd0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/Q1_READINESS_MATRIX.csv.gz",
+      "sha256": "60d7c1d921a304fc4bb402e95ff49fd2baa01b5f418b642a534164361a3138d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "sha256": "83c3ce67c8a59da06e55f035a9840f662c9c25ae1d34b574c22c9188ef39ec5f"
+    }
+  ]
+}

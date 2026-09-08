@@ -1,0 +1,24 @@
+[
+  {
+    "name": "selfcheck",
+    "command": [
+      "python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exit": 0,
+    "log": "FINAL_selfcheck_V1.log"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exit": 1,
+    "log": "FINAL_pytest_V1.log"
+  }
+]

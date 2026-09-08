@@ -1,0 +1,30 @@
+{
+  "verdict": "PASS",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/FINDINGS_V1.json",
+      "sha256": "ec12be943b38e1a05e71966fb3068e8b98f91c409c8312839cf557ceac03912c",
+      "bytes": 237
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/HASH_REFERENCE_CHECKS_V1.json",
+      "sha256": "6c2df3b9d13c86428b07683888b4b6b47cad6c7dddb61985b46272e5e0fcdd2b",
+      "bytes": 996388
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/RETURN_V1.md",
+      "sha256": "45a0fee3d19d8fd3d0d2e609e42c96cd8982f77553a52bcda3d6bc76da8250c4",
+      "bytes": 6861
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/REVIEW_INVENTORY_V1.json",
+      "sha256": "80765f80041853f44cced7a2ecef9838d50006f0d705217f6b88d3f4f9c5c074",
+      "bytes": 74628
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/STRUCTURAL_CHECKS_V1.json",
+      "sha256": "d466b45ddbac7f940c027865123fefa695ec051d0dc390c2ee5310318b58661d",
+      "bytes": 11586
+    }
+  ]
+}

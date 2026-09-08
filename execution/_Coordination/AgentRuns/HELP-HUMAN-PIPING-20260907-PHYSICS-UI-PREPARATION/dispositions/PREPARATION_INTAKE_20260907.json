@@ -1,0 +1,32 @@
+{
+  "recorded_at_utc": "2026-09-08T03:46:59.808418+00:00",
+  "actor": "/root HELP_HUMAN",
+  "recorder": "/root/prep_recorder C1",
+  "disposition": "VALIDATED_PREPARATION_INTAKE_ONLY",
+  "evidence_source": "Explicit root message: read substantive manager candidates and Q1; checked manifest members",
+  "not_final_independent_acceptance": true,
+  "manifests": {
+    "E1": {
+      "sha256": "c25701251a57b2a64620d051da4f463fb94fbfdd4d27616b0940ff8d38a7020d",
+      "members_checked": 28
+    },
+    "Q1": {
+      "sha256": "4866c8ebac9ae2dc845329dcd53c504be3984c6ae9c656ec6e5dcc7ba7b8ffc3",
+      "members_checked": 6
+    },
+    "W10": {
+      "sha256": "f26f4f0dcd901cfbfce0573a124220694e7ec3799ce4b8bbbf47a3828a2164bc",
+      "members_checked": 15
+    },
+    "W7_OUTPUT_MANIFEST_V2": {
+      "sha256": "4effce6726ca0cdf7fb08d9cbb24520047fe1ea02b8facf4e964c9e3062c905f10",
+      "members_checked": 10
+    }
+  },
+  "active_clarifications": [
+    "W10 native producer ownership/optional containment",
+    "W7 incomplete-model editing versus solve readiness"
+  ],
+  "S1_release": "May begin synthesis intake; freeze after clarified outputs delivered",
+  "independent_review": "R1 reviews full preparation plus synthesis and proposed registration text before final acceptance"
+}

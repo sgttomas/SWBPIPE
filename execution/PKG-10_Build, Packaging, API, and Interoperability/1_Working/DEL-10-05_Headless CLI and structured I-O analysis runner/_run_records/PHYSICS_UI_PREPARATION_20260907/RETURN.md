@@ -1,0 +1,7 @@
+# DEL-10-05 preparation return
+
+CANDIDATE derivative packet at `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/`. See CANDIDATE_REPAIR_BRIEF.md, REPRODUCTION.md, FIELD_MAPPING.csv and MANIFEST.json. No production/source/schema/state changes. Base 35249accf139f52478d029458946e50ed25ee5dc, decomposition 0.12 / SCA-009 / DAG-010. Register scope SOW-054/SOW-032, objectives OBJ-008/009/012, SOW_V1 OUT-001/AC-001/VER-001.
+
+Both P5-CANONICAL findings freshly reproduced against actual library documents, byte-identical to accepted prior witnesses. Full-document validation remains FAIL 160/212/152 errors. Pure checksum-label experiment removes two errors each without quantity or referenced digest change. Unsupported metadata cannot all map truthfully to existing enums; audit D05 owner policy plus PKG08/PKG13 coordination is required. Empty local Remaining is surfaced to parent, not changed. Future implementation requires adoption, selected scope and confirmed prerequisites.
+
+Worker /root/canonical_preparation, WORKING_ITEMS Agent1, no children; runtime model unexposed, instruction+config asserted role boundary. Parent HELP_HUMAN validates fan-in; fresh R1 review outstanding. Current closure: preparation authored and diagnostically checked, pending independent review/root acceptance. Neither defect repaired; historical work stays closed. Rerun on source/schema/basis drift, chosen policy change or review finding. Standard claim fence applies (F-PIP-2; DEC-081).

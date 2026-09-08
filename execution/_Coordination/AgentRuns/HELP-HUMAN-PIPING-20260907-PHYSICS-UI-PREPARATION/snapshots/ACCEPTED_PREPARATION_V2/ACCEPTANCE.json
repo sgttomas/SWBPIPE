@@ -1,0 +1,46 @@
+{
+  "timestamp_utc": "2026-09-08T04:04:37.102747+00:00",
+  "root_acceptance": "Explicit parent acceptance after R1 PASS; preparation only",
+  "scope_amendment": "briefs/C1_CLOSEOUT_AMENDMENT_V2.md",
+  "upstream": {
+    "head": "35249accf139f52478d029458946e50ed25ee5dc",
+    "decomposition": "0.12",
+    "sca": "SCA-009",
+    "dag": "DAG-010",
+    "parent_receipt": 134
+  },
+  "review_manifest_sha256": "45c1304ba43b349f01ddb14878d7a5713b9033633d6401fb1c37f49a1092afc6",
+  "review_members_root_verified": 5,
+  "reviewed_patch_sha256": "88623c29f2370f50e91945217be244155d1db9d9e42a0cfbd86336896c849b20",
+  "register": {
+    "target": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+    "pre_sha256": "93606f156d79a5c541938358be298720c5315bd9193c6984ce891ca87ed6ef2a",
+    "post_sha256": "9b04994b9dc4302e2c621dd7e58e7c701f8ef60cc3aac7fe8decd38badfa1fca",
+    "pre_bytes": 67945,
+    "post_bytes": 68973,
+    "exact_insertion": true,
+    "state": "PROPOSED; no ruling/DEC",
+    "pre_snapshot": "REGISTER_PRE.md",
+    "post_snapshot": "REGISTER_POST.md"
+  },
+  "receipt": {
+    "id": 135,
+    "target": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+    "pre_sha256": "3e2a29b1b2758ecffa083b10e4bed232330fe91d05b41c3aef36e8172ded27f4",
+    "post_sha256": "7b19043bf71c795ee09480df2c94e88c6bd38eee7298156acf6cdde36c1ebf36",
+    "prior_bytes_unchanged": true,
+    "exactly_one_append": true,
+    "validator_exit": 0,
+    "validator_output": "VALID {REPO_ROOT}/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied"
+  },
+  "frozen_129_members_preserved": true,
+  "tracked_changed_paths": [
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+    "projects/chirality-piping/loop/LOOP_RECEIPTS.md"
+  ],
+  "source_preservation": "Tracked diff contains only exact register addition and receipt append; all 129 preparation frozen members byte-identical",
+  "handoff_sha256": "1b61a3574cff4494fde993fac1c8a9806b2d1d72e84e52c8dbbc52fbe7662e26",
+  "closure": "ACCEPTED_PREPARATION_ONLY; PHYSICS_OPEN; FUTURE_IMPLEMENTATION_NOT_ADOPTED",
+  "remaining": "CHANGE final checks/upstream assessment/publication; Owner future selections",
+  "self_exclusion": "This immutable acceptance JSON excludes its own hash; returned out of band."
+}

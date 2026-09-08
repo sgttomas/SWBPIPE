@@ -1,0 +1,104 @@
+{
+  "Q1": {
+    "all_rows_exact": 107,
+    "counts": {
+      "SATISFIED": 74,
+      "PENDING": 11,
+      "TBD": 22
+    }
+  },
+  "W10": {
+    "rows_checked": 2348,
+    "distinct_fields": 91,
+    "per_scenario": {
+      "linear": {
+        "rows": 777,
+        "metadata": 739
+      },
+      "nonlinear": {
+        "rows": 797,
+        "metadata": 753
+      },
+      "zero_pressure": {
+        "rows": 774,
+        "metadata": 736
+      }
+    },
+    "row_field_mapping_counts_exact": true
+  },
+  "register_patch": {
+    "target_hash_match": true,
+    "anchor_occurrences": 1,
+    "D66_unused": true
+  },
+  "upstream_paths": [
+    ".gitattributes",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/FORMAT_DISPOSITION_v4.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/OWNER_DIRECTION.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/PUBLICATION_MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/PUBLICATION_MANIFEST_v4.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/PUBLICATION_SELECTION.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/PUBLICATION_SELECTION_v4.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/REVIEW_BRIEF.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/SEALED_BRIEF.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/VISUAL_BRIEF.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/author-v1/CHECKS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/author-v1/MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/author-v1/RETURN.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/author-v1/SOURCE.patch",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/author-v1/SOURCE_MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/CHECKS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/CLEANUP.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/COMMANDS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/IMAGE_INDEX.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/INTERACTIONS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/PROCESS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/RETURN.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/SCREENSHOTS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/SERVER_LOG.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/SOURCE_VERIFICATION.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/VISUAL_BRIEF_COPY.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-dark-initial.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-light-disabled.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-light-initial.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-light-refresh-complete.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-light-refresh.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/chrome-light-selected.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-dark-initial.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-light-disabled.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-light-initial.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-light-refresh-complete.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-light-refresh.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/ax/safari-light-selected.txt",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/bundle.js",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/fixture.css",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/index.html",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/main.tsx",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/production/globals.css",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/production/src/components/woven-dialogue/agents-projection.tsx",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/production/src/lib/woven-dialogue/contracts.ts",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/fixture/production/src/lib/woven-dialogue/recorded-agent-hierarchy.ts",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-dark-initial.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-light-disabled.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-light-initial.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-light-refresh-complete.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-light-refresh.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/chrome-light-selected.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-dark-initial.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-light-disabled.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-light-initial.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-light-refresh-complete.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-light-refresh.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/browser-v1/screenshots/safari-light-selected.jpg",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/manager-v1/MANAGER_RETURN.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/manager-v1/MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/review-v1/CHECKS.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/review-v1/MANIFEST.json",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/review-v1/RETURN.md",
+    "projects/chirality-app-dev/execution/_Coordination/AgentRuns/APP_V3_CONSOLIDATED_RESUME_2026-09-07/pkg02-agents-presentation/review-v1/SEALED_BRIEF.md",
+    "projects/chirality-app-dev/frontend/src/__tests__/components/agents-projection.test.tsx",
+    "projects/chirality-app-dev/frontend/src/components/woven-dialogue/agents-projection.tsx"
+  ],
+  "upstream_piping_changes": []
+}

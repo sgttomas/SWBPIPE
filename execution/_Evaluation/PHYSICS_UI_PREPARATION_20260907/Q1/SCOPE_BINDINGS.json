@@ -1,0 +1,122 @@
+[
+  {
+    "DeliverableID": "DEL-04-04",
+    "PackageID": "PKG-04",
+    "Name": "Nonlinear support active-set solver",
+    "Description": "Implement iterative activation for one-way supports, gaps, lift-off, and friction with convergence reporting.",
+    "Type": "BACKEND_FEATURE_SLICE",
+    "AnticipatedArtifacts": "nonlinear solver loop; convergence tests",
+    "CoversScopeItems": "SOW-012",
+    "SupportsObjectives": "OBJ-003",
+    "ContextEnvelope": "L",
+    "ContextEnvelopeNotes": "Complex; remains one numerical domain."
+  },
+  {
+    "DeliverableID": "DEL-05-03",
+    "PackageID": "PKG-05",
+    "Name": "Fundamental stress recovery module",
+    "Description": "Implement mechanics stress recovery from axial force, bending, torsion, pressure, and section properties.",
+    "Type": "BACKEND_FEATURE_SLICE",
+    "AnticipatedArtifacts": "stress recovery module; hand-calc tests",
+    "CoversScopeItems": "SOW-015",
+    "SupportsObjectives": "OBJ-003",
+    "ContextEnvelope": "M",
+    "ContextEnvelopeNotes": "Does not encode code stress equations."
+  },
+  {
+    "DeliverableID": "DEL-07-01",
+    "PackageID": "PKG-07",
+    "Name": "3D viewport and centerline editor",
+    "Description": "Implement initial viewport interactions for nodes, pipe runs, bends, and simple component symbols.",
+    "Type": "UX_UI_SLICE",
+    "AnticipatedArtifacts": "GUI viewport; interaction tests",
+    "CoversScopeItems": "SOW-020",
+    "SupportsObjectives": "OBJ-006",
+    "ContextEnvelope": "L",
+    "ContextEnvelopeNotes": "Viewport baseline is Tauri/React/Vite with Three.js; component/state details remain TBD."
+  },
+  {
+    "DeliverableID": "DEL-07-02",
+    "PackageID": "PKG-07",
+    "Name": "Model tree and property inspector",
+    "Description": "Implement tree navigation and property panels for selected model entities.",
+    "Type": "UX_UI_SLICE",
+    "AnticipatedArtifacts": "model tree; property inspector; UI tests",
+    "CoversScopeItems": "SOW-020,SOW-021",
+    "SupportsObjectives": "OBJ-006",
+    "ContextEnvelope": "M",
+    "ContextEnvelopeNotes": "Single UI work surface."
+  },
+  {
+    "DeliverableID": "DEL-07-05",
+    "PackageID": "PKG-07",
+    "Name": "Results viewer",
+    "Description": "Implement tabular/graphical review for displacements, rotations, forces, moments, reactions, stresses, and ratios.",
+    "Type": "UX_UI_SLICE",
+    "AnticipatedArtifacts": "results panels; visual overlays; UI tests",
+    "CoversScopeItems": "SOW-023",
+    "SupportsObjectives": "OBJ-006,OBJ-007",
+    "ContextEnvelope": "L",
+    "ContextEnvelopeNotes": "Results surface is substantial but one domain."
+  },
+  {
+    "DeliverableID": "DEL-07-06",
+    "PackageID": "PKG-07",
+    "Name": "Accessibility and usability baseline",
+    "Description": "Define and implement baseline keyboard, contrast, readability, and review-workflow usability requirements.",
+    "Type": "UX_UI_SLICE",
+    "AnticipatedArtifacts": "accessibility checklist; UI fixes; tests",
+    "CoversScopeItems": "SOW-036",
+    "SupportsObjectives": "OBJ-006",
+    "ContextEnvelope": "M",
+    "ContextEnvelopeNotes": "May refine once GUI framework chosen."
+  },
+  {
+    "DeliverableID": "DEL-09-01",
+    "PackageID": "PKG-09",
+    "Name": "Mechanics benchmark suite",
+    "Description": "Create benchmark cases for cantilevers, frames, thermal growth, imposed displacement, and stiffness transforms.",
+    "Type": "TEST_SUITE",
+    "AnticipatedArtifacts": "validation/benchmarks/mechanics; hand-calc notes",
+    "CoversScopeItems": "SOW-026",
+    "SupportsObjectives": "OBJ-008",
+    "ContextEnvelope": "M",
+    "ContextEnvelopeNotes": "Uses original/public mechanics cases."
+  },
+  {
+    "DeliverableID": "DEL-10-05",
+    "PackageID": "PKG-10",
+    "Name": "Headless CLI and structured I/O analysis runner",
+    "Description": "Implement a CLI or equivalent headless interface for schema-driven solve execution, benchmark automation, and report/result export before full GUI maturity.",
+    "Type": "BACKEND_FEATURE_SLICE",
+    "AnticipatedArtifacts": "CLI runner; structured input/output fixtures; automation docs",
+    "CoversScopeItems": "SOW-054,SOW-032",
+    "SupportsObjectives": "OBJ-008,OBJ-009,OBJ-012",
+    "ContextEnvelope": "M",
+    "ContextEnvelopeNotes": "Headless runner must align with schema-first command/query/job envelopes and result exports."
+  },
+  {
+    "DeliverableID": "DEL-13-04",
+    "PackageID": "PKG-13",
+    "Name": "Physical-to-analytical transformation contract",
+    "Description": "Implement the contract for deriving solver-ready analytical models from physical models with traceable transformation warnings.",
+    "Type": "BACKEND_FEATURE_SLICE",
+    "AnticipatedArtifacts": "physical-to-analytical transform contract; transform warning tests",
+    "CoversScopeItems": "SOW-066",
+    "SupportsObjectives": "OBJ-014",
+    "ContextEnvelope": "L",
+    "ContextEnvelopeNotes": "First-class bridge from design authoring to solver execution."
+  },
+  {
+    "DeliverableID": "DEL-07-09",
+    "PackageID": "PKG-07",
+    "Name": "Interactive operation vocabulary and tool palette contract",
+    "Description": "Own the ratified two-class interactive operation vocabulary coverage contract and the single tool-palette surface organization over the viewport and tree/inspector surfaces, routed through the structured model operation layer.",
+    "Type": "UX_UI_SLICE",
+    "AnticipatedArtifacts": "vocabulary coverage ledger; palette organization contract; palette-to-operation routing map",
+    "CoversScopeItems": "SOW-077",
+    "SupportsObjectives": "OBJ-006,OBJ-015",
+    "ContextEnvelope": "L",
+    "ContextEnvelopeNotes": "Owns the SCA-009 ratified vocabulary contract and palette organization; accepted landing zone for the DEL-07-03-R-005/R-006 editor residuals."
+  }
+]

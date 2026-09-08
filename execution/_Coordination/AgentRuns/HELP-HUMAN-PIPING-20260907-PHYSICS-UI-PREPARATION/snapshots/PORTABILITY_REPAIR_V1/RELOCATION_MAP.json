@@ -1,0 +1,25 @@
+{
+  "recorded_at_utc": "2026-09-08T04:08:02.994481+00:00",
+  "authority": "Parent exact format-only repair release",
+  "historical_hash_resolution": "Existing manifests/snapshots are unchanged. Their historical path/hash pairs resolve to byte-identical preserved_evidence_path entries below. Current successors have distinct hashes and do not impersonate historic identity.",
+  "records": [
+    {
+      "original_path": "OWNER_DIRECTION.md",
+      "original_sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+      "preserved_evidence_path": "_run_records/PORTABILITY_ORIGINALS_V1/OWNER_DIRECTION_ORIGINAL.md",
+      "preserved_evidence_sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+      "successor_path": "OWNER_DIRECTION.md",
+      "successor_sha256": "6d2c8ca6703bc47a48bf4b673d1728ca9db0a068384b4bec3536d17e3b458324",
+      "semantic_change": "none; machine-anchor normalization only, with quote provenance label for OWNER_DIRECTION"
+    },
+    {
+      "original_path": "snapshots/ACCEPTED_PREPARATION_V2/ACCEPTANCE.json",
+      "original_sha256": "a01223c68f58cecbccd6b7eb52a93e32e316f05e27a9deaf4b70417a66968d5c",
+      "preserved_evidence_path": "_run_records/PORTABILITY_ORIGINALS_V1/ACCEPTANCE_ORIGINAL.json",
+      "preserved_evidence_sha256": "a01223c68f58cecbccd6b7eb52a93e32e316f05e27a9deaf4b70417a66968d5c",
+      "successor_path": "snapshots/ACCEPTED_PREPARATION_V2/ACCEPTANCE.json",
+      "successor_sha256": "8e23dd9cc51af83812f639facfad62a8e1b7394a1f1370536f73f439d98f0fe9",
+      "semantic_change": "none; machine-anchor normalization only, with quote provenance label for OWNER_DIRECTION"
+    }
+  ]
+}

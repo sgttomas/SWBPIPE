@@ -1,0 +1,60 @@
+{
+  "status": "HASH_VERIFIED_FOR_CANDIDATE_SYNTHESIS_NOT_ADOPTION",
+  "manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/MANIFEST.json",
+      "sha256": "c25701251a57b2a64620d051da4f463fb94fbfdd4d27616b0940ff8d38a7020d",
+      "verified_members": 28
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/OUTPUT_MANIFEST.json",
+      "sha256": "4866c8ebac9ae2dc845329dcd53c504be3984c6ae9c656ec6e5dcc7ba7b8ffc3",
+      "verified_members": 6
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/MANIFEST_V2.json",
+      "sha256": "54d530edd27d3da0cd751322831f972cdda07eff76da761981dd716d4b6c77a2",
+      "verified_members": 17
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/OUTPUT_MANIFEST_V3.json",
+      "sha256": "855f16599e907af2d72a4292fdf27bb7993d005d1c2dee8ecbc44f9a46028ca3",
+      "verified_members": 14
+    }
+  ],
+  "sources": [
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "93606f156d79a5c541938358be298720c5315bd9193c6984ce891ca87ed6ef2a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/WORK_GRAPH_V3.json",
+      "sha256": "588b6d6406a96c8a3cd7e149a82ca23e9a4e7998e298880e03c9dcf589aaf91e"
+    }
+  ],
+  "intake_delta": "Parent confirmed actual E1 64-character digest recorded here; extra supplied trailing 28 was a transcription error. All 28 actual E1 manifest members verified.",
+  "D66_collision_check": "No D-66 token in actual register at intake; recheck before actual application.",
+  "runtime_identity": "/root/preparation_synthesis",
+  "model": "unexposed; not inferred",
+  "role": "ephemeral Agent2; no delegation; instruction+config asserted"
+}

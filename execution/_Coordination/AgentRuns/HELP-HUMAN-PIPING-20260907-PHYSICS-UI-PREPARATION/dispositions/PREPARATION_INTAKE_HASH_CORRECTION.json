@@ -1,0 +1,6 @@
+{
+  "corrects": "PREPARATION_INTAKE_20260907.json W7_OUTPUT_MANIFEST_V2 sha256 only",
+  "sha256": "4effce6726ca0cdf7fb08d9cbb24520047fe1ea02b8facf4e964c9e3062c905f",
+  "members_checked": 10,
+  "reason": "Parent compact message concatenated hash and member count; recorder initially retained count suffix in hash. Correct 64-character SHA verified against instances/W7/OUTPUT_MANIFEST_V2.json bytes. Original record preserved; this correction controls."
+}

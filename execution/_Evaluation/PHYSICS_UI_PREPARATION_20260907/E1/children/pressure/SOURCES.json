@@ -1,0 +1,235 @@
+{
+  "basis": "35249accf139f52478d029458946e50ed25ee5dc",
+  "local": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/_LATEST.md",
+      "sha256": "9491c6a5b5663e12d00805e2360e623ad79ca65d2ebfdb1ea99f2affa5974f87",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Decomposition/SOFTWARE_DECOMP.md",
+      "sha256": "a1bf1148b8b96aed83c8a042437b9714d543cb068070662b97397dc700da48a3",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+      "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/tp_phys_008_thermal_pressure_axial_effects.md",
+      "sha256": "7e262f37a6fc7987696771b9984dbbd2f578775f0d37f4dfa60a6ea2d1a2241b",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/mechanics/curved_bend_pressure_thrust_arc.md",
+      "sha256": "69bd7291abe3a1d00379523e1fa946a5e3706b57e7749cb52540a1c058bdf00f",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/REPORT.md",
+      "sha256": "864918108f136b89a0310baf634e2885f6731199c99526b4726b39e3b8c12b20",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/S1/REPAIR_PLAN.md",
+      "sha256": "1b554a0006e08932d72109095f55f5d22aa0865fd65201a0ebc2b65d411ce1a0",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/REPORT.md",
+      "sha256": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_CONTEXT.md",
+      "sha256": "e3b9614cf177d5e632d3cb463984ae4f185c0625a48cae87f88eec552bb5f304",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md",
+      "sha256": "9c47f104f443d3382f239097e4baaa46aeb34eeb60e94afebd79cc4d23299979",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md",
+      "sha256": "8fed6f9fe0f5f57e6ed910d55db497e7180d0ab909325915e784979de9c59d19",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Dependencies.csv",
+      "sha256": "3c8d2658ecab02326e502c484603342e62afe39a82d0c907b73918544f8ff21b",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_CONTEXT.md",
+      "sha256": "19900898ad6f61a8bf69c1d52bc5b0bc91d49997e7aa1b57028ddd4bd291f87f",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md",
+      "sha256": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md",
+      "sha256": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/Dependencies.csv",
+      "sha256": "9c7a638685a368e69f0682a16e65737995f49efe4d486e369a4a189de266a863",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+      "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",
+      "sha256": "bfc411a70954ff264d182d653c6a64648311e6e1a02d5686cb14621da5af9410",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "sha256": "2d4231dad1c28cb2d04777e66238f46b042cbcfdcaa86a87746fb60441671e52",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv",
+      "sha256": "36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure.json",
+      "sha256": "5b009b30f6889098f93328a75be24a9493bb43d8f1030ceb98444d7bdb843262",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/pressure_fixed.json",
+      "sha256": "015d38c03e9d506bcb61ec685ef4913e4a507f35afe91b420ccaedab06a4fb82",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/pressure_dense.json",
+      "sha256": "4ad5f00d5565bbc795b5ff2094678bfbee2a6cc24de8c683ea88123ea5664629",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/results/pressure_fixed_dense.json",
+      "sha256": "77db351af8787c9fc9401d6d4f5d3f3c5388fbc6786dfca0dd7b7fdb0782bafd",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/ORCHESTRATION_PLAN_V1.md",
+      "sha256": "725cb68ec0cb07ffbeb94989bb30b68f877edf960f92cc4e6d7300b0c5d7ce89",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V2.md",
+      "sha256": "c0a3a66c2e44feeab01c04efb4f836f733e93c68c80bbc234a9d887c9af29175",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V3.md",
+      "sha256": "b0b88161c04a39fd5489e8beb61d87e7abfba32840a63ff892d33914ffda886f",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V4.md",
+      "sha256": "de77065c7f3d7d5932ca511736cfddb560e392cc01a7c4d89d3d928709b42d7e",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/E1_V1.md",
+      "sha256": "69bd0da0b72882a7e6c5f2a5fba566b4a8d56665ee75d4123ac9bfa70f1ba4eb",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/pressure/INIT-TASK.md",
+      "sha256": "f3d2651bad700611f4f02d92748a4bd418e97871e7198ea4d62115326453b12b",
+      "applicability": "Local authority/control, implementation or historical observation as distinguished in DECISION_BRIEF; not independent external physics acceptance."
+    }
+  ],
+  "external": [
+    {
+      "url": "https://ocw.mit.edu/courses/3-11-mechanics-of-materials-fall-1999/082fcd712adffa589a670f9f8dfdd49a_MIT3_11F99_pv.pdf",
+      "retrieved_date": "2026-09-07",
+      "applicability": "pp3/6: elementary closed-end equilibrium and thin-wall Poisson relation; primary university teaching note",
+      "owner_vetted": false
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-r-beamlibrary.htm",
+      "retrieved_date": "2026-09-07",
+      "applicability": "Section Forces: distinct effective versus axial force definitions; primary vendor documentation, not Chirality acceptance",
+      "owner_vetted": false
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEPRCRefMap/simaprc-c-loaddistributed.htm",
+      "retrieved_date": "2026-09-07",
+      "applicability": "Pressure on Pipe and Elbow Elements: closed-end boundary/cancellation conventions; primary vendor documentation",
+      "owner_vetted": false
+    }
+  ]
+}

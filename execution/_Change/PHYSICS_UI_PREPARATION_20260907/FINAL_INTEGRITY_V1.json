@@ -1,0 +1,27 @@
+{
+  "utc": "2026-09-08T04:06:16.691064+00:00",
+  "verdict": "PASS",
+  "frozen_members_verified": 129,
+  "review_members_verified": 5,
+  "acceptance_sha256": "a01223c68f58cecbccd6b7eb52a93e32e316f05e27a9deaf4b70417a66968d5c",
+  "review_sha256": "45c1304ba43b349f01ddb14878d7a5713b9033633d6401fb1c37f49a1092afc6",
+  "exact_register_insertion": true,
+  "receipt_append_only": true,
+  "all_other_tracked_source_unchanged": true,
+  "all_untracked_within_five_roots": true,
+  "original_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+  "upstream_rechecked": "c5192790f98ec024e7c2728cb1d4df3ae2b2a2dd",
+  "overlap_assessment": "Unchanged since UPSTREAM_ASSESSMENT_V1: no invalidating overlap",
+  "DEC025_H4": "Not run: docs/evidence/coordination preparation only; no product source or numerical change, no native acceptance claim.",
+  "allowed_stage_roots": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907",
+    "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907",
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_run_records/PHYSICS_UI_PREPARATION_20260907"
+  ],
+  "allowed_stage_files": [
+    "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+    "projects/chirality-piping/loop/LOOP_RECEIPTS.md"
+  ]
+}

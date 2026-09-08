@@ -1,0 +1,11 @@
+# Final local preparation closeout V3
+
+All required local publication gates pass after format-only repairs: focused semantic portability; repository self-check exit 0; full practitioner-harness pytest 379 passed in 30.90s; receipt validator; complete candidate whitespace; scope and source preservation. `FINAL_COMMANDS_V3.json` binds exact commands and logs. The failed V1/V2 checks remain recorded, with raw pytest traces losslessly base64 encoded and hash-bound by their resolvers.
+
+R1 whole-preparation PASS and affected representation PASS V2/V3 precede publication. Final R1 manifest SHA-256 is `90e88d59080bfc85730afcb14e530dc18e63a25f2aa60da35badff79baf1ef20`. Root accepted preparation and the representation successors. `FINAL_INTEGRITY_V3.json` records all 129 historical members resolved through explicit original-byte relocations and gzip, with current successor identities distinguished. The reviewed D-66 row was applied exactly as PROPOSED; Receipt 135 is append-only. All other tracked product and authority bytes are preserved. The original local handoff remains untracked and byte-identical in its original checkout.
+
+The preparation is derivative decision support against base `35249accf139f52478d029458946e50ed25ee5dc`, decomposition 0.12 / SCA-009 / DAG-010. No future implementation, engineering choice, dependency closure or public contract is adopted. DEC-025 and H4/native runs were not executed because this tranche changes documentation/evidence/coordination only, with no product source or numerical change. Physical completion and realistic native acceptance remain open.
+
+Latest fetched main at this cut is `62636f3a1ccc247af8c598b3c0a74ce9179d1fd3`. Upstream assessments V1/V2 show only disjoint App and PEC changes plus one App-specific whitespace exception; no Piping authority/source, root instructions or harness change invalidates this basis. No integration action is authorized.
+
+Source-control publication follows as an ordinary scoped task-branch commit/push and PR. Exact publication SHA, PR and hosted check results are reported externally after this evidence-container commit; no claim of hosted pass is made at this local cut. Hosted failures must be surfaced before completion. No merge is authorized.

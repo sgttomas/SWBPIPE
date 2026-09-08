@@ -1,0 +1,813 @@
+{
+  "base_sha": "35249accf139f52478d029458946e50ed25ee5dc",
+  "source_files": {
+    "AGENTS.md": {
+      "sha256": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+      "bytes": 18466
+    },
+    "projects/chirality-piping/AGENTS.md": {
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    "projects/chirality-piping/docs/CONTRACT.md": {
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "bytes": 6912
+    },
+    "projects/chirality-piping/docs/_Registers/Deliverables.csv": {
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "bytes": 36628
+    },
+    "projects/chirality-piping/loop/LOOP_INIT.md": {
+      "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e",
+      "bytes": 6806
+    },
+    "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md": {
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "bytes": 15003
+    },
+    "projects/chirality-piping/execution/_DAG/_LATEST.md": {
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "bytes": 2808
+    },
+    "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md": {
+      "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+      "bytes": 2553
+    },
+    "projects/chirality-piping/execution/_DAG/DAG-009/APPROVAL_RECORD.md": {
+      "sha256": "f25526c4e0eec239f5d3464ca4d8e0ab8c9638ebd035bc9aa282def33989337b",
+      "bytes": 4892
+    },
+    "projects/chirality-piping/execution/_DAG/DAG-009/DAG-009_APPROVAL_REVIEW_PACKET.md": {
+      "sha256": "d889e19829f618df265cd338f684337b22a73a0457a0b75143710aafbc15e544",
+      "bytes": 2478
+    },
+    "projects/chirality-piping/execution/_Evaluation/DAG009_CANDIDATE_EVALUATION_2026-08-02_R23/EDGE_DISPOSITIONS.csv": {
+      "sha256": "29206edbd2d431a858a3d1e5bc1f8f2310ef0c214a2167853936f02dc17ebd56",
+      "bytes": 13943
+    },
+    "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv": {
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "bytes": 1778370
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md": {
+      "sha256": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+      "bytes": 3302
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": {
+      "sha256": "547a749fa4855f8c5c36ade89426893796967c6963999a9b155ab22e939f1125",
+      "bytes": 4827
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": {
+      "sha256": "ccb6ea80b7b989e063b676fbb08626685bf139973ee716ebaabd9dc51c92005a",
+      "bytes": 23452
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_DEPENDENCIES.md": {
+      "sha256": "cbbc83e7fce4ced88394de07b323a5974d89a5661c9c6f835c9d5ec9990d8980",
+      "bytes": 4064
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/Dependencies.csv": {
+      "sha256": "5d84f9425ab765c404ee355ce1a3d70e9da87681e8d7b8e0e0616e2177d6e03c",
+      "bytes": 12560
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_REVIEW.md": {
+      "sha256": "cdce7baf1c1dac892e42caa3c15ab4d358460714bfbcaa592eca9d1df014ea08",
+      "bytes": 7521
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_REFERENCES.md": {
+      "sha256": "652597638ccb9605665392e37547b4a6d5f25e47b646580a94b6bdb65c3fb0b5",
+      "bytes": 1362
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md": {
+      "sha256": "23488618ae7f3f3b7249501181ff8ff2febac4bdaab9ea5221237cce5c265083",
+      "bytes": 17922
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md": {
+      "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9",
+      "bytes": 2997
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md": {
+      "sha256": "bfc411a70954ff264d182d653c6a64648311e6e1a02d5686cb14621da5af9410",
+      "bytes": 2578
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md": {
+      "sha256": "2d4231dad1c28cb2d04777e66238f46b042cbcfdcaa86a87746fb60441671e52",
+      "bytes": 23307
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_DEPENDENCIES.md": {
+      "sha256": "f43f747be2d869bf0823184663e18d7e3e265e8eda98126d2d1def012eb811de",
+      "bytes": 4596
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv": {
+      "sha256": "36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f",
+      "bytes": 13768
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_REVIEW.md": {
+      "sha256": "c0e4e5c7dfb17f446a3ab2ef80a9149d448fb65fc3b0ad7b9817ab9ba3697d15",
+      "bytes": 7230
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_REFERENCES.md": {
+      "sha256": "ec49d94487b07b767e25763f2640632ab5885062f2da4512f77b37f215b007ef",
+      "bytes": 1361
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md": {
+      "sha256": "ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28",
+      "bytes": 24840
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_CONTEXT.md": {
+      "sha256": "dad32d9ce8dcf336cfeb374855b2767a1b3497fb98b9b04b0d6fa5a48bcd0e50",
+      "bytes": 2933
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_STATUS.md": {
+      "sha256": "598975923ad9bb1b9b9f75f92478a931a09a42b0d0f252d35ff174d6c7a05404",
+      "bytes": 5335
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/MEMORY.md": {
+      "sha256": "b822f3ea38e34972f067b69a370619b380264b841413e1f4e9da8da6a4f4f41f",
+      "bytes": 48469
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_DEPENDENCIES.md": {
+      "sha256": "050d8be1a4540725fdb03a7628834ccaead754ea3cea8b977565425ed68d1e88",
+      "bytes": 5843
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/Dependencies.csv": {
+      "sha256": "28e5cd04820392fb605ba07b669195685133783450a3c314ff38a7abf743166e",
+      "bytes": 15812
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_REVIEW.md": {
+      "sha256": "628e0f31c51988724dd8539d758d54c9892824efc9d1cc807e8550426b236a89",
+      "bytes": 6175
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_REFERENCES.md": {
+      "sha256": "39b5876db3e8eece8a0a596ea68283cc5882e382118b81f619455c6475c8a998",
+      "bytes": 1352
+    },
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/ScopeOfWork.md": {
+      "sha256": "2f5a13ab80182e8b15aa073a9f684e693b7c51969781c72c2bd13a2fbb482488",
+      "bytes": 24068
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_CONTEXT.md": {
+      "sha256": "2da0a9b25a7cb4ef8998a90ced1ddbf0ec81ccb4e4396bec9ae2cb626dddb654",
+      "bytes": 3164
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_STATUS.md": {
+      "sha256": "304cb989054c4b4c72e779f02debcfd1455af6ffa890e88bb43aa06a9ea7a9ed",
+      "bytes": 6036
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md": {
+      "sha256": "d3fff2a6ba275a1c88f0fe3cd68475e779b63d05da6b160b801e64d8adaebd6b",
+      "bytes": 34452
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_DEPENDENCIES.md": {
+      "sha256": "e7684f47ff8a7723519a82f16395a9b4088036aa744119e71fe5d6d278f2e1fe",
+      "bytes": 5489
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/Dependencies.csv": {
+      "sha256": "9d2a4e09cf49bb1a37a04e9496e768271eb6adf0fd7152f8c1ce711dd6e2b3ae",
+      "bytes": 28464
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_REVIEW.md": {
+      "sha256": "7a165124ca505c790cf22e6a910a10924c4c529b960da9fea3bc02fa6f6c60dc",
+      "bytes": 9639
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_REFERENCES.md": {
+      "sha256": "0db1c8975ed68d12d26fb1cadf628a6a6b3cc0ed9aa8b7f7a911e8c95f31bde9",
+      "bytes": 1382
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/ScopeOfWork.md": {
+      "sha256": "e5b331a9f5ac58ba174bcdc8193b79ff3b31c27b7549554aedd2958fd37f3917",
+      "bytes": 23930
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md": {
+      "sha256": "15ad89aeaf7892df1bd6241984270307cede87d520869e50832ed0f83818d9d9",
+      "bytes": 2987
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md": {
+      "sha256": "db33b54a05c4372ef30e5cb9ba822f264b6720fd9e06a23c14ab8a4601544a38",
+      "bytes": 5069
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md": {
+      "sha256": "5e2ecc22e24d223b8e99fb825ec1e22fd8483f648ffc9a5e5b4ccc35c2d1cfd9",
+      "bytes": 29656
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_DEPENDENCIES.md": {
+      "sha256": "aca9b0fd630d087a80fef307c3e7a649fd8c122c506b9304547d3d395560c77b",
+      "bytes": 4348
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv": {
+      "sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128",
+      "bytes": 23962
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_REVIEW.md": {
+      "sha256": "b63115919e0f8ccec360a6acd81d17307afef14c225b9fc041c81178ac980e21",
+      "bytes": 6991
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_REFERENCES.md": {
+      "sha256": "b0501c24fe1ab98263a67f7addf6f051e0c00e7e454c3053d59ce82960e06cd0",
+      "bytes": 1360
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/ScopeOfWork.md": {
+      "sha256": "e650371c6d0849b07a37d2bb618ebb8fc215fa971d9f9003abc3f17678368796",
+      "bytes": 29917
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md": {
+      "sha256": "a393a4d47ba3ad7056eda44bc722e7c3a9aef2ecf360f3c29b63d409f10a36a3",
+      "bytes": 2926
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md": {
+      "sha256": "90ad5c2f760ee91d93284f00908aeb15c4254336a549da1d8620216d13b0ba72",
+      "bytes": 6915
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md": {
+      "sha256": "4185e8d4ca34085890d7652aafe336690702956999766e9e74cf7271c8a3851b",
+      "bytes": 61012
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_DEPENDENCIES.md": {
+      "sha256": "26d9c9beb14294cd15adfe2d62e1d17cb380357a82bd4ea6f9739602d947498e",
+      "bytes": 4872
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv": {
+      "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6",
+      "bytes": 19435
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_REVIEW.md": {
+      "sha256": "34bf80d33626bd2a9a272fdb96224622128a1c024657a4e6b7c1728b3bb6edc2",
+      "bytes": 4662
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_REFERENCES.md": {
+      "sha256": "72c8ddd39c2bb5032c83dbb1d196654dfed1d3408bd7598138379fd5fb868969",
+      "bytes": 1368
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/ScopeOfWork.md": {
+      "sha256": "298be604a1fb039b0d0e0cb09f37bd9eb434a9372b0cad67678fe801b9d8d9fa",
+      "bytes": 28633
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md": {
+      "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a",
+      "bytes": 2993
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md": {
+      "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522",
+      "bytes": 3166
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md": {
+      "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844",
+      "bytes": 16047
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_DEPENDENCIES.md": {
+      "sha256": "f8ac68f5d9f1e119568d12b1fab8fa6acdd29d8e61eea0304bd158094ab11e11",
+      "bytes": 4489
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv": {
+      "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596",
+      "bytes": 20541
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_REVIEW.md": {
+      "sha256": "e4c33c66666bb506a7fb3061f214f07dd238ef8ba82a871d0021e44227db9301",
+      "bytes": 7253
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_REFERENCES.md": {
+      "sha256": "92c528e4f69c1523d61e70b21edd69e3c32b62333adad69eb7be0463ffd0f6ed",
+      "bytes": 1341
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md": {
+      "sha256": "af413bb0a7429968f8943d152100092fa16541dc4236534229ba4b669ddba9dd",
+      "bytes": 25999
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md": {
+      "sha256": "64436868120a3fa4d6694110680aaaf455fcecd0f75553295093d10e4828f51b",
+      "bytes": 2971
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md": {
+      "sha256": "a3ef564379b14d756ef6c40c13302ad48ea95011f0c02dd7646a332246c03b64",
+      "bytes": 4203
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md": {
+      "sha256": "49e19ab2f223b8e46c7826cd97243abfacf4237f9a5ddaff41a714879ad27f60",
+      "bytes": 34407
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_DEPENDENCIES.md": {
+      "sha256": "b77145e3862e757b91e4f252a60e3ed09ac8dfdcd58f524daf4c9f27ab14b7ba",
+      "bytes": 4175
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv": {
+      "sha256": "34a7fd72702820213dee27eb1e79260c306fd28fa3e054bc587f4f83dfe483c9",
+      "bytes": 18534
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_REVIEW.md": {
+      "sha256": "390813eb4270321cfd5793ec58152bee6560fc76923aadc1c878b314c84da382",
+      "bytes": 2753
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_REFERENCES.md": {
+      "sha256": "85d9dea4e51bb2e6aeaf1ff980b6745edf3020681fd9aee8949172acf6de9b0a",
+      "bytes": 1363
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md": {
+      "sha256": "a1868f1ee972db40eaf0ae42cd73bd3c749e70e6979dffb5cbbdc0230a812b46",
+      "bytes": 27775
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md": {
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641",
+      "bytes": 2547
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md": {
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e",
+      "bytes": 2487
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_DEPENDENCIES.md": {
+      "sha256": "dd5cc229d607ee2acbd2615a201b05fb0ea6b54a757878f3caf00a425c79bb85",
+      "bytes": 849
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv": {
+      "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0",
+      "bytes": 5239
+    },
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_REFERENCES.md": {
+      "sha256": "8192dd1061cc0b64fa264bac445e7c996b117aff81bf54634055bc076b4b9e9b",
+      "bytes": 1545
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_CONTEXT.md": {
+      "sha256": "f3ed62a2b9902d969509dc26af92f52075c53bb8b8ddb98311e2a64a2c057ef9",
+      "bytes": 3906
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_STATUS.md": {
+      "sha256": "e4aab10ecdc08479b3b37c7e22d3b68afac3b767db2967ffb6d88a9cf84bb5d5",
+      "bytes": 3724
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/MEMORY.md": {
+      "sha256": "74fd88bebc0e179fd73ce7556f4358c6ac2baf6ac6ed428f52e2a8d01824c17a",
+      "bytes": 36244
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_DEPENDENCIES.md": {
+      "sha256": "b8b5615857153fff21358dcda5b65adfc75ad746bb61df33490a2f4c971c5097",
+      "bytes": 5975
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/Dependencies.csv": {
+      "sha256": "cd0f9fd5231b1b810a775b8942a33ccde4983e80dd20f171e9eeac64b108ac0d",
+      "bytes": 19846
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_REVIEW.md": {
+      "sha256": "30ecd17c1f70e6e03fa941ea89971c1de82fe675ceac588e1914f268df3d640b",
+      "bytes": 7984
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/_REFERENCES.md": {
+      "sha256": "05b85f434ac6cabbc5c8d6ba81499637bb04e91a5672df09eea5aac66f33ccca",
+      "bytes": 5285
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-04_Physical-to-analytical transformation contract/ScopeOfWork.md": {
+      "sha256": "a0190a66b94c3bb516a039dc92e5fb22149eddf12625cc0279fc583c1da6a235",
+      "bytes": 51974
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/_STATUS.md": {
+      "sha256": "32ac99e87c4bcfe562a85104055f298b66c37860958cf3bb7696200abc631678",
+      "bytes": 1410
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/_CONTEXT.md": {
+      "sha256": "011afa9d5e48bdacb985309a134202053c0aeacf5887025eeceadd2fa7e6d677",
+      "bytes": 2683
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-01_Architecture decision record baseline/MEMORY.md": {
+      "sha256": "525337182b2b0a3265e1f65f6ca9a91be73f91207a4d1acd699ae4c8494a6b71",
+      "bytes": 679
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_STATUS.md": {
+      "sha256": "abb0dd7e7a75cca4ea1026c9e461770d94e8d02ab10c97246159d188e3d0d2fe",
+      "bytes": 1780
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/_CONTEXT.md": {
+      "sha256": "af6c98c4c66004010f6ff2b11e4cdc6c0d6d7e1cc89adcc66006f81d12cad7de",
+      "bytes": 2670
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-02_Repository and module boundary architecture/MEMORY.md": {
+      "sha256": "187c6891cb6839a4d530e2883ae3725ac58c1f04135c16ca89626c353665a3d7",
+      "bytes": 1099
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/_STATUS.md": {
+      "sha256": "aa1fc0860f0344e9900747c78a6654dfd16f4bbcf99ef25007c661d81b80fdfb",
+      "bytes": 1416
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/_CONTEXT.md": {
+      "sha256": "c53b29ba10698a64291c26ac515b83d99bb255bf6568a5fa40e22693d6e61948",
+      "bytes": 2743
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-03_Application service command-query-job model/MEMORY.md": {
+      "sha256": "1f15df7e1fa523ffffbf64f756efea47022f0fc2be5987c4a89c07d892ee4621",
+      "bytes": 679
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/_STATUS.md": {
+      "sha256": "c990bb3b40ac15144635296a4c1b1be8588b369152101d2121ba90d517498f37",
+      "bytes": 1423
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/_CONTEXT.md": {
+      "sha256": "78bfbbf606f3be4dc654a87898f3f323208f5a17fc597afa53c5fa35a6a232e9",
+      "bytes": 2663
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-06_Diagnostics, warning, and result-envelope contract/MEMORY.md": {
+      "sha256": "aa36e1f6792f8435d0f03ebfbef92fca5e6fd7e3f42e0ea1ec33c8612c464618",
+      "bytes": 3577
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_STATUS.md": {
+      "sha256": "d31ab7952b073d2e4c9723b41dd3e09808b33db6c840c47a28514b9d7b3e173a",
+      "bytes": 1418
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/_CONTEXT.md": {
+      "sha256": "6547197c8153113845b413433bb9a69574669d9ce3cfef0065424711eac736a2",
+      "bytes": 2671
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-08_Layered software test and acceptance strategy/MEMORY.md": {
+      "sha256": "3bd53806271fb529d91e20aa07d82da7003f54cb3a1457ce7cb263c869a71239",
+      "bytes": 9219
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_STATUS.md": {
+      "sha256": "e3e1395ad1d8ba90420832f390180a529c10a3cea4d68b5a9172ed3daa036af9",
+      "bytes": 3889
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/_CONTEXT.md": {
+      "sha256": "13d53533c45b24ed9dda0bc1d445dd5dbabf5a3144a9878488c7bd5e72489d7a",
+      "bytes": 3028
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-03_Linear support and restraint models/MEMORY.md": {
+      "sha256": "489fadc92dbc581ab627e0862337166cafb04fab5c89ca28af879082a3a2bdba",
+      "bytes": 20494
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md": {
+      "sha256": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700",
+      "bytes": 3745
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_CONTEXT.md": {
+      "sha256": "7a01c5f73c77c3a6ddf9e0a1e1fc7a5b0374849956b89f1c9cd896a4b64829d7",
+      "bytes": 3077
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md": {
+      "sha256": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351",
+      "bytes": 30669
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_STATUS.md": {
+      "sha256": "e203e00bfd3faf4ebaa0899f71be13cf4fdf72c7431c29cd587e9954233da49b",
+      "bytes": 2751
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/_CONTEXT.md": {
+      "sha256": "af6fbf705f275d4579ab4ef124b60f8da22102d5df68150edd8aed2443149558",
+      "bytes": 3155
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-06_Solver diagnostics and singularity detection/MEMORY.md": {
+      "sha256": "96d54e49bebf93fa73c80f945219a82348e410196697ecd2c005d73e8c42341f",
+      "bytes": 17197
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_STATUS.md": {
+      "sha256": "8f87690699bd75be44f20d552adfd4a465f77355d1545a3c896d04e068bc0c76",
+      "bytes": 4674
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/_CONTEXT.md": {
+      "sha256": "958786c78352e931527a0fb0512555a9403db9f9f9121ae925b4ba9af0d09d37",
+      "bytes": 3100
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-02_Unit system and dimensional-analysis core contract/MEMORY.md": {
+      "sha256": "dff27849b368a658b13464d5ecb16099333a6b9bab8c734802ada7c31fe8d269",
+      "bytes": 147627
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md": {
+      "sha256": "9c47f104f443d3382f239097e4baaa46aeb34eeb60e94afebd79cc4d23299979",
+      "bytes": 3227
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_CONTEXT.md": {
+      "sha256": "e3b9614cf177d5e632d3cb463984ae4f185c0625a48cae87f88eec552bb5f304",
+      "bytes": 2950
+    },
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md": {
+      "sha256": "8fed6f9fe0f5f57e6ed910d55db497e7180d0ab909325915e784979de9c59d19",
+      "bytes": 27393
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_STATUS.md": {
+      "sha256": "c025ff9e8ba0e2c13b10a3dc289bb4b72db6c8000c6db605711e1c41b032eda2",
+      "bytes": 2507
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/_CONTEXT.md": {
+      "sha256": "e86494d6c19883bcd64e0669f5f878354f3790bd39180dada70d57dd9beb4c50",
+      "bytes": 3200
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-08_Pipe section property and mass-property calculator/MEMORY.md": {
+      "sha256": "d96739c0ce33d8115057a3489a9c1bb7cbf7a750f2e81f2470da5ef141001acd",
+      "bytes": 15779
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_STATUS.md": {
+      "sha256": "0e85d9e6a51b626a3cd799604ea7d835ebff47abaab68fe2c4a5128bb4d82621",
+      "bytes": 3552
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/_CONTEXT.md": {
+      "sha256": "19900898ad6f61a8bf69c1d52bc5b0bc91d49997e7aa1b57028ddd4bd291f87f",
+      "bytes": 3044
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-01_Primitive load case engine/MEMORY.md": {
+      "sha256": "1cfb82acb6de44de51c4c1cffee3bc3ab37a2b8a97b74ca81641966d9bce8bea",
+      "bytes": 42576
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_STATUS.md": {
+      "sha256": "a83e8268040409d6906ba03af7c4c6dc5ee78247715e94f36ba4a51b1c71e965",
+      "bytes": 2600
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/_CONTEXT.md": {
+      "sha256": "2c03219620fa18c9ad7262501e672ddf66d3a55cdc630b818391c1e0099a2dc3",
+      "bytes": 3035
+    },
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-04_Analysis status semantics/MEMORY.md": {
+      "sha256": "2ad56ef8f9d34a3bc326cd255a5279e657e91bf617e1ee75faf56bd701d29d3f",
+      "bytes": 13760
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/_STATUS.md": {
+      "sha256": "af005eafb081e8ef98f822f80e4a1c627190f57fe7eb612938ed8ebfdf0ededf",
+      "bytes": 1818
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/_CONTEXT.md": {
+      "sha256": "c52bb6ac1e81f7679a2e46b9765d7a95bfaca09130ad5e11dfe3afabd25bd493",
+      "bytes": 3034
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-05_GUI state and interaction architecture/MEMORY.md": {
+      "sha256": "4311c3993fb86b7b63c33d65a3b2e2532ce390a00d779e050b6d9733f92a3d78",
+      "bytes": 2044
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/_STATUS.md": {
+      "sha256": "e874acfcba155585df7d1fdb4cf995904cb1db81cf3cf7e14c69526535dd45d5",
+      "bytes": 1560
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/_CONTEXT.md": {
+      "sha256": "a90a5c917a7d419bd57800796338da5147cbca666bb6c39152bd210bfbed5618",
+      "bytes": 2677
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-07_API boundary and adapter contract map/MEMORY.md": {
+      "sha256": "0cbf8c46ea1652783d6023b39b6ea5187ed5a0029fcc58097a8865e1ba892b22",
+      "bytes": 1006
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_STATUS.md": {
+      "sha256": "ac39ebd1f5de80e53aac5ebc37f6a2f17b70aaad62366ef814c0f278a25b14c8",
+      "bytes": 2394
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/_CONTEXT.md": {
+      "sha256": "d4b56c4216607feedd3c8aca32200a042cc33f61f431dd795233ae708bf68f5c",
+      "bytes": 4262
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-01_Canonical domain model schema/MEMORY.md": {
+      "sha256": "26e6d63c26720fe60ccaece756000c433eec7bb7731a0cf5418d0a88362bdf23",
+      "bytes": 10064
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_STATUS.md": {
+      "sha256": "78f7431537150d1a8b1325109cb8a60c1f1e6cfc88f3e60f277505b6631ce88f",
+      "bytes": 3578
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_CONTEXT.md": {
+      "sha256": "d19fd67b153e8cd42a880daab77db0da7271070e6446943144408bcfb7032851",
+      "bytes": 4243
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/MEMORY.md": {
+      "sha256": "9f64f6558910e5d8df8264efee93f299253ba37a3f3a9c843de0826d7e1bb9b1",
+      "bytes": 30180
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_STATUS.md": {
+      "sha256": "de08d24130fcc1a1ddb73cc49ea3af0ac735897f0cc7f4a2089426cbf1e21c3d",
+      "bytes": 2019
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/_CONTEXT.md": {
+      "sha256": "9e4c896cd252a23a7e517cca5ecd34dd53aecd98ac7995a423cd077fda91322a",
+      "bytes": 3056
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-02_Pipe section and component library schema/MEMORY.md": {
+      "sha256": "9a20c6e37649ef8fff1c65f42669f7728fd6ab754dc7d16cc69909510d8749b9",
+      "bytes": 19436
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/_STATUS.md": {
+      "sha256": "0be948b248009e7504a39581a0a5cca140ac0d5ae1a45b5bf24a2440f0cc7088",
+      "bytes": 2187
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/_CONTEXT.md": {
+      "sha256": "887dfb1392b30bac8d3b6fe1e0c938523517744554bb683e3ae5542167e59881",
+      "bytes": 2999
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-03_Bend and elbow component model fields/MEMORY.md": {
+      "sha256": "92d4a10ec2871cedec88e6ca44ceb21265e3f28b15a5b929d93920bdf3c90a29",
+      "bytes": 12344
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/_STATUS.md": {
+      "sha256": "fb3916353184cee76cd696d2d688076975720e23ed2b0810f5af334529c98215",
+      "bytes": 2439
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/_CONTEXT.md": {
+      "sha256": "1ef9035ffb470e9064b150d5d52698b1961828e141c70a09d79aa760e2c6859e",
+      "bytes": 3081
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-04_Branch connection component model fields/MEMORY.md": {
+      "sha256": "dd8f6a415ef95ac17bd1def75b9be2d5b384362a4fc0bf2fbc9b5ec55b3b85fb",
+      "bytes": 11218
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/_STATUS.md": {
+      "sha256": "cf66f64c9a67598b94069cfbd7850ddd3c472125832ff751c275485fd71aaa38",
+      "bytes": 2685
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/_CONTEXT.md": {
+      "sha256": "bf735962e2e0f422fa0ed5d69a614ce0d6384b9099721ece715b69683b54ee5c",
+      "bytes": 3113
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-05_Rigid component models for valves, flanges, reducers, and specialty items/MEMORY.md": {
+      "sha256": "f731152276f491de337faeaa17af3042ec13e2719011ead644fe67d2579e1904",
+      "bytes": 12217
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_STATUS.md": {
+      "sha256": "06a92c876098f082dc4947fee1e4bc076fe3c5bd0599da97f4c4709d81123290",
+      "bytes": 2026
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_CONTEXT.md": {
+      "sha256": "bdb1df1b6260380a8a105a6efc9cefb9090c017cbc1423c05400eaf38dd002b2",
+      "bytes": 3033
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md": {
+      "sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557",
+      "bytes": 11084
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_STATUS.md": {
+      "sha256": "2aa9dce213cb3a42c8a6d2300f484e8efddd16bdc21ff9cb1c5826060b453145",
+      "bytes": 2347
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_CONTEXT.md": {
+      "sha256": "216cae114fa6d87afb82638cde52a134af01c45a561de19de7cbbf6b10bb33a8",
+      "bytes": 3057
+    },
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/MEMORY.md": {
+      "sha256": "7f2b87bd6562ea1aa22ea077605b70d6df76d6a4b3695f68e1c78dd6e732393d",
+      "bytes": 17038
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_STATUS.md": {
+      "sha256": "ad25f11de8d9b763b9cef831ec27afa4f0f25b6a0bd89c1df2653f2522628374",
+      "bytes": 2307
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/_CONTEXT.md": {
+      "sha256": "12194234d5714034b1e453c9265c09406b9316a9653a2e352c2876e5a97c9779",
+      "bytes": 3037
+    },
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-03_Code-neutral analysis boundary model/MEMORY.md": {
+      "sha256": "19e18219fbc38cbadcc2ddb64ad2806c3ed1e2effd20cd7047f8325ce6a542a3",
+      "bytes": 5739
+    },
+    "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/_STATUS.md": {
+      "sha256": "f74b633c9835fabf5333d27c9c69222592f2a296bf376385661e244d92891875",
+      "bytes": 2203
+    },
+    "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/_CONTEXT.md": {
+      "sha256": "11879c4652cd1c99bfcf98c7a57fd9d81ad27ab75588807cc48f8e818a528ee4",
+      "bytes": 3371
+    },
+    "projects/chirality-piping/execution/PKG-01_Governance, IP Boundary, and Professional Responsibility/1_Working/DEL-01-02_Copyright and protected-data boundary policy/MEMORY.md": {
+      "sha256": "8fc16091476906508a67fbb15ac6efaa9aa98dfcad90c4a57e051ad60ec569ec",
+      "bytes": 9368
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md": {
+      "sha256": "58d5ba902653bd3b8658ffef9af88e246cc2ac7d456aae66bbd394b073144d61",
+      "bytes": 2797
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_CONTEXT.md": {
+      "sha256": "a387c9dd017a750c11bcb42e4ac6b959546115c4aa5cf6edecb371d289abedae",
+      "bytes": 2896
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md": {
+      "sha256": "78155fa2faf8c5879f2f1bbedb1f4ca0b7b8a3e169f742fd638554f26b9bf411",
+      "bytes": 30685
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_STATUS.md": {
+      "sha256": "55cbd79ff576c38e1a0de27b369dfc47c7a601e7c86fb3dd992d1705ee3d37b4",
+      "bytes": 6223
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/_CONTEXT.md": {
+      "sha256": "e66e447bc469dc29324d1857fbf158b9ee85667dcb69ecf1695b8d2bdba514fa",
+      "bytes": 4360
+    },
+    "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-04_Build, packaging, and CI-CD pipeline/MEMORY.md": {
+      "sha256": "c7d9b38fcff06ede1a0e6a4d51ea63a1aac28d7134d54f7a02c062ac7587968e",
+      "bytes": 22417
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_STATUS.md": {
+      "sha256": "db8d8a9474cb882ebcae54b679e8bd8c8d2a2d6c2a9fc66366f26f198bafa4b8",
+      "bytes": 2269
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/_CONTEXT.md": {
+      "sha256": "0d169db322047ba6560b904e2be210048f93d18ae4a0bf187020c242fbd8865e",
+      "bytes": 2922
+    },
+    "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-02_Audit manifest and model hash/MEMORY.md": {
+      "sha256": "d8f9f3bb528cd16fb013e65ff24bfa3f14beb5d95e2651d309f934afbd9767ff",
+      "bytes": 10319
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-04_Persistence and schema versioning architecture/_STATUS.md": {
+      "sha256": "c2d1191feb3f30d897bdf5a2b919214b4aebe7e49e35a219d5ae0a80bc0b55b4",
+      "bytes": 1419
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-04_Persistence and schema versioning architecture/_CONTEXT.md": {
+      "sha256": "a8f7fcec6c964801e8efa85d2b78ef6d185ca2f7c7d0ce5be78ba0d1be1dd525",
+      "bytes": 3658
+    },
+    "projects/chirality-piping/execution/PKG-00_Software Architecture Runway/1_Working/DEL-00-04_Persistence and schema versioning architecture/MEMORY.md": {
+      "sha256": "6ad7b968b32565f6b85e210f4236a8d74f4a84268463f8308c24bbde308b4d59",
+      "bytes": 679
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/_STATUS.md": {
+      "sha256": "0041b5448a8cfabeb19539396abe393b1c165c2b50e7f051b5b24481bc58700e",
+      "bytes": 2158
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/_CONTEXT.md": {
+      "sha256": "c5093942406e49e3ba00fc80ba39c1101b87fea93d176f76645fa49a74924a1b",
+      "bytes": 3982
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-01_Design knowledge schema and provenance model/MEMORY.md": {
+      "sha256": "5fd63719fb7c0139c9407ed98b5c3c5802a9404022e7a32c6261dda903ebdbe5",
+      "bytes": 10128
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/_STATUS.md": {
+      "sha256": "e4d9528fceacfeeb0b8cf8ca1642cfaf856cd6028d465b5b1d503b829576f1a4",
+      "bytes": 2528
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/_CONTEXT.md": {
+      "sha256": "46ad4c5832593cb3a9357d0f16e6f27a30f9d60e79b17c61c6a7eff0df02fbe4",
+      "bytes": 4239
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-02_Constraint entity and provenance model/MEMORY.md": {
+      "sha256": "506e4566b2a85803a36b8312ea40c48e341760e41fca355d63e316948d1bc43b",
+      "bytes": 7955
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_STATUS.md": {
+      "sha256": "186106993e35d3aab695c6f2ac95c2c0f17541589314c89f8d0e19930325ce39",
+      "bytes": 2748
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/_CONTEXT.md": {
+      "sha256": "a529ab10564d302ad706dae0099953688b1d2b3f0447591f6e962bb45c428c0c",
+      "bytes": 3887
+    },
+    "projects/chirality-piping/execution/PKG-13_Physical Design Knowledge and Constraint Engine/1_Working/DEL-13-03_Constraint validation engine/MEMORY.md": {
+      "sha256": "6c81d8dd5bc34062378154dbc4c0887ed90622f1eb7a1d7516bdfca371c65ae0",
+      "bytes": 7521
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md": {
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+      "bytes": 3115
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/ORCHESTRATION_PLAN_V1.md": {
+      "sha256": "725cb68ec0cb07ffbeb94989bb30b68f877edf960f92cc4e6d7300b0c5d7ce89",
+      "bytes": 2943
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V2.md": {
+      "sha256": "c0a3a66c2e44feeab01c04efb4f836f733e93c68c80bbc234a9d887c9af29175",
+      "bytes": 2302
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V3.md": {
+      "sha256": "b0b88161c04a39fd5489e8beb61d87e7abfba32840a63ff892d33914ffda886f",
+      "bytes": 1306
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/LAUNCH_AMENDMENT_V4.md": {
+      "sha256": "de77065c7f3d7d5932ca511736cfddb560e392cc01a7c4d89d3d928709b42d7e",
+      "bytes": 1071
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/WORK_GRAPH_V3.json": {
+      "sha256": "588b6d6406a96c8a3cd7e149a82ca23e9a4e7998e298880e03c9dcf589aaf91e",
+      "bytes": 10181
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/Q1_V1.md": {
+      "sha256": "6fa16b232a5b250c966a98919a331e3af8d4d95daaf7e7daa2d5e7ddf47950bc",
+      "bytes": 3105
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/MENU_REPAIR_PARENT_FINAL_HANDOFF_V1.md": {
+      "sha256": "a2638c45fbecd0d85e93f1558869ea28a6839e79a27f08dbe198852485a7dd34",
+      "bytes": 3465
+    },
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N7_FINAL_REVIEW/V4_BACKCHECK/RETURN.md": {
+      "sha256": "c163af78f90c97798e27c970d49e5869028ebb3ac66c30f55c975795b2f630f9",
+      "bytes": 4117
+    },
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/FINDINGS.csv": {
+      "sha256": "716f0eb59851fb3218fdc9da28787573d8d7c0abf98bd8e65e13c3359e9224b7",
+      "bytes": 1328
+    },
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/supplement_v1/REPORT.md": {
+      "sha256": "974495c369fe4454faa4588f0358b4d69903d4438dec3366d1b5805833d4f0af",
+      "bytes": 2906
+    },
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/FINDING_DISPOSITIONS.csv": {
+      "sha256": "f652c562da54224af13b8a29ce5b85fc90c31dde5df4adca7c2d2312839cda88",
+      "bytes": 82011
+    },
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/S2/REPORT.md": {
+      "sha256": "4dd01309bddc0830a4fd5139d01a8a0dc7f0538f64d28ac17f04ab68a27d9205",
+      "bytes": 20148
+    },
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": {
+      "sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+      "bytes": 29850
+    },
+    "projects/chirality-piping/apps/desktop/src/services/inputManifestService.ts": {
+      "sha256": "7fee1a96e3fb66b6658d5562d9c50d2d26fe8a3eb5d0f0a2e4be459f30021cf3",
+      "bytes": 8520
+    },
+    "projects/chirality-piping/apps/desktop/src/App.tsx": {
+      "sha256": "72f1d67875de11108c696a0923463a4d4c6f8216d391c84b3da1c94ab4ca9a66",
+      "bytes": 131041
+    },
+    "projects/chirality-piping/core/model_transform/physical_to_analytical/contract.py": {
+      "sha256": "7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0",
+      "bytes": 31893
+    }
+  }
+}

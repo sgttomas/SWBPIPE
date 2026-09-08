@@ -1,0 +1,10 @@
+{
+  "instance": "C1",
+  "runtime_agent": "/root/prep_recorder",
+  "parent": "/root",
+  "status": "CONTROL_FREEZE_COMPLETE_AWAITING_PARENT",
+  "model_identity": "unexposed",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted",
+  "descendants": []
+}

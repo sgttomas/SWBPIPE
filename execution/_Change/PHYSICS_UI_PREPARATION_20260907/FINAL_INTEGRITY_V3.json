@@ -1,0 +1,17 @@
+{
+  "utc": "2026-09-08T04:13:48.273715+00:00",
+  "verdict": "PASS",
+  "historic_members_verified": 129,
+  "resolution": "C1 V1 and transitive V2 maps; W10 V3 context and V4 gzip; current successors distinct from historical bytes",
+  "successor_v2_freeze_verified": true,
+  "failed_attempt_logs_decoded_and_verified": [
+    "V1",
+    "V2"
+  ],
+  "exact_register_receipt_postimages_preserved": true,
+  "all_other_tracked_source_preserved": true,
+  "all_untracked_in_five_roots": true,
+  "original_handoff_preserved": true,
+  "upstream_reverified": "62636f3a1ccc247af8c598b3c0a74ce9179d1fd3",
+  "upstream_detail": "UPSTREAM_ASSESSMENT_V2.json"
+}

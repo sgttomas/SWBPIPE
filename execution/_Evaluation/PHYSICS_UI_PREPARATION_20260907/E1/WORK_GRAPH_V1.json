@@ -1,0 +1,28 @@
+{
+  "parent": "/root/physics_preparation",
+  "role": "EVALUATION Agent 1",
+  "delegation_class": "delegated-harness-native",
+  "model": "unexposed",
+  "nodes": {
+    "pressure": {
+      "role": "TASK Agent 2",
+      "scope": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/pressure",
+      "depends": [],
+      "status": "FROZEN_NOT_DISPATCHED"
+    },
+    "friction": {
+      "role": "TASK Agent 2",
+      "scope": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/friction",
+      "depends": [],
+      "status": "FROZEN_NOT_DISPATCHED"
+    },
+    "connector_numerics": {
+      "role": "TASK Agent 2",
+      "scope": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/connector_numerics",
+      "depends": [],
+      "status": "FROZEN_NOT_DISPATCHED"
+    }
+  },
+  "fan_in": "All required artifacts and citations manager-validated before synthesis",
+  "authorization": "root E1 brief and Owner concurrency direction"
+}

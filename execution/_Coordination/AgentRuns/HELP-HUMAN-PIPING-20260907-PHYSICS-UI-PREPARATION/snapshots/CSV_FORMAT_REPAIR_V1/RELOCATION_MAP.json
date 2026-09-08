@@ -1,0 +1,56 @@
+{
+  "recorded_at_utc": "2026-09-08T04:15:51.066341+00:00",
+  "authority": "Parent exact representation-only repair release",
+  "source_failure_inventory": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/STAGED_WHITESPACE_FAILURE_V1.json",
+  "historical_resolution": "Prior manifests unchanged. Their original path/hash pairs resolve to gzip-decoded original bytes named here; successor paths carry new hashes. Existing earlier relocation maps retain their history.",
+  "records": [
+    {
+      "original_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/FIELD_MAPPING.csv",
+      "original_sha256": "5d68f300bef41851efe0c0702b4975bf9f251dcbba06dce403f0764ab5d43c01",
+      "original_bytes": 45955,
+      "preserved_gzip_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/W10_FIELD_MAPPING.csv.gz",
+      "gzip_sha256": "60e4eca6577c8257123e2a67dad9df9b31d81cab17ddf2398cc72911f9711e2f",
+      "decoded_original_sha256": "5d68f300bef41851efe0c0702b4975bf9f251dcbba06dce403f0764ab5d43c01",
+      "successor_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/FIELD_MAPPING.csv",
+      "successor_sha256": "5806b14fc03f0ed39560e0c5915ce7fe3b5cfdd436a14ed13bc2c4f29873a8fe",
+      "successor_bytes": 45863,
+      "transformation": "CRLF bytes replaced with LF only",
+      "csv_reader_all_rows_identical": true,
+      "row_count_including_header": 92
+    },
+    {
+      "original_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/FINDINGS.csv",
+      "original_sha256": "1477e15b748b57c36702cae20a9ae92cf402758cedab714cb188cdfae4e05a44",
+      "original_bytes": 2135,
+      "preserved_gzip_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/E1_FINDINGS.csv.gz",
+      "gzip_sha256": "9f64533c921706990186ddafa96aeee734aaa4b6a98ee32f1f7f74a405cf2e43",
+      "decoded_original_sha256": "1477e15b748b57c36702cae20a9ae92cf402758cedab714cb188cdfae4e05a44",
+      "successor_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/FINDINGS.csv",
+      "successor_sha256": "875c876a119000f9416d10419dbe24c64e00779e94d3e09309184f8b49cbdcd0",
+      "successor_bytes": 2128,
+      "transformation": "CRLF bytes replaced with LF only",
+      "csv_reader_all_rows_identical": true,
+      "row_count_including_header": 7
+    },
+    {
+      "original_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "original_sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1",
+      "original_bytes": 54523,
+      "preserved_gzip_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/CSV_ORIGINALS_V1/Q1_READINESS_MATRIX.csv.gz",
+      "gzip_sha256": "60d7c1d921a304fc4bb402e95ff49fd2baa01b5f418b642a534164361a3138d7",
+      "decoded_original_sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1",
+      "successor_path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "successor_sha256": "83c3ce67c8a59da06e55f035a9840f662c9c25ae1d34b574c22c9188ef39ec5f",
+      "successor_bytes": 54415,
+      "transformation": "CRLF bytes replaced with LF only",
+      "csv_reader_all_rows_identical": true,
+      "row_count_including_header": 108
+    }
+  ],
+  "worktree_git_diff_check": {
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "staging": "Not changed by C1; CHANGE must restage after R1 review"
+}

@@ -1,0 +1,58 @@
+[
+  {
+    "name": "portability",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants"
+    ],
+    "exit": 0,
+    "log": "FINAL_portability_V3.log"
+  },
+  {
+    "name": "selfcheck",
+    "command": [
+      "python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exit": 0,
+    "log": "FINAL_selfcheck_V3.log"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exit": 0,
+    "log": "FINAL_pytest_V3.log"
+  },
+  {
+    "name": "receipt",
+    "command": [
+      "python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "log": "FINAL_receipt_V3.log"
+  },
+  {
+    "name": "whitespace",
+    "command": [
+      "python3",
+      "tools/validation/validate_candidate_whitespace.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "log": "FINAL_whitespace_V3.log"
+  }
+]

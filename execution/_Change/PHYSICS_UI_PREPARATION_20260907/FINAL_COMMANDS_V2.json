@@ -1,0 +1,46 @@
+[
+  {
+    "name": "selfcheck",
+    "command": [
+      "python3",
+      "tools/practitioner_harness/harness.py",
+      "self-check"
+    ],
+    "exit": 0,
+    "log": "FINAL_selfcheck_V2.log"
+  },
+  {
+    "name": "pytest",
+    "command": [
+      "python3",
+      "-m",
+      "pytest",
+      "-q",
+      "tools/practitioner_harness"
+    ],
+    "exit": 1,
+    "log": "FINAL_pytest_V2.log"
+  },
+  {
+    "name": "receipt",
+    "command": [
+      "python3",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 0,
+    "log": "FINAL_receipt_V2.log"
+  },
+  {
+    "name": "whitespace",
+    "command": [
+      "python3",
+      "tools/validation/validate_candidate_whitespace.py",
+      "--repo-root",
+      "."
+    ],
+    "exit": 1,
+    "log": "FINAL_whitespace_V2.log"
+  }
+]

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "status": "CANDIDATE_FROZEN_FOR_PARENT_VALIDATION",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/CANDIDATE_NATIVE_AUTHORING_SLICE_V1.md",
+      "sha256": "5e1d3f4b890bf6e10973ef53d4c39f3e7a4a3cfb974daddec8a5afdb16a91787"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/SCENARIO_AND_ACCEPTANCE_V1.md",
+      "sha256": "941a3761fccece3c4e86f152384e8aa5c5d64c5aa9bd55e621dab59d522f0a07"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/DEPENDENCY_EXTRACT_V1.json",
+      "sha256": "1279c882448af43623f2fd69854ae670b2b7e55f94f4c4b19591156c2477cb89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/RETURN_V1.md",
+      "sha256": "fb28303dc9bb06bf9a196b70ba3070dd14e80e55d7663ba9156515f2f9de6636"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/SOURCE_HASHES_V1.json",
+      "sha256": "082a0bea8eb3bd63f7b3a7bf3a12a3817a731215e927d265cd3824a5b2cb32e8"
+    }
+  ]
+}

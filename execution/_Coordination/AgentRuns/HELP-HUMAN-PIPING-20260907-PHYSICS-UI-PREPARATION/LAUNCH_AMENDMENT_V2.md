@@ -1,0 +1,11 @@
+# Launch amendment V2 — parent clarification before dispatch
+
+This immutable clarification supplements all V1 controls and briefs; read it at launch. Where inconsistent, this V2 clarification controls. No objective or durable write scope expands.
+
+- Audit-local D01–D06 are distinct from project register D-01..D-06. Preserve that namespace distinction everywhere. Use “audit D01” etc. Preparation may propose owner packets; no new project decision IDs or register mutation until root assigns exact candidate registration after independent review.
+- D54 §3.1 and D49 limits remain in force: engineering assumptions, acceptance criteria and public compatibility remain owner-class; ordinary design details may apply accepted scope. Future implementation still requires separately selected/adopted briefs.
+- E1 must present concrete options and a recommended physical interpretation with source support. Where reference basis is insufficient, recommend a precisely bounded investigation and disclose the limitation. Historical owner queue is the prior audit `S1/REPAIR_PLAN.md`, not `OWNER_DECISION_QUEUE.md`.
+- Q1 explicitly examines active EXECUTION UPSTREAM gating rows, distinguishing evidence-based currency from real remaining prerequisites. Do not mark SATISFIED or reopen historical N7.
+- C0 setup is terminal, but root has continued C0 tooling provisioning and exact self-check/full harness checks in its existing _Change scope. Independent preparation need not await these tooling checks. Root new-lane Step 0 receipt validation and DAG enumeration passed. Initial self-check was blocked solely by absent PyYAML in the selected interpreter; this is not product-code failure. C0 reports provisioned temporary tooling and checks in progress. Executable provisioning uses repository `requirements-dev.txt` pins and CI NumPy requirements in an isolated temporary virtual environment; no transient absolute executable path is made a durable prerequisite. Exact provisioning/results belong to C0 evidence.
+
+Attribution/status of actual executing children must be added as new records after launch; frozen graph initial statuses are historical, not live status claims. Shared control sources remain derivative candidate preparation evidence. Root preserves all cross-package relay authority.

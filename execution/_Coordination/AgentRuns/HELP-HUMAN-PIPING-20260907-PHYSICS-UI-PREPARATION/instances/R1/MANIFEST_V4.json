@@ -1,0 +1,13 @@
+{
+  "verdict": "PASS",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/RETURN_V4.md",
+      "sha256": "bb69e40f2054c906b24b7756d383079013f191f2403d60f7f1611eac03cb8fa6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/AFFECTED_REVIEW_INVENTORY_V4.json",
+      "sha256": "0f61fec54c5059148af37815bd5e00d51e0c90cdd236518c3d048e15570b72a6"
+    }
+  ]
+}

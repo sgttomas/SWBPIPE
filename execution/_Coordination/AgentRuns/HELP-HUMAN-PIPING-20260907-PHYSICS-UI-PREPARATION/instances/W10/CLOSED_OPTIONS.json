@@ -1,0 +1,64 @@
+{
+  "component": [
+    "axial_force",
+    "shear_force_y",
+    "shear_force_z",
+    "torsional_moment",
+    "bending_moment_y",
+    "bending_moment_z",
+    "nodal_force_x",
+    "nodal_force_y",
+    "nodal_force_z",
+    "nodal_moment_x",
+    "nodal_moment_y",
+    "nodal_moment_z",
+    "axial_normal_stress",
+    "bending_normal_stress_y",
+    "bending_normal_stress_z",
+    "torsional_shear_stress",
+    "pressure_hoop_stress",
+    "pressure_longitudinal_stress",
+    "section_area",
+    "section_modulus_y",
+    "section_modulus_z",
+    "torsion_constant",
+    "torsion_radius",
+    "TBD"
+  ],
+  "coordinate_system": [
+    "global",
+    "element_local",
+    "pipe_section",
+    "TBD"
+  ],
+  "location": [
+    "end_i",
+    "end_j",
+    "node",
+    "quarter_1",
+    "midspan",
+    "quarter_3",
+    "summary",
+    "TBD"
+  ],
+  "basis": [
+    "recovered_from_local_element_stiffness",
+    "assembled_solver_load_vector",
+    "solved_from_global_linear_system",
+    "recovered_from_open_mechanics_stress_components",
+    "interpolated_from_endpoint_resultants",
+    "derived_from_user_entered_section_geometry",
+    "explicit_user_linear_combination",
+    "explicit_user_result_state_subtraction",
+    "explicit_user_range_envelope",
+    "stress_recovery_summary",
+    "rule_pack_evaluation",
+    "TBD"
+  ],
+  "sign_convention": [],
+  "canonicalization": [
+    "JCS",
+    "NONE",
+    "TBD"
+  ]
+}

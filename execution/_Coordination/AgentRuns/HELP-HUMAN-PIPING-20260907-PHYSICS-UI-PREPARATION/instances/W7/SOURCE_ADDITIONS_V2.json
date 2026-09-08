@@ -1,0 +1,24 @@
+{
+  "sources": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/REPORT.md",
+      "sha256": "cd5b067dd7cfce88dcc7f678885cdbeb7aac2f28faa1e7395fd1baefdd1153ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/MENU_REPAIR_PARENT_FINAL_HANDOFF_V1.md",
+      "sha256": "a2638c45fbecd0d85e93f1558869ea28a6839e79a27f08dbe198852485a7dd34"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "sha256": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10"
+    }
+  ]
+}

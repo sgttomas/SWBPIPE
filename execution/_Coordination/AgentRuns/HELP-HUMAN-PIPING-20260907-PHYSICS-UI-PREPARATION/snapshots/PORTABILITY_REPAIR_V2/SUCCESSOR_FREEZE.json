@@ -1,0 +1,8 @@
+{
+  "files": {
+    "_run_records/PORTABILITY_ORIGINALS_V1/CHAT_TRANSCRIPT.md": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+    "snapshots/PORTABILITY_REPAIR_V2/RELOCATION_MAP.json": "4af00b21bc03cdd064bb2db5407ab18b2552296774aa293c6e7ca9e74e1f9903"
+  },
+  "status": "Filename-only repair; effective role EVIDENCE verified; R1 affected review pending",
+  "self_exclusion": "Own hash returned out of band"
+}

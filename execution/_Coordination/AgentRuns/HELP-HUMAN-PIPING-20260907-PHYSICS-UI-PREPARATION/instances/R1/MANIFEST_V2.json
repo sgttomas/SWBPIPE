@@ -1,0 +1,14 @@
+{
+  "status": "PASS_AFFECTED_REVIEW",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/RETURN_V2.md",
+      "sha256": "24c3bc3322e3bd9e2ff5a996dfcd0772ac86b22de11faeaafc71da5fe5b03d87"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/AFFECTED_REVIEW_INVENTORY_V2.json",
+      "sha256": "5f68df2985b45f838ab67cce20e87d4fa03cc3e39907190200eea5024d7978d4"
+    }
+  ],
+  "prior_manifest_sha256": "45c1304ba43b349f01ddb14878d7a5713b9033633d6401fb1c37f49a1092afc6"
+}

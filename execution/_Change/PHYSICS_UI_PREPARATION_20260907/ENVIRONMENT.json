@@ -1,0 +1,28 @@
+{
+  "venv": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv",
+  "commands": [
+    [
+      "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3.13",
+      "-m",
+      "venv",
+      "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv"
+    ],
+    [
+      "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python3",
+      "-m",
+      "pip",
+      "install",
+      "-r",
+      "projects/chirality-piping/requirements-dev.txt",
+      "numpy"
+    ]
+  ],
+  "install_exit": 0,
+  "basis": "requirements-dev.txt exact pins; numpy follows governance-harness.yml unpinned dependency; pytest transitively installed by pinned pytest-xdist",
+  "initial_parent_attempt": "Harness self-check exit 2: PyYAML not importable (parent-reported).",
+  "discovery_failures": [
+    "zsh unmatched requirements* glob; retried using rg --files",
+    "zsh unmatched /opt/homebrew/bin/python* glob; discovered existing python3.13 via command -v"
+  ],
+  "global_install": false
+}

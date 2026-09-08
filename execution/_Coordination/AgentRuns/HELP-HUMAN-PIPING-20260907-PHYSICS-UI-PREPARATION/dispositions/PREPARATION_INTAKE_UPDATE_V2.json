@@ -1,0 +1,41 @@
+{
+  "recorded_at_utc": "2026-09-08T03:54:09.448683+00:00",
+  "actor": "/root HELP_HUMAN",
+  "recorder": "/root/prep_recorder C1",
+  "disposition": "VALIDATED_PREPARATION_INTAKE_UPDATE_ONLY",
+  "not_final_independent_acceptance": true,
+  "source": "Explicit parent follow-up; no independent numerical claim by recorder",
+  "manifests": {
+    "E1": {
+      "sha256": "c25701251a57b2a64620d051da4f463fb94fbfdd4d27616b0940ff8d38a7020d",
+      "members_checked": 28,
+      "status": "TERMINAL; root verified",
+      "correction": "This exact hash controls any supplied suffix transcription error"
+    },
+    "W7_OUTPUT_MANIFEST_V3": {
+      "sha256": "855f16599e907af2d72a4292fdf27bb7993d005d1c2dee8ecbc44f9a46028ca3",
+      "members_checked": 14
+    },
+    "W10_MANIFEST_V2": {
+      "sha256": "54d530edd27d3da0cd751322831f972cdda07eff76da761981dd716d4b6c77a2",
+      "members_checked": "all outputs; count not supplied"
+    }
+  },
+  "S1": {
+    "runtime_agent": "/root/preparation_synthesis",
+    "status": "LAUNCHED_STILL_RUNNING",
+    "model_identity": "unexposed; no override",
+    "briefs": [
+      "briefs/S1_V1.md",
+      "briefs/S1_AMENDMENT_V2.md",
+      "briefs/S1_AMENDMENT_V3.md"
+    ],
+    "exclusive_writes": [
+      "instances/S1/**",
+      "DECISION_INTERFACE.md",
+      "HANDOFF_STATE.md"
+    ]
+  },
+  "R1": "Amendment prepared; held for S1 completion, root signal and whole-package freeze",
+  "limits": "No whole-package freeze or final acceptance recorded by this update"
+}

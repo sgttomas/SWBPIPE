@@ -1,0 +1,29 @@
+{
+  "recorded_at_utc": "2026-09-08T03:46:59.808418+00:00",
+  "source": "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/RUNTIME_LAUNCH.json",
+  "source_sha256": "5c583b36d24438e847ae72f76a40cd738fdc4c58e9e8ab6db1623a20160fee0f",
+  "parent": "/root/physics_preparation",
+  "model_identity": "UNKNOWN; unexposed",
+  "role_enforcement": "instruction+config asserted; not mechanically proven",
+  "children": [
+    {
+      "task_name": "/root/physics_preparation/pressure",
+      "status": "running",
+      "brief": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/pressure/INIT-TASK.md",
+      "brief_sha256": "f3d2651bad700611f4f02d92748a4bd418e97871e7198ea4d62115326453b12b"
+    },
+    {
+      "task_name": "/root/physics_preparation/friction",
+      "status": "running",
+      "brief": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/friction/INIT-TASK.md",
+      "brief_sha256": "c38f24e2994c5446e9139b2483d903812026a050ab42417e21bd1478a8f8855d"
+    },
+    {
+      "task_name": "/root/physics_preparation/connector_numerics",
+      "status": "running",
+      "brief": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/children/connector_numerics/INIT-TASK.md",
+      "brief_sha256": "105909c9612532e976cc1b8d19fbbbb0919a61bf3e8cfac21a5e20831482f9d9"
+    }
+  ],
+  "status_note": "Copied launch-time attribution; running values are historical launch observations, not current live status."
+}

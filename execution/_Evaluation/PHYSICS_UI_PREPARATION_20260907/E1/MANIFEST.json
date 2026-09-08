@@ -1,0 +1,147 @@
+{
+  "kind": "E1_CANDIDATE_PREPARATION_SNAPSHOT",
+  "basis": "35249accf139f52478d029458946e50ed25ee5dc",
+  "closure": "PREPARATION_COMPLETE_PENDING_ROOT_AND_INDEPENDENT_REVIEW",
+  "files": [
+    {
+      "path": "BASIS_VERIFICATION.json",
+      "sha256": "123009fb80fc8848d1ac2a40054c44fb20ede99c2ccd54fb494dd87819dd2b1b",
+      "bytes": 6163
+    },
+    {
+      "path": "EVALUATION_PROTOCOL.md",
+      "sha256": "e91b4c5b1e3dd6c5a263fde2d26541d5225bc8861b5f20b6b39ee7b3ec92fdd8",
+      "bytes": 819
+    },
+    {
+      "path": "EVALUATION_REPORT.md",
+      "sha256": "609cb06ad3212b946f5ad3584a6e37d856a78d7b0e3205153d888bceaf5a35d0",
+      "bytes": 10690
+    },
+    {
+      "path": "FAN_IN_VALIDATION.json",
+      "sha256": "d506744e8eee6a2119137e642c698d0f4ada870b0c8db5e51bbc0f67ed3e42c3",
+      "bytes": 4682
+    },
+    {
+      "path": "FINDINGS.csv",
+      "sha256": "1477e15b748b57c36702cae20a9ae92cf402758cedab714cb188cdfae4e05a44",
+      "bytes": 2135
+    },
+    {
+      "path": "HANDOFF.md",
+      "sha256": "8cdcbb68a8fc20a7913a40cf84bd68953073fe38ff0f7de9dba8628f78aeaf9f",
+      "bytes": 1870
+    },
+    {
+      "path": "LAUNCH_FREEZE_V1.json",
+      "sha256": "762e4787f85aa2d91c117aa44661992ba76f267a5522ffbbd660621c7c99a4b5",
+      "bytes": 928
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "9da264118b11eca496c1e896975e425392c89835464348dbbad4822097c813f6",
+      "bytes": 1512
+    },
+    {
+      "path": "RUNTIME_LAUNCH.json",
+      "sha256": "5c583b36d24438e847ae72f76a40cd738fdc4c58e9e8ab6db1623a20160fee0f",
+      "bytes": 1312
+    },
+    {
+      "path": "WORK_GRAPH_V1.json",
+      "sha256": "2a2af592ae4128a251ab3820bd1b53dd1331eeadd8c138cd2cfccd28c236df25",
+      "bytes": 1047
+    },
+    {
+      "path": "children/connector_numerics/DECISION_BRIEF.md",
+      "sha256": "7dba35e532357a029bb760396ffb107a8882715c5792d661aedee84ce79b2f8a",
+      "bytes": 17954
+    },
+    {
+      "path": "children/connector_numerics/INIT-TASK.md",
+      "sha256": "105909c9612532e976cc1b8d19fbbbb0919a61bf3e8cfac21a5e20831482f9d9",
+      "bytes": 3922
+    },
+    {
+      "path": "children/connector_numerics/MANIFEST.json",
+      "sha256": "47536f3c67f2c8f0d04a7d84165b1d59fcb81b9b8527ec48a92077cadafc55d7",
+      "bytes": 947
+    },
+    {
+      "path": "children/connector_numerics/RETURN.md",
+      "sha256": "d1d5f0076bea89fc1141561bbf822b355c0476bb2164e1abf53bc37302123f14",
+      "bytes": 4262
+    },
+    {
+      "path": "children/connector_numerics/SOURCES.json",
+      "sha256": "01f6db92f3207388fbfc99f252c455123f16bdfcf53721cbdc9b734ce4590375",
+      "bytes": 26031
+    },
+    {
+      "path": "children/connector_numerics/_run_records/TASK_RUN_2026-09-07_1800.md",
+      "sha256": "d037008136dd284a145dcbca0ef191b8769859cef05d03bf2fbbc0e6920981f5",
+      "bytes": 2444
+    },
+    {
+      "path": "children/friction/DECISION_BRIEF.md",
+      "sha256": "79fdd9e18d42a0f2594131030cdc3b9263822583d0e44beb80b0473261dd87fb",
+      "bytes": 13565
+    },
+    {
+      "path": "children/friction/INIT-TASK.md",
+      "sha256": "c38f24e2994c5446e9139b2483d903812026a050ab42417e21bd1478a8f8855d",
+      "bytes": 3993
+    },
+    {
+      "path": "children/friction/MANIFEST.json",
+      "sha256": "8890eb438a84139426d73e500636b3bf20910ec35794499a5ce650de9f23fae3",
+      "bytes": 899
+    },
+    {
+      "path": "children/friction/RETURN.md",
+      "sha256": "5a7ec6f270acc1b1a390fb171aacc1bdad72980559319fc1750c2a69aa057126",
+      "bytes": 2348
+    },
+    {
+      "path": "children/friction/SOURCES.json",
+      "sha256": "418b8cef5133fc143e4d1e0489fb5839dbbce9c0d61a8a53d114af55a246a254",
+      "bytes": 13283
+    },
+    {
+      "path": "children/friction/_run_records/TASK_RUN_2026-09-08_0334.md",
+      "sha256": "0aa3e4b7349ae29523140c8ad10a050c8da94c6e31ff6dffb2f4c05a7354d94f",
+      "bytes": 2532
+    },
+    {
+      "path": "children/pressure/DECISION_BRIEF.md",
+      "sha256": "10e4e03f84a6fd85fdd31f97e84df0b6f224ee41a080de5f5a1de8ee02a45ad8",
+      "bytes": 14989
+    },
+    {
+      "path": "children/pressure/INIT-TASK.md",
+      "sha256": "f3d2651bad700611f4f02d92748a4bd418e97871e7198ea4d62115326453b12b",
+      "bytes": 3920
+    },
+    {
+      "path": "children/pressure/MANIFEST.json",
+      "sha256": "0dd2d627a48382cf3dff5884468d6aea472ca673e78582121d52f3f15b25c6d6",
+      "bytes": 463
+    },
+    {
+      "path": "children/pressure/RETURN.md",
+      "sha256": "77fcc3e725ba5f371e231331354ff35f0e91a454c37719c936f1f1abf7ec5935",
+      "bytes": 3165
+    },
+    {
+      "path": "children/pressure/SOURCES.json",
+      "sha256": "8d77e8d3919a6e0070dde74dea3a634990a8cd2888eca4e4862da51f61c7e731",
+      "bytes": 17370
+    },
+    {
+      "path": "children/pressure/_run_records/TASK_RUN_2026-09-07_0001.md",
+      "sha256": "aa8f382c9b8723845208bd954e5534e2ad09662f71a17bf7f154fd4ab6ec3645",
+      "bytes": 3352
+    }
+  ]
+}

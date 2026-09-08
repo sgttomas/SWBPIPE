@@ -1,0 +1,3 @@
+# C1 portability repair V1 — exact format-only release
+
+Parent `/root` authorizes preserving byte-exact originals of OWNER_DIRECTION.md and snapshots/ACCEPTED_PREPARATION_V2/ACCEPTANCE.json under `_run_records/PORTABILITY_ORIGINALS_V1/`, then changing only machine anchors in their current successors. Label the initial owner quote path-normalized; current user direction remains untouched. Preserve all historical manifest bytes/hashes and bind displaced originals through an immutable relocation map. No register/receipt, outcome, harness or policy changes. R1 affected review and CHANGE reruns remain required.

@@ -1,0 +1,163 @@
+{
+  "verdict": "PASS",
+  "review_scope": "affected representation corrections and exact register/receipt additions only",
+  "basis": "35249accf139f52478d029458946e50ed25ee5dc",
+  "reviewer": "/root/preparation_review",
+  "model": "UNKNOWN/unexposed",
+  "timestamp_utc": "2026-09-08T04:11:09.106580+00:00",
+  "checks": {
+    "original_freeze_changed_paths": [
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/BUILD_CONTEXT.json",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log"
+    ],
+    "remaining_126_members_unchanged": true,
+    "raw_originals_match_original_freeze_hashes": true,
+    "gzip_round_trip": true,
+    "base64_failure_log_hash": true,
+    "owner_direction_quote_label_and_placeholder_only": true,
+    "acceptance_validator_output_anchor_only": true,
+    "build_context_temp_anchor_and_provenance_only": true,
+    "historical_manifests_unchanged_explicitly_resolvable": true,
+    "exact_D66_insertion": true,
+    "receipt135_only_append": true,
+    "failed_harness_attempt_preserved": "1 failed, 378 passed; portability regression; no final rerun inferred"
+  },
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/PORTABILITY_REPAIR_V1/SUCCESSOR_FREEZE.json",
+      "sha256": "15083b36d00d4efcb07751b33a592b3940454a8f0ee975f318cbfa52e9d305fe",
+      "bytes": 968
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/PORTABILITY_REPAIR_V1/RELOCATION_MAP.json",
+      "sha256": "8d02c4cb44c8ecf42c2b5b84db81e9b8309c5573f44b8911a5bf17f83f8585f6",
+      "bytes": 1679
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/C1_PORTABILITY_REPAIR_V1.md",
+      "sha256": "076325a58126954af106990444739d68e92edd42c5747a956256d657a31e30dc",
+      "bytes": 616
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+      "sha256": "6d2c8ca6703bc47a48bf4b673d1728ca9db0a068384b4bec3536d17e3b458324",
+      "bytes": 3266
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/PORTABILITY_ORIGINALS_V1/OWNER_DIRECTION_ORIGINAL.md",
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+      "bytes": 3115
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/PORTABILITY_ORIGINALS_V1/ACCEPTANCE_ORIGINAL.json",
+      "sha256": "a01223c68f58cecbccd6b7eb52a93e32e316f05e27a9deaf4b70417a66968d5c",
+      "bytes": 2403
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/ACCEPTED_PREPARATION_V2/ACCEPTANCE.json",
+      "sha256": "8e23dd9cc51af83812f639facfad62a8e1b7394a1f1370536f73f439d98f0fe9",
+      "bytes": 2339
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "sha256": "9b04994b9dc4302e2c621dd7e58e7c701f8ef60cc3aac7fe8decd38badfa1fca",
+      "bytes": 68973
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "7b19043bf71c795ee09480df2c94e88c6bd38eee7298156acf6cdde36c1ebf36",
+      "bytes": 255565
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/MANIFEST_V3.json",
+      "sha256": "fee91d72a7637d0e71ce9d2a46222f73a8e2e846279d00dfbb440eec0fd12508",
+      "bytes": 6569
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/MANIFEST_V4.json",
+      "sha256": "89d3d2775dc56856f622e87f193fda961ebdfca797030faf07fb0ee28370905d",
+      "bytes": 7888
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/PORTABILITY_RELOCATION_V3.json",
+      "sha256": "a0283b3b4a9279ccfab95c45f7bdcc6f861d2b29342ec64263584194d0faea54",
+      "bytes": 981
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS_RELOCATION_V4.json",
+      "sha256": "7032a96bd2cdecca7ae54f7487a1c83a12ab2eb59ed44f4b462f9b215db03495",
+      "bytes": 1134
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/CLARIFICATION_V3.md",
+      "sha256": "d170ff8312203b3dc57db803dcf45ced953c5ced6e131d237e6a903a29fe8a60",
+      "bytes": 1386
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/CLARIFICATION_V4.md",
+      "sha256": "286895c607658ec417a0f89fa70461581ef14e756331a2ecf7df881275499b62",
+      "bytes": 1728
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/BUILD_CONTEXT.json",
+      "sha256": "0e0ea599e28c4e71f611257a80b4160647a9e74ef96ee2bdf54f9c43cc499a9d",
+      "bytes": 258107
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log",
+      "sha256": "053ab2365c1a489ec93341fa06b04733e00246d025a198309847abb4de855c63",
+      "bytes": 295
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/_run_records/PORTABILITY_ORIGINALS_V1/BUILD_CONTEXT.json",
+      "sha256": "d33140013dfc0c61b573357aab517b70f51a55d82a247d52689dd273bb7a22e3",
+      "bytes": 258000
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/_run_records/PORTABILITY_ORIGINALS_V1/WITNESS.log.gz",
+      "sha256": "6a07258156f4b8004bdfe03600604e70cfd1f45dfe6eb64f6036eaaefbb62354",
+      "bytes": 653
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_LOG_RESOLVER_V1.json",
+      "sha256": "fe077719cbae5b7a1470ec8a21eaa215800fefc03ef94c8fc22379d56632766f",
+      "bytes": 731
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V1.log.b64",
+      "sha256": "ab7d08a411332d043cdf2dc90368dc5f57907784187924cd8295d286df9dae9e",
+      "bytes": 2517
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_COMMANDS_V1.json",
+      "sha256": "5fd86f866a0058572d3a383c91e6547ca1accb90f1fb23611a58d41ea3fcd20f",
+      "bytes": 390
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_INTEGRITY_V1.json",
+      "sha256": "68f2fd930bb27bd4ed3e20640a057e840bbffece3dcf6cab6b917d503ab4cc6d",
+      "bytes": 1755
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_INDEPENDENT_CHECKS_V1.json",
+      "sha256": "9ae5171e23ed8510e517b308a4de9074799a1636d568bfdce9f4d1a5c467c33b",
+      "bytes": 433
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_selfcheck_V1.log",
+      "sha256": "9f44c3b7cf69566d6ff30a2925ed49da75007380b44537aeeebcc6cdba5e3524",
+      "bytes": 26300
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_whitespace_V1.log",
+      "sha256": "3abc2e4ae83120d7d470a5f8c92a3210dda66209003c7e2cdff10987c42465cb",
+      "bytes": 410
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_receipt_V1.log",
+      "sha256": "dd2592692d871acb2b1d25bf82b2dca47ead387238d3f00f1442ef54078d19c7",
+      "bytes": 195
+    }
+  ]
+}

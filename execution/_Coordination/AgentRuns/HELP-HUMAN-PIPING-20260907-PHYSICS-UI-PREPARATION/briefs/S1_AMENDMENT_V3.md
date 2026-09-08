@@ -1,0 +1,7 @@
+# S1 amendment V3 — exact original root output names and clarified W10 intake
+
+Parent corrects the output names supplied in the preceding instruction. This amendment controls conflicting filename/snapshot language in S1 V1/V2 and preserves their frozen bytes.
+
+S1 exact durable write scope is `{RUN_ROOT}/instances/S1/**`, `{RUN_ROOT}/DECISION_INTERFACE.md` and `{RUN_ROOT}/HANDOFF_STATE.md`. Both root documents remain explicitly CANDIDATE until root acceptance. S1 snapshots are restricted to `instances/S1/snapshots/**`; no root snapshot writes. Do not write DECISION_BRIEF.md or HANDOFF_CANDIDATE.md. C1 does not overlap any S1 output. The proposed D-66 registration patch remains reviewable text in the S1 subtree only; actual register/decision packet writes remain unauthorized pending reviewed exact mechanical release.
+
+W10 clarification is complete: MANIFEST_V2 SHA-256 `54d530edd27d3da0cd751322831f972cdda07eff76da761981dd716d4b6c77a2`, per root. Option B is optional with no urgent current consumer found. Root recommends prioritizing A, the full versioned coverage design, while retaining B as an alternative. Correct producer ownership is PKG-04/05 actual physics, PKG-13 bridge, PKG-08 schema, PKG-10 adapter. Preserve candidate/owner-choice status; this recommendation does not adopt implementation or public compatibility decisions. W7 clarification remains awaited unless separately returned.

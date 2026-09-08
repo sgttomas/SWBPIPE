@@ -1,0 +1,17 @@
+{
+  "utc": "2026-09-08T04:10:48.043005+00:00",
+  "verdict": "PASS",
+  "historic_members_verified": 129,
+  "historic_resolution_paths": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/BUILD_CONTEXT.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log"
+  ],
+  "acceptance_original_resolved": true,
+  "successor_freeze_verified": true,
+  "w10_v4_outputs_verified": true,
+  "own_failure_log_decode_verified": true,
+  "scope_and_tracked_source_preserved": true,
+  "register_receipt_postimages_preserved": true,
+  "prior_v1_integrity": "Pre-representation cut remains historical; current identity is checked through explicit relocation mappings, never falsely compared to old hashes."
+}

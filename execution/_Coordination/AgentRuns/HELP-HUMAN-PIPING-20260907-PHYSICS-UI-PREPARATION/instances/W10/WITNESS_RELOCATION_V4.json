@@ -1,0 +1,11 @@
+{
+  "original_logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log",
+  "original_sha256": "716876cc8510868115af832dbd214c23c4e36c0b692d72487ae474f44b31a8b4",
+  "encoded_historical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/_run_records/PORTABILITY_ORIGINALS_V1/WITNESS.log.gz",
+  "encoding": "gzip",
+  "encoded_sha256": "6a07258156f4b8004bdfe03600604e70cfd1f45dfe6eb64f6036eaaefbb62354",
+  "decoded_sha256": "716876cc8510868115af832dbd214c23c4e36c0b692d72487ae474f44b31a8b4",
+  "current_pointer_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/WITNESS.log",
+  "current_pointer_sha256": "053ab2365c1a489ec93341fa06b04733e00246d025a198309847abb4de855c63",
+  "rule": "Historical V1/V2/V3 WITNESS.log hash resolves to gzip-decoded original bytes, not compressed bytes or current pointer. BUILD_CONTEXT historical relocation remains PORTABILITY_RELOCATION_V3.json."
+}

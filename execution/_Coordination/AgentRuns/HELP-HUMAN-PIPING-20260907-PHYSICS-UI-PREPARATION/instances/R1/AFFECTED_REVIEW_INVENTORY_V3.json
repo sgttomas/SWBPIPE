@@ -1,0 +1,31 @@
+{
+  "verdict": "PASS",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/PORTABILITY_REPAIR_V2/SUCCESSOR_FREEZE.json",
+      "sha256": "9844a0b16a839a55ed66b9ffd04a9f57b359e9b52569dec684b749cf01b1a262"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/PORTABILITY_REPAIR_V2/RELOCATION_MAP.json",
+      "sha256": "4af00b21bc03cdd064bb2db5407ab18b2552296774aa293c6e7ca9e74e1f9903"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/_run_records/PORTABILITY_ORIGINALS_V1/CHAT_TRANSCRIPT.md",
+      "sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_LOG_RESOLVER_V2.json",
+      "sha256": "cbbc7fc832117f780362641cd3748c477fbf03cebd7b35277032dd4596050aff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V2.log.b64",
+      "sha256": "60e78021b95f780b094ced88e1645df87a1bf8651133dd82ee9e9690094ca498"
+    }
+  ],
+  "effective_role": {
+    "role": "EVIDENCE",
+    "reason": "managed evidence directory"
+  },
+  "decoded_failed_log_sha256": "234b7fd8dd9a7fce13fd19fedb3fb359ac1b7f962964553df49593e486d43cac",
+  "limits": "Filename/transport-only; no full suite rerun"
+}

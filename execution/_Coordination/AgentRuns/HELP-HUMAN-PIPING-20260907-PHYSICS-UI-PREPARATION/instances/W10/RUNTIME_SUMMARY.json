@@ -1,0 +1,45 @@
+{
+  "context_telemetry": {
+    "measurement_limitation": "native context occupancy unavailable for one or more sessions",
+    "starts_with_context_occupancy": 0,
+    "starts_without_context_occupancy": 1
+  },
+  "counts": {
+    "category": {},
+    "event_type": {
+      "CHECK": 3,
+      "FINISH": 1,
+      "START": 1
+    },
+    "outcome": {
+      "FAIL": 1,
+      "PASS": 3,
+      "STARTED": 1
+    },
+    "reason_code": {
+      "ACTUAL_LIBRARY_REPRODUCED": 1,
+      "EXPECTED_DEFECT_REPRODUCED": 1,
+      "PREPARATION_AUTHORED": 1,
+      "RETROSPECTIVE_ENTRY": 1,
+      "ZERO_TEST_FILTER": 1
+    }
+  },
+  "events": 5,
+  "schema": "chirality-runtime-summary/v1",
+  "session_results": [
+    {
+      "duration_seconds": 0.113,
+      "events": 5,
+      "final_outcome": "PASS",
+      "instance_id": "W10",
+      "package_id": "PKG-10",
+      "remediations": 0,
+      "retries": 0,
+      "role": "WORKING_ITEMS",
+      "session_id": "/root/canonical_preparation"
+    }
+  ],
+  "sessions": 1,
+  "status": "PASS",
+  "unmatched_sessions": []
+}

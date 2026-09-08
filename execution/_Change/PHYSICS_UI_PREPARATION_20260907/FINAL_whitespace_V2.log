@@ -1,0 +1,3 @@
+Untracked text whitespace findings:
+projects/chirality-piping/execution/_Change/PHYSICS_UI_PREPARATION_20260907/FINAL_pytest_V2.log:20: trailing whitespace
+FAIL: candidate whitespace findings (untracked binary/symlink paths safely skipped: 1).

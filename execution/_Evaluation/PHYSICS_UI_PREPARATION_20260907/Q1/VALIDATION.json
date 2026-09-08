@@ -1,0 +1,13 @@
+{
+  "active_execution_upstream_rows": 107,
+  "status_counts": {
+    "SATISFIED": 74,
+    "PENDING": 11,
+    "TBD": 22
+  },
+  "local_status_mismatches": 0,
+  "unique_dependency_ids": 107,
+  "numerical_builds_run": false,
+  "repo_harness_run_by_Q1": false,
+  "snapshot_role": "derivative CANDIDATE; no authority or satisfaction mutation"
+}

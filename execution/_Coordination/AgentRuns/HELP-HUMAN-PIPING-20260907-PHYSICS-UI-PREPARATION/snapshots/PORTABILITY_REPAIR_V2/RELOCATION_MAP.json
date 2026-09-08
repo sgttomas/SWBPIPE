@@ -1,0 +1,19 @@
+{
+  "recorded_at_utc": "2026-09-08T04:11:47.366893+00:00",
+  "authority": "Parent exact filename-only repair release",
+  "prior_map": "snapshots/PORTABILITY_REPAIR_V1/RELOCATION_MAP.json",
+  "transitive_resolution": "Prior preserved path now resolves through this map to identical bytes; prior maps/manifests and current OWNER_DIRECTION.md remain unchanged.",
+  "relocation": {
+    "prior_preserved_path": "_run_records/PORTABILITY_ORIGINALS_V1/OWNER_DIRECTION_ORIGINAL.md",
+    "prior_sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1",
+    "successor_preserved_path": "_run_records/PORTABILITY_ORIGINALS_V1/CHAT_TRANSCRIPT.md",
+    "successor_sha256": "3726b050d1631cfc7b7b1c335d12347e53df13819cbb361be96adc3c36e53bf1"
+  },
+  "effective_role": {
+    "role": "EVIDENCE",
+    "reason": "managed evidence directory",
+    "active": true,
+    "method": "surface_roles.effective_role with current project policy"
+  },
+  "other_changes": "None; no full tests rerun"
+}

@@ -1,0 +1,159 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION",
+  "version": 3,
+  "parent": "/root",
+  "selection_authority": {
+    "preparation_and_concurrency": "HUMAN",
+    "routing": "AGENT_0"
+  },
+  "posture": "MIXED",
+  "base_sha": "35249accf139f52478d029458946e50ed25ee5dc",
+  "basis": {
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010",
+    "prior_receipt": 134
+  },
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted; not mechanically proven",
+  "model_identity": "not exposed; not inferred",
+  "sibling_messaging": false,
+  "heavy_build_owner_initial": "W10",
+  "harness_check_owner": "root/CHANGE",
+  "nodes": {
+    "C0": {
+      "role": "CHANGE Agent 1",
+      "objective": "Isolated clean-basis lane setup, then terminal return. This record binds already completed setup; no further work is dispatched by this brief.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Change/PHYSICS_UI_PREPARATION_20260907/**"
+      ],
+      "outputs": "SETUP_REPORT.md and SETUP_EVIDENCE.json; original handoff preservation and clean basis evidence.",
+      "accept": "Exact accepted HEAD, clean new lane before evidence, preserved original handoff; SETUP_COMPLETE only.",
+      "depends": [],
+      "status": "SETUP_COMPLETE_TOOLING_FOLLOWUP_ACTIVE"
+    },
+    "C1": {
+      "role": "Ephemeral Agent 2 coordination recorder",
+      "objective": "Freeze root preparation controls and sealed briefs before production-preparation children launch; later exact parent-directed recording only.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/OWNER_DIRECTION.md",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/ORCHESTRATION_PLAN_V1.md",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/WORK_GRAPH_V1.json",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/briefs/**",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/**",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/notices/**",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/dispositions/**",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/C1/**"
+      ],
+      "outputs": "Owner direction, plan, graph, sealed briefs, hash manifest and recorder return. No receipt until explicit root release after accepted fan-in.",
+      "accept": "Portable execution anchors, disjoint scopes, dependency gates and durable frozen hashes; no sibling instance writes.",
+      "depends": [
+        "C0"
+      ],
+      "status": "RUNNING"
+    },
+    "E1": {
+      "role": "EVALUATION Agent 1",
+      "objective": "Prepare decision-ready sourced physics options/recommendations and on-ruling mechanisms: pressure D03, friction/history D01, connector objectivity D02, pivot/contact D04 and D06 coverage. Distinguish confirmed defects, unknown physical choices and missing verification envelopes; propose candidate repair scopes.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/E1/**"
+      ],
+      "outputs": "Sourced decision briefs, candidate repair/validation boundaries, manager-validated fan-in and return.",
+      "accept": "No numerical score, new physical acceptance threshold, engineering ruling or implementation. Up to three independent TASK specialists only within this subtree; freeze their briefs, graph, attribution and returns before dispatch; manager validates every return.",
+      "depends": [
+        "C1"
+      ],
+      "status": "HELD_FOR_CONTROL_FREEZE"
+    },
+    "W10": {
+      "role": "WORKING_ITEMS Agent 1; PKG-10; DEL-10-05",
+      "objective": "Investigate P5-CANONICAL-METADATA-001 and REPRODUCIBILITY-002 against actual canonical library documents and prepare candidate truthful compatibility mapping and whole-document regression/repair plan, preserving quantities, hash algorithms and D05 ownership.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W10/**",
+        "{WORKING_ROOT}/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_run_records/PHYSICS_UI_PREPARATION_20260907/**"
+      ],
+      "outputs": "Reproduction evidence, exact source-to-mapping table, candidate repair/test brief and manager return.",
+      "accept": "Bind register scope and CONTRACT invariants; distinguish defects from D05 choices. No children initially. Isolated temporary Rust/Python diagnostic builds allowed without tracked source edits; record commands/results and temporary paths. No changed checksum semantics or numerical values.",
+      "depends": [
+        "C1"
+      ],
+      "status": "HELD_FOR_CONTROL_FREEZE"
+    },
+    "W7": {
+      "role": "WORKING_ITEMS Agent 1; PKG-07; DEL-07-01/02/05/06",
+      "objective": "Prepare implementable native linear 3D authoring slice CANDIDATE brief with scenario, tool-palette and acceptance mapping; read DEL-07-09 coverage. Include centerline, section/material, supports/loads, solve, selected-case inspection, save/reopen and undo revision; identify prerequisites.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/W7/**",
+        "{WORKING_ROOT}/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_PREPARATION_20260907/**"
+      ],
+      "outputs": "Candidate executable slice brief, scenario/palette/acceptance matrix and manager return.",
+      "accept": "Bind each deliverable scope/invariant and applicable dependency row. Preserve intended native stack, canvas, compact tools, typed inspector and structured-operation path. No source/product behavior changes or children initially; native walkthrough remains a future validation unless actually run with recorded evidence.",
+      "depends": [
+        "C1"
+      ],
+      "status": "HELD_FOR_CONTROL_FREEZE"
+    },
+    "Q1": {
+      "role": "Ephemeral Agent 2 readiness/provenance assessor",
+      "objective": "Assess approved DAG, local dependencies and current closure for targeted physics/UI preparation. Produce actual blocking-row matrix, stale-claim deltas, producer/home PKG-13 and native-fallback scope recommendations.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/**"
+      ],
+      "outputs": "Sourced blocking-row matrix, provenance/stale-claim deltas, bounded recommendations and return.",
+      "accept": "No subject edits, delegation, numerical builds, dependency satisfaction or automatic status refresh. Distinguish accepted evidence from mutable/historical claims.",
+      "depends": [
+        "C1"
+      ],
+      "status": "HELD_FOR_CONTROL_FREEZE"
+    },
+    "R1": {
+      "role": "Fresh ephemeral Agent 2 independent reviewer",
+      "objective": "Review 100% of the later frozen preparation diff and evidence, including controls, manager claims, sources and scope compliance.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/instances/R1/**"
+      ],
+      "outputs": "Review inventory, findings with locations/severity, PASS or required repair and return.",
+      "accept": "Launch only after preparation returns and a complete frozen diff/evidence manifest. No subject writes or delegation. Owning writers remediate; re-review all affected evidence before accepted fan-in.",
+      "depends": [
+        "S1"
+      ],
+      "status": "HELD_FOR_FROZEN_PREPARATION"
+    },
+    "S1": {
+      "role": "Later ephemeral Agent 2 synthesis or C1 exact parent-directed recording",
+      "objective": "Produce decision interface and final cross-package handoff only after root-accepted manager returns and independent review; record root dispositions verbatim, without self-adoption.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/DECISION_INTERFACE.md",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/HANDOFF_STATE.md",
+        "{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260907-PHYSICS-UI-PREPARATION/snapshots/**"
+      ],
+      "outputs": "Decision interface and explicit upstream/derivative/closure/rerun/blocker/next-owner handoff.",
+      "accept": "Root validation of manager returns for candidate synthesis required; final acceptance follows independent R1 review. No self-adoption. Receipt only on separate explicit root release.",
+      "depends": [
+        "E1",
+        "W10",
+        "W7",
+        "Q1"
+      ],
+      "status": "HELD_FOR_ROOT_VALIDATED_MANAGER_RETURNS"
+    },
+    "C2": {
+      "role": "CHANGE Agent 1",
+      "objective": "Perform eventual scoped checks/commit/push/PR of reviewed frozen preparation under current loop closeout rules; no merge.",
+      "writes": [
+        "{WORKING_ROOT}/execution/_Change/PHYSICS_UI_PREPARATION_20260907/**"
+      ],
+      "outputs": "Validation/staging inventory, upstream verification, commit/push/PR evidence and closeout return.",
+      "accept": "Activate only after reviewed preparation, root fan-in, receipt release/recording if required and exact closeout scope. No merge/rebase/force push. Stop on upstream conflict; preserve original handoff.",
+      "depends": [
+        "R1"
+      ],
+      "status": "HELD_FOR_CLOSEOUT_RELEASE"
+    }
+  },
+  "amendments": [
+    "LAUNCH_AMENDMENT_V2.md",
+    "LAUNCH_AMENDMENT_V3.md"
+  ],
+  "final_closeout_gate": "R1 PASS, root final acceptance, C1 exact receipt/snapshot release before C2"
+}

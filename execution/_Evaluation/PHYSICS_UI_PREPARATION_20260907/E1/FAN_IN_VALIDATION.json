@@ -1,0 +1,82 @@
+{
+  "observed_at_utc": "2026-09-08T03:45:03.405556+00:00",
+  "manager": "/root/physics_preparation",
+  "model_identity": "UNKNOWN; unexposed",
+  "method": "evaluation-protocol directly by manager; source reads and deterministic hash/shape checks; no build or source execution",
+  "children": [
+    {
+      "child": "pressure",
+      "task_name": "/root/physics_preparation/pressure",
+      "runtime_status": "completed via collaboration.list_agents",
+      "manifest_sha256": "0dd2d627a48382cf3dff5884468d6aea472ca673e78582121d52f3f15b25c6d6",
+      "members_verified": 5,
+      "source_entries_verified": 42,
+      "schema_and_coverage": "PASS",
+      "semantic_verdict": "VALID_FOR_CANDIDATE_SYNTHESIS",
+      "subject_changes": "none reported; manager observes no tracked diff in project production sources",
+      "waiver": null
+    },
+    {
+      "child": "friction",
+      "task_name": "/root/physics_preparation/friction",
+      "runtime_status": "completed via collaboration.list_agents",
+      "manifest_sha256": "8890eb438a84139426d73e500636b3bf20910ec35794499a5ce650de9f23fae3",
+      "members_verified": 5,
+      "source_entries_verified": 32,
+      "schema_and_coverage": "PASS",
+      "semantic_verdict": "VALID_FOR_CANDIDATE_SYNTHESIS",
+      "subject_changes": "none reported; manager observes no tracked diff in project production sources",
+      "waiver": null
+    },
+    {
+      "child": "connector_numerics",
+      "task_name": "/root/physics_preparation/connector_numerics",
+      "runtime_status": "completed via collaboration.list_agents",
+      "manifest_sha256": "47536f3c67f2c8f0d04a7d84165b1d59fcb81b9b8527ec48a92077cadafc55d7",
+      "members_verified": 5,
+      "source_entries_verified": 60,
+      "schema_and_coverage": "PASS",
+      "semantic_verdict": "VALID_FOR_CANDIDATE_SYNTHESIS",
+      "subject_changes": "none reported; manager observes no tracked diff in project production sources",
+      "waiver": null
+    }
+  ],
+  "launch_freeze": "all original E1 controls match frozen hashes",
+  "findings_schema": "6 rows, 10 populated schema columns; no score",
+  "external_validation": "Manager opened all ten primary source URLs and checked applicability. Physics formulas and vendor algorithms are not automatically owner-vetted project acceptance.",
+  "semantic_checks": [
+    "Current product pressure straight correction and curved radial-load correction read directly; independent pressure/effective-force distinction checked against SIMULIA and MIT.",
+    "Live nonlinear loop and prior-reaction sliding force read directly; D35 accepted current-normal requirement reconciled with audit hold.",
+    "Live relative-DOF matrix read; objective compatibility proof checked for u=t+omega cross x and theta=omega.",
+    "Contact/pivot limitations remain explicit failures; no general correctness claim."
+  ],
+  "preserved_child_priority_difference": "Pressure child limited Option A valid conditional alternative; manager recommends Option C four-case investigation first for Owner full-modelling priority. Child packet preserved unchanged.",
+  "notation_clarification": "Connector D06 table Candidate B nullspace means operator B within Option A; not external-frame Option B.",
+  "root_relay_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/REPORT.md",
+      "sha256": "cd5b067dd7cfce88dcc7f678885cdbeb7aac2f28faa1e7395fd1baefdd1153ba",
+      "status": "root accepted for preparation intake pending independent review"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_UI_PREPARATION_20260907/Q1/READINESS_MATRIX.csv",
+      "sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1",
+      "status": "root accepted for preparation intake pending independent review"
+    }
+  ],
+  "arithmetic_check": {
+    "pressure_cap_wall_stress_mpa": 5.26086956521739,
+    "mean_radius_longitudinal_mpa": 5.75,
+    "coupled_friction_u": 0.05185185185185185,
+    "coupled_friction_normal": 7.407407407407407,
+    "coupled_friction_force": -2.2222222222222223
+  },
+  "limitations": [
+    "No fresh solver replay or engineering acceptance.",
+    "Child source entry counts include common repeated authority sources.",
+    "Initial connector-source validation used wrong repo-relative base and failed; rerun used declared WORKING_ROOT base and all 60 passed.",
+    "Repository harness and original handoff preservation are root/CHANGE responsibility, not duplicate E1 check."
+  ],
+  "fan_in_verdict": "PASS_FOR_CANDIDATE_PREPARATION",
+  "next_gate": "root synthesis acceptance then fresh independent tranche review; Owner decisions remain open"
+}

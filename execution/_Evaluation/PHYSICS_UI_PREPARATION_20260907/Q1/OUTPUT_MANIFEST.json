@@ -1,0 +1,32 @@
+{
+  "role": "Q1 ephemeral Agent2",
+  "runtime_identity": "/root/readiness_preparation",
+  "model": "unknown/not exposed",
+  "delegation": "delegated-harness-native; instruction+config asserted",
+  "files": {
+    "HANDOFF.md": {
+      "sha256": "75908c67152bd0a3e898dd5e74a927b9e64a5bd39ba4765cc51b5e962ba19ecf",
+      "bytes": 1757
+    },
+    "READINESS_MATRIX.csv": {
+      "sha256": "2b7ab3a5161e8acdcb7043212f0d2c3b57fca15b5c46b1b4586daccdcc1656c1",
+      "bytes": 54523
+    },
+    "REPORT.md": {
+      "sha256": "cd5b067dd7cfce88dcc7f678885cdbeb7aac2f28faa1e7395fd1baefdd1153ba",
+      "bytes": 12608
+    },
+    "SCOPE_BINDINGS.json": {
+      "sha256": "a0658706c2ae1131523c04ba475ec679a84eb4b4c5caff3cd54dcacb57e296e2",
+      "bytes": 5765
+    },
+    "SOURCE_MANIFEST.json": {
+      "sha256": "1168eea3b7518e3f1f818310dd2849742dd20d88b7a87afe36b5c11dce9db5ec",
+      "bytes": 53983
+    },
+    "VALIDATION.json": {
+      "sha256": "a154a62f0aa0e323ffd6cf61ea3bd1ac5268edcd7bd669ae14a582b9a4c94bd0",
+      "bytes": 338
+    }
+  }
+}
