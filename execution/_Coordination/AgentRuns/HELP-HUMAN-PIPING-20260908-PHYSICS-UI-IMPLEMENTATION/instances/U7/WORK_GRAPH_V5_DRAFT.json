@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "draft_only": true,
+  "succeeds_draft": "WORK_GRAPH_V4_DRAFT.json",
+  "would_supersede_active": "WORK_GRAPH_V3.json",
+  "state": "HELD_FOR_RU_TERMINAL_BINDINGS_AND_ROOT_RELEASE",
+  "frozen_input_manifest_sha256": "9f71f16fe91112a42ed01fc69aee040665c4c1663d3e9d5a02d8df00747f4446",
+  "ru_terminal_packet": "TBD_PENDING_RU_TERMINAL",
+  "root_repair_release": "NOT_GRANTED",
+  "nodes": [
+    {
+      "id": "U7-R2",
+      "role": "bounded Agent 2 software remediation",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "status": "NOT_DISPATCHABLE",
+      "brief": "children/I1/REPAIR_BRIEF_V3_DRAFT.md",
+      "write_scope": "same frozen nine product paths plus own U7 child run records",
+      "return": "minimal terminal-finding repair, genuine App and pure-route regressions, affected focused checks, hashes, containment, and blockers"
+    },
+    {
+      "id": "U7-R2-MANAGER-VALIDATION",
+      "role": "WORKING_ITEMS U7 read-only product validation",
+      "depends_on": ["U7-R2"],
+      "status": "HELD"
+    },
+    {
+      "id": "RU-R2-REVIEW",
+      "role": "root-dispatched fresh 100 percent successor-diff review",
+      "depends_on": ["U7-R2-MANAGER-VALIDATION"],
+      "status": "HELD"
+    }
+  ],
+  "manager_product_writes": "forbidden",
+  "dispatch_gate": "terminal RU packet and explicit root repair release sealed into non-draft successor graph and brief"
+}

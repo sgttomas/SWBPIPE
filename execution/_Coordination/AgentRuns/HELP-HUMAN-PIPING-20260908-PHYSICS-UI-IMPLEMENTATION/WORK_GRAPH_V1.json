@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "selection_authority": "HUMAN",
+  "posture": "MIXED",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "owner_act": {"path": "OWNER_ACT.md", "adopted_candidate_sha256": "6866bbf52ef861488277b6a659c7ac0a4e63f42865debb971355db5e553ea142"},
+  "model_contract": {"agent_1_and_2": "gpt-5.6-sol", "reasoning": "high", "astra_exception_granted": false},
+  "nodes": [
+    {"id":"F4","role":"WORKING_ITEMS","scope":"DEL-04-04 current-normal friction source slice","writes":"amendments/F4/SOURCE_RELEASE_V1.md","after":[],"concurrent_group":"SOURCE_DISJOINT"},
+    {"id":"U7","role":"WORKING_ITEMS","scope":"DEL-07-01 straight authoring and inline Apply source slice","writes":"amendments/U7/SOURCE_RELEASE_V1.md","after":[],"concurrent_group":"SOURCE_DISJOINT"},
+    {"id":"RF","role":"ephemeral Agent 2 software-code-review","scope":"100% frozen F4 product diff","writes":"instances/RF/**","after":["F4"]},
+    {"id":"RU","role":"ephemeral Agent 2 software-code-review","scope":"100% frozen U7 product diff","writes":"instances/RU/**","after":["U7"]},
+    {"id":"NATIVE","role":"bounded native witness","scope":"actual packaged Tauri U7 workflow evidence","writes":"instances/NATIVE/**","after":["F4","U7","RF","RU"]},
+    {"id":"RI","role":"ephemeral Agent 2 software-code-review","scope":"100% integrated product diff and cross-slice containment","writes":"instances/RI/**","after":["NATIVE"]},
+    {"id":"CHANGE","role":"CHANGE","scope":"clean-source DEC-025, Receipt-137, evidence container and publication","writes":"execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/** plus authorized receipt/Git surfaces","after":["RI"]}
+  ],
+  "concurrency": "F4 and U7 may edit concurrently because their source fences are disjoint. F4 owns the Rust compile slot. U7 may edit and run targeted JavaScript tests but may not start WASM, native, or other Rust builds during that interval.",
+  "release_sequence": "After both manager freezes and both fresh product-diff reviews pass, serialize native build/witness, complete integrated review, then CHANGE verification and publication.",
+  "source_release_gate": "HELD until CHANGE Step 0 PASS and root records that these controls were read and released.",
+  "fan_in_gate": "No implementation acceptance until exact manager manifests, focused checks, fresh independent reviews, native U7 evidence, integrated review, and the complete clean-source DEC-025 sweep pass.",
+  "human_decision_points": ["Any source-fence expansion, producer change, substantive engineering uncertainty, failed prerequisite/check, or review finding outside frozen repair authority", "Integration decision that expires the one-time exception"],
+  "authority_exclusions": "No DAG/dependency update, decomposition change, requirement or lifecycle change, pressure/public compatibility choice, or release/professional claim."
+}

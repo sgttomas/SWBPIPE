@@ -1,0 +1,5 @@
+
+running 1 test
+test tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 28 filtered out; finished in 0.00s

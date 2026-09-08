@@ -1,0 +1,167 @@
+{
+  "record_kind": "change_lane_setup_readiness",
+  "schema_version": "1.0",
+  "role": "CHANGE",
+  "actual_task_identity": "/root/implementation_change",
+  "parent": "/root",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "lane": {
+    "worktree": "{HOST_PATH:PHYSICS_UI_IMPLEMENTATION_WORKTREE}",
+    "branch": "codex/piping-physics-ui-implementation-20260908",
+    "base_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "origin_main_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "pr757_merge_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "tracked_state": "clean",
+    "untracked_state": [
+      "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/**"
+    ],
+    "pushed": false
+  },
+  "step0": {
+    "ordering": "receipt validator completed successfully before Receipt-136 was read",
+    "receipt_validator": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 {HOST_PATH:REUSABLE_PYTHON_VENV}/bin/python tools/validation/validate_piping_loop_receipts.py --repo-root .",
+      "exit_code": 0,
+      "result": "PASS",
+      "output": "VALID projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied"
+    },
+    "latest_receipt": {
+      "id": "Receipt-136",
+      "file": "loop/LOOP_RECEIPTS.md",
+      "file_sha256": "330121db40db98ac020ea8522bce57726a329c48551d18d48338661e8f28961f",
+      "examined_through": "95a29c444b8d28a7eae0c96922fe6a2abfcdd2fa",
+      "parent_receipt": "Receipt-135"
+    },
+    "dag": {
+      "latest": "DAG-010",
+      "state": "approved_active_graph_authority",
+      "pointer": "execution/_DAG/_LATEST.md",
+      "pointer_sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    "stage": {
+      "current_target": "R5",
+      "file": "execution/_Coordination/_COORDINATION.md",
+      "file_sha256": "54e071eecfea36658dc8ba99f1ecd81d2f464d2c32be8431339cd2118d10ab5c"
+    },
+    "decision_register": {
+      "file": "execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "file_sha256": "dc141013a5d30f6d58c1f392a6c6f4f0af2e8f1b7dd809ea3c11ddfef5116679",
+      "d66_state": "PARTIALLY_RULED (recommended first wave selected; 2026-09-08)",
+      "mutation_by_change_agent": false
+    },
+    "status_inventory": {
+      "command": "{HOST_PATH:REUSABLE_PYTHON_VENV}/bin/python projects/chirality-piping/tools/coordination/list_deliverable_status.py --dag DAG-010 --format table --summary",
+      "exit_code": 0,
+      "rows": 102,
+      "status_counts": {
+        "IN_PROGRESS": 100,
+        "ISSUED": 1,
+        "OPEN": 1
+      },
+      "remaining_items": 127,
+      "deliverables_with_remaining_items": 64,
+      "selected_rows": {
+        "DEL-04-04": {
+          "status": "IN_PROGRESS",
+          "remaining_items": 6,
+          "dag_node_present": true
+        },
+        "DEL-07-01": {
+          "status": "IN_PROGRESS",
+          "remaining_items": 2,
+          "dag_node_present": true
+        }
+      }
+    },
+    "repo_selfcheck": {
+      "command": "{HOST_PATH:REUSABLE_PYTHON_VENV}/bin/python tools/practitioner_harness/harness.py self-check",
+      "exit_code": 0,
+      "result": "PASS",
+      "counts": {
+        "INFO": 14,
+        "NOT_APPLICABLE": 1,
+        "REVIEW": 4,
+        "WARN": 55
+      },
+      "delta": "No new selected-scope blocker; findings match the accepted baseline."
+    },
+    "delta": "Mechanism and governing state are unchanged from Receipt-136/DAG-010/R5. The newly approved bounded Step 1 exception is an Owner act awaiting C0 control persistence and does not by itself mutate the DAG, D-66 row, lifecycle, physics choice, or public schema."
+  },
+  "drift_from_tested_source": {
+    "tested_sha": "95a29c444b8d28a7eae0c96922fe6a2abfcdd2fa",
+    "new_base_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "tested_sha_is_ancestor": true,
+    "matching_tree_hashes": {
+      "core": "8c95319871d8327a742dd4cd5c857996cdf3d7c5",
+      "apps": "0095b7f5b4175698b9aff50acb5b74a65d68f997",
+      "fixtures": "f8c5c147cf9232156416bda650fda38921f41ec6",
+      "schemas": "e69e0d524e3c18e92ce65176fad4177d71d53eda"
+    },
+    "producer_path_diff": [],
+    "producer_paths_checked": [
+      "projects/chirality-piping/core/**",
+      "projects/chirality-piping/apps/**",
+      "projects/chirality-piping/fixtures/**",
+      "projects/chirality-piping/schemas/**",
+      "projects/chirality-piping/package.json",
+      "projects/chirality-piping/package-lock.json",
+      "projects/chirality-piping/tools/**",
+      "projects/chirality-piping/vite.config.ts",
+      "projects/chirality-piping/tsconfig.json",
+      "projects/chirality-piping/src-tauri/**"
+    ],
+    "project_changes_are_prior_closeout_only": [
+      "execution/_Change/PHYSICS_UI_EXECUTION_20260908/DEC025_SWEEP_RESULT_V1.json",
+      "execution/_Change/PHYSICS_UI_EXECUTION_20260908/FINAL_HANDOFF_V1.md",
+      "execution/_Change/PHYSICS_UI_EXECUTION_20260908/_run_records/HANDOFF_STATE_EOF_CORRECTION_V1.json",
+      "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/HANDOFF_STATE.md",
+      "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/amendments/C0/FINAL_CLOSEOUT_ACTIVATION_V1.md",
+      "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/snapshots/FINAL_ACCEPTANCE_V1/ACCEPTANCE.json",
+      "loop/LOOP_RECEIPTS.md",
+      "validation/evidence/sweeps/SWEEP_20260908T074812Z_95a29c444b8d.json"
+    ],
+    "result": "PASS_NO_PRODUCER_DRIFT"
+  },
+  "toolchain": {
+    "python_venv": "{HOST_PATH:REUSABLE_PYTHON_VENV}",
+    "python_venv_reused": true,
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "1.97.1",
+    "rustc": "1.97.1",
+    "wasm_bindgen": "0.2.123",
+    "playwright": "1.60.0",
+    "rust_targets": [
+      "aarch64-apple-darwin",
+      "wasm32-unknown-unknown"
+    ],
+    "dependency_install": {
+      "command": "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm ci",
+      "exit_code": 0,
+      "node_modules_git_ignored": true,
+      "lockfile_sha256_before": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732",
+      "lockfile_sha256_after": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+    },
+    "baseline_wasm_readiness": {
+      "authority": "root temporary exclusive Rust slot",
+      "command": "npm run build:wasm:desktop",
+      "exit_code": 0,
+      "result": "PASS",
+      "mode": "cargo --offline; wasm-bindgen web target",
+      "generated_ignored_dirs": [
+        "apps/desktop/public/wasm-engine/",
+        "apps/desktop/public/self-weight-engine/"
+      ],
+      "classification": "baseline readiness only; not post-implementation acceptance"
+    },
+    "rust_slot": "RELEASED_AFTER_BASELINE_BUILD"
+  },
+  "preservation": {
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "prior_lanes_touched": false,
+    "product_source_written": false,
+    "tracked_files_outside_change_scope_modified": false
+  },
+  "result": "PASS_LANE_READY_SOURCE_HELD"
+}

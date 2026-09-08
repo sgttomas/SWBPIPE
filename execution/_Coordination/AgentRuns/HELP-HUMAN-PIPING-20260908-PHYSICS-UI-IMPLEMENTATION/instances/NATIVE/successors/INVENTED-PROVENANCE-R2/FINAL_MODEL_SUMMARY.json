@@ -1,0 +1,77 @@
+{
+  "analysis_status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "diagnostics": [
+    {
+      "affected_refs": [
+        "project:blank-local-20260908t174230z"
+      ],
+      "code": "BLANK_PROJECT_AUTHORING_TARGET",
+      "id": "diagnostic:blank-project:authoring-target",
+      "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+      "severity": "blocking",
+      "source": "apps/desktop/src/services/projectService.ts"
+    }
+  ],
+  "entity_ids": {
+    "load_cases": [
+      "load:UI-A"
+    ],
+    "materials": [
+      "material:ui-phase-a-invented"
+    ],
+    "nodes": [
+      "node:UI-A-100",
+      "node:UI-A-110"
+    ],
+    "pipe_segments": [
+      "pipe:UI-A-100"
+    ],
+    "sections": [
+      "section:ui-phase-a-straight"
+    ],
+    "supports": [
+      "support:UI-A-100"
+    ]
+  },
+  "entity_provenance": {
+    "load:UI-A": "invented_synthetic_ui_acceptance_input",
+    "material:ui-phase-a-invented": "invented_synthetic_ui_acceptance_input",
+    "node:UI-A-100": "invented_synthetic_ui_acceptance_input",
+    "node:UI-A-110": "invented_synthetic_ui_acceptance_input",
+    "pipe:UI-A-100": "invented_synthetic_ui_acceptance_input",
+    "section:ui-phase-a-straight": "invented_synthetic_ui_acceptance_input",
+    "support:UI-A-100": "invented_synthetic_ui_acceptance_input"
+  },
+  "load_case": {
+    "id": "load:UI-A",
+    "kind": "primitive_user_load",
+    "label": "Invented Phase A force",
+    "primitive_loads": [
+      {
+        "category": "concentrated_force",
+        "dimension": "force",
+        "direction": "global_y",
+        "id": "load:UI-A-FY",
+        "magnitude": {
+          "unit": "N",
+          "value": 500
+        },
+        "provenance": "invented_synthetic_ui_acceptance_input",
+        "target": {
+          "node": "node:UI-A-110",
+          "type": "node"
+        }
+      }
+    ],
+    "provenance": "invented_synthetic_ui_acceptance_input",
+    "status": "preview_only"
+  },
+  "model_hash": "sha256:97bf60ed6c4541d379767a98c3c9a14132b2c3f4e6aa992bd1348b3b6b54a41b",
+  "project_envelope_hash": "sha256:f74bc6e8025e5c0e6b97c3b5664927ee099ef0b1f5cc1dc282cd13445374b8e5",
+  "project_id": "project:blank-local-20260908t174230z",
+  "project_name": "Blank Local Model"
+}

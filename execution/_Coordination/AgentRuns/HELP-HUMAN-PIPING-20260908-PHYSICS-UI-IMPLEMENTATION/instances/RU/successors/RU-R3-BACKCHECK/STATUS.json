@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "RU-R3-BACKCHECK",
+  "role": "same_independent_bounded_ephemeral_agent_2_generalist",
+  "parent": "/root HELP_HUMAN",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "actual_model_identity_status": "not_exposed_for_mechanical_self_verification",
+  "delegation": "none",
+  "launch_brief_sha256": "d0927807457cf59d1c0a417e89c28d0751d691064a0fb77460937f0fe9d0febf",
+  "r3_manifest_sha256": "bd5cdbdb12a71179df68305ef375071743607e91bea0f9d3fac074240247ca30",
+  "r3_full_diff_sha256": "6e013cf88417d02c1f1f75d48fac124ba635f8e39b974c6d2cda2477b01b6b10",
+  "r2_to_r3_delta_sha256": "a0ae4a385ed9b76d8fa10974df218525b555732e333d4c8964ac76714b3a21fb",
+  "review_scope": {
+    "delta_lines_reviewed": 478,
+    "delta_paths_reviewed": 5,
+    "manifest_entries_hash_verified": 27
+  },
+  "verdict": "PASS",
+  "closed_findings": ["RU-F1", "RU-F2", "RU-F3", "RU-F4", "RU-F5", "RU-BC-F1", "RU-BC-F2"],
+  "focused_checks": {
+    "private_affirmative": "PASS_3_OF_3",
+    "route_draft": "PASS_17_OF_17",
+    "typed_inspector": "PASS_9_OF_9",
+    "app_selected": "PASS_38_OF_38_124_SKIPPED",
+    "playwright_1024x768": "PASS_1_OF_1"
+  },
+  "native_gate": "HELD_OUTSIDE_RU_SCOPE",
+  "source_written": false,
+  "git_mutated": false,
+  "status": "complete_pass"
+}

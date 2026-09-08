@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "SOURCE_RELEASED",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "released_by": "/root (HELP_HUMAN, Agent 0) under the adopted Owner act",
+  "owner_act": {"path":"../OWNER_ACT.md","sha256":"3e182eb9cd923f3c74f3e332dc4ae50de8c39de197173bf5b8a1b89daf2c6857"},
+  "root_verification": "All six frozen controls, CHANGE setup readiness, seven factual interfaces, and 25 frozen source/test/interface hashes independently rechecked PASS at the source basis.",
+  "readiness": {"path":"../SOURCE_PHASE_READINESS_V1.json","sha256":"a3bf219427452313aedfdf44c2d62946233a423250081ee295c7f687a57d82da"},
+  "change_setup": {"path":"../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/SETUP_READINESS_V1.json","sha256":"262210d14810f775a738e28d4ea4a50b09a6217e7b3cb8db34a8fc6321afa423"},
+  "releases": [
+    {"node":"F4","method":"followup_task to existing F4 manager","scope_by_reference":"../amendments/F4/SOURCE_RELEASE_V1.md","sha256":"38cdd1de98f0d4b9405a5f92fb5488b305af3779b3ce1ad603d46d79f9222933","rust_slot":"EXCLUSIVE"},
+    {"node":"U7","method":"followup_task to existing U7 manager","scope_by_reference":"../amendments/U7/SOURCE_RELEASE_V1.md","sha256":"a81ee0439c11d92360d863bc028bdd72f7f82a524220ad2dda9a348da40c1e46","parallel_limit":"Disjoint JavaScript source edits and targeted tests only; no WASM, native, or Rust build while F4 holds the slot."}
+  ],
+  "effect": "Discharges only the historical source-held state for these two exact slices. Both managers are executing within their sealed amendments.",
+  "owner_question": "NONE",
+  "preserved_limits": "The exception expiry, integration gates, all unresolved rows and findings, and every DAG, dependency, decomposition, requirement, lifecycle, engineering, compatibility, release, and professional-acceptance limit remain unchanged."
+}

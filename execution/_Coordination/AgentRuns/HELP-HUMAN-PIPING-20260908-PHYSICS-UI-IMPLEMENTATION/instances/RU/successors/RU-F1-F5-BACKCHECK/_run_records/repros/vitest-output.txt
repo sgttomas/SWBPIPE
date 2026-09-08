@@ -1,0 +1,71 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx (3 tests | 3 failed) 233ms
+     × rejects changed hash payload references according to their distinct producer contracts 19ms
+     × rejects a malformed non-warning diagnostic instead of treating it as a clean receipt 3ms
+     × clears continuation when an external replacement happens to contain the same route identity 209ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > rejects changed hash payload references according to their distinct producer contracts
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:81:87
+     79|     const wrongEngineRef = structuredClone(valid);
+     80|     wrongEngineRef.initial_model_hash.payload_ref = "model:unrelated-e…
+     81|     expect(applyResultMatchesSubmission(built.submission, wrongEngineR…
+       |                                                                                       ^
+     82|
+     83|     const wrongEchoedRef = structuredClone(valid);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > rejects a malformed non-warning diagnostic instead of treating it as a clean receipt
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:95:82
+     93|     const malformed = await applyOperationBatch(model, built.submissio…
+     94|     malformed.diagnostics = [{ severity: "info" } as never];
+     95|     expect(applyResultMatchesSubmission(built.submission, malformed, b…
+       |                                                                                  ^
+     96|   });
+     97|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > clears continuation when an external replacement happens to contain the same route identity
+Error: expect(element).not.toBeChecked()
+
+Received element is checked:
+  <input
+  data-testid="continue-pipe-after-queue"
+  type="checkbox"
+/>
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:133:72
+    131|     view.rerender(<PipeViewport model={replacement} {...props} />);
+    132|
+    133|     expect(within(panel).getByTestId("continue-pipe-after-queue")).not…
+       |                                                                        ^
+    134|     expect(within(panel).getByTestId("viewport-create-pipe-from")).toH…
+    135|     await act(async () => { apply.resolve(false); await apply.promise;…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  09:40:10
+   Duration  865ms (transform 151ms, setup 87ms, import 230ms, tests 233ms, environment 236ms)

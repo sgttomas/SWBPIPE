@@ -1,0 +1,8 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  17 passed (17)
+   Start at  09:40:49
+   Duration  385ms (transform 70ms, setup 62ms, import 43ms, tests 20ms, environment 184ms)

@@ -1,0 +1,53 @@
+{
+  "record_kind": "isolated_native_bundle_build_result",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T16:50:36Z",
+  "role": "CHANGE",
+  "actual_task_identity": "/root/implementation_change",
+  "result": "PASS_BUILD_COMPLETE_LAUNCH_HELD",
+  "source_binding": {
+    "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_FINAL_V1.json",
+    "sha256": "3ce95c6ec51813bf5ff210ffbdb5a8b9456d396cac5fc9d76151998e87c1edc8",
+    "dirty_source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "post_build_live_source_rehash": "PASS_ALL_10"
+  },
+  "build": {
+    "command": "From {WORKING_ROOT}/apps/desktop: CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app --ci --no-sign --config {WORKING_ROOT}/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY.json",
+    "exit_code": 0,
+    "network_mode": "cargo offline",
+    "signing": "skipped by --no-sign",
+    "tauri_cli": "2.11.1",
+    "log": {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUILD_V1.log",
+      "sha256": "fd3d048cf7f954d4089eaa32b1a8c6d6db3639293d7916aa571a8bc382403a98"
+    }
+  },
+  "bundle": {
+    "path": "apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app",
+    "inventory": {
+      "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUNDLE_INVENTORY_V1.json",
+      "sha256": "69e908c33b4ea3772037a151d10e55d64b98e52920fdb07dcc8dca1ec1ed34ab",
+      "file_entry_count": 3,
+      "bundle_content_set_sha256": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11"
+    },
+    "info_plist": {
+      "CFBundleIdentifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+      "CFBundleName": "OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908",
+      "CFBundleExecutable": "openpipestress-desktop",
+      "identity_check": "PASS"
+    }
+  },
+  "isolation": {
+    "dedicated_store_prelaunch": "ABSENT",
+    "normal_application_store_inspected": false,
+    "normal_application_store_accessed": false,
+    "normal_application_store_modified": false
+  },
+  "launch": {
+    "performed": false,
+    "state": "HELD_PENDING_C0_SEALED_NATIVE_BRIEF"
+  },
+  "product_source_written_by_change": false,
+  "git_publication_performed": false,
+  "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+}

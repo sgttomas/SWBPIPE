@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "selection_authority": "HUMAN_OWNER_ACT_AND_ROOT_RELEASE",
+  "posture": "SINGLE_MANAGER_DIRECT_IMPLEMENTATION",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "nodes": [
+    {
+      "id": "U7-IMPLEMENT",
+      "owner": "/root/native_authoring",
+      "depends_on": [],
+      "return": "exact nine-path product diff, targeted JavaScript test evidence, frozen hashes"
+    },
+    {
+      "id": "RU-REVIEW",
+      "owner": "root-dispatched fresh Agent 2",
+      "depends_on": ["U7-IMPLEMENT"],
+      "return": "100 percent U7 product-diff review"
+    },
+    {
+      "id": "NATIVE-WITNESS",
+      "owner": "root-serialized",
+      "depends_on": ["U7-IMPLEMENT", "RU-REVIEW", "F4", "RF"],
+      "return": "isolated packaged Tauri walkthrough with native job/run/hash evidence"
+    }
+  ],
+  "integration_owner": "/root/native_authoring",
+  "concurrency": "U7 JavaScript implementation and targeted tests may run while F4 retains exclusive Rust compilation.",
+  "escalation": "Any producer, service, schema, Rust/Tauri, source-fence, requirement, dependency, or engineering-contract change returns to root.",
+  "fan_in_gate": "All nine paths frozen; targeted tests pass; no stale publication or invented input; root dispatches fresh independent review."
+}

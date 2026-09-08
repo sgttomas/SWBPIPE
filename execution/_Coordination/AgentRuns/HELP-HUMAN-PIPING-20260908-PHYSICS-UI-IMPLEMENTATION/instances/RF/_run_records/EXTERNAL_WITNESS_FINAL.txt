@@ -1,0 +1,31 @@
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-rf-f4-cargo.gvs8TK cargo run --offline --manifest-path /tmp/chirality-rf-f4-witness/Cargo.toml
+
+Exit: 0
+
+Output:
+   Compiling chirality_rf_f4_witness v0.1.0 (/tmp/chirality-rf-f4-witness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running `/tmp/chirality-rf-f4-cargo.gvs8TK/debug/chirality_rf_f4_witness`
+ORDER SparseInteractive left converged=true q=[("F-X", -2.448761014556253), ("F-Y", -26.829268292682965)]
+ORDER SparseInteractive right converged=true q=[("F-Y", -26.829268292682965), ("F-X", -2.4487610145562524)]
+ORDER_DELTA SparseInteractive displacement=0.00000000000000000e0 reaction=4.44089209850062616e-16
+ORDER DenseScrutiny left converged=true q=[("F-X", -2.448761014556253), ("F-Y", -26.829268292682965)]
+ORDER DenseScrutiny right converged=true q=[("F-Y", -26.829268292682965), ("F-X", -2.4487610145562524)]
+ORDER_DELTA DenseScrutiny displacement=0.00000000000000000e0 reaction=4.44089209850062616e-16
+MIXED_EXPLICIT qx=-2.95409181636726581e0 qy=-1.00000000000000000e1 normal=1.47704590818363268e1
+PRESCRIBED_OFFSET q=-3.80781563126252331e0 normal=-1.90390781563126268e1
+CLOSED_ZERO sign=1 converged=false state=Inactive normal=0.0 diagnostics=[SolverDiagnostic { code: NonConvergence, class: SolveBlocking, severity: Failure, source: SolverIteration, message: "solver did not converge after 2 iterations; residual 1 exceeds tolerance 0; active-set changed supports: F-ZERO; active-set states: F-ZERO=inactive", affected_ref: Some("active-set:F-ZERO"), canonical_ref: None, remediation: Some("Review the nonlinear iteration inputs, active-set state, and accepted tolerance policy."), provenance: DiagnosticProvenance { source_name: "OpenPipeStress solver diagnostics", source_location: "core/solver/diagnostics", source_license: "project-governed", contributor: "software", redistribution_status: "public_project_record", review_status: "TBD" }, quantity_units: [] }]
+CLOSED_ZERO_ITER sign=1 iteration=1 states=[SupportStateRecord { support_id: "F-ZERO", state: Sliding }] normal=1.0 applied=[]
+CLOSED_ZERO_ITER sign=1 iteration=2 states=[SupportStateRecord { support_id: "F-ZERO", state: Inactive }] normal=0.0 applied=[]
+CLOSED_ZERO sign=-1 converged=false state=Inactive normal=0.0 diagnostics=[SolverDiagnostic { code: NonConvergence, class: SolveBlocking, severity: Failure, source: SolverIteration, message: "solver did not converge after 2 iterations; residual 1 exceeds tolerance 0; active-set changed supports: F-ZERO; active-set states: F-ZERO=inactive", affected_ref: Some("active-set:F-ZERO"), canonical_ref: None, remediation: Some("Review the nonlinear iteration inputs, active-set state, and accepted tolerance policy."), provenance: DiagnosticProvenance { source_name: "OpenPipeStress solver diagnostics", source_location: "core/solver/diagnostics", source_license: "project-governed", contributor: "software", redistribution_status: "public_project_record", review_status: "TBD" }, quantity_units: [] }]
+CLOSED_ZERO_ITER sign=-1 iteration=1 states=[SupportStateRecord { support_id: "F-ZERO", state: Sliding }] normal=-1.0 applied=[]
+CLOSED_ZERO_ITER sign=-1 iteration=2 states=[SupportStateRecord { support_id: "F-ZERO", state: Inactive }] normal=0.0 applied=[]
+ZERO_TO_NONZERO iterations=5 final=[SupportStateRecord { support_id: "F-X", state: Sliding }, SupportStateRecord { support_id: "F-Y", state: Sliding }]
+ZERO_TO_NONZERO_ITER 1 states=[SupportStateRecord { support_id: "F-X", state: Inactive }, SupportStateRecord { support_id: "F-Y", state: Sliding }] normal=0.0 applied=[]
+ZERO_TO_NONZERO_ITER 2 states=[SupportStateRecord { support_id: "F-X", state: Sticking }, SupportStateRecord { support_id: "F-Y", state: Sliding }] normal=0.26829268292682973 applied=[AppliedSlidingFrictionForce { support_id: "F-Y", global_dof: 7, force: -26.829268292682965 }]
+ZERO_TO_NONZERO_ITER 3 states=[SupportStateRecord { support_id: "F-X", state: Sliding }, SupportStateRecord { support_id: "F-Y", state: Sliding }] normal=-0.7317073170731703 applied=[AppliedSlidingFrictionForce { support_id: "F-Y", global_dof: 7, force: -26.829268292682965 }]
+ZERO_TO_NONZERO_ITER 4 states=[SupportStateRecord { support_id: "F-X", state: Sliding }, SupportStateRecord { support_id: "F-Y", state: Sliding }] normal=0.2688303436140578 applied=[AppliedSlidingFrictionForce { support_id: "F-X", global_dof: 6, force: 0.0537660687228116 }, AppliedSlidingFrictionForce { support_id: "F-Y", global_dof: 7, force: -26.829268292682965 }]
+ZERO_TO_NONZERO_ITER 5 states=[SupportStateRecord { support_id: "F-X", state: Sliding }, SupportStateRecord { support_id: "F-Y", state: Sliding }] normal=0.2677571685896505 applied=[AppliedSlidingFrictionForce { support_id: "F-X", global_dof: 6, force: -0.05355143371793012 }, AppliedSlidingFrictionForce { support_id: "F-Y", global_dof: 7, force: -26.829268292682965 }]
+SINGULAR_PROPAGATION frame-kernel integration failed: singular system at pivot 0
+NONFINITE_PROPAGATION invalid nonlinear integration input: derived-normal Coulomb coupling right-hand side must be finite, got -inf

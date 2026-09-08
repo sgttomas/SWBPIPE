@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "source_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "state": "CANDIDATE_COMPLETE_PENDING_FRESH_INDEPENDENT_REVIEW",
+  "source_release": "OPERATIVE_ROOT_CONFIRMED",
+  "source_release_sha256": "38cdd1de98f0d4b9405a5f92fb5488b305af3779b3ce1ad603d46d79f9222933",
+  "model_requested": "gpt-5.6-sol",
+  "reasoning_requested": "high",
+  "actual_model_visibility": "not_exposed_to_instance",
+  "rust_compile_slot": "RELEASED_BY_F4",
+  "child": "I1_COMPLETE",
+  "child_runtime_identity": "/root/friction_execution/f4_i1_affine_repair"
+}

@@ -1,0 +1,11 @@
+{
+  "record_kind": "lossless_publication_evidence_original_archive",
+  "schema_version": "1.0",
+  "archive_purpose": "Preserve the exact pre-repair evidence bytes and historical hash while the active logical path receives a portable successor.",
+  "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/NATIVE/successors/INVENTED-PROVENANCE-R2/STORE_POST_CLEANUP.json",
+  "original_sha256": "22a4832a383774a914b71b5997e4ed3bf41891ea1e56de5a89044aaa992a503e",
+  "byte_length": 452,
+  "encoding": "base64",
+  "payload_base64": "ewogICJkZWxldGVkX21lbWJlcnMiOiBbCiAgICAib3BlbnBpcGVzdHJlc3MtcHJvamVjdHMuc3FsaXRlMyIsCiAgICAib3BlbnBpcGVzdHJlc3MtcHJvamVjdHMuc3FsaXRlMy1zaG0iLAogICAgIm9wZW5waXBlc3RyZXNzLXByb2plY3RzLnNxbGl0ZTMtd2FsIgogIF0sCiAgImV4YWN0X3N0b3JlX2RpciI6ICIvVXNlcnMvcnlhbi9MaWJyYXJ5L0FwcGxpY2F0aW9uIFN1cHBvcnQvb3JnLm9wZW5waXBlc3RyZXNzLnRlY2huaWNhbC1wcmV2aWV3LndhbGt0aHJvdWdoLXBoeXNpY3MtdWktaW1wbGVtZW50YXRpb24tNTVkZjUxYWMtMjAyNjA5MDgiLAogICJtZXRob2QiOiAiUGF0aC51bmxpbmsgZXhhY3QgYWxsb3dlZCBtZW1iZXJzOyBQYXRoLnJtZGlyIGV4YWN0IGd1YXJkZWQgZGlyZWN0b3J5OyBubyB3aWxkY2FyZCBhbmQgbm8gcm0gLXJmIiwKICAic3RvcmVfZGlyX2Fic2VudCI6IHRydWUKfQo=",
+  "decoded_sha256": "22a4832a383774a914b71b5997e4ed3bf41891ea1e56de5a89044aaa992a503e"
+}

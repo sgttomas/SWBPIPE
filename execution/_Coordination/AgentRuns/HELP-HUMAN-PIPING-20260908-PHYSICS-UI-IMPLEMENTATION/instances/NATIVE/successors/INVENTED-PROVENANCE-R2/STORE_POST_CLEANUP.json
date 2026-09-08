@@ -1,0 +1,15 @@
+{
+  "path_anchors": {
+    "REPO_ROOT": "{git rev-parse --show-toplevel}",
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping",
+    "USER_APPLICATION_SUPPORT": "resolved by the consuming platform"
+  },
+  "deleted_members": [
+    "openpipestress-projects.sqlite3",
+    "openpipestress-projects.sqlite3-shm",
+    "openpipestress-projects.sqlite3-wal"
+  ],
+  "exact_store_dir": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+  "method": "Path.unlink exact allowed members; Path.rmdir exact guarded directory; no wildcard and no rm -rf",
+  "store_dir_absent": true
+}

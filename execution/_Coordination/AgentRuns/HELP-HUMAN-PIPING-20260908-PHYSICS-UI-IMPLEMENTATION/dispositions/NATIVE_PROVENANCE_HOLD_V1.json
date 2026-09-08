@@ -1,0 +1,53 @@
+{
+  "record_kind": "native_provenance_hold",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T17:24:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "HOLD_NATIVE_AND_DOWNSTREAM",
+  "root_disposition": "The first actual native solve is blocked by provenance. NATIVE must preserve the failed attempt, quit evidence, and exact dedicated-store cleanup evidence. No final native acceptance is recorded.",
+  "observed_solve": {
+    "job_id": "backend-solve-job-1",
+    "model_sha256": "590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08",
+    "input_manifest_sha256": "f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258",
+    "result_row_count": 0,
+    "provenance_blocker_count": 8,
+    "diagnostic": ""
+  },
+  "separate_provenance_observations": [
+    {
+      "subject": "planned synthetic fixture label",
+      "observed": "synthetic_ui_acceptance_input",
+      "issue": "The label lacks the existing backend invented or cleared marker."
+    },
+    {
+      "subject": "explicitly entered node provenance",
+      "planned": "explicit node entered provenance",
+      "observed": "user_entered_local_preview",
+      "issue": "The reported native value replaced the planned provenance."
+    }
+  ],
+  "preserved_evidence": {
+    "f4_and_rf": "FROZEN_PASS",
+    "source_reviews": "Immutable PASS evidence remains valid at each frozen review cut.",
+    "native_acceptance": false
+  },
+  "active_triage": "U7 manager is assessing the in-fence source defect. No source repair release has been issued.",
+  "tentative_fixture_label": {
+    "value": "invented_synthetic_ui_acceptance_input",
+    "status": "NOT_ADOPTED_PENDING_SOURCE_CONTRACT_TRIAGE",
+    "launch_brief_amendment_written": false
+  },
+  "held_gates": [
+    "new_native_attempt",
+    "final_ri",
+    "integration_acceptance",
+    "publication"
+  ],
+  "authority_effect": "This disposition records a hold only. It makes no engineering, API, source-scope, lifecycle, dependency, fixture-label, or acceptance decision."
+}

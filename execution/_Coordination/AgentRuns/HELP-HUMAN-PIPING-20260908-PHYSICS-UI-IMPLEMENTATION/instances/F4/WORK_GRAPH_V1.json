@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4",
+  "version": 1,
+  "status": "CANDIDATE_COMPLETE_PENDING_FRESH_INDEPENDENT_REVIEW",
+  "posture": "TERMINAL_FAN_IN_COMPLETE",
+  "nodes": [
+    {
+      "id": "F4-I1",
+      "role": "bounded ephemeral Agent 2",
+      "depends_on": ["F4:activation_and_release_persisted"],
+      "objective": "implement and focus-test the exact V2 affine current-normal correction",
+      "writes": ["core/solver/nonlinear_integration/src/lib.rs", "RUN_ROOT/instances/F4/children/I1/**", "DEL-04-04/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/implementation/**"]
+    },
+    {
+      "id": "F4-MANAGER",
+      "role": "WORKING_ITEMS Agent 1 integration owner",
+      "depends_on": ["F4-I1"],
+      "objective": "validate fan-in, run any remaining focused mapped checks, freeze complete diff/source hashes, release Rust slot, and return for fresh independent review",
+      "writes": ["RUN_ROOT/instances/F4/**", "DEL-04-04/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/**", "core/product_physics/src/lib.rs:test-only-if-needed"]
+    }
+  ],
+  "single_source_writer": "F4-I1 for nonlinear_integration until terminal return; manager performs no overlapping edit",
+  "compile_slot": "RELEASED after F4-I1 then F4-MANAGER, never concurrent",
+  "fan_in_gate": "exact V2 mechanics, original and mirrored witnesses, zero/sign/branch/cap/coupled-order tests, existing mapped checks, source fence, complete diff, no public or policy drift"
+}

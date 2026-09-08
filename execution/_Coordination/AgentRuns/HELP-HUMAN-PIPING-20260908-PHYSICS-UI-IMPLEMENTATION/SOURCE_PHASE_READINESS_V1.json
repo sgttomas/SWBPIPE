@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "CONTROLS_WRITTEN_SOURCE_RELEASE_HELD",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "branch": "codex/piping-physics-ui-implementation-20260908",
+  "owner_exception": "ADOPTED",
+  "seven_prerequisite_rows": "ROOT_FACTUAL_RECHECK_PASS_NO_DAG_UPDATE",
+  "frozen_bindings": 25,
+  "core_apps_diff_from_779ded": "EMPTY",
+  "change_step_0": {
+    "status": "PASS",
+    "path": "../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/SETUP_READINESS_V1.json",
+    "sha256": "262210d14810f775a738e28d4ea4a50b09a6217e7b3cb8db34a8fc6321afa423"
+  },
+  "remaining_release_gates": ["ROOT_EXPLICIT_RELEASE_OF_FROZEN_CONTROLS"],
+  "source_writers_started": false,
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "astra_exception_granted": false
+}

@@ -1,0 +1,34 @@
+{
+  "path_anchors": {
+    "REPO_ROOT": "{git rev-parse --show-toplevel}",
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping",
+    "USER_APPLICATION_SUPPORT": "resolved by the consuming platform"
+  },
+  "guard": {
+    "directory_not_symlink": true,
+    "expected_basename": "org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+    "expected_parent": "{USER_APPLICATION_SUPPORT}",
+    "only_allowed_regular_members": true
+  },
+  "members": [
+    {
+      "mode": "0o644",
+      "name": "openpipestress-projects.sqlite3",
+      "sha256": "43fb610051114ff45b823b5bb9a493ba9d5a2014bb893de7f844336e0df45b14",
+      "size": 360448
+    },
+    {
+      "mode": "0o644",
+      "name": "openpipestress-projects.sqlite3-shm",
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "size": 32768
+    },
+    {
+      "mode": "0o644",
+      "name": "openpipestress-projects.sqlite3-wal",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    }
+  ],
+  "store_dir": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908"
+}

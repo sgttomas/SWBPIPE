@@ -1,0 +1,85 @@
+{
+  "record_kind": "bounded_technical_integration_acceptance_snapshot",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T18:27:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "COMBINED_F4_UI_BOUNDED_TECHNICAL_IMPLEMENTATION_ACCEPTED",
+  "decision_authority": "/root HELP_HUMAN",
+  "accepted_upstream": {
+    "owner_act": {
+      "path": "OWNER_ACT.md",
+      "sha256": "3e182eb9cd923f3c74f3e332dc4ae50de8c39de197173bf5b8a1b89daf2c6857"
+    },
+    "base_head": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "dirty_ten_source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "canonical_three_file_bundle_digest": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11"
+  },
+  "accepted_evidence": {
+    "f4_rf": {
+      "verdict": "PASS",
+      "review_sha256": "a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5",
+      "return_sha256": "429cf1183070d9419f65f4e5e8683714d49d11a00831b4b5bc6490224fd9c2e8"
+    },
+    "u7_r3_ru": {
+      "verdict": "PASS",
+      "review_sha256": "89d26315120026c2aa43741e52b6ef01aa8ce0860141ee17f9341ea25df364ca",
+      "return_sha256": "e86adec6b0cb50fd5e3cce2b0f1f9486c39781e5940f9a9f574933211c116e98"
+    },
+    "native_r2": {
+      "verdict": "PASS",
+      "manifest_sha256": "372dfd3eec4f76315b2a580ce13207ffb44318e6e6f9a1e3bd0256ca144716d1",
+      "verified_outputs": 45,
+      "verified_sealed_inputs": 7
+    },
+    "final_ri": {
+      "verdict": "PASS",
+      "review_path": "instances/RI/final/REVIEW.md",
+      "review_sha256": "16f3faafc1c896a8863676cc84502b4ec9153611bd3672c72b00510f2cd47537",
+      "inventory_path": "instances/RI/final/REVIEWED_INVENTORY.sha256",
+      "inventory_sha256": "ccc9c7b15caa2e79d3b0d8f2060ccd6f772d02caada109176fa8763dab8df090",
+      "validation_path": "instances/RI/final/VALIDATION.md",
+      "validation_sha256": "793b7091496574931d3966d50e3787771bddb3e9a2e5cf76f792a428cf1b1de9",
+      "return_path": "instances/RI/final/RETURN.md",
+      "return_sha256": "6ace2a3a236e02c94235da2a0267bcfef3c8d0f2adf83b50d3a9a19652cd007b",
+      "status_path": "instances/RI/final/STATUS.json",
+      "status_sha256": "741e7a9e1c7f417c6b7b956223b3534ec2a78f8cedce524f5702f2cc81c500de",
+      "root_verified_inventory_members": 84,
+      "root_verified_output_files": 5
+    }
+  },
+  "decision": {
+    "technical_integration": "ACCEPTED",
+    "step_1_exception": "EXPIRED_AT_THIS_DECISION",
+    "further_source_release": false,
+    "source_aggregate_unchanged": true
+  },
+  "derivative_status": "The implementation candidate, reviews, native witness, and this snapshot are derivative evidence tied to the adopted owner act and accepted upstream state; they do not replace decomposition truth.",
+  "not_accepted_or_changed": [
+    "engineering_or_professional_acceptance",
+    "DAG_or_decomposition_state",
+    "dependency_state",
+    "requirements_findings_or_lifecycle_state",
+    "pressure_or_public_compatibility_choices"
+  ],
+  "active_downstream_work": {
+    "publication_evidence_repair": {
+      "task_identity": "/root/publication_evidence_repair",
+      "brief_path": "instances/PUBLICATION_EVIDENCE_REPAIR/LAUNCH_BRIEF_V1.md",
+      "brief_sha256": "758c750bbf0e08060614aed8a1fc6c1df70bed7efef0e448bddeb73ea5a89ba3",
+      "dispatch": "ACTUAL_FRESH_SPAWN_BY_ROOT",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": false,
+      "scope": "EXACT_40_EVIDENCE_FILES_ONLY"
+    },
+    "f4_step_5": "RUNNING_DISJOINT_UNDER_ROOT_RELEASE",
+    "u7_step_5": "RUNNING_DISJOINT_UNDER_ROOT_RELEASE"
+  },
+  "publication_gate": "HELD_PENDING_EVIDENCE_CORRECTION_BACKCHECK_FULL_DEC025_AND_CI"
+}

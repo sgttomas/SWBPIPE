@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "supersedes": "WORK_GRAPH_V2.json",
+  "amendment_reason": "After I1 returned, the U7 manager directly wrote four integration repairs under an overbroad reading of integration ownership. Root acknowledged the deviation and expressly directed an Agent 2 remediation/finalization successor. This graph records truthful authorship and stops further manager product writes.",
+  "selection_authority": "ROOT_BOUNDED_REMEDIATION_DIRECTION_2026-09-08",
+  "posture": "AGENT2_REMEDIATION_THEN_MANAGER_READ_ONLY_VALIDATION",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "nodes": [
+    {
+      "id": "U7-I1",
+      "role": "ephemeral Agent 2 bounded software implementer",
+      "status": "RETURNED",
+      "brief": "children/I1/LAUNCH_BRIEF.md",
+      "return": "children/I1/RETURN.md"
+    },
+    {
+      "id": "U7-MANAGER-CANDIDATE-REPAIR",
+      "role": "WORKING_ITEMS U7",
+      "status": "DISCLOSED_PROCESS_DEVIATION_CANDIDATE_ONLY",
+      "depends_on": ["U7-I1"],
+      "record": "DIRECT_INTEGRATION_DEVIATION_V1.md",
+      "return": "unaccepted four-part candidate repair plus focused and failed integration evidence"
+    },
+    {
+      "id": "U7-R1",
+      "role": "reactivated ephemeral Agent 2 bounded remediation/finalization",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "depends_on": ["U7-MANAGER-CANDIDATE-REPAIR"],
+      "brief": "children/I1/REPAIR_BRIEF_V1.md",
+      "return": "inspect exact candidate hashes; accept byte-identical or correct; bind final hashes and focused evidence"
+    },
+    {
+      "id": "U7-INTEGRATE",
+      "role": "WORKING_ITEMS U7 read-only product validation",
+      "depends_on": ["U7-R1"],
+      "return": "source containment, evidence, hashes, seven-row proof, and frozen manager return"
+    },
+    {
+      "id": "RU-REVIEW",
+      "role": "root-dispatched fresh Agent 2 software-code-review",
+      "depends_on": ["U7-INTEGRATE"],
+      "return": "100 percent U7 product-diff review"
+    },
+    {
+      "id": "NATIVE-WITNESS",
+      "role": "root-serialized bounded native witness",
+      "depends_on": ["U7-INTEGRATE", "RU-REVIEW", "F4", "RF"],
+      "return": "isolated packaged Tauri walkthrough with native job/run/hash evidence"
+    }
+  ],
+  "integration_owner": "U7-R1 for the remediation successor; U7 manager is read-only over product paths after dispatch",
+  "concurrency": "U7-R1 alone may write the approved nine product paths. F4 retains the Rust slot.",
+  "fan_in_gate": "R1 explicitly dispositions all four candidate changes and the four App failures, returns exact hashes, and runs only affected JavaScript/browser checks required by changed bytes.",
+  "escalation": "Any service, schema, Rust/Tauri, source-fence, requirement, dependency, engineering-contract, or unresolved test change returns to U7 and root."
+}

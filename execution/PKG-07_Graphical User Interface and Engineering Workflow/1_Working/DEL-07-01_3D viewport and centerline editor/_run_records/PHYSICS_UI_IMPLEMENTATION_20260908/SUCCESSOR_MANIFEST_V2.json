@@ -1,0 +1,191 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "state": "FROZEN_PENDING_SAME_RU_BACKCHECK",
+  "source_base": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "source_path_count": 9,
+  "predecessor_manifest": {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/FROZEN_NINE_PATH_MANIFEST_V1.json",
+    "sha256": "9f71f16fe91112a42ed01fc69aee040665c4c1663d3e9d5a02d8df00747f4446",
+    "preserved": true
+  },
+  "ru_terminal": {
+    "review_sha256": "51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0",
+    "return_sha256": "481edae2ba1fe5a0227cffab231daca0d59086b769f3c55ebdd7bc784a69b69f",
+    "finding_ids": [
+      "RU-F1",
+      "RU-F2",
+      "RU-F3",
+      "RU-F4",
+      "RU-F5"
+    ]
+  },
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "106453b26388f832b2f0cc5683e9e50bf7c2ec9fc50e0576abfd0a3ae2036155"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "5204a848a44b75f918108a70dfae075e5c4cbc6f434403fa10ec3da6ecbd05e8"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "395d81f29f2a3e827e111dd5077bee30b62d7970b49ec5233abb12877b23dfdf"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "5f03c2bb8af223dca4ddf4e058c7b80676a957ea247fcea59d423fad2ad8884d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+      "sha256": "84bca45138fafd18d09601ae5af8f1a5e683026f954c636dcccfc396d5b07bee"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "sha256": "5f42c1d77a479c9cfb00cd9f98d901b7953c4bc7f900dc094e54e2a99c615712"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305"
+    }
+  ],
+  "full_base_diff": {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_SUCCESSOR_FULL_BASE.diff",
+    "sha256": "8c01ab323ef27836ecb1e777366b9166adfe28f9948bd990b01441fc2302f30e",
+    "line_count": 3025,
+    "path_count": 9
+  },
+  "v1_to_successor_delta": {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_V1_TO_SUCCESSOR.delta",
+    "sha256": "09881c4a563bd919a52bd855fc954c798565be9d8817dabfbf36a32793f83863",
+    "line_count": 1102,
+    "path_count": 6,
+    "v1_reconstruction": "all nine predecessor source hashes matched before diff"
+  },
+  "checks": [
+    {
+      "name": "routeDraft Vitest",
+      "result": "PASS",
+      "passed": 17,
+      "failed": 0
+    },
+    {
+      "name": "full App Vitest",
+      "result": "PASS",
+      "passed": 157,
+      "failed": 0,
+      "binding": "runtime cut; final delta only erased TypeScript non-null assertions"
+    },
+    {
+      "name": "typed inspector Vitest",
+      "result": "PASS",
+      "passed": 9,
+      "failed": 0
+    },
+    {
+      "name": "desktop build",
+      "result": "PASS",
+      "detail": "tsc -b && vite build; 1698 modules"
+    },
+    {
+      "name": "Chromium desktop Playwright",
+      "result": "PASS",
+      "passed": 1,
+      "failed": 0,
+      "detail": "1024x768"
+    }
+  ],
+  "evidence_files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_SUCCESSOR_FULL_BASE.diff",
+      "sha256": "8c01ab323ef27836ecb1e777366b9166adfe28f9948bd990b01441fc2302f30e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_V1_TO_SUCCESSOR.delta",
+      "sha256": "09881c4a563bd919a52bd855fc954c798565be9d8817dabfbf36a32793f83863"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/RU_FIVE_FINDING_CLOSURE_V1.md",
+      "sha256": "5601018513ac2d61cdcc59796e14154e290861254658632022f69d63f8424528"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/SEVEN_ROW_CONSUMER_PROOF_V2.md",
+      "sha256": "324acb1aeeff8db2bba679ce55dd41f262561c5bc7f5dff242535971feeb840b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/REPAIR_ACTIVATION_V1.md",
+      "sha256": "dad90b9ddd3212cccada312c0148ae3751ec66eb218315055e9aec8fe9357259"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/WORK_GRAPH_V6.json",
+      "sha256": "9d0b6e638fddf0480f3589674084ee471621f43dea7db185b1b3152f387a5894"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_BRIEF_V4.md",
+      "sha256": "5f8b1a712508ffb362eec3c33c5d008dd5fdf8475800014a1c79412cba596bfe"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_RETURN_V2.md",
+      "sha256": "0aef9be19b342f376266672df88481f45641d7111287fd6588125ef01fe51af9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_STATUS_V2.md",
+      "sha256": "1083875a4f2b83d0022d85e149c872017cf2a66c6b8bcc34e26d3601f2f1d953"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/SUCCESSOR_MANAGER_VALIDATION_V1.md",
+      "sha256": "dbed0f9b0e4ff7e586a27daf904cb5f5da6757a672a8441f318e091b0eda4175"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/REVIEW.md",
+      "sha256": "51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/RETURN.md",
+      "sha256": "481edae2ba1fe5a0227cffab231daca0d59086b769f3c55ebdd7bc784a69b69f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/VALIDATION.md",
+      "sha256": "c2a199b57196d833997482053ef8024e94ff952e26d906be311de83dd975cb44"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/REVIEWED_INVENTORY.sha256",
+      "sha256": "7a3f846b51dff2e1c5afec262ad2a000ecfdfa580e3fbbd850a756641ca0b8b4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/STATUS.json",
+      "sha256": "0b5761d856c7dbdd3a267774e0edef7be5a763cb5ddec430e675a8e287ac41fa"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/FROZEN_NINE_PATH_MANIFEST_V1.json",
+      "sha256": "9f71f16fe91112a42ed01fc69aee040665c4c1663d3e9d5a02d8df00747f4446"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_FINAL_NINE_PATH.diff",
+      "sha256": "df93c21cb945f6ed5d3e42ecbfd8f4f25ef462ba5c453d76757b36d2b2fa2056"
+    }
+  ],
+  "manager_verdict": "PASS_FOR_SAME_RU_BACKCHECK",
+  "remaining_gates": [
+    "same-RU successor backcheck",
+    "isolated packaged native walkthrough",
+    "root final fan-in"
+  ],
+  "prohibited_claims": [
+    "formal dependency-row acceptance",
+    "native GUI acceptance",
+    "engineering compliance",
+    "professional reliance",
+    "release acceptance"
+  ]
+}

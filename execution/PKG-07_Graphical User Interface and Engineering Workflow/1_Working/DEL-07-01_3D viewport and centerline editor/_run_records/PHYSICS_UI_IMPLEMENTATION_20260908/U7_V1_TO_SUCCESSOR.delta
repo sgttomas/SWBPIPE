@@ -1,0 +1,8 @@
+PUBLICATION_EVIDENCE_REPAIR_POINTER_V1
+representation: pointer
+applicable_patch: false
+logical_path: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_V1_TO_SUCCESSOR.delta
+archive_path: projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PUBLICATION_EVIDENCE_REPAIR/U7_V1_TO_SUCCESSOR.delta.09881c4a563bd919.original.base64.json
+original_sha256: 09881c4a563bd919a52bd855fc954c798565be9d8817dabfbf36a32793f83863
+original_byte_length: 60171
+resolution: Decode payload_base64 from archive_path and verify its SHA-256 equals original_sha256. This active representation is a pointer and is not an applicable patch.

@@ -1,0 +1,133 @@
+{
+  "launch_brief": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/SUCCESSOR_BACKCHECK_LAUNCH_BRIEF_V1.md",
+    "sha256": "15fa6c9514f0695af745edeeec46cec4dd38b7aa203509a619348d3fbb3c3350"
+  },
+  "original_review": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/REVIEW.md",
+    "sha256": "3e223c16452e5efe799c2da7e0719919eaa0f2a0aecca3f4ae27a7986abfbb2f"
+  },
+  "original_return": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/RETURN.md",
+    "sha256": "7399552a5d0139993c1b0ddd7d73ba1ffd1d6946d7954a6d0a0448a42d34ecee"
+  },
+  "corrected_validation": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/VALIDATION.md",
+    "sha256": "7a85d4ef11f7d8d2d84f8b0c56ccb3706f82577a337d2eeec9ef8d87376949e2"
+  },
+  "portability_manifest": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/VALIDATION_PORTABILITY_CORRECTION.json",
+    "sha256": "faeb483f9dfa02e2ef035f5991c86bb0cff05d1c9ba6e5bf57854ff95b29c247"
+  },
+  "successor_manifest": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/SUCCESSOR_MANIFEST.json",
+    "sha256": "c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623"
+  },
+  "successor_return": {
+    "portable_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/RETURN.md",
+    "sha256": "aa4442494138fa9ae93b5ba9f801a81b8f1f26fc809abb5f5aef3ab58d0d3605"
+  },
+  "live_source": {
+    "portable_path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+  },
+  "manager_validation": {
+    "portable_path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/MANAGER_VALIDATION.md",
+    "sha256": "77fd71b89ae97cc4b14f43f04737f14cf248e9f673742b19bfdc33a28a1ec2b9"
+  },
+  "base_to_successor_patch": {
+    "portable_path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/CANDIDATE_DIFF_BASE_TO_SUCCESSOR.patch",
+    "sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc"
+  },
+  "v1_to_successor_patch": {
+    "portable_path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/CANDIDATE_DIFF_V1_TO_SUCCESSOR.patch",
+    "sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e"
+  },
+  "successor_manifest_records": {
+    "count": 13,
+    "all_match": true,
+    "records": [
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/ACTIVATION.md",
+        "expected_sha256": "2b8bd4da90a980f2afdd7423a709cf7f72c90ea6545a886e02703333837a7cfd",
+        "actual_sha256": "2b8bd4da90a980f2afdd7423a709cf7f72c90ea6545a886e02703333837a7cfd",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/STATUS.json",
+        "expected_sha256": "b53e53b86cb34aea77809f459c71bc736dea1c4439843b3b0dbcaa5681550d5f",
+        "actual_sha256": "b53e53b86cb34aea77809f459c71bc736dea1c4439843b3b0dbcaa5681550d5f",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/RETURN.md",
+        "expected_sha256": "aa4442494138fa9ae93b5ba9f801a81b8f1f26fc809abb5f5aef3ab58d0d3605",
+        "actual_sha256": "aa4442494138fa9ae93b5ba9f801a81b8f1f26fc809abb5f5aef3ab58d0d3605",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/PORTABILITY_AMENDMENT_V1.md",
+        "expected_sha256": "69f79535b14d71ea3224af50963ce39db1554732a1f77e1ff8730726a0762473",
+        "actual_sha256": "69f79535b14d71ea3224af50963ce39db1554732a1f77e1ff8730726a0762473",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/children/I2/SEALED_REPAIR_BRIEF.md",
+        "expected_sha256": "1e19163b8effa195d2c6514b507c237884864a480d45a43c4d92d68db29fd2e9",
+        "actual_sha256": "1e19163b8effa195d2c6514b507c237884864a480d45a43c4d92d68db29fd2e9",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/children/I2/SEALED_REPAIR_BRIEF_V2.md",
+        "expected_sha256": "a67a70111c6748e60a87c00b4447fa10bfdffa3d05fa19d0d2b80277908e381f",
+        "actual_sha256": "a67a70111c6748e60a87c00b4447fa10bfdffa3d05fa19d0d2b80277908e381f",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/children/I2/RETURN.md",
+        "expected_sha256": "1a6933507116c529dd073e4fee3a7a7d8759eba163088176d4d4e437eb90d802",
+        "actual_sha256": "1a6933507116c529dd073e4fee3a7a7d8759eba163088176d4d4e437eb90d802",
+        "match": true
+      },
+      {
+        "declared_path": "instances/F4/successors/RF-F4-001/children/I2/STATUS.json",
+        "expected_sha256": "b846b61118e11f367772525faf44292367ec1e9246582b0e61245482c3e8418b",
+        "actual_sha256": "b846b61118e11f367772525faf44292367ec1e9246582b0e61245482c3e8418b",
+        "match": true
+      },
+      {
+        "declared_path": "DEL_RUN/successors/RF-F4-001/ACTIVATION.md",
+        "expected_sha256": "71b0d6b6648f670bef75b26632fe951e4968e5caadb15bcae783d14c952b74d8",
+        "actual_sha256": "71b0d6b6648f670bef75b26632fe951e4968e5caadb15bcae783d14c952b74d8",
+        "match": true
+      },
+      {
+        "declared_path": "DEL_RUN/successors/RF-F4-001/MANAGER_VALIDATION.md",
+        "expected_sha256": "77fd71b89ae97cc4b14f43f04737f14cf248e9f673742b19bfdc33a28a1ec2b9",
+        "actual_sha256": "77fd71b89ae97cc4b14f43f04737f14cf248e9f673742b19bfdc33a28a1ec2b9",
+        "match": true
+      },
+      {
+        "declared_path": "DEL_RUN/successors/RF-F4-001/CANDIDATE_DIFF_BASE_TO_SUCCESSOR.patch",
+        "expected_sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+        "actual_sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+        "match": true
+      },
+      {
+        "declared_path": "DEL_RUN/successors/RF-F4-001/CANDIDATE_DIFF_V1_TO_SUCCESSOR.patch",
+        "expected_sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e",
+        "actual_sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e",
+        "match": true
+      },
+      {
+        "declared_path": "DEL_RUN/successors/RF-F4-001/structural/SEALED_REPAIR_BRIEF_ORIGINAL.json",
+        "expected_sha256": "ebc9a765b293c41e1e7ce9e1633b3283c80d9540e0bcef3b6e2ee734f497869e",
+        "actual_sha256": "ebc9a765b293c41e1e7ce9e1633b3283c80d9540e0bcef3b6e2ee734f497869e",
+        "match": true,
+        "decoded_expected_sha256": "02eef1f8da9e83fd77009f06a384fadc85fdc09c6c189e35c528dd4036edbca1",
+        "decoded_actual_sha256": "02eef1f8da9e83fd77009f06a384fadc85fdc09c6c189e35c528dd4036edbca1",
+        "decoded_match": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "CHANGES_REQUIRED_REPAIR_ROUTED",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "review": {"path":"../instances/RF/REVIEW.md","sha256":"3e223c16452e5efe799c2da7e0719919eaa0f2a0aecca3f4ae27a7986abfbb2f","verdict":"CHANGES_REQUIRED"},
+  "return": {"path":"../instances/RF/RETURN.md","sha256":"7399552a5d0139993c1b0ddd7d73ba1ffd1d6946d7954a6d0a0448a42d34ecee"},
+  "reviewed_inventory": "Root independently verified all 31 RF inventory hashes.",
+  "finding": "RF-F4-001: add direct test-only proof that an active derived row assuming signed zero with nonzero current normal is inadmissible, and mirror the negative assumed branch ending at exact zero.",
+  "route": "Root routed the bounded test-only repair to the existing F4 manager under the unchanged F4 amendment; no production or authority expansion is granted.",
+  "scheduling": "F4 exclusively owns the Rust slot. Native execution and integration acceptance remain held. U7 may continue its independent disjoint App work within its existing limits.",
+  "preserved": "RF evidence and frozen predecessors remain immutable; the node stays gated pending repaired freeze and fresh root fan-in."
+}

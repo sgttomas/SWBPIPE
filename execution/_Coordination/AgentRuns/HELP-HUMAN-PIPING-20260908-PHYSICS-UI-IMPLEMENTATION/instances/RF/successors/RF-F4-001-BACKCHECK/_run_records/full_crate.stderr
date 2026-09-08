@@ -1,0 +1,4 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (/tmp/chirality-rf-f4-backcheck.0oQhIf/debug/deps/open_pipe_stress_nonlinear_integration-ea95c7ba63320968)
+   Doc-tests open_pipe_stress_nonlinear_integration

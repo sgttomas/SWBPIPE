@@ -1,0 +1,16 @@
+{
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4-I1",
+  "role": "bounded_ephemeral_agent_2",
+  "status": "CANDIDATE_COMPLETE_PENDING_FRESH_INDEPENDENT_REVIEW",
+  "source_before_sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+  "source_after_sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320",
+  "diff_sha256": "8080a8c242931409863771aba963897a72b055c39aee1d61fd567eee4bb3801b",
+  "crate_tests": {"passed": 29, "failed": 0, "exit": 0},
+  "piping_pytest": {"passed": 1012, "failed": 0, "exit": 0},
+  "fmt_check_exit": 0,
+  "historical_witness_exit": 0,
+  "private_target_removed": true,
+  "evidence_sweep": "DEFERRED_TO_ROOT_DURING_CONCURRENT_U7_WRITES",
+  "source_ownership": "RELEASED_ON_TERMINAL_RETURN"
+}

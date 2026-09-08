@@ -1,0 +1,43 @@
+{
+  "record_kind": "change_publication_execution_release",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-08T18:51:00Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "EXECUTION_RELEASED",
+  "accepted_plan": {
+    "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/PUBLICATION_PLAN_V1.md",
+    "sha256": "0a3a009ca3529b93b08e8243283a1879475ad9022c6e4c4ea838b0af5ca41195"
+  },
+  "accepted_prepublication_handoff": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/PREPUBLICATION_ACCEPTANCE_HANDOFF_V1.json",
+    "sha256": "16a324507dbd7706fe0162cea381f2149de50b0d0ef24bb6b66c0943a9588eaf",
+    "c0_stopped": true,
+    "root_read_and_accepted": true
+  },
+  "root_dispatch_verbatim": "C0 stopped. Root read/accepts PREPUBLICATION_ACCEPTANCE_HANDOFF_V1.json SHA16a324507dbd7706fe0162cea381f2149de50b0d0ef24bb6b66c0943a9588eaf. ALL ENTRY GATES RELEASED NOW: execute plan0a3a009..., sourcefreezecommit/currentmainintegration, exactsourceequality, cleanfullDEC025/practitioner. Record actualthisdispatch in ownCHANGEevidence beforefreeze. Allotherwritersstopped. After fullcleanPASS return testedsourceSHA/sweep/practitionerevidence for root+C0Receipt137, hold evidencecontainercommit/push until rootreviewthencontinueauthorizedmerge. C0ownsreceiptappend (handoff wording sequenceownerCHANGE doesn'ttransferreceiptwrites). Preserve originalhandoff. No extraapprovalsneeded.",
+  "authority": {
+    "standing_owner_git_authorization": "scoped commit, push, branch publication, PR opening, and exact-head green-check merge",
+    "prohibited": [
+      "force",
+      "bypass",
+      "history rewrite",
+      "destructive cleanup"
+    ]
+  },
+  "released_sequence": [
+    "entry preflight",
+    "source freeze commit",
+    "current main integration",
+    "exact source equality check",
+    "clean full DEC-025 five-surface sweep",
+    "full practitioner harness"
+  ],
+  "hold_after_validation": "C0 owns Receipt 137 append after root reviews the tested-source and validation evidence; CHANGE must not publish the evidence container before that release."
+}

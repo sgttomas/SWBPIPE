@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "RU_SUCCESSOR_CHANGES_REQUIRED_R3_REPAIR_RELEASED",
+  "work_graph": {"path":"../WORK_GRAPH_V2.json","sha256":"c3f06622d8e4cdb99ae481453efaaa2b6eede1901a332ce394f0ed7a01e87d66","note":"Only the R2 source-state is superseded by this active-repair disposition; every gate and dependency remains in force."},
+  "review": {"path":"../instances/RU/successors/RU-F1-F5-BACKCHECK/REVIEW.md","sha256":"54dd95c5f4410974060430221c16bdc3bd83bbb39964ea0622fc64fdd03f8f18","verdict":"CHANGES_REQUIRED"},
+  "return": {"path":"../instances/RU/successors/RU-F1-F5-BACKCHECK/RETURN.md","sha256":"044f422f3ac5fcb9cfe92f7bcc2e78c79b2ebe6ff93a9c96d836a3a0d1eaf2b4"},
+  "root_verification": "Root read the complete review and return and verified 35 inventory entries plus five output hashes.",
+  "finding_state": {"closed":["RU-F1","RU-F4","RU-F5"],"open":["RU-BC-F1 (original RU-F2)","RU-BC-F2 (original RU-F3)"]},
+  "repair_release": "Root released U7 to seal and dispatch one same-nine-path R3 bounded Agent 2 repair using gpt-5.6-sol with high reasoning. The U7 manager remains product-read-only.",
+  "preserved": "R2 and reviewer snapshots remain immutable. F4/RF remain frozen PASS. NATIVE, RI_PRECHECK, RI_FINAL, integration, DEC-025 and publication remain held.",
+  "authority": "No new criterion, ownership change, source-fence expansion, engineering choice, dependency/DAG disposition, requirement, lifecycle state, release, or professional acceptance is created."
+}

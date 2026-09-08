@@ -1,0 +1,9 @@
+{
+  "record_kind": "structural_host_paths",
+  "schema_version": "1.0",
+  "paths": {
+    "PHYSICS_UI_IMPLEMENTATION_WORKTREE": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+    "REUSABLE_PYTHON_VENV": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv",
+    "ORIGINAL_LOCAL_HANDOFF": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md"
+  }
+}

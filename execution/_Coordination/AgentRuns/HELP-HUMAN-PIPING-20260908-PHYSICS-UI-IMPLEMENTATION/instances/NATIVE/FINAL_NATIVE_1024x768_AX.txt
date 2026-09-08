@@ -1,0 +1,153 @@
+Window: "OpenPipeStress Technical Preview", App: OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: on
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 8  of  8  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented carbon steel material:ui-phase-a-invented, Help: Invented carbon steel (material:ui-phase-a-invented), Value: off
+						51 heading Sections, Value: 3
+							52 text Sections
+						53 toggle button Invented straight pipe section:ui-phase-a-straight, Help: Invented straight pipe (section:ui-phase-a-straight), Value: off
+						54 heading Nodes, Value: 3
+							55 text Nodes
+						56 toggle button Anchor node:UI-A-100, Help: Anchor (node:UI-A-100), Value: off
+						57 toggle button Loaded end node:UI-A-110, Help: Loaded end (node:UI-A-110), Value: off
+						58 heading Pipes, Value: 3
+							59 text Pipes
+						60 toggle button Straight run pipe:UI-A-100, Help: Straight run (pipe:UI-A-100), Value: off
+						61 heading Supports, Value: 3
+							62 text Supports
+						63 toggle button Anchor support support:UI-A-100, Help: Anchor support (support:UI-A-100), Value: off
+						64 heading Load Cases, Value: 3
+							65 text Load Cases
+						66 toggle button Invented Phase A force load:UI-A, Help: Invented Phase A force (load:UI-A), Value: off
+					67 text 3D Centerline
+					68 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						69 summary Deformation · blocked, Value: off
+							70 text Deformation · blocked
+					71 container Viewport display toggles
+						72 toggle button Labels, Help: Show or hide entity labels, Value: on
+						73 toggle button Loads, Help: Show or hide load arrows, Value: on
+						74 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					75 text Selected:  load:UI-TEMP
+					76 container
+						77 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						78 container Viewport entity selection
+							79 toggle button Select Anchor in viewport, Help: Anchor (node:UI-A-100), Value: off
+							80 toggle button Select Loaded end in viewport, Help: Loaded end (node:UI-A-110), Value: off
+							81 toggle button Select Straight run in viewport, Help: Straight run (pipe:UI-A-100), Value: off
+							82 toggle button Select Anchor support in viewport, Help: Anchor support (support:UI-A-100), Value: off
+						83 container Orientation gizmo
+						84 container View controls
+							85 toggle button Front, Value: off
+							86 toggle button Top, Value: off
+							87 toggle button Iso, Value: on
+						88 text 1 m
+					89 container Command and selection bar
+						90 container Object creation tools
+							91 toggle button Node, Help: Arm node creation, Value: off
+							92 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							93 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							94 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							95 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						96 text Select
+						97 summary Selection & navigation, Value: off
+							98 text Selection & navigation
+					99 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					100 container Property inspector
+						101 heading load:UI-TEMP, Value: 2
+							102 text load:UI-TEMP
+						103 summary All properties, Value: off
+							104 text All properties
+						105 container Editor operation intent
+							106 text Select a model entity to edit its properties.
+						107 summary Sources and units, Value: off
+							108 text Sources and units
+						109 summary New section, Value: off
+							110 text New section
+						111 summary New material, Value: off
+							112 text New material
+						113 summary New support, Value: off
+							114 text New support
+						115 summary New component, Value: off
+							116 text New component
+				117 container Workspace sections
+					118 container
+						119 heading Results, Value: 2
+							120 text Results
+						121 button Close
+				122 container Workspace status
+					123 container Analysis statuses
+						124 summary Mechanics model incomplete, Value: off
+							125 text Mechanics
+							126 text model incomplete
+						127 summary Rule check Inputs needed, Value: off
+							128 text Rule check
+							129 text Inputs needed
+						130 summary Professional Review required, Value: off
+							131 text Professional
+							132 text Review required
+						133 summary Value: off, Solve proof seam=tauri backend job; project=project:blank-local-20260908t165725z; result model=project:blank-local-20260908t165725z; identity=match; rows=0; generation=12; job=backend-solve-job-1; model sha256=sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08; input manifest sha256=f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258
+							134 text Solve proof
+							135 text seam=tauri backend job; project=project:blank-local-20260908t165725z; result model=project:blank-local-20260908t165725z; identity=match; rows=0; generation=12; job=backend-solve-job-1; model sha256=sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08; input manifest sha256=f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258
+					136 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					137 button (collapsed) ⚑ 12 Issues, Secondary Actions: Expand
+				138 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	139 close button
+	140 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	141 minimize button
+	142 text OpenPipeStress Technical Preview
+143 menu bar
+	144 OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908
+	145 File
+	146 Edit
+	147 View
+	148 Insert
+	149 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

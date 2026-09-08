@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "correction_type": "path_only_semantic_equivalent",
+  "authorization": "root-authorized RF evidence-portability cleanup",
+  "corrected_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/VALIDATION.md",
+  "original_sha256": "24ddf391a61a6bff5a29aa2dcb3f478afbd85fd8756321516d42071392d01aa1",
+  "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/_run_records/VALIDATION_ORIGINAL_24ddf391.base64.json",
+  "archive_sha256": "e35f03a412ae99ec1449f4c486b9d53d944734d123255f584277d596234e17cf",
+  "archive_encoding": "base64",
+  "archive_decode_verified_sha256": "24ddf391a61a6bff5a29aa2dcb3f478afbd85fd8756321516d42071392d01aa1",
+  "corrected_sha256": "7a85d4ef11f7d8d2d84f8b0c56ccb3706f82577a337d2eeec9ef8d87376949e2",
+  "changed_semantics": false,
+  "verdict_unchanged": "CHANGES_REQUIRED",
+  "finding_unchanged": "RF-F4-001",
+  "raw_commands_preserved_under": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/_run_records/"
+}

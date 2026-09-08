@@ -1,0 +1,7 @@
+Command attempted exact removal and absence checks for `/tmp/chirality-rf-f4-cargo.gvs8TK` and `/tmp/chirality-rf-f4-witness`.
+
+Execution did not start. Tool rejection:
+Script error:
+exec_command failed: CreateProcess { message: "Rejected(\"`/bin/zsh -lc 'test -d /tmp/chirality-rf-f4-cargo.gvs8TK && rm -rf -- /tmp/chirality-rf-f4-cargo.gvs8TK\\ntest -d /tmp/chirality-rf-f4-witness && rmdir /tmp/chirality-rf-f4-witness/src /tmp/chirality-rf-f4-witness\\ntest ! -e /tmp/chirality-rf-f4-cargo.gvs8TK\\ntest ! -e /tmp/chirality-rf-f4-witness'` rejected: rm -f style commands are not permitted. Use a safer approach\")" }
+
+Disposition: no deletion ran. A Cargo cache tag was added to the RF-owned target, then manifest-bound `cargo clean` and `rmdir` were used.

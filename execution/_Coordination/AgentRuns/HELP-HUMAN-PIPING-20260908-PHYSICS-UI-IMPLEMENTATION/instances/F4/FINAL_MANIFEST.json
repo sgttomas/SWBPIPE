@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4",
+  "status": "CANDIDATE_COMPLETE_PENDING_FRESH_INDEPENDENT_REVIEW",
+  "source_base_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "selected_candidate_sha256": "6866bbf52ef861488277b6a659c7ac0a4e63f42865debb971355db5e553ea142",
+  "source_release_sha256": "38cdd1de98f0d4b9405a5f92fb5488b305af3779b3ce1ad603d46d79f9222933",
+  "files": [
+    {"path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs", "sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320", "classification": "candidate_source"},
+    {"path": "projects/chirality-piping/core/product_physics/src/lib.rs", "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903", "classification": "unchanged_optional_test_fence"},
+    {"path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/ACTIVATION.md", "sha256": "11bd2aeae327100c32141ba19dd438e28e8ac4062526550a92c2ceed9c28dc38", "classification": "activation"},
+    {"path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/implementation/CANDIDATE_DIFF.patch", "sha256": "8080a8c242931409863771aba963897a72b055c39aee1d61fd567eee4bb3801b", "classification": "complete_live_matching_diff"},
+    {"path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/MANAGER_VALIDATION.md", "sha256": "c54c107fec45eaa69d9673484a18afae44a9f3c6438947e7aa2053a619c2a3c4", "classification": "manager_validation"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/ACTIVATION.md", "sha256": "1db69a78e200e5dc53f04ba26fc4f8e918e95195db75011ec599b2a456e396b9", "classification": "manager_activation"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/ROOT_SOURCE_RELEASE_V1.md", "sha256": "155e23ef7dedadbae9ed3cdab8cbc2616509fa30bf5a26edb5de018bf7d9208d", "classification": "root_release_binding"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/WORK_GRAPH_V1.json", "sha256": "3fa92897fa60a7ada00e0dadf87a42c35d47d89265112b11dfa1d659a5c59934", "classification": "terminal_work_graph"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/RUNTIME_EVENTS.jsonl", "sha256": "51996267f8ed1d72ba3ff551e6ef46bc85fb34671584e516107edfad9f24981a", "classification": "runtime_events"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/STATUS.json", "sha256": "16f8fe2e4035820ee478901e8513f9e68cb1ec749ae95019c62a33d60773808d", "classification": "terminal_status"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/RETURN.md", "sha256": "f265bf8225a23a8aa96d3d42e211f250f6211c808b53aacd22ec0464d441e7c7", "classification": "manager_return"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/SEALED_BRIEF.md", "sha256": "57657b3b0b4dc20973a0e2e61efa7a4f3d7d4c36cde4f7a821a41108ad5e4995", "classification": "sealed_child_brief"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/RETURN.md", "sha256": "06136bfc38b9ea12b6188e1049afafae4b79b5eb36c67faa505662be8d69c28f", "classification": "child_return"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/STATUS.json", "sha256": "f0cb5c7743b10b4711b835ec33aec19676704f5653cf698f95574fdb53347906", "classification": "child_status"}
+  ],
+  "checks": {
+    "manager_offline_locked_crate": {"passed": 29, "failed": 0, "exit": 0},
+    "manager_fmt_check_exit": 0,
+    "child_piping_pytest": {"passed": 1012, "failed": 0, "exit": 0},
+    "child_harness_self_check_exit": 0,
+    "historical_m1_n_008_exit": 0,
+    "diff_matches_live_source": true,
+    "git_diff_check_exit": 0,
+    "private_targets_removed": true,
+    "evidence_sweep": "DEFERRED_TO_ROOT_DURING_CONCURRENT_U7_WRITES"
+  },
+  "rust_compile_slot": "RELEASED_BY_F4",
+  "next_gate": "FRESH_INDEPENDENT_100_PERCENT_DIFF_REVIEW"
+}

@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0.0",
+  "verdict": "CHANGES_REQUIRED",
+  "native_route": "tauri_backend_job",
+  "initial_350N_attempt": {
+    "job_id": "backend-solve-job-1",
+    "run_id": "run:preview-linear-static-blocked",
+    "submitted_model_hash": "sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08",
+    "result_model_hash": "sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08",
+    "input_manifest_hash": "f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258",
+    "analysis_run_record_hash": "acb5a8f455ce4ec7e62358f4a6e09ffc1f05a8dab19c4d04f2909afe299a4547",
+    "result_envelope_hash": "e23f90d7d8650738acfefa059a889cc04aa1f9bc1a660e17436bba22244e9a8e",
+    "generation": 12,
+    "identity_match": true,
+    "result_rows": 0,
+    "mechanics_status": "MODEL_INCOMPLETE",
+    "rule_check_status": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance_status": "NOT_PROVIDED",
+    "native_visible_completion": "result returned and persisted; deformation=blocked",
+    "diagnostic_count": 7,
+    "diagnostic_code": "PROVENANCE_INPUT_MISSING",
+    "blocked_refs": [
+      "node:UI-A-100",
+      "node:UI-A-110",
+      "pipe:UI-A-100",
+      "support:UI-A-100",
+      "material:ui-phase-a-invented",
+      "load:UI-A",
+      "load:UI-A-FY"
+    ]
+  },
+  "revised_500N_attempt": null,
+  "revised_500N_reason": "not executed after root-directed hold: sealed provenance label is rejected by the packaged backend, so a successful initial tuple was impossible without changing the fixed fixture"
+}

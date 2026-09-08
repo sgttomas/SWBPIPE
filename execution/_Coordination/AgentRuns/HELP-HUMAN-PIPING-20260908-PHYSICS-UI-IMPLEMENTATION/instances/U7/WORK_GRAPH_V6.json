@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "supersedes": "WORK_GRAPH_V3.json",
+  "draft_predecessors": ["WORK_GRAPH_V4_DRAFT.json", "WORK_GRAPH_V5_DRAFT.json"],
+  "selection_authority": "ROOT_RELEASE_AFTER_TERMINAL_RU_CHANGES_REQUIRED",
+  "state": "R2_RELEASED",
+  "frozen_input_manifest_sha256": "9f71f16fe91112a42ed01fc69aee040665c4c1663d3e9d5a02d8df00747f4446",
+  "ru_review_sha256": "51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0",
+  "ru_return_sha256": "481edae2ba1fe5a0227cffab231daca0d59086b769f3c55ebdd7bc784a69b69f",
+  "finding_ids": ["RU-F1", "RU-F2", "RU-F3", "RU-F4", "RU-F5"],
+  "nodes": [
+    {
+      "id": "U7-R2",
+      "role": "bounded Agent 2 software remediation",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "status": "READY_TO_DISPATCH",
+      "brief": "children/I1/REPAIR_BRIEF_V4.md",
+      "write_scope": "same frozen nine product paths plus own U7 child run records",
+      "return": "five-finding repair, genuine adversarial/App tests, final focused/full affected checks, source hashes and exact deltas"
+    },
+    {
+      "id": "U7-R2-MANAGER-VALIDATION",
+      "role": "WORKING_ITEMS U7 product-read-only validation",
+      "depends_on": ["U7-R2"],
+      "status": "HELD",
+      "return": "successor manifest, full base diff, V1 delta, five-finding closure map, updated seven-row proof, manager return"
+    },
+    {
+      "id": "RU-R2-BACKCHECK",
+      "role": "same root-owned RU independent backcheck",
+      "depends_on": ["U7-R2-MANAGER-VALIDATION"],
+      "status": "HELD"
+    },
+    {
+      "id": "NATIVE-WITNESS",
+      "role": "root-serialized isolated packaged native witness",
+      "depends_on": ["RU-R2-BACKCHECK"],
+      "status": "HELD"
+    }
+  ],
+  "manager_product_writes": "forbidden",
+  "fan_in_gate": "All RU-F1..F5 close with genuine tests; exact source fence and existing interfaces preserved; final App suite and bounded browser pass; successor evidence frozen for same-RU backcheck."
+}

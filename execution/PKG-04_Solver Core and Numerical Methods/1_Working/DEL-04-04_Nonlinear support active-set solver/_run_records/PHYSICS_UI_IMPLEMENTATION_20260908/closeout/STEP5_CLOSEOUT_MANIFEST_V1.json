@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "status": "STEP5_DELIVERABLE_STATE_UPDATE_COMPLETE",
+  "authority": {
+    "final_ri_review_sha256": "16f3faafc1c896a8863676cc84502b4ec9153611bd3672c72b00510f2cd47537",
+    "final_ri_return_sha256": "6ace2a3a236e02c94235da2a0267bcfef3c8d0f2adf83b50d3a9a19652cd007b",
+    "f4_successor_manifest_sha256": "c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623",
+    "rf_backcheck_review_sha256": "a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5"
+  },
+  "changed_files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+      "before_sha256": "8e864403e29a2b49b1fca5abd0ff6f27d35830660f046c5715ef63fdae4c0e13",
+      "after_sha256": "8c1dc2030dcd963920c088096dc1a3effceaf858ba632ba00a97f82034dacb80",
+      "change": "append concise accepted repair, validation, RF backcheck, and final RI technical-pass entry"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+      "before_sha256": "3b27f3a84e911b10733193ed24552eb830b739c6426b75d3a9ba008c562701a2",
+      "after_sha256": "63ff9c0b26886bb154932e1fd2dce09495df0a743f3b2ea48bca3c6e652da74a",
+      "change": "remove only completed Remaining item 1 and append bounded history echo"
+    }
+  ],
+  "scope_record": {
+    "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/closeout/STEP5_SCOPE_AMENDMENT_V1.md",
+    "sha256": "beb85da9e616adc073e50cc24a8e858bf839200fd913731b8c989340a6d8ad14"
+  },
+  "preserved": {
+    "lifecycle_state": "IN_PROGRESS",
+    "remaining_items_2_through_6": "BYTE_IDENTICAL",
+    "source_tests_and_frozen_records": "UNCHANGED_BY_STEP5",
+    "open_holds": [
+      "formal REVIEW and dimensional/conversion basis before PDU-035 closure",
+      "prior-iterate sliding direction and friction-history ruling",
+      "non-seed convergence thresholds",
+      "broader displacement/reaction/energy thresholds",
+      "broader multi-DOF and external-validation thresholds"
+    ]
+  }
+}

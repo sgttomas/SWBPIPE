@@ -1,0 +1,28 @@
+{
+  "record_kind": "publication_evidence_repair_status",
+  "schema_version": "1.0",
+  "role": "bounded_ephemeral_agent_2",
+  "parent": "/root",
+  "state": "COMPLETE_AWAITING_ROOT_REVIEW_AND_SAME_RI_BACKCHECK",
+  "verdict": "PASS",
+  "inventory_count": 40,
+  "archive_count": 40,
+  "successor_count": 40,
+  "validator_results": {
+    "path_anchors": "PASS",
+    "candidate_whitespace": "PASS"
+  },
+  "frozen_bindings": {
+    "source_member_count": 10,
+    "source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "bundle_member_count": 3,
+    "bundle_content_set_sha256": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11"
+  },
+  "artifacts": {
+    "correction_manifest_sha256": "b224f32b2cd472264b1ff44f2f12dcc53de5de8d5463a6758b5a42aa3f1e353b",
+    "exact_inventory_sha256": "9a42118638cd7b755ba1e252849e051b5c7409a885823ab2c86a4a5fd18c5fc9",
+    "validation_sha256": "8ba0301653bb5e74c0355777a75d294c5573b6860d4a70e68c5e2b845eb1170f"
+  },
+  "unresolved_blockers": [],
+  "required_next_action": "Root independently reviews the correction packet and routes the same RI backcheck."
+}

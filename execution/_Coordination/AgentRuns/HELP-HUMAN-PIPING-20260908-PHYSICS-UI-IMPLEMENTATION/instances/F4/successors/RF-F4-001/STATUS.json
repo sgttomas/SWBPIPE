@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4-RF-F4-001",
+  "role": "WORKING_ITEMS",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "state": "CANDIDATE_COMPLETE_PENDING_RF_BACKCHECK",
+  "finding": "RF-F4-001",
+  "source_before_sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320",
+  "source_after_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+  "rust_compile_slot": "RELEASED_BY_F4",
+  "child": "I2_COMPLETE"
+}

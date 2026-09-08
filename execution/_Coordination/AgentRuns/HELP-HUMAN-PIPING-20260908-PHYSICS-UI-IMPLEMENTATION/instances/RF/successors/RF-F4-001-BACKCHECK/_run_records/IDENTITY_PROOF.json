@@ -1,0 +1,44 @@
+{
+  "method": "in-memory deterministic application of frozen base-to-V1 and V1-to-successor unified patches; no reconstructed source written",
+  "base_blob_sha256": "fb02a52273637f844c63ac2e1545bc7fbe8ab79b58d7f5e259829e46be4b1439",
+  "prior_patch_sha256": "8080a8c242931409863771aba963897a72b055c39aee1d61fd567eee4bb3801b",
+  "reconstructed_v1_sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320",
+  "expected_v1_sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320",
+  "successor_patch_sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e",
+  "successor_hunks": [
+    {
+      "old_start": 1994,
+      "old_count": 7,
+      "new_start": 1994,
+      "new_count": 10
+    },
+    {
+      "old_start": 2008,
+      "old_count": 8,
+      "new_start": 2011,
+      "new_count": 8
+    },
+    {
+      "old_start": 2098,
+      "old_count": 47,
+      "new_start": 2101,
+      "new_count": 58
+    },
+    {
+      "old_start": 2244,
+      "old_count": 29,
+      "new_start": 2258,
+      "new_count": 117
+    }
+  ],
+  "reconstructed_successor_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+  "live_successor_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+  "reconstructed_successor_equals_live": true,
+  "primary_test_module_start_line_v1": 1818,
+  "computed_finite_module_start_line_v1": 3123,
+  "all_successor_hunks_inside_primary_test_module": true,
+  "pre_primary_equal": true,
+  "pre_primary_sha256": "311b4d6657c103982c78d8e86d4efa7dc5d450556802dc3a45d5ce6264bf42ae",
+  "computed_finite_through_eof_equal": true,
+  "computed_finite_through_eof_sha256": "73463334658edb9ecf09dd48b4b733410e89d1fe95219fb8f485ff3ff7484ea8"
+}

@@ -1,0 +1,212 @@
+Window: "OpenPipeStress Technical Preview", App: OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Opened local SQLite project snapshot. Details, Value: off
+						17 text Opened local SQLite project snapshot.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: on
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: off
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: off
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 4  of  4  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented carbon steel material:ui-phase-a-invented, Help: Invented carbon steel (material:ui-phase-a-invented), Value: off
+						51 heading Sections, Value: 3
+							52 text Sections
+						53 toggle button Invented straight pipe section:ui-phase-a-straight, Help: Invented straight pipe (section:ui-phase-a-straight), Value: off
+						54 heading Nodes, Value: 3
+							55 text Nodes
+						56 toggle button Anchor node:UI-A-100, Help: Anchor (node:UI-A-100), Value: on
+					57 text 3D Centerline
+					58 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						59 summary Deformation · unavailable, Value: off
+							60 text Deformation · unavailable
+					61 container Viewport display toggles
+						62 toggle button Labels, Help: Show or hide entity labels, Value: on
+						63 toggle button Loads, Help: Show or hide load arrows, Value: on
+						64 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					65 text Selected:  node:UI-A-100
+					66 container
+						67 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						68 container Viewport entity selection
+							69 toggle button Select Anchor in viewport, Help: Anchor (node:UI-A-100), Value: on
+						70 container Orientation gizmo
+						71 container View controls
+							72 toggle button Front, Value: off
+							73 toggle button Top, Value: off
+							74 toggle button Iso, Value: on
+						75 text 1 m
+					76 container Command and selection bar
+						77 container Object creation tools
+							78 toggle button Node, Help: Arm node creation, Value: off
+							79 toggle button Pipe, Help: Arm pipe-run creation, Value: on
+							80 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							81 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							82 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						83 text Pipe tool armed
+						84 summary Selection & navigation, Value: off
+							85 text Selection & navigation
+					86 container Viewport editor intents
+						87 heading Create pipe, Value: 3
+							88 text Create pipe
+						89 summary Pending changes (0), Value: off
+							90 text Pending changes (
+							91 text 0
+							92 text )
+					93 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					94 container Property inspector
+						95 heading Anchor, Value: 2
+							96 text Anchor
+						97 summary All properties, Value: off
+							98 text All properties
+						99 container Editor operation intent
+							100 heading Edit name, Value: 3
+								101 text  Edit  name
+							102 container
+								103 text Property
+								104 pop up button Property to edit, Value: Name
+							105 container Current value
+								106 text CURRENT  NAME
+								107 text Anchor
+							108 container
+								109 text New  name
+								110 text field (settable) New name, Value: Anchor
+							111 button (disabled) Queue change, Help: Add this change to the review queue
+							112 button (disabled) Validate, Help: Validate without applying
+							113 button (disabled) Apply, Help: Apply this exact displayed intent through the operation service
+							114 summary Operation details, Value: off
+								115 text Operation details
+							116 text Validate to check this change before applying it.
+						117 summary Sources and units, Value: off
+							118 text Sources and units
+						119 summary New support configuration, Value: off
+							120 text New support configuration
+						121 container (expanded) Secondary Actions: Collapse
+							122 summary New section, Value: on
+								123 text New section
+							124 container Create section intent
+								125 container
+									126 text Section ID
+									127 text field (settable) New section ID, Value: section:S-1
+								128 container
+									129 text Name
+									130 text field (settable) New section name, Value: Section S-1
+								131 container
+									132 text Type
+									133 pop up button New section type, Value: pipe
+								134 container
+									135 text Length unit
+									136 pop up button New section length unit, Value: m, DEC-018 canonical
+								137 container
+									138 text Outside diameter ( m, DEC-018 canonical )
+									139 text field (settable) New section outside diameter
+								140 container
+									141 text Wall thickness ( m, DEC-018 canonical )
+									142 text field (settable) New section wall thickness
+								143 container
+									144 text Provenance
+									145 text field (settable) New section provenance, Value: user_entered_local_preview
+								146 button (disabled) Queue section, Help: Queue section create intent
+						147 container (expanded) Secondary Actions: Collapse
+							148 summary New material, Value: on
+								149 text New material
+							150 container Create material intent
+								151 container
+									152 text Material ID
+									153 text field (settable) New material ID, Value: material:M-1
+								154 container
+									155 text Label
+									156 text field (settable) New material label, Value: Material M-1
+								157 container
+									158 text Modulus unit
+									159 pop up button New material modulus unit, Value: Pa, DEC-018 canonical
+								160 container
+									161 text Elastic modulus ( Pa, DEC-018 canonical )
+									162 text field (settable) New material elastic modulus
+								163 container
+									164 text Shear modulus ( Pa, DEC-018 canonical )
+									165 text field (settable) New material shear modulus
+								166 container
+									167 text Thermal expansion unit
+									168 pop up button New material thermal expansion unit, Value: 1/C, catalog mismatch
+								169 container
+									170 text Thermal expansion ( 1/C, catalog mismatch )
+									171 text field (settable) New material thermal expansion
+								172 container
+									173 text Provenance
+									174 text field (settable) New material provenance, Value: user_entered_local_preview
+								175 button (disabled) Queue material, Help: Queue material create intent
+						176 summary New support, Value: off
+							177 text New support
+						178 summary New component, Value: off
+							179 text New component
+						180 container Delete node intent
+							181 heading Delete node, Value: 3
+								182 text Delete node
+							183 button Queue delete node, Help: Queue node delete intent
+							184 container
+								185 text Operation op:delete-node-node:UI-A-100; delete; proposed Target Node; node:UI-A-100 Change delete_node; Explicit node deletion; nodes; before=Anchor; x=0; y=0; z=0; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:blank-local-20260908t174230z; requires reference validation before durable model change.
+				186 container Workspace status
+					187 container Analysis statuses
+						188 summary Mechanics model incomplete, Value: off
+							189 text Mechanics
+							190 text model incomplete
+						191 summary Rule check Inputs needed, Value: off
+							192 text Rule check
+							193 text Inputs needed
+						194 summary Professional Review required, Value: off
+							195 text Professional
+							196 text Review required
+					197 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					198 button (collapsed) ⚑ 5 Issues, Secondary Actions: Expand
+				199 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	200 close button
+	201 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	202 minimize button
+	203 text OpenPipeStress Technical Preview
+204 menu bar
+	205 OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908
+	206 File
+	207 Edit
+	208 View
+	209 Insert
+	210 Analyze

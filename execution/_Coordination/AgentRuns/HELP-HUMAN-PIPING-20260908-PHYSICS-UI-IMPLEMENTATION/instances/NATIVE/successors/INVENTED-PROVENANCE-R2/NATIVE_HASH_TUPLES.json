@@ -1,0 +1,103 @@
+{
+  "accepted_complete_tuples": [
+    {
+      "analysis_run_record_hash": "89e3c7a78d0a8a3ac5683645b65f8c5914a15c3fff7d53ce976696fba89c4f30",
+      "canonical_run_id": "run:preview-linear-static-001",
+      "evidence": {
+        "store_row": "SUPPLEMENTAL_350_STORE_ROW.json",
+        "tuple_record": "SUPPLEMENTAL_350_TUPLE.md"
+      },
+      "input_manifest_hash": "92f5087b882f66c1d129e165f1efbfba7caf303d91c24ba9d2a29e75fa46c67d",
+      "label": "350 N supplemental evidence recovery",
+      "max_displacement": {
+        "location_ref": "node:UI-A-110",
+        "result_ref": "result:disp:node-UI-A-110",
+        "unit": "mm",
+        "value": 1.663072
+      },
+      "max_open_formula_stress": {
+        "location_ref": "pipe:UI-A-100",
+        "result_ref": "result:stress:pipe-UI-A-100",
+        "unit": "MPa",
+        "value": 8.185431
+      },
+      "native_generation": 42,
+      "native_job_id": "backend-solve-job-3",
+      "native_result_identity": "match",
+      "result_envelope_backend_hash": "8cfcca5a389a09e949b40aa6d0dc5aa8b54aae385f150d2128d29a8263e2117a",
+      "result_model_hash": "sha256:04f36970d3ef54a0cf87bc35fb86667e4e80e53ba2d6a5f240e3c25e5f201de8",
+      "result_model_ref": "project:blank-local-20260908t174230z",
+      "result_rows": 67,
+      "submitted_model_hash": "sha256:04f36970d3ef54a0cf87bc35fb86667e4e80e53ba2d6a5f240e3c25e5f201de8",
+      "terminal_mechanics_status": "MECHANICS_SOLVED"
+    },
+    {
+      "analysis_run_record_hash": "2c28cb397568e7f28ce54c84089fa33955fc2c534ee56da5ed751fe6c0232fa8",
+      "canonical_run_id": "run:preview-linear-static-001",
+      "evidence": {
+        "store_row": "SUPPLEMENTAL_500_STORE_ROW.json",
+        "tuple_record": "SUPPLEMENTAL_500_TUPLE.md"
+      },
+      "input_manifest_hash": "411df20dfa4ec6c6b0a967039970022e179e3ca6fb7fbf5a17605f39213a9a79",
+      "label": "500 N supplemental evidence recovery",
+      "max_displacement": {
+        "location_ref": "node:UI-A-110",
+        "result_ref": "result:disp:node-UI-A-110",
+        "unit": "mm",
+        "value": 2.375817
+      },
+      "max_open_formula_stress": {
+        "location_ref": "pipe:UI-A-100",
+        "result_ref": "result:stress:pipe-UI-A-100",
+        "unit": "MPa",
+        "value": 11.693473
+      },
+      "native_generation": 45,
+      "native_job_id": "backend-solve-job-4",
+      "native_result_identity": "match",
+      "result_envelope_backend_hash": "338b776f77ed2113c68a22adf23cf21ccd36b8f454c3f3f0745cb554d318dec0",
+      "result_model_hash": "sha256:97bf60ed6c4541d379767a98c3c9a14132b2c3f4e6aa992bd1348b3b6b54a41b",
+      "result_model_ref": "project:blank-local-20260908t174230z",
+      "result_rows": 67,
+      "submitted_model_hash": "sha256:97bf60ed6c4541d379767a98c3c9a14132b2c3f4e6aa992bd1348b3b6b54a41b",
+      "terminal_mechanics_status": "MECHANICS_SOLVED"
+    }
+  ],
+  "distinctness": {
+    "analysis_hashes_distinct": true,
+    "canonical_run_id_reused_exactly": true,
+    "input_manifest_hashes_distinct": true,
+    "job_ids_distinct": true,
+    "model_hashes_distinct": true,
+    "result_envelope_hashes_distinct": true
+  },
+  "evidence_recovery_reason": "Required undo/redo then save/reopen cleared analysis_run_json and mechanics_result_json; a read-only dedicated-store check observed both exactly null. Reopen also reset UI history. Recovery used only the native selected-load inline editor: Apply 350, solve, Save, immediate row capture; Apply 500, prove clearing, solve, Save, immediate row capture.",
+  "original_walkthrough_success_observations": [
+    {
+      "evidence": [
+        "FIRST_SOLVE_NATIVE.png",
+        "FIRST_SOLVE_NATIVE_AX.txt"
+      ],
+      "input_manifest_hash": "92f5087b882f66c1d129e165f1efbfba7caf303d91c24ba9d2a29e75fa46c67d",
+      "label": "350 N original walkthrough solve",
+      "model_hash": "sha256:04f36970d3ef54a0cf87bc35fb86667e4e80e53ba2d6a5f240e3c25e5f201de8",
+      "native_generation": 28,
+      "native_job_id": "backend-solve-job-1",
+      "native_status": "MECHANICS_SOLVED",
+      "result_rows": 67
+    },
+    {
+      "evidence": [
+        "SECOND_SOLVE_NATIVE.png"
+      ],
+      "label": "500 N original walkthrough solve",
+      "native_generation": 33,
+      "native_job_id": "backend-solve-job-2",
+      "native_status": "MECHANICS_SOLVED",
+      "note": "The original screen is retained as historical native success evidence; no unreadable/clipped hash is inferred.",
+      "result_rows": 67
+    }
+  ],
+  "project_id": "project:blank-local-20260908t174230z",
+  "schema": "native_hash_tuples_r2_v1"
+}

@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "record_type": "del_07_01_step5_closeout",
+  "date": "2026-09-08",
+  "scope_record": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/STEP5_CLOSEOUT_SCOPE_V1.md",
+    "sha256": "f3fe3a98ae87674696afcbfb9995e3150e5343bb33c900cc7647f5b79c1d31db"
+  },
+  "deliverable_files": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "pre_edit_sha256": "1db496a5fb3c925e40d86553019eb9a038b364f4bd996555d6a2bbf4de8d5c23",
+      "post_edit_sha256": "7c003fbf9bd0da3fa3efb1fbef5114b49b571d7abc82b67dbc7768bbe6f83fd7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "pre_edit_sha256": "c1dce44d58822bcff3ef6fecc7271fba8bcbb84c12e9514ef588ff9cb90a5090",
+      "post_edit_sha256": "5d3ae46f2c12193e69096d7d54afe7d21a2102b1c80a47f90d12fbf17b216443"
+    }
+  ],
+  "deliverable_diff": {
+    "sha256": "7dde89e6460090d1ac331ba31c2bcafcb9ce6bd9081e3cb657fbd7870faef4d5",
+    "files_changed": 2,
+    "insertions": 8,
+    "deletions": 5
+  },
+  "final_integration_review": {
+    "review_sha256": "16f3faafc1c896a8863676cc84502b4ec9153611bd3672c72b00510f2cd47537",
+    "return_sha256": "6ace2a3a236e02c94235da2a0267bcfef3c8d0f2adf83b50d3a9a19652cd007b",
+    "verdict": "PASS"
+  },
+  "state_effect": {
+    "lifecycle": "IN_PROGRESS_UNCHANGED",
+    "dependency_statuses": "UNCHANGED_OWNER_GATED",
+    "remaining_section": "OPEN_WORK_ONLY",
+    "professional_or_release_claim": false
+  },
+  "evidence_binding_note": "Historical R3 and native hashes remain predecessor bindings. The separately managed evidence-only correction must be cited once sealed to resolve normalized active records through lossless original archives.",
+  "validation": {
+    "git_diff_check": "PASS",
+    "line_endings": "LF",
+    "trailing_whitespace": "NONE",
+    "tests_or_builds_rerun": false,
+    "source_or_test_files_changed": false,
+    "git_operations_performed": false
+  }
+}

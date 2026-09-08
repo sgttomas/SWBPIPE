@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "F4-RF-F4-001",
+  "status": "CANDIDATE_COMPLETE_PENDING_RF_BACKCHECK",
+  "finding": "RF-F4-001",
+  "frozen_v1": {
+    "source_sha256": "da4cc3f5d21f1e1841d375dd2525f3bb2d3f0e5d3e960bd2389d32cef3a8b320",
+    "diff_sha256": "8080a8c242931409863771aba963897a72b055c39aee1d61fd567eee4bb3801b",
+    "manifest_sha256": "43a48aa6fdbb360d5a7e2a94d09a62d25412e8fde6d39e22dffc9bfcd63119f5"
+  },
+  "successor": {
+    "source_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+    "base_to_successor_diff_sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+    "v1_to_successor_diff_sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e",
+    "pre_primary_test_region_sha256": "311b4d6657c103982c78d8e86d4efa7dc5d450556802dc3a45d5ce6264bf42ae",
+    "post_primary_test_region_sha256": "73463334658edb9ecf09dd48b4b733410e89d1fe95219fb8f485ff3ff7484ea8"
+  },
+  "records": [
+    {"path": "instances/F4/successors/RF-F4-001/ACTIVATION.md", "sha256": "2b8bd4da90a980f2afdd7423a709cf7f72c90ea6545a886e02703333837a7cfd"},
+    {"path": "instances/F4/successors/RF-F4-001/STATUS.json", "sha256": "b53e53b86cb34aea77809f459c71bc736dea1c4439843b3b0dbcaa5681550d5f"},
+    {"path": "instances/F4/successors/RF-F4-001/RETURN.md", "sha256": "aa4442494138fa9ae93b5ba9f801a81b8f1f26fc809abb5f5aef3ab58d0d3605"},
+    {"path": "instances/F4/successors/RF-F4-001/PORTABILITY_AMENDMENT_V1.md", "sha256": "69f79535b14d71ea3224af50963ce39db1554732a1f77e1ff8730726a0762473"},
+    {"path": "instances/F4/successors/RF-F4-001/children/I2/SEALED_REPAIR_BRIEF.md", "sha256": "1e19163b8effa195d2c6514b507c237884864a480d45a43c4d92d68db29fd2e9"},
+    {"path": "instances/F4/successors/RF-F4-001/children/I2/SEALED_REPAIR_BRIEF_V2.md", "sha256": "a67a70111c6748e60a87c00b4447fa10bfdffa3d05fa19d0d2b80277908e381f"},
+    {"path": "instances/F4/successors/RF-F4-001/children/I2/RETURN.md", "sha256": "1a6933507116c529dd073e4fee3a7a7d8759eba163088176d4d4e437eb90d802"},
+    {"path": "instances/F4/successors/RF-F4-001/children/I2/STATUS.json", "sha256": "b846b61118e11f367772525faf44292367ec1e9246582b0e61245482c3e8418b"},
+    {"path": "DEL_RUN/successors/RF-F4-001/ACTIVATION.md", "sha256": "71b0d6b6648f670bef75b26632fe951e4968e5caadb15bcae783d14c952b74d8"},
+    {"path": "DEL_RUN/successors/RF-F4-001/MANAGER_VALIDATION.md", "sha256": "77fd71b89ae97cc4b14f43f04737f14cf248e9f673742b19bfdc33a28a1ec2b9"},
+    {"path": "DEL_RUN/successors/RF-F4-001/CANDIDATE_DIFF_BASE_TO_SUCCESSOR.patch", "sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc"},
+    {"path": "DEL_RUN/successors/RF-F4-001/CANDIDATE_DIFF_V1_TO_SUCCESSOR.patch", "sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e"},
+    {"path": "DEL_RUN/successors/RF-F4-001/structural/SEALED_REPAIR_BRIEF_ORIGINAL.json", "sha256": "ebc9a765b293c41e1e7ce9e1633b3283c80d9540e0bcef3b6e2ee734f497869e", "decoded_original_sha256": "02eef1f8da9e83fd77009f06a384fadc85fdc09c6c189e35c528dd4036edbca1"}
+  ],
+  "checks": {
+    "manager_full_crate": {"passed": 29, "failed": 0, "exit": 0},
+    "manager_fmt_exit": 0,
+    "v1_diff_reverse_check_exit": 0,
+    "base_diff_live_match_exit": 0,
+    "only_primary_test_module_changed_from_v1": true,
+    "portable_active_records": true,
+    "private_targets_removed": true
+  },
+  "rust_compile_slot": "RELEASED_BY_F4",
+  "next_gate": "RF_BACKCHECK"
+}

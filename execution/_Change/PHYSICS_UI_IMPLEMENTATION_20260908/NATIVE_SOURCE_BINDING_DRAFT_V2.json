@@ -1,0 +1,152 @@
+{
+  "record_kind": "native_build_source_binding_draft",
+  "schema_version": "2.0",
+  "recorded_at_utc": "2026-09-08T15:33:32Z",
+  "role": "CHANGE",
+  "actual_task_identity": "/root/implementation_change",
+  "state": "DRAFT_PENDING_SAME_RU_SUCCESSOR_BACKCHECK_PASS_AND_ROOT_RELEASE",
+  "build_eligible": false,
+  "launch_eligible": false,
+  "predecessor": {
+    "path": "execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_DRAFT_V1.json",
+    "sha256": "1a61c24113b50c9db3b5cc18dfadf3bf0e4894e25f802850623b95355702bf31",
+    "status": "HISTORICAL_PRESERVED"
+  },
+  "committed_base": {
+    "head_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "contains_bound_source": false,
+    "explanation": "F4 and U7 R2 source is a live dirty cut layered on HEAD; HEAD alone neither contains nor identifies it."
+  },
+  "f4_dirty_source_binding": {
+    "source_file": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "source_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+    "live_hash_match": true,
+    "base_diff": {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/CANDIDATE_DIFF_BASE_TO_SUCCESSOR.patch",
+      "sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+      "reverse_apply_check": "PASS"
+    },
+    "successor_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/SUCCESSOR_MANIFEST.json",
+      "sha256": "c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623"
+    },
+    "rf_technical_review": {
+      "verdict": "PASS",
+      "review": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/REVIEW.md",
+        "sha256": "a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5"
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/RETURN.md",
+        "sha256": "429cf1183070d9419f65f4e5e8683714d49d11a00831b4b5bc6490224fd9c2e8"
+      }
+    }
+  },
+  "u7_r2_dirty_source_binding": {
+    "source_member_count": 9,
+    "source_files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+        "sha256": "106453b26388f832b2f0cc5683e9e50bf7c2ec9fc50e0576abfd0a3ae2036155"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "sha256": "5204a848a44b75f918108a70dfae075e5c4cbc6f434403fa10ec3da6ecbd05e8"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "sha256": "395d81f29f2a3e827e111dd5077bee30b62d7970b49ec5233abb12877b23dfdf"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+        "sha256": "5f03c2bb8af223dca4ddf4e058c7b80676a957ea247fcea59d423fad2ad8884d"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+        "sha256": "84bca45138fafd18d09601ae5af8f1a5e683026f954c636dcccfc396d5b07bee"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+        "sha256": "5f42c1d77a479c9cfb00cd9f98d901b7953c4bc7f900dc094e54e2a99c615712"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+        "sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+        "sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305"
+      }
+    ],
+    "all_live_source_hashes_match": true,
+    "successor_manifest": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/SUCCESSOR_MANIFEST_V2.json",
+      "sha256": "72d1cb5f31d7d81e92f05edd6f0b9e8b74c102cc27c898b7139e99644fb529f1"
+    },
+    "full_base_diff": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_SUCCESSOR_FULL_BASE.diff",
+      "sha256": "8c01ab323ef27836ecb1e777366b9166adfe28f9948bd990b01441fc2302f30e",
+      "reverse_apply_check": "PASS"
+    },
+    "v1_to_successor_delta": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_V1_TO_SUCCESSOR.delta",
+      "sha256": "09881c4a563bd919a52bd855fc954c798565be9d8817dabfbf36a32793f83863"
+    },
+    "manager_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/MANAGER_RETURN_V2.md",
+      "sha256": "e90589df6dea42c7acd22e6562cd9933c035d849097d391268231e43299d46ab"
+    },
+    "root_verified_manifest_members": 26,
+    "predecessor_ru_review": {
+      "verdict": "CHANGES_REQUIRED",
+      "satisfies_gate": false,
+      "review": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/REVIEW.md",
+        "sha256": "51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0"
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/RETURN.md",
+        "sha256": "481edae2ba1fe5a0227cffab231daca0d59086b769f3c55ebdd7bc784a69b69f"
+      }
+    },
+    "same_ru_successor_backcheck": {
+      "state": "PENDING",
+      "verdict": null,
+      "review_artifact": null,
+      "review_sha256": null,
+      "return_artifact": null,
+      "return_sha256": null
+    }
+  },
+  "native_witness_binding": {
+    "plan": {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_WITNESS_PLAN_V1.md",
+      "sha256": "0542f870aa2fd5d8e9e926c09622c50338c21dc550c1417fb57d2e83a25357b3"
+    },
+    "overlay": {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY.json",
+      "sha256": "c97845a67e0a7019074868c2fa29e9ddeabfaea6b19e6dcd982396ef8141a4cc"
+    },
+    "dedicated_store_directory": "ABSENT",
+    "expected_app_bundle": "ABSENT",
+    "normal_application_store_inspected": false
+  },
+  "remaining_release_gate": [
+    "Same RU reviewer issues a successor backcheck PASS over the exact U7 R2 manifest and full diff.",
+    "Root verifies the successor review/return hashes and explicitly releases serialized native build.",
+    "Immediately before build, final binding rehashes F4 source/diff/review, all nine U7 R2 source members and both U7 diffs, successor review records, plan, and overlay."
+  ],
+  "actions_performed": {
+    "source_write": false,
+    "git_mutation": false,
+    "rust_or_wasm_build": false,
+    "native_build": false,
+    "app_launch": false
+  },
+  "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+  "result": "READY_AS_DRAFT_ONLY"
+}

@@ -1,0 +1,30 @@
+{
+  "status": "candidate_complete_pending_independent_backcheck_and_manager_validation",
+  "acceptance_claimed": false,
+  "scope": "test_only_primary_tests_module",
+  "production_bytes_changed": false,
+  "candidate_source_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+  "immutable_region_sha256": {
+    "before_primary_tests": "311b4d6657c103982c78d8e86d4efa7dc5d450556802dc3a45d5ce6264bf42ae",
+    "computed_finite_module_through_eof": "73463334658edb9ecf09dd48b4b733410e89d1fe95219fb8f485ff3ff7484ea8"
+  },
+  "patches": {
+    "base_to_successor_sha256": "ff74ab001f108f36a6e0f4105b4fe40a7a7d784045e4fc0827518074a62d97cc",
+    "v1_to_successor_sha256": "9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e",
+    "verified_against_live_diffs": true
+  },
+  "verification": {
+    "focused_tests_passed": true,
+    "full_crate_tests": "29 passed; 0 failed",
+    "doc_tests": "0",
+    "final_cargo_fmt_check": "passed",
+    "git_diff_check": "passed",
+    "initial_fmt_check": "failed_formatting_only_then_repaired"
+  },
+  "cleanup": {
+    "private_cargo_target_removed": true,
+    "temporary_v1_reconstruction_removed": true
+  },
+  "unresolved_blockers": [],
+  "exclusive_source_rust_ownership_released": true
+}

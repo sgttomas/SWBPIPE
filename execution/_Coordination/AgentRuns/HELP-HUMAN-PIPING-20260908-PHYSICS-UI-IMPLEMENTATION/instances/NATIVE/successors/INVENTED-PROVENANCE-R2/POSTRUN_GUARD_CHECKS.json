@@ -1,0 +1,12 @@
+{
+  "path_anchors": {
+    "REPO_ROOT": "{git rev-parse --show-toplevel}",
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping",
+    "USER_APPLICATION_SUPPORT": "resolved by the consuming platform"
+  },
+  "exact_executable": "{WORKING_ROOT}/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app/Contents/MacOS/openpipestress-desktop",
+  "exact_process_absent": true,
+  "exact_process_matches": [],
+  "exact_store_absent": true,
+  "exact_store_dir": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908"
+}

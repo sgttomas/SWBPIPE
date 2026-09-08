@@ -1,0 +1,20 @@
+{
+  "record_kind": "structural_native_witness_host_paths",
+  "schema_version": "1.0",
+  "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+  "overlay": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY.json",
+  "overlay_sha256": "c97845a67e0a7019074868c2fa29e9ddeabfaea6b19e6dcd982396ef8141a4cc",
+  "tauri_cli": "tauri-cli 2.11.1",
+  "product_name": "OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908",
+  "identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+  "isolated_store_directory": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+  "isolated_store": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908/openpipestress-projects.sqlite3",
+  "expected_app_bundle": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app",
+  "existence_probe": {
+    "isolated_store_directory": "ABSENT",
+    "expected_app_bundle": "ABSENT",
+    "normal_application_store_inspected": false,
+    "normal_application_store_contents_accessed": false,
+    "normal_application_store_modified": false
+  }
+}

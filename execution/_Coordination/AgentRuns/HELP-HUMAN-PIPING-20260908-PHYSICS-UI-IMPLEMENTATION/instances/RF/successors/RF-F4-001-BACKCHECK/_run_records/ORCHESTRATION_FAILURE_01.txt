@@ -1,0 +1,4 @@
+Command-runner setup exited before the first Cargo command.
+Exit code: 1
+Exact stderr: run_one:4: read-only variable: status
+Diagnosis: zsh reserves `status`; the runner was corrected to use `command_status`.

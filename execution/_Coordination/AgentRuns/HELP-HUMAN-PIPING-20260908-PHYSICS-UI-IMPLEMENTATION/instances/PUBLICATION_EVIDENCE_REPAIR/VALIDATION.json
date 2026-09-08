@@ -1,0 +1,70 @@
+{
+  "record_kind": "publication_evidence_repair_validation",
+  "schema_version": "1.0",
+  "result": "PASS",
+  "sealed_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/PUBLICATION_EVIDENCE_REPAIR/LAUNCH_BRIEF_V1.md",
+    "sha256": "758c750bbf0e08060614aed8a1fc6c1df70bed7efef0e448bddeb73ea5a89ba3"
+  },
+  "validators": [
+    {
+      "command": "python3 tools/validation/validate_path_anchors.py --json .",
+      "exit_code": 0,
+      "result": "PASS",
+      "checked_file_count": 4202,
+      "finding_count": 0,
+      "semantic_invariants": {
+        "unacknowledged_control": 0,
+        "active_unclassified": 0,
+        "policy_issues": 0,
+        "acknowledged_control": 31
+      }
+    },
+    {
+      "command": "tools/validation/validate_candidate_whitespace.py --repo-root .",
+      "exit_code": 0,
+      "result": "PASS",
+      "untracked_binary_or_symlink_paths_safely_skipped": 23
+    }
+  ],
+  "repair_checks": {
+    "frozen_inventory_entries": 40,
+    "pre_repair_hashes_matched": 40,
+    "archive_json_records_valid": 40,
+    "archives_with_one_final_lf": 40,
+    "archives_decoded_and_rehashed": 40,
+    "decoded_original_hashes_matched": 40,
+    "successor_hashes_matched": 40,
+    "successors_with_one_final_lf_and_no_surplus_eof_blank_lines": 40,
+    "portable_path_anchor_successors": 8,
+    "non_applicable_patch_pointers": 8,
+    "eof_normalized_raw_outputs": 20,
+    "eof_normalized_nonraw_texts": 4,
+    "json_documents_validated": 47,
+    "correction_packet_literal_home_path_findings": 0
+  },
+  "source_binding": {
+    "member_count": 10,
+    "member_hash_matches": 10,
+    "aggregate_serialization": "Sort members lexically by repo-relative path; serialize each as SHA-256, two spaces, repo-relative path, and LF; hash the complete UTF-8 stream.",
+    "source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "result": "PASS"
+  },
+  "bundle_binding": {
+    "member_count": 3,
+    "member_hash_and_size_matches": 3,
+    "bundle_content_set_sha256": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11",
+    "result": "PASS"
+  },
+  "artifacts": {
+    "correction_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/PUBLICATION_EVIDENCE_REPAIR/CORRECTION_MANIFEST.json",
+      "sha256": "b224f32b2cd472264b1ff44f2f12dcc53de5de8d5463a6758b5a42aa3f1e353b"
+    },
+    "exact_inventory": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/PUBLICATION_EVIDENCE_REPAIR/EXACT_40_FILE_INVENTORY.json",
+      "sha256": "9a42118638cd7b755ba1e252849e051b5c7409a885823ab2c86a4a5fd18c5fc9"
+    }
+  },
+  "scope": "Evidence representation and verification only; no source, test, validator, policy, manifest/review predecessor, bundle, Git, application, or store mutation."
+}

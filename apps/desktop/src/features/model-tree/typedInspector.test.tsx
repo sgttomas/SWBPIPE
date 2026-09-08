@@ -21,6 +21,98 @@ function chooseField(path: string) {
 }
 
 describe("typed property inspection", () => {
+  it("keeps Queue and Validate and forwards the exact displayed force intent once to inline Apply", async () => {
+    const model = await loadPreviewModel();
+    const load = model.load_cases[0];
+    load.id = "load:UI-A";
+    load.label = "Invented Phase A force";
+    load.provenance = "synthetic_ui_acceptance_input";
+    load.primitive_loads = [{
+      id: "load:UI-A-FY",
+      category: "concentrated_force",
+      target_ref: "node:UI-A-110",
+      direction: "global_y",
+      magnitude: { value: 350, unit: "N" },
+      dimension: "force",
+      provenance: "synthetic_ui_acceptance_input"
+    }];
+    const queue = vi.fn();
+    const validate = vi.fn();
+    const apply = vi.fn();
+    render(<DisplayUnitsProvider initialPreference="SI">
+      <PropertyInspector model={model} selection={{ type: "load", id: load.id }} onQueueIntent={queue} onValidateIntent={validate} onApplyIntent={apply} />
+    </DisplayUnitsProvider>);
+    chooseField("primitive_loads.0.magnitude.value");
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "500" } });
+    expect(screen.getByRole("button", { name: "Queue change" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Validate" })).toBeEnabled();
+    const applyButton = screen.getByTestId("apply-editor-intent-inline");
+    expect(applyButton).toBeEnabled();
+    fireEvent.click(applyButton);
+    expect(apply).toHaveBeenCalledTimes(1);
+    const intent = apply.mock.calls[0][0] as EditorOperationIntent;
+    expect(intent.target.ref).toBe("load:UI-A");
+    expect(intent.change).toMatchObject({
+      change_kind: "update_load",
+      field_path: "primitive_loads.0.magnitude.value",
+      before: "350",
+      after: JSON.stringify({ value: 500, unit: "N" }),
+      unit: "N",
+      dimension: "force"
+    });
+    expect(intent.rationale).toBe("user_entered_preview_change");
+    expect(queue).not.toHaveBeenCalled();
+    expect(validate).not.toHaveBeenCalled();
+  });
+
+  it("disables inline Apply for unchanged, incomplete, or busy intents", async () => {
+    const model = await loadPreviewModel();
+    const load = model.load_cases[0];
+    const props = { model, selection: { type: "load" as const, id: load.id }, onQueueIntent: vi.fn(), onApplyIntent: vi.fn() };
+    const view = render(<PropertyInspector {...props} />);
+    chooseField("primitive_loads.0.magnitude.value");
+    expect(screen.getByTestId("apply-editor-intent-inline")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "" } });
+    expect(screen.getByTestId("apply-editor-intent-inline")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "500" } });
+    expect(screen.getByTestId("apply-editor-intent-inline")).toBeEnabled();
+    view.rerender(<PropertyInspector {...props} operationBusy />);
+    expect(screen.getByTestId("apply-editor-intent-inline")).toBeDisabled();
+  });
+
+  it("keeps user rule fields visible and forwards the exact selected rule value to Apply", async () => {
+    const model = await loadPreviewModel();
+    const component = model.components.find((item) => item.id === "component:C-110")!;
+    const original = String(component.modifiers?.sif_user_value?.value);
+    const apply = vi.fn();
+    render(<DisplayUnitsProvider initialPreference="SI">
+      <PropertyInspector
+        model={model}
+        selection={{ type: "component", id: component.id }}
+        onQueueIntent={vi.fn()}
+        onApplyIntent={apply}
+      />
+    </DisplayUnitsProvider>);
+    expect(screen.getByLabelText("Property inspector")).toHaveTextContent("user_rule_pack_inputs_only");
+    chooseField("modifiers.sif_user_value.value");
+    expect(screen.getByTestId("editor-intent-value")).toHaveValue(original);
+    fireEvent.change(screen.getByTestId("editor-intent-value"), { target: { value: "1.2" } });
+    fireEvent.click(screen.getByTestId("apply-editor-intent-inline"));
+    expect(apply).toHaveBeenCalledTimes(1);
+    expect(apply.mock.calls[0][0]).toMatchObject({
+      target: { object_type: "Component", ref: component.id },
+      change: {
+        change_kind: "set_field",
+        field_path: "modifiers.sif_user_value.value",
+        before: original,
+        after: "1.2",
+        unit: "none",
+        dimension: "dimensionless"
+      }
+    });
+    expect(String(component.modifiers?.sif_user_value?.value)).toBe(original);
+  });
+
   it("keeps creation forms collapsed, preserves their drafts and opens selected support configuration", async () => {
     const model = await loadPreviewModel();
     const props = { model, onQueueIntent: vi.fn() };

@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "supersedes": "WORK_GRAPH_V6.json",
+  "selection_authority": "ROOT_RELEASE_AFTER_R2_SAME_RU_BACKCHECK",
+  "state": "R3_RELEASED",
+  "frozen_input_manifest_sha256": "72d1cb5f31d7d81e92f05edd6f0b9e8b74c102cc27c898b7139e99644fb529f1",
+  "ru_backcheck_review_sha256": "54dd95c5f4410974060430221c16bdc3bd83bbb39964ea0622fc64fdd03f8f18",
+  "open_findings": ["RU-BC-F1", "RU-BC-F2"],
+  "carried_closed_findings": ["RU-F1", "RU-F4", "RU-F5"],
+  "nodes": [
+    {
+      "id": "U7-R3",
+      "role": "bounded Agent 2 residual software remediation",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "status": "READY_TO_DISPATCH",
+      "brief": "children/I1/REPAIR_BRIEF_V5.md",
+      "write_scope": "same nine product paths plus own U7 child run records"
+    },
+    {
+      "id": "U7-R3-MANAGER-VALIDATION",
+      "role": "WORKING_ITEMS U7 product-read-only validation",
+      "depends_on": ["U7-R3"],
+      "status": "HELD"
+    },
+    {
+      "id": "RU-R3-BACKCHECK",
+      "role": "same root-owned RU independent residual backcheck",
+      "depends_on": ["U7-R3-MANAGER-VALIDATION"],
+      "status": "HELD"
+    },
+    {
+      "id": "NATIVE-WITNESS",
+      "role": "root-serialized isolated packaged native witness",
+      "depends_on": ["RU-R3-BACKCHECK"],
+      "status": "HELD"
+    }
+  ],
+  "manager_product_writes": "forbidden",
+  "fan_in_gate": "Both residual findings close with producer-derived fixtures and genuine App tests; prior closures remain; full App/build/browser pass on one final cut."
+}

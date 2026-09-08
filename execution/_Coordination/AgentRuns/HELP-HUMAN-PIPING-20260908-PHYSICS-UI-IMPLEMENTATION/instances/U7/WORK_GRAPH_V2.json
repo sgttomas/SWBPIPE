@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "supersedes": "WORK_GRAPH_V1.json",
+  "amendment_reason": "Root directed WORKING_ITEMS Phase 3 delegation before product edits; the nine-file source tree is unchanged at amendment time.",
+  "selection_authority": "HUMAN_OWNER_ACT_AND_ROOT_RELEASE_WITH_ROOT_GRAPH_CORRECTION",
+  "posture": "TERMINAL_AGENT2_IMPLEMENTATION_THEN_MANAGER_VALIDATION",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "nodes": [
+    {
+      "id": "U7-I1",
+      "role": "ephemeral Agent 2 bounded software implementer",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "depends_on": [],
+      "brief": "children/I1/LAUNCH_BRIEF.md",
+      "return": "complete nine-path implementation and targeted JavaScript test result"
+    },
+    {
+      "id": "U7-INTEGRATE",
+      "role": "WORKING_ITEMS U7",
+      "depends_on": ["U7-I1"],
+      "return": "validated exact source containment, focused checks, hashes, and frozen manager return"
+    },
+    {
+      "id": "RU-REVIEW",
+      "role": "root-dispatched fresh Agent 2 software-code-review",
+      "depends_on": ["U7-INTEGRATE"],
+      "return": "100 percent U7 product-diff review"
+    },
+    {
+      "id": "NATIVE-WITNESS",
+      "role": "root-serialized bounded native witness",
+      "depends_on": ["U7-INTEGRATE", "RU-REVIEW", "F4", "RF"],
+      "return": "isolated packaged Tauri walkthrough with native job/run/hash evidence"
+    }
+  ],
+  "integration_owner": "/root/native_authoring",
+  "concurrency": "U7-I1 owns all nine product paths serially. U7 manager writes only run records while I1 is active. F4 retains exclusive Rust compilation.",
+  "fan_in_gate": "I1 returns all nine paths, targeted JavaScript tests, no fence expansion, no invented input, and no stale publication; U7 independently inspects and validates before freeze.",
+  "escalation": "Any producer, service, schema, Rust/Tauri, source-fence, requirement, dependency, engineering-contract, or unresolved test change returns to U7 and root."
+}

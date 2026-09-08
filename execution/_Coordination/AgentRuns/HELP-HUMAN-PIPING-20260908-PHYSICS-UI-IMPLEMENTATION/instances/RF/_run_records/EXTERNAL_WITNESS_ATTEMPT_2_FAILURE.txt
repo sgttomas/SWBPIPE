@@ -1,0 +1,21 @@
+Command:
+CARGO_TARGET_DIR=/tmp/chirality-rf-f4-cargo.gvs8TK cargo run --offline --manifest-path /tmp/chirality-rf-f4-witness/Cargo.toml
+
+Exit: 101
+
+Output:
+   Compiling chirality_rf_f4_witness v0.1.0 (/tmp/chirality-rf-f4-witness)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.19s
+     Running `/tmp/chirality-rf-f4-cargo.gvs8TK/debug/chirality_rf_f4_witness`
+ORDER SparseInteractive left converged=true q=[("F-X", -2.448761014556253), ("F-Y", -26.829268292682965)]
+ORDER SparseInteractive right converged=true q=[("F-Y", -26.829268292682965), ("F-X", -2.4487610145562524)]
+ORDER_DELTA SparseInteractive displacement=0.00000000000000000e0 reaction=4.44089209850062616e-16
+ORDER DenseScrutiny left converged=true q=[("F-X", -2.448761014556253), ("F-Y", -26.829268292682965)]
+ORDER DenseScrutiny right converged=true q=[("F-Y", -26.829268292682965), ("F-X", -2.4487610145562524)]
+ORDER_DELTA DenseScrutiny displacement=0.00000000000000000e0 reaction=4.44089209850062616e-16
+MIXED_EXPLICIT qx=-2.95409181636726581e0 qy=-1.00000000000000000e1 normal=1.47704590818363268e1
+PRESCRIBED_OFFSET q=-3.80781563126252331e0 normal=-1.90390781563126268e1
+
+thread 'main' (41509844) panicked at src/main.rs:216:9:
+assertion failed: zero.converged
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

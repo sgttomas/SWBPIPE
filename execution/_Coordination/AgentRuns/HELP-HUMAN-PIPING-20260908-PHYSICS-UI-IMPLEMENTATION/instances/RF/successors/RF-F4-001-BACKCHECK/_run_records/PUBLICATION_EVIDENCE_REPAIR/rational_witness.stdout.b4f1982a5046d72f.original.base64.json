@@ -1,0 +1,11 @@
+{
+  "record_kind": "lossless_publication_evidence_original_archive",
+  "schema_version": "1.0",
+  "archive_purpose": "Preserve the exact pre-repair evidence bytes and historical hash while the active logical path receives a portable successor.",
+  "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/_run_records/rational_witness.stdout",
+  "original_sha256": "b4f1982a5046d72ff2b8aec16e49be658619af76c1c7ad2ea1fd82bc46e359df",
+  "byte_length": 206,
+  "encoding": "base64",
+  "payload_base64": "CnJ1bm5pbmcgMSB0ZXN0CnRlc3QgdGVzdHM6OmN1cnJlbnRfbm9ybWFsX2FmZmluZV9maXh0dXJlX21hdGNoZXNfYm90aF9zaWduZWRfb3JhY2xlc19zZWVkc19hbmRfbW9kZXMgLi4uIG9rCgp0ZXN0IHJlc3VsdDogb2suIDEgcGFzc2VkOyAwIGZhaWxlZDsgMCBpZ25vcmVkOyAwIG1lYXN1cmVkOyAyOCBmaWx0ZXJlZCBvdXQ7IGZpbmlzaGVkIGluIDAuMDBzCgo=",
+  "decoded_sha256": "b4f1982a5046d72ff2b8aec16e49be658619af76c1c7ad2ea1fd82bc46e359df"
+}

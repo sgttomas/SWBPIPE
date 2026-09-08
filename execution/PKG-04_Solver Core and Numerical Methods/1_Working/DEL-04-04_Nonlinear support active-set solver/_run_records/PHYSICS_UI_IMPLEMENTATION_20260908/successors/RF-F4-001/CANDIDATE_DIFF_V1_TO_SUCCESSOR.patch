@@ -1,0 +1,8 @@
+PUBLICATION_EVIDENCE_REPAIR_POINTER_V1
+representation: pointer
+applicable_patch: false
+logical_path: projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/successors/RF-F4-001/CANDIDATE_DIFF_V1_TO_SUCCESSOR.patch
+archive_path: projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PUBLICATION_EVIDENCE_REPAIR/CANDIDATE_DIFF_V1_TO_SUCCESSOR.patch.9bdf1403176e6975.original.base64.json
+original_sha256: 9bdf1403176e697534c4a373250d4f81930336065b13d7ee79a618e21aa1d09e
+original_byte_length: 11555
+resolution: Decode payload_base64 from archive_path and verify its SHA-256 equals original_sha256. This active representation is a pointer and is not an applicable patch.

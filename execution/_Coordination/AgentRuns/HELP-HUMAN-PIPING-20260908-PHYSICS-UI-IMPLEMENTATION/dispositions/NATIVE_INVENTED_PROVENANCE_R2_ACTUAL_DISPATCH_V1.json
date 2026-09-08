@@ -1,0 +1,40 @@
+{
+  "record_kind": "native_corrected_fixture_actual_dispatch_acknowledgment",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T17:48:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "ACTUALLY_DISPATCHED",
+  "sealed_predecessors": [
+    {
+      "path": "../instances/NATIVE/INVENTED_PROVENANCE_R2_LAUNCH_BRIEF_V1.md",
+      "sha256": "e878999f3feff9e120d61d707304ff13b7c6e92d5014ef5094eb5cf3c0346dbf"
+    },
+    {
+      "path": "NATIVE_INVENTED_PROVENANCE_R2_RELEASE_V1.json",
+      "sha256": "899a837ac384361219cfdeaae04e5f437ba3ca311c84445905041a7dee252dde"
+    }
+  ],
+  "actual_dispatch": {
+    "issued_by": "/root",
+    "mechanism": "followup_task",
+    "task_identity": "/root/native_implementation_witness",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false,
+    "status": "RESUMED"
+  },
+  "diagnostic_interpretation_relayed": "The seven provenance blockers belong to the historical failed attempt only. Any successor failure must report the diagnostics and counts actually observed in the new run and must not assume that seven blockers recur.",
+  "held_gates": [
+    "native_acceptance",
+    "final_ri",
+    "integration_acceptance",
+    "publication"
+  ],
+  "authority_effect": "This acknowledgment records actual dispatch only. It changes no sealed brief, source, fixture contract, backend policy, API, engineering decision, or acceptance gate."
+}

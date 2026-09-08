@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "OPERATIONAL_SUCCESSOR",
+  "selection_authority": "ROOT_UNDER_OWNER_STANDING_CONCURRENCY_AUTHORITY",
+  "predecessor": {"path":"WORK_GRAPH_V1.json","sha256":"5e747e957c6fe8cb801aff36b2ac05363cf16036f0ff74cd05219b48cb360fee"},
+  "model_contract": {"agent_1_and_2":"gpt-5.6-sol","reasoning":"high","astra_exception_granted":false},
+  "nodes": [
+    {"id":"F4","state":"FROZEN_REVIEW_PASS","gate":"preserve accepted RF successor backcheck"},
+    {"id":"U7","state":"FROZEN_R2","gate":"same-RU successor backcheck PASS required"},
+    {"id":"RU2","state":"PENDING_PASS_AND_ROOT_RELEASE","after":["U7"],"writes":"instances/RU/successors/RU-F1-F5-BACKCHECK/**"},
+    {"id":"NATIVE","state":"HELD","after":["F4","RU2"],"concurrent_group":"POST_REVIEW_READ_NATIVE","gate":"sealed reviewed-source/bundle release and actual isolated native witness PASS","writes":"instances/NATIVE/**"},
+    {"id":"RI_PRECHECK","state":"DRAFT_HELD","after":["F4","RU2"],"concurrent_group":"POST_REVIEW_READ_NATIVE","gate":"RU2 PASS plus root source-equality release","writes":"instances/RI/precheck/**","acceptance":"PROVISIONAL_FINDINGS_ONLY"},
+    {"id":"RI_FINAL","state":"HELD","after":["RI_PRECHECK","NATIVE"],"gate":"same RI instance receives a sealed amendment binding accepted native evidence; final PASS required","writes":"instances/RI/final/**"},
+    {"id":"CHANGE","state":"HELD","after":["RI_FINAL"],"gate":"complete clean-source DEC-025, Step 5, Receipt 137, Git/CI and publication"}
+  ],
+  "refinement": "RI_PRECHECK may inspect frozen combined source and contracts concurrently with native build/witness. It cannot make a final or acceptance claim. NATIVE then final RI then CHANGE remains the acceptance sequence.",
+  "preserved": "No project DAG edge, source fence, criterion, dependency, requirement, lifecycle state, engineering choice, or acceptance gate changes or is waived. One-slice failure isolation remains active."
+}

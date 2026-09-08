@@ -1,0 +1,11 @@
+{
+  "record_kind": "lossless_publication_evidence_original_archive",
+  "schema_version": "1.0",
+  "archive_purpose": "Preserve the exact pre-repair evidence bytes and historical hash while the active logical path receives a portable successor.",
+  "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/_run_records/App-targeted-vitest.txt",
+  "original_sha256": "b66d79ed37b2ee38f3413a23615d9e43f4464f806a2779767e5320f5b1b6aad8",
+  "byte_length": 323,
+  "encoding": "base64",
+  "payload_base64": "CiBSVU4gIHY0LjEuMTAgL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS1waHlzaWNzLXVpLWltcGxlbWVudGF0aW9uLTIwMjYwOTA4L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvYXBwcy9kZXNrdG9wCgoKIFRlc3QgRmlsZXMgIDEgcGFzc2VkICgxKQogICAgICBUZXN0cyAgOCBwYXNzZWQgfCAxMjQgc2tpcHBlZCAoMTMyKQogICBTdGFydCBhdCAgMDg6MjA6NDAKICAgRHVyYXRpb24gIDE0LjAzcyAodHJhbnNmb3JtIDEuMDBzLCBzZXR1cCA2M21zLCBpbXBvcnQgMS4yMHMsIHRlc3RzIDEyLjUycywgZW52aXJvbm1lbnQgMTc3bXMpCgo=",
+  "decoded_sha256": "b66d79ed37b2ee38f3413a23615d9e43f4464f806a2779767e5320f5b1b6aad8"
+}

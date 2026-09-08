@@ -29,14 +29,30 @@ import {
   type ComponentDraft,
   type CreatableComponentKind
 } from "../component-creation/componentIntent";
+import {
+  buildNodeCreationSubmission,
+  buildRouteSubmission,
+  DraftReviewGate,
+  routeEndNodeId,
+  submissionOperationIds,
+  type DraftSubmission,
+  type FrozenDraftReview,
+  type RouteDraft,
+  type RouteEndMode
+} from "./routeDraft";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
   model: PreviewModel;
+  modelCommitToken?: string | null;
   onArmCreationTool?: (tool: CreationTool | null) => void;
+  onAddDraft?: (submission: DraftSubmission, generation: number) => Promise<FrozenDraftReview | null>;
+  onApplyDraft?: (review: FrozenDraftReview) => Promise<boolean>;
+  onInvalidateDraft?: () => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onSelect: (selection: EntityRef) => void;
   queuedIntents?: EditorOperationIntent[];
+  reservedIntents?: ReadonlyArray<unknown>;
   result?: MechanicsResult | null;
   selection: EntityRef;
 };
@@ -62,6 +78,7 @@ type NodeDraft = {
   x: string;
   y: string;
   z: string;
+  provenance: string;
 };
 
 type PipeDraft = {
@@ -80,6 +97,14 @@ type PipeDraft = {
 };
 
 type PipeEndpointPickMode = "from" | "to" | null;
+
+type AppliedRouteContinuation = {
+  commitToken: string;
+  appliedEnd: string;
+  continuePipe: boolean;
+  pipeDraft: PipeDraft;
+  newEndCoordinateUnit: string;
+};
 
 type DraftProjector = (event: { clientX: number; clientY: number }) => Vec3 | null;
 
@@ -150,10 +175,15 @@ type DeformationOverlay = {
 export function PipeViewport({
   armedCreationTool = null,
   model,
+  modelCommitToken = null,
   onArmCreationTool = () => {},
+  onAddDraft,
+  onApplyDraft,
+  onInvalidateDraft = () => {},
   onQueueIntent,
   onSelect,
   queuedIntents = [],
+  reservedIntents = [],
   result = null,
   selection
 }: Props) {
@@ -173,6 +203,13 @@ export function PipeViewport({
   const [nodeDraft, setNodeDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
   const [continuePipe, setContinuePipe] = useState(false);
   const [pipeDraft, setPipeDraft] = useState<PipeDraft>(() => emptyPipeDraft(defaultLengthUnit));
+  const [routeEndMode, setRouteEndMode] = useState<RouteEndMode>("existing");
+  const [newEndDraft, setNewEndDraft] = useState<NodeDraft>(() => emptyNodeDraft(defaultLengthUnit));
+  const [draftReview, setDraftReview] = useState<FrozenDraftReview | null>(null);
+  const [draftReviewBusy, setDraftReviewBusy] = useState(false);
+  const [draftReviewMessage, setDraftReviewMessage] = useState<string | null>(null);
+  const draftReviewGate = useRef(new DraftReviewGate());
+  const pendingAppliedRoute = useRef<AppliedRouteContinuation | null>(null);
   const [componentDraft, setComponentDraft] = useState<ComponentDraft>(() =>
     defaultComponentDraft(model, selection, queuedIntents)
   );
@@ -184,11 +221,24 @@ export function PipeViewport({
   const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
-  const nodeDraftValid = isNodeDraftValid(nodeDraft);
-  const pipeDraftValid = isPipeDraftValid(pipeDraft) &&
-    model.nodes.some((node) => node.id === pipeDraft.from) && model.nodes.some((node) => node.id === pipeDraft.to) &&
-    !model.pipe_segments.some((pipe) => pipe.id === pipeDraft.id.trim()) &&
-    ![...queuedIntents, ...localIntents].some((intent) => intent.change.change_kind === "connect_pipe_run" && intent.target.ref === pipeDraft.id.trim());
+  const pendingViewportIntents = [...reservedIntents, ...queuedIntents, ...localIntents];
+  const nodeBuild = buildNodeCreationSubmission(
+    model,
+    pendingViewportIntents,
+    nodeDraft,
+    pendingViewportIntents.length + 1,
+    `length=${unitDimensionValidationStatus(unitCatalogRoute, nodeDraft.coordinateUnit, "length")}`
+  );
+  const routeDraft = routeDraftFromState(pipeDraft, routeEndMode, newEndDraft);
+  const routeBuild = buildRouteSubmission(
+    model,
+    pendingViewportIntents,
+    routeDraft,
+    pendingViewportIntents.length + 1,
+    `length=${unitDimensionValidationStatus(unitCatalogRoute, pipeDraft.lengthUnit, "length")}`
+  );
+  const nodeDraftValid = nodeBuild.ok;
+  const pipeDraftValid = routeBuild.ok;
   const componentDraftValid = isComponentDraftValid(model, componentDraft, [
     ...queuedIntents,
     ...localIntents
@@ -246,14 +296,31 @@ export function PipeViewport({
       setPipeEndpointPickMode(null);
       setContinuePipe(false);
       setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+      setRouteEndMode("existing");
+      setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     }
   }, [armedCreationTool]);
 
   useEffect(() => {
+    const continuation = pendingAppliedRoute.current;
+    if (continuation && modelCommitToken === continuation.commitToken) {
+      pendingAppliedRoute.current = null;
+      invalidateDraftReview("Applied once through the structured operation service.");
+      finishAppliedRoute(continuation);
+      return;
+    }
+    pendingAppliedRoute.current = null;
+    invalidateDraftReview("The model changed. Add again to review the current draft.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setPipeEndpointPickMode(null);
-  }, [model]);
+  }, [model, modelCommitToken]);
+
+  useEffect(() => {
+    invalidateDraftReview("The affected selection changed. Add again to review the current draft.");
+  }, [selection.id, selection.type]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -502,38 +569,116 @@ export function PipeViewport({
     onArmCreationTool(armedCreationTool === tool ? null : tool);
   }
 
-  function addExplicitNodeIntent() {
-    if (!nodeDraftValid) return;
-    const intent = buildExplicitNodeIntent(
-      model,
-      nodeDraft,
-      unitCatalogRoute,
-      queuedIntents.length + localIntents.length + 1
-    );
-    queueIntent(intent);
-    setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+  async function addExplicitNodeIntent() {
+    if (!nodeBuild.ok) return;
+    if (!onAddDraft) {
+      queueIntent(nodeBuild.submission.kind === "single" ? nodeBuild.submission.intent : nodeBuild.submission.batch.operations[0]);
+      setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+      return;
+    }
+    await addDraftReview(nodeBuild.submission);
   }
 
-  function addExplicitPipeIntent() {
-    if (!pipeDraftValid) return;
-    const intent = buildExplicitPipeIntent(
-      model,
-      pipeDraft,
-      unitCatalogRoute,
-      queuedIntents.length + localIntents.length + 1
-    );
-    queueIntent(intent);
-    setPipeDraft(continuePipe
-      ? { ...pipeDraft, id: "", label: "", from: pipeDraft.to, to: "" }
-      : emptyPipeDraft(pipeDraft.lengthUnit || defaultLengthUnit));
-    setPipeEndpointPickMode(continuePipe ? "to" : null);
+  async function addExplicitPipeIntent() {
+    if (!routeBuild.ok) return;
+    if (!onAddDraft) {
+      if (routeBuild.submission.kind === "single") queueIntent(routeBuild.submission.intent);
+      else {
+        setDraftReviewMessage("Atomic route review is unavailable. No operation was queued.");
+        return;
+      }
+      finishAppliedRoute();
+      return;
+    }
+    await addDraftReview(routeBuild.submission);
   }
 
   function cancelPipeDraft() {
+    invalidateDraftReview("Route canceled. No reviewed operation can be applied.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setPipeEndpointPickMode(null);
     onArmCreationTool(null);
+  }
+
+  async function addDraftReview(submission: DraftSubmission) {
+    if (!onAddDraft || draftReviewBusy) return;
+    const generation = draftReviewGate.current.invalidate();
+    setDraftReview(null);
+    setDraftReviewMessage("Validating the frozen draft and generating its diff…");
+    setDraftReviewBusy(true);
+    try {
+      const review = await onAddDraft(structuredClone(submission), generation);
+      if (!draftReviewGate.current.isCurrent(generation)) return;
+      if (!review) {
+        setDraftReviewMessage("The draft was not validated. Review the current inputs and Add again.");
+        return;
+      }
+      setDraftReview(review);
+      setDraftReviewMessage("Validation passed. Review the exact operations and diff, then Apply.");
+    } finally {
+      if (draftReviewGate.current.isCurrent(generation)) setDraftReviewBusy(false);
+    }
+  }
+
+  async function applyDraftReview() {
+    if (!draftReview || !onApplyDraft || draftReviewBusy) return;
+    const generation = draftReview.generation;
+    setDraftReviewBusy(true);
+    setDraftReviewMessage("Applying the reviewed operation once…");
+    const submission = draftReview.submission;
+    const routeContinuation: AppliedRouteContinuation | null =
+      submissionOperationIds(submission).some((id) => id.includes("connect-pipe"))
+        ? {
+            commitToken: draftReview.reviewId,
+            appliedEnd: routeEndNodeId(routeDraft),
+            continuePipe,
+            pipeDraft: structuredClone(pipeDraft),
+            newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit
+          }
+        : null;
+    pendingAppliedRoute.current = routeContinuation;
+    try {
+      const applied = await onApplyDraft(draftReview);
+      if (!draftReviewGate.current.isCurrent(generation)) return;
+      if (!applied) {
+        pendingAppliedRoute.current = null;
+        setDraftReview(null);
+        draftReviewGate.current.invalidate();
+        setDraftReviewMessage("Apply did not publish a model. Update the draft and Add again.");
+        return;
+      }
+      setDraftReview(null);
+      draftReviewGate.current.invalidate();
+      setDraftReviewMessage("Applied once through the structured operation service.");
+      if (!routeContinuation) setNodeDraft(emptyNodeDraft(nodeDraft.coordinateUnit || defaultLengthUnit));
+    } finally {
+      setDraftReviewBusy(false);
+    }
+  }
+
+  function finishAppliedRoute(continuation: AppliedRouteContinuation = {
+    commitToken: "local_queued_route",
+    appliedEnd: routeEndNodeId(routeDraft),
+    continuePipe,
+    pipeDraft,
+    newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit
+  }) {
+    setPipeDraft(continuation.continuePipe
+      ? { ...continuation.pipeDraft, id: "", label: "", from: continuation.appliedEnd, to: "" }
+      : emptyPipeDraft(continuation.pipeDraft.lengthUnit || defaultLengthUnit));
+    setRouteEndMode("existing");
+    setNewEndDraft(emptyNodeDraft(continuation.newEndCoordinateUnit));
+    setPipeEndpointPickMode(continuation.continuePipe ? "to" : null);
+  }
+
+  function invalidateDraftReview(message: string | null = null) {
+    draftReviewGate.current.invalidate();
+    setDraftReview(null);
+    onInvalidateDraft();
+    if (message) setDraftReviewMessage(message);
   }
 
   function addExplicitComponentIntent() {
@@ -560,14 +705,21 @@ export function PipeViewport({
   }
 
   function updateNodeDraft(field: keyof NodeDraft, value: string) {
+    invalidateDraftReview();
     setNodeDraft((current) => ({ ...current, [field]: value }));
   }
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
+    invalidateDraftReview();
     setPipeDraft((current) => ({ ...current, [field]: value }));
     if (field === "from" || field === "to") {
       setPipeEndpointPickMode(null);
     }
+  }
+
+  function updateNewEndDraft(field: keyof NodeDraft, value: string) {
+    invalidateDraftReview();
+    setNewEndDraft((current) => ({ ...current, [field]: value }));
   }
 
   function updateComponentDraft<K extends keyof ComponentDraft>(field: K, value: ComponentDraft[K]) {
@@ -579,7 +731,9 @@ export function PipeViewport({
   }
 
   function chooseViewportTarget(target: ViewportSelectionTarget) {
+    if (draftReviewBusy) return;
     if (pipeEndpointPickMode && target.kind === "node") {
+      invalidateDraftReview();
       const mode = pipeEndpointPickMode;
       setPipeDraft((current) => nextPipeDraftWithEndpoint(current, mode, target.ref.id));
       setPipeEndpointPickMode(mode === "from" ? "to" : null);
@@ -595,6 +749,7 @@ export function PipeViewport({
     const projected =
       draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
     if (!projected) return;
+    invalidateDraftReview();
     setNodeDraft((current) =>
       buildDraftNodeFromViewportPoint(
         model,
@@ -606,10 +761,12 @@ export function PipeViewport({
   }
 
   function handleViewportPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
+    if (draftReviewBusy) return;
     if (event.button !== 0 && event.button !== undefined) return;
     const picked = pickRef.current?.(event);
     if (picked) {
       if (armedCreationTool === "pipe" && pipeEndpointPickMode && picked.type === "node") {
+        invalidateDraftReview();
         setPipeDraft((current) => nextPipeDraftWithEndpoint(current, pipeEndpointPickMode, picked.id));
         setPipeEndpointPickMode(pipeEndpointPickMode === "from" ? "to" : null);
       }
@@ -621,11 +778,23 @@ export function PipeViewport({
     }
     if (armedCreationTool === "node") {
       captureNodeDraftFromViewport(event);
+    } else if (armedCreationTool === "pipe" && routeEndMode === "new") {
+      const projected = draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
+      if (!projected) return;
+      invalidateDraftReview();
+      setNewEndDraft((current) => ({
+        ...current,
+        x: formatDraftCoordinate(projected.x),
+        y: formatDraftCoordinate(projected.y),
+        z: formatDraftCoordinate(projected.z)
+      }));
     }
   }
 
   const canCancelPipeDraft = armedCreationTool === "pipe" || continuePipe || Boolean(pipeEndpointPickMode) ||
-    JSON.stringify(pipeDraft) !== JSON.stringify(emptyPipeDraft(defaultLengthUnit));
+    routeEndMode === "new" || Boolean(draftReview) ||
+    JSON.stringify(pipeDraft) !== JSON.stringify(emptyPipeDraft(defaultLengthUnit)) ||
+    JSON.stringify(newEndDraft) !== JSON.stringify(emptyNodeDraft(defaultLengthUnit));
   const nodeToolActive = armedCreationTool === "node";
   const pipeToolActive = armedCreationTool === "pipe";
   const componentToolActive = armedCreationTool === "component";
@@ -702,6 +871,7 @@ export function PipeViewport({
                   aria-pressed={active}
                   className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
                   data-testid={`viewport-select-${target.ref.id}`}
+                  disabled={draftReviewBusy}
                   key={`${target.ref.type}:${target.ref.id}`}
                   onClick={() => chooseViewportTarget(target)}
                   style={{
@@ -742,6 +912,7 @@ export function PipeViewport({
             type="button"
             className={armedCreationTool === "node" ? "active" : ""}
             data-testid="command-node"
+            disabled={draftReviewBusy}
             aria-pressed={armedCreationTool === "node"}
             onClick={() => armCreationTool("node")}
             title="Arm node creation"
@@ -753,6 +924,7 @@ export function PipeViewport({
             type="button"
             className={armedCreationTool === "pipe" ? "active" : ""}
             data-testid="command-pipe"
+            disabled={draftReviewBusy}
             aria-pressed={armedCreationTool === "pipe"}
             onClick={() => armCreationTool("pipe")}
             title="Arm pipe-run creation"
@@ -764,6 +936,7 @@ export function PipeViewport({
             type="button"
             className={armedCreationTool === "support" ? "active" : ""}
             data-testid="command-support"
+            disabled={draftReviewBusy}
             aria-pressed={armedCreationTool === "support"}
             onClick={() => armCreationTool("support")}
             title="Arm support creation in the Inspector"
@@ -775,6 +948,7 @@ export function PipeViewport({
             type="button"
             className={armedCreationTool === "component" ? "active" : ""}
             data-testid="command-component"
+            disabled={draftReviewBusy}
             aria-pressed={armedCreationTool === "component"}
             onClick={() => armCreationTool("component")}
             title="Arm component-symbol insertion"
@@ -786,6 +960,7 @@ export function PipeViewport({
             type="button"
             className={armedCreationTool === "load" ? "active" : ""}
             data-testid="command-load"
+            disabled={draftReviewBusy}
             aria-pressed={armedCreationTool === "load"}
             onClick={() => armCreationTool("load")}
             title="Arm load creation in the Load Cases panel"
@@ -802,7 +977,7 @@ export function PipeViewport({
           type="button"
           className="command-preview-button"
           data-testid="queue-armed-creation-intent"
-          disabled={!viewportCommandTypeForCreationTool(armedCreationTool)}
+          disabled={draftReviewBusy || !viewportCommandTypeForCreationTool(armedCreationTool)}
           onClick={queueArmedPreviewIntent}
           title="Queue a review-only preview intent for the armed viewport tool"
         >
@@ -822,7 +997,7 @@ export function PipeViewport({
         data-testid="viewport-editor-intents"
       >
         <h3 className="viewport-tool-heading">{nodeToolActive ? "Create node" : pipeToolActive ? "Create pipe" : componentToolActive ? "Insert component" : "Pending changes"}</h3>
-        <div className="viewport-intent-controls">
+        <fieldset className="viewport-intent-controls" disabled={draftReviewBusy} data-testid="viewport-draft-flight-controls">
           <div className={`viewport-node-form${nodeToolActive ? " active" : ""}`} aria-label="Explicit node geometry">
             <label>
               <span>Node ID</span>
@@ -893,15 +1068,24 @@ export function PipeViewport({
               </select>
             </label>
             <small data-testid="viewport-create-node-unit-basis">Coordinates: {nodeUnitBasis.label}</small>
+            <label>
+              <span>Provenance</span>
+              <input
+                aria-label="New node provenance"
+                data-testid="viewport-create-node-provenance"
+                onChange={(event) => updateNodeDraft("provenance", event.target.value)}
+                value={nodeDraft.provenance}
+              />
+            </label>
             <button
               data-testid="queue-explicit-node-intent"
-              disabled={!nodeDraftValid}
-              onClick={addExplicitNodeIntent}
-              title="Queue explicit node create intent"
+              disabled={!nodeDraftValid || draftReviewBusy}
+              onClick={() => void addExplicitNodeIntent()}
+              title="Validate and freeze this explicit node create intent"
               type="button"
             >
               <CirclePlus size={15} aria-hidden="true" />
-              Queue node
+              Add node
             </button>
           </div>
           <div
@@ -957,7 +1141,18 @@ export function PipeViewport({
                 ))}
               </select>
             </div>
-            <div className="viewport-endpoint-field">
+            <fieldset className="viewport-end-mode" data-testid="viewport-route-end-mode">
+              <legend>End mode</legend>
+              <label>
+                <input type="radio" name="route-end-mode" value="existing" checked={routeEndMode === "existing"} onChange={() => { invalidateDraftReview(); setRouteEndMode("existing"); }} />
+                Existing node
+              </label>
+              <label>
+                <input type="radio" name="route-end-mode" value="new" checked={routeEndMode === "new"} onChange={() => { invalidateDraftReview(); setRouteEndMode("new"); setPipeEndpointPickMode(null); }} />
+                New node
+              </label>
+            </fieldset>
+            <div className="viewport-endpoint-field" hidden={routeEndMode !== "existing"}>
               <div className="viewport-field-heading">
                 <span>To</span>
                 <button
@@ -985,6 +1180,17 @@ export function PipeViewport({
                   </option>
                 ))}
               </select>
+            </div>
+            <div className="viewport-new-endpoint" hidden={routeEndMode !== "new"} data-testid="viewport-route-new-endpoint">
+              <strong>New endpoint</strong>
+              <small>Typed coordinates are authoritative. Pointer placement is only a draft aid.</small>
+              <label><span>Node ID</span><input aria-label="Route end node ID" data-testid="viewport-route-end-id" value={newEndDraft.id} onChange={(event) => updateNewEndDraft("id", event.target.value)} /></label>
+              <label><span>Label</span><input aria-label="Route end node label" data-testid="viewport-route-end-label" value={newEndDraft.label} onChange={(event) => updateNewEndDraft("label", event.target.value)} /></label>
+              <label><span>X</span><input aria-label="Route end X coordinate" data-testid="viewport-route-end-x" inputMode="decimal" value={newEndDraft.x} onChange={(event) => updateNewEndDraft("x", event.target.value)} /></label>
+              <label><span>Y</span><input aria-label="Route end Y coordinate" data-testid="viewport-route-end-y" inputMode="decimal" value={newEndDraft.y} onChange={(event) => updateNewEndDraft("y", event.target.value)} /></label>
+              <label><span>Z</span><input aria-label="Route end Z coordinate" data-testid="viewport-route-end-z" inputMode="decimal" value={newEndDraft.z} onChange={(event) => updateNewEndDraft("z", event.target.value)} /></label>
+              <label><span>Coordinate unit</span><select aria-label="Route end coordinate unit" data-testid="viewport-route-end-unit" value={newEndDraft.coordinateUnit} onChange={(event) => updateNewEndDraft("coordinateUnit", event.target.value)}>{nodeLengthUnitOptions.map((option) => <option key={option.symbol} value={option.symbol}>{option.symbol}</option>)}</select></label>
+              <label><span>Provenance</span><input aria-label="Route end provenance" data-testid="viewport-route-end-provenance" value={newEndDraft.provenance} onChange={(event) => updateNewEndDraft("provenance", event.target.value)} /></label>
             </div>
             <label>
               <span>Material</span>
@@ -1040,6 +1246,7 @@ export function PipeViewport({
               </select>
             </label>
             <small data-testid="viewport-create-pipe-unit-basis">Pipe geometry: {pipeUnitBasis.label}</small>
+            <small data-testid="viewport-construction-plane">Construction plane: XZ @ Y=0</small>
             <label>
               <span>Yref X</span>
               <input
@@ -1083,8 +1290,8 @@ export function PipeViewport({
               />
             </label>
             <label>
-              <input type="checkbox" data-testid="continue-pipe-after-queue" checked={continuePipe} onChange={(event) => setContinuePipe(event.target.checked)} />
-              Continue from end after queue; keep the entered material, dimensions, orientation and provenance
+              <input type="checkbox" data-testid="continue-pipe-after-queue" checked={continuePipe} onChange={(event) => { invalidateDraftReview(); setContinuePipe(event.target.checked); }} />
+              Continue from end after Apply; keep the entered material, dimensions, orientation and provenance
             </label>
             <button
               type="button"
@@ -1097,13 +1304,13 @@ export function PipeViewport({
             </button>
             <button
               data-testid="queue-explicit-pipe-intent"
-              disabled={!pipeDraftValid}
-              onClick={addExplicitPipeIntent}
-              title="Queue explicit straight-pipe connect intent"
+              disabled={!pipeDraftValid || draftReviewBusy}
+              onClick={() => void addExplicitPipeIntent()}
+              title="Validate and freeze this explicit straight route"
               type="button"
             >
               <GitBranch size={15} aria-hidden="true" />
-              Queue pipe
+              Add route
             </button>
           </div>
           <div
@@ -1272,12 +1479,20 @@ export function PipeViewport({
               Queue {componentDraft.kind}
             </button>
           </div>
+          {onAddDraft ? (
+            <section className="viewport-draft-review" aria-label="Route review" data-testid="viewport-draft-review">
+              <h4>Review and Apply</h4>
+              {draftReviewMessage ? <p role="status" data-testid="viewport-draft-review-message">{draftReviewMessage}</p> : null}
+              {draftReview ? <DraftReviewPreview review={draftReview} /> : <p className="muted">Add a complete node or route to generate the service validation and exact diff.</p>}
+              <button type="button" data-testid="apply-reviewed-draft" disabled={!draftReview || draftReviewBusy || !onApplyDraft} onClick={() => void applyDraftReview()}>Apply</button>
+            </section>
+          ) : null}
           <details className="viewport-technical-details"><summary>Unit source</summary><small data-testid="viewport-unit-catalog-status">
             {unitCatalogRoute?.route === "tauri_unit_catalog"
               ? `DEC-018 unit catalog loaded; entries=${unitCatalogRoute.catalog.entry_count}`
               : "browser preview uses model metadata for viewport length units"}
           </small></details>
-        </div>
+        </fieldset>
         <details className="viewport-technical-details"><summary>Pending changes ({visibleIntents.length})</summary>
         <div className="viewport-intent-list" data-testid="viewport-intent-list">
           {visibleIntents.length === 0 ? (
@@ -1307,8 +1522,43 @@ export function PipeViewport({
   );
 }
 
+function DraftReviewPreview({ review }: { review: FrozenDraftReview }) {
+  const operationIds = submissionOperationIds(review.submission);
+  const diffs = "operation_outcomes" in review.outcome
+    ? review.outcome.operation_outcomes.flatMap((step) => step.diff_preview)
+    : review.outcome.diff_preview;
+  return (
+    <div data-testid="viewport-draft-review-preview">
+      <p><strong>{review.submission.kind === "batch" ? "Atomic batch" : "Single operation"}</strong>: {operationIds.join(" → ")}</p>
+      <p>Validated model hash: {review.basisHash.value}</p>
+      <ul>{diffs.map((diff, index) => <li key={`${index}:${diff.entity_ref}:${diff.field_path}`}>{diff.entity_ref} {diff.field_path}: {diff.before} → {diff.after} [{diff.unit}]</li>)}</ul>
+    </div>
+  );
+}
+
+function routeDraftFromState(pipe: PipeDraft, endMode: RouteEndMode, newEnd: NodeDraft): RouteDraft {
+  return {
+    startNodeId: pipe.from,
+    endMode,
+    existingEndNodeId: pipe.to,
+    newEnd,
+    pipe: {
+      id: pipe.id,
+      label: pipe.label,
+      materialId: pipe.material,
+      outsideDiameter: pipe.outsideDiameter,
+      wallThickness: pipe.wallThickness,
+      lengthUnit: pipe.lengthUnit,
+      yReferenceX: pipe.yReferenceX,
+      yReferenceY: pipe.yReferenceY,
+      yReferenceZ: pipe.yReferenceZ,
+      provenance: pipe.provenance
+    }
+  };
+}
+
 function emptyNodeDraft(lengthUnit: string): NodeDraft {
-  return { id: "", label: "", coordinateUnit: lengthUnit, x: "", y: "", z: "" };
+  return { id: "", label: "", coordinateUnit: lengthUnit, x: "", y: "", z: "", provenance: "" };
 }
 
 function viewportCommandTypeForCreationTool(tool: CreationTool | null): ViewportCommandType | null {
@@ -1352,7 +1602,7 @@ function emptyPipeDraft(lengthUnit: string): PipeDraft {
     yReferenceX: "",
     yReferenceY: "",
     yReferenceZ: "",
-    provenance: "user_entered_local_preview"
+    provenance: ""
   };
 }
 
@@ -1461,7 +1711,8 @@ function buildDraftNodeFromViewportPoint(
     coordinateUnit,
     x: formatDraftCoordinate(point.x),
     y: formatDraftCoordinate(point.y),
-    z: formatDraftCoordinate(point.z)
+    z: formatDraftCoordinate(point.z),
+    provenance: ""
   };
 }
 

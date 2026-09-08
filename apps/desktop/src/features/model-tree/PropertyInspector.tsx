@@ -4,7 +4,7 @@ import { MaterialTemperatureForm } from "../material-temperature/MaterialTempera
 import { WindExposureForm } from "../wind-exposure/WindExposureForm";
 import { SectionAssignment } from "../toolkit/SectionAssignment";
 import { GuardedRemoval } from "../toolkit/GuardedRemoval";
-import { ListPlus, Pencil, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
+import { ListPlus, Pencil, PlayCircle, PlusCircle, SearchCheck, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type {
   EditorOperationIntent,
@@ -38,6 +38,7 @@ export function PropertyInspector({
   model,
   onQueueIntent,
   onValidateIntent,
+  onApplyIntent,
   operationBusy = false,
   operationOutcomes = {},
   queuedIntents = [],
@@ -46,6 +47,7 @@ export function PropertyInspector({
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
   onValidateIntent?: (intent: EditorOperationIntent) => void;
+  onApplyIntent?: (intent: EditorOperationIntent) => void;
   operationBusy?: boolean;
   operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
@@ -155,6 +157,7 @@ export function PropertyInspector({
     ((proposedValue.trim() || "TBD") !== selectedField.before ||
       (selectedField.unitEditable && (proposedUnit.trim() || selectedField.unit) !== selectedField.unit))
   );
+  const currentIntentComplete = Boolean(operationIntent && fieldChanged && operationIntentIsComplete(operationIntent));
 
   useEffect(() => {
     const firstField = editableFields[0];
@@ -374,6 +377,16 @@ export function PropertyInspector({
               >
                 <SearchCheck size={14} aria-hidden="true" />
                 Validate
+              </button>
+              <button
+                data-testid="apply-editor-intent-inline"
+                disabled={!currentIntentComplete || operationBusy || !onApplyIntent}
+                onClick={() => operationIntent && onApplyIntent?.(operationIntent)}
+                title="Apply this exact displayed intent through the operation service"
+                type="button"
+              >
+                <PlayCircle size={14} aria-hidden="true" />
+                Apply
               </button>
             </div>
             <details className="inspector-details">
@@ -2826,6 +2839,18 @@ function buildDeletePipeIntent(
     },
     rationale: `explicit user-entered pipe deletion for ${model.project.id}; requires reference validation before durable model change.`
   };
+}
+
+function operationIntentIsComplete(intent: EditorOperationIntent): boolean {
+  if (!intent.target.ref.trim() || !intent.change.after.trim() || intent.change.after === "TBD") return false;
+  if (intent.change.unit === "TBD" || !intent.change.unit.trim()) return false;
+  if (intent.change.dimension === "dimensionless") return true;
+  try {
+    const quantity = JSON.parse(intent.change.after) as { value?: unknown; unit?: unknown };
+    return Number.isFinite(quantity.value) && typeof quantity.unit === "string" && quantity.unit.trim().length > 0;
+  } catch {
+    return false;
+  }
 }
 
 function matchingInlineValidationOutcome(

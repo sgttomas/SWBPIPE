@@ -1,0 +1,165 @@
+{
+  "analysis_status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE"
+  },
+  "combinations": [],
+  "components": [],
+  "data_boundary": {
+    "private_data_policy": "local_user_document_not_committed_to_repository",
+    "professional_boundary": "human_review_required_no_software_approval_claim",
+    "protected_source_policy": "no_protected_standards_content_inserted",
+    "public_examples_policy": "blank_user_created_local_document_no_bundled_engineering_values"
+  },
+  "diagnostics": [
+    {
+      "affected_refs": [
+        "project:blank-local-20260908t174230z"
+      ],
+      "code": "BLANK_PROJECT_AUTHORING_TARGET",
+      "id": "diagnostic:blank-project:authoring-target",
+      "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+      "severity": "blocking",
+      "source": "apps/desktop/src/services/projectService.ts"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "load:UI-A",
+      "kind": "primitive_user_load",
+      "label": "Invented Phase A force",
+      "primitive_loads": [
+        {
+          "category": "concentrated_force",
+          "dimension": "force",
+          "direction": "global_y",
+          "id": "load:UI-A-FY",
+          "magnitude": {
+            "unit": "N",
+            "value": 500
+          },
+          "provenance": "invented_synthetic_ui_acceptance_input",
+          "target": {
+            "node": "node:UI-A-110",
+            "type": "node"
+          }
+        }
+      ],
+      "provenance": "invented_synthetic_ui_acceptance_input",
+      "status": "preview_only"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000
+      },
+      "id": "material:ui-phase-a-invented",
+      "label": "Invented carbon steel",
+      "provenance": "invented_synthetic_ui_acceptance_input",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 77000000000
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:UI-A-100",
+      "label": "Anchor",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_synthetic_ui_acceptance_input"
+    },
+    {
+      "id": "node:UI-A-110",
+      "label": "Loaded end",
+      "position": {
+        "x": 3.2,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_synthetic_ui_acceptance_input"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:UI-A-100",
+      "id": "pipe:UI-A-100",
+      "label": "Straight run",
+      "material": "material:ui-phase-a-invented",
+      "provenance": "invented_synthetic_ui_acceptance_input",
+      "section": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "section_ref": "section:ui-phase-a-straight",
+      "to": "node:UI-A-110",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      }
+    }
+  ],
+  "project": {
+    "description": "User-created local blank model document. Add explicit nodes, pipe runs, supports, materials, loads, and combinations through structured editors before solving.",
+    "id": "project:blank-local-20260908t174230z",
+    "name": "Blank Local Model",
+    "units": {
+      "force": "N",
+      "length": "m",
+      "moment": "N*m",
+      "pressure": "Pa",
+      "stress": "Pa",
+      "temperature": "C"
+    }
+  },
+  "schema_version": "0.2.0",
+  "sections": [
+    {
+      "id": "section:ui-phase-a-straight",
+      "name": "Invented straight pipe",
+      "properties": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "provenance": "invented_synthetic_ui_acceptance_input",
+      "section_type": "pipe"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:UI-A-100",
+      "label": "Anchor support",
+      "node": "node:UI-A-100",
+      "provenance": "invented_synthetic_ui_acceptance_input",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

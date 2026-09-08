@@ -1,0 +1,38 @@
+{
+  "record_kind": "final_ri_actual_dispatch_acknowledgment",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T18:09:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "ACTUALLY_DISPATCHED",
+  "root_action": "HELP_HUMAN read and approved the sealed final RI amendment, then actually continued the same RI instance through followup_task.",
+  "sealed_amendment": {
+    "path": "../instances/RI/FINAL_REVIEW_AMENDMENT_V1.md",
+    "sha256": "eb9028f4badf7fd697bc80954c03447c25ad9b4ad46fbc8cd34a9f91cc3a9257"
+  },
+  "actual_dispatch": {
+    "task_identity": "/root/combined_implementation_review",
+    "mechanism": "followup_task",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false,
+    "status": "RUNNING_FINAL_RI"
+  },
+  "held_gates": [
+    "root_integration_decision",
+    "source_changes",
+    "step_5",
+    "receipt_137",
+    "source_freeze",
+    "full_clean_source_dec_025",
+    "ci",
+    "publication",
+    "merge"
+  ],
+  "authority_effect": "This record acknowledges actual final RI dispatch only. It creates no review verdict, source change, integration acceptance, Step 5 completion, receipt, or publication authority."
+}

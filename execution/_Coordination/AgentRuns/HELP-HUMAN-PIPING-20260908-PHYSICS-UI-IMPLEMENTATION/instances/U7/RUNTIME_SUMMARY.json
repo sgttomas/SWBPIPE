@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "U7",
+  "started_at": "2026-09-08T05:59:51-0600",
+  "finished_at": "2026-09-08T07:58:07-0600",
+  "manager": "/root/native_authoring",
+  "agent2_sessions": [
+    {
+      "identity": "/root/native_authoring/u7_i1",
+      "initial_node": "U7-I1",
+      "successor_node": "U7-R1",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "initial_status": "CANDIDATE_COMPLETE_PENDING_PARENT_VALIDATION",
+      "successor_status": "REPAIR_COMPLETE_PENDING_PARENT_VALIDATION"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "reason_code": "U7-MGR-REVIEW-EXACT-BINDING",
+      "detection_layer": "manager integration review",
+      "disposition": "disclosed direct manager candidate patch; four App failures; returned to sealed U7-R1 remediation"
+    },
+    {
+      "attempt": 2,
+      "reason_code": "U7-R1-STRUCTURAL-EQUALITY-AND-UNTRUSTED-RESERVATION",
+      "detection_layer": "Agent 2 remediation and focused/full checks",
+      "disposition": "repaired and frozen; App 132/132, route 12/12, inspector 9/9, Playwright 1/1"
+    }
+  ],
+  "runtime_measurement": "Exact token/context occupancy is not exposed by this runtime and was not inferred.",
+  "handoff": "Final nine-path source cut frozen pending fresh independent product-diff review and root-serialized packaged native witness."
+}

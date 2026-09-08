@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "RI_PRECHECK_RELEASED_CONCURRENT_WITH_CHANGE_NATIVE_BUILD",
+  "work_graph": {"path":"../WORK_GRAPH_V2.json","sha256":"c3f06622d8e4cdb99ae481453efaaa2b6eede1901a332ce394f0ed7a01e87d66"},
+  "brief": {"path":"../instances/RI/PRECHECK_LAUNCH_BRIEF_V1.md","sha256":"021018b89a3b585f9b7e9e505861c22e7d204155d4eb860a541ed9760579b6b9"},
+  "f4_source": {"path":"../../../../../core/solver/nonlinear_integration/src/lib.rs","sha256":"6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46","review":"PASS"},
+  "u7_source": {"path":"../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/R3_SUCCESSOR_MANIFEST_V3.json","sha256":"bd5cdbdb12a71179df68305ef375071743607e91bea0f9d3fac074240247ca30","same_ru_review":"PASS"},
+  "ru_review": {"path":"../instances/RU/successors/RU-R3-BACKCHECK/REVIEW.md","sha256":"89d26315120026c2aa43741e52b6ef01aa8ce0860141ee17f9341ea25df364ca"},
+  "ru_return": {"path":"../instances/RU/successors/RU-R3-BACKCHECK/RETURN.md","sha256":"e86adec6b0cb50fd5e3cce2b0f1f9486c39781e5940f9a9f574933211c116e98"},
+  "root_verification": "All source writers stopped; all nine live U7 paths match the V3 manifest; frozen F4 source is unchanged; RU terminal outputs and inventory were independently verified.",
+  "release": "Root releases only read-only provisional RI_PRECHECK, concurrent with CHANGE's separately owned native build.",
+  "dispatch": {"instance":"/root/combined_implementation_review","parent":"/root (HELP_HUMAN, Agent 0)","construction":"fresh bounded ephemeral Agent 2 generalist","model":"gpt-5.6-sol","reasoning":"high","fork_turns":"none","delegation":"prohibited","state":"RUNNING"},
+  "native_state_at_dispatch": "CHANGE native build active; no app launch yet.",
+  "held": "Native GUI witness remains held for final CHANGE bundle/identity evidence. RI final PASS, integration, DEC-025, Step 5, Receipt 137 and publication remain held."
+}

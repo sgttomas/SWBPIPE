@@ -4,7 +4,6 @@
 **Last Updated:** 2026-09-08
 
 ## Remaining
-- Implement the current-iterate derived-normal `+/- mu*N` repair only after the unanswered Owner Step 1 exception and a root source amendment; diagnosis and the independently backchecked V2 implementation brief are complete, while source and post-change tests remain untouched (evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/RETURN.md`, `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/IMPLEMENTATION_BRIEF_V2.md`, and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/R/BACKCHECK_RETURN_V2.md`).
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
@@ -29,3 +28,4 @@
 - 2026-07-12 - D-41 R5 T7/PDU-054 reconciled 2 cited declaration claims to the live implemented slice, current authority, and surviving residuals; per-deliverable backcheck removed the exact D-41 bootstrap item. State remains IN_PROGRESS; no review, validation, issuance, or lifecycle ruling was made.
 
 - 2026-09-05 - P4 physics audit repair checkpoint accepted for R02/R04/R06 finite active-set boundary and exact contact. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.
+- 2026-09-08 - The Owner-approved bounded current-normal friction repair reached technical integration after RF backcheck and final RI `PASS`; the completed repair item was removed from Remaining. State remains IN_PROGRESS, and the surviving formal-review/dimensional, direction/history, and broader-threshold holds are unchanged.

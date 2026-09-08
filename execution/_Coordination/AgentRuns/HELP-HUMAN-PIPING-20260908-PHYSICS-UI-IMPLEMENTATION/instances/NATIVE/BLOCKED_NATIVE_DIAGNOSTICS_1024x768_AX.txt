@@ -1,0 +1,221 @@
+Window: "OpenPipeStress Technical Preview", App: OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: on
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 8  of  8  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented carbon steel material:ui-phase-a-invented, Help: Invented carbon steel (material:ui-phase-a-invented), Value: off
+						51 heading Sections, Value: 3
+							52 text Sections
+						53 toggle button Invented straight pipe section:ui-phase-a-straight, Help: Invented straight pipe (section:ui-phase-a-straight), Value: off
+						54 heading Nodes, Value: 3
+							55 text Nodes
+						56 toggle button Anchor node:UI-A-100, Help: Anchor (node:UI-A-100), Value: off
+						57 toggle button Loaded end node:UI-A-110, Help: Loaded end (node:UI-A-110), Value: off
+						58 heading Pipes, Value: 3
+							59 text Pipes
+						60 toggle button Straight run pipe:UI-A-100, Help: Straight run (pipe:UI-A-100), Value: off
+						61 heading Supports, Value: 3
+							62 text Supports
+						63 toggle button Anchor support support:UI-A-100, Help: Anchor support (support:UI-A-100), Value: off
+						64 heading Load Cases, Value: 3
+							65 text Load Cases
+						66 toggle button Invented Phase A force load:UI-A, Help: Invented Phase A force (load:UI-A), Value: off
+					67 text 3D Centerline
+					68 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						69 summary Deformation · blocked, Value: off
+							70 text Deformation · blocked
+					71 container Viewport display toggles
+						72 toggle button Labels, Help: Show or hide entity labels, Value: on
+						73 toggle button Loads, Help: Show or hide load arrows, Value: on
+						74 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					75 text Selected:  load:UI-TEMP
+					76 container
+						77 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						78 container Viewport entity selection
+							79 toggle button Select Anchor in viewport, Help: Anchor (node:UI-A-100), Value: off
+							80 toggle button Select Loaded end in viewport, Help: Loaded end (node:UI-A-110), Value: off
+							81 toggle button Select Straight run in viewport, Help: Straight run (pipe:UI-A-100), Value: off
+							82 toggle button Select Anchor support in viewport, Help: Anchor support (support:UI-A-100), Value: off
+						83 container Orientation gizmo
+						84 container View controls
+							85 toggle button Front, Value: off
+							86 toggle button Top, Value: off
+							87 toggle button Iso, Value: on
+						88 text 1 m
+					89 container Command and selection bar
+						90 container Object creation tools
+							91 toggle button Node, Help: Arm node creation, Value: off
+							92 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							93 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							94 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							95 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						96 text Select
+						97 summary Selection & navigation, Value: off
+							98 text Selection & navigation
+					99 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					100 container Property inspector
+						101 heading load:UI-TEMP, Value: 2
+							102 text load:UI-TEMP
+						103 summary All properties, Value: off
+							104 text All properties
+						105 container Editor operation intent
+							106 text Select a model entity to edit its properties.
+						107 summary Sources and units, Value: off
+							108 text Sources and units
+						109 summary New section, Value: off
+							110 text New section
+						111 summary New material, Value: off
+							112 text New material
+						113 summary New support, Value: off
+							114 text New support
+						115 summary New component, Value: off
+							116 text New component
+				117 container Workspace sections
+					118 container
+						119 heading Results, Value: 2
+							120 text Results
+						121 button Close
+				122 container Workspace status
+					123 container Analysis statuses
+						124 summary Mechanics model incomplete, Value: off
+							125 text Mechanics
+							126 text model incomplete
+						127 summary Rule check Inputs needed, Value: off
+							128 text Rule check
+							129 text Inputs needed
+						130 summary Professional Review required, Value: off
+							131 text Professional
+							132 text Review required
+						133 summary Value: off, Solve proof seam=tauri backend job; project=project:blank-local-20260908t165725z; result model=project:blank-local-20260908t165725z; identity=match; rows=0; generation=12; job=backend-solve-job-1; model sha256=sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08; input manifest sha256=f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258
+							134 text Solve proof
+							135 text seam=tauri backend job; project=project:blank-local-20260908t165725z; result model=project:blank-local-20260908t165725z; identity=match; rows=0; generation=12; job=backend-solve-job-1; model sha256=sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08; input manifest sha256=f1475b1fe2c22fc6df82161e5c9d14b2ca5f2c7c9f78ad36f4c7414a1f050258
+					136 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					137 button (expanded) ⚑ 12 Issues, Secondary Actions: Collapse
+				138 container Issues home
+					139 text ISSUES
+					140 heading Diagnostics and required inputs, Value: 2
+						141 text Diagnostics and required inputs
+					142 button Close
+					143 container Diagnostics
+						144 text DIAGNOSTICS
+						145 container Diagnostic filtering
+							146 container
+								147 text Filter diagnostics
+								148 search text field (settable) Filter diagnostics, Placeholder: Code, severity, source, message, or affected ref
+									149 text Code, severity, source, message, or affected ref
+							150 text 10  of  10  diagnostics visible
+							151 button (disabled) Clear diagnostic filter
+							152 container Diagnostic severity summary
+								153 text 8 Blocking 0 Errors 1 Warnings 1 Info
+						154 container Diagnostic detail
+							155 heading Diagnostic Detail, Value: 3
+								156 text Diagnostic Detail
+							157 text Select a diagnostic to inspect affected refs, linked results, and review context.
+						158 button BLANK_PROJECT_AUTHORING_TARGET Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.
+						159 button SUPPORT_STIFFNESS_UNRESOLVED Support linear_stiffness and rotational_stiffness values are not supplied; preview mechanics uses bounded placeholder diagnostics.
+						160 button RULE_CHECK_NOT_PERFORMED No code or owner rule pack is loaded in the technical preview.
+						161 button PROVENANCE_INPUT_MISSING node record requires explicit invented or cleared provenance for public preview mechanics
+						162 button PROVENANCE_INPUT_MISSING node record requires explicit invented or cleared provenance for public preview mechanics
+						163 button PROVENANCE_INPUT_MISSING pipe record requires explicit invented or cleared provenance for public preview mechanics
+						164 button PROVENANCE_INPUT_MISSING support record requires explicit invented or cleared provenance for public preview mechanics
+						165 button PROVENANCE_INPUT_MISSING material record requires explicit invented or cleared provenance for public preview mechanics
+						166 button PROVENANCE_INPUT_MISSING load-case record requires explicit invented or cleared provenance for public preview mechanics
+						167 button PROVENANCE_INPUT_MISSING primitive-load record requires explicit invented or cleared provenance for public preview mechanics
+					168 container Missing-data blocking review
+						169 text MISSING DATA BLOCKING
+						170 container
+							171 checkbox Include known private values in this local export, Value: 0
+							172 text Include known private values in this local export
+						173 text decisions= 234 ; findings= 226 ; blocked= true
+						174 container missing-data-export-link redaction decisions
+							175 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; classificatio
+						176 container missing-data-export-link redaction findings
+							177 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; class=PROVENANCE_
+						178 text Warning JSON
+						179 text available; classes= 6 ; active= 3 ; solve_blocked= true ; rule_blocked= true ; private_payload= false Class coverage
+						180 text SOLVE_BLOCKING:active; RULE_CHECK_BLOCKING:active; PROVENANCE_WARNING:available_no_active_preview_item; ASSUMPTION_WARNING:active; NONLINEAR_WARNING:available_no_active_preview_item; IP_BOUNDARY_WARNING:available_no_active_preview_item
+						181 text Status separation
+						182 text mechanics=MODEL_INCOMPLETE; rule_check=RULE_INPUTS_INCOMPLETE; mechanics_reviewable=false; mechanics_qualified=true
+						183 text Unit input policy
+						184 text required=true; default_units=false; conversion=false; model_units=C,N,N*m,Pa,m
+						185 text Blocking
+						186 text solve=1; rule=2; ids=rule-check-required-inputs,solve-required-physical-inputs
+						187 text Assistive fields
+						188 text class,severity,affected_refs,message,remediation; color_only=false
+						189 text Boundary
+						190 text silent_defaults=false; auto_fill=false; protected=false; compliance=false
+						191 container
+							192 text ASSUMPTION_WARNING warning ; solve_blocking= false ; rule_blocking= false No hash-bound human acceptance record is attached to this preview state. Treat outputs as review context until human authority records acceptance outside the software.
+						193 container
+							194 text RULE_CHECK_BLOCKING warning ; solve_blocking= false ; rule_blocking= true User-rule required inputs are absent, so rule-check pass/fail and ratios stay blocked. Provide private rule-pack criteria, user-supplied values, provenance, and checksums before rule-check reliance.
+						195 container
+							196 text SOLVE_BLOCKING blocking ; solve_blocking= true ; rule_blocking= true Mechanics solve-required data is incomplete. Provide explicit geometry, support, load, material, section, and unit data before solving.
+						197 text Missing-data warnings distinguish mechanics solve readiness from user-rule checking. They do not fill missing engineering values; acceptance and professional judgment remain with the responsible engineer.
+				198 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	199 close button
+	200 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	201 minimize button
+	202 text OpenPipeStress Technical Preview
+203 menu bar
+	204 OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908
+	205 File
+	206 Edit
+	207 View
+	208 Insert
+	209 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

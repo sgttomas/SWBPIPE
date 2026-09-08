@@ -1,0 +1,45 @@
+Command intent: count declared authority and manifest-member lines before review.
+Exit: 1
+
+Output:
+wc: projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/IMPLEMENTATION_BRIEF_V2.md: open: No such file or directory
+wc: projects/chirality-piping/execution/PKG-04_Solver: open: No such file or directory
+wc: Core: open: No such file or directory
+wc: and: open: No such file or directory
+wc: Numerical: open: No such file or directory
+wc: Methods/1_Working/DEL-04-04_Nonlinear: open: No such file or directory
+wc: support: open: No such file or directory
+wc: active-set: open: No such file or directory
+wc: solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/ACTIVATION.md: open: No such file or directory
+wc: projects/chirality-piping/execution/PKG-04_Solver: open: No such file or directory
+wc: Core: open: No such file or directory
+wc: and: open: No such file or directory
+wc: Numerical: open: No such file or directory
+wc: Methods/1_Working/DEL-04-04_Nonlinear: open: No such file or directory
+wc: support: open: No such file or directory
+wc: active-set: open: No such file or directory
+wc: solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/implementation/CANDIDATE_DIFF.patch: open: No such file or directory
+wc: projects/chirality-piping/execution/PKG-04_Solver: open: No such file or directory
+wc: Core: open: No such file or directory
+wc: and: open: No such file or directory
+wc: Numerical: open: No such file or directory
+wc: Methods/1_Working/DEL-04-04_Nonlinear: open: No such file or directory
+wc: support: open: No such file or directory
+wc: active-set: open: No such file or directory
+wc: solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/MANAGER_VALIDATION.md: open: No such file or directory
+      13 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/OWNER_ACT.md
+      22 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/amendments/F4/SOURCE_RELEASE_V1.md
+    3164 projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+   17053 projects/chirality-piping/core/product_physics/src/lib.rs
+      27 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/ACTIVATION.md
+      11 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/ROOT_SOURCE_RELEASE_V1.md
+      27 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/WORK_GRAPH_V1.json
+       2 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/RUNTIME_EVENTS.jsonl
+      18 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/STATUS.json
+       9 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/RETURN.md
+      36 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/SEALED_BRIEF.md
+      41 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/RETURN.md
+      16 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/children/I1/STATUS.json
+   20439 total
+
+Disposition: the implementation brief was resolved at its authoritative prior-run path `HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/F4/IMPLEMENTATION_BRIEF_V2.md` and matched SHA-256 `63c036...`; manifest paths containing spaces were subsequently handled with quoted paths and all 14 hashes passed.

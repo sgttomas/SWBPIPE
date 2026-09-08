@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "instance_id": "RF",
+  "role": "ephemeral Agent 2 generalist",
+  "parent": "/root HELP_HUMAN",
+  "objective": "independent frozen F4 product/test diff review",
+  "state": "CHANGES_REQUIRED",
+  "source_sha": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "launch_brief": "LAUNCH_BRIEF_V2.md",
+  "launch_brief_sha256": "158bb86ae243318a3f9ab32431916a6e31bffc741667122d9c2122bcc8c5c9b6",
+  "model_requested": "gpt-5.6-sol",
+  "reasoning_requested": "high",
+  "actual_model_visibility": "not_exposed_to_instance",
+  "rust_compile_slot": "RELEASED_BY_RF",
+  "finding_count": 1,
+  "production_defect_count": 0,
+  "delegation": "prohibited"
+}

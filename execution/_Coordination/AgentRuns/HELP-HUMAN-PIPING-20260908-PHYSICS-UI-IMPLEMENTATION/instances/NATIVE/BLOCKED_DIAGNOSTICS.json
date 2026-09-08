@@ -1,0 +1,90 @@
+{
+  "schema_version": "1.0.0",
+  "native_issues_summary": {
+    "total": 10,
+    "blocking": 8,
+    "errors": 0,
+    "warnings": 1,
+    "info": 1
+  },
+  "persisted_initial_model_diagnostic": {
+    "id": "diagnostic:blank-project:authoring-target",
+    "code": "BLANK_PROJECT_AUTHORING_TARGET",
+    "severity": "blocking",
+    "source": "apps/desktop/src/services/projectService.ts",
+    "affected_refs": ["project:blank-local-20260908t165725z"],
+    "message": "Blank local model document is intentionally incomplete; no fixture entities, hidden loads, or engineering defaults were inserted.",
+    "classification": "known stale UI display limitation retained from the initial blank document; present in saved model.diagnostics; absent from mechanics_result.diagnostics; producer confirms it does not gate the backend run"
+  },
+  "native_solve_result_diagnostics": [
+    {
+      "id": "diagnostic:provenance:node:node-UI-A-100",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["node:UI-A-100"],
+      "message": "node record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:node:node-UI-A-110",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["node:UI-A-110"],
+      "message": "node record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:pipe:pipe-UI-A-100",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["pipe:UI-A-100"],
+      "message": "pipe record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:support:support-UI-A-100",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["support:UI-A-100"],
+      "message": "support record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:material:material-ui-phase-a-invented",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["material:ui-phase-a-invented"],
+      "message": "material record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:load-case:load-UI-A",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["load:UI-A"],
+      "message": "load-case record requires explicit invented or cleared provenance for public preview mechanics"
+    },
+    {
+      "id": "diagnostic:provenance:primitive-load:load-UI-A-FY",
+      "code": "PROVENANCE_INPUT_MISSING",
+      "severity": "blocking",
+      "source": "core/product_physics",
+      "affected_refs": ["load:UI-A-FY"],
+      "message": "primitive-load record requires explicit invented or cleared provenance for public preview mechanics"
+    }
+  ],
+  "other_native_issue_rows": [
+    {
+      "code": "SUPPORT_STIFFNESS_UNRESOLVED",
+      "severity": "warning",
+      "message": "Support linear_stiffness and rotational_stiffness values are not supplied; preview mechanics uses bounded placeholder diagnostics."
+    },
+    {
+      "code": "RULE_CHECK_NOT_PERFORMED",
+      "severity": "info",
+      "message": "No code or owner rule pack is loaded in the technical preview."
+    }
+  ],
+  "count_reconciliation": "8 blocking in the native Issues drawer equals 1 retained blank-project diagnostic plus 7 provenance blockers. The mechanics result contains exactly the 7 provenance blockers. There is no section provenance diagnostic in the mechanics result."
+}

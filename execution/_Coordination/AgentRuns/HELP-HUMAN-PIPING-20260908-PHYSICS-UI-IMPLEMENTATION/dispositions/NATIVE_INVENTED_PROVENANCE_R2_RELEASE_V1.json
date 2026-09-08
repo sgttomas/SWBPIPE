@@ -1,0 +1,46 @@
+{
+  "record_kind": "native_corrected_fixture_successor_release",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T17:43:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "SEALED_FOR_ROOT_VERIFICATION_AND_ACTUAL_FOLLOWUP",
+  "root_release": "HELP_HUMAN authorizes the same NATIVE instance to execute the corrected-fixture successor after it reads and verifies the sealed successor brief.",
+  "sealed_brief": {
+    "path": "../instances/NATIVE/INVENTED_PROVENANCE_R2_LAUNCH_BRIEF_V1.md",
+    "sha256": "e878999f3feff9e120d61d707304ff13b7c6e92d5014ef5094eb5cf3c0346dbf"
+  },
+  "executor": {
+    "task_identity": "/root/native_implementation_witness",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false,
+    "actual_followup_dispatch": "PENDING_ROOT_BRIEF_VERIFICATION"
+  },
+  "failed_attempt": {
+    "verdict": "CHANGES_REQUIRED_ACCEPTED_AS_HONEST_EVIDENCE",
+    "manifest_sha256": "f47fb6bb4fa5f7dc86f4f8507f28945e4cc7f4d10bf4f2988e086964f003ae1d",
+    "root_verified_manifest_members": 17,
+    "exact_app_process_absent": true,
+    "exact_dedicated_store_absent": true,
+    "preserve_unchanged": true
+  },
+  "unchanged_runtime_binding": {
+    "dirty_ten_source_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "canonical_three_file_bundle_digest": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11",
+    "rebuild_or_code_change": false
+  },
+  "successor_output_root": "../instances/NATIVE/successors/INVENTED-PROVENANCE-R2/",
+  "held_gates": [
+    "native_acceptance",
+    "final_ri",
+    "integration_acceptance",
+    "publication"
+  ],
+  "authority_effect": "This record releases only the bounded corrected-fixture native successor after root verification and actual follow-up. It adds no source, backend-policy, API, engineering, lifecycle, dependency, or acceptance decision."
+}

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0.0",
+  "verdict": "CHANGES_REQUIRED",
+  "generated_at_utc": "2026-09-08T17:27:02Z",
+  "execution_attempt": "failed native attempt using sealed provenance synthetic_ui_acceptance_input",
+  "inputs": [
+    {"path": "LAUNCH_BRIEF_DRAFT_V1.md", "bytes": 6541, "sha256": "ec3eccb31e1f34a9be5b318a29c93735ff88efa81ae0427b54834e1117b9e246"},
+    {"path": "LAUNCH_BRIEF_V1.md", "bytes": 7844, "sha256": "7d3aaeeade894dd662d3ca793984b1d25a34754a6ec329d52294d3367a510bb2"},
+    {"path": "LAUNCH_BRIEF_AMENDMENT_V1.md", "bytes": 1185, "sha256": "afc30a71ec2d39eca7b5868f4e706fa761c622bf5973f2b0794d5fa5e0c1b61b"},
+    {"path": "LAUNCH_BRIEF_AMENDMENT_V2.md", "bytes": 1456, "sha256": "6d68a99e9f07be570854df84e30f5031ef2b5ffdaf4a96fd2566a9c79a3fafa4"}
+  ],
+  "successor_held_input_not_applied_to_this_attempt": [
+    {"path": "LAUNCH_BRIEF_AMENDMENT_V3.md", "bytes": 1795, "sha256": "528357bf9cf786e9ed9b66ba659f4307ba2f5bdc56912b79c2b16589bb7b253b"}
+  ],
+  "outputs": [
+    {"path": "ACTION_EVIDENCE.md", "bytes": 7034, "sha256": "8e9d29c926d1205f4f352f116680f3b1e5fee7142d82fa22f0ed4ece84951a7e"},
+    {"path": "BLOCKED_DIAGNOSTICS.json", "bytes": 3973, "sha256": "539624f8775b0dd0533857255fddaeb794f6f42a5d36c72f02ebd6ada9ee60dd"},
+    {"path": "BLOCKED_NATIVE_DIAGNOSTICS_1024x768.png", "bytes": 195185, "sha256": "05b284f96ba45db8aa5fa4c98fd9db7cad7a4e9acd3817019b67f056cbd0d275"},
+    {"path": "BLOCKED_NATIVE_DIAGNOSTICS_1024x768_AX.txt", "bytes": 14077, "sha256": "54197e9f12db168d3ea4d0f9ad7ab48d893971848b66687694ac799f8a0fbbb5"},
+    {"path": "CORRECTION_HISTORY.md", "bytes": 1068, "sha256": "c24a5371114493f52769464cf69cc6bcbb4b251fe3916cff94864635e099e681"},
+    {"path": "FINAL_NATIVE_1024x768.png", "bytes": 173134, "sha256": "a9ed18de4576395b2986b0330993f84272f4072fba05b338a6b8a1713dae7ad8"},
+    {"path": "FINAL_NATIVE_1024x768_AX.txt", "bytes": 8127, "sha256": "e371a49a41f8f55974cd3d57b69d345b445f1e861ff91d5c99e997627ec8ab45"},
+    {"path": "NATIVE_HASH_TUPLES.json", "bytes": 1546, "sha256": "c22bc1494a893897f09b05ecbab4cad7d41c7cf41f3a9ff96e1f2987496fdc47"},
+    {"path": "QUIT_CLEANUP_EVIDENCE.md", "bytes": 1327, "sha256": "b3593053182a01a13c70beabc48d8d1e4a89662f0f9c0d19e6c41e9f9e516136"},
+    {"path": "RETURN.md", "bytes": 1725, "sha256": "6effdc002fe3037c7121ec3ca96faa137f0e8b802db7710e30d9eacba027e1cf"},
+    {"path": "STATUS.json", "bytes": 1285, "sha256": "f433d98987863e1a3ef63547a6dd9611ee5fef53418f47ce9b3149b7b25b4c76"},
+    {"path": "STORE_EVIDENCE.json", "bytes": 3376, "sha256": "a903fab177f46a9a075bbf76c9aa8ca9fccbcfcc7f63259b1ff7cef9c0e93e01"}
+  ],
+  "external_bindings": {
+    "accepted_u7_implementation_brief_sha256": "23a2ac4595c4b9ee2e18143b057a392f42c34c57051e5f328b45cbfc2ab1f709",
+    "native_load_case_limitation_triage_sha256": "5ded45062e8f52b6add0957dd4f4e461d132f0e220c15e14b127940ef450869b",
+    "native_provenance_and_diagnostic_correction_sha256": "cd521184a1443caff6cf15f96d212c906d2bbf26ed109be2279b334bdf28c441",
+    "change_source_binding_sha256": "3ce95c6ec51813bf5ff210ffbdb5a8b9456d396cac5fc9d76151998e87c1edc8",
+    "change_build_result_sha256": "1e7412fa2ca67913a2006d4cfa2f965f77859336595e8feaf1f0cef7da7e64b6",
+    "canonical_bundle_digest": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11"
+  },
+  "postconditions": {
+    "exact_bundle_process_absent": true,
+    "exact_dedicated_store_directory_absent": true,
+    "normal_store_accessed": false,
+    "source_or_bundle_modified": false
+  }
+}

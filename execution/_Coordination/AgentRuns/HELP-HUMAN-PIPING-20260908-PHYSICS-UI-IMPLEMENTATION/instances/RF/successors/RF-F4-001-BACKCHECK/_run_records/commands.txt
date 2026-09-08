@@ -1,0 +1,8 @@
+CARGO_TARGET_DIR={RF_PRIVATE_CARGO_TARGET} cargo test --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml --locked --offline tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal -- --exact
+CARGO_TARGET_DIR={RF_PRIVATE_CARGO_TARGET} cargo test --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml --locked --offline tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal -- --exact
+CARGO_TARGET_DIR={RF_PRIVATE_CARGO_TARGET} cargo test --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml --locked --offline tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes -- --exact
+CARGO_TARGET_DIR={RF_PRIVATE_CARGO_TARGET} cargo test --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml --locked --offline
+cargo fmt --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml -- --check
+cargo clean --manifest-path {REPO_ROOT}/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml --target-dir {RF_PRIVATE_CARGO_TARGET}
+rmdir {RF_PRIVATE_CARGO_TARGET} (only if Cargo left an empty directory)
+test ! -e {RF_PRIVATE_CARGO_TARGET}

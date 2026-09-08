@@ -1,0 +1,11 @@
+Command:
+cargo clean --manifest-path /tmp/chirality-rf-f4-witness/Cargo.toml --target-dir /tmp/chirality-rf-f4-cargo.gvs8TK
+
+Exit: 101
+
+Output:
+error: cannot clean `/tmp/chirality-rf-f4-cargo.gvs8TK`: missing or invalid `CACHEDIR.TAG` file
+  |
+  = note: cleaning has been aborted to prevent accidental deletion of unrelated files
+
+Disposition: the target was the RF-owned directory returned by `mktemp -d /tmp/chirality-rf-f4-cargo.XXXXXX`; it was subsequently removed by exact absolute-path deletion and absence-checked.

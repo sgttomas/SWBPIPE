@@ -1,0 +1,13 @@
+# U7 Successor RU-F1–F5 Closure Map
+
+Basis: terminal RU review SHA-256 `51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0`; successor source hashes in `SUCCESSOR_MANIFEST_V2.json`. Closure is pending same-RU backcheck.
+
+| Finding | Successor closure | Repository evidence |
+| --- | --- | --- |
+| `RU-F1` | `PipeViewport` disables the route flight fieldset, target controls, Add, Apply, and canvas drafting while busy. Permitted tree selection calls App-owned invalidation before delayed Add/Apply can publish. | `PipeViewport.tsx:996`; `App.tsx:1626-1634`; App tests at lines 15880 and 16059 resolve valid delayed responses and require no stale model, receipt, retained context, or checkpoint. |
+| `RU-F2` | `applyResultMatchesSubmission` validates complete acceptance, exact single/batch identity and diffs, ordered submitted steps, basis/hash evidence, validation state, applied model/hash, and clean top/step diagnostics. App recomputes applied-model and batch hashes before any setter. | `routeDraft.ts:235`; `App.tsx:1072-1082,1123-1127`; route tests at lines 327 and 349; App adversarial tables at lines 15923 and 15965 include incomplete acceptance, identity/diff/hash/validation mismatches, and warnings. |
+| `RU-F3` | A pending continuation snapshot survives only when the next model contains the component's own committed route; it restores Continue, endpoint, material, dimensions, orientation, and provenance while clearing consumed route identity/end fields. External replacement and Cancel still reset. | `PipeViewport.tsx:302-310,638-669,1605`; App continuation test at line 15854. |
+| `RU-F4` | Runtime reservation requires supported operation kind, supported `target.object_type`, and a nonempty ref; malformed stored evidence remains unchanged. Builder rejects equal new-node/pipe IDs before emission. | `routeDraft.ts:170-173,528-543`; route tests at lines 273, 292, and 299; existing malformed-null App persistence/requeue tests remain green. |
+| `RU-F5` | Node, new-end, pipe, and pointer drafts initialize provenance blank; coordinates may be captured without semantic provenance; Add stays disabled until explicit entry. | `PipeViewport.tsx:1557,1601,1719`; route test line 313; App blank-provenance test line 15995 and pointer test line 14724. |
+
+Final evidence: route 17/17 PASS; App 157/157 PASS; inspector 9/9 PASS; desktop `tsc -b && vite build` PASS; Chromium 1/1 PASS at 1024×768. The final post-App source delta is limited to TypeScript non-null assertions at uses already protected by `applyResultMatchesSubmission`; these assertions erase from emitted JavaScript. The affected 31-test App set passed on equivalent runtime behavior, and build/browser passed on final bytes.

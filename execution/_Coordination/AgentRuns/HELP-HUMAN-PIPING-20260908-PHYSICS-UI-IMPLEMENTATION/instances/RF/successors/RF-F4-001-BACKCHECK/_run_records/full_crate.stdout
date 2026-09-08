@@ -1,0 +1,38 @@
+
+running 29 tests
+test component_identity_tests::component_identity_accessors_are_crate_constant_derived ... ok
+test tests::audit_duplicate_support_ids_return_error ... ok
+test tests::base_fixture_dofs_match_six_dof_order ... ok
+test computed_finite_audit_tests::finite_solution_with_overflowing_reaction_or_work_is_rejected ... ok
+test tests::audit_literal_zero_iteration_cap_returns_error ... ok
+test tests::direct_reduced_profile_entries_follow_free_dof_map ... ok
+test tests::exact_derived_normal_branch_domains_include_closed_zero_and_irrelevant_rows ... ok
+test tests::duplicate_explicit_and_derived_friction_normal_source_is_invalid ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_evidence ... ok
+test tests::friction_support_derives_normal_from_named_support_reaction ... ok
+test tests::curved_bend_slot_matches_linear_arc_path_when_support_stays_released ... ok
+test tests::friction_support_slides_then_converges_through_released_frame_loop ... ok
+test tests::gap_support_prescribes_clearance_then_converges ... ok
+test tests::iteration_cap_returns_nonconvergence_failure_diagnostic ... ok
+test tests::one_way_support_deactivates_then_converges_through_frame_loop ... ok
+test tests::initial_state_is_required_for_every_nonlinear_support ... ok
+test tests::one_way_support_remains_active_when_reaction_matches_sense ... ok
+test tests::sliding_seed_at_single_iteration_cap_emits_nonconvergence_diagnostic ... ok
+test tests::sticking_friction_converged_at_single_iteration_cap_has_no_false_positive ... ok
+test tests::sliding_friction_support_applies_bounded_force_independent_of_seed ... ok
+test tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal ... ok
+test tests::zero_coefficient_derived_normal_row_applies_no_force ... ok
+test tests::tbd_policy_emits_visible_tolerance_policy_diagnostic_without_defaults ... ok
+test tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes ... ok
+test tests::derived_normal_sign_flips_retry_before_convergence_and_fail_honestly_at_cap ... ok
+test tests::two_coupled_derived_normal_rows_are_order_independent ... ok
+test tests::audit_gap_equilibrium_both_signs_seeds_and_modes ... ok
+test tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal ... ok
+test tests::audit_coupled_exact_contacts_converge_from_all_seeds ... ok
+
+test result: ok. 29 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s

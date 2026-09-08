@@ -424,30 +424,19 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         // depend on whether sliding was seeded or reached by transition.
         let sliding_force_deferred = iterations.is_empty()
             && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
-        let applied_sliding_friction_forces = applied_sliding_friction_forces(
+        let sliding_solve = solve_iteration_with_sliding_friction(
             input,
+            &stiffness,
+            &boundary,
             &current_states,
             iterations.last(),
             &friction_normals,
             &derived_friction_normals,
+            linear_solve_mode,
         )?;
-        let mut iteration_force = input.force.clone();
-        for applied in &applied_sliding_friction_forces {
-            iteration_force[applied.global_dof] += applied.force;
-        }
-        let linearized =
-            solve_linearized_system(&stiffness, &iteration_force, &boundary, linear_solve_mode)?;
-        // Support reactions are reported against the caller's base force so the
-        // bounded sliding force appears as the friction support's tangential
-        // reaction instead of vanishing into the solved load vector; free-DOF
-        // equilibrium residuals stay measured against the solved system.
-        let mut reactions = linearized.reactions.clone();
-        for applied in &applied_sliding_friction_forces {
-            reactions[applied.global_dof] += applied.force;
-        }
-        for value in &reactions {
-            validate_finite("selected reaction", *value)?;
-        }
+        let linearized = sliding_solve.linearized;
+        let reactions = sliding_solve.reactions;
+        let applied_sliding_friction_forces = sliding_solve.applied_forces;
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
             &linearized.displacements,
@@ -465,7 +454,10 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         };
         let active_set = evaluate_active_set_iteration(&active_set_input)?;
         let blocked = active_set.is_blocked();
-        let converged = active_set.converged && !blocked && !sliding_force_deferred;
+        let converged = active_set.converged
+            && !blocked
+            && !sliding_force_deferred
+            && sliding_solve.derived_normal_branches_admissible;
         current_states = active_set.states.clone();
         let residuals = residual_observation(
             &linearized,
@@ -509,6 +501,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
                 final_diagnostics.push(nonconverged_exit_diagnostic(
                     iteration_index,
                     sliding_force_deferred,
+                    !sliding_solve.derived_normal_branches_admissible,
                     &current_states,
                 ));
             }
@@ -533,7 +526,7 @@ pub fn assembled_loop_assumptions() -> Vec<String> {
     vec![
         "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.".to_string(),
         "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual axes are reported for callers to bind to explicit evidence policies.".to_string(),
-        "Friction support normal reactions are either explicit input evidence or derived as the absolute reaction at a named support-normal DOF supplied by the caller.".to_string(),
+        "Friction support normal reactions are either explicit input evidence or derived from the same linearized iterate through a named support-normal DOF supplied by the caller.".to_string(),
         "Released friction supports may persist in sliding state while nonzero displacement remains, preventing active-set chatter without adding hidden friction-load defaults.".to_string(),
         "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate defers convergence one iteration so the bounded force is applied before the loop can converge.".to_string(),
         "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.".to_string(),
@@ -547,7 +540,7 @@ pub fn assembled_loop_limitations() -> Vec<String> {
         "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.".to_string(),
         "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.".to_string(),
         "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.".to_string(),
-        "The bounded sliding friction force is a single-iterate Coulomb bound, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
+        "The bounded sliding friction force is a same-iterate affine Coulomb coupling, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.".to_string(),
         "The result is mechanics decision-support evidence; acceptance and professional judgment remain with the responsible engineer.".to_string(),
     ]
 }
@@ -682,24 +675,230 @@ fn sliding_friction_support_present(
     })
 }
 
-/// Bounded +/- mu*N Coulomb sliding forces for supports currently classified
-/// as sliding (DEC-067). The normal reaction comes from the current iterate's
-/// evidence (explicit input or the named derived-normal support reaction) and
-/// the sign opposes the observed sliding motion. On the first iteration there
-/// is no solved iterate to orient or scale the force, so no sliding force is
-/// applied; no path or load-step history model is introduced.
-fn applied_sliding_friction_forces(
+#[derive(Debug, Clone, Copy)]
+enum SlidingNormalSource {
+    Explicit(f64),
+    Derived { source_global_dof: usize },
+}
+
+#[derive(Debug, Clone)]
+struct SlidingFrictionCandidate {
+    support_id: String,
+    global_dof: usize,
+    direction: f64,
+    coefficient: f64,
+    normal_source: SlidingNormalSource,
+}
+
+struct SlidingIterationSolve {
+    linearized: LinearizedSolve,
+    reactions: DenseVector,
+    applied_forces: Vec<AppliedSlidingFrictionForce>,
+    derived_normal_branches_admissible: bool,
+}
+
+/// Solve one active-set iteration with bounded +/- mu*N Coulomb forces.
+/// Explicit normals remain constant loads. Active derived normals are solved
+/// simultaneously from the affine base response and unit-load reaction
+/// influences, so every applied force uses its current-iterate normal.
+fn solve_iteration_with_sliding_friction(
+    input: &NonlinearFrameSolveInput,
+    stiffness: &DenseMatrix,
+    boundary: &BoundaryState,
+    states: &[SupportStateRecord],
+    previous: Option<&NonlinearFrameIteration>,
+    friction_normals: &HashMap<&str, f64>,
+    derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
+    linear_solve_mode: LinearSolveMode,
+) -> Result<SlidingIterationSolve, NonlinearIntegrationError> {
+    let candidates = sliding_friction_candidates(
+        input,
+        states,
+        previous,
+        friction_normals,
+        derived_friction_normals,
+    )?;
+
+    let mut explicit_forces = Vec::new();
+    let mut derived_candidates = Vec::new();
+    for (candidate_index, candidate) in candidates.iter().enumerate() {
+        match candidate.normal_source {
+            SlidingNormalSource::Explicit(normal) => {
+                let force = -candidate.direction * candidate.coefficient * normal.abs();
+                validate_finite("explicit-normal sliding friction force", force)?;
+                if force != 0.0 {
+                    explicit_forces.push(AppliedSlidingFrictionForce {
+                        support_id: candidate.support_id.clone(),
+                        global_dof: candidate.global_dof,
+                        force,
+                    });
+                }
+            }
+            SlidingNormalSource::Derived { .. }
+                if candidate.coefficient > 0.0 && candidate.direction != 0.0 =>
+            {
+                derived_candidates.push(candidate_index);
+            }
+            SlidingNormalSource::Derived { .. } => {}
+        }
+    }
+
+    let mut base_force = input.force.clone();
+    add_applied_forces(&mut base_force, &explicit_forces);
+
+    let mut solved_derived_forces = HashMap::new();
+    let mut assumed_branches = HashMap::new();
+    if !derived_candidates.is_empty() {
+        let base = solve_linearized_system(
+            stiffness,
+            &base_force,
+            boundary,
+            LinearSolveMode::DenseScrutiny,
+        )?;
+        let base_reactions = reported_reactions(&base.reactions, &explicit_forces)?;
+
+        let mut branches = Vec::with_capacity(derived_candidates.len());
+        for &candidate_index in &derived_candidates {
+            let candidate = &candidates[candidate_index];
+            let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+                unreachable!("derived candidate index must name a derived normal")
+            };
+            let previous_reaction = previous
+                .expect("derived sliding candidate requires a previous iterate")
+                .reactions[source_global_dof];
+            let branch = if previous_reaction == 0.0 {
+                normalized_reaction_sign(base_reactions[source_global_dof])
+            } else {
+                normalized_reaction_sign(previous_reaction)
+            };
+            branches.push(branch);
+            assumed_branches.insert(candidate_index, branch);
+        }
+
+        let row_count = derived_candidates.len();
+        let mut reaction_influence = vec![vec![0.0; row_count]; row_count];
+        for (column, &load_candidate_index) in derived_candidates.iter().enumerate() {
+            let load_candidate = &candidates[load_candidate_index];
+            let mut unit_force = base_force.clone();
+            unit_force[load_candidate.global_dof] += 1.0;
+            let unit = solve_linearized_system(
+                stiffness,
+                &unit_force,
+                boundary,
+                LinearSolveMode::DenseScrutiny,
+            )?;
+            let mut unit_applied = explicit_forces.clone();
+            unit_applied.push(AppliedSlidingFrictionForce {
+                support_id: load_candidate.support_id.clone(),
+                global_dof: load_candidate.global_dof,
+                force: 1.0,
+            });
+            let unit_reactions = reported_reactions(&unit.reactions, &unit_applied)?;
+            for (row, &reaction_candidate_index) in derived_candidates.iter().enumerate() {
+                let SlidingNormalSource::Derived { source_global_dof } =
+                    candidates[reaction_candidate_index].normal_source
+                else {
+                    unreachable!("derived candidate index must name a derived normal")
+                };
+                let influence =
+                    unit_reactions[source_global_dof] - base_reactions[source_global_dof];
+                validate_finite("derived-normal reaction influence", influence)?;
+                reaction_influence[row][column] = influence;
+            }
+        }
+
+        let mut coupling = vec![vec![0.0; row_count]; row_count];
+        let mut right_hand_side = vec![0.0; row_count];
+        for (row, &candidate_index) in derived_candidates.iter().enumerate() {
+            let candidate = &candidates[candidate_index];
+            let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+                unreachable!("derived candidate index must name a derived normal")
+            };
+            let c = candidate.direction * candidate.coefficient * branches[row];
+            validate_finite("derived-normal Coulomb branch coefficient", c)?;
+            right_hand_side[row] = -c * base_reactions[source_global_dof];
+            validate_finite(
+                "derived-normal Coulomb coupling right-hand side",
+                right_hand_side[row],
+            )?;
+            for column in 0..row_count {
+                coupling[row][column] = c * reaction_influence[row][column];
+                if row == column {
+                    coupling[row][column] += 1.0;
+                }
+                validate_finite(
+                    "derived-normal Coulomb coupling matrix entry",
+                    coupling[row][column],
+                )?;
+            }
+        }
+
+        let forces = solve_dense(&coupling, &right_hand_side)?;
+        for (&candidate_index, force) in derived_candidates.iter().zip(forces) {
+            validate_finite("solved derived-normal sliding friction force", force)?;
+            solved_derived_forces.insert(candidate_index, force);
+        }
+    }
+
+    // Reconstruct public applied-force records in nonlinear-support input order.
+    let mut applied_forces = Vec::new();
+    for (candidate_index, candidate) in candidates.iter().enumerate() {
+        let force = match candidate.normal_source {
+            SlidingNormalSource::Explicit(normal) => {
+                -candidate.direction * candidate.coefficient * normal.abs()
+            }
+            SlidingNormalSource::Derived { .. } => solved_derived_forces
+                .get(&candidate_index)
+                .copied()
+                .unwrap_or(0.0),
+        };
+        if force != 0.0 {
+            applied_forces.push(AppliedSlidingFrictionForce {
+                support_id: candidate.support_id.clone(),
+                global_dof: candidate.global_dof,
+                force,
+            });
+        }
+    }
+
+    let mut final_force = input.force.clone();
+    add_applied_forces(&mut final_force, &applied_forces);
+    let linearized = solve_linearized_system(stiffness, &final_force, boundary, linear_solve_mode)?;
+    let reactions = reported_reactions(&linearized.reactions, &applied_forces)?;
+
+    let derived_normal_branches_admissible = derived_candidates.iter().all(|candidate_index| {
+        let candidate = &candidates[*candidate_index];
+        let SlidingNormalSource::Derived { source_global_dof } = candidate.normal_source else {
+            unreachable!("derived candidate index must name a derived normal")
+        };
+        derived_normal_branch_admissible(
+            candidate.coefficient,
+            candidate.direction,
+            assumed_branches[candidate_index],
+            reactions[source_global_dof],
+        )
+    });
+
+    Ok(SlidingIterationSolve {
+        linearized,
+        reactions,
+        applied_forces,
+        derived_normal_branches_admissible,
+    })
+}
+
+fn sliding_friction_candidates(
     input: &NonlinearFrameSolveInput,
     states: &[SupportStateRecord],
     previous: Option<&NonlinearFrameIteration>,
     friction_normals: &HashMap<&str, f64>,
     derived_friction_normals: &HashMap<&str, &DerivedFrictionNormalReaction>,
-) -> Result<Vec<AppliedSlidingFrictionForce>, NonlinearIntegrationError> {
+) -> Result<Vec<SlidingFrictionCandidate>, NonlinearIntegrationError> {
     let state_map = states
         .iter()
         .map(|state| (state.support_id.as_str(), state.state))
         .collect::<HashMap<_, _>>();
-    let mut applied = Vec::new();
+    let mut candidates = Vec::new();
     for support in &input.nonlinear_supports {
         if !matches!(support.behavior, NonlinearSupportBehavior::Friction) {
             continue;
@@ -724,23 +923,74 @@ fn applied_sliding_friction_forces(
             }
         })?;
         validate_nonnegative_finite("friction coefficient", coefficient)?;
-        let normal = friction_normal_for_support(
-            support,
-            &previous.reactions,
-            friction_normals,
-            derived_friction_normals,
-        )?;
-        let magnitude = coefficient * normal.abs();
-        if magnitude == 0.0 {
-            continue;
-        }
-        applied.push(AppliedSlidingFrictionForce {
+        let normal_source =
+            if let Some(normal) = friction_normals.get(support.support_id.as_str()).copied() {
+                SlidingNormalSource::Explicit(normal)
+            } else if let Some(source) = derived_friction_normals
+                .get(support.support_id.as_str())
+                .copied()
+            {
+                SlidingNormalSource::Derived {
+                    source_global_dof: node_dof_index(source.source_node_index, source.source_dof),
+                }
+            } else {
+                return Err(NonlinearSupportError::MissingFrictionData {
+                    support_id: support.support_id.clone(),
+                }
+                .into());
+            };
+        candidates.push(SlidingFrictionCandidate {
             support_id: support.support_id.clone(),
             global_dof,
-            force: -direction * magnitude,
+            direction,
+            coefficient,
+            normal_source,
         });
     }
-    Ok(applied)
+    Ok(candidates)
+}
+
+fn add_applied_forces(force: &mut [f64], applied_forces: &[AppliedSlidingFrictionForce]) {
+    for applied in applied_forces {
+        force[applied.global_dof] += applied.force;
+    }
+}
+
+/// Convert a solved reaction vector to the public convention, which reports
+/// bounded friction loads as support reactions against the caller's base load.
+fn reported_reactions(
+    solved_reactions: &[f64],
+    applied_forces: &[AppliedSlidingFrictionForce],
+) -> Result<DenseVector, NonlinearIntegrationError> {
+    let mut reactions = solved_reactions.to_vec();
+    add_applied_forces(&mut reactions, applied_forces);
+    for value in &reactions {
+        validate_finite("selected reaction", *value)?;
+    }
+    Ok(reactions)
+}
+
+fn normalized_reaction_sign(reaction: f64) -> f64 {
+    if reaction == 0.0 {
+        0.0
+    } else {
+        reaction.signum()
+    }
+}
+
+fn derived_normal_branch_admissible(
+    coefficient: f64,
+    direction: f64,
+    assumed_branch: f64,
+    current_reaction: f64,
+) -> bool {
+    if coefficient == 0.0 || direction == 0.0 {
+        true
+    } else if assumed_branch == 0.0 {
+        current_reaction == 0.0
+    } else {
+        assumed_branch * current_reaction >= 0.0
+    }
 }
 
 /// Sliding motion sense at the support DOF from the prior iterate: the free
@@ -1446,28 +1696,34 @@ fn multiply_matrix_vector(
 /// Failure diagnostic for a non-converged loop exit that carries no
 /// residual-based `NonConvergence` diagnostic from the active-set classifier.
 ///
-/// The only such exit today is the deferred-sliding-force corner: a friction
-/// support seeded sliding defers first-iterate convergence so the bounded
-/// +/- mu*N force is applied before the loop can converge, and at
-/// `max_iterations == 1` the cap is reached while the classifier residual is
-/// zero. The guard is written for every non-converged exit so the
-/// `converged == false` -> visible-diagnostic contract does not depend on
-/// which path produced the exit. Diagnostics only; no mechanics change.
+/// These exits include a deferred first sliding force or an inadmissible exact
+/// signed-normal branch reaching the existing iteration cap while the support
+/// state-change residual is zero. The guard is written for every non-converged
+/// exit so the `converged == false` -> visible-diagnostic contract does not
+/// depend on which path produced the exit. Diagnostics only; no mechanics
+/// change.
 fn nonconverged_exit_diagnostic(
     iteration_count: usize,
     sliding_force_deferred: bool,
+    derived_normal_branch_invalid: bool,
     final_states: &[SupportStateRecord],
 ) -> SolverDiagnostic {
     let cause = if sliding_force_deferred {
         "the sliding-seeded first iterate defers convergence so the bounded sliding-friction \
          force can be applied, and the iteration cap was reached before a post-deferral \
          iterate could be evaluated"
+    } else if derived_normal_branch_invalid {
+        "a derived-normal sliding-friction row remained outside its assumed exact signed-normal \
+         branch when the iteration cap was reached"
     } else {
         "the loop exited before the active-set convergence check accepted an iterate"
     };
     let remediation = if sliding_force_deferred {
         "Raise max_iterations above 1 so the loop can evaluate an iterate after the deferred \
          sliding-force first iterate."
+    } else if derived_normal_branch_invalid {
+        "Raise max_iterations or review the coupled derived-normal friction configuration before \
+         reuse."
     } else {
         "Raise max_iterations or review the nonlinear support configuration before reuse."
     };
@@ -1610,6 +1866,528 @@ mod tests {
                 max_iterations,
             )
             .unwrap(),
+        }
+    }
+
+    fn coupled_normal_friction_problem(
+        force_x: f64,
+        force_y: f64,
+        seed: ActiveSetState,
+        max_iterations: usize,
+    ) -> NonlinearFrameSolveInput {
+        let node_i = FrameNode::new(0, [0.0, 0.0, 0.0]).unwrap();
+        let node_j = FrameNode::new(1, [1.0, 1.0, 0.0]).unwrap();
+        let mut input = two_node_axial_problem(Vec::new(), Vec::new(), max_iterations);
+        input.elements.clear();
+        input.user_stiffness_elements = vec![UserStiffnessElement::new(
+            node_i,
+            node_j,
+            [-1.0, 1.0, 0.0],
+            100.0,
+            200.0,
+            200.0,
+            200.0,
+        )
+        .unwrap()];
+        input.force[node_dof_index(1, FrameDof::Ux)] = force_x;
+        input.force[node_dof_index(1, FrameDof::Uy)] = force_y;
+        input.nonlinear_supports =
+            vec![NonlinearSupport::friction("F", 1, FrameDof::Ux, 0.30).unwrap()];
+        input.initial_states = vec![SupportStateRecord::new("F", seed)];
+        input.derived_friction_normal_reactions =
+            vec![DerivedFrictionNormalReaction::from_support_reaction(
+                "F",
+                1,
+                FrameDof::Uy,
+                "fixed_y",
+            )
+            .unwrap()];
+        input
+    }
+
+    fn two_row_current_normal_problem(
+        seed: ActiveSetState,
+        first_source_force: f64,
+        second_source_force: f64,
+        tangential_forces: [f64; 2],
+        support_order: [&str; 2],
+        max_iterations: usize,
+    ) -> NonlinearFrameSolveInput {
+        let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
+        for (index, row) in stiffness.iter_mut().enumerate() {
+            row[index] = 1_000.0;
+        }
+        let ux = DOF_PER_NODE + UX;
+        let uy = DOF_PER_NODE + UY;
+        let uz = DOF_PER_NODE + UZ;
+        let rx = DOF_PER_NODE + RX;
+        stiffness[ux][ux] = 100.0;
+        stiffness[uy][uy] = 100.0;
+        stiffness[uz][ux] = 1.0;
+        stiffness[ux][uz] = 1.0;
+        stiffness[uz][uy] = -1.0;
+        stiffness[uy][uz] = -1.0;
+        stiffness[rx][uy] = 10.0;
+        stiffness[uy][rx] = 10.0;
+
+        let slot =
+            CurvedBendStiffnessElement::new("test-coupled-stiffness", 0, 1, stiffness).unwrap();
+        let mut force = vec![0.0; 2 * DOF_PER_NODE];
+        force[node_dof_index(1, FrameDof::Ux)] = tangential_forces[0];
+        force[node_dof_index(1, FrameDof::Uy)] = tangential_forces[1];
+        force[node_dof_index(1, FrameDof::Uz)] = first_source_force;
+        force[node_dof_index(1, FrameDof::Rx)] = second_source_force;
+
+        let support_for = |id: &str| match id {
+            "F-X" => NonlinearSupport::friction("F-X", 1, FrameDof::Ux, 0.20).unwrap(),
+            "F-Y" => NonlinearSupport::friction("F-Y", 1, FrameDof::Uy, 0.25).unwrap(),
+            _ => unreachable!(),
+        };
+        let normal_for = |id: &str| match id {
+            "F-X" => DerivedFrictionNormalReaction::from_support_reaction(
+                "F-X",
+                1,
+                FrameDof::Uz,
+                "source-x",
+            )
+            .unwrap(),
+            "F-Y" => DerivedFrictionNormalReaction::from_support_reaction(
+                "F-Y",
+                1,
+                FrameDof::Rx,
+                "source-y",
+            )
+            .unwrap(),
+            _ => unreachable!(),
+        };
+
+        NonlinearFrameSolveInput {
+            node_count: 2,
+            elements: Vec::new(),
+            user_stiffness_elements: Vec::new(),
+            curved_bend_elements: vec![slot],
+            force,
+            base_restrained_dofs: (0..2 * DOF_PER_NODE)
+                .filter(|dof| {
+                    *dof != node_dof_index(1, FrameDof::Ux)
+                        && *dof != node_dof_index(1, FrameDof::Uy)
+                })
+                .collect(),
+            nonlinear_supports: support_order.iter().map(|id| support_for(id)).collect(),
+            initial_states: support_order
+                .iter()
+                .map(|id| SupportStateRecord::new(*id, seed))
+                .collect(),
+            friction_normal_reactions: Vec::new(),
+            derived_friction_normal_reactions: support_order
+                .iter()
+                .map(|id| normal_for(id))
+                .collect(),
+            convergence: ConvergenceControl::new(
+                "DEC-046-current-normal-affine-fixture",
+                ConvergencePolicyStatus::Accepted,
+                0.0,
+                0.0,
+                max_iterations,
+            )
+            .unwrap(),
+        }
+    }
+
+    fn exact_zero_current_normal_problem(
+        load_sign: f64,
+        max_iterations: usize,
+    ) -> NonlinearFrameSolveInput {
+        let mut stiffness = [[0.0; ELEMENT_DOF]; ELEMENT_DOF];
+        for (index, row) in stiffness.iter_mut().enumerate() {
+            row[index] = 10.0;
+        }
+        let ux = DOF_PER_NODE + UX;
+        let uy = DOF_PER_NODE + UY;
+        stiffness[ux][ux] = 1.0;
+        stiffness[uy][uy] = 2.0;
+        stiffness[ux][uy] = -1.0;
+        stiffness[uy][ux] = -1.0;
+        let slot =
+            CurvedBendStiffnessElement::new("test-zero-normal-stiffness", 0, 1, stiffness).unwrap();
+        let mut force = vec![0.0; 2 * DOF_PER_NODE];
+        force[node_dof_index(1, FrameDof::Ux)] = load_sign;
+        force[node_dof_index(1, FrameDof::Uy)] = -load_sign;
+        NonlinearFrameSolveInput {
+            node_count: 2,
+            elements: Vec::new(),
+            user_stiffness_elements: Vec::new(),
+            curved_bend_elements: vec![slot],
+            force,
+            base_restrained_dofs: (0..2 * DOF_PER_NODE)
+                .filter(|dof| *dof != node_dof_index(1, FrameDof::Ux))
+                .collect(),
+            nonlinear_supports: vec![
+                NonlinearSupport::friction("F-ZERO", 1, FrameDof::Ux, 0.5).unwrap()
+            ],
+            initial_states: vec![SupportStateRecord::new("F-ZERO", ActiveSetState::Sticking)],
+            friction_normal_reactions: Vec::new(),
+            derived_friction_normal_reactions: vec![
+                DerivedFrictionNormalReaction::from_support_reaction(
+                    "F-ZERO",
+                    1,
+                    FrameDof::Uy,
+                    "source-zero",
+                )
+                .unwrap(),
+            ],
+            convergence: ConvergenceControl::new(
+                "DEC-046-current-normal-zero-fixture",
+                ConvergencePolicyStatus::Accepted,
+                0.0,
+                0.0,
+                max_iterations,
+            )
+            .unwrap(),
+        }
+    }
+
+    #[test]
+    fn current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes() {
+        for (force_x, force_y, expected_u, expected_normal, expected_friction) in [
+            (10.0, -10.0, 7.0 / 135.0, 200.0 / 27.0, -20.0 / 9.0),
+            (-10.0, -10.0, -7.0 / 165.0, 400.0 / 33.0, 40.0 / 11.0),
+        ] {
+            let mut physical_results = Vec::new();
+            for seed in [ActiveSetState::Sticking, ActiveSetState::Sliding] {
+                for mode in [
+                    LinearSolveMode::SparseInteractive,
+                    LinearSolveMode::DenseScrutiny,
+                ] {
+                    let input = coupled_normal_friction_problem(force_x, force_y, seed, 4);
+                    let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                    assert!(result.converged, "seed={seed:?} mode={mode:?}");
+                    assert_eq!(result.iterations.len(), 2);
+                    assert_eq!(result.final_states[0].state, ActiveSetState::Sliding);
+                    let final_iteration = result.iterations.last().unwrap();
+                    assert_eq!(final_iteration.sparse_evidence.solver_mode, mode);
+                    let applied = &final_iteration.applied_sliding_friction_forces;
+                    assert_eq!(applied.len(), 1);
+                    let displacement = result.displacements[node_dof_index(1, FrameDof::Ux)];
+                    let normal = result.reactions[node_dof_index(1, FrameDof::Uy)];
+                    let friction = result.reactions[node_dof_index(1, FrameDof::Ux)];
+                    assert!((displacement - expected_u).abs() <= 1.0e-12);
+                    assert!((normal - expected_normal).abs() <= 1.0e-12);
+                    assert!((friction - expected_friction).abs() <= 1.0e-12);
+                    assert!((applied[0].force - expected_friction).abs() <= 1.0e-12);
+                    assert!((friction.abs() - 0.30 * normal.abs()).abs() <= 1.0e-12);
+                    physical_results.push((displacement, normal, friction));
+                }
+            }
+            for result in &physical_results[1..] {
+                assert_eq!(*result, physical_results[0]);
+            }
+        }
+    }
+
+    #[test]
+    fn exact_derived_normal_branch_domains_include_closed_zero_and_irrelevant_rows() {
+        assert_eq!(normalized_reaction_sign(0.0), 0.0);
+        assert_eq!(normalized_reaction_sign(-0.0), 0.0);
+        assert!(derived_normal_branch_admissible(0.3, 1.0, 1.0, 0.0));
+        assert!(derived_normal_branch_admissible(0.3, 1.0, -1.0, -0.0));
+        assert!(derived_normal_branch_admissible(0.3, 1.0, 0.0, 0.0));
+        assert!(!derived_normal_branch_admissible(0.3, 1.0, 0.0, 1.0));
+        assert!(!derived_normal_branch_admissible(0.3, 1.0, 0.0, -1.0));
+        assert!(!derived_normal_branch_admissible(0.3, 1.0, 1.0, -1.0));
+        assert!(!derived_normal_branch_admissible(0.3, 1.0, -1.0, 1.0));
+        assert!(derived_normal_branch_admissible(0.0, 1.0, -1.0, 12.0));
+        assert!(derived_normal_branch_admissible(0.3, 0.0, -1.0, 12.0));
+    }
+
+    #[test]
+    fn both_nonzero_assumed_branches_accept_exact_zero_current_normal() {
+        for load_sign in [1.0, -1.0] {
+            for mode in [
+                LinearSolveMode::SparseInteractive,
+                LinearSolveMode::DenseScrutiny,
+            ] {
+                let input = exact_zero_current_normal_problem(load_sign, 1);
+                let first = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                let previous = &first.iterations[0];
+                let tangential_dof = node_dof_index(1, FrameDof::Ux);
+                let source_dof = node_dof_index(1, FrameDof::Uy);
+                assert_eq!(
+                    sliding_direction(0.0, previous.reactions[tangential_dof]),
+                    load_sign
+                );
+                assert_eq!(previous.reactions[source_dof], load_sign);
+                assert_eq!(previous.active_set.states[0].state, ActiveSetState::Sliding);
+
+                let mut stiffness = assemble_global_stiffness_with_user_elements(
+                    input.node_count,
+                    &input.elements,
+                    &input.user_stiffness_elements,
+                )
+                .unwrap();
+                add_curved_bend_stiffness_contributions(
+                    &mut stiffness,
+                    &input.curved_bend_elements,
+                );
+                let boundary = active_boundary(
+                    input.node_count,
+                    &input.base_restrained_dofs,
+                    &input.nonlinear_supports,
+                    &previous.active_set.states,
+                )
+                .unwrap();
+                let explicit = friction_normal_map(&input).unwrap();
+                let derived = derived_friction_normal_map(&input).unwrap();
+                let second = solve_iteration_with_sliding_friction(
+                    &input,
+                    &stiffness,
+                    &boundary,
+                    &previous.active_set.states,
+                    Some(previous),
+                    &explicit,
+                    &derived,
+                    mode,
+                )
+                .unwrap();
+                assert!(second.derived_normal_branches_admissible);
+                assert_eq!(second.reactions[source_dof], 0.0);
+                assert!(second.applied_forces.is_empty());
+            }
+        }
+    }
+
+    #[test]
+    fn derived_normal_sign_flips_retry_before_convergence_and_fail_honestly_at_cap() {
+        for (force_x, force_y) in [(10.0, -1.0), (-10.0, 1.0)] {
+            for mode in [
+                LinearSolveMode::SparseInteractive,
+                LinearSolveMode::DenseScrutiny,
+            ] {
+                let input =
+                    coupled_normal_friction_problem(force_x, force_y, ActiveSetState::Sticking, 4);
+                let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                assert!(result.converged, "force_x={force_x} mode={mode:?}");
+                assert_eq!(result.iterations.len(), 3);
+                assert_eq!(result.final_states[0].state, ActiveSetState::Sliding);
+                let final_iteration = result.iterations.last().unwrap();
+                let normal = final_iteration.reactions[node_dof_index(1, FrameDof::Uy)];
+                let friction = final_iteration.reactions[node_dof_index(1, FrameDof::Ux)];
+                assert!((friction.abs() - 0.30 * normal.abs()).abs() <= 1.0e-12);
+            }
+
+            let capped =
+                coupled_normal_friction_problem(force_x, force_y, ActiveSetState::Sticking, 2);
+            let result = solve_active_set_frame(&capped).unwrap();
+            assert!(!result.converged);
+            assert!(result.is_blocked());
+            assert_eq!(result.iterations.len(), 2);
+            assert!(result.diagnostics.iter().any(|diagnostic| {
+                diagnostic.code == SolverDiagnosticCode::NonConvergence
+                    && diagnostic.message.contains("derived-normal")
+            }));
+        }
+    }
+
+    #[test]
+    fn two_coupled_derived_normal_rows_are_order_independent() {
+        for seed in [ActiveSetState::Sticking, ActiveSetState::Sliding] {
+            for mode in [
+                LinearSolveMode::SparseInteractive,
+                LinearSolveMode::DenseScrutiny,
+            ] {
+                let mut ordered_results = Vec::new();
+                for order in [["F-X", "F-Y"], ["F-Y", "F-X"]] {
+                    let input = two_row_current_normal_problem(
+                        seed,
+                        -12.0,
+                        -100.0,
+                        [100.0, 100.0],
+                        order,
+                        6,
+                    );
+                    let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                    assert!(
+                        result.converged,
+                        "seed={seed:?} mode={mode:?} order={order:?}"
+                    );
+                    let final_iteration = result.iterations.last().unwrap();
+                    assert_eq!(final_iteration.applied_sliding_friction_forces.len(), 2);
+                    assert_eq!(
+                        final_iteration
+                            .applied_sliding_friction_forces
+                            .iter()
+                            .map(|force| force.support_id.as_str())
+                            .collect::<Vec<_>>(),
+                        order
+                    );
+                    let mut forces = final_iteration
+                        .applied_sliding_friction_forces
+                        .iter()
+                        .map(|force| (force.support_id.clone(), force.force))
+                        .collect::<Vec<_>>();
+                    forces.sort_by(|left, right| left.0.cmp(&right.0));
+                    ordered_results.push((
+                        result.displacements.clone(),
+                        result.reactions.clone(),
+                        forces,
+                    ));
+                }
+                let (left_displacements, left_reactions, left_forces) = &ordered_results[0];
+                let (right_displacements, right_reactions, right_forces) = &ordered_results[1];
+                assert!(left_displacements
+                    .iter()
+                    .zip(right_displacements)
+                    .all(|(left, right)| (left - right).abs() <= 1.0e-12));
+                assert!(left_reactions
+                    .iter()
+                    .zip(right_reactions)
+                    .all(|(left, right)| (left - right).abs() <= 1.0e-12));
+                assert_eq!(
+                    left_forces.iter().map(|force| &force.0).collect::<Vec<_>>(),
+                    right_forces
+                        .iter()
+                        .map(|force| &force.0)
+                        .collect::<Vec<_>>()
+                );
+                assert!(left_forces
+                    .iter()
+                    .zip(right_forces)
+                    .all(|(left, right)| (left.1 - right.1).abs() <= 1.0e-12));
+            }
+        }
+    }
+
+    #[test]
+    fn active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal() {
+        for signed_zero in [0.0, -0.0] {
+            for mode in [
+                LinearSolveMode::SparseInteractive,
+                LinearSolveMode::DenseScrutiny,
+            ] {
+                let input = two_row_current_normal_problem(
+                    ActiveSetState::Sliding,
+                    0.0,
+                    -100.0,
+                    [100.0, 100.0],
+                    ["F-X", "F-Y"],
+                    6,
+                );
+                let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                let mut previous = solved.iterations[0].clone();
+                let tangential_dof = node_dof_index(1, FrameDof::Ux);
+                let source_dof = node_dof_index(1, FrameDof::Uz);
+                previous.reactions[source_dof] = signed_zero;
+                assert_eq!(
+                    sliding_direction(previous.displacements[tangential_dof], 0.0),
+                    1.0
+                );
+                assert_eq!(previous.reactions[source_dof], 0.0);
+                assert_eq!(
+                    previous.reactions[source_dof].is_sign_negative(),
+                    signed_zero.is_sign_negative()
+                );
+
+                let states = vec![
+                    SupportStateRecord::new("F-X", ActiveSetState::Sliding),
+                    SupportStateRecord::new("F-Y", ActiveSetState::Sliding),
+                ];
+                let mut stiffness = assemble_global_stiffness_with_user_elements(
+                    input.node_count,
+                    &input.elements,
+                    &input.user_stiffness_elements,
+                )
+                .unwrap();
+                add_curved_bend_stiffness_contributions(
+                    &mut stiffness,
+                    &input.curved_bend_elements,
+                );
+                let boundary = active_boundary(
+                    input.node_count,
+                    &input.base_restrained_dofs,
+                    &input.nonlinear_supports,
+                    &states,
+                )
+                .unwrap();
+                let base = solve_linearized_system(
+                    &stiffness,
+                    &input.force,
+                    &boundary,
+                    LinearSolveMode::DenseScrutiny,
+                )
+                .unwrap();
+                let base_reactions = reported_reactions(&base.reactions, &[]).unwrap();
+                assert_eq!(base_reactions[source_dof], 0.0);
+
+                let explicit = friction_normal_map(&input).unwrap();
+                let derived = derived_friction_normal_map(&input).unwrap();
+                let current = solve_iteration_with_sliding_friction(
+                    &input,
+                    &stiffness,
+                    &boundary,
+                    &states,
+                    Some(&previous),
+                    &explicit,
+                    &derived,
+                    mode,
+                )
+                .unwrap();
+                assert!(!current
+                    .applied_forces
+                    .iter()
+                    .any(|force| force.support_id == "F-X"));
+                let coupled_force = current
+                    .applied_forces
+                    .iter()
+                    .find(|force| force.support_id == "F-Y")
+                    .unwrap();
+                assert!((coupled_force.force + 1100.0 / 41.0).abs() <= 1.0e-12);
+                assert_eq!(current.reactions[tangential_dof], 0.0);
+                assert!((current.reactions[source_dof] - 11.0 / 41.0).abs() <= 1.0e-12);
+                assert!(!current.derived_normal_branches_admissible);
+
+                let trial_states = build_trial_states(
+                    &input.nonlinear_supports,
+                    &current.linearized.displacements,
+                    &current.reactions,
+                    &explicit,
+                    &derived,
+                )
+                .unwrap();
+                let active_set = evaluate_active_set_iteration(&ActiveSetIterationInput {
+                    iteration: 2,
+                    max_iterations: input.convergence.max_iterations,
+                    tolerance: input.convergence.effective_tolerance(),
+                    supports: input.nonlinear_supports.clone(),
+                    trial_states,
+                    prior_states: states,
+                })
+                .unwrap();
+                assert!(active_set.converged);
+                assert!(!active_set.is_blocked());
+                let caller_converged = active_set.converged
+                    && !active_set.is_blocked()
+                    && current.derived_normal_branches_admissible;
+                assert!(!caller_converged);
+            }
+        }
+    }
+
+    #[test]
+    fn zero_coefficient_derived_normal_row_applies_no_force() {
+        for mode in [
+            LinearSolveMode::SparseInteractive,
+            LinearSolveMode::DenseScrutiny,
+        ] {
+            let mut input =
+                coupled_normal_friction_problem(10.0, -10.0, ActiveSetState::Sliding, 4);
+            input.nonlinear_supports =
+                vec![NonlinearSupport::friction("F", 1, FrameDof::Ux, 0.0).unwrap()];
+            let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+            assert!(result.converged);
+            assert!(result
+                .iterations
+                .iter()
+                .all(|iteration| iteration.applied_sliding_friction_forces.is_empty()));
         }
     }
 

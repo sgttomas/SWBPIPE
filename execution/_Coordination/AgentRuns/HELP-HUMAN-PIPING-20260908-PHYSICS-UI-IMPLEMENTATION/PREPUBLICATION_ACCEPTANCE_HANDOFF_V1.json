@@ -1,0 +1,84 @@
+{
+  "record_kind": "prepublication_acceptance_and_handoff",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-08T18:45:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "PREPUBLICATION_EVIDENCE_ACCEPTED_CHANGE_RELEASE_PREPARED",
+  "accepted_basis": {
+    "integration_snapshot": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/INTEGRATION_ACCEPTANCE_SNAPSHOT_V1.json",
+      "sha256": "442720b7c0285d964bf59caf2bebccde3c4c0a384f336177036ed3a02f8d980b"
+    },
+    "f4_step5": {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/closeout/STEP5_CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "1a52f5c47aad5ba3fe73256094a26ea102fbdd7b48ee6765443f4c0becb6bc40"
+    },
+    "u7_step5": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/STEP5_CLOSEOUT_MANIFEST_V1.json",
+      "sha256": "37fc15a689f4470475e9e7327bcd1d36283ac84e599b474eff129f1220676ab9"
+    },
+    "evidence_correction": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/PUBLICATION_EVIDENCE_REPAIR/CORRECTION_MANIFEST.json",
+      "sha256": "b224f32b2cd472264b1ff44f2f12dcc53de5de8d5463a6758b5a42aa3f1e353b",
+      "historical_resolution": "ACCEPTED_OLD_LOGICAL_PATH_HASH_RESOLVES_TO_EXACT_DECODED_ARCHIVE_CURRENT_PATH_RESOLVES_TO_SUCCESSOR"
+    },
+    "same_ri_backcheck": {
+      "verdict": "PASS",
+      "actual_followup_dispatch_by_root": true,
+      "review": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/evidence_correction_backcheck/REVIEW.md",
+        "sha256": "371c261c3df3d8b68ebebc8574b5b2fc8d4777fd5519b69b2beebaf36f47e78c"
+      },
+      "inventory": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/evidence_correction_backcheck/REVIEWED_INVENTORY.sha256",
+        "sha256": "dbda303f71109c01ee35b7490f90ebdfce4b3a581167a1d19ae49cfe1aa4faf2",
+        "root_verified_members": 122
+      },
+      "validation": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/evidence_correction_backcheck/VALIDATION.md",
+        "sha256": "08ab91b402b5b3de48c6e8d67121fd8b48cac428826702cfd3f6c0ee8fa4e500"
+      },
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/evidence_correction_backcheck/RETURN.md",
+        "sha256": "c774fa4bd996568b154b40bdfdb05206f2b2d9bde8aeeb84d3a9cfef4bcccf08"
+      },
+      "status": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/evidence_correction_backcheck/STATUS.json",
+        "sha256": "95e06aa12d761e41fb96dc6a8b0c05d7d687d1276cd0e2c2303911405b8d4e6e"
+      },
+      "root_verified_outputs": 5
+    }
+  },
+  "source_authority": {
+    "step1_exception": "EXPIRED_AT_INTEGRATION_ACCEPTANCE",
+    "new_source_writes_authorized": false,
+    "source_aggregate_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe"
+  },
+  "derivative_status": "Integration, Step 5, correction, and review records are accepted derivative evidence tied to the adopted upstream basis. They do not replace decomposition truth or change DAG, dependency, requirement, finding, lifecycle, engineering, professional, pressure, or public-compatibility state.",
+  "prepared_change_release": {
+    "plan": {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/PUBLICATION_PLAN_V1.md",
+      "sha256": "0a3a009ca3529b93b08e8243283a1879475ad9022c6e4c4ea838b0af5ca41195",
+      "root_read_and_accepted": true
+    },
+    "actual_dispatch": "PENDING_ROOT_ACTION_AFTER_C0_STOPS",
+    "released_scope": "SOURCE_FREEZE_UPSTREAM_FULL_DEC025_AND_PRACTITIONER_VALIDATION",
+    "receipt137": "HELD_UNTIL_CLEAN_TESTED_SOURCE_COMMIT_AND_FULL_DEC025_SWEEP_PRODUCE_EXACT_EXAMINED_THROUGH"
+  },
+  "remaining_sequence": [
+    "root actually dispatches CHANGE",
+    "create and verify the clean tested source commit",
+    "run complete full DEC-025 five-surface sweep without partial waiver",
+    "append and validate Receipt 137 against exact ExaminedThrough",
+    "verify evidence container",
+    "complete CI, PR publication, and merge under standing Git authority"
+  ],
+  "handoff": "C0 stops after sealing this record. CHANGE remains the sole owner of the prepared source-freeze, sweep, receipt, Git, CI, publication, and merge sequence."
+}

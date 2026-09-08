@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "DISPATCHED",
+  "parent": "/root (HELP_HUMAN, Agent 0)",
+  "instance": "/root/ui_code_review",
+  "construction": "same independent bounded ephemeral Agent 2 generalist",
+  "dispatch_method": "followup_task",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": "prohibited",
+  "brief": {"path":"../instances/RU/R3_BACKCHECK_LAUNCH_BRIEF_V1.md","sha256":"d0927807457cf59d1c0a417e89c28d0751d691064a0fb77460937f0fe9d0febf"},
+  "output_root": "instances/RU/successors/RU-R3-BACKCHECK/**",
+  "authority": "Root released only the source-read-only R3 backcheck; no acceptance or downstream native/RI/publication release is implied."
+}

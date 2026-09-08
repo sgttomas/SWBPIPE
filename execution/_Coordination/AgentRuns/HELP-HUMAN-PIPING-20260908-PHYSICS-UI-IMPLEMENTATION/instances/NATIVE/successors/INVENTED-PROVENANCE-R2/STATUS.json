@@ -1,0 +1,16 @@
+{
+  "verdict": "PASS",
+  "project_id": "project:blank-local-20260908t174230z",
+  "project_name": "Blank Local Model",
+  "complete_native_tuples": 2,
+  "final_model_hash": "sha256:97bf60ed6c4541d379767a98c3c9a14132b2c3f4e6aa992bd1348b3b6b54a41b",
+  "final_load_primitive": "load:UI-A-FY",
+  "final_load_magnitude": {"value": 500, "unit": "N"},
+  "final_image": {"path": "FINAL_1024x768.png", "width": 1024, "height": 768},
+  "native_app_quit": true,
+  "exact_process_absent": true,
+  "exact_dedicated_store_absent": true,
+  "normal_store_accessed": false,
+  "source_build_git_changed": false,
+  "root_acceptance_required": true
+}

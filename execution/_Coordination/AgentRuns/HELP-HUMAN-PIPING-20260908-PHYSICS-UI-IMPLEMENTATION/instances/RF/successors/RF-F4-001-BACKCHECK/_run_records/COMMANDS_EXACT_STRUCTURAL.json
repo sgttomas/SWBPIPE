@@ -1,0 +1,101 @@
+{
+  "workdir": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+  "commands": [
+    {
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      },
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--locked",
+        "--offline",
+        "tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal",
+        "--",
+        "--exact"
+      ]
+    },
+    {
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      },
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--locked",
+        "--offline",
+        "tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal",
+        "--",
+        "--exact"
+      ]
+    },
+    {
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      },
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--locked",
+        "--offline",
+        "tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes",
+        "--",
+        "--exact"
+      ]
+    },
+    {
+      "env": {
+        "CARGO_TARGET_DIR": "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      },
+      "argv": [
+        "cargo",
+        "test",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--locked",
+        "--offline"
+      ]
+    },
+    {
+      "argv": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--",
+        "--check"
+      ]
+    },
+    {
+      "argv": [
+        "cargo",
+        "clean",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      ]
+    },
+    {
+      "argv": [
+        "rmdir",
+        "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      ],
+      "condition": "only if Cargo left an empty target directory"
+    },
+    {
+      "argv": [
+        "test",
+        "!",
+        "-e",
+        "/tmp/chirality-rf-f4-backcheck.0oQhIf"
+      ]
+    }
+  ]
+}

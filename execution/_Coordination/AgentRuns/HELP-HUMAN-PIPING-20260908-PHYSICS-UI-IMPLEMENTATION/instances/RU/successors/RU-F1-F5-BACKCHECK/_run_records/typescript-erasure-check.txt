@@ -1,0 +1,5 @@
+{
+  "equal": true,
+  "beforeEmit": "use(outcome.applied_model);\nuse(outcome.acceptance);\n",
+  "afterEmit": "use(outcome.applied_model);\nuse(outcome.acceptance);\n"
+}

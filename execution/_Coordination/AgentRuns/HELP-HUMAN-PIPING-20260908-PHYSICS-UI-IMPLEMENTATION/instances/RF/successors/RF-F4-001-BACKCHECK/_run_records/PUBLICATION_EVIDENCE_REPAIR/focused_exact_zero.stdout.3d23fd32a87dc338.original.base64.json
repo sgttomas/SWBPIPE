@@ -1,0 +1,11 @@
+{
+  "record_kind": "lossless_publication_evidence_original_archive",
+  "schema_version": "1.0",
+  "archive_purpose": "Preserve the exact pre-repair evidence bytes and historical hash while the active logical path receives a portable successor.",
+  "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/_run_records/focused_exact_zero.stdout",
+  "original_sha256": "3d23fd32a87dc338c2f13a27d6dd381bf4dc9146490b4397b0edf0ab639c7185",
+  "byte_length": 195,
+  "encoding": "base64",
+  "payload_base64": "CnJ1bm5pbmcgMSB0ZXN0CnRlc3QgdGVzdHM6OmJvdGhfbm9uemVyb19hc3N1bWVkX2JyYW5jaGVzX2FjY2VwdF9leGFjdF96ZXJvX2N1cnJlbnRfbm9ybWFsIC4uLiBvawoKdGVzdCByZXN1bHQ6IG9rLiAxIHBhc3NlZDsgMCBmYWlsZWQ7IDAgaWdub3JlZDsgMCBtZWFzdXJlZDsgMjggZmlsdGVyZWQgb3V0OyBmaW5pc2hlZCBpbiAwLjAwcwoK",
+  "decoded_sha256": "3d23fd32a87dc338c2f13a27d6dd381bf4dc9146490b4397b0edf0ab639c7185"
+}

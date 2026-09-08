@@ -83,6 +83,13 @@ import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPa
 import { ValidationEvidencePanel } from "./features/validation-evidence/ValidationEvidencePanel";
 import { PipeViewport, type CreationTool } from "./features/viewport/PipeViewport";
 import {
+  applyResultMatchesSubmission,
+  sameSubmission,
+  validationMatchesSubmission,
+  type DraftSubmission,
+  type FrozenDraftReview
+} from "./features/viewport/routeDraft";
+import {
   buildAnalysisRunPreview,
   buildPreviewComparison,
   cancelPreviewMechanicsJob,
@@ -115,7 +122,7 @@ import {
   openLocalProject,
   saveLocalProject
 } from "./services/projectService";
-import { computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
+import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { isTauriRuntime } from "./services/nativeMenu";
 import {
   saveReportPackage,
@@ -457,6 +464,7 @@ function AppSession() {
   const [batchMessage, setBatchMessage] = useState<string | null>(null);
   const [requestEpoch, setRequestEpoch] = useState(0);
   const requestEpochRef = useRef(0);
+  const [directDraftCommitToken, setDirectDraftCommitToken] = useState<string | null>(null);
   const batchSequence = useRef(0);
   const [operationBusy, setOperationBusy] = useState(false);
   const [operationMessage, setOperationMessage] = useState<string | null>(null);
@@ -497,6 +505,8 @@ function AppSession() {
   const modelRevision = useRef(0);
   const currentModel = useRef<PreviewModel | null>(null);
   const operationRequest = useRef({ sequence: 0, busy: false });
+  const directDraftReviews = useRef(new Map<string, FrozenDraftReview>());
+  const directDraftReviewSequence = useRef(0);
   const solveRunGate = useRef(new SolveRunGenerationGate());
   const activeSolveJob = useRef<{
     generation: number;
@@ -545,12 +555,14 @@ function AppSession() {
     };
   }, [model]);
 
-  function commitModel(nextModel: PreviewModel) {
+  function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
+    setDirectDraftCommitToken(directDraftToken);
     currentModel.current = nextModel;
     operationRequest.current.sequence += 1;
     operationRequest.current.busy = false;
+    directDraftReviews.current.clear();
     setOperationBusy(false);
     commitModelAfterSolveInvalidation(solveRunGate.current, modelRevision, () => {
       activeSolveJob.current = null;
@@ -965,6 +977,188 @@ function AppSession() {
       setBatchMessage("Batch applied once. Previous solve results were cleared; one undo checkpoint is available.");
     } catch (error) {
       if (stillCurrent()) setBatchMessage(`Batch request failed: ${String(error)}`);
+    } finally {
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
+    }
+  }
+
+  async function handleAddDraftReview(
+    submission: DraftSubmission,
+    generation: number
+  ): Promise<FrozenDraftReview | null> {
+    if (!model || operationRequest.current.busy) return null;
+    const revision = modelRevision.current;
+    const epoch = requestEpochRef.current;
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    const basisModel = clonePreviewModel(model);
+    const frozenSubmission = structuredClone(submission);
+    const stillCurrent = () =>
+      operationRequest.current.sequence === request &&
+      modelRevision.current === revision &&
+      requestEpochRef.current === epoch;
+    setOperationBusy(true);
+    setOperationMessage(null);
+    try {
+      const basisHash = await computeModelHash(basisModel);
+      if (!stillCurrent() || !basisHash) return null;
+      const outcome = frozenSubmission.kind === "single"
+        ? await validateModelOperation(basisModel, frozenSubmission.intent, basisHash)
+        : await validateOperationBatch(basisModel, frozenSubmission.batch, basisHash);
+      if (!stillCurrent() || !currentModel.current) return null;
+      const currentHash = await computeModelHash(currentModel.current);
+      if (!stillCurrent() || currentHash?.value !== basisHash.value) return null;
+      if (!validationMatchesSubmission(frozenSubmission, outcome)) {
+        setOperationMessage("Draft validation did not produce a clean, matching diff. Update the draft and Add again.");
+        return null;
+      }
+      const review: FrozenDraftReview = {
+        reviewId: `viewport-draft-review-${++directDraftReviewSequence.current}`,
+        generation,
+        basisRevision: revision,
+        basisEpoch: epoch,
+        basisHash,
+        submission: frozenSubmission,
+        outcome
+      };
+      directDraftReviews.current.clear();
+      directDraftReviews.current.set(review.reviewId, review);
+      return structuredClone(review);
+    } catch (error) {
+      if (stillCurrent()) setOperationMessage(`Draft validation failed to run: ${String(error)}`);
+      return null;
+    } finally {
+      if (operationRequest.current.sequence === request) {
+        operationRequest.current.busy = false;
+        setOperationBusy(false);
+      }
+    }
+  }
+
+  async function handleApplyDraftReview(review: FrozenDraftReview): Promise<boolean> {
+    if (!model || operationRequest.current.busy) return false;
+    const registered = directDraftReviews.current.get(review.reviewId);
+    if (
+      !registered ||
+      registered.basisRevision !== modelRevision.current ||
+      registered.basisEpoch !== requestEpochRef.current ||
+      registered.basisHash.value !== review.basisHash.value ||
+      !sameSubmission(registered.submission, review.submission) ||
+      !validationMatchesSubmission(registered.submission, registered.outcome)
+    ) return false;
+
+    const revision = modelRevision.current;
+    const epoch = requestEpochRef.current;
+    const request = ++operationRequest.current.sequence;
+    operationRequest.current.busy = true;
+    directDraftReviews.current.delete(review.reviewId);
+    const basisModel = clonePreviewModel(model);
+    const frozenSubmission = structuredClone(registered.submission);
+    const stillCurrent = () =>
+      operationRequest.current.sequence === request &&
+      modelRevision.current === revision &&
+      requestEpochRef.current === epoch;
+    setOperationBusy(true);
+    setOperationMessage(null);
+    try {
+      const currentHash = await computeModelHash(basisModel);
+      if (!stillCurrent() || currentHash?.value !== registered.basisHash.value) return false;
+      if (frozenSubmission.kind === "batch") {
+        const outcome = await applyOperationBatch(basisModel, frozenSubmission.batch, registered.basisHash);
+        if (!stillCurrent() || !currentModel.current) return false;
+        const afterWaitHash = await computeModelHash(currentModel.current);
+        if (!stillCurrent() || afterWaitHash?.value !== registered.basisHash.value) return false;
+        if (!applyResultMatchesSubmission(frozenSubmission, outcome, registered.basisHash)) return false;
+        const [appliedHash, batchHash] = await Promise.all([
+          computeModelHash(outcome.applied_model!),
+          canonicalSha256Hex(frozenSubmission.batch)
+        ]);
+        if (
+          !stillCurrent() ||
+          appliedHash?.value !== outcome.applied_model_backend_hash ||
+          `sha256:${batchHash}` !== outcome.batch_hash
+        ) return false;
+        setUndoStack((current) => [{
+          checkpoint_id: `undo-${review.reviewId}`,
+          operation_id: frozenSubmission.batch.batch_id,
+          model: basisModel,
+          selection: selection ?? defaultSelection(basisModel)
+        }, ...current].slice(0, 25));
+        setRedoStack([]);
+        setBatchReceipts((current) => [...current, { batch: frozenSubmission.batch, outcome }]);
+        setRetainedReviewContext((current) => [...current, ...structuredClone(frozenSubmission.batch.operations)]);
+        setAppliedOperations((current) => [...current, {
+          receipt_id: `applied-${review.reviewId}`,
+          sequence: current.length + 1,
+          operation_id: frozenSubmission.batch.batch_id,
+          change_id: frozenSubmission.batch.batch_id,
+          target_object_type: "Model",
+          target_ref: basisModel.project.id,
+          field_path: "batch",
+          before: registered.basisHash.value,
+          after: outcome.applied_model_backend_hash ?? "not_reported",
+          application_route: outcome.application_route === "local_wasm_engine" ? "local_wasm_engine" : "tauri_backend_apply",
+          applied_model_hash: outcome.applied_model_backend_hash ?? "not_reported",
+          acceptance: outcome.acceptance!,
+          diagnostics: outcome.diagnostics,
+          professional_boundary: outcome.professional_boundary
+        }]);
+        commitModel(outcome.applied_model!, review.reviewId);
+        const endpoint = frozenSubmission.batch.operations.at(-1)?.change.after;
+        const endpointId = endpoint ? (JSON.parse(endpoint) as { to?: string }).to : null;
+        setSelection(endpointId ? { type: "node", id: endpointId } : defaultSelection(outcome.applied_model!));
+        clearComputedModelState(sessionHistoryChangedSolveJob("batch", frozenSubmission.batch.batch_id));
+        setOperationMessage("Applied the reviewed route as one atomic batch; one undo checkpoint is available.");
+        return true;
+      }
+
+      const intent = frozenSubmission.intent;
+      const outcome = await applyModelOperation(basisModel, intent, registered.basisHash);
+      if (!stillCurrent() || !currentModel.current) return false;
+      const afterWaitHash = await computeModelHash(currentModel.current);
+      if (
+        !stillCurrent() ||
+        afterWaitHash?.value !== registered.basisHash.value ||
+        !applyResultMatchesSubmission(frozenSubmission, outcome, registered.basisHash)
+      ) return false;
+      const appliedHash = await computeModelHash(outcome.applied_model!);
+      if (!stillCurrent() || appliedHash?.value !== outcome.applied_model_backend_hash) return false;
+      const receipt: AppliedOperationReceipt = {
+        receipt_id: `applied-${review.reviewId}`,
+        sequence: appliedOperations.length + 1,
+        operation_id: outcome.operation_id,
+        change_id: outcome.change_id,
+        target_object_type: outcome.target_object_type,
+        target_ref: outcome.target_ref,
+        field_path: intent.change.field_path,
+        before: intent.change.before,
+        after: intent.change.after,
+        application_route: outcome.application_route,
+        applied_model_hash: outcome.applied_model_backend_hash ?? "not_reported",
+        acceptance: outcome.acceptance,
+        diagnostics: outcome.diagnostics,
+        professional_boundary: outcome.professional_boundary
+      };
+      setAppliedOperations((current) => [receipt, ...current]);
+      setRetainedReviewContext((current) => [...current, structuredClone(intent)]);
+      setUndoStack((current) => [{
+        checkpoint_id: `undo-${review.reviewId}`,
+        operation_id: outcome.operation_id,
+        model: basisModel,
+        selection: selection ?? defaultSelection(basisModel)
+      }, ...current].slice(0, 25));
+      setRedoStack([]);
+      commitModel(outcome.applied_model!, review.reviewId);
+      setSelection(selectionForOperationOutcome(outcome) ?? defaultSelection(outcome.applied_model!));
+      clearComputedModelState(modelChangedSolveJob(outcome));
+      setOperationMessage(`Applied reviewed ${outcome.operation_id}; previous solve results were cleared.`);
+      return true;
+    } catch (error) {
+      if (stillCurrent()) setOperationMessage(`Draft apply failed to run: ${String(error)}`);
+      return false;
     } finally {
       if (operationRequest.current.sequence === request) {
         operationRequest.current.busy = false;
@@ -1431,7 +1625,14 @@ function AppSession() {
   }
 
   function handleSelectEntity(entity: EntityRef) {
+    invalidateDirectDraftContext();
     setSelection(entity);
+  }
+
+  function invalidateDirectDraftContext() {
+    requestEpochRef.current += 1;
+    setRequestEpoch(requestEpochRef.current);
+    directDraftReviews.current.clear();
   }
 
   function handleArmCreationTool(tool: CreationTool | null) {
@@ -1753,10 +1954,15 @@ function AppSession() {
             <PipeViewport
               armedCreationTool={armedCreationTool}
               model={model}
+              modelCommitToken={directDraftCommitToken}
+              onAddDraft={handleAddDraftReview}
+              onApplyDraft={handleApplyDraftReview}
               onArmCreationTool={handleArmCreationTool}
+              onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
+              reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
               selection={selection}
             />
@@ -1780,6 +1986,7 @@ function AppSession() {
               model={model}
               onQueueIntent={handleQueueEditorIntent}
               onValidateIntent={handleValidateIntent}
+              onApplyIntent={handleApplyIntent}
               operationBusy={operationBusy}
               operationOutcomes={operationOutcomes}
               queuedIntents={editorIntents}

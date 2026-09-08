@@ -1,0 +1,324 @@
+
+> @openpipestress/desktop@0.1.0 tauri
+> tauri build --bundles app --ci --no-sign --config /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY.json
+
+        Warn --no-sign flag detected: Signing will be skipped.
+        Info Looking up installed tauri packages to check mismatched versions...
+     Running beforeBuildCommand `npm run build:wasm && npm run build`
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-62177
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-62177
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1698 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        1.16 kB │ gzip:   0.56 kB
+dist/assets/index-fu0eFfg_.css                        57.96 kB │ gzip:  10.52 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                         3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-Fcg__Luf.js                  18.79 kB │ gzip:   6.19 kB
+dist/assets/vendor-react-BT_8sX57.js                 188.74 kB │ gzip:  59.01 kB
+dist/assets/invented_mechanics_result-BZkbaEnk.js    500.40 kB │ gzip:  22.25 kB
+dist/assets/vendor-three-C7YCSTwK.js                 525.97 kB │ gzip: 134.99 kB
+dist/assets/index-HF7cv7qf.js                      1,122.45 kB │ gzip: 269.18 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.67s
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling libc v0.2.186
+   Compiling zmij v1.0.21
+   Compiling siphasher v1.0.3
+   Compiling icu_normalizer_data v2.2.0
+   Compiling icu_properties_data v2.2.0
+   Compiling fastrand v2.4.1
+   Compiling find-msvc-tools v0.1.9
+   Compiling version_check v0.9.5
+   Compiling shlex v1.3.0
+   Compiling stable_deref_trait v1.2.1
+   Compiling cfg-if v1.0.4
+   Compiling memchr v2.8.0
+   Compiling serde v1.0.228
+   Compiling smallvec v1.15.1
+   Compiling itoa v1.0.18
+   Compiling phf_shared v0.13.1
+   Compiling cc v1.2.62
+   Compiling typeid v1.0.3
+   Compiling time-core v0.1.8
+   Compiling num-conv v0.2.1
+   Compiling thiserror v2.0.18
+   Compiling writeable v0.6.3
+   Compiling serde_json v1.0.149
+   Compiling phf_generator v0.13.1
+   Compiling phf_codegen v0.13.1
+   Compiling litemap v0.8.2
+   Compiling thiserror v1.0.69
+   Compiling erased-serde v0.4.10
+   Compiling ident_case v1.0.1
+   Compiling strsim v0.11.1
+   Compiling utf8_iter v1.0.4
+   Compiling parking_lot_core v0.9.12
+   Compiling anyhow v1.0.102
+   Compiling scopeguard v1.2.0
+   Compiling new_debug_unreachable v1.0.6
+   Compiling lock_api v0.4.14
+   Compiling generic-array v0.14.7
+   Compiling winnow v1.0.2
+   Compiling precomputed-hash v0.1.1
+   Compiling getrandom v0.4.2
+   Compiling toml_writer v1.1.1+spec-1.1.0
+   Compiling ctor-proc-macro v0.0.7
+   Compiling toml_parser v1.1.2+spec-1.1.0
+   Compiling log v0.4.29
+   Compiling objc2-exception-helper v0.1.1
+   Compiling utf-8 v0.7.6
+   Compiling percent-encoding v2.3.2
+   Compiling autocfg v1.5.0
+   Compiling dtoa v1.0.11
+   Compiling form_urlencoded v1.2.2
+   Compiling dtoa-short v0.3.5
+   Compiling tendril v0.5.0
+   Compiling indexmap v1.9.3
+   Compiling selectors v0.36.1
+   Compiling aho-corasick v1.1.4
+   Compiling regex-syntax v0.8.10
+   Compiling serde_spanned v1.1.1
+   Compiling semver v1.0.28
+   Compiling syn v2.0.117
+   Compiling string_cache_codegen v0.6.1
+   Compiling toml_datetime v1.1.1+spec-1.1.0
+   Compiling alloc-no-stdlib v2.0.4
+   Compiling camino v1.2.2
+   Compiling powerfmt v0.2.0
+   Compiling unic-common v0.9.0
+   Compiling web_atoms v0.2.4
+   Compiling unic-char-range v0.9.0
+   Compiling byteorder v1.5.0
+   Compiling unic-char-property v0.9.0
+   Compiling regex-automata v0.4.14
+   Compiling deranged v0.5.8
+   Compiling unic-ucd-version v0.9.0
+   Compiling alloc-stdlib v0.2.2
+   Compiling toml v1.1.2+spec-1.1.0
+   Compiling synstructure v0.13.2
+   Compiling darling_core v0.23.0
+   Compiling bitflags v2.11.1
+   Compiling serde_derive_internals v0.29.1
+   Compiling servo_arc v0.4.3
+   Compiling parking_lot v0.12.5
+   Compiling fnv v1.0.7
+   Compiling hashbrown v0.17.1
+   Compiling schemars v0.8.22
+   Compiling string_cache v0.9.0
+   Compiling bit-vec v0.8.0
+   Compiling equivalent v1.0.2
+   Compiling uuid v1.23.1
+   Compiling hashbrown v0.12.3
+   Compiling objc2 v0.6.4
+   Compiling rustc-hash v2.1.2
+   Compiling indexmap v2.14.0
+   Compiling bit-set v0.8.0
+   Compiling regex v1.12.3
+   Compiling time v0.3.47
+   Compiling serde_derive v1.0.228
+   Compiling zerofrom-derive v0.1.7
+   Compiling yoke-derive v0.8.2
+   Compiling zerovec-derive v0.11.3
+   Compiling displaydoc v0.2.5
+   Compiling phf_macros v0.13.1
+   Compiling thiserror-impl v2.0.18
+   Compiling thiserror-impl v1.0.69
+   Compiling cssparser-macros v0.6.1
+   Compiling derive_more-impl v2.1.1
+   Compiling darling_macro v0.23.0
+   Compiling phf v0.13.1
+   Compiling zerofrom v0.1.7
+   Compiling darling v0.23.0
+   Compiling schemars_derive v0.8.22
+   Compiling cfb v0.7.3
+   Compiling derive_more v2.1.1
+   Compiling brotli-decompressor v5.0.0
+   Compiling unic-ucd-ident v0.9.0
+   Compiling quick-xml v0.39.4
+   Compiling objc2-encode v4.1.0
+   Compiling same-file v1.0.6
+   Compiling dyn-clone v1.0.20
+   Compiling base64 v0.21.7
+   Compiling base64 v0.22.1
+   Compiling foldhash v0.2.0
+   Compiling bytes v1.11.1
+   Compiling dunce v1.0.5
+   Compiling walkdir v2.5.0
+   Compiling brotli v8.0.2
+   Compiling infer v0.19.0
+   Compiling ctor v0.8.0
+   Compiling http v1.4.0
+   Compiling glob v0.3.3
+   Compiling serde-untagged v0.1.9
+   Compiling crc32fast v1.5.0
+   Compiling rustc_version v0.4.1
+   Compiling toml_datetime v0.7.5+spec-1.1.0
+   Compiling option-ext v0.2.0
+   Compiling winnow v0.7.15
+   Compiling dirs-sys v0.5.0
+   Compiling embed-resource v3.0.9
+   Compiling once_cell v1.21.4
+   Compiling heck v0.5.0
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling tauri-winres v0.3.6
+   Compiling dirs v6.0.0
+   Compiling cssparser v0.36.0
+   Compiling toml v0.9.12+spec-1.1.0
+   Compiling time-macros v0.2.27
+   Compiling simd-adler32 v0.3.9
+   Compiling yoke v0.8.2
+   Compiling markup5ever v0.38.0
+   Compiling html5ever v0.38.0
+   Compiling typenum v1.20.0
+   Compiling serde_with_macros v3.19.0
+   Compiling serde_with v3.19.0
+   Compiling crossbeam-utils v0.8.21
+   Compiling raw-window-handle v0.6.2
+   Compiling adler2 v2.0.1
+   Compiling objc2-core-foundation v0.3.2
+   Compiling block2 v0.6.2
+   Compiling miniz_oxide v0.8.9
+   Compiling swift-rs v1.0.7
+   Compiling jsonptr v0.6.3
+   Compiling cargo-platform v0.1.9
+   Compiling plist v1.9.0
+   Compiling cargo_toml v0.22.3
+   Compiling dpi v0.1.2
+   Compiling objc2-foundation v0.3.2
+   Compiling json-patch v3.0.1
+   Compiling cargo_metadata v0.19.2
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/linear_supports)
+   Compiling cookie v0.18.1
+   Compiling core-foundation-sys v0.8.7
+   Compiling core-foundation v0.10.1
+   Compiling zerovec v0.11.6
+   Compiling zerotrie v0.2.4
+   Compiling flate2 v1.1.9
+   Compiling dom_query v0.27.0
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling objc2-app-kit v0.3.2
+   Compiling fdeflate v0.3.7
+   Compiling foreign-types-macros v0.2.3
+   Compiling foreign-types-shared v0.3.1
+   Compiling bitflags v1.3.2
+   Compiling png v0.17.16
+   Compiling foreign-types v0.5.0
+   Compiling tinystr v0.8.3
+   Compiling potential_utf v0.1.5
+   Compiling icu_locale_core v2.2.0
+   Compiling icu_collections v2.2.0
+   Compiling crossbeam-channel v0.5.15
+   Compiling digest v0.10.7
+   Compiling core-graphics-types v0.2.0
+   Compiling icu_provider v2.2.0
+   Compiling dispatch2 v0.3.1
+   Compiling icu_properties v2.2.0
+   Compiling icu_normalizer v2.2.0
+   Compiling cpufeatures v0.2.17
+   Compiling ryu v1.0.23
+   Compiling zerocopy v0.8.48
+   Compiling wry v0.55.1
+   Compiling tauri-runtime v2.11.1
+   Compiling idna_adapter v1.2.2
+   Compiling idna v1.1.0
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling sha2 v0.10.9
+   Compiling core-graphics v0.25.0
+   Compiling url v2.5.8
+   Compiling objc2-web-kit v0.3.2
+   Compiling ico v0.5.0
+   Compiling ahash v0.8.12
+   Compiling getrandom v0.3.4
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling unicode-segmentation v1.13.2
+   Compiling tauri-runtime-wry v2.11.1
+   Compiling png v0.18.1
+   Compiling urlpattern v0.3.0
+   Compiling keyboard-types v0.7.0
+   Compiling tao v0.35.2
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/diagnostics)
+   Compiling serialize-to-javascript-impl v0.1.2
+   Compiling pin-project-lite v0.2.17
+   Compiling tauri-utils v2.9.1
+   Compiling vcpkg v0.2.15
+   Compiling pkg-config v0.3.33
+   Compiling open_pipe_stress_units v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/units)
+   Compiling serialize-to-javascript v0.1.2
+   Compiling muda v0.19.1
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling tokio v1.52.3
+   Compiling window-vibrancy v0.6.0
+   Compiling libsqlite3-sys v0.30.1
+   Compiling open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/report_generator)
+   Compiling open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/curved_bend)
+   Compiling serde_repr v0.1.20
+   Compiling embed_plist v1.2.2
+   Compiling mime v0.3.17
+   Compiling open_pipe_stress_protected_content_linter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/protected_content_linter)
+   Compiling rfd v0.16.0
+   Compiling open_pipe_stress_report_renderer v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/report_renderer)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_rule_pack_lifecycle v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/rules/rule_pack_lifecycle)
+   Compiling hashbrown v0.14.5
+   Compiling open_pipe_stress_expression_evaluator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/rules/expression_evaluator)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/pdf_emitter)
+   Compiling open_pipe_stress_rule_pack_document v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/rules/rule_pack_document)
+   Compiling hashlink v0.9.1
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/result_export)
+   Compiling fallible-iterator v0.3.0
+   Compiling fallible-streaming-iterator v0.1.9
+   Compiling open_pipe_stress_completeness_checker v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/rules/completeness_checker)
+   Compiling open_pipe_stress_audit_manifest v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/audit_manifest)
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/model_operations/operation_applier)
+   Compiling open_pipe_stress_rule_check_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/rules/rule_check_runner)
+   Compiling open_pipe_stress_report_package v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/reporting/report_package)
+   Compiling open_pipe_stress_library_import_document v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/library_import/library_import_document)
+   Compiling tauri-build v2.6.1
+   Compiling tauri-plugin v2.6.1
+   Compiling tauri-codegen v2.6.1
+   Compiling tauri v2.11.1
+   Compiling tauri-plugin-fs v2.5.1
+   Compiling tauri-macros v2.6.1
+   Compiling tauri-plugin-dialog v2.7.2
+   Compiling openpipestress-desktop v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/self_weight_wasm)
+   Compiling rusqlite v0.32.1
+    Finished `release` profile [optimized] target(s) in 57.64s
+       Built application at: /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/openpipestress-desktop
+    Bundling OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app)
+        Warn Skipping signing due to --no-sign flag.
+    Finished 1 bundle at:
+        /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app

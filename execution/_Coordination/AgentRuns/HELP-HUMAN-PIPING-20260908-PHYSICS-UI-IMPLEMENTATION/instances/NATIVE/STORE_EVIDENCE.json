@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0.0",
+  "store_scope": "dedicated synthetic bundle only",
+  "bundle_identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-implementation-55df51ac-20260908",
+  "prelaunch_store_absent": true,
+  "precleanup": {
+    "file_name": "openpipestress-projects.sqlite3",
+    "file_size_bytes": 122880,
+    "file_mode": "-rw-r--r--",
+    "file_sha256": "98d332e9080da291730fcb2e1dbe370bec20a9d0d53bd4dd43184e25f4ab372f",
+    "owned_files_after_quit": [
+      {
+        "name": "openpipestress-projects.sqlite3",
+        "size_bytes": 122880,
+        "sha256": "98d332e9080da291730fcb2e1dbe370bec20a9d0d53bd4dd43184e25f4ab372f"
+      },
+      {
+        "name": "openpipestress-projects.sqlite3-shm",
+        "size_bytes": 32768,
+        "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb"
+      },
+      {
+        "name": "openpipestress-projects.sqlite3-wal",
+        "size_bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "project_id": "project:blank-local-20260908t165725z",
+    "project_name": "Blank Local Model",
+    "created_at_unix": 1788886645,
+    "updated_at_unix": 1788888227,
+    "saved_model_hash": "sha256:590b5d3d59b3c764d7d2e80af25f886faba1dbf0af610baf7de2d1f369860a08",
+    "project_envelope_hash": "sha256:d8ecc260da67b437751849b3bf63fbf3e543bbbb973131f5a505dfb36c9cae46",
+    "counts": {
+      "materials": 1,
+      "sections": 1,
+      "nodes": 2,
+      "pipes": 1,
+      "supports": 1,
+      "load_cases": 1,
+      "primitive_loads": 1,
+      "total_model_entities_in_tree": 8
+    },
+    "required_members": {
+      "material": "material:ui-phase-a-invented",
+      "section": "section:ui-phase-a-straight",
+      "nodes": ["node:UI-A-100", "node:UI-A-110"],
+      "pipe": "pipe:UI-A-100",
+      "pipe_section_ref": "section:ui-phase-a-straight",
+      "support": "support:UI-A-100",
+      "restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+      "load_case": "load:UI-A",
+      "primitive_load": "load:UI-A-FY",
+      "primitive_magnitude": {"value": 350, "unit": "N"},
+      "temporary_load_case_present": false
+    },
+    "provenance_values": {
+      "node:UI-A-100": "synthetic_ui_acceptance_input",
+      "node:UI-A-110": "synthetic_ui_acceptance_input",
+      "pipe:UI-A-100": "synthetic_ui_acceptance_input",
+      "support:UI-A-100": "synthetic_ui_acceptance_input",
+      "material:ui-phase-a-invented": "synthetic_ui_acceptance_input",
+      "section:ui-phase-a-straight": "synthetic_ui_acceptance_input",
+      "load:UI-A": "synthetic_ui_acceptance_input",
+      "load:UI-A-FY": "synthetic_ui_acceptance_input"
+    },
+    "persisted_blocked_run_id": "run:preview-linear-static-blocked",
+    "persisted_mechanics_status": "MODEL_INCOMPLETE"
+  },
+  "normal_store_accessed": false,
+  "cleanup": {
+    "status": "complete",
+    "first_guard_attempt": "held without deletion because the post-quit inventory contained three owned SQLite files rather than the one main file seen before quit",
+    "final_guard": "resolved parent exact; isolated identifier exact; inventory exactly main, shm, wal; each a regular nonsymlink file",
+    "method": "explicit unlink of wal, shm, and main followed by rmdir of the exact isolated directory; no wildcard or recursive deletion",
+    "dedicated_directory_absent_afterward": true
+  }
+}

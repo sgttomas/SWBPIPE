@@ -1,0 +1,28 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "stage_reached": "first native solve returned blocked result",
+  "completed": [
+    "verified isolated native app launch",
+    "blank project and incomplete-state witness",
+    "node-only Add/Apply/save/reopen witness",
+    "material and section authoring",
+    "atomic new-endpoint route batch",
+    "section assignment, support, load case, and 350 N primitive authoring",
+    "UI-only temporary-case recovery and native deletion",
+    "actual native Tauri backend solve attempt",
+    "blocked job/run/model/input/backend hash evidence",
+    "exact final 350 N store persistence",
+    "1024 x 768 native Results and diagnostics visuals",
+    "native quit and exact-process absence"
+  ],
+  "not_completed": [
+    "successful 350 N mechanics result",
+    "successful-result persistence/reopen witness",
+    "500 N inline Apply and old-result-clear witness",
+    "successful revised native solve tuple",
+    "350/500 undo-redo witness",
+    "final 500 N persistence/reopen witness"
+  ],
+  "blocker": "The fixed provenance label synthetic_ui_acceptance_input lacks the packaged backend's required invented-or-cleared marker and produces seven blocking PROVENANCE_INPUT_MISSING diagnostics.",
+  "cleanup": "complete; exact dedicated directory absent"
+}

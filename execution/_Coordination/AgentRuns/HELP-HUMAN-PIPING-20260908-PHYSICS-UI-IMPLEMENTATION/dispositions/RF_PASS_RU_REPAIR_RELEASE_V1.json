@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "RF_PASS_ACCEPTED_RU_REPAIR_RELEASED",
+  "source_basis": "55df51ac3201456e0f181823e3aefefef47a73bb",
+  "rf": {
+    "review": {"path":"../instances/RF/successors/RF-F4-001-BACKCHECK/REVIEW.md","sha256":"a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5"},
+    "return": {"path":"../instances/RF/successors/RF-F4-001-BACKCHECK/RETURN.md","sha256":"429cf1183070d9419f65f4e5e8683714d49d11a00831b4b5bc6490224fd9c2e8"},
+    "disposition": "PASS accepted as bounded technical review evidence after root read and verification of 21 input bindings and five outputs. F4 remains frozen; the Rust slot is free."
+  },
+  "ru": {
+    "review": {"path":"../instances/RU/REVIEW.md","sha256":"51a2123ed8ada427eaa34bac2aaccd9e92372499fc738b8663bc2ef7b8b9bbc0"},
+    "return": {"path":"../instances/RU/RETURN.md","sha256":"481edae2ba1fe5a0227cffab231daca0d59086b769f3c55ebdd7bc784a69b69f"},
+    "disposition": "CHANGES_REQUIRED accepted as bounded technical finding evidence after root read and verification of 43 inventory members and five outputs."
+  },
+  "repair_release": "Root released the existing U7 manager to seal and dispatch one same-nine-path bounded Agent 2 repair for RU-F1 through RU-F5 using gpt-5.6-sol with high reasoning. The manager may not edit product source, add criteria, or expand the source fence.",
+  "successor_gate": "Original U7 and RU snapshots remain frozen. A new U7 successor must freeze exact source/diff/manifest/return bindings and pass the same independent RU backcheck before fan-in.",
+  "held": ["native witness", "RI integration review", "integration decision", "DEC-025 and publication"],
+  "authority": "The adopted one-time Step 1 exception remains operative. No dependency, DAG, requirement, lifecycle, engineering, compatibility, release, or professional-acceptance state changes through this disposition."
+}

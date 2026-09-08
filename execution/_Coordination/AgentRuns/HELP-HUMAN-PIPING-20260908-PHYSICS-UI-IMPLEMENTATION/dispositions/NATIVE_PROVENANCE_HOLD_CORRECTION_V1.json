@@ -1,0 +1,39 @@
+{
+  "record_kind": "native_provenance_hold_successor_correction",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T17:31:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "CORRECTED_HOLD_NATIVE_AND_INTEGRATION",
+  "supersedes_factual_basis_in": {
+    "path": "NATIVE_PROVENANCE_HOLD_V1.json",
+    "sha256": "835d1f81070e40d1a40d1945a9b026d5b7262cb71f1d04e7523fa58905bc131f",
+    "original_preserved": true
+  },
+  "actual_native_store_evidence": {
+    "provenance": "synthetic_ui_acceptance_input",
+    "subjects": [
+      "node:UI-A-100",
+      "node:UI-A-110",
+      "material",
+      "section",
+      "support"
+    ],
+    "status": "READ_ONLY_PERSISTED_STORE_EVIDENCE"
+  },
+  "withdrawn_claim": "The prior claim that explicitly entered node provenance was replaced by user_entered_local_preview is withdrawn. It was inferred from a helper constant and was not observed in the actual native run.",
+  "confirmed_blocker": "The exact fixture label synthetic_ui_acceptance_input lacks the existing backend invented or cleared marker.",
+  "triage_status": "Full-path U7 triage remains pending. Any remaining helper-path question is unconfirmed and must not be treated as a production defect.",
+  "authority_and_evidence": {
+    "code_change_authorized": false,
+    "r3_and_ru_source_review": "FROZEN_PASS_UNCHANGED",
+    "native_failed_attempt_cleanup": "ONGOING"
+  },
+  "held_until": "Native and integration acceptance remain held until a corrected-fixture native rerun is completed and accepted.",
+  "authority_effect": "This correction narrows the factual basis of the existing hold. It makes no code, engineering, API, source-scope, lifecycle, dependency, or acceptance decision."
+}

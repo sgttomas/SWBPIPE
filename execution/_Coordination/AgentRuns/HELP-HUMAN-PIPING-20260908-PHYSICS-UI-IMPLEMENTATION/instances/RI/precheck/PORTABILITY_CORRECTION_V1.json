@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "record_kind": "portability_correction",
+  "scope": "instances/RI/precheck/VALIDATION.md",
+  "reason": "Replace an active machine-specific checkout path with REPO_ROOT and WORKING_ROOT anchors required by the project path-anchor contract.",
+  "predecessor": {
+    "sha256": "f48af970c613d6636b3909501b34e90356cdc52d8cb28e81b481ba38e7a62ef6",
+    "lossless_archive": "instances/RI/precheck/_run_records/VALIDATION_ORIGINAL_f48af970.base64.json",
+    "archive_sha256": "3b1eecfd801a65976bcf2b5b91d15ad99f1d545fe83a2bf3544682f55d3d5cd0",
+    "decoded_archive_sha256": "f48af970c613d6636b3909501b34e90356cdc52d8cb28e81b481ba38e7a62ef6"
+  },
+  "successor": {
+    "sha256": "2c52f2041fbb2509a9945a9657b7bed1c67bc221a898c0b68e4e9e99d781dc84",
+    "portable_root_statement": "Resolved REPO_ROOT with git rev-parse --show-toplevel; set WORKING_ROOT={REPO_ROOT}/projects/chirality-piping."
+  },
+  "semantic_change": false,
+  "verdict_change": false,
+  "review_rerun": false,
+  "native_evidence_consumed": false,
+  "source_written": false,
+  "git_mutated": false
+}

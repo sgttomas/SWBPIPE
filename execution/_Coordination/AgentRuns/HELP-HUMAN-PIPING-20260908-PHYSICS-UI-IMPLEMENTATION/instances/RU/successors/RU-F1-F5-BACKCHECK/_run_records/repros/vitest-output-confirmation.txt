@@ -1,0 +1,75 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx (3 tests | 3 failed) 233ms
+     × rejects changed hash payload references according to their distinct producer contracts 20ms
+     × rejects a malformed non-warning diagnostic instead of treating it as a clean receipt 3ms
+     × clears continuation when an external replacement happens to contain the same route identity 208ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > rejects changed hash payload references according to their distinct producer contracts
+AssertionError: expected { …(2) } to deeply equal { …(2) }
+
+- Expected
++ Received
+
+  {
+-   "echoedFrozenRefAccepted": false,
+-   "engineGeneratedRefAccepted": false,
++   "echoedFrozenRefAccepted": true,
++   "engineGeneratedRefAccepted": true,
+  }
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:86:8
+     84|       engineGeneratedRefAccepted: applyResultMatchesSubmission(built.s…
+     85|       echoedFrozenRefAccepted: applyResultMatchesSubmission(built.subm…
+     86|     }).toEqual({ engineGeneratedRefAccepted: false, echoedFrozenRefAcc…
+       |        ^
+     87|   });
+     88|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > rejects a malformed non-warning diagnostic instead of treating it as a clean receipt
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:96:82
+     94|     const malformed = await applyOperationBatch(model, built.submissio…
+     95|     malformed.diagnostics = [{ severity: "info" } as never];
+     96|     expect(applyResultMatchesSubmission(built.submission, malformed, b…
+       |                                                                                  ^
+     97|   });
+     98|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx > RU successor affirmative adversarial backcheck > clears continuation when an external replacement happens to contain the same route identity
+Error: expect(element).not.toBeChecked()
+
+Received element is checked:
+  <input
+  data-testid="continue-pipe-after-queue"
+  type="checkbox"
+/>
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/successors/RU-F1-F5-BACKCHECK/_run_records/repros/backcheck.test.tsx:134:72
+    132|     view.rerender(<PipeViewport model={replacement} {...props} />);
+    133|
+    134|     expect(within(panel).getByTestId("continue-pipe-after-queue")).not…
+       |                                                                        ^
+    135|     expect(within(panel).getByTestId("viewport-create-pipe-from")).toH…
+    136|     await act(async () => { apply.resolve(false); await apply.promise;…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed (3)
+   Start at  09:42:23
+   Duration  752ms (transform 151ms, setup 59ms, import 215ms, tests 233ms, environment 170ms)

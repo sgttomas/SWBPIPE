@@ -1,0 +1,55 @@
+{
+  "record_kind": "native_witness_launch_release",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T17:04:00Z",
+  "recorded_by": {
+    "task_identity": "/root/execution_recorder",
+    "role": "bounded_ephemeral_agent2_control_recorder",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "ACTUALLY_DISPATCHED",
+  "root_authority": "HELP_HUMAN independently verified the final dirty-source binding, four CHANGE records, ten reviewed source members, three bundle files and canonical digest, exact bundle identity, dedicated-store absence, stopped writers, built-source equality, and the sealed brief, then actually dispatched the fresh NATIVE instance.",
+  "sealed_brief": {
+    "path": "../instances/NATIVE/LAUNCH_BRIEF_V1.md",
+    "sha256": "7d3aaeeade894dd662d3ca793984b1d25a34754a6ec329d52294d3367a510bb2"
+  },
+  "source_binding": {
+    "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_FINAL_V1.json",
+    "sha256": "3ce95c6ec51813bf5ff210ffbdb5a8b9456d396cac5fc9d76151998e87c1edc8",
+    "dirty_ten_member_set_sha256": "1180436540fcb8025a5029b16f8d6e019928eeaa6fab74c434772ca6ec78cefe",
+    "base_head": "55df51ac3201456e0f181823e3aefefef47a73bb",
+    "base_head_contains_bound_source": false
+  },
+  "build_binding": {
+    "result_path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_BUILD_RESULT_V1.json",
+    "result_sha256": "1e7412fa2ca67913a2006d4cfa2f965f77859336595e8feaf1f0cef7da7e64b6",
+    "log_path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUILD_V1.log",
+    "log_sha256": "fd3d048cf7f954d4089eaa32b1a8c6d6db3639293d7916aa571a8bc382403a98",
+    "inventory_path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUNDLE_INVENTORY_V1.json",
+    "inventory_sha256": "69e908c33b4ea3772037a151d10e55d64b98e52920fdb07dcc8dca1ec1ed34ab",
+    "canonical_bundle_digest": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11",
+    "change_launched_app": false,
+    "change_stopped": true
+  },
+  "released_execution": {
+    "construction": "fresh bounded ephemeral Agent 2 generalist",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "fresh_context": true,
+    "delegation": false,
+    "actual_dispatch": "COMPLETE_BY_ROOT",
+    "actual_task_identity": "/root/native_implementation_witness",
+    "source_and_git_writes": false,
+    "product_interaction": "actual isolated packaged macOS app through native CUA APIs only",
+    "store_scope": "exact dedicated synthetic store only"
+  },
+  "concurrency_and_gates": {
+    "ri_precheck": "ACTIVE_READ_ONLY_CONCURRENTLY",
+    "native_witness": "ACTIVE_UNDER_EXCLUSIVE_NATIVE_AGENT_OWNERSHIP",
+    "ri_final": "HELD_PENDING_ACCEPTED_NATIVE_EVIDENCE",
+    "integration_and_publication": "HELD"
+  },
+  "limits_preserved": "The approved two-slice exception, exact source fences, native-only evidence requirement, unique-store isolation, cleanup guards, exclusive NATIVE ownership of app operations and evidence, and every downstream acceptance gate remain unchanged."
+}

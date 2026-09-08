@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0",
+  "encoding": "base64",
+  "decoded_utf8_byte_length": 227,
+  "decoded_sha256": "8f47c184c2d2cbbb4210b265d4eb7cc13c9f183392bef6dea53571d69d91a189",
+  "content_base64": "SSBhcHByb3ZlIHRoZSBwcmVwYXJlZCBbYm91bmRlZCBTdGVwIDEgZXhjZXB0aW9uXSgvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5LXBoeXNpY3MtdWktZXhlY3V0aW9uLTIwMjYwOTA4L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19EQUcvUEhZU0lDU19VSV9FWEVDVVRJT05fMjAyNjA5MDhfQ0FORElEQVRFL1BST1BPU0VEX09XTkVSX0FDVC5tZCk=",
+  "note": "Lossless structural record of the Owner's exact approval message; the machine-local link is intentionally not active control text."
+}

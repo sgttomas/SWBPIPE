@@ -1572,6 +1572,13 @@ button:focus-visible {
   gap: 7px;
 }
 
+fieldset.viewport-intent-controls {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
 .viewport-node-form,
 .viewport-pipe-form {
   display: grid;
@@ -3307,6 +3314,18 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-node-form:not(.active), .viewport-pipe-form:not(.active) { display: none; }
 .viewport-node-form label, .viewport-pipe-form label, .viewport-endpoint-field { min-width: 0; }
 .viewport-node-form input, .viewport-pipe-form input, .viewport-pipe-form select { width: 100%; min-width: 0; }
+.viewport-end-mode { display: flex; flex-wrap: wrap; gap: 5px 10px; min-width: 0; margin: 0; padding: 7px; border: 1px solid #d6ded9; border-radius: 4px; }
+.viewport-end-mode legend { padding-inline: 4px; color: #54615d; font-size: 11px; }
+.viewport-end-mode label { display: flex; align-items: center; gap: 5px; font-size: 11px; }
+.viewport-end-mode input { width: auto; height: auto; }
+.viewport-new-endpoint { display: grid; gap: 7px; padding: 8px; border: 1px solid #d6ded9; border-radius: 5px; background: #fff; }
+.viewport-new-endpoint[hidden] { display: none; }
+.viewport-new-endpoint small { color: #5d6965; line-height: 1.35; }
+.viewport-draft-review { display: grid; gap: 6px; min-width: 0; padding: 8px; border: 1px solid #aebdb6; border-radius: 5px; background: #eef4f1; font-size: 11px; }
+.viewport-draft-review h4, .viewport-draft-review p { margin: 0; overflow-wrap: anywhere; }
+.viewport-draft-review [data-testid="viewport-draft-review-preview"] { max-height: 126px; min-height: 0; overflow: auto; }
+.viewport-draft-review ul { max-height: 120px; margin: 0; padding-left: 18px; overflow: auto; }
+.viewport-draft-review button { min-height: 30px; }
 .viewport-intent-list { margin-top: 8px; }
 .viewport-tool-heading { margin: 0 0 10px; font-size: 13px; font-weight: 650; }
 .viewport-technical-details { margin-top: 10px; font-size: 11px; }
@@ -3355,6 +3374,8 @@ body { min-width: 760px; min-height: 540px; }
   .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { --pane-tree-col: 180px; --pane-inspector-col: 260px; }
   .modeling-workspace.tree-collapsed { --pane-tree-col: 30px; }
   .modeling-workspace.inspector-collapsed { --pane-inspector-col: 30px; }
+  .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(310px, 1fr) 250px; }
+  .viewport-intents.active { padding: 8px; }
 }
 .project-strip > summary { display: flex; align-items: baseline; gap: 12px; }
 .project-strip > summary [role="status"] { overflow-wrap: anywhere; }

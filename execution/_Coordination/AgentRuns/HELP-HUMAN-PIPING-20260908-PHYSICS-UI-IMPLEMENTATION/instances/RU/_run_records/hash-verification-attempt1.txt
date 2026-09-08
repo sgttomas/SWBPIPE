@@ -1,0 +1,32 @@
+MANIFEST_DECLARED_19_MEMBER_CHECK
+  projects/chirality-piping/apps/desktop/src/App.tsx  MISMATCH
+  projects/chirality-piping/apps/desktop/src/App.test.tsx  MISMATCH
+  projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx  MISMATCH
+  projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts  MISMATCH
+  projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts  MISMATCH
+  projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx  MISMATCH
+  projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx  MISMATCH
+  projects/chirality-piping/apps/desktop/src/styles.css  MISMATCH
+  projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts  MISMATCH
+  projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_FINAL_NINE_PATH.diff  MISMATCH
+  projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/SEVEN_ROW_CONSUMER_PROOF_V1.md  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/WORK_GRAPH_V3.json  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/DIRECT_INTEGRATION_DEVIATION_V1.md  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/RUNTIME_SUMMARY.json  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/STATUS.json  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_BRIEF_V1.md  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_RETURN_V1.md  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_STATUS.md  MISMATCH
+  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/COMPACT_ROUTE_REVIEW_1024x768.png  MISMATCH
+BASIS_AND_REVIEW_BINDINGS
+415600c5f60e722a980a32ffb06d08f811c41d64918be8a8ab4b8cac9eb97f8d  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/LAUNCH_BRIEF_V1.md
+3e182eb9cd923f3c74f3e332dc4ae50de8c39de197173bf5b8a1b89daf2c6857  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/OWNER_ACT.md
+a81ee0439c11d92360d863bc028bdd72f7f82a524220ad2dda9a348da40c1e46  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/amendments/U7/SOURCE_RELEASE_V1.md
+23a2ac4595c4b9ee2e18143b057a392f42c34c57051e5f328b45cbfc2ab1f709  projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/IMPLEMENTATION_BRIEF_V1.md
+93b5be9434a2e34c03002748ecd6c0de4095c7b19d9b99f007b891fb1fd64166  projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_EXECUTION_20260908/CONSUMED_INTERFACE_EVIDENCE_V1.md
+93e9fa72f5cf46b1d82e79f114502c3b3a76b1004f0bf3df5fd059aa5729881c  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/PS/PS1/RETURN.md
+e5b4e7ab6ad169a456b8ad0b0c2d02a233931f351770d74c7bd19254843c9471  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/MANAGER_RETURN_V1.md
+0307c1d9dff3e044176a0a1ece582aa85e08d9e38905cbc46a22bf79c3e0f962  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/children/I1/REPAIR_RETURN_V1.md
+DIFF_SHAPE
+    2280 projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/U7_FINAL_NINE_PATH.diff
+9

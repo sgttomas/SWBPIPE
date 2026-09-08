@@ -1,0 +1,32 @@
+{
+  "record_kind": "structural_native_app_bundle_inventory",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-08T16:50:36Z",
+  "bundle_path": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Technical Preview Implementation Witness 55df51ac 20260908.app",
+  "file_entry_count": 3,
+  "entries": [
+    {
+      "path": "Contents/Info.plist",
+      "type": "file",
+      "mode": "0o644",
+      "size_bytes": 1182,
+      "sha256": "8be49178a9fb00a90654be999fd29a1461c718f2df154518a23fee3660cf9c60"
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "type": "file",
+      "mode": "0o755",
+      "size_bytes": 19861280,
+      "sha256": "3187583331fa63d09a0c00e58e29a9022b6d68263b9a613012fecd39d1ff7be7"
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "type": "file",
+      "mode": "0o644",
+      "size_bytes": 77148,
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+    }
+  ],
+  "canonical_entry_stream": "Each entry serialized with sorted JSON keys and compact separators, followed by LF, in path order.",
+  "bundle_content_set_sha256": "d54e06c6229163ad27bfb3d3ad27b1383b6cb50383d70316b0b6c83e71bd0b11"
+}
