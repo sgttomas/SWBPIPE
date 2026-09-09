@@ -11,4 +11,3 @@ This notice does not alter Piping authority, accepted decompositions, sessions,
 pins, or project files other than this coordination document. The Piping loop
 may adopt, amend, or decline the candidate through its own instruments. Frozen
 historical evidence remains unchanged.
-
