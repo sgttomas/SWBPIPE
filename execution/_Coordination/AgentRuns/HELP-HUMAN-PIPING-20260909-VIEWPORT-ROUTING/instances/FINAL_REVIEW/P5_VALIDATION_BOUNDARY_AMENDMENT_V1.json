@@ -1,0 +1,53 @@
+{
+  "schema_version": "1.0",
+  "authority": {
+    "owner_engineering_direction": {
+      "path": "../../OWNER_ENGINEERING_DIRECTION_V2.md",
+      "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+    },
+    "root_disposition": "QUALIFIED_PASS_FOR_COMBINED_SOURCE_REVIEW"
+  },
+  "accepted_evidence": {
+    "independent_triage": {
+      "path": "../PREVIEW/design/PUBLIC_RESULT_SCHEMA_ACCEPTANCE_TRIAGE_ADDENDUM_V1.md",
+      "sha256": "62b31708d65828c2d182a8f6bb74510af3f44d6dccfb1696723515ab81b60eaa"
+    },
+    "preview_manifest": {
+      "path": "../PREVIEW/design/MANIFEST_V1.json",
+      "sha256": "a9cde9992249c66fbce4c18c6ab439741b97edff8a5866ffa2503f79aa02e10d"
+    },
+    "schema_baseline_grouped_proof": {
+      "path": "../P5/evidence/SCHEMA_BASELINE_GROUPED_PROOF_V1.json",
+      "sha256": "e4c279436de10c47b6c732410705042ab72b9003d38fef5317847fd097134c71"
+    },
+    "current_manager_fan_in": {
+      "path": "../P5/P5_MANAGER_FAN_IN_V1.md",
+      "sha256": "ecd5e2e74ca91fb16af0ebe854638eab5f9d8f98ec135f85f234e3ed3c6a1607"
+    },
+    "current_manager_handoff": {
+      "path": "../P5/P5_MANAGER_HANDOFF_V1.json",
+      "sha256": "708e8f4a31e42b7b102830b58c4386ac7791da24a409dd2e1fa015fb48372234"
+    },
+    "lossless_capture": {
+      "path": "../P5/P5_MANAGER_PRE_WHITESPACE_NORMALIZATION_CAPTURE_V1.json",
+      "sha256": "836befe74e3a602c5f256fd1e090ff8debcce5eb3a7749b635c7ad4a7326f60b",
+      "capture_fan_in_sha256": "9ab6d1274fe446909b160a1b0ff37311eed9b24b83072c06ebf2c1dcccb12e90"
+    }
+  },
+  "open_baseline_blocker": "The 196 complete-document schema failures preexist at source basis 533332349a4607eee561d4ef90fb05a62d86519e. The 114 known nodal components plus closed review/support enum metadata cannot be mapped truthfully and losslessly within the current contract.",
+  "prohibited_shortcuts": [
+    "schema alias patch",
+    "TBD substitution",
+    "metadata omission",
+    "claim that the full schema suite passes"
+  ],
+  "selected_tranche_checks": [
+    "zero errors in corrected endpoint and affected curved-station metadata",
+    "real public producer-document parity",
+    "raw endpoint actions and station numeric leaves preserved",
+    "145 focused tests pass",
+    "combined independent review finds no introduced contract regression"
+  ],
+  "downstream_gate": "The unchanged registered DEC-025 suite remains mandatory.",
+  "formal_effect": "This refines the validation boundary for the bounded repair. It does not adopt a public contract, cure the baseline blocker, or change dependency, DAG, decomposition, lifecycle, decision, receipt, source, or Git state."
+}

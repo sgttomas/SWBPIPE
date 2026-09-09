@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_cut_manifest_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+  "decoded_diff_sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+  "files": [
+    {"path": "review/REVIEW.md", "sha256": "a4b67dffa819b133034455f1b939e2f7a8140bfe7582dac351fa334dab178712"},
+    {"path": "review/INPUT_INVENTORY.json", "sha256": "2b813ca659a31efe37058254c6b7db0caae6c0927602a0a94d605a3ada23fedc"},
+    {"path": "review/VALIDATION.json", "sha256": "7dbfa56d7014804d6a508a73c26f84093546e7af232b7b7185d0f572e3ebd65f"},
+    {"path": "review/RETURN.md", "sha256": "ddeccf74ce3d9c35aba0246b694c3aa709d1d7289d96a8ce0143dfbd103c48ab"},
+    {"path": "review/STATUS.json", "sha256": "2f90d21fba6a540bd40d5b7b820fea043cdc7ab4a84cf8c309c0c2a27f0d695f"},
+    {"path": "_run_records/TASK_RUN_FINAL_REVIEW_2026-09-09_0135.md", "sha256": "6dc71d4242b3cf776d7de1e19a6da8e16813b3907cdcbe6c06e111c06bdf4ccb"}
+  ]
+}

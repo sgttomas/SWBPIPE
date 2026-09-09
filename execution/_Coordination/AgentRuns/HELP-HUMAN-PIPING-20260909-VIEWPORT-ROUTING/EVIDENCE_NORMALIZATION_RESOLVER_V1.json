@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T06:51:08Z",
+  "purpose": "Resolve capture-time hashes in frozen controls to whitespace-normalized current evidence while preserving exact original bytes.",
+  "root_disposition": "SEMANTIC_IDENTITY_ACCEPTED",
+  "resolution_rule": "A frozen control continues to identify its capture-time original hash. Read the named normalization record to reconstruct those exact original bytes; read the named active pointer or current manifest for normalized current bytes. No frozen control is rewritten.",
+  "owners": {
+    "F4": {
+      "normalization_record": {
+        "path": "instances/F4/NORMALIZATION_EVIDENCE_V1.json",
+        "sha256": "af6a4ab5bb72e7a63949f60fac58ad56ff1bc331c1f819994a0101285cb563b4"
+      },
+      "active_pointer": {
+        "path": "instances/F4/NORMALIZED_POINTER_V1.json",
+        "sha256": "5bcd7f04e8f824848e7f5b15cbf7e4ddf43d9aa396ec0dd19c1d5da307e67db9"
+      },
+      "capture_to_current": {
+        "FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566 -> 8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+        "implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f -> 88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+        "MANIFEST_V1.json": "796cc7cc69b428a2d9c0ce868e5262b160d931d45fb27cfe39899f96acd294f4 -> 5cc1e33de04348ac51c90755dff0a0e660b6ee70670075ff2a716a87d003f291"
+      },
+      "lossless_preimages_verified_by_c0": true
+    },
+    "P5": {
+      "lossless_capture": {
+        "path": "instances/P5/PRE_WHITESPACE_NORMALIZATION_CAPTURE_V1.json",
+        "sha256": "68374cc5fdbf931c587144abaeebd067579c4cbe787475673bf9d0dd30ece5e3"
+      },
+      "capture_to_current": {
+        "P5_CHILD_IMPLEMENTATION_BRIEF_V2.md": "9d654abc649631e5827c7f7c858160a6e82a3150489797f65bf1a31b76166900 -> 359e51a63635395377c48dd91354ad67786ba30ae4f9850536cf9e8c33cbe98c",
+        "P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md": "678a67726a1a9ba8ec0fb064caefd94e8ba6b89f55ebf7a0107f0a64844df896 -> 1030101e3764f6a27a967574d8e27cebb1170ba7b2c3b33e6ed7d25339f075f3"
+      },
+      "lossless_preimages_verified_by_c0": true
+    },
+    "PREVIEW": {
+      "normalization_record": {
+        "path": "instances/PREVIEW/design/NORMALIZATION_RECORD_V1.json",
+        "sha256": "17372fb3a3f84e172095cc31adb552cd7afede83515aa16c4c59781ccb6b5327"
+      },
+      "current_manifest": {
+        "path": "instances/PREVIEW/design/MANIFEST_V1.json",
+        "sha256": "80b39ea8e744e823fae1c213ff3eb78ea91393ae4dbbb4219cdcec83896a1a87"
+      },
+      "capture_to_current": {
+        "ENDPOINT_SECTION_CUT_REPAIR_BRIEF_V1.md": "c85c97a2946bbdf946da5cb26266d6ff42d2bf7f48fd9ad28a5daa6c7018dfe0 -> a0c6830aa120703aedfbe522e0f919b343523dcef9c5d8e01d9ecf6bc3b58ff5",
+        "ENDPOINT_SECTION_CUT_REPAIR_METADATA_REFINEMENT_V1.md": "96c222c21bda132bebce7aca315564349d846109222380fa84e68bd89518963c -> 76843ff691cdc81bc0f63a9e1d5deb3635fdaeafd045e85edfb18354ecde13c2",
+        "ENDPOINT_SECTION_CUT_REPAIR_VALIDATION_REFINEMENT_V2.md": "e72dc729f68658bfe517554cb33b5a18b3b3bf872a4f514e66389be8c725d3aa -> b6fe8129604ee0824d9124cafd0bba010a8eb1b530e074587d563b4167cb7110",
+        "PRESSURE_DESIGN_REFUTATION_V1.md": "a5a21e755c3ee1b40462b19f00ab6052da720a3ff61f96759c875b0105f9f93f -> d0830b75fae3cb81e1add0f6f5370d9074a86452a92c0c3c251d14b091740336",
+        "PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md": "dc443b7dea76802072a7564fb8047b43221b37c143bd40ce4ccf32306956d3f9 -> 9b2ea96940fef754fa5ecd7310e8cf362bc9368d7d818ccaf8eb7b5df3d5c4a2"
+      },
+      "lossless_preimages_verified_by_c0": true
+    },
+    "P0": {
+      "normalization_record": {
+        "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/EVIDENCE_NORMALIZATION_V1.json",
+        "sha256": "8f6f0dd8f2e03f88ed5575826d9a557b9aa85f159d511f63d0ed313ab9609b8e"
+      },
+      "current_manifest": {
+        "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/MANIFEST.sha256",
+        "sha256": "e80f9f7fbcf130a30494ae17ee5d1f848e1854b32eb7e5f51b5baa07b1aa4eba"
+      },
+      "capture_manifest_sha256": "56e17fceee9af234f3389fb4d2867b8df2a02d25b127b3966e2974073371cdfc",
+      "lossless_preimages_verified_by_c0": true
+    }
+  },
+  "actual_crefute_launch": {
+    "task": "/root/connector_design_refutation",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "delegation": false,
+    "brief": {
+      "path": "instances/CREFUTE/CONNECTOR_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md",
+      "sha256": "2cea13dfc1ec59889f3cedc7ac06f9023befca85982c95167a69d74d068dfd81"
+    },
+    "source_effect": "PROHIBITED"
+  },
+  "scope_effect": "Evidence representation only; no source, engineering/public-contract, dependency, DAG, decomposition, lifecycle, decision, receipt, build, or Git change."
+}

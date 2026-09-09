@@ -1,0 +1,12 @@
+[package]
+name = "p5_endpoint_full_envelope_schema_witness"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[dependencies]
+open_pipe_stress_headless_runner = { path = "../../../../../../../core/runner/headless" }
+open_pipe_stress_product_physics = { path = "../../../../../../../core/product_physics" }
+serde_json = "1"

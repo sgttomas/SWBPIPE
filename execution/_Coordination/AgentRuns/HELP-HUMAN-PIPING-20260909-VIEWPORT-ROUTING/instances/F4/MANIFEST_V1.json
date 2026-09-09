@@ -1,0 +1,72 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4",
+  "role": "WORKING_ITEMS Agent 1",
+  "parent": "/root",
+  "package_id": "PKG-04",
+  "deliverable_id": "DEL-04-04",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "input_hashes": {
+    "instances/F4/PREPARATION_LAUNCH_BRIEF_V1.md": "41117c946a09f0c904367372348546c247110baa0a1dd5316980e928315d4066",
+    "WORK_GRAPH_FRICTION_REVIEW_AMENDMENT_V4.json": "80d59ada63a81d63c01551d39c0269a63c68890887b1b8ed6aace089bd13b388",
+    "OWNER_ENGINEERING_DIRECTION_V2.md": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18",
+    "SHARED_LAUNCH_CONTRACT_V1.md": "c65fd8e058ae104364360fdd2990351d06d67c8801288955b98adf0726d70c42",
+    "../../../_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_FRICTION_REPAIR_RECOMMENDATION_V1.md": "e24d93d740fedd32a2caedfa5d99d9626a496a9714d91372ddaa0b0cdd4b80a8",
+    "instances/FREFUTE/design/DESIGN_REFUTATION_V1.md": "2fb285c5e48f7b03b4ff690506c57a4adf159d8d26be11e6b5684320a5f5e6f9",
+    "../../../_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RUNTIME_PROBE.md": "44ba3704f668f36c3aabe4fe9bc22919a9b4f461aad8ba3e614586466dbaa087"
+  },
+  "source_preimage_hashes": {
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+  },
+  "outputs": {
+    "FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+    "FRICTION_REPAIR_VALIDATION_MATRIX_V1.md": "91a2789b856cf5244dc942fb414e86753332bbc452b1859238e512ad23f4251b",
+    "implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+    "NORMALIZATION_EVIDENCE_V1.json": "af6a4ab5bb72e7a63949f60fac58ad56ff1bc331c1f819994a0101285cb563b4",
+    "WORK_GRAPH_FRICTION_REPAIR_V1.json": "97fd3e253e058b41136987a7430382d23ab0ce0a245303522420bb07e75e47ef",
+    "STATUS_V1.json": "bb4c6e545c60ed85a96a5441bf6c68a3985332e5d15bc45e59d6514a8d567190"
+  },
+  "validation": [
+    {
+      "id": "V-SOURCE-BASIS",
+      "result": "PASS",
+      "observed": "533332349a4607eee561d4ef90fb05a62d86519e"
+    },
+    {
+      "id": "V-SEALED-HASHES",
+      "result": "PASS"
+    },
+    {
+      "id": "V-JSON-SYNTAX",
+      "result": "PASS",
+      "files": ["WORK_GRAPH_FRICTION_REPAIR_V1.json", "STATUS_V1.json"]
+    },
+    {
+      "id": "V-SOURCE-UNCHANGED",
+      "result": "PASS",
+      "git_diff_exit_code": 0
+    },
+    {
+      "id": "V-CURRENT-SHA-DEFECT",
+      "result": "PASS_DEFECT_REPRODUCED",
+      "evidence": "../../../_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RUNTIME_PROBE.md"
+    },
+    {
+      "id": "V-FREFUTE-RECONCILIATION",
+      "result": "PASS_ALL_KNOWN_CONDITIONS_BOUND_PENDING_FINAL_REVIEWER_SIGNOFF"
+    },
+    {
+      "id": "V-EVIDENCE-WHITESPACE-NORMALIZATION",
+      "result": "PASS_PREIMAGE_RECONSTRUCTION_HASHES_MATCH",
+      "evidence": "NORMALIZATION_EVIDENCE_V1.json"
+    }
+  ],
+  "cargo_or_build_run_by_f4": false,
+  "external_solver_comparison_run": false,
+  "source_effect": "NONE_HELD",
+  "git_effect": "NONE",
+  "write_scope_compliance": "PASS_INSTANCES_F4_ONLY",
+  "next_gate": "ROOT_FRICTION_SOURCE_RELEASE_AFTER_FINAL_FREFUTE_SIGNOFF"
+}

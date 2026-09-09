@@ -1,0 +1,45 @@
+{
+  "schema_version": "chirality.task.validation.v1",
+  "recorded_at_utc": "2026-09-09T06:17:48Z",
+  "result": "PASS_DESIGN_REVIEW_ONLY",
+  "verdict": "PASS",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "checks": {
+    "declared_input_hashes_match": true,
+    "design_amendment_v2_hash_matches": true,
+    "sealed_implementation_brief_hash_matches": true,
+    "design_amendment_carries_all_four_refinements": true,
+    "implementation_brief_preserves_six_path_fence": true,
+    "implementation_brief_source_state": "SEALED_NOT_DISPATCHED_SOURCE_HELD",
+    "head_matches_basis": true,
+    "product_source_changed_from_basis": false,
+    "planned_six_path_whitelist": "PASS",
+    "planned_six_path_violations": [],
+    "whole_worktree_source_only_scan": "EXPECTED_FAIL_CONTEXT",
+    "whole_worktree_note": "The generic validator also enumerated already-present untracked coordination/change/evaluation evidence outside the proposed product-source fence; git diff and untracked inspection under apps/desktop were empty.",
+    "affected_check_selection": {
+      "path_basis": "paths relative to projects/chirality-piping",
+      "selected": ["desktop-build", "desktop-test", "harness-self-check"]
+    },
+    "playwright_profile_registered": false,
+    "explicit_playwright_command_required": "cd projects/chirality-piping/apps/desktop && ../../node_modules/.bin/playwright test e2e/linear-authoring.spec.ts --project=chromium-desktop --project=chromium-compact",
+    "configured_playwright_projects": ["chromium-desktop", "chromium-compact"],
+    "add_review_apply_identity_traced": true,
+    "continuation_identity_traced": true,
+    "conversion_producer_reuse_within_fence": true,
+    "no_webgl_fail_closed_refinement_present": true,
+    "dependency_consumption_consistent": true,
+    "e0482_e0485_unconsumed": true,
+    "source_or_test_execution_performed": false
+  },
+  "tools": [
+    {"tool":"python3 tools/software_workflow/validate_change_scope.py","result":"PASS for explicit planned six-path inventory"},
+    {"tool":"python3 tools/software_workflow/select_affected_checks.py","result":"desktop-build, desktop-test, harness-self-check with project-relative paths"}
+  ],
+  "source_effect": "none",
+  "limitations": [
+    "Pre-effect design review only; no implementation exists.",
+    "No build, unit, App, Playwright, or native test was run.",
+    "A separately fresh 100% frozen-diff review remains mandatory before sweep and publish."
+  ]
+}

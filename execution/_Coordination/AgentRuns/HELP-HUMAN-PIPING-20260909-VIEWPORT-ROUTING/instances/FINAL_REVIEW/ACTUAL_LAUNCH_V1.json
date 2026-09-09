@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "node": "COMBINED_FINAL_SOURCE_REVIEW",
+  "actual_task": "/root/combined_source_review",
+  "role": "fresh Agent 2 TASK plus software-code-review",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "delegation": false,
+  "state": "RUNNING",
+  "sealed_inputs": {
+    "launch_brief": {
+      "path": "LAUNCH_BRIEF_V1.md",
+      "sha256": "32b661f6ab079131937fc4bd9a6d7d5d20b532a775299b7038f211770e315303"
+    },
+    "source_cut": {
+      "path": "SOURCE_CUT_MANIFEST_V1.json",
+      "sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d"
+    },
+    "p5_validation_boundary": {
+      "path": "P5_VALIDATION_BOUNDARY_AMENDMENT_V1.json",
+      "sha256": "89b18f40a2ad387c566ad249b387339bcba1ccff0b4fa8477de2d4d1d1ce235b"
+    },
+    "decoded_diff": {
+      "sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+      "bytes": 221814
+    }
+  },
+  "root_validation": "PASS: all 10 base/final hashes, decoded diff, byte length, and file inventory independently verified before dispatch.",
+  "write_scope": "review/** and _run_records/** beneath this FINAL_REVIEW instance only",
+  "source_effect": "PROHIBITED",
+  "downstream": "Any actionable finding requires repair, a newly frozen source cut, and fresh 100 percent successor review."
+}

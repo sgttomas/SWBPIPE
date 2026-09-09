@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "P5",
+  "package_id": "PKG-05",
+  "selected_deliverables": ["DEL-05-03"],
+  "posture": "TERMINAL_FAN_OUT_IN",
+  "selection_authority": "root HELP_HUMAN launch plus accepted amendment V5 and validation refinement V2",
+  "version": "P5_V1_FROZEN",
+  "nodes": [
+    {
+      "id": "P5-A2-ENDPOINT-IMPLEMENTATION",
+      "role": "TASK Agent 2 software-bounded-implementation",
+      "brief": "P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "dependencies": [],
+      "state": "READY",
+      "integration_owner": true,
+      "write_ownership": [
+        "core/product_physics/src/lib.rs",
+        "fixtures/product_preview/invented_mechanics_result.json after focused Rust PASS",
+        "P5 and DEL-05-03 declared evidence subtrees"
+      ],
+      "fan_in_gate": "focused oracles, complete affected envelope validation, scope containment, exact return"
+    },
+    {
+      "id": "P5-A2-INDEPENDENT-DIFF-REVIEW",
+      "role": "fresh TASK Agent 2 software-code-review",
+      "dependencies": ["P5-A2-ENDPOINT-IMPLEMENTATION"],
+      "state": "HELD",
+      "write_ownership": ["P5 evidence only"],
+      "fan_in_gate": "100 percent review of frozen code and fixture diff; PASS required before DEC-025"
+    }
+  ],
+  "edges": [
+    {
+      "from": "P5-A2-ENDPOINT-IMPLEMENTATION",
+      "to": "P5-A2-INDEPENDENT-DIFF-REVIEW",
+      "kind": "accepted_predecessor"
+    }
+  ],
+  "concurrency": "none within P5; implementation and review are serialized",
+  "escalation_points": [
+    "any source or schema path beyond the authorized fence",
+    "raw endpoint row or station numeric drift",
+    "additional actual schema failure",
+    "heavy build execution awaits root-coordinated slot"
+  ]
+}

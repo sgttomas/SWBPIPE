@@ -1,0 +1,159 @@
+{
+  "schema_version": "1.0",
+  "return_id": "PHYSICS_REMAINING_20260909_NS",
+  "role": "bounded_ephemeral_agent_2_generalist",
+  "delegation_performed": false,
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "exposed_model": "gpt-5.6-sol",
+  "exposed_reasoning_effort": "high",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909",
+  "source_basis_expected": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "input_hashes": {
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/NS_BRIEF_V1.md": "64c95d01784b73adf3070e6bbd156da6211983bab8d19f508b8bf8490f8d443f",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/NS_AUTHORITY_AMENDMENT_V2.md": "9fc719256852898515ddd1b6275b8678adcae3ee568b64aa189be06efa5fbaf8",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_V1.json": "74c7540bae8071d4e17977eb4fd5f665ee92dc7902fe644fef664d97e320de3e",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_AUTHORITY_AMENDMENT_V2.json": "d6b18f819cc7cad2edc1e747c701fb6a15369addfc58b9ca852e0e7f33084ae8"
+  },
+  "required_instructions_read_in_full": [
+    "AGENTS.md",
+    "projects/chirality-piping/AGENTS.md",
+    "agents/AGENT_EVALUATION.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/NS_BRIEF_V1.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/NS_AUTHORITY_AMENDMENT_V2.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_V1.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_AUTHORITY_AMENDMENT_V2.json"
+  ],
+  "focused_validation": [
+    {
+      "id": "V-INPUT-HASHES",
+      "method": "sha256sum of all four sealed inputs",
+      "result": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "V-SOURCE-BASIS",
+      "method": "git rev-parse HEAD",
+      "result": "pass",
+      "observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+      "exit_code": 0
+    },
+    {
+      "id": "V-NS-01-ORACLE",
+      "method": "exact Python scalar replay: k=100, F=1, muN=3",
+      "result": "pass_defect_reproduced",
+      "observed": {
+        "sticking_u": 0.0,
+        "sticking_reaction": -1.0,
+        "sliding_first_u": 0.01,
+        "sliding_applied_friction": -3.0,
+        "sliding_final_u": -0.02,
+        "friction_displacement_product": 0.06
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-NS-01-CURRENT-SHA-RUST",
+      "method": "single focused cargo run of the evaluation-local runner against the current nonlinear-integration crate",
+      "command": "CARGO_TARGET_DIR=projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/_scratch/target cargo run --manifest-path projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/runtime_probe/Cargo.toml --quiet",
+      "attempt_count": 1,
+      "result": "pass_defect_reproduced",
+      "elapsed_wall_time_seconds": 1.831292209,
+      "observed": {
+        "sticking_seed": {
+          "converged": true,
+          "iterations": 1,
+          "final_state": "sticking",
+          "displacement_ux": 0.0,
+          "reported_friction_reaction": -1.0,
+          "applied_sliding_friction": null
+        },
+        "sliding_seed": {
+          "converged": true,
+          "iterations": 2,
+          "final_state": "sliding",
+          "displacement_ux": -0.02,
+          "reported_friction_reaction": -3.0,
+          "applied_sliding_friction": -3.0,
+          "friction_times_displacement": 0.06
+        }
+      },
+      "exit_code": 0,
+      "evidence_file": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RUNTIME_PROBE.md"
+    },
+    {
+      "id": "V-NS-02-ORACLE",
+      "method": "exact Python two-node contact-stabilization replay",
+      "result": "pass_defect_reproduced",
+      "observed": {
+        "inactive_matrix_determinant": 0.0,
+        "active_solution_u1": 0.1,
+        "active_support_reaction": -10.0
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-NS-03-ORACLE",
+      "method": "exact Python scalar scaling replay: k=f=2^-40",
+      "result": "pass_defect_reproduced",
+      "observed": {
+        "k": 9.094947017729282e-13,
+        "exact_x": 1.0,
+        "condition_number": 1.0,
+        "absolute_guard": 1e-12,
+        "dense_and_sparse_guard_reject": true
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-SOURCE-TRACE",
+      "method": "focused rg/sed/git inspection of solver, product, diagnostics, tests, prior evidence, and PR 760 history",
+      "result": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "V-EXTERNAL-REFERENCES",
+      "method": "primary-source review of Abaqus Coulomb friction theory and LAPACK DPOSVX",
+      "result": "pass_reference_only",
+      "industry_solver_validation_claimed": false
+    }
+  ],
+  "blanket_tests_run": false,
+  "repository_wide_build_run": false,
+  "focused_evaluation_local_rust_probe_built_and_run": true,
+  "focused_rust_probe_attempt_count": 1,
+  "cargo_target_removed_after_probe": true,
+  "external_solver_comparison_run": false,
+  "piping_design_equations_used_as_authority": false,
+  "files_written": [
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RETURN.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/FINDINGS.csv",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/COVERAGE.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/VALIDATION.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RUNTIME_PROBE.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/runtime_probe/Cargo.toml",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/runtime_probe/src/main.rs"
+  ],
+  "findings_csv_schema": [
+    "FindingID",
+    "Concern",
+    "Classification",
+    "Severity",
+    "Scope",
+    "Claim",
+    "EvidenceRefs",
+    "Status",
+    "RecommendedOwner",
+    "RerunRequirement"
+  ],
+  "findings_csv_schema_validation": "pass_exact_header_and_four_rows",
+  "write_scope_compliance": "pass_only_returns_NS_written",
+  "finding_count": 4,
+  "severity_counts": {
+    "high": 1,
+    "medium": 3,
+    "low": 0
+  },
+  "overall_status": "complete_with_defects_and_decision_ready_repairs"
+}

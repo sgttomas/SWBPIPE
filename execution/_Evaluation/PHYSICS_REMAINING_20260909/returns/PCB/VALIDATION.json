@@ -1,0 +1,145 @@
+{
+  "schema_version": "1.0",
+  "return_id": "PHYSICS_REMAINING_20260909_PCB",
+  "role": "bounded_ephemeral_agent_2_generalist",
+  "delegation_performed": false,
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "exposed_model": "gpt-5.6-sol",
+  "exposed_reasoning_effort": "high",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909",
+  "source_basis_expected": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "input_hashes": {
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/PCB_BRIEF_V1.md": "702b2bad0fd33ee72052afd56158396f06ebb73321a9828ab32abd0af3305999",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/PCB_AUTHORITY_AMENDMENT_V2.md": "3190e2775f25c7835eed648cc318f011ed2cc97229a3a1161daa5285e2e6ec0d",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_V1.json": "74c7540bae8071d4e17977eb4fd5f665ee92dc7902fe644fef664d97e320de3e",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_AUTHORITY_AMENDMENT_V2.json": "d6b18f819cc7cad2edc1e747c701fb6a15369addfc58b9ca852e0e7f33084ae8"
+  },
+  "required_instructions_read_in_full": [
+    "AGENTS.md",
+    "projects/chirality-piping/AGENTS.md",
+    "agents/AGENT_EVALUATION.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/PCB_BRIEF_V1.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/briefs/PCB_AUTHORITY_AMENDMENT_V2.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_V1.json",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/WORK_GRAPH_AUTHORITY_AMENDMENT_V2.json"
+  ],
+  "source_hashes": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+    "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "projects/chirality-piping/core/model_transform/physical_to_analytical/contract.py": "7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0",
+    "projects/chirality-piping/core/model_transform/physical_to_analytical/_solver_boundary_adapter.py": "3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990"
+  },
+  "focused_validation": [
+    {
+      "id": "V-INPUT-HASHES",
+      "method": "sha256sum of four sealed inputs",
+      "result": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "V-SOURCE-BASIS",
+      "method": "git rev-parse HEAD",
+      "result": "pass",
+      "observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+      "exit_code": 0
+    },
+    {
+      "id": "V-PCB-001-PRESSURE-SIGN",
+      "method": "independent Python arithmetic for p=1 MPa, ri=0.077 m, ro=0.084 m",
+      "result": "pass_defect_reproduced",
+      "observed": {
+        "Ai_m2": 0.0186265028431339,
+        "As_m2": 0.0035405749205957,
+        "P_N": 18626.5028431339,
+        "current_endpoint_i_MPa": 5.26086956522,
+        "current_endpoint_j_MPa": -5.26086956522,
+        "station_cut_MPa": -5.26086956522
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-PCB-003-CONNECTOR-RIGID-ROTATION",
+      "method": "independent Python arithmetic for L=2 m, k_lateral=2000 N/m, epsilon=0.001",
+      "result": "pass_defect_reproduced",
+      "observed": {
+        "raw_delta_y_m": 0.002,
+        "raw_force_N": 4.0,
+        "raw_energy_J": 0.004,
+        "raw_uncancelled_couple_Nm": 8.0,
+        "objective_delta_y_m": 0.0,
+        "objective_energy_J": 0.0
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-PCB-004-UNSUPPORTED-EJ",
+      "method": "mutate canonical invented fixture to expansion_joint component_link and run transform_physical_to_analytical",
+      "result": "pass_fail_closed_behavior_reproduced",
+      "observed": {
+        "analytical_component_ids": [],
+        "analytical_element_ids": [],
+        "diagnostic_codes": [
+          "PTA-COMPONENT-TYPE-UNSUPPORTED",
+          "PTA-ELEMENT-COMPONENT-UNSUPPORTED",
+          "PTA-ELEMENT-TYPE-UNSUPPORTED",
+          "PTA-LOAD-TARGET-UNRESOLVED",
+          "PTA-LOAD-TARGET-UNRESOLVED"
+        ],
+        "has_blocking_findings": true
+      },
+      "exit_code": 0
+    },
+    {
+      "id": "V-ADAPTER-FOCUSED-TEST",
+      "method": "python3 tests/test_analytical_solver_boundary_adapter.py from projects/chirality-piping",
+      "result": "pass",
+      "exit_code": 0
+    },
+    {
+      "id": "V-TRANSFORM-FOCUSED-TEST",
+      "method": "python3 tests/test_physical_to_analytical_transform.py from projects/chirality-piping",
+      "result": "blocked_environment_dependency",
+      "error": "JsonSchemaDependencyMissing: jsonschema>=4,<5 is required",
+      "exit_code": 1
+    },
+    {
+      "id": "V-RUNTIME-CONSUMER-SEARCH",
+      "method": "focused rg for transform_physical_to_analytical and adapt_analytical_solver_model excluding tests and narrative artifacts",
+      "result": "pass_no_product_runtime_consumer_found",
+      "exit_code": 0
+    },
+    {
+      "id": "V-PRIMARY-REFERENCES",
+      "method": "review MIT OCW structural mechanics note and publisher-hosted Abaqus pipe-pressure, beam-force, and connector documentation",
+      "result": "pass_reference_only",
+      "access_date": "2026-09-09",
+      "industry_solver_validation_claimed": false
+    }
+  ],
+  "blanket_tests_run": false,
+  "repository_build_run": false,
+  "gui_route_run": false,
+  "external_solver_comparison_run": false,
+  "piping_design_equations_used_as_authority": false,
+  "files_written": [
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/RETURN.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/FINDINGS.csv",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/COVERAGE.md",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/VALIDATION.json"
+  ],
+  "write_scope_compliance": "pass_only_returns_PCB_written",
+  "subject_writes_performed": false,
+  "finding_count": 5,
+  "severity_counts": {
+    "critical": 0,
+    "high": 4,
+    "medium": 1,
+    "low": 0,
+    "informational": 0
+  },
+  "overall_status": "complete_with_two_reproduced_defects_and_three_decision_ready_capability_fences"
+}

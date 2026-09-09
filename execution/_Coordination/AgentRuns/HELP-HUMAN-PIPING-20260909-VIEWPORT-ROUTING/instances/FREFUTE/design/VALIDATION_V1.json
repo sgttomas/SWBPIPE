@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "review_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING_FREFUTE_DESIGN_V1",
+  "role": "fresh_bounded_agent_2_independent_engineering_reviewer",
+  "delegation_performed": false,
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "exposed_model": "gpt-5.6-sol",
+  "exposed_reasoning_effort": "high",
+  "source_basis_expected": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_match": true,
+  "input_hashes_match": true,
+  "methods": [
+    {
+      "id": "V-SOURCE-TRACE",
+      "method": "line-addressed read/search of classifier, assembled loop, force/reaction reconstruction, derived-normal affine coupling, tests, manifests, and downstream callers",
+      "result": "pass_defect_and_fence_confirmed"
+    },
+    {
+      "id": "V-SCALAR-ORACLE",
+      "method": "isolated deterministic Node.js calculation for k=100, L=3, F in [-10,-3,-1,1,3,10] plus current mutation replay",
+      "result": "pass",
+      "observed_mutation": {"u1": 0.01, "friction_force": -3.0, "u2": -0.02, "force_displacement_product": 0.06}
+    },
+    {
+      "id": "V-ZERO-LIMIT",
+      "method": "isolated deterministic Node.js calculation for mu=0 and F=+/-1",
+      "result": "pass_proposal_correction_required",
+      "observed": "nonzero displacement, zero friction force, zero force-displacement product"
+    },
+    {
+      "id": "V-PRIMARY-REFERENCE",
+      "method": "read official Abaqus 2025 connector-friction and Coulomb-friction theory pages",
+      "result": "pass_reference_only",
+      "industry_solver_validation_claimed": false
+    },
+    {
+      "id": "V-NS-01-CURRENT-SHA-RUST",
+      "method": "reviewed P0's single focused Cargo runner evidence against the current nonlinear-integration crate",
+      "result": "pass_defect_reproduced",
+      "evidence_sha256": "44ba3704f668f36c3aabe4fe9bc22919a9b4f461aad8ba3e614586466dbaa087",
+      "observed": {"sticking_seed_u": 0.0, "sticking_seed_reaction": -1.0, "sliding_seed_u": -0.02, "sliding_seed_force": -3.0, "sliding_seed_force_displacement_product": 0.06},
+      "exit_code": 0
+    },
+    {
+      "id": "V-F4-RECONCILIATION",
+      "method": "independent review and iterative refutation of F4 plan/matrix, including state-update, deferred-warm-start, adjacent-float, zero-limit, and derived-normal retry mutations",
+      "result": "pass_reconciled_design",
+      "plan_sha256": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566",
+      "matrix_sha256": "91a2789b856cf5244dc942fb414e86753332bbc452b1859238e512ad23f4251b"
+    }
+  ],
+  "repository_build_run": false,
+  "focused_cargo_test_run": false,
+  "full_sweep_run": false,
+  "external_solver_comparison_run": false,
+  "product_source_modified": false,
+  "verdict_on_provisional_proposal": "CHANGES_REQUIRED",
+  "reconciled_f4_design_verdict": "PASS",
+  "remaining_dependency": "root source-release decision; future implementation, frozen-diff review, and validation gates"
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": "chirality.working_items.work-graph.v1",
+  "recorded_at_utc": "2026-09-09T06:02:15Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "selection_authority": "accepted root graph plus root orthogonal-plane refinement",
+  "posture": "MIXED",
+  "nodes": [
+    {
+      "id": "U7-A1",
+      "role": "WORKING_ITEMS Agent 1",
+      "objective": "source assessment and exact design/fence",
+      "state": "FROZEN",
+      "writes": [
+        "{RUN_ROOT}/instances/U7/**"
+      ],
+      "return": "MANAGER_RETURN_V1.md"
+    },
+    {
+      "id": "UREVIEW_DESIGN",
+      "role": "fresh Agent 2 software-code-review",
+      "state": "HELD_BY_PARENT",
+      "after": [
+        "U7-A1"
+      ],
+      "writes": [
+        "{RUN_ROOT}/instances/UREVIEW/design/**"
+      ]
+    },
+    {
+      "id": "ROOT_SOURCE_RELEASE",
+      "role": "Agent 0 gate",
+      "state": "HELD",
+      "after": [
+        "UREVIEW_DESIGN"
+      ]
+    },
+    {
+      "id": "U7-IMPLEMENT",
+      "role": "WORKING_ITEMS plus bounded nondelegating Agent 2",
+      "state": "HELD",
+      "after": [
+        "ROOT_SOURCE_RELEASE"
+      ],
+      "writes": "exact six-path fence in ASSESSMENT_AND_FENCE_V1.md"
+    }
+  ],
+  "edges": [
+    [
+      "U7-A1",
+      "UREVIEW_DESIGN"
+    ],
+    [
+      "UREVIEW_DESIGN",
+      "ROOT_SOURCE_RELEASE"
+    ],
+    [
+      "ROOT_SOURCE_RELEASE",
+      "U7-IMPLEMENT"
+    ]
+  ],
+  "fan_in_gate": "independent refutation accepts design and exact fence before product bytes change",
+  "escalation": "report a required path outside the six-path fence or a producer/API defect to /root",
+  "preserved": "No source, dependency status, lifecycle, public API, operation schema, persistence, physics, N7 history, Git, build, or receipt change in assessment."
+}

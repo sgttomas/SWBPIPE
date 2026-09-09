@@ -1,0 +1,218 @@
+{
+  "schema_version": "chirality.change.native-candidate-build.v1",
+  "recorded_at_utc": "2026-09-09T07:40:22Z",
+  "status": "BUILD_PASS; PRELAUNCH_READY; REVIEW_ACCEPTANCE_PENDING",
+  "identity": {
+    "task": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegated": false
+  },
+  "basis": {
+    "git_base": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "source_cut_manifest_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/FINAL_REVIEW/SOURCE_CUT_MANIFEST_V1.json",
+    "source_cut_manifest_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+    "source_member_count": 10,
+    "source_aggregate_sha256": "280774f11ebdd197d002d30e98c8321ddd4f6b24467a3a24619ed2daff5915ca",
+    "source_before_and_after_match_manifest": true
+  },
+  "overlay": {
+    "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V1.json",
+    "sha256": "5da95c6ffca4a7c1b7779f9b4c68147e079cfb93fc47422302f8195cb4a5c903",
+    "productName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+    "identifier": "org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1"
+  },
+  "command": {
+    "cwd": "{WORKING_ROOT}/apps/desktop",
+    "argv": [
+      "npm",
+      "run",
+      "tauri",
+      "--",
+      "build",
+      "--bundles",
+      "app",
+      "--ci",
+      "--no-sign",
+      "--config",
+      "../../execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V1.json"
+    ],
+    "env": {
+      "CARGO_NET_OFFLINE": "true"
+    },
+    "exit_code": 0,
+    "release_compile_seconds": 37.84
+  },
+  "build_chain": {
+    "wasm_bindgen": "0.2.123",
+    "wasm_operation_and_self_weight": "PASS",
+    "typescript_vite": "PASS; 1699 modules transformed",
+    "tauri_release_compile": "PASS",
+    "unsigned_app_bundle": "PASS"
+  },
+  "dist": {
+    "path": "projects/chirality-piping/apps/desktop/dist",
+    "member_count": 21,
+    "aggregate_sha256": "86456ae78a50d69cbfc46991c062f684ce34926de8b8bd74a5dc20dd5c2fc219",
+    "entries": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/index-BbqXWFNO.css",
+        "bytes": 58611,
+        "sha256": "f1b3bc415ae58d738ddb318ea05d6bfaa18dc42ba919dd58914d3a17657aee72"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/index-Cq_lqRhm.js",
+        "bytes": 1132794,
+        "sha256": "173038098a87a279a2bb2262b2dddfd670d4d36f42b2866ae6fae780ebd1f438"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js",
+        "bytes": 1820,
+        "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+        "bytes": 10858,
+        "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js",
+        "bytes": 1660,
+        "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_mechanics_result-CleTy2JL.js",
+        "bytes": 502608,
+        "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js",
+        "bytes": 12670,
+        "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-7OC5HNn7.js",
+        "bytes": 3613,
+        "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-icons-Fcg__Luf.js",
+        "bytes": 18788,
+        "sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-react-BT_8sX57.js",
+        "bytes": 188744,
+        "sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js",
+        "bytes": 91,
+        "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-three-DC4iGhup.js",
+        "bytes": 526268,
+        "sha256": "3d965cf58a28a9e737a33c5bea71debec18f024efe9c82fa9e35499b1b748e7f"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/index.html",
+        "bytes": 1158,
+        "sha256": "5ee5d60fb398b324585e193699879497b7e6e07783896985fd15d4bbe3099714"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+        "bytes": 1688,
+        "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+        "bytes": 6961,
+        "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+        "bytes": 683806,
+        "sha256": "35bce81c71163ebe8ef619a4f460427c1350aadba45e676b8696d325d572e0e5"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "bytes": 520,
+        "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+        "bytes": 3744,
+        "sha256": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js",
+        "bytes": 13172,
+        "sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+        "bytes": 973632,
+        "sha256": "0735d6b5434cd00ed11489cbb5a41281e8cb34b3af8750d4a0836718feee5abf"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+        "bytes": 1261,
+        "sha256": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f"
+      }
+    ]
+  },
+  "bundle": {
+    "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app",
+    "member_count": 3,
+    "aggregate_sha256": "bd7de851d6a4b7fb0165ed06e732f41abe045c4134d3db97771fc858cfaf9980",
+    "entries": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app/Contents/Info.plist",
+        "bytes": 1123,
+        "sha256": "96646badec5f93ef9f9726a8dd2d845e0cbaacb448cc2b02c6ce6a996e32372d"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app/Contents/MacOS/openpipestress-desktop",
+        "bytes": 19892448,
+        "sha256": "b3b5e1efb0ec70a63a207591f47abe303763089ba07b96a7f6f440498cf6f54c"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app/Contents/Resources/icon.icns",
+        "bytes": 77148,
+        "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+      }
+    ],
+    "info_plist": {
+      "CFBundleIdentifier": "org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1",
+      "CFBundleName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+      "CFBundleDisplayName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+      "CFBundleExecutable": "openpipestress-desktop",
+      "CFBundleVersion": "0.1.0",
+      "CFBundleShortVersionString": "0.1.0"
+    },
+    "executable_sha256": "b3b5e1efb0ec70a63a207591f47abe303763089ba07b96a7f6f440498cf6f54c",
+    "executable_bytes": 19892448,
+    "release_binary_byte_equal": true
+  },
+  "prelaunch_guards": {
+    "bundle_absent_before_build": true,
+    "dedicated_store_absent_before_build": true,
+    "dedicated_store_absent_after_build": "TO_BE_CHECKED_BY_SHELL",
+    "exact_bundle_process_absent_before_launch": "TO_BE_CHECKED_BY_SHELL",
+    "normal_store_inspected": false
+  },
+  "tracked_integrity": {
+    "ten_source_members_unchanged_after_build": true,
+    "package_lock_and_tauri_cargo_lock_unchanged": true,
+    "build_created_only_ignored_output": true
+  },
+  "log": {
+    "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_CANDIDATE_BUILD_LOG_V1.base64.json",
+    "sha256": "f7966b8f22a8e4075178a184d0adb391358f12eb3805db24e404c103d5d55855",
+    "decoded_sha256": "f93547ce03795d093e5d37ef60be89c27c163426890c444a1bc02c0c6aec5ca0"
+  },
+  "host_paths": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_CANDIDATE_HOST_PATHS_V1.json",
+  "acceptance_limit": "This is a candidate build. Independent combined-source review PASS and a separately sealed native witness remain required before source acceptance, DEC-025, or publication."
+}

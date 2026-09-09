@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING_FREFUTE_DESIGN_V2",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "inputs": {
+    "instances/FREFUTE/design/MANIFEST_V1.json": "0e7b7e996c9fc1491f835f44b46564571ed6ef811e6bea7ddd250b6dd6c17d61",
+    "instances/F4/implementation/DERIVED_NORMAL_PRIORITY_CONFLICT_V1.md": "2e05e9ba5468f5ae880ff5dda5a173cc92d80cebf4fdbd1f60d96a2907ebd0dd",
+    "working/nonlinear_supports/src/lib.rs": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+    "working/nonlinear_integration/src/lib.rs": "f4218ccf67e6d458be79fad9ac1b1b87ff836cdfc28a53b64696eae4e6dfc9d4"
+  },
+  "outputs": {
+    "DESIGN_REFUTATION_V1.md": "696cb9cc851993038709b75da01ed005d2b0c880b7518787c156f9ad7f57e74e",
+    "F4_RECONCILIATION_V1.md": "9e2828f9364d77693db0d68e6c6d695f197def9b7a3eb89b3668e031e2cd0c45",
+    "DERIVED_NORMAL_PRIORITY_RECONCILIATION_V1.md": "b18d7d9ed148130a121024006489eb7bd230b4fbe6a18912150c9dd4b35c4e5d",
+    "VALIDATION_V1.json": "4113a0e591877251ccf7339341561454be38cf8b6934b187852f5af0651a50e4",
+    "VALIDATION_V2.json": "23d0159af5b0dae3b3895f9a9925fc9f430bc9e1bda27ad55b6f8ecb791e7574",
+    "STATUS.json": "ea8a970a64ef5243493311952722df48f9b538d94ef50d8aa90e5f0670bf4188"
+  },
+  "selected_priority_verdict": "PASS",
+  "unamended_working_candidate_verdict": "CHANGES_REQUIRED",
+  "write_scope_compliance": "pass_only_instances_FREFUTE_design_written",
+  "source_modified": false,
+  "git_effect": false
+}

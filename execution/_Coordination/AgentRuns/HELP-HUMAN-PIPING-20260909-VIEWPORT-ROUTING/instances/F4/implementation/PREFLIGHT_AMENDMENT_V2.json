@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4_IMPL",
+  "recorded_at_utc": "2026-09-09T06:46:30Z",
+  "status": "READ_ONLY_HOLD_AFTER_ROOT_NORMALIZATION",
+  "supersedes_byte_basis_in": "PREFLIGHT_V1.json",
+  "semantic_change": false,
+  "active_normalized_inputs": {
+    "../FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md": {
+      "expected": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+      "observed": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+      "result": "PASS"
+    },
+    "IMPLEMENTATION_LAUNCH_BRIEF_V1.md": {
+      "expected": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+      "observed": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+      "result": "PASS"
+    }
+  },
+  "normalization_evidence": {
+    "path": "../NORMALIZATION_EVIDENCE_V1.json",
+    "expected_sha256": "af6a4ab5bb72e7a63949f60fac58ad56ff1bc331c1f819994a0101285cb563b4",
+    "observed_sha256": "af6a4ab5bb72e7a63949f60fac58ad56ff1bc331c1f819994a0101285cb563b4",
+    "result": "PASS"
+  },
+  "active_pointer": {
+    "path": "../NORMALIZED_POINTER_V1.json",
+    "expected_sha256": "5bcd7f04e8f824848e7f5b15cbf7e4ddf43d9aa396ec0dd19c1d5da307e67db9",
+    "observed_sha256": "5bcd7f04e8f824848e7f5b15cbf7e4ddf43d9aa396ec0dd19c1d5da307e67db9",
+    "result": "PASS"
+  },
+  "source_files": {
+    "status": "UNCHANGED_PINNED_PREIMAGES",
+    "mutation_hold": "P5_FINAL_CARGO_RUN",
+    "cargo_commands_run": []
+  }
+}

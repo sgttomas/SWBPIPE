@@ -1,0 +1,39 @@
+{
+  "schema_version": "chirality.task.input-inventory.v1",
+  "recorded_at_utc": "2026-09-09T06:34:13Z",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "execution_attribution": {
+    "role": "fresh bounded Agent 2 independent engineering reviewer",
+    "requested_model": "gpt-5.6-sol",
+    "actual_model": "gpt-6",
+    "reasoning_effort": "high requested; mechanical setting not exposed to reviewer",
+    "delegation": false
+  },
+  "members": [
+    {"path":"AGENTS.md","bytes":18466,"sha256":"377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3"},
+    {"path":"projects/chirality-piping/AGENTS.md","bytes":10615,"sha256":"33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"},
+    {"path":"{RUN_ROOT}/WORK_GRAPH_PRESSURE_REVIEW_AMENDMENT_V3.json","bytes":1722,"sha256":"6c59a6e8c6b134c18aa6c50be03df4c96f6b0146569ab5ad9ecc322b135963c5"},
+    {"path":"{RUN_ROOT}/OWNER_ENGINEERING_DIRECTION_V2.md","bytes":1433,"sha256":"34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"},
+    {"path":"{RUN_ROOT}/SHARED_LAUNCH_CONTRACT_V1.md","bytes":1380,"sha256":"c65fd8e058ae104364360fdd2990351d06d67c8801288955b98adf0726d70c42"},
+    {"path":"{RUN_ROOT}/instances/PREVIEW/PRESSURE_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md","bytes":2605,"sha256":"5e91ed1311cca5485c585a8efed7f7a2c3c3af770fd0e233cd2a79bdf7af3f48"},
+    {"path":"{EVALUATION_ROOT}/PROVISIONAL_PRESSURE_IMPLEMENTATION_RECOMMENDATION_V1.md","bytes":7320,"sha256":"df940eb27fdbe091cabca9f9044c031367e412a629de831e65c4c298a8baaf15"},
+    {"path":"execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/INVESTIGATION_REPORT.md","bytes":16494,"sha256":"736b82572f887cfc367db579d66e5d55d2d3a3d618662b6a17a6c91966c831af"},
+    {"path":"core/product_physics/src/lib.rs","bytes":677565,"sha256":"f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5"},
+    {"path":"core/solver/curved_bend/src/lib.rs","bytes":98611,"sha256":"6bfead4091998117612e0a4cebc9807280e2eef60f970acbd6e366e3f0c8dd4b"},
+    {"path":"core/loads/stress_recovery/src/lib.rs","bytes":55911,"sha256":"0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2"},
+    {"path":"schemas/model.schema.yaml","bytes":48268,"sha256":"a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c"},
+    {"path":"schemas/material.schema.yaml","bytes":20832,"sha256":"a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172"},
+    {"path":"schemas/results.schema.yaml","bytes":23038,"sha256":"a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0"},
+    {"path":"core/model_transform/physical_to_analytical/contract.py","bytes":31893,"sha256":"7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0"},
+    {"path":"core/model_transform/physical_to_analytical/_solver_boundary_adapter.py","bytes":47833,"sha256":"3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990"},
+    {"path":"apps/desktop/src-tauri/src/model_document_migration.rs","bytes":17044,"sha256":"ce3e36b018559eafe1955155b0cb0ce6e2aac6ad3556c9fded7a17306741c704"},
+    {"path":"apps/desktop/src-tauri/src/lib.rs","bytes":266412,"sha256":"d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81"},
+    {"path":"apps/desktop/src/types.ts","bytes":26474,"sha256":"b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf"},
+    {"path":"core/runner/headless/src/bin/openpipestress-runner.rs","bytes":40907,"sha256":"589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54"},
+    {"path":"core/runner/headless/src/result_envelope_binding.rs","bytes":50359,"sha256":"2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85"},
+    {"path":"apps/desktop/src/services/previewService.ts","bytes":29850,"sha256":"ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e"},
+    {"path":"core/analysis_runs/records.py","bytes":22818,"sha256":"709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0"}
+  ],
+  "member_count": 23,
+  "note": "Primary web sources are inventoried in PRESSURE_DESIGN_REFUTATION_V1.md. Generated calculations and review outputs are excluded from the input-member list and hashed in MANIFEST_V1.json."
+}

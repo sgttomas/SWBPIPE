@@ -1,0 +1,49 @@
+{
+  "schema_version": "1.0",
+  "status": "FROZEN_ASSESSMENT_LAUNCH_READY",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "members": [
+    {
+      "path": "OWNER_DIRECTION.md",
+      "sha256": "7efda9d1acd57374bc36cfc42d7aef6a08e7b3f06f6ad59b4868eb1181ece0f8",
+      "bytes": 941
+    },
+    {
+      "path": "C0_ACTIVATION_V1.md",
+      "sha256": "48106b6d205487c5f53f25c68ad8c1283b4361c75a647b060d58b4fa4d723a6d",
+      "bytes": 531
+    },
+    {
+      "path": "SHARED_LAUNCH_CONTRACT_V1.md",
+      "sha256": "c65fd8e058ae104364360fdd2990351d06d67c8801288955b98adf0726d70c42",
+      "bytes": 1380
+    },
+    {
+      "path": "SETUP_BASIS_V1.json",
+      "sha256": "a61f0e61400ace885a5ad0aad907b91404d818cee51825844a80cb7d0fc1d4b0",
+      "bytes": 1311
+    },
+    {
+      "path": "WORK_GRAPH_V1.json",
+      "sha256": "61471cfa25a3773e279c860afd1be7a7535ed036c26b33eaae9fd4efa22aef47",
+      "bytes": 3374
+    },
+    {
+      "path": "instances/U7/ASSESSMENT_LAUNCH_BRIEF_V1.md",
+      "sha256": "2239d2d4b78a1139966d2f44451a5399dc981bb54fb1e052cbba06a9cae82140",
+      "bytes": 2949
+    },
+    {
+      "path": "instances/P0/EVALUATION_LAUNCH_BRIEF_V1.md",
+      "sha256": "f1a3d51375b3b12128fcf0ebd7bb43ed2793feb9f6ce43aa2abc0c56668f5bee",
+      "bytes": 1792
+    },
+    {
+      "path": "instances/UREVIEW/DESIGN_REVIEW_LAUNCH_BRIEF_V1.md",
+      "sha256": "2a26a7eed06d65dc0b19c5b17938cb03247d21a278ee5bfa74f77bd502c45796",
+      "bytes": 1166
+    }
+  ],
+  "source_effect": "HELD",
+  "receipt_append": false
+}

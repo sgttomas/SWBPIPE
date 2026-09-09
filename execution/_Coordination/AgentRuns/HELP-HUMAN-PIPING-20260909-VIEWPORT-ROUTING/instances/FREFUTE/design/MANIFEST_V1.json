@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING_FREFUTE_DESIGN_V1",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "inputs": {
+    "AGENTS.md": "377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/SHARED_LAUNCH_CONTRACT_V1.md": "c65fd8e058ae104364360fdd2990351d06d67c8801288955b98adf0726d70c42",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/OWNER_ENGINEERING_DIRECTION_V2.md": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/FREFUTE/FRICTION_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md": "23911596636d7b4362b8e234bf2de0dc0b99d4a6ea404ffd6cb3b2a77f18355d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/WORK_GRAPH_FRICTION_REVIEW_AMENDMENT_V4.json": "80d59ada63a81d63c01551d39c0269a63c68890887b1b8ed6aace089bd13b388",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_FRICTION_REPAIR_RECOMMENDATION_V1.md": "e24d93d740fedd32a2caedfa5d99d9626a496a9714d91372ddaa0b0cdd4b80a8",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RETURN.md": "d0ad55de23da0f0ca7965acfb4dc6e7e5f17b472203199a6754a0cb8b3ddc515",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RUNTIME_PROBE.md": "44ba3704f668f36c3aabe4fe9bc22919a9b4f461aad8ba3e614586466dbaa087",
+    "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/VALIDATION.json": "ef0dab886b0ee858edee3d7c9b94e486362fc575338af542841175ed6b015948",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/FRICTION_REPAIR_VALIDATION_MATRIX_V1.md": "91a2789b856cf5244dc942fb414e86753332bbc452b1859238e512ad23f4251b",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+  },
+  "outputs": {
+    "DESIGN_REFUTATION_V1.md": "696cb9cc851993038709b75da01ed005d2b0c880b7518787c156f9ad7f57e74e",
+    "F4_RECONCILIATION_V1.md": "9e2828f9364d77693db0d68e6c6d695f197def9b7a3eb89b3668e031e2cd0c45",
+    "VALIDATION_V1.json": "4113a0e591877251ccf7339341561454be38cf8b6934b187852f5af0651a50e4",
+    "STATUS.json": "82bdbe73437070442ba2d4f4739f22444d0fe86dcc3ac9791c0bf1ea983d6493"
+  },
+  "write_scope_compliance": "pass_only_instances_FREFUTE_design_written",
+  "source_modified": false,
+  "git_effect": false
+}

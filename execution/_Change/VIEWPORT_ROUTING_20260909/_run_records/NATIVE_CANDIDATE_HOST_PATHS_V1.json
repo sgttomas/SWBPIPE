@@ -1,0 +1,12 @@
+{
+  "schema_version": "chirality.change.native-candidate-host-paths.v1",
+  "recorded_at_utc": "2026-09-09T07:40:22Z",
+  "structural_role": "run_record_host_paths",
+  "paths": {
+    "bundle": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app",
+    "release_binary": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909/projects/chirality-piping/apps/desktop/src-tauri/target/release/openpipestress-desktop",
+    "dedicated_store_directory": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1",
+    "dedicated_store_file": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1/openpipestress-projects.sqlite3"
+  },
+  "normal_store_inspected": false
+}

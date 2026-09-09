@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": {
+    "path": "WORK_GRAPH_ENDPOINT_REPAIR_AMENDMENT_V5.json",
+    "sha256": "b033618adc64f690b52216c6fb9ccd12837447a3ddb7afced77e2bb40e653039"
+  },
+  "f4_implementation_grant": {
+    "state": "DESIGN_ACCEPTED_WAITING_FOR_ROOT_CARGO_UNLOCK_AFTER_P5",
+    "actual_manager": "/root/friction_repair_manager",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "plan": {
+      "path": "instances/F4/FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+      "sha256": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566"
+    },
+    "independent_reconciliation": {
+      "path": "instances/FREFUTE/design/F4_RECONCILIATION_V1.md",
+      "sha256": "9e2828f9364d77693db0d68e6c6d695f197def9b7a3eb89b3668e031e2cd0c45"
+    },
+    "source_fence": [
+      "core/solver/nonlinear_supports/src/lib.rs",
+      "core/solver/nonlinear_integration/src/lib.rs"
+    ],
+    "source_writes": "HELD_UNTIL_ROOT_UNLOCK"
+  },
+  "p5_pressure_eligibility_extension": {
+    "state": "ROOT_ACCEPTED_WITHIN_ACTIVE_P5_FILE_FENCE",
+    "addendum": {
+      "path": "instances/PREVIEW/design/PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md",
+      "sha256": "dc443b7dea76802072a7564fb8047b43221b37c143bd40ce4ccf32306956d3f9"
+    },
+    "source_fence": "core/product_physics/src/lib.rs and colocated tests",
+    "method": "one shared pressure-eligibility predicate used by thrust and stress paths",
+    "validation": "four focused mixed-category and genuine-pressure oracles",
+    "public_contract_change": false
+  },
+  "execution_order": "P5 retains the root-serialized Cargo slot. After P5 completion and release, root may unlock the already-accepted F4 two-file implementation.",
+  "preserved": "No C0 source or Git write; no schema, public-contract, dependency, DAG, decomposition, lifecycle, decision, receipt, or pressure/Poisson/topology adoption. Existing U7 release and independent final-diff gates remain unchanged."
+}

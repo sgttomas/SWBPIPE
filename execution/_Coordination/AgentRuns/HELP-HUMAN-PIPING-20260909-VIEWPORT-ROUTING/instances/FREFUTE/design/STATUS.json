@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "node_id": "FREFUTE",
+  "state": "COMPLETE",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "verdict": "CHANGES_REQUIRED",
+  "reconciled_f4_design_verdict": "PASS_WITH_DERIVED_NORMAL_PRIORITY_ADDENDUM",
+  "derived_normal_priority_verdict": "PASS",
+  "unamended_working_candidate_verdict": "CHANGES_REQUIRED",
+  "source_effect_authorized": false,
+  "source_modified": false,
+  "git_effect": false,
+  "blocking_conditions_for_plan_acceptance": [
+    "correct strict dissipation rule for zero Coulomb limit",
+    "identify exact-limit sticking as application convention",
+    "bind final direction and current-normal branch checks",
+    "define simultaneous-row retry and bounded nonuniqueness semantics",
+    "bind exact two-file fence and oracle/mutation matrix"
+  ],
+  "pending": ["F4 priority amendment", "future frozen-diff review", "future project validation gates"]
+}

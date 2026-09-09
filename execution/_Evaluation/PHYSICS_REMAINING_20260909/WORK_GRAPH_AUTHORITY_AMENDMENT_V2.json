@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "amends": "WORK_GRAPH_V1.json",
+  "issued_before_child_dispatch": true,
+  "owner_direction": {
+    "path": "../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/OWNER_ENGINEERING_DIRECTION_V2.md",
+    "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+  },
+  "p0_authority_amendment": {
+    "path": "../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P0/ENGINEERING_AUTHORITY_AMENDMENT_V2.md",
+    "sha256": "7db35358982d520d88b48c79fd39265acb55b90a474c2459fabf141e2fa9c06c"
+  },
+  "effect": "NS and PCB receive their V1 briefs plus the domain-specific V2 amendments and must exercise defensible engineering judgment within their scopes.",
+  "unchanged": [
+    "gpt-5.6-sol high for Agent 1 and Agent 2",
+    "two-child maximum",
+    "Agent 2 nondelegation",
+    "read-only subject",
+    "quarantined evaluation writes",
+    "no claims that future industry-standard-solver validation has passed"
+  ]
+}

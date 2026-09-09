@@ -14721,7 +14721,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("1 undo / 0 redo");
   });
 
-  it("captures viewport pointer geometry into an explicit node draft before apply", async () => {
+  it("fails closed for no-WebGL pointer placement while keeping typed node coordinates usable", async () => {
     render(<App />);
 
     const viewportCanvas = await screen.findByTestId("viewport-canvas");
@@ -14745,6 +14745,13 @@ describe("OpenPipeStress desktop preview", () => {
       button: 0,
       clientX: 300,
       clientY: 160,
+      pointerId: 11,
+    });
+    fireEvent.pointerUp(viewportCanvas, {
+      button: 0,
+      clientX: 300,
+      clientY: 160,
+      pointerId: 11,
     });
 
     const idInput = within(viewportIntentPanel).getByTestId(
@@ -14762,43 +14769,24 @@ describe("OpenPipeStress desktop preview", () => {
     const zInput = within(viewportIntentPanel).getByTestId(
       "viewport-create-node-z",
     ) as HTMLInputElement;
-    expect(idInput.value).toBe("node:V-001");
-    expect(labelInput.value).toBe("Viewport node V-001");
-    expect(
-      [xInput.value, yInput.value, zInput.value].every((value) =>
-        Number.isFinite(Number(value)),
-      ),
-    ).toBe(true);
-    expect(yInput.value).toBe("0");
-    const draftedPosition = `x=${xInput.value} m, y=${yInput.value} m, z=${zInput.value} m`;
-    const provenanceInput = within(viewportIntentPanel).getByTestId("viewport-create-node-provenance");
-    expect(provenanceInput).toHaveValue("");
+    expect(idInput.value).toBe("");
+    expect(labelInput.value).toBe("");
+    expect(xInput.value).toBe("");
+    expect(yInput.value).toBe("");
+    expect(zInput.value).toBe("");
+    expect(within(viewportIntentPanel).getByTestId("viewport-node-pointer-status")).toHaveTextContent(
+      "requires the visible WebGL projection",
+    );
     expect(queueButton).toBeDisabled();
-    fireEvent.change(provenanceInput, { target: { value: "explicit_pointer_node_provenance" } });
-    expect(queueButton).not.toBeDisabled();
-
-    fireEvent.click(queueButton);
-    const applyPanel = screen.getByTestId("operation-apply-panel");
-    await waitFor(() =>
-      expect(
-        within(viewportIntentPanel).getByTestId("apply-reviewed-draft"),
-      ).toBeEnabled(),
-    );
-    fireEvent.click(
-      within(viewportIntentPanel).getByTestId("apply-reviewed-draft"),
-    );
-    await waitFor(() =>
-      expect(
-        within(applyPanel).getByTestId("operation-apply-message").textContent,
-      ).toContain("Applied reviewed op:viewport-create-node-node:V-001-001"),
-    );
-
-    const createdNodeRow = screen.getByTestId("tree-row-node:V-001");
-    expect(createdNodeRow.textContent).toContain("Viewport node V-001");
-    expect(createdNodeRow).toHaveClass("active");
-    expect(screen.getByLabelText("Property inspector").textContent).toContain(
-      draftedPosition,
-    );
+    fireEvent.change(idInput, { target: { value: "node:typed-no-webgl" } });
+    fireEvent.change(labelInput, { target: { value: "Typed without WebGL" } });
+    fireEvent.change(xInput, { target: { value: "3.2" } });
+    fireEvent.change(yInput, { target: { value: "0" } });
+    fireEvent.change(zInput, { target: { value: "-1" } });
+    fireEvent.change(within(viewportIntentPanel).getByTestId("viewport-create-node-provenance"), {
+      target: { value: "explicit_typed_node_provenance" },
+    });
+    expect(queueButton).toBeEnabled();
   });
 
   it("queues and applies explicit straight pipe connectivity through the structured operation seam", async () => {
@@ -15738,7 +15726,7 @@ describe("existing toolkit v2", () => {
     expect(within(table).queryByTestId("entity-grid-input-section:invented-provenance")).not.toBeInTheDocument();
     for (const input of within(table).getAllByRole("combobox")) expect(within(input).getAllByRole("option").filter((option) => !(option as HTMLOptionElement).disabled).map((option) => option.getAttribute("value"))).toEqual(["pipe"]);
   });
-  it("continues two explicit pipe drafts through existing endpoints and cancellation clears transient inputs", async () => {
+  it("continues from the accepted end in new mode and can explicitly switch to another existing endpoint", async () => {
     const model = await loadPreviewModel(); const unchanged = JSON.stringify(model); const queue = vi.fn();
     render(<PipeViewport model={model} selection={{ type: "node", id: model.nodes[0].id }} armedCreationTool="pipe" onArmCreationTool={vi.fn()} onSelect={vi.fn()} onQueueIntent={queue} />);
     const values: Record<string, string> = { id: "pipe:chain-a", label: "Chain A", from: model.nodes[0].id, to: model.nodes[1].id, material: model.materials![0].id, od: "0.114", wall: "0.006", "yref-x": "0", "yref-y": "0", "yref-z": "1", provenance: "invented user test" };
@@ -15746,7 +15734,9 @@ describe("existing toolkit v2", () => {
     fireEvent.click(screen.getByTestId("continue-pipe-after-queue")); fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent"));
     expect(screen.getByTestId("viewport-create-pipe-from")).toHaveValue(model.nodes[1].id);
     expect(screen.getByTestId("viewport-create-pipe-id")).toHaveValue(""); expect(screen.getByTestId("viewport-create-pipe-to")).toHaveValue("");
+    expect(screen.getByLabelText("New node")).toBeChecked();
     expect(screen.getByTestId("queue-explicit-pipe-intent")).toBeDisabled();
+    fireEvent.click(screen.getByLabelText("Existing node"));
     for (const [field, value] of Object.entries({ id: "pipe:chain-b", label: "Chain B", to: model.nodes[2].id })) fireEvent.change(screen.getByTestId(`viewport-create-pipe-${field}`), { target: { value } });
     fireEvent.click(screen.getByTestId("queue-explicit-pipe-intent")); expect(queue).toHaveBeenCalledTimes(2);
     const payloads = queue.mock.calls.map(([intent]) => JSON.parse(intent.change.after));
@@ -15873,6 +15863,9 @@ describe("native straight-route Add and Apply", () => {
     expect(within(panel).getByTestId("viewport-create-pipe-wall")).toHaveValue("0.007");
     expect(within(panel).getByTestId("viewport-create-pipe-yref-z")).toHaveValue("1");
     expect(within(panel).getByTestId("viewport-create-pipe-provenance")).toHaveValue("explicit_app_route_provenance");
+    expect(within(panel).getByLabelText("New node")).toBeChecked();
+    expect(within(panel).getByTestId("viewport-routing-plane")).toHaveValue("XZ");
+    expect(within(panel).getByRole("radio", { name: "Free" })).toBeChecked();
     expect(screen.getByTestId("operation-apply-summary")).toHaveTextContent("1 applied");
     expect(screen.getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo");
     fireEvent.click(screen.getByTestId("undo-session-model-edit"));
@@ -15881,6 +15874,35 @@ describe("native straight-route Add and Apply", () => {
     fireEvent.click(screen.getByTestId("redo-session-model-edit"));
     expect(within(panel).getByTestId("continue-pipe-after-queue")).not.toBeChecked();
     expect(within(panel).getByTestId("viewport-create-pipe-from")).toHaveValue("");
+  });
+
+  it("retains a non-global plane, applicable axis, units, and pipe fields only after its own accepted new-end commit", async () => {
+    const model = await loadPreviewModel();
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("command-pipe"));
+    const panel = screen.getByTestId("viewport-editor-intents");
+    fillNewEndReviewedRoute(panel, model, "pipe:UI-continue-plane", "node:UI-continue-plane");
+    fireEvent.change(within(panel).getByTestId("viewport-routing-plane"), { target: { value: "YZ" } });
+    fireEvent.click(within(panel).getByRole("radio", { name: "Y" }));
+    fireEvent.click(within(panel).getByTestId("continue-pipe-after-queue"));
+    fireEvent.click(within(panel).getByTestId("queue-explicit-pipe-intent"));
+    await waitFor(() => expect(within(panel).getByTestId("apply-reviewed-draft")).toBeEnabled());
+    fireEvent.click(within(panel).getByTestId("apply-reviewed-draft"));
+    await screen.findByTestId("tree-row-node:UI-continue-plane");
+
+    expect(within(panel).getByTestId("viewport-create-pipe-from")).toHaveValue("node:UI-continue-plane");
+    expect(within(panel).getByLabelText("New node")).toBeChecked();
+    expect(within(panel).getByTestId("viewport-routing-plane")).toHaveValue("YZ");
+    expect(within(panel).getByRole("radio", { name: "Y" })).toBeChecked();
+    expect(within(panel).getByTestId("viewport-route-end-unit")).toHaveValue("m");
+    expect(within(panel).getByTestId("viewport-create-pipe-material")).toHaveValue(model.materials![0].id);
+    expect(within(panel).getByTestId("viewport-create-pipe-provenance")).toHaveValue("explicit_app_route_provenance");
+    expect(within(panel).getByTestId("viewport-route-end-id")).toHaveValue("");
+    expect(within(panel).getByTestId("viewport-route-end-provenance")).toHaveValue("");
+    expect(within(panel).getByTestId("viewport-construction-plane")).toHaveTextContent(
+      `YZ · X=3.2 m · through node:UI-continue-plane`,
+    );
   });
 
   it("disables the route for delayed Apply and rejects its valid response after permitted selection invalidation", async () => {
@@ -16081,7 +16103,9 @@ describe("native straight-route Add and Apply", () => {
     change("viewport-create-pipe-yref-y", "0");
     change("viewport-create-pipe-yref-z", "1");
     change("viewport-create-pipe-provenance", "synthetic_ui_acceptance_input");
-    expect(within(panel).getByTestId("viewport-construction-plane")).toHaveTextContent("XZ @ Y=0");
+    expect(within(panel).getByTestId("viewport-construction-plane")).toHaveTextContent(
+      `XZ · Y=0 m · through ${model.nodes[0].id}`,
+    );
     fireEvent.click(within(panel).getByTestId("queue-explicit-pipe-intent"));
     await waitFor(() => expect(within(panel).getByTestId("viewport-draft-review-preview")).toHaveTextContent("Atomic batch"));
     const preview = within(panel).getByTestId("viewport-draft-review-preview");

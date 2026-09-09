@@ -1,0 +1,66 @@
+{
+  "schema_version": "chirality.evidence-path-normalization-resolver.v1",
+  "status": "PASS",
+  "purpose": "Preserve the exact predecessor bytes of three native-witness JSON records while replacing eight active machine-local path anchors with portable tokens.",
+  "native_witness_verdict": "UNCHANGED_PASS",
+  "historical_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/FINAL_MANIFEST.json",
+    "sha256": "3c2cc2d851dc181cb6684222e76a56faca6d0196a8a269b3447f994e72daace6",
+    "disposition": "Untouched historical manifest; its entries bind the predecessor hashes recorded below."
+  },
+  "path_tokens": {
+    "{WORKING_ROOT}": "Root of the exact isolated candidate worktree used by this witness.",
+    "{APP_SUPPORT_ROOT}": "Current user's Library/Application Support directory.",
+    "{CODEX_HOME}": "Current user's Codex data directory."
+  },
+  "records": [
+    {
+      "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/CLEANUP.json",
+      "normalized_fields": 3,
+      "original_sha256": "4871d6f21ec04a783d19c6560eb8a850e8729cf400b9b23f95bf74256f60f09e",
+      "preimage_base64_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/_run_records/CLEANUP.json.preimage.b64",
+      "preimage_base64_sha256": "eb7a002cec9cc62158d2fc6ab160963beb71cf03bd79517b2da66167acb74314",
+      "decoded_preimage_sha256": "4871d6f21ec04a783d19c6560eb8a850e8729cf400b9b23f95bf74256f60f09e",
+      "decoded_preimage_matches_original": true,
+      "current_sha256": "b1796ca69465827dff3ac734ded80bb52ea8be45fde8da8b0fe78e16469fbe59"
+    },
+    {
+      "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/IDENTITY.json",
+      "normalized_fields": 4,
+      "original_sha256": "f15a0102d4ed48c07c418268e8d5f9c22e15e8dad670a7ffbc9e50dfd78c8b24",
+      "preimage_base64_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/_run_records/IDENTITY.json.preimage.b64",
+      "preimage_base64_sha256": "35310d346b89a0ffdaec3fc7684b1064900f04150734372a87bfc95e02f8bcbb",
+      "decoded_preimage_sha256": "f15a0102d4ed48c07c418268e8d5f9c22e15e8dad670a7ffbc9e50dfd78c8b24",
+      "decoded_preimage_matches_original": true,
+      "current_sha256": "121350231130486b2508afe6beb353845c452e7949b0b9539699419c894387f1"
+    },
+    {
+      "active_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/SCREENSHOT_TRACE.json",
+      "normalized_fields": 1,
+      "original_sha256": "53c2a1e5c9628726b382b1a7a444af5d62b2ebad806a9ceef40f4750df1e1db0",
+      "preimage_base64_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/NATIVE_WITNESS/witness/_run_records/SCREENSHOT_TRACE.json.preimage.b64",
+      "preimage_base64_sha256": "09704fc23c3862838a41136164ca03884a7ac78293f0f70ca8a15fe6d2db61fb",
+      "decoded_preimage_sha256": "53c2a1e5c9628726b382b1a7a444af5d62b2ebad806a9ceef40f4750df1e1db0",
+      "decoded_preimage_matches_original": true,
+      "current_sha256": "e07fa4e702a26aa83c9981c59fd2cef6fb1d392ac314c0d05f05e31f7066f97f"
+    }
+  ],
+  "validation": {
+    "decoded_preimages": "PASS: each base64 artifact decoded in memory to its recorded original SHA-256",
+    "active_json": "PASS: all three normalized active records parsed as JSON",
+    "active_whitespace": "PASS: no trailing spaces or tabs in the three normalized active records",
+    "path_anchor_command": "python3 tools/validation/validate_path_anchors.py --text .",
+    "path_anchor_result": "PASS: no literal home-dir absolute paths found in 4516 live path-anchor surfaces",
+    "path_anchor_runs": 1,
+    "path_anchor_scope_note": "The validator excludes _run_records from live path-anchor surfaces; adding this resolver after the one-time live-surface run cannot change its result."
+  },
+  "mutation_scope": {
+    "active_files_changed": 3,
+    "normalized_fields": 8,
+    "preimage_archives_added": 3,
+    "resolver_files_added": 1,
+    "final_manifest_changed": false,
+    "screenshots_changed": false,
+    "source_git_build_server_native_execution_changed": false
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T07:01:17Z",
+  "authorization": "root-requested normalization to project path anchors after U7 global path validation",
+  "semantic_change": false,
+  "path": "PREFLIGHT_V1.json",
+  "preimage_sha256": "72de566a7d91eeabba8ea2c66c109710739696458630d8f3ea873106ab736822",
+  "normalized_sha256": "a4f6dcd311ea60ac92ed19d580784b4facdc8a33bd271e81fece75354605950f",
+  "reconstruction": {
+    "basis": "normalized PREFLIGHT_V1.json bytes",
+    "operation": "decode each preimage_utf8_base64 value and apply the exact UTF-8 replacement once, in listed order",
+    "replacements": [
+      {
+        "normalized": "\"repo_root\": \"{REPO_ROOT}\"",
+        "preimage_utf8_base64": "InJlcG9fcm9vdCI6ICIvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5LXZpZXdwb3J0LXJvdXRpbmctMjAyNjA5MDki"
+      },
+      {
+        "normalized": "\"working_root\": \"{REPO_ROOT}/projects/chirality-piping\"",
+        "preimage_utf8_base64": "Indvcmtpbmdfcm9vdCI6ICIvVXNlcnMvcnlhbi8uY29kZXgvd29ya3RyZWVzLzg3MjgvY2hpcmFsaXR5LXZpZXdwb3J0LXJvdXRpbmctMjAyNjA5MDkvcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZyI="
+      },
+      {
+        "normalized": "\"scope_path\": \"{RUN_ROOT}/instances/F4/implementation\"",
+        "preimage_utf8_base64": "InNjb3BlX3BhdGgiOiAiL1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS12aWV3cG9ydC1yb3V0aW5nLTIwMjYwOTA5L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL0Y0L2ltcGxlbWVudGF0aW9uIg=="
+      }
+    ],
+    "expected_reconstructed_sha256": "72de566a7d91eeabba8ea2c66c109710739696458630d8f3ea873106ab736822"
+  },
+  "validation": "exactly three absolute-value occurrences replaced; JSON parses; all other PREFLIGHT_V1 bytes unchanged"
+}

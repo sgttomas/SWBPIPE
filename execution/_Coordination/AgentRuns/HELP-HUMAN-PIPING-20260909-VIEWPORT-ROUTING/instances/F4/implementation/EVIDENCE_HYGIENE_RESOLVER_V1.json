@@ -1,0 +1,26 @@
+{
+  "schema_version": "1.0",
+  "status": "ACTIVE_SUCCESSOR_RESOLVER",
+  "reason": "remove machine-local path literals from the two normalization maps while preserving lossless verification of the prior records",
+  "frozen_manager_manifest": {
+    "path": "{RUN_ROOT}/instances/F4/IMPLEMENTATION_MANAGER_MANIFEST_V1.json",
+    "sha256": "9f5033eedb00a8e797aa2266f977b7d4236828ad02e041daed53fb3230ac22f1",
+    "mutation": "NONE"
+  },
+  "successors": [
+    {
+      "path": "PREFLIGHT_PATH_NORMALIZATION_V1.json",
+      "prior_sha256": "ccf7e76eff9bbbc056919cb163e91dec2a2fa5657369df62357628cef6ea5818",
+      "active_sha256": "83cdb5a214969e76d41b4bbb6e45dbb08dd96bcbc3d936fa08fe97b693f36d58",
+      "lossless_prior_record_reconstruction": "Starting from the active bytes, decode each preimage_utf8_base64 value; replace each complete preimage_utf8_base64 JSON member with a preimage member whose value is the JSON-escaped decoded UTF-8 string; replace the operation value with 'apply each exact UTF-8 replacement once, in listed order'. The resulting SHA-256 is prior_sha256."
+    },
+    {
+      "path": "RETURN_PATH_NORMALIZATION_V1.json",
+      "prior_sha256": "3da4a78dfc4b52f79732c88253386aa2275cc86d3217f09520d560fc556cb511",
+      "active_sha256": "1a668ed4cc887faed3e1d8afae4ea1d69991514c66d16cbb8c4e8a804bfd2471",
+      "lossless_prior_record_reconstruction": "Starting from the active bytes, decode preimage_prefix_utf8_base64; replace that complete JSON member with a preimage_prefix member whose value is the JSON-escaped decoded UTF-8 string; replace the reconstruction value with 'For each normalized file, replace the normalized_prefix UTF-8 bytes with preimage_prefix exactly replacement_count times. The resulting SHA-256 must equal preimage_sha256. Exact machine-local execution paths remain additionally captured in the structural _run_records subtree.' The resulting SHA-256 is prior_sha256."
+    }
+  ],
+  "path_policy": "Decoded machine-local values are evidence preimages only; active structural paths use project anchors.",
+  "source_effect": "NONE"
+}

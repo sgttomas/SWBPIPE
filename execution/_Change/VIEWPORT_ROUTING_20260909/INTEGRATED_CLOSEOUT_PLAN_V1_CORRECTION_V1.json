@@ -1,0 +1,38 @@
+{
+  "schema_version": "chirality.change.integrated-closeout-plan-correction.v1",
+  "recorded_at_utc": "2026-09-09T06:46:36Z",
+  "status": "ACTIVE ADDITIVE CORRECTION",
+  "predecessor": {
+    "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/INTEGRATED_CLOSEOUT_PLAN_V1.json",
+    "sha256": "612b34a548deae52ad4c79e3b6b32bad2659a8b2e4dc12c7b0ba0484e72a4989"
+  },
+  "corrections": [
+    {
+      "subject": "final source/fixture binding",
+      "text": "Add projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json as the P5-authorized generator-only tenth member. The final binding records its exact hash and generator parity whether its bytes changed or remained unchanged; if changed, it is part of the reviewed diff."
+    },
+    {
+      "subject": "review sequencing",
+      "text": "Focused unit, analytical, and Playwright diagnostics may run before final freeze and review. After all corrections stop, freeze the complete ten-member source/fixture binding and changed-path diff, then perform one fresh independent review covering 100% of that final diff. Manager-local final reviews are not additionally required by this plan."
+    },
+    {
+      "subject": "publication gates",
+      "text": "Fresh native witness, clean source commit, complete DEC-025 sweep, practitioner validation, and publication remain downstream of PASS on the frozen final review."
+    }
+  ],
+  "effective_expected_binding_member_count": 10,
+  "effective_source_or_fixture_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/styles.css",
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "projects/chirality-piping/core/product_physics/src/lib.rs",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json"
+  ],
+  "unchanged_terms": "All other commands, native isolation controls, clean-sweep requirement, source-equality gate, and standing Git authority in the predecessor remain unchanged.",
+  "execution_hold": "No build or Git action until the supervising root supplies the final freeze signal."
+}

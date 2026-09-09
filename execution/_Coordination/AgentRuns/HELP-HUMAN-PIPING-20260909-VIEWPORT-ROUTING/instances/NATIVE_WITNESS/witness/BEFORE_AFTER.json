@@ -1,0 +1,113 @@
+{
+  "schema_version": "chirality.native-witness.before-after.v1",
+  "project": {
+    "id": "project:invented-loop-01",
+    "name": "Invented Utility Loop Preview",
+    "model_length_unit": "m"
+  },
+  "before": {
+    "store_row_after_create_local": {
+      "created_at_unix": 1788940058,
+      "updated_at_unix": 1788940058,
+      "node_count": 5,
+      "pipe_count": 4,
+      "witness_node_present": false,
+      "witness_pipe_present": false,
+      "from_node": {
+        "id": "node:N-140",
+        "label": "Terminal tie-in",
+        "position": {"x": 7.6, "y": 2.4, "z": 2.2},
+        "provenance": "invented_example"
+      }
+    },
+    "after_add_before_apply": {
+      "native_model_entity_count": 26,
+      "store_node_count": 5,
+      "store_pipe_count": 4,
+      "store_witness_node_present": false,
+      "store_witness_pipe_present": false,
+      "review_status": "Validation passed. Review the exact operations and diff, then Apply.",
+      "validated_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "atomic_batch": [
+        "op:viewport-create-node-node:WIT-N-150-001",
+        "op:viewport-connect-pipe-pipe:WIT-P-140-001"
+      ]
+    }
+  },
+  "pointer": {
+    "model_hover_readout_m": {"x": 5.66, "y": 2.4, "z": 2.2},
+    "captured_fields_mm": {"x": 5659.782, "y": 2400, "z": 2200},
+    "captured_full_precision_m": {"x": 5.659782, "y": 2.4, "z": 2.2},
+    "display_comparison": "5.659782 m rounds to the visible 5.66 m readout; fixed Y and Z match exactly",
+    "conversion_relation": "mm = 1000 * m",
+    "conversion_pass": true
+  },
+  "after_apply_before_save": {
+    "native_model_entity_count": 28,
+    "native_node_count": 6,
+    "native_pipe_count": 5,
+    "store_node_count": 5,
+    "store_pipe_count": 4,
+    "store_witness_node_present": false,
+    "store_witness_pipe_present": false,
+    "atomicity_observation": "The native model added exactly one node and one pipe; the durable store remained unchanged until Save. No partial state was observed."
+  },
+  "after_one_save": {
+    "updated_at_unix": 1788940530,
+    "node_count": 6,
+    "pipe_count": 5,
+    "node": {
+      "id": "node:WIT-N-150",
+      "label": "Witness routed endpoint",
+      "position": {"x": 2.9286190000000003, "y": 2.4, "z": 2.2},
+      "provenance": "invented_native_witness_20260909"
+    },
+    "pipe": {
+      "id": "pipe:WIT-P-140",
+      "label": "Witness routed continuation",
+      "from": "node:N-140",
+      "to": "node:WIT-N-150",
+      "section": {
+        "outside_diameter": {"value": 168, "unit": "mm"},
+        "wall_thickness": {"value": 7, "unit": "mm"}
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {"x": 0, "y": 1, "z": 0},
+      "provenance": "invented_native_witness_20260909"
+    },
+    "entered_endpoint_mm": {"x": 2928.619, "y": 2400, "z": 2200},
+    "model_endpoint_m": {"x": 2.9286190000000003, "y": 2.4, "z": 2.2},
+    "conversion_pass": true
+  },
+  "continuation_after_apply": {
+    "from": "node:WIT-N-150",
+    "retained": {
+      "material": "material:invented-carbon-steel",
+      "outside_diameter": {"value": 168, "unit": "mm"},
+      "wall_thickness": {"value": 7, "unit": "mm"},
+      "y_reference": {"x": 0, "y": 1, "z": 0},
+      "route_provenance": "invented_native_witness_20260909",
+      "construction_plane": "XZ",
+      "axis": "X"
+    },
+    "cleared": [
+      "pipe id",
+      "pipe label",
+      "endpoint id",
+      "endpoint label",
+      "endpoint X/Y/Z",
+      "endpoint provenance"
+    ]
+  },
+  "after_quit_reopen": {
+    "reopen_pid": 30116,
+    "open_status": "Opened local SQLite project snapshot.",
+    "native_model_entity_count": 28,
+    "node_id": "node:WIT-N-150",
+    "node_position_m": {"x": 2.9286190000000003, "y": 2.4, "z": 2.2},
+    "pipe_id": "pipe:WIT-P-140",
+    "pipe_from": "node:N-140",
+    "pipe_to": "node:WIT-N-150",
+    "persistence_pass": true
+  }
+}

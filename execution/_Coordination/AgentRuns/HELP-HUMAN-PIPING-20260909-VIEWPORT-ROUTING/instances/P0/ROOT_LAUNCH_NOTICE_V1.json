@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T05:45:10Z",
+  "node": "P0_EVALUATION",
+  "actual_task": "/root/physics_remaining",
+  "role": "EVALUATION",
+  "launch_method": "fresh_root_dispatch_with_tool_override",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "brief": {
+    "path": "instances/P0/EVALUATION_LAUNCH_BRIEF_V1.md",
+    "sha256": "f1a3d51375b3b12128fcf0ebd7bb43ed2793feb9f6ce43aa2abc0c56668f5bee"
+  },
+  "substantive_write_root": "../../../../../_Evaluation/PHYSICS_REMAINING_20260909",
+  "state_at_record": "RUNNING_EVALUATION",
+  "product_source_effect": "PROHIBITED"
+}

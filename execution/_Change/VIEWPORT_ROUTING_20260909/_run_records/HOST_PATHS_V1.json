@@ -1,0 +1,14 @@
+{
+  "schema_version": "chirality.change.host-paths.v1",
+  "recorded_at_utc": "2026-09-09T05:38:51Z",
+  "structural_role": "run_record_host_paths",
+  "paths": {
+    "new_lane_root": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909",
+    "original_checkout_root": "/Users/ryan/.codex/worktrees/8728/chirality",
+    "prior_implementation_lane_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908"
+  },
+  "preservation_checks": {
+    "original_untracked_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "prior_untracked_postpublication_return_sha256": "d09bd50fa272f7387cb265fdab0bf79297af916fecf554be2a7a47dd5a5ace48"
+  }
+}

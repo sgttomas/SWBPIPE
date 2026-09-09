@@ -1,0 +1,113 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T08:21:34Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "state": "READY_FOR_CHANGE_PREINTEGRATION",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "accepted_source_cut": {
+    "path": "{RUN_ROOT}/instances/FINAL_REVIEW/SOURCE_CUT_MANIFEST_V1.json",
+    "sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+    "members": 10,
+    "decoded_diff_sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+    "writers_stopped": true
+  },
+  "accepted_independent_review": {
+    "path": "{RUN_ROOT}/instances/FINAL_REVIEW/review/ACTIVE_REVIEW_POINTER_V2.json",
+    "sha256": "77e4572c5a86daf39982646d0a68f8ce4536db4608ef9397098a0a0ae3d81a41",
+    "verdict": "PASS",
+    "actionable_findings": 0
+  },
+  "accepted_native_witness": {
+    "manifest": {
+      "path": "{RUN_ROOT}/instances/NATIVE_WITNESS/witness/FINAL_MANIFEST.json",
+      "sha256": "3c2cc2d851dc181cb6684222e76a56faca6d0196a8a269b3447f994e72daace6",
+      "members_verified_by_root": 16
+    },
+    "return_sha256": "d5948bfc817ba16174e81a5715ceb57ebe355a93fdd8ea22dce50a60bb4bb3b1",
+    "status_sha256": "e5c91596370c65272520cc09b91daa517db2d99f9996cda594c978e874ec5d33",
+    "cleanup_sha256": "4871d6f21ec04a783d19c6560eb8a850e8729cf400b9b23f95bf74256f60f09e",
+    "verdict": "PASS",
+    "scope": "actual native routing, operations, mixed-unit coordinate conversion, atomic Apply, continuation, and persistence",
+    "calibration": "This is not a numerical native or external-solver validation. Targeted and full Rust tests cover this tranche's physics behavior. No additional native physics run is required for the sealed native gate."
+  },
+  "p5_boundary": {
+    "amendment": {
+      "path": "{RUN_ROOT}/instances/FINAL_REVIEW/P5_VALIDATION_BOUNDARY_AMENDMENT_V1.json",
+      "sha256": "89b18f40a2ad387c566ad249b387339bcba1ccff0b4fa8477de2d4d1d1ce235b"
+    },
+    "normalization_resolver": {
+      "path": "{RUN_ROOT}/instances/P5/P5_EVIDENCE_HYGIENE_RESOLVER_V1.json",
+      "sha256": "dd1e613d8e943724adc8232af0dc9026b21c2da1882006005fee326052c35962"
+    },
+    "status": "QUALIFIED_PASS_FOR_THIS_BOUNDED_REPAIR",
+    "open": "The 196 complete-document schema failures preexist at the source basis and remain an explicit public-contract blocker. No full-schema PASS or public-contract adoption is claimed.",
+    "timing_note": "Any P5 pending-native prose was written before the accepted routing witness and is resolved only for that routing witness scope."
+  },
+  "deliverable_closeouts": {
+    "F4_DEL0404": {
+      "memory": {
+        "path": "{PROJECT_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+        "sha256": "446d1470832c4fab006a59bba294084fcdc86fc42b248bb4fac12b39ddf10ff3"
+      },
+      "status": {
+        "path": "{PROJECT_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+        "sha256": "ebbdb2b6a0797feb22ef84f209ac0ccb758a9eb0a6965c2e741e82f43c219ef7"
+      },
+      "closeout": {
+        "path": "{PROJECT_ROOT}/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/VIEWPORT_ROUTING_20260909/F4_CLOSEOUT_V1.json",
+        "sha256": "40beeb1be69d804ae3c911340b529470488f8e891b6e43db6500462b39e07a82"
+      },
+      "normalization_resolver": {
+        "path": "{RUN_ROOT}/instances/F4/implementation/EVIDENCE_HYGIENE_RESOLVER_V1.json",
+        "sha256": "f14baabf5f207cfd4e1ae69e0ff27318a246f8436e0bb27fad06d694f6733f5b"
+      },
+      "writer_stopped": true
+    },
+    "U7_DEL0701": {
+      "memory": {
+        "path": "{PROJECT_ROOT}/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+        "sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91"
+      },
+      "status": {
+        "path": "{PROJECT_ROOT}/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+        "sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1"
+      },
+      "native_supplement": {
+        "path": "{PROJECT_ROOT}/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/VIEWPORT_ROUTING_20260909/NATIVE_WITNESS_SUPPLEMENT_V2.md",
+        "sha256": "26261fa2033e7652a58cc851a6fd88d97b177eafdfed40765fea123b56decafc"
+      },
+      "closeout_manifest": {
+        "path": "{PROJECT_ROOT}/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/VIEWPORT_ROUTING_20260909/CLOSEOUT_MANIFEST_V2.json",
+        "sha256": "15daf6a0e34bf8019f26eb96eb22dee7a94a07138ae38b9ed2c861a3ed7ad78b"
+      },
+      "writer_stopped": true
+    }
+  },
+  "derivative_and_future_state": {
+    "P0": "The remaining-physics evaluation is derivative evidence, not decomposition truth or whole-project closure.",
+    "PREVIEW_pressure": "The independent pressure review retained contract, migration, Poisson/material, topology, and consumer corrections before any pressure source selection.",
+    "CREFUTE_connector": {
+      "return_path": "{RUN_ROOT}/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e",
+      "verdict": "CHANGES_REQUIRED",
+      "next": "Use the refuted algebra plus corrected q0, topology, runtime, migration, and result-consumer fence; do not restart the historical investigation."
+    },
+    "other_open_physics": "Contact recovery, factorization/pivot diagnostics, versioned runtime bridge, broader pressure and connector activation, and declared industry-standard-solver comparisons remain future work.",
+    "external_validation": "NOT_YET_PERFORMED"
+  },
+  "standing_owner_direction": {
+    "path": "{RUN_ROOT}/OWNER_ENGINEERING_DIRECTION_V2.md",
+    "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18",
+    "effect": "Agents may make defensible engineering and model judgments within the broad product objective. Old engineering-choice holds do not automatically require renewed Owner approval; consequential priority tradeoffs or choices unsupported by evidence return to root. Formal truth and lifecycle acceptance boundaries remain intact."
+  },
+  "formal_state": "Decomposition, SCA, DAG, dependency statuses, lifecycle state, named public contracts, and engineering decision records are unchanged by this derivative fan-in.",
+  "remaining_gates": [
+    "CHANGE final staging inventory and hygiene",
+    "clean full registered DEC-025 sweep",
+    "required practitioner validation",
+    "Receipt138 only after actual clean verification",
+    "tested source and evidence commits under standing Git authority",
+    "push, PR, exact-head CI, and merge only after required gates pass"
+  ],
+  "handoff": "CHANGE may begin preintegration from this exact frozen fan-in. The final sweep, Git, and Receipt138 records will supersede the preintegration pending entries; no result is predicted here."
+}

@@ -1,0 +1,117 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4_IMPL",
+  "recorded_at_utc": "2026-09-09T07:17:02Z",
+  "status": "PASS",
+  "source_effect": "BOUNDED_TWO_FILE_DIFF_READY_SOURCE_FREEZE",
+  "authority": {
+    "active_launch_brief_sha256": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+    "active_plan_sha256": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+    "priority_amendment_sha256": "b44297669accae8872102b347b4818c1d263428fe98486b8406ba0991ab2d5cc",
+    "validation_matrix_sha256": "91a2789b856cf5244dc942fb414e86753332bbc452b1859238e512ad23f4251b",
+    "normalization_pointer_sha256": "5bcd7f04e8f824848e7f5b15cbf7e4ddf43d9aa396ec0dd19c1d5da307e67db9",
+    "normalization_evidence_sha256": "af6a4ab5bb72e7a63949f60fac58ad56ff1bc331c1f819994a0101285cb563b4"
+  },
+  "cargo_target_dir": "{RUN_ROOT}/instances/F4/implementation/.cargo-target",
+  "source_hashes": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "preimage_sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "final_sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "preimage_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+      "final_sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce"
+    }
+  ],
+  "two_file_binary_diff_sha256": "1246d391a5c362b3f92a57288fe3c03a51b2eb88f4e6d733dc90b27c3ee6404f",
+  "final_checks": [
+    {
+      "command": "rustfmt --edition 2021 projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/core/solver/nonlinear_supports/Cargo.toml",
+      "exit_code": 0,
+      "result": "PASS",
+      "unit_tests": { "passed": 22, "failed": 0 },
+      "doc_tests": { "passed": 0, "failed": 0 }
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+      "exit_code": 0,
+      "result": "PASS",
+      "unit_tests": { "passed": 38, "failed": 0 },
+      "doc_tests": { "passed": 0, "failed": 0 },
+      "bound_oracles": [
+        "both-sign both-mode assembled derived abs(R_n)==0 selects Inactive",
+        "mixed-row tangential aggregate false independently blocks caller convergence",
+        "both-sign iteration-2 derived branch retry retains Sliding and iteration-3 converges"
+      ]
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.toml",
+      "exit_code": 0,
+      "result": "PASS",
+      "unit_tests": { "passed": 19, "failed": 0 },
+      "doc_tests": { "passed": 0, "failed": 0 }
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml friction_preview",
+      "exit_code": 0,
+      "result": "PASS",
+      "unit_tests": { "passed": 3, "failed": 0, "filtered_out": 142 }
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml mixed_nonlinear_preview_bundle_converges_and_emits_each_support_state",
+      "exit_code": 0,
+      "result": "PASS",
+      "unit_tests": { "passed": 1, "failed": 0, "filtered_out": 144 }
+    },
+    {
+      "command": "git diff --check -- projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "python3 tools/software_workflow/validate_change_scope.py . --allowed projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs --allowed projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs --allowed projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation --path projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs --path projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs --path projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation",
+      "exit_code": 0,
+      "result": "PASS",
+      "violations": []
+    }
+  ],
+  "attempt_history": [
+    {
+      "scope": "diagnostic pre-amendment attempts",
+      "accepted": false,
+      "detail": "Earlier /tmp-target attempts and pre-amendment derived-priority failures were diagnostic only; they are superseded by the final evidence-local runs."
+    },
+    {
+      "scope": "evidence-local nonlinear_integration first amended run",
+      "accepted": false,
+      "detail": "One stale pre-amendment test assertion failed (36/37). The assertion was updated to the root-accepted priority amendment; the final full-crate run passed 38/38."
+    },
+    {
+      "command": "CARGO_TARGET_DIR={RUN_ROOT}/instances/F4/implementation/.cargo-target cargo test --manifest-path projects/chirality-piping/benchmarks/nonlinear/Cargo.toml",
+      "accepted": false,
+      "exit_code": 101,
+      "detail": "Typographical path invocation only; Cargo reported that the manifest did not exist and performed no build or test. The frozen validation/benchmarks/nonlinear command then passed."
+    }
+  ],
+  "scope_validation": {
+    "status": "PASS",
+    "allowed_paths": [
+      "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation"
+    ],
+    "violations": []
+  },
+  "git_mutation_performed": false,
+  "external_solver_comparison": "NOT_RUN_NOT_REQUIRED_OR_AVAILABLE",
+  "next_owner": "/root/friction_repair_manager",
+  "next_action": "ROOT_COMBINED_FINAL_READ_ONLY_REVIEW"
+}

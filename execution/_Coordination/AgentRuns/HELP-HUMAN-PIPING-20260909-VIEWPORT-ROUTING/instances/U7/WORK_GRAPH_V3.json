@@ -1,0 +1,41 @@
+{
+  "schema_version": "chirality.working_items.work-graph.v3",
+  "recorded_at_utc": "2026-09-09T06:10:00Z",
+  "predecessor": {
+    "path": "{RUN_ROOT}/instances/U7/WORK_GRAPH_V2.json",
+    "sha256": "42ed8c3c0e5cf0fdd668c7d90185c244b785fccae4e2835bea749d35270a98cb"
+  },
+  "design_review": {
+    "path": "{RUN_ROOT}/instances/UREVIEW/design/DESIGN_REVIEW_V1.md",
+    "sha256": "1d17f43618667557b2aa673b2e1f24d5eafb2d4e1fe81a70d2e7bd14a267fd99",
+    "verdict": "PASS"
+  },
+  "root_source_release": "GRANTED",
+  "nodes": [
+    {
+      "id": "U7-I1",
+      "task": "/root/native_authoring/viewport_routing_i1",
+      "state": "RUNNING",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": false,
+      "writes": "sealed six-path source/test fence plus child evidence"
+    },
+    {
+      "id": "U7-FANIN",
+      "state": "HELD_AFTER_I1",
+      "owner": "/root/native_authoring"
+    },
+    {
+      "id": "FINAL_CODE_REVIEW",
+      "state": "HELD_AFTER_U7_FANIN",
+      "owner": "/root"
+    }
+  ],
+  "edges": [
+    ["U7-I1", "U7-FANIN"],
+    ["U7-FANIN", "FINAL_CODE_REVIEW"]
+  ],
+  "heavy_check_hold": "Wasm build, Playwright, native and integration require root coordination.",
+  "manager_product_role": "read-only validation during child source ownership"
+}

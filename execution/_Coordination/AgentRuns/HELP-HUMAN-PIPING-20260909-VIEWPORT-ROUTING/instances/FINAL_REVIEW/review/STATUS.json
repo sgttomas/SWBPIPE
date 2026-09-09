@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "role": "TASK software-code-review",
+  "agent": "/root/combined_source_review",
+  "parent": "/root",
+  "basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_path_count": 10,
+  "source_paths_reviewed": 10,
+  "actionable_findings": 0,
+  "p5_validation_boundary": "QUALIFIED_PASS_BASELINE_196_SCHEMA_ERRORS_OPEN",
+  "verdict": "PASS"
+}

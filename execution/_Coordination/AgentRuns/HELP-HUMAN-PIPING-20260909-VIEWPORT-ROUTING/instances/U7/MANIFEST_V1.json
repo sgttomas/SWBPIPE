@@ -1,0 +1,54 @@
+{
+  "schema_version": "chirality.working_items.manifest.v1",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "members": [
+    {
+      "path": "{RUN_ROOT}/instances/U7/ACTIVATION_V1.json",
+      "bytes": 1408,
+      "sha256": "8afbd0ba0d0a63280482c07305355e10fcdf1a52b5af6576df25d32dc95bd4ea"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/ASSESSMENT_AND_FENCE_V1.md",
+      "bytes": 8955,
+      "sha256": "0dd7f2433dea46cbc6ba92d3aa5f8c10e63ff6fb68344e1067ae4fed275b1252"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/ASSESSMENT_LAUNCH_BRIEF_V1.md",
+      "bytes": 2949,
+      "sha256": "2239d2d4b78a1139966d2f44451a5399dc981bb54fb1e052cbba06a9cae82140"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/DEPENDENCY_CONSUMPTION_V1.md",
+      "bytes": 2436,
+      "sha256": "e65a714c7dbe7136da1122f8600fa61e5e0b406249521b1af3a469d2919635f8"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/MANAGER_RETURN_V1.md",
+      "bytes": 1134,
+      "sha256": "459ae231c8cffaf7ef33d11143578e6d5416fca3e2f8c9edc27e16c754b4c38a"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/ROOT_LAUNCH_NOTICE_V1.json",
+      "bytes": 551,
+      "sha256": "407a95ff3640d741600e25eb854d837f20aadfb6aeaf453838157ea318217b07"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/STATUS.json",
+      "bytes": 684,
+      "sha256": "1375b7158146d354437df62effd313d387d97f74c88249aec7666f3b4397614a"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/VALIDATION_V1.json",
+      "bytes": 1553,
+      "sha256": "b6dfcd5e1f9b5fab52d938c481902f0c7d411af6cd6ec45ae6bfb4e4379bec95"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/WORK_GRAPH_V1.json",
+      "bytes": 1800,
+      "sha256": "0828f17e82f075f83f021f6b47c920ffd1ecee54c0ed570bb2ef30db5985d4d2"
+    }
+  ],
+  "member_count": 9,
+  "source_effect": "none",
+  "status": "FROZEN_AWAITING_INDEPENDENT_DESIGN_REVIEW"
+}

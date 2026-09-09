@@ -1,0 +1,57 @@
+{
+  "schema_version": "chirality.task.status.v1",
+  "recorded_at_utc": "2026-09-09T06:34:13Z",
+  "evidence_normalized_at_utc": "2026-09-09T06:46:36Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "PREVIEW_PRESSURE_DESIGN_REFUTATION",
+  "role": "fresh bounded Agent 2 independent engineering reviewer",
+  "state": "FROZEN_CHANGES_REQUIRED",
+  "verdict": "CHANGES_REQUIRED",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "accepted_subfindings": [
+    "exact-annulus four-case equations and numerical reference",
+    "tension-positive section-cut convention",
+    "constitutive eigenload separated from terminal cap-transfer load",
+    "immediate endpoint action-to-section-cut repair",
+    "pressure category/dimension eligibility repair"
+  ],
+  "required_pressure_design_changes": [
+    "select and enforce two authoritative isotropic elastic constants at the selected temperature",
+    "preserve old pressure behavior under explicit legacy_pressure_v1 rather than inferred new topology",
+    "define signed pressure basis and connected straight-region terminal transfer ownership",
+    "include actual desktop/headless preview inputs, migration, and every typed-result consumer in the runtime fence",
+    "keep exact axial membrane, effective force, and Lamé stress components distinct"
+  ],
+  "source_writes_by_reviewer": false,
+  "evidence_normalization": {
+    "result": "PASS",
+    "normalized_file_count": 5,
+    "semantic_change": "none",
+    "original_bytes_record": "NORMALIZATION_RECORD_V1.json"
+  },
+  "tests_run": [
+    "independent standard-library pressure_refutation_calculations.py"
+  ],
+  "remaining_gates": [
+    "root disposition of CHANGES_REQUIRED pressure design",
+    "bounded source authorization",
+    "implementation",
+    "fresh complete frozen-diff review",
+    "focused dense/sparse, schema, desktop/headless, and persistence validation",
+    "separate owner-adopted versioned public-result-contract repair for full-envelope schema closure",
+    "future Abaqus comparison",
+    "Git/integration"
+  ],
+  "next_owner": "/root",
+  "finality": "This review is frozen against committed source HEAD. It is not a review of the concurrent endpoint implementation diff and must not be reused as final code-review evidence.",
+  "supplemental_schema_triage_recorded_at_utc": "2026-09-09T07:18:24Z",
+  "supplemental_schema_triage": {
+    "record": "PUBLIC_RESULT_SCHEMA_ACCEPTANCE_TRIAGE_ADDENDUM_V1.md",
+    "verdict": "FULL_ENVELOPE_ACCEPTANCE_REQUIRES_VERSIONED_PUBLIC_CONTRACT_REPAIR",
+    "p5_full_document_schema_status": "FAIL_BASELINE_PUBLIC_CONTRACT_MISMATCH",
+    "p5_full_document_error_count": 196,
+    "selected_physics_repair_validation_boundary": "affected endpoint/curved-station rows plus numeric preservation, producer parity, targeted tests, and registered review gates",
+    "full_envelope_pass_claimed": false,
+    "dec_025_waived": false
+  }
+}

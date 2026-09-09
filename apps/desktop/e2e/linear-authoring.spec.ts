@@ -34,7 +34,9 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("command-node").click();
   await page.getByTestId("viewport-create-node-id").fill("node:UI-A-100");
   await page.getByTestId("viewport-create-node-label").fill("Anchor");
-  for (const axis of ["x", "y", "z"]) await page.getByTestId(`viewport-create-node-${axis}`).fill("0");
+  await page.getByTestId("viewport-create-node-x").fill("0");
+  await page.getByTestId("viewport-create-node-y").fill("2.4");
+  await page.getByTestId("viewport-create-node-z").fill("0");
   await page.getByTestId("viewport-create-node-provenance").fill("synthetic_ui_acceptance_input");
   await assertPersistentCompactCanvas(page);
   await page.getByTestId("queue-explicit-node-intent").click();
@@ -72,11 +74,38 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("viewport-create-pipe-label").fill("Straight run");
   await page.getByTestId("viewport-create-pipe-from").selectOption("node:UI-A-100");
   await page.getByRole("radio", { name: "New node", exact: true }).check();
+  await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ · Y=2.4 m · through node:UI-A-100");
+  await page.getByRole("radio", { name: "X", exact: true }).check();
+  await expect(page.getByRole("radio", { name: "Y", exact: true })).toBeDisabled();
+
+  const canvas = page.getByTestId("viewport-canvas").locator("canvas");
+  const bounds = await canvas.boundingBox();
+  expect(bounds).not.toBeNull();
+  const start = { x: bounds!.x + bounds!.width * 0.58, y: bounds!.y + bounds!.height * 0.48 };
+  await page.mouse.move(start.x, start.y);
+  await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("hover route ghost");
+
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await page.mouse.move(start.x + 45, start.y + 32, { steps: 5 });
+  await page.mouse.up();
+  await expect(page.getByTestId("viewport-route-end-x")).toHaveValue("");
+  await expect(page.getByTestId("viewport-route-end-y")).toHaveValue("");
+  await expect(page.getByTestId("viewport-route-end-z")).toHaveValue("");
+  await expect(page.getByTestId("viewport-pointer-placement-status")).toContainText("exceeded 4 CSS pixels");
+
+  await canvas.click({ position: { x: bounds!.width * 0.58, y: bounds!.height * 0.48 } });
+  await expect(page.getByTestId("viewport-route-end-id")).toHaveValue("node:V-001");
+  await expect(page.getByTestId("viewport-route-end-label")).toHaveValue("Viewport node V-001");
+  await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("captured route ghost");
+  await expect(page.getByTestId("viewport-route-end-y")).toHaveValue("2.4");
+
   await page.getByTestId("viewport-route-end-id").fill("node:UI-A-110");
   await page.getByTestId("viewport-route-end-label").fill("Loaded end");
   await page.getByTestId("viewport-route-end-x").fill("3.2");
-  await page.getByTestId("viewport-route-end-y").fill("0");
+  await page.getByTestId("viewport-route-end-y").fill("2.4");
   await page.getByTestId("viewport-route-end-z").fill("0");
+  await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
   await page.getByTestId("viewport-route-end-provenance").fill("synthetic_ui_acceptance_input");
   await page.getByTestId("viewport-create-pipe-material").selectOption("material:ui-phase-a-invented");
   await page.getByTestId("viewport-create-pipe-od").fill("0.168");
@@ -85,7 +114,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("viewport-create-pipe-yref-y").fill("0");
   await page.getByTestId("viewport-create-pipe-yref-z").fill("1");
   await page.getByTestId("viewport-create-pipe-provenance").fill("synthetic_ui_acceptance_input");
-  await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ @ Y=0");
+  await page.getByTestId("continue-pipe-after-queue").check();
   await page.getByTestId("queue-explicit-pipe-intent").click();
   const review = page.getByTestId("viewport-draft-review-preview");
   await expect(review).toContainText("Atomic batch");
@@ -97,6 +126,19 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toBeAttached();
   await expect(page.getByTestId("session-history-chip")).toContainText("3 undo / 0 redo");
   await expect(page.getByTestId("operation-applied-ledger")).toContainText("Applied through local_wasm_engine");
+  await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:UI-A-110");
+  await expect(page.getByRole("radio", { name: "New node", exact: true })).toBeChecked();
+  await expect(page.getByTestId("viewport-routing-plane")).toHaveValue("XZ");
+  await expect(page.getByRole("radio", { name: "X", exact: true })).toBeChecked();
+  await expect(page.getByTestId("viewport-route-end-unit")).toHaveValue("m");
+  await expect(page.getByTestId("viewport-construction-plane")).toContainText("XZ · Y=2.4 m · through node:UI-A-110");
+
+  await page.getByRole("radio", { name: "Existing node", exact: true }).check();
+  await page.getByTestId("viewport-create-pipe-to").selectOption("node:UI-A-100");
+  await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("existing route ghost");
+  await expect(page.getByTestId("viewport-routing-aids")).toHaveAttribute("disabled", "");
+  await page.getByRole("radio", { name: "New node", exact: true }).check();
+  await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
   await assertPersistentCompactCanvas(page);
 
   await page.getByTestId("workspace-review").click();

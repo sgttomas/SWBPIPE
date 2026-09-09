@@ -1,0 +1,68 @@
+{
+  "schema_version": "chirality.working_items.work-graph.v2",
+  "recorded_at_utc": "2026-09-09T06:06:00Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "predecessor": {
+    "path": "{RUN_ROOT}/instances/U7/WORK_GRAPH_V1.json",
+    "sha256": "0828f17e82f075f83f021f6b47c920ffd1ecee54c0ed570bb2ef30db5985d4d2"
+  },
+  "amendment": {
+    "path": "{RUN_ROOT}/instances/U7/DESIGN_AMENDMENT_V2.md",
+    "sha256": "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719"
+  },
+  "posture": "SUPERVISED_MANY_TO_MANY",
+  "nodes": [
+    {
+      "id": "UREVIEW_DESIGN",
+      "owner": "/root",
+      "state": "ACTIVE_TERMINAL_FREEZE_PENDING",
+      "writes": ["{RUN_ROOT}/instances/UREVIEW/design/**"]
+    },
+    {
+      "id": "ROOT_SOURCE_RELEASE",
+      "owner": "/root",
+      "state": "HELD",
+      "after": ["UREVIEW_DESIGN"]
+    },
+    {
+      "id": "U7-I1",
+      "role": "bounded ephemeral Agent 2 generalist",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": false,
+      "state": "SEALED_NOT_DISPATCHED",
+      "after": ["ROOT_SOURCE_RELEASE"],
+      "brief": {
+        "path": "{RUN_ROOT}/instances/U7/children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md",
+        "sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+      },
+      "writes": [
+        "{PROJECT_ROOT}/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "{PROJECT_ROOT}/apps/desktop/src/features/viewport/viewportRouting.ts",
+        "{PROJECT_ROOT}/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+        "{PROJECT_ROOT}/apps/desktop/src/App.test.tsx",
+        "{PROJECT_ROOT}/apps/desktop/src/styles.css",
+        "{PROJECT_ROOT}/apps/desktop/e2e/linear-authoring.spec.ts",
+        "{RUN_ROOT}/instances/U7/children/I1/**"
+      ],
+      "return": "source hashes, full diff, test/build/browser evidence, containment and requirement map"
+    },
+    {
+      "id": "U7-FANIN",
+      "role": "WORKING_ITEMS Agent 1",
+      "state": "HELD",
+      "after": ["U7-I1"],
+      "writes": ["{RUN_ROOT}/instances/U7/**"],
+      "gate": "validate child scope, semantics and evidence before fresh final code review"
+    }
+  ],
+  "edges": [
+    ["UREVIEW_DESIGN", "ROOT_SOURCE_RELEASE"],
+    ["ROOT_SOURCE_RELEASE", "U7-I1"],
+    ["U7-I1", "U7-FANIN"]
+  ],
+  "overlap": "U7-I1 is sole source/test integration owner for the six-file fence; manager is product-read-only during child execution.",
+  "escalation": "Any seventh source/test path or producer/API/schema/persistence change returns to /root.",
+  "source_state": "HELD_UNTIL_ROOT_RELEASE"
+}

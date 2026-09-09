@@ -1,0 +1,33 @@
+{
+  "schema_version": "chirality.working_items.deliverable-closeout-manifest.v1",
+  "date": "2026-09-09",
+  "deliverable": "DEL-07-01",
+  "state": "IN_PROGRESS",
+  "members": [
+    {
+      "path": "{DEL0701}/MEMORY.md",
+      "bytes": 34079,
+      "sha256": "2ab7ad819f2a8ed979b8c2f74b19be2431b7dc325763fb811c39da9727b6b7ea"
+    },
+    {
+      "path": "{DEL0701}/_STATUS.md",
+      "bytes": 6145,
+      "sha256": "c39d45208859b20135b0895b072d789b10a028a77904cabd28bad74cecc0ccca"
+    },
+    {
+      "path": "{DEL0701}/_run_records/VIEWPORT_ROUTING_20260909/CLOSEOUT_SCOPE_V1.md",
+      "bytes": 970,
+      "sha256": "3fc50095e04e494f30b465e3a552ad9a2a26ee8498ba7377078ddb4c56d546e8"
+    },
+    {
+      "path": "{DEL0701}/_run_records/VIEWPORT_ROUTING_20260909/CLOSEOUT_NOTE_V1.md",
+      "bytes": 1003,
+      "sha256": "47e7cdc5fd29dbbaec166957b939c43a1fee58fff19fced9cfda2866dc39ae32"
+    }
+  ],
+  "source_manifest_sha256": "a4837e508067af4134ec88972645bed0de6eb6b8ee806cc53000d96a34499c59",
+  "combined_code_review_sha256": "a4b67dffa819b133034455f1b939e2f7a8140bfe7582dac351fa334dab178712",
+  "native_witness": "PENDING",
+  "lifecycle_changed": false,
+  "dependency_status_changed": false
+}

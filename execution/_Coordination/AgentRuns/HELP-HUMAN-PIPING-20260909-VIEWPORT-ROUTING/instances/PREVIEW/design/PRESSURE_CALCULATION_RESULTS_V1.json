@@ -1,0 +1,67 @@
+{
+  "schema_version": "chirality.pressure-refutation-calculation.v1",
+  "command": "python3 design/pressure_refutation_calculations.py",
+  "result": "PASS",
+  "geometry": {
+    "Ae_m2": 0.022167077763729583,
+    "Ai_m2": 0.018626502843133885,
+    "As_m2": 0.003540574920595698,
+    "Pc_n": 18626.502843133887,
+    "ri_m": 0.077,
+    "ro_m": 0.084
+  },
+  "cases": {
+    "free_closed_pressure": {
+      "Nw_n": 18626.502843133887,
+      "S_n": 0.0,
+      "strain": 1.0521739130434781e-05,
+      "displacement_m": 2.1043478260869562e-05
+    },
+    "fixed_closed_pressure": {
+      "Nw_n": 11175.901705880331,
+      "S_n": -7450.601137253556,
+      "strain": 0.0
+    },
+    "free_barrel_separate_closure_pressure": {
+      "Nw_n": 0.0,
+      "S_n": -18626.502843133887,
+      "strain": -1.578260869565217e-05,
+      "displacement_m": -3.156521739130434e-05
+    },
+    "free_closed_mixed": {
+      "Nw_n": 18626.502843133898,
+      "S_n": 1.0913936421275139e-11,
+      "strain": 0.0009105217391304348,
+      "displacement_m": 0.0018210434782608695
+    },
+    "fixed_closed_mixed": {
+      "Nw_n": -626127.5840013454,
+      "S_n": -644754.0868444793,
+      "strain": 0.0
+    }
+  },
+  "lame_pa": {
+    "sigma_r_inner": -999999.9999999991,
+    "sigma_r_outer": 9.313225746154785e-10,
+    "sigma_hoop_inner": 11521739.130434781,
+    "sigma_hoop_outer": 10521739.130434781,
+    "sigma_axial_free_closed": 5260869.565217391
+  },
+  "nodal_signs": {
+    "pressure_poisson_and_thermal_eigen_equivalent_mixed_n": [-626127.5840013454, 626127.5840013454],
+    "closed_cap_transfer_n": [-18626.502843133887, 18626.502843133887],
+    "fixed_mixed_wall_actions_n": [626127.5840013454, -626127.5840013454],
+    "free_closed_wall_actions_n": [-18626.502843133887, 18626.502843133887]
+  },
+  "two_element_cap_assembly_n": {
+    "equal_pressure_area": [-18626.502843133887, 0.0, 18626.502843133887],
+    "changed_pressure_area": [-18626.502843133887, 3725.300568626777, 14901.20227450711]
+  },
+  "temperature_interpolation_counterexample": {
+    "endpoint_0": {"E_pa": 200000000000.0, "G_pa": 76923076923.07692, "nu": 0.3},
+    "endpoint_1": {"E_pa": 150000000000.0, "G_pa": 60000000000.0, "nu": 0.25},
+    "midpoint_linear": {"E_pa": 175000000000.0, "G_pa": 68461538461.53846, "nu": 0.275},
+    "midpoint_required_G_pa": 68627450980.39216,
+    "relative_G_residual": -0.002417582417582467
+  }
+}

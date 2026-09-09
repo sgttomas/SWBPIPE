@@ -1,0 +1,26 @@
+{
+  "schema_version": "chirality.task.status.v1",
+  "recorded_at_utc": "2026-09-09T06:17:48Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "UREVIEW_DESIGN",
+  "role": "fresh Agent 2 TASK + software-code-review",
+  "state": "FROZEN_PASS",
+  "verdict": "PASS",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "accepted_inputs": {
+    "assessment_sha256": "0dd7f2433dea46cbc6ba92d3aa5f8c10e63ff6fb68344e1067ae4fed275b1252",
+    "design_amendment_v2_sha256": "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719",
+    "sealed_implementation_brief_sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+  },
+  "selected_refinements": [
+    "4 CSS-pixel click slop with pointer identity and OrbitControls damping isolation",
+    "explicit hover/captured ghost provenance and manual-edit stale-ghost clearing",
+    "resolved-From plane anchoring, incompatible-axis reset, and explained disabled states",
+    "explicit Playwright command in addition to registered affected checks"
+  ],
+  "source_writes": false,
+  "tests_run": [],
+  "remaining_gates": ["root source release", "implementation", "fresh final frozen-diff review", "registered checks and Playwright", "native witness", "Git/integration"],
+  "next_owner": "/root",
+  "finality": "This pre-effect review is frozen and must not be reused as the final code-diff review."
+}

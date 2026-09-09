@@ -3321,6 +3321,47 @@ body { min-width: 760px; min-height: 540px; }
 .viewport-new-endpoint { display: grid; gap: 7px; padding: 8px; border: 1px solid #d6ded9; border-radius: 5px; background: #fff; }
 .viewport-new-endpoint[hidden] { display: none; }
 .viewport-new-endpoint small { color: #5d6965; line-height: 1.35; }
+.viewport-routing-aids {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+  margin: 0;
+  padding: 8px;
+  border: 1px solid #c7d6d0;
+  border-radius: 5px;
+  background: #f3f8f5;
+}
+.viewport-routing-aids legend {
+  padding-inline: 4px;
+  color: #415652;
+  font-size: 11px;
+  font-weight: 700;
+}
+.viewport-routing-axis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 5px;
+}
+.viewport-routing-axis label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 28px;
+  padding: 4px;
+  border: 1px solid #cbd6d1;
+  border-radius: 4px;
+  background: #fff;
+  font-size: 11px;
+}
+.viewport-routing-axis input {
+  width: auto;
+  min-width: auto;
+}
+.viewport-routing-axis label:has(input:disabled) {
+  color: #929c98;
+  background: #eef1ef;
+}
 .viewport-draft-review { display: grid; gap: 6px; min-width: 0; padding: 8px; border: 1px solid #aebdb6; border-radius: 5px; background: #eef4f1; font-size: 11px; }
 .viewport-draft-review h4, .viewport-draft-review p { margin: 0; overflow-wrap: anywhere; }
 .viewport-draft-review [data-testid="viewport-draft-review-preview"] { max-height: 126px; min-height: 0; overflow: auto; }

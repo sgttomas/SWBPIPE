@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "representation": "base64 of exact unified-diff bytes",
+  "archive": {
+    "path": "BASE_TO_FINAL_10_PATH.diff.b64",
+    "sha256": "c2435bbe89c6c7fc1b9d04117df38685ce4d92f9dd9c3f26d6e645630cf0eff4",
+    "bytes": 295753
+  },
+  "decoded": {
+    "sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+    "bytes": 221814,
+    "ends_single_lf": true
+  },
+  "decode": "base64-decode the archive bytes after removing its terminal LF; do not normalize decoded bytes"
+}

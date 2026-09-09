@@ -1,0 +1,11 @@
+{
+  "schema_version": "chirality.portable-diff-resolver.v1",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "scope": "six authorized U7 source/test paths",
+  "encoding": "base64",
+  "archive_path": "{RUN_ROOT}/instances/U7/BASE_TO_FROZEN_U7.diff.b64",
+  "decoded_bytes": 57184,
+  "decoded_sha256": "c18d3de014950e18e231ec8ed9a77eebc1efb6d3e4e4ee81edc73b52ccc06caa",
+  "encoded_sha256": "a1f5a4befe4739199e2c07cf50d277542f509611d23a1d23668f8bf68763b19f",
+  "restore": "base64 decode the archive to recover the exact unified diff; do not treat the encoded artifact as source"
+}

@@ -1,0 +1,123 @@
+{
+  "complete_headless_schema": "FAIL_196_ERRORS",
+  "files": [
+    {
+      "bytes": 701591,
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58"
+    },
+    {
+      "bytes": 636601,
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "bytes": 7870,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "sha256": "359e51a63635395377c48dd91354ad67786ba30ae4f9850536cf9e8c33cbe98c"
+    },
+    {
+      "bytes": 2538,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md",
+      "sha256": "1030101e3764f6a27a967574d8e27cebb1170ba7b2c3b33e6ed7d25339f075f3"
+    },
+    {
+      "bytes": 7186,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/PRE_WHITESPACE_NORMALIZATION_CAPTURE_V1.json",
+      "sha256": "a2ea118cee22f52c885be38212b58c217d8d83c488629ac111a865389e7e575d"
+    },
+    {
+      "bytes": 1780,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/WORK_GRAPH_P5_V1.json",
+      "sha256": "187faef757eb482dfcd53830bd57c019d1d59a1877cc96a4d62588def7240a71"
+    },
+    {
+      "bytes": 4377,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/FULL_ENVELOPE_SCHEMA_WITNESS_PLAN_V1.md",
+      "sha256": "2ffbcf56f9a6dad5ca34b6c20a362a5d1aadacafada9ef692b83e94d0cd95dc9"
+    },
+    {
+      "bytes": 9924,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5-A2-ENDPOINT-IMPLEMENTATION-RETURN.md",
+      "sha256": "4dc2dbd4271a149deda787e02c244ed91bbf799cdaefdfbcd01774da8a9ba8b2"
+    },
+    {
+      "bytes": 2982,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5-A2-ENDPOINT-IMPLEMENTATION-STATUS.json",
+      "sha256": "325f9f969d1a10d297b372884ce79511b2220f834a8ae9fc70f794c6de668a51"
+    },
+    {
+      "bytes": 9172,
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/VIEWPORT_ROUTING_20260909/TASK_RUN_DEL-05-03_2026-09-09_0021.md",
+      "sha256": "b63128586a226b354ec7e51ee77840461d93b2347eb6c7238d6a822b08d0135e"
+    },
+    {
+      "bytes": 2500,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/evidence/ARC_FRAME_PROOF_V1.md",
+      "sha256": "13c382398741780b3391dae3f4651c18e6f7e560ed801b8c3cbde0409571206a"
+    },
+    {
+      "bytes": 6432,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/evidence/FIXTURE_PRESERVATION_COMPARISON_V1.json",
+      "sha256": "68bca6b225edc1c6c190b74b52594a779612ad061228ebc62bc35ba90832ef5e"
+    },
+    {
+      "bytes": 6278,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/evidence/HEADLESS_SCHEMA_VALIDATION_PLAN_V1.md",
+      "sha256": "662cd001bb2ac0d8337bc286fd9e1e9f45263780f14a946fbfc9e12071045b84"
+    },
+    {
+      "bytes": 3432,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/evidence/SCOPE_VALIDATION_V1.json",
+      "sha256": "b224210f356e3761672757cdb32f062be894faa494cd42cb88edb583c55268a8"
+    },
+    {
+      "bytes": 636601,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/evidence/invented_mechanics_result.published.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    {
+      "bytes": 10303,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/Cargo.lock",
+      "sha256": "d5eafc0df4e1b5c64725e9353e484e2abfdb9bbcd6f58b09f64fc6ae4422aaf6"
+    },
+    {
+      "bytes": 337,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/Cargo.toml",
+      "sha256": "948e068e5b46b8ae196af8d03d33f7384866f631aa21705d80ae257010ab8a1b"
+    },
+    {
+      "bytes": 142872,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/VALIDATION.json",
+      "sha256": "bba2573874051bcce6cc8d21b4c52eb32433e63b2d0040f32402f95a07a18f34"
+    },
+    {
+      "bytes": 104497,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/curved_pressure_full_document.json",
+      "sha256": "60418440ce86957d6aae7b8f4a5b56843b2d5c34ace6125ee2f0c32e5108bd20"
+    },
+    {
+      "bytes": 98103,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/curved_tip_weight_full_document.json",
+      "sha256": "bfeaa07893d74d7b500aa691efb02c92431f338f6b57ad1cf30429bbe6e21e58"
+    },
+    {
+      "bytes": 1104091,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/straight_full_document.json",
+      "sha256": "004ea7feba57919c335931a0471f0888e74edf8410ee7a8fbeea9c118482a705"
+    },
+    {
+      "bytes": 8612,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/src/main.rs",
+      "sha256": "526fc85b72e77ec314c91f90691f0aeaed333a45087ed3fcdd69b5d47575ca1f"
+    }
+  ],
+  "focused_tests": "PASS_8_OF_8",
+  "full_product_physics": "PASS_145_OF_145",
+  "instance_id": "P5-A2-ENDPOINT-IMPLEMENTATION",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "schema": "chirality.p5.endpoint-implementation-manifest.v1",
+  "scope_validation": "PASS",
+  "source_and_fixture_frozen": true,
+  "status": "FAILED_FULL_SCHEMA_OUT_OF_SCOPE"
+}

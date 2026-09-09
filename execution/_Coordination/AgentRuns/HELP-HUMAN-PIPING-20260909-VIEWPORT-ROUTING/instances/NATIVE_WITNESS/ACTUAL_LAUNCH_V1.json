@@ -1,0 +1,22 @@
+{
+  "schema_version": "1.0",
+  "node": "NATIVE_VIEWPORT_ROUTING_WITNESS",
+  "actual_task": "/root/native_routing_witness",
+  "role": "fresh bounded ephemeral Agent 2 native witness",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "delegation": false,
+  "state": "RUNNING",
+  "sealed_brief": {
+    "path": "LAUNCH_BRIEF_V1.md",
+    "sha256": "19db5582b2cc590f83cc5595eb554e9660642d48f62183b68b29c8d526630d58"
+  },
+  "root_launch_clarification": [
+    "Freeze the plane, units, and invented scenario before native interaction.",
+    "Record the exact native raycast coordinates observed from the visible hover before capture; do not invent an unseen point.",
+    "Verify entered millimetres equal 1000 times the observed model-space metres, then verify persisted coordinates remain in metres."
+  ],
+  "identity_effect": "All source, app, bundle, process, and dedicated-store identities remain those sealed in the brief.",
+  "write_scope": "witness/** beneath this NATIVE_WITNESS instance only",
+  "source_effect": "PROHIBITED"
+}

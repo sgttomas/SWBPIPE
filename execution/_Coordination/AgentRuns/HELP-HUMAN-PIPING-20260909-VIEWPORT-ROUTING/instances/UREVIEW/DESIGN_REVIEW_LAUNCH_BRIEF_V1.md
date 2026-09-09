@@ -1,0 +1,5 @@
+# Ureview design-refutation launch brief V1
+
+Status: `HELD UNTIL U7 ASSESSMENT FREEZE AND ROOT DISPATCH`. Target is a fresh root-dispatched Agent 2 software-code-review instance using `gpt-5.6-sol` at high reasoning, no delegation, and the repository `software-code-review` skill. It may read the frozen U7 assessment, actual source/callers/tests, accepted interfaces, and dependency evidence; use read/search and scoped read-only checks; and write only `{RUN_ROOT}/instances/UREVIEW/design/**`.
+
+Independently try to refute the selected design before any source effect: check gesture state transitions, ghost/plane/axis semantics, dimension edits, existing-node/new-end distinction, palette and Add/review/Apply integration, accessibility/usability, source-fence completeness, test oracles, and claimed E0478–E0481 consumption while ensuring E0482–E0485 remain unconsumed. Separate production risks, evidence gaps, and formal decisions. Return PASS or actionable findings with exact evidence; grant no source, engineering, dependency, lifecycle, or acceptance authority. A separately fresh reviewer must later review 100% of the frozen final diff before sweep.

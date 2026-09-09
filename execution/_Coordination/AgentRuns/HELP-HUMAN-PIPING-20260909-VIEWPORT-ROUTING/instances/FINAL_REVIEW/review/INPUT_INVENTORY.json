@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "launch_brief_sha256": "32b661f6ab079131937fc4bd9a6d7d5d20b532a775299b7038f211770e315303",
+  "source_cut_manifest_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+  "diff": {
+    "resolver_sha256": "9cdd52809217526e3d96473740a0aebe54276aa2c799c9c63e96f2fd9a7ef6c2",
+    "archive_sha256": "c2435bbe89c6c7fc1b9d04117df38685ce4d92f9dd9c3f26d6e645630cf0eff4",
+    "decoded_sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+    "decoded_bytes": 221814,
+    "path_count": 10,
+    "includes_new_files": true
+  },
+  "source_files": [
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx", "base_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda", "final_sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts", "base_sha256": null, "final_sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts", "base_sha256": null, "final_sha256": "960b69dfdbdf2e05544c60f8c43806fae9e64c886eb2648068fddbf7229bd011"},
+    {"path": "projects/chirality-piping/apps/desktop/src/App.test.tsx", "base_sha256": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c", "final_sha256": "46357cd1128c5f7d6818f950848b1af4fcf921318a9ab72022045cbc0d3c7232"},
+    {"path": "projects/chirality-piping/apps/desktop/src/styles.css", "base_sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26", "final_sha256": "e33086d3bf832cc0f79592eff86f86b6c50356a3ee680f614665cc482a485304"},
+    {"path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts", "base_sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305", "final_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c"},
+    {"path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs", "base_sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062", "final_sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11"},
+    {"path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs", "base_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46", "final_sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce"},
+    {"path": "projects/chirality-piping/core/product_physics/src/lib.rs", "base_sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5", "final_sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58"},
+    {"path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json", "base_sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13", "final_sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"}
+  ],
+  "named_evidence_hashes": {
+    "u7": ["a4837e508067af4134ec88972645bed0de6eb6b8ee806cc53000d96a34499c59", "a2eeae0f4e9dbbc0a7cb8723b0c34be0aea07a962e06daf9831e2429855d67e7", "97b4908ca92b129fa7e7bec64cfd99c03d5302ce5e7edd2e3d64d5e2b52da515", "d55009d88c9ba96ebdf4bcdc91b21d079a8f99df02afaa3d39aced38969ca81d", "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719", "eb64814fa8ef9683e8fa7b9aee5f415ee260cdfb083f9dec08b013385ec5c985"],
+    "f4": ["b18d7d9ed148130a121024006489eb7bd230b4fbe6a18912150c9dd4b35c4e5d", "c87b9826d8244ab095308edf13f8300cd54aeed44977c923fd5a78a4554df07a", "b44297669accae8872102b347b4818c1d263428fe98486b8406ba0991ab2d5cc", "a3ef05a09e0f5cd12583db93560881e28c8be5297f92ca4df849b3f641abd1ef", "779cc3cc4306f7b35b177789ae9d7f087bc14d9cc7bd0619df9065448af26a65", "9f5033eedb00a8e797aa2266f977b7d4236828ad02e041daed53fb3230ac22f1"],
+    "p5": ["099d631e5cf42b9d5a3fdeca678a6e2185cbe45b3a594a4692088497e1130c10", "5c9dcad37158720be71181ddfd4ffc15882cbf75318a76a134c06e9a7a3c6f2e", "ecd5e2e74ca91fb16af0ebe854638eab5f9d8f98ec135f85f234e3ed3c6a1607", "e4c279436de10c47b6c732410705042ab72b9003d38fef5317847fd097134c71", "708e8f4a31e42b7b102830b58c4386ac7791da24a409dd2e1fa015fb48372234", "836befe74e3a602c5f256fd1e090ff8debcce5eb3a7749b635c7ad4a7326f60b", "89b18f40a2ad387c566ad249b387339bcba1ccff0b4fa8477de2d4d1d1ce235b"]
+  }
+}

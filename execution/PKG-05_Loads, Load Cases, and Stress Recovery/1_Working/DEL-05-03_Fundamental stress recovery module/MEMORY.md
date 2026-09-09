@@ -1,5 +1,17 @@
 # MEMORY - DEL-05-03 Fundamental Stress Recovery Module
 
+## 2026-09-09 - Endpoint section-cut, curved-frame, and pressure-eligibility repair
+
+The viewport-routing tranche repaired product endpoint stress recovery so mechanical stress uses the same section-cut resultants already used at straight and curved stations. Straight endpoints evaluate the existing cut helper at fractions 0 and 1. Realized curved endpoints use the existing arc equilibrium helper at those fractions and retain the actual tangent, radial, and bend-normal frame convention. Raw endpoint action rows, stable result identities, result kinds, case keys, and station numeric leaves remain unchanged. Curved endpoint and station metadata now uses the canonical `element_local` coordinate system and `recovered_from_local_element_stiffness` basis with the explicit arc-frame equilibrium convention.
+
+The same tranche added one shared genuine-pressure eligibility predicate for thrust and pressure stress. It excludes category or dimension mismatches while preserving every genuine pressure contribution and their sum. It does not adopt new Poisson behavior, closure topology, pressure-result schemas, connector mechanics, or longitudinal-pressure redesign.
+
+Validation passed with 8 of 8 focused endpoint-section-cut tests and 145 of 145 `product_physics` tests. Preservation evidence confirmed 144 of 144 raw endpoint action rows byte-equal, 378 of 378 station numeric leaves unchanged, and identical 830-row result-ID sets. The root-managed combined 100% source-and-fixture review passed with no actionable findings.
+
+The public full-envelope witness still reports 196 unchanged baseline result-contract errors, with zero errors on repair-affected endpoint and curved-station metadata. Root accepted the bounded repair criterion and kept the broader versioned public-result-contract repair open. Fresh native validation, broader pressure and connector work, DEC-025, and Git integration remain pending. The deliverable stays `IN_PROGRESS`; no lifecycle or DAG promotion is implied.
+
+Evidence is under `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/`, including `P5_MANAGER_FAN_IN_V1.md`, `P5_MANAGER_HANDOFF_V1.json`, the grouped schema-baseline proof, and the versioned evidence-hygiene resolver.
+
 ## 2026-09-08 - Candidate four-case pressure-reference investigation
 
 P5 completed the candidate-only free-closed, restrained-closed, remote-closure/open-boundary-compensation, and thermal-plus-pressure investigation in the frozen [reference report](_run_records/PHYSICS_UI_EXECUTION_20260908/INVESTIGATION_REPORT.md), read with its additive [V2 node-on-element sign clarification](_run_records/PHYSICS_UI_EXECUTION_20260908/SIGN_CONVENTION_CLARIFICATION_V2.md). The independent [RP final review](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/instances/RP/RETURN.md) returned technical PASS, and [root's final notice](../../../_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-EXECUTION/notices/RP_REVIEW_FINAL_20260908.json) accepted that review scope. This completes investigation evidence only: Poisson/material authority, closure topology/defaults, public wall/effective/action/cut schema and migration, curved/expansion-joint treatment, thresholds, and verification fixtures remain Owner-gated production choices. No pressure physics, public schema, lifecycle, dependency, or acceptance state was adopted.

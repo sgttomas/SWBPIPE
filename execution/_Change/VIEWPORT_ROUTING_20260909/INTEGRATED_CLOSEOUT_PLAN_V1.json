@@ -1,0 +1,266 @@
+{
+  "schema_version": "chirality.change.integrated-closeout-plan.v1",
+  "recorded_at_utc": "2026-09-09T06:45:11Z",
+  "status": "PREPARED; EXECUTION HELD WHILE SOURCE WRITERS ACTIVE",
+  "identity": {
+    "task": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegated": false
+  },
+  "basis": {
+    "branch": "codex/piping-viewport-routing-20260909",
+    "head": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "origin_main_last_observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "software_workflow_sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "evidence_sweep_sha256": "dce9b1eb34131e202b30de9b41927586e675a436d1607836203033b4f4778dda"
+  },
+  "expected_final_source_cut": {
+    "path_count": 9,
+    "paths": [
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/styles.css",
+      "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs"
+    ],
+    "ownership": {
+      "U7": [
+        "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+        "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+        "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "projects/chirality-piping/apps/desktop/src/styles.css",
+        "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts"
+      ],
+      "F4": [
+        "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+        "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+      ],
+      "P5": [
+        "projects/chirality-piping/core/product_physics/src/lib.rs"
+      ]
+    },
+    "note": "Current working state is not a frozen binding. The final manager manifests and live bytes govern after every writer stops."
+  },
+  "entry_gates": [
+    "All U7, F4, and P5 source/evidence writers terminal and stopped; manager returns bind exact final postimages and focused results.",
+    "Fetch origin and inspect commits/paths since the recorded base before freezing. If main advanced, do not merge into a dirty tree; route an integration/source-cut sequence and rerun every affected downstream gate.",
+    "Resolve all candidate-whitespace findings through each owning scope without CHANGE editing their files; require global validator PASS.",
+    "Freeze a deterministic nine-path source/test manifest and full base diff; verify no tenth source/test path and no tracked manifest or lockfile drift."
+  ],
+  "sequence": [
+    {
+      "order": 1,
+      "stage": "FAN_IN_AND_LOGICAL_FREEZE",
+      "actions": [
+        "accept terminal manager outputs",
+        "fetch/recheck origin/main",
+        "hash exact nine source/test postimages",
+        "freeze full diff and allowlist",
+        "stop all writers"
+      ],
+      "gate": "No mismatch, overlap, scope expansion, upstream drift, or unresolved manager finding."
+    },
+    {
+      "order": 2,
+      "stage": "FRESH_FULL_DIFF_REVIEW",
+      "actions": [
+        "dispatch fresh read-only independent review over 100% of the combined nine-path diff",
+        "bind U7, F4, and P5 manager manifests and focused evidence"
+      ],
+      "gate": "PASS with no actionable finding. Any correction invalidates the frozen cut and requires a successor freeze and review."
+    },
+    {
+      "order": 3,
+      "stage": "FOCUSED_CHECKS_AND_BROWSER",
+      "owner": "U7/root scheduling",
+      "commands": [
+        {
+          "cwd": "{WORKING_ROOT}",
+          "argv": [
+            "npm",
+            "run",
+            "test:desktop",
+            "--",
+            "--run",
+            "apps/desktop/src/features/viewport/viewportRouting.test.ts",
+            "apps/desktop/src/App.test.tsx"
+          ]
+        },
+        {
+          "cwd": "{WORKING_ROOT}/apps/desktop",
+          "env": {
+            "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "${PLAYWRIGHT_CHROMIUM}",
+            "PLAYWRIGHT_WORKERS": "1"
+          },
+          "argv": [
+            "../../node_modules/.bin/playwright",
+            "test",
+            "e2e/linear-authoring.spec.ts",
+            "--project=chromium-desktop",
+            "--project=chromium-compact"
+          ]
+        },
+        {
+          "cwd": "{WORKING_ROOT}",
+          "argv": [
+            "npm",
+            "run",
+            "build:desktop"
+          ]
+        },
+        {
+          "cwd": "{WORKING_ROOT}/apps/desktop",
+          "env": {
+            "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "${PLAYWRIGHT_CHROMIUM}",
+            "PLAYWRIGHT_WORKERS": "1"
+          },
+          "argv": [
+            "../../node_modules/.bin/playwright",
+            "test",
+            "--config",
+            "playwright.dist.config.ts"
+          ]
+        }
+      ],
+      "controls": [
+        "Use the prepared ignored WASM engines only while their 22-input binding remains unchanged.",
+        "Verify fixed ports 5174 and 5175 are free before each Playwright lane; no cross-worktree server reuse.",
+        "Preserve focused failures and route bounded repair; do not start the full sweep here."
+      ],
+      "gate": "Focused unit, source-browser, dist build, and dist-browser checks PASS on the frozen cut."
+    },
+    {
+      "order": 4,
+      "stage": "FRESH_ISOLATED_NATIVE_WITNESS_BEFORE_SOURCE_COMMIT",
+      "overlay": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V1.json",
+      "identity": {
+        "productName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+        "identifier": "org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1"
+      },
+      "store": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1/openpipestress-projects.sqlite3",
+      "bundle": "{WORKING_ROOT}/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app",
+      "build": {
+        "cwd": "{WORKING_ROOT}/apps/desktop",
+        "env": {
+          "CARGO_NET_OFFLINE": "true"
+        },
+        "argv": [
+          "npm",
+          "run",
+          "tauri",
+          "--",
+          "build",
+          "--bundles",
+          "app",
+          "--ci",
+          "--no-sign",
+          "--config",
+          "{WORKING_ROOT}/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V1.json"
+        ]
+      },
+      "controls": [
+        "Run only after P5 releases Cargo and root grants the serialized native slot.",
+        "Bind frozen nine-path source/test bytes, dist inventory, build log, bundle inventory, Info.plist product name/identifier, and absence of the exact dedicated store before launch.",
+        "Do not enumerate, read, hash, modify, or delete the normal application store.",
+        "Launch only under a separately sealed focused native brief derived from accepted U7 behavior; preserve actual screenshots/results and prove exact process/store cleanup."
+      ],
+      "gate": "Fresh native packet PASS on the same frozen source cut."
+    },
+    {
+      "order": 5,
+      "stage": "SOURCE_AND_ACCEPTED_EVIDENCE_COMMIT",
+      "actions": [
+        "stage only the reviewed nine-path source cut and accepted required manager/review/native evidence",
+        "run receipt-independent path/JSON/LF/whitespace/allowlist gates",
+        "commit the source cut",
+        "verify commit bytes equal the reviewed/native frozen manifest"
+      ],
+      "gate": "Clean worktree at tested source commit; no source equality drift."
+    },
+    {
+      "order": 6,
+      "stage": "ONE_COMPLETE_CLEAN_DEC025_AND_PRACTITIONER",
+      "commands": [
+        {
+          "cwd": "{WORKING_ROOT}",
+          "argv": [
+            "${QUALIFIED_PYTHON}",
+            "tools/release/run_evidence_sweep.py",
+            "--execute",
+            "--require-capability",
+            "host"
+          ]
+        },
+        {
+          "cwd": "{REPO_ROOT}",
+          "argv": [
+            "${QUALIFIED_PYTHON}",
+            "-m",
+            "pytest",
+            "-q",
+            "tools/practitioner_harness"
+          ]
+        }
+      ],
+      "controls": [
+        "Run one complete G0-G4 sweep only after the final clean source commit.",
+        "Preserve raw logs and failures; no automatic expectation/source repair.",
+        "No redundant complete sweep unless the tested source changes or a failure requires a reviewed correction."
+      ],
+      "gate": "All five DEC-025 surfaces and practitioner harness PASS at the exact source commit."
+    },
+    {
+      "order": 7,
+      "stage": "RECEIPT_AND_EVIDENCE_ONLY_CLOSEOUT",
+      "actions": [
+        "C0 runs receipt validator before reading/appending the next receipt",
+        "append receipt with Examined-Through equal to the tested source commit",
+        "seal final acceptance and handoff",
+        "CHANGE runs final receipt/path/JSON/LF/global-whitespace/allowlist checks",
+        "commit evidence only",
+        "prove zero diff from tested source to evidence head across all nine source/test paths"
+      ],
+      "gate": "Receipt and evidence hashes current; exact source equality PASS."
+    },
+    {
+      "order": 8,
+      "stage": "PUBLICATION",
+      "actions": [
+        "fetch and revalidate current main",
+        "push branch without force",
+        "open PR under standing user authority",
+        "require every registered CI job green at exact unchanged head",
+        "revalidate head, mergeability, and current main",
+        "merge using repository-established method under standing authority",
+        "fetch and verify effective GitHub merge and origin/main"
+      ],
+      "gate": "No bypass, force, or early merge; no new approval needed."
+    }
+  ],
+  "current_whitespace": {
+    "status": "FAIL_EXTERNAL_OWNED",
+    "finding_count": 40,
+    "counts_by_owner": {
+      "F4": 13,
+      "NS": 1,
+      "P5": 16,
+      "PCB": 2,
+      "PREVIEW": 8
+    },
+    "evidence": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/CURRENT_WHITESPACE_FINDINGS_V1.json",
+    "change_scope_status": "PASS"
+  },
+  "native_calibration": "Tauri --config overlays productName and identifier while retaining committed application source and build hooks. The dedicated identifier defines the isolated app-local data directory; only that exact directory may be probed or cleaned.",
+  "holds": [
+    "No build or test while writers own source/build slots.",
+    "No Git mutation during plan preparation.",
+    "P5 retains Cargo until root releases it; U7 owns the next 5174/5175 browser run."
+  ]
+}

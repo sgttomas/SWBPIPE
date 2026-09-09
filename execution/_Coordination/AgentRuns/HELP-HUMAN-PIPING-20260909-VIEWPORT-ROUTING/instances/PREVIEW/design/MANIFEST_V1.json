@@ -1,0 +1,76 @@
+{
+  "schema_version": "chirality.task.output-manifest.v1",
+  "recorded_at_utc": "2026-09-09T07:18:24Z",
+  "evidence_normalized_at_utc": "2026-09-09T06:46:36Z",
+  "supplemental_schema_triage_recorded_at_utc": "2026-09-09T07:18:24Z",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "verdict": "CHANGES_REQUIRED",
+  "supplemental_schema_triage_verdict": "FULL_ENVELOPE_ACCEPTANCE_REQUIRES_VERSIONED_PUBLIC_CONTRACT_REPAIR",
+  "root": "{RUN_ROOT}/instances/PREVIEW/design",
+  "members": [
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_BRIEF_V1.md",
+      "bytes": 5912,
+      "sha256": "a0c6830aa120703aedfbe522e0f919b343523dcef9c5d8e01d9ecf6bc3b58ff5"
+    },
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_METADATA_REFINEMENT_V1.md",
+      "bytes": 1654,
+      "sha256": "76843ff691cdc81bc0f63a9e1d5deb3635fdaeafd045e85edfb18354ecde13c2"
+    },
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_VALIDATION_REFINEMENT_V2.md",
+      "bytes": 2818,
+      "sha256": "b6fe8129604ee0824d9124cafd0bba010a8eb1b530e074587d563b4167cb7110"
+    },
+    {
+      "path": "INPUT_INVENTORY_V1.json",
+      "bytes": 4248,
+      "sha256": "938a3e37becfe0d52ab9ea4406f0b7cda95d11bc0f661c4af82e8701a14f3e4b"
+    },
+    {
+      "path": "NORMALIZATION_RECORD_V1.json",
+      "bytes": 3370,
+      "sha256": "17372fb3a3f84e172095cc31adb552cd7afede83515aa16c4c59781ccb6b5327"
+    },
+    {
+      "path": "PRESSURE_CALCULATION_RESULTS_V1.json",
+      "bytes": 2372,
+      "sha256": "3090cbdfeaba4a2dbbd8bb0fecb87033230c41f4aa926f7748f8d889522e60bf"
+    },
+    {
+      "path": "PRESSURE_DESIGN_REFUTATION_V1.md",
+      "bytes": 20531,
+      "sha256": "d0830b75fae3cb81e1add0f6f5370d9074a86452a92c0c3c251d14b091740336"
+    },
+    {
+      "path": "PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md",
+      "bytes": 3663,
+      "sha256": "9b2ea96940fef754fa5ecd7310e8cf362bc9368d7d818ccaf8eb7b5df3d5c4a2"
+    },
+    {
+      "path": "PUBLIC_RESULT_SCHEMA_ACCEPTANCE_TRIAGE_ADDENDUM_V1.md",
+      "bytes": 7581,
+      "sha256": "62b31708d65828c2d182a8f6bb74510af3f44d6dccfb1696723515ab81b60eaa"
+    },
+    {
+      "path": "STATUS.json",
+      "bytes": 2930,
+      "sha256": "5313334e136df0491f4d24ada76d2f5ad01712fa788c4e8b9d7b65dab7773367"
+    },
+    {
+      "path": "VALIDATION_V1.json",
+      "bytes": 5364,
+      "sha256": "37681ca06b67f1b6a72f0d39553dbf36a7e13d3e760a31170a20d8111930ffee"
+    },
+    {
+      "path": "pressure_refutation_calculations.py",
+      "bytes": 6655,
+      "sha256": "48932c4548df32c76711a1a0e2494df5b2c60de8814237150997391038537008"
+    }
+  ],
+  "member_count": 12,
+  "source_effect_by_reviewer": "none",
+  "authority_effect": "none",
+  "git_effect": "none"
+}

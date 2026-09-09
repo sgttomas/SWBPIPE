@@ -1,0 +1,20 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4_IMPL",
+  "status": "SUCCESS_READY_SOURCE_FREEZE",
+  "source_effect": "BOUNDED_TWO_FILE_DIFF_READY_SOURCE_FREEZE",
+  "cargo_or_build": "FROZEN_MATRIX_PASS_ON_FINAL_SOURCE_HASHES",
+  "accepted_cargo_target_dir": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/.cargo-target",
+  "blocking_finding": null,
+  "source_hashes": {
+    "nonlinear_supports": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+    "nonlinear_integration": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce",
+    "two_file_binary_diff": "1246d391a5c362b3f92a57288fe3c03a51b2eb88f4e6d733dc90b27c3ee6404f"
+  },
+  "validation_evidence": "VALIDATION.json",
+  "return_evidence": "RETURN.md",
+  "review_hold": "ROOT_OWNS_COMBINED_FINAL_READ_ONLY_REVIEW",
+  "next_owner": "/root/friction_repair_manager",
+  "updated_utc": "2026-09-09T07:17:02Z"
+}

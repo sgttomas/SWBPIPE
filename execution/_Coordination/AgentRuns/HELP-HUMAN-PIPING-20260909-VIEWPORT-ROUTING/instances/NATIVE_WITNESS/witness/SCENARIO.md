@@ -1,0 +1,22 @@
+# Frozen native witness scenario
+
+- Scenario ID: `NATIVE-VIEWPORT-ROUTING-20260909-01`
+- Data class: invented synthetic model only
+- Model: `project:invented-loop-01` / `Invented Utility Loop Preview`
+- Model length unit: `m`
+- Entered endpoint unit: `mm`
+- Conversion relation: `entered_mm = model_m * 1000`
+- Resolved From node: `node:N-140` at model coordinates `(7.6, 2.4, 2.2) m`
+- Construction plane: `XZ`, anchored through `node:N-140`, therefore fixed `Y = 2.4 m`
+- Applicable selected axis constraint: `X`, therefore captured point must also retain `Z = 2.2 m`
+- New endpoint ID: `node:WIT-N-150`
+- New endpoint label: `Witness routed endpoint`
+- New route ID: `pipe:WIT-P-140`
+- New route label: `Witness routed continuation`
+- Endpoint provenance: `invented_native_witness_20260909`
+- Route provenance: `invented_native_witness_20260909`
+- Continue after Apply: enabled
+- Expected pointer coordinate assertion: the exact model-space hover point shown by the native UI immediately before capture is frozen at that time; the captured endpoint fields must equal `(1000*x, 1000*y, 1000*z) mm` for that displayed point. No unseen pointer point is predetermined.
+- Expected atomicity: Add freezes review without changing the model; Apply adds exactly one node and one pipe as one batch, with no partial model state.
+- Expected continuation: after Apply, From becomes `node:WIT-N-150`; material, dimensions, orientation, route provenance, plane `XZ`, and axis `X` remain; consumed node and route IDs and node label/provenance are cleared.
+- Persistence check: one Save, quit, and reopen must preserve `node:WIT-N-150`, `pipe:WIT-P-140`, and the exact captured model coordinates.

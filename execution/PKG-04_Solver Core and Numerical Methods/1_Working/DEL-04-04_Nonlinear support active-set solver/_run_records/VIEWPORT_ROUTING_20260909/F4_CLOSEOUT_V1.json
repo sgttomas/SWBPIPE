@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4",
+  "status": "TECHNICAL_CLOSEOUT_RECORDED",
+  "lifecycle_state": "IN_PROGRESS",
+  "implementation": {
+    "scope": "static path-independent final Coulomb admissibility",
+    "nonlinear_supports_sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+    "nonlinear_integration_sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce",
+    "restricted_binary_diff_sha256": "1246d391a5c362b3f92a57288fe3c03a51b2eb88f4e6d733dc90b27c3ee6404f"
+  },
+  "focused_validation": {
+    "nonlinear_supports": "PASS_22_OF_22",
+    "nonlinear_integration": "PASS_38_OF_38",
+    "nonlinear_benchmarks": "PASS_19_OF_19",
+    "product_friction_preview": "PASS_3_OF_3",
+    "product_mixed_nonlinear_preview": "PASS_1_OF_1",
+    "external_industry_solver": "NOT_RUN_NO_CLAIM"
+  },
+  "independent_review": {
+    "verdict": "PASS_ZERO_ACTIONABLE_FINDINGS",
+    "review_sha256": "a4b67dffa819b133034455f1b939e2f7a8140bfe7582dac351fa334dab178712",
+    "claim_correction_sha256": "2a50ffdad1ba36b740e6850be614ed514c78a03855037609a80369427af374af",
+    "return_sha256": "ddeccf74ce3d9c35aba0246b694c3aa709d1d7289d96a8ce0143dfbd103c48ab",
+    "active_pointer_v2_sha256": "77e4572c5a86daf39982646d0a68f8ce4536db4608ef9397098a0a0ae3d81a41"
+  },
+  "native_witness": {
+    "verdict": "PASS",
+    "status_sha256": "e5c91596370c65272520cc09b91daa517db2d99f9996cda594c978e874ec5d33",
+    "validation_sha256": "358b5a07c665c70c1b841acbbc625dad0a60ca7b5aca6166907dc4e8aa188a3b",
+    "qualification": "candidate evidence; does not waive CHANGE or DEC-025 gates"
+  },
+  "deliverable_records": {
+    "MEMORY.md": "446d1470832c4fab006a59bba294084fcdc86fc42b248bb4fac12b39ddf10ff3",
+    "_STATUS.md": "ebbdb2b6a0797feb22ef84f209ac0ccb758a9eb0a6965c2e741e82f43c219ef7"
+  },
+  "evidence_hygiene": {
+    "resolver_sha256": "f14baabf5f207cfd4e1ae69e0ff27318a246f8436e0bb27fad06d694f6733f5b",
+    "preflight_map_active_sha256": "83cdb5a214969e76d41b4bbb6e45dbb08dd96bcbc3d936fa08fe97b693f36d58",
+    "return_map_active_sha256": "1a668ed4cc887faed3e1d8afae4ea1d69991514c66d16cbb8c4e8a804bfd2471"
+  },
+  "open_items": [
+    "formal PDU-035 and dimensional/conversion disposition",
+    "path/load-step friction-history model beyond the static repair",
+    "remaining contact and retained-spring mixed-friction model qualification",
+    "numerical and threshold promotion",
+    "output/export vocabulary closure",
+    "external industry-solver validation",
+    "CHANGE and DEC-025 gates",
+    "lifecycle acceptance"
+  ],
+  "git_effect": "NONE"
+}

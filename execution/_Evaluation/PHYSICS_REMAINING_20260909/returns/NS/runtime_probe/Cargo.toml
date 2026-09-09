@@ -1,0 +1,12 @@
+[package]
+name = "ns01_runtime_probe"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+open_pipe_stress_frame_kernel = { path = "../../../../../../core/solver/frame_kernel" }
+open_pipe_stress_nonlinear_integration = { path = "../../../../../../core/solver/nonlinear_integration" }
+open_pipe_stress_nonlinear_supports = { path = "../../../../../../core/solver/nonlinear_supports" }
+
+[workspace]

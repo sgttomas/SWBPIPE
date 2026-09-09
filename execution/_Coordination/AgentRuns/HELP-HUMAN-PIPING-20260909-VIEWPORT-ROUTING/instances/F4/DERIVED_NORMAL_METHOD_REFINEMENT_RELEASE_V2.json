@@ -1,0 +1,60 @@
+{
+  "schema_version": "1.0",
+  "node": "F4_IMPLEMENTATION",
+  "authority": {
+    "owner_engineering_direction": {
+      "path": "../../OWNER_ENGINEERING_DIRECTION_V2.md",
+      "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+    },
+    "root_method_refinement": "ACCEPTED",
+    "root_source_release": "ISSUED_AFTER_P5_CARGO_COMPLETION"
+  },
+  "inputs": {
+    "conflict": {
+      "path": "implementation/DERIVED_NORMAL_PRIORITY_CONFLICT_V1.md",
+      "sha256": "2e05e9ba5468f5ae880ff5dda5a173cc92d80cebf4fdbd1f60d96a2907ebd0dd"
+    },
+    "independent_reconciliation": {
+      "path": "../FREFUTE/design/DERIVED_NORMAL_PRIORITY_RECONCILIATION_V1.md",
+      "sha256": "b18d7d9ed148130a121024006489eb7bd230b4fbe6a18912150c9dd4b35c4e5d"
+    },
+    "review_validation": {
+      "path": "../FREFUTE/design/VALIDATION_V2.json",
+      "sha256": "23d0159af5b0dae3b3895f9a9925fc9f430bc9e1bda27ad55b6f8ecb791e7574"
+    },
+    "review_manifest": {
+      "path": "../FREFUTE/design/MANIFEST_V2.json",
+      "sha256": "3686e107a95b9e314cba5426ff0800597580ecfcdd815b4cb5dbcc40dd0cca5f"
+    },
+    "child_brief_amendment": {
+      "path": "implementation/IMPLEMENTATION_LAUNCH_BRIEF_AMENDMENT_V2.md",
+      "sha256": "b44297669accae8872102b347b4818c1d263428fe98486b8406ba0991ab2d5cc"
+    }
+  },
+  "conflict_witness": {
+    "u2": "97/1350",
+    "Ft2": "7/9",
+    "Rn2": "-70/27",
+    "meaning": "outside the assumed positive-normal branch"
+  },
+  "accepted_method": [
+    "Apply contact-first eligibility: explicit N <= 0 or derived abs(Rn) == 0 is Inactive.",
+    "Treat a deferred branch as a warm start only.",
+    "Classify an invalid derived signed branch as Sliding while leaving tangential evaluation unset and the derived-normal convergence gate false.",
+    "Only for a valid branch, apply the existing tangential zero, opposition, and restick checks.",
+    "Keep convergence as the conjunction of the tangential and derived-normal checks."
+  ],
+  "supersedes_only": "The prior clause that both-invalid tangential logic governs the derived-normal priority conflict.",
+  "source_fence": [
+    "core/solver/nonlinear_supports/src/lib.rs",
+    "core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "execution_state": "SOURCE_AND_FOCUSED_CHECKS_RELEASED_BY_ROOT",
+  "normalization_supplement": {
+    "path": "implementation/PREFLIGHT_PATH_NORMALIZATION_V1.json",
+    "sha256": "ccf7e76eff9bbbc056919cb163e91dec2a2fa5657369df62357628cef6ea5818",
+    "lossless_preimage_verified_by_c0": true,
+    "relation": "Additive supplement to EVIDENCE_NORMALIZATION_RESOLVER_V1.json; frozen resolver bytes remain unchanged."
+  },
+  "preserved": "No source-fence expansion, friction history, tolerance, schema, public contract, dependency, DAG, decomposition, lifecycle, decision, receipt, build ownership, or Git effect by C0."
+}

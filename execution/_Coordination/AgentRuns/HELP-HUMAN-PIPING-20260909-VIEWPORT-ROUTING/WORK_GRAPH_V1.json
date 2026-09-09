@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "selection_authority": "AGENT_0_UNDER_OWNER_DIRECTION",
+  "posture": "MIXED",
+  "basis": {
+    "path": "SETUP_BASIS_V1.json",
+    "sha256": "a61f0e61400ace885a5ad0aad907b91404d818cee51825844a80cb7d0fc1d4b0"
+  },
+  "model_contract": {
+    "agent_1_and_2": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false
+  },
+  "nodes": [
+    {
+      "id": "C0_SETUP",
+      "role": "Agent 2 recorder",
+      "state": "FROZEN",
+      "delegation": false,
+      "writes": "root controls only"
+    },
+    {
+      "id": "U7_ASSESS",
+      "role": "WORKING_ITEMS Agent 1",
+      "state": "READY",
+      "after": [
+        "C0_SETUP"
+      ],
+      "concurrent_group": "ASSESS",
+      "brief": {
+        "path": "instances/U7/ASSESSMENT_LAUNCH_BRIEF_V1.md",
+        "sha256": "2239d2d4b78a1139966d2f44451a5399dc981bb54fb1e052cbba06a9cae82140"
+      },
+      "writes": "instances/U7/** only; no product source"
+    },
+    {
+      "id": "P0_EVALUATE",
+      "role": "EVALUATION Agent 1",
+      "state": "READY",
+      "after": [
+        "C0_SETUP"
+      ],
+      "concurrent_group": "ASSESS",
+      "brief": {
+        "path": "instances/P0/EVALUATION_LAUNCH_BRIEF_V1.md",
+        "sha256": "f1a3d51375b3b12128fcf0ebd7bb43ed2793feb9f6ce43aa2abc0c56668f5bee"
+      },
+      "writes": "execution/_Evaluation/PHYSICS_REMAINING_20260909/** only"
+    },
+    {
+      "id": "UREVIEW_DESIGN",
+      "role": "fresh Agent 2 software-code-review",
+      "state": "HELD",
+      "after": [
+        "U7_ASSESS"
+      ],
+      "brief": {
+        "path": "instances/UREVIEW/DESIGN_REVIEW_LAUNCH_BRIEF_V1.md",
+        "sha256": "2a26a7eed06d65dc0b19c5b17938cb03247d21a278ee5bfa74f77bd502c45796"
+      },
+      "writes": "instances/UREVIEW/design/** only"
+    },
+    {
+      "id": "ROOT_SOURCE_RELEASE",
+      "role": "Agent 0 gate",
+      "state": "HELD",
+      "after": [
+        "UREVIEW_DESIGN"
+      ],
+      "condition": "root accepts exact selected design and source/test fence after independent refutation; ordinary reversible details require no new user approval"
+    },
+    {
+      "id": "U7_IMPLEMENT",
+      "role": "WORKING_ITEMS Agent 1 plus bounded Agent 2",
+      "state": "HELD",
+      "after": [
+        "ROOT_SOURCE_RELEASE"
+      ],
+      "writes": "TBD exact fence sealed by accepted U7 plan"
+    },
+    {
+      "id": "UREVIEW_FINAL",
+      "role": "separately fresh Agent 2 software-code-review",
+      "state": "HELD",
+      "after": [
+        "U7_IMPLEMENT"
+      ],
+      "condition": "review 100% frozen final diff and validation before sweep"
+    },
+    {
+      "id": "CHANGE",
+      "role": "CHANGE Agent 1",
+      "state": "HELD",
+      "after": [
+        "UREVIEW_FINAL"
+      ],
+      "scope": "sole Git/build integration owner; clean verification, receipt, PR/CI/merge only after accepted fan-in"
+    }
+  ],
+  "parallelism": "U7 assessment and P0 evaluation are independent and disjoint. P0 findings do not gate U7 unless they identify a directly consumed prerequisite defect.",
+  "optional_repairs": "No automatic repair node; root must add a bounded amendment with exact ownership and dependencies.",
+  "preserved": "No source before release; no formal dependency, DAG, decomposition, lifecycle, public-contract, engineering-hold, N7-history, or receipt change."
+}

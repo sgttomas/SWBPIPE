@@ -1,0 +1,20 @@
+{
+  "schema_version": "chirality.native-witness.screenshot-trace.v1",
+  "capture_surface": "native CUA target app window",
+  "source_session": "{CODEX_HOME}/sessions/2026/09/09/rollout-2026-09-09T01-44-15-01a0851f-e752-7933-b59d-7a3940ccd6f6.jsonl",
+  "extraction": "Selected image payloads from completed cua_repl screenshot calls; base64 decoded without image transformation.",
+  "images": [
+    {"path":"screenshots/01_finite_hover.jpg","call_id":"call_ab2RldLd6NQnIfBsS22sNkER","title":"Freeze finite hover readout before capture","sha256":"b0dbcf46ead9509a90957a52a52c0546b627eaa39961571e4b04c281499c95e2"},
+    {"path":"screenshots/02_frozen_atomic_review.jpg","call_id":"call_imkv7f5kmDuSTFNYrrflE8v0","title":"Capture frozen atomic route review","sha256":"144cec6f694f7b8feb75186e2e78ceb39f5109a6b83e8634ac7cc40e86cc0015"},
+    {"path":"screenshots/03_applied_continuation.jpg","call_id":"call_SkvzRgs2RW1NwM3SBQEPUvdA","title":"Capture applied route and continuation state","sha256":"f3ca653d4d32f9f3922c9f00a503fcab24cfac5371bc1c918b746040f7d25bb7"},
+    {"path":"screenshots/04_applied_endpoint_properties.jpg","call_id":"call_XYE5SkhhsI5RNZ0QMu8gKp8u","title":"Capture exact endpoint properties in native UI","sha256":"3c1841b7cb64809e62118519a5f9508824a734cc226fe7ccfd6d3ca65c0860d5"},
+    {"path":"screenshots/05_reopened_endpoint.jpg","call_id":"call_kc26QgkFpnYOsZ95Z7AtaqQg","title":"Capture reopened endpoint persistence","sha256":"d8e875f1e1815455283caf4e7b795354a0c5c27daee12b95542a38dd1ae5bf35"},
+    {"path":"screenshots/06_stable_hover_capture_mm.jpg","call_id":"call_MF87MtboqxZCAG12qfZSfq3E","title":"Capture exact hover retention and mm conversion","sha256":"27acc73a0d2f6523d0b71482a70145f3e1c1d21bd56e4b0f99d8feb105271a72"}
+  ],
+  "discarded_capture": {
+    "reason": "A system-wide screenshot command captured an unrelated foreground application instead of the CUA target surface.",
+    "files_created": ["04_reopened_endpoint.png", "05_reopened_route.png"],
+    "files_unlinked": true,
+    "present_in_evidence": false
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema_version": "chirality.change.native-candidate-launch-ready.v1",
+  "recorded_at_utc": "2026-09-09T07:42:04Z",
+  "status": "RUNNING; READY_FOR_SEPARATELY_DISPATCHED_NATIVE_WITNESS",
+  "predecessor_build": {
+    "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/NATIVE_CANDIDATE_BUILD_V1.json",
+    "sha256": "9ace05157fc5cb46a5b4179a61a5e86894dd3929f94db1e563a50916998223c6"
+  },
+  "bundle": {
+    "path": "{WORKING_ROOT}/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Viewport Routing Witness 20260909 R1.app",
+    "aggregate_sha256": "bd7de851d6a4b7fb0165ed06e732f41abe045c4134d3db97771fc858cfaf9980",
+    "executable_sha256": "b3b5e1efb0ec70a63a207591f47abe303763089ba07b96a7f6f440498cf6f54c",
+    "info_plist": {
+      "CFBundleIdentifier": "org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1",
+      "CFBundleName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+      "CFBundleDisplayName": "OpenPipeStress Viewport Routing Witness 20260909 R1",
+      "CFBundleExecutable": "openpipestress-desktop"
+    }
+  },
+  "source": {
+    "manifest_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+    "member_count": 10,
+    "postbuild_match": "PASS",
+    "aggregate_sha256": "280774f11ebdd197d002d30e98c8321ddd4f6b24467a3a24619ed2daff5915ca"
+  },
+  "frontend_build": {
+    "ran_after_final_fixture_publish": true,
+    "dist_member_count": 21,
+    "dist_aggregate_sha256": "86456ae78a50d69cbfc46991c062f684ce34926de8b8bd74a5dc20dd5c2fc219"
+  },
+  "launch": {
+    "command": "open -n ${ISOLATED_BUNDLE}",
+    "exit_code": 0,
+    "exact_executable_process_probe": "PASS",
+    "pid": 23199,
+    "interaction_by_change_agent": false
+  },
+  "store_guard": {
+    "identifier": "org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1",
+    "directory_before_build": "ABSENT",
+    "directory_after_build_before_launch": "ABSENT",
+    "directory_after_launch": "EXISTS",
+    "expected_database_after_launch": "EXISTS",
+    "host_paths": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/NATIVE_CANDIDATE_HOST_PATHS_V1.json",
+    "normal_user_store_inspected": false
+  },
+  "remaining_gates": [
+    "Independent combined-source review PASS",
+    "Fresh native witness and cleanup under its sealed brief",
+    "Clean source commit and one complete DEC-025 sweep",
+    "Practitioner validation and publication closeout"
+  ]
+}

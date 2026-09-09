@@ -1,0 +1,128 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4",
+  "parent_instance_id": "/root",
+  "role": "WORKING_ITEMS Agent 1",
+  "package_id": "PKG-04",
+  "selected_deliverables": ["DEL-04-04"],
+  "posture": "MIXED",
+  "selection_authority": [
+    "OWNER_ENGINEERING_DIRECTION_V2.md",
+    "WORK_GRAPH_FRICTION_REVIEW_AMENDMENT_V4.json",
+    "instances/F4/PREPARATION_LAUNCH_BRIEF_V1.md"
+  ],
+  "accepted_basis": {
+    "source_commit": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010",
+    "release_stage": "R5"
+  },
+  "source_fence": {
+    "state": "HELD_PENDING_ROOT_RELEASE",
+    "integration_owner": "F4_IMPL",
+    "paths": [
+      {
+        "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+        "basis_sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062"
+      },
+      {
+        "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+        "basis_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+      }
+    ],
+    "sufficient": true,
+    "fence_expansion_rule": "hold and return to root with evidence before any additional write"
+  },
+  "nodes": [
+    {
+      "id": "F4_PREP",
+      "role": "WORKING_ITEMS Agent 1",
+      "state": "COMPLETE_SOURCE_HELD",
+      "writes": ["instances/F4/**"],
+      "returns": [
+        "FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+        "FRICTION_REPAIR_VALIDATION_MATRIX_V1.md",
+        "WORK_GRAPH_FRICTION_REPAIR_V1.json",
+        "STATUS_V1.json",
+        "MANIFEST_V1.json"
+      ]
+    },
+    {
+      "id": "F4_IMPL",
+      "role": "bounded nondelegating Agent 2 implementation owner",
+      "method": "TASK + software-bounded-implementation",
+      "state": "HELD",
+      "after": ["ROOT_FRICTION_SOURCE_RELEASE"],
+      "brief": {
+        "path": "instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+        "sha256": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f"
+      },
+      "reads": [
+        "sealed F4 controls and accepted reconciled plan",
+        "the two source-fence files",
+        "directly dependent existing tests"
+      ],
+      "writes": [
+        "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+        "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+        "instances/F4/implementation/**"
+      ],
+      "acceptance": "exact fence, analytical matrix, source hashes, isolated focused checks, no schema/history/tolerance expansion"
+    },
+    {
+      "id": "F4_DIFF_REVIEW",
+      "role": "fresh nondelegating read-only Agent 2 reviewer",
+      "method": "TASK + software-code-review",
+      "state": "HELD",
+      "after": ["F4_IMPL_ACCEPTED"],
+      "reads": ["100 percent of frozen F4 source diff and bound evidence"],
+      "writes": ["instances/F4/review/**"],
+      "acceptance": "PASS with no actionable finding; any remediation requires a fresh 100 percent diff review"
+    },
+    {
+      "id": "F4_MANAGER_FANIN",
+      "role": "WORKING_ITEMS Agent 1",
+      "state": "HELD",
+      "after": ["F4_DIFF_REVIEW_PASS"],
+      "acceptance": "write containment, all matrix rows, diagnostics, hashes, review and rerun requirements validated"
+    },
+    {
+      "id": "CHANGE_HANDOFF",
+      "role": "CHANGE Agent 1",
+      "state": "HELD",
+      "after": ["F4_MANAGER_FANIN_ACCEPTED"],
+      "scope": "root-controlled build integration and Git closeout only"
+    }
+  ],
+  "external_gates": [
+    {
+      "id": "FREFUTE_FINAL",
+      "state": "COMPLETE_CHANGES_REQUIRED_RECONCILED_BY_F4",
+      "sha256": "2fb285c5e48f7b03b4ff690506c57a4adf159d8d26be11e6b5684320a5f5e6f9",
+      "effect": "all conditional corrections and the deferred warm-start compatibility condition are bound in F4 plan V1"
+    },
+    {
+      "id": "P0_NS_CURRENT_SHA_RUST_PROBE",
+      "state": "PASS_DEFECT_REPRODUCED_ARTIFACT_OBSERVED",
+      "effect": "current-SHA solver API reproduced u=-0.02, reaction/applied friction=-3 and positive work from sliding seed; F4 did not compile concurrently"
+    },
+    {
+      "id": "ROOT_FRICTION_SOURCE_RELEASE",
+      "state": "HELD",
+      "after": ["F4_PREP", "FREFUTE_FINAL", "P0_NS_CURRENT_SHA_RUST_PROBE"],
+      "effect": "only root can activate the implementation write fence"
+    }
+  ],
+  "concurrency": "Preparation and FREFUTE are disjoint. Implementation, manager acceptance, fresh review, fan-in and CHANGE handoff are serialized. Overlapping source writes are prohibited.",
+  "escalation_points": [
+    "a required source path outside the two-file fence",
+    "a public schema or result-contract change",
+    "friction history, a new tolerance, or a new convergence policy",
+    "a consequential unresolved engineering tradeoff",
+    "an actionable fresh-review finding",
+    "failure of exact analytic or current-normal oracles"
+  ],
+  "preserved": "No source, authority, dependency, DAG, decomposition, lifecycle, decision, receipt, build or Git effect during preparation. No external-solver validation claim."
+}

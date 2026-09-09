@@ -1,0 +1,11 @@
+# U7 viewport-routing design amendment V2
+
+Status: `SEALED_ADDITIVE_REFINEMENT_SOURCE_HELD`
+Basis: frozen `ASSESSMENT_AND_FENCE_V1.md` SHA `0dd7f2433dea46cbc6ba92d3aa5f8c10e63ff6fb68344e1067ae4fed275b1252` plus the fresh design review's four accepted early refinements. The six-file fence is unchanged.
+
+1. A primary-pointer gesture is eligible to author only when pointerup has the same `pointerId` and the maximum down-to-event displacement is at most 4 CSS pixels. The actual pointer event target captures that pointer. Movement beyond 4 pixels, `pointercancel`, or `lostpointercapture` cancels authoring. OrbitControls setup, damping, or a sub-slop controls-change event is jitter and cannot cancel by itself. Pointer capture is always released or cleared at termination.
+2. A new-end ghost has explicit transient provenance: live hover exists only from a visible WebGL projection; after click capture, the exact constrained model-space point becomes the captured ghost basis. Editing X, Y, Z, or coordinate unit manually clears the pointer-derived ghost rather than implying the typed values were projected. An existing-end ghost appears only when both exact node IDs resolve.
+3. Plane routing and axis controls require a currently resolved From node. A plane change that makes the selected axis inapplicable atomically resets the constraint to `Free`. Disabled plane, axis, Add, and pointer-capture states expose an adjacent reason and a matching accessible title/description. The existing route-build errors remain the Add validity basis.
+4. Browser validation is an explicit additional check, separate from the registered desktop profile. From `{PROJECT_ROOT}/apps/desktop`, run `../../node_modules/.bin/playwright test e2e/linear-authoring.spec.ts --project=chromium-desktop --project=chromium-compact`. This requires root scheduling after the prepared Wasm asset is available; it is not implied by `desktop-test` or `desktop-build`.
+
+The private `viewportRouting.ts` helper owns plane definitions, constraint applicability/application, the 4-pixel gesture gate, exact three-axis conversion result validation, and transient routing-state utilities. `PipeViewport.tsx` owns React lifecycle, accessible reasons, and Three scene objects. No operation, schema, service, or persistence semantics move into the helper.

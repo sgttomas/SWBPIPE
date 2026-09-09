@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": {
+    "path": "WORK_GRAPH_SOURCE_GRANTS_AMENDMENT_V6.json",
+    "sha256": "2ed70ce983c798cb0e17679162197973d3d5b749fd130a754b065d23dbd6d846"
+  },
+  "provisional_input": {
+    "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md",
+    "sha256": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379",
+    "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e"
+  },
+  "add_node": {
+    "id": "CREFUTE_CONNECTOR_DESIGN",
+    "role": "fresh bounded Agent 2 independent engineering reviewer",
+    "state": "READY_FOR_ROOT_DISPATCH",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "delegation": false,
+    "brief": {
+      "path": "instances/CREFUTE/CONNECTOR_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md",
+      "sha256": "2cea13dfc1ec59889f3cedc7ac06f9023befca85982c95167a69d74d068dfd81"
+    },
+    "writes": "instances/CREFUTE/design/** only",
+    "source_effect": "PROHIBITED",
+    "relation": "DERIVATIVE_DESIGN_REVIEW_NON_GATING_TO_CURRENT_U7_F4_P5_EXECUTION"
+  },
+  "preserved": "No connector implementation or source/public-contract adoption, no external-solver-validation claim, and no change to current U7, F4, P5, dependency, DAG, decomposition, lifecycle, decision, receipt, build, or Git gates."
+}

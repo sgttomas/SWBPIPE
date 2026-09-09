@@ -1,0 +1,18 @@
+{
+  "schema_version": "chirality.native-witness.status.v1",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "role": "fresh bounded ephemeral Agent 2 native witness",
+  "parent": "/root",
+  "delegated": false,
+  "source_cut_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+  "source_member_hashes_final": "PASS",
+  "app_identity_final": "PASS",
+  "native_workflow": "PASS",
+  "save_reopen_persistence": "PASS",
+  "owned_store_cleanup": "PASS",
+  "final_process_absence": "PASS",
+  "normal_store_touched": false,
+  "source_git_build_server_changes": false,
+  "remaining_gate_note": "Parent reported combined independent source review PASS against the same source cut. This witness is candidate evidence and does not waive CHANGE or DEC-025 gates."
+}

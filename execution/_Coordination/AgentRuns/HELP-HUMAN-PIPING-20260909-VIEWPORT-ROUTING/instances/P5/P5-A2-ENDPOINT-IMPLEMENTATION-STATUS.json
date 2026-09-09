@@ -1,0 +1,61 @@
+{
+  "schema_version": "chirality.task.status.v1",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "P5-A2-ENDPOINT-IMPLEMENTATION",
+  "role": "TASK Agent 2",
+  "task_skill": "software-bounded-implementation",
+  "status": "FAILED",
+  "implementation_state": "FROZEN_IMPLEMENTATION_PASS_FULL_SCHEMA_BLOCKED_OUT_OF_SCOPE",
+  "source": {
+    "path": "core/product_physics/src/lib.rs",
+    "before_sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "after_sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58"
+  },
+  "fixture": {
+    "path": "fixtures/product_preview/invented_mechanics_result.json",
+    "before_sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "after_sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+    "generated_only": true,
+    "atomic_publication": true,
+    "json_valid": true
+  },
+  "brief_bindings": {
+    "brief_v2_historical_sha256": "9d654abc649631e5827c7f7c858160a6e82a3150489797f65bf1a31b76166900",
+    "brief_v2_active_sha256": "359e51a63635395377c48dd91354ad67786ba30ae4f9850536cf9e8c33cbe98c",
+    "amendment_v3_historical_sha256": "678a67726a1a9ba8ec0fb064caefd94e8ba6b89f55ebf7a0107f0a64844df896",
+    "amendment_v3_active_sha256": "1030101e3764f6a27a967574d8e27cebb1170ba7b2c3b33e6ed7d25339f075f3",
+    "normalization_capture_sha256": "a2ea118cee22f52c885be38212b58c217d8d83c488629ac111a865389e7e575d",
+    "work_graph_sha256": "187faef757eb482dfcd53830bd57c019d1d59a1877cc96a4d62588def7240a71",
+    "full_envelope_schema_witness_plan_sha256": "2ffbcf56f9a6dad5ca34b6c20a362a5d1aadacafada9ef692b83e94d0cd95dc9"
+  },
+  "validation": {
+    "focused_endpoint_section_cut": "PASS_8_OF_8",
+    "full_product_physics_after_publication": "PASS_145_OF_145",
+    "doc_tests": "PASS_0_FAILURES",
+    "fixture_preservation": "PASS",
+    "git_diff_check": "PASS",
+    "write_scope": "PASS",
+    "complete_headless_schema": "FAIL_196_ERRORS_STRAIGHT_160_CURVED_TIP_WEIGHT_18_CURVED_PRESSURE_18",
+    "targeted_p5_headless_metadata_assertions": "PASS",
+    "dec_025": "BLOCKED_PENDING_ROOT_DISPOSITION_AND_REVIEW"
+  },
+  "schema_witness": {
+    "validation_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/VALIDATION.json",
+    "validation_sha256": "bba2573874051bcce6cc8d21b4c52eb32433e63b2d0040f32402f95a07a18f34",
+    "total_schema_errors": 196,
+    "targeted_p5_rows_named_by_errors": false,
+    "source_or_schema_expansion_performed": false
+  },
+  "preservation": {
+    "result_id_sets_equal": true,
+    "raw_endpoint_action_rows_byte_equal": true,
+    "raw_endpoint_action_row_count": 144,
+    "station_numeric_leaves_preserved": true,
+    "station_row_count": 378
+  },
+  "source_and_fixture_frozen": true,
+  "memory_or_deliverable_status_edited": false,
+  "delegated": false,
+  "acceptance_claimed": false,
+  "updated_at": "2026-09-09T00:59:29-06:00"
+}

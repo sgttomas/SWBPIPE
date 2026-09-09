@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "node": "U7_IMPLEMENT",
+  "authority": {
+    "owner_direction": {
+      "path": "../../OWNER_ENGINEERING_DIRECTION_V2.md",
+      "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+    },
+    "root_release": "ISSUED_TO_U7_MANAGER_AFTER_FRESH_DESIGN_REFUTATION_PASS",
+    "prior_one_time_exception": "CLOSED_AND_NOT_REUSED"
+  },
+  "accepted_design": {
+    "path": "DESIGN_AMENDMENT_V2.md",
+    "sha256": "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719"
+  },
+  "sealed_child_brief": {
+    "path": "children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md",
+    "sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+  },
+  "fresh_design_review": {
+    "verdict": "PASS",
+    "root_disposition": "V2 and sealed I1 address all known findings; exact six-path fence; no design blocker",
+    "terminal_artifact_hashes": "PENDING_ADDITIVE_POINTER",
+    "pre_effect_refutation": "COMPLETE"
+  },
+  "actual_manager": {
+    "task": "/root/native_authoring",
+    "role": "WORKING_ITEMS Agent 1 PKG-07",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "child_dispatch": "IN_PROGRESS_NONDELEGATING_I1"
+  },
+  "released_source_fence": [
+    "apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "apps/desktop/src/features/viewport/viewportRouting.ts",
+    "apps/desktop/src/features/viewport/viewportRouting.test.ts",
+    "apps/desktop/src/App.test.tsx",
+    "apps/desktop/src/styles.css",
+    "apps/desktop/e2e/linear-authoring.spec.ts"
+  ],
+  "graph_state": {
+    "U7_IMPLEMENT": "RELEASED",
+    "UREVIEW_FINAL": "HELD_UNTIL_FROZEN_DIFF",
+    "FULL_TEST_NATIVE_CHANGE": "HELD_AFTER_INDEPENDENT_FINAL_REVIEW"
+  },
+  "preserved": "No fence expansion, formal E0478-E0485 disposition, dependency, DAG, decomposition, lifecycle, public-contract, receipt, build, native, Git, or final acceptance claim."
+}

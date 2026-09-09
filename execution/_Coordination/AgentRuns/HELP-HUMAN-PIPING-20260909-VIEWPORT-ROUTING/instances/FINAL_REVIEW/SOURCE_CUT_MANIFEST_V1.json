@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "state": "FROZEN_FOR_COMBINED_INDEPENDENT_REVIEW",
+  "file_count": 10,
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "base_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+      "final_sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+      "final_bytes": 131119
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "base_sha256": null,
+      "final_sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4",
+      "final_bytes": 5311
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts",
+      "base_sha256": null,
+      "final_sha256": "960b69dfdbdf2e05544c60f8c43806fae9e64c886eb2648068fddbf7229bd011",
+      "final_bytes": 6387
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "base_sha256": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c",
+      "final_sha256": "46357cd1128c5f7d6818f950848b1af4fcf921318a9ab72022045cbc0d3c7232",
+      "final_bytes": 699312
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "base_sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26",
+      "final_sha256": "e33086d3bf832cc0f79592eff86f86b6c50356a3ee680f614665cc482a485304",
+      "final_bytes": 75080
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "base_sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305",
+      "final_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c",
+      "final_bytes": 14153
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "base_sha256": "f6c6e62994564dddfc84e60df63f2e2f3a293b1d48a5950469c4368509733062",
+      "final_sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+      "final_bytes": 50031
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "base_sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+      "final_sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce",
+      "final_bytes": 155261
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "base_sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+      "final_sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58",
+      "final_bytes": 701591
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "base_sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+      "final_sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+      "final_bytes": 636601
+    }
+  ],
+  "diff": {
+    "resolver_path": "_run_records/BASE_TO_FINAL_10_PATH_DIFF_RESOLVER_V1.json",
+    "resolver_sha256": "9cdd52809217526e3d96473740a0aebe54276aa2c799c9c63e96f2fd9a7ef6c2",
+    "archive_path": "_run_records/BASE_TO_FINAL_10_PATH.diff.b64",
+    "archive_sha256": "c2435bbe89c6c7fc1b9d04117df38685ce4d92f9dd9c3f26d6e645630cf0eff4",
+    "decoded_sha256": "23c7957aa9a16fecc9879e4e8f16cabb21d3cf25893da97742d321a138e0af44",
+    "decoded_bytes": 221814,
+    "includes_new_files": true
+  },
+  "source_effect": "Manifest and diff are review evidence only; no source or Git bytes were changed to create this record."
+}

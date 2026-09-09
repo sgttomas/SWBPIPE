@@ -1,0 +1,154 @@
+{
+  "schema_version": "chirality.p5.schema-baseline-grouped-proof.v1",
+  "source_commit": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "validator": "jsonschema.Draft202012Validator",
+  "jsonschema_version": "4.26.0",
+  "results_schema_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+  "validation_evidence_sha256": "bba2573874051bcce6cc8d21b4c52eb32433e63b2d0040f32402f95a07a18f34",
+  "total_errors": 196,
+  "case_counts": {
+    "straight_full_document.json": 160,
+    "curved_tip_weight_full_document.json": 18,
+    "curved_pressure_full_document.json": 18
+  },
+  "groups": [
+    {
+      "group": "checksum_canonicalization",
+      "count": 6,
+      "case_counts": {
+        "straight_full_document.json": 2,
+        "curved_tip_weight_full_document.json": 2,
+        "curved_pressure_full_document.json": 2
+      },
+      "schema_keywords": [
+        "result_envelope.reproducibility.model_hash.canonicalization enum",
+        "result_envelope.reproducibility.run_hashes[].canonicalization enum"
+      ],
+      "representative_actual": "rfc8785_jcs",
+      "allowed_values": ["JCS", "NONE", "TBD"],
+      "producer": "core/runner/headless/src/lib.rs::checksum_ref",
+      "mapping": "core/runner/headless/src/result_envelope_binding.rs::export_checksum"
+    },
+    {
+      "group": "nodal_kinematics_component_vocabulary",
+      "count": 114,
+      "case_counts": {
+        "straight_full_document.json": 90,
+        "curved_tip_weight_full_document.json": 12,
+        "curved_pressure_full_document.json": 12
+      },
+      "schema_keyword": "result_envelope.result_sets[].values[].metadata.component enum",
+      "actual_values": {
+        "nodal_displacement_x": 19,
+        "nodal_displacement_y": 19,
+        "nodal_displacement_z": 19,
+        "nodal_rotation_x": 19,
+        "nodal_rotation_y": 19,
+        "nodal_rotation_z": 19
+      },
+      "representative_allowed_values": [
+        "axial_force",
+        "nodal_force_x",
+        "axial_normal_stress",
+        "TBD"
+      ],
+      "producer": "core/product_physics/src/lib.rs::append_node_displacement_component_results",
+      "mapping": "core/runner/headless/src/result_envelope_binding.rs::export_metadata"
+    },
+    {
+      "group": "component_user_multiplier_metadata",
+      "count": 52,
+      "case_field_counts": {
+        "straight_full_document.json": {
+          "component": 12,
+          "coordinate_system": 12,
+          "location": 12,
+          "basis": 8
+        },
+        "curved_tip_weight_full_document.json": {
+          "component": 1,
+          "coordinate_system": 1,
+          "location": 1,
+          "basis": 1
+        },
+        "curved_pressure_full_document.json": {
+          "component": 1,
+          "coordinate_system": 1,
+          "location": 1,
+          "basis": 1
+        }
+      },
+      "representative_actual": {
+        "component": "user_entered_component_stress_multiplier",
+        "coordinate_system": "component_review",
+        "location": "pipe:P-100:end_j",
+        "basis": "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness"
+      },
+      "producer": "core/product_physics/src/lib.rs::append_component_stress_multiplier_result",
+      "mapping": "core/runner/headless/src/result_envelope_binding.rs::export_metadata"
+    },
+    {
+      "group": "expansion_joint_pressure_thrust_review_metadata",
+      "count": 8,
+      "case_field_counts": {
+        "straight_full_document.json": {
+          "component": 3,
+          "location": 3,
+          "basis": 2
+        }
+      },
+      "representative_actual": {
+        "component": "expansion_joint_pressure_thrust",
+        "location": "pipe:P-130",
+        "basis": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility"
+      },
+      "producer": "core/product_physics/src/lib.rs::append_expansion_joint_pressure_thrust_results",
+      "mapping": "core/runner/headless/src/result_envelope_binding.rs::export_metadata"
+    },
+    {
+      "group": "support_review_metadata",
+      "count": 16,
+      "case_field_counts": {
+        "straight_full_document.json": {
+          "component": 4,
+          "coordinate_system": 4,
+          "location": 4,
+          "basis": 4
+        }
+      },
+      "representative_actual": {
+        "component": "variable_spring_hanger_installed_load",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-140:installed-load",
+        "basis": "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049"
+      },
+      "producer": "core/product_physics/src/lib.rs::append_hanger_quantity_result",
+      "mapping": "core/runner/headless/src/result_envelope_binding.rs::export_metadata"
+    }
+  ],
+  "affected_repair_boundary": {
+    "endpoint_stress_schema_errors": 0,
+    "curved_station_schema_errors": 0,
+    "targeted_p5_headless_metadata_assertions": "PASS",
+    "attached_vs_explicit_document_equality": "PASS_ALL_THREE_CASES"
+  },
+  "baseline_proof": {
+    "headless_and_schema_diff_from_source_commit": "EMPTY",
+    "schema_sha_matches_source_commit": true,
+    "offending_product_metadata_labels_present_at_source_commit": true,
+    "binding_behavior": "export_checksum and export_metadata copy producer strings verbatim",
+    "conclusion": "The 196 errors are an unchanged baseline public-contract mismatch and were not introduced by P5. The missing nodal displacement and rotation component vocabulary alone prevents an exact mapping into the existing closed component enum."
+  },
+  "future_candidate_fence": {
+    "classification": "versioned_public_result_contract_repair",
+    "paths_to_verify_when_activated": [
+      "schemas/results.schema.yaml",
+      "core/reporting/result_export/src/lib.rs",
+      "core/runner/headless/src/result_envelope_binding.rs",
+      "core/runner/headless/src/lib.rs",
+      "colocated contract tests and result-envelope fixtures"
+    ],
+    "notes": "This is a candidate fence only. Activation must inventory typed consumers and migration coverage and determine which ID-bearing locations can normalize to end_i, end_j, node, or summary while preserving identity through existing references."
+  },
+  "status": "BASELINE_CONTRACT_BLOCKER_OPEN_P5_AFFECTED_ROWS_CLEAN"
+}

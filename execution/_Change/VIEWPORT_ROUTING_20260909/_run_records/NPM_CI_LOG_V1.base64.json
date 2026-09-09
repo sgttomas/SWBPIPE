@@ -1,0 +1,10 @@
+{
+  "schema_version": "chirality.change.lossless-command-log.v1",
+  "recorded_at_utc": "2026-09-09T05:51:07Z",
+  "command": "npm ci --offline --no-audit --no-fund",
+  "exit_code": 0,
+  "encoding": "base64",
+  "decoded_bytes": 609,
+  "decoded_sha256": "273c2a517f2cd52122be5c5df4ee17c9877b7a306c3445401254b5cdc65fc1e3",
+  "content_base64": "bnBtIHdhcm4gZGVwcmVjYXRlZCB3aGF0d2ctZW5jb2RpbmdAMy4xLjE6IFVzZSBAZXhvZHVzL2J5dGVzIGluc3RlYWQgZm9yIGEgbW9yZSBzcGVjLWNvbmZvcm1hbnQgYW5kIGZhc3RlciBpbXBsZW1lbnRhdGlvbgoKYWRkZWQgMjA2IHBhY2thZ2VzIGluIDJzCm5wbSB3YXJuIGFsbG93LXNjcmlwdHMgMyBwYWNrYWdlcyBoYXZlIGluc3RhbGwgc2NyaXB0cyBub3QgeWV0IGNvdmVyZWQgYnkgYWxsb3dTY3JpcHRzOgpucG0gd2FybiBhbGxvdy1zY3JpcHRzICAgZXNidWlsZEAwLjI3LjcgKHBvc3RpbnN0YWxsOiBub2RlIGluc3RhbGwuanMpCm5wbSB3YXJuIGFsbG93LXNjcmlwdHMgICBmc2V2ZW50c0AyLjMuMyAoaW5zdGFsbDogKGluc3RhbGwgc2NyaXB0cyBwcmVzZW50KSkKbnBtIHdhcm4gYWxsb3ctc2NyaXB0cyAgIGZzZXZlbnRzQDIuMy4yIChpbnN0YWxsOiAoaW5zdGFsbCBzY3JpcHRzIHByZXNlbnQpKQpucG0gd2FybiBhbGxvdy1zY3JpcHRzCm5wbSB3YXJuIGFsbG93LXNjcmlwdHMgUnVuIGBucG0gYXBwcm92ZS1zY3JpcHRzIC0tYWxsb3ctc2NyaXB0cy1wZW5kaW5nYCB0byByZXZpZXcsIG9yIGBucG0gYXBwcm92ZS1zY3JpcHRzIDxwa2c+YCB0byBhbGxvdy4K"
+}

@@ -1,14 +1,16 @@
 # Status: DEL-04-04 Nonlinear support active-set solver
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-08
+**Last Updated:** 2026-09-09
 
 ## Remaining
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
-- Resolve sliding-direction dependence on the prior iterate (anti-chatter / friction path-history follow-on) (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
+- Define and validate any path/load-step friction-history model beyond the implemented static, path-independent final Coulomb admissibility check (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
+- Complete remaining contact/model qualification beyond exact-touch, contact-loss, and the bounded current-normal friction fixtures, including retained-spring mixed-friction numerical adequacy.
 - Promote non-seed force/displacement convergence thresholds beyond the accepted thirteen-fixture multi-support set (see also DEL-09-03) (source: PRD plan §3 Phase D D6/D9 rows / DEC-046)
 - Promote broader displacement/reaction-delta and energy thresholds beyond the accepted current-seed/thirteen-fixture/product-preview surfaces (see also DEL-09-03) (source: PRD plan §3 D6/D9 rows)
 - Promote broader multi-DOF/multi-support acceptance thresholds and external validation convergence thresholds (stage-gated: R5 release evidence) (source: PRD plan §3 D9 row / DEC-052/DEC-054 residual list)
+- Close the nonlinear count/flag/state-code and residual-observation export vocabulary boundary in the owning DEL-08-04 contract.
 
 ## History
 - 2026-07-19 - R14-W1-T1 (CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001 v3) bound nonlinear solver version, warnings, assumptions, limitations, and diagnostic provenance into the governed analysis-run producer path: the produced DEL-08-04 envelope's solver-version block records the crate-constant product-physics and nonlinear-integration component identities; the assembled active-set loop's assumptions/limitations ride as non-blocking context diagnostics with provenance naming their source crate, emitted only when the solve exercised nonlinear supports; solve diagnostics (including nonlinear warnings) map with their source preserved in diagnostic provenance. Nonlinear count/flag/state-code and residual-observation rows ride the bounded-coverage vocabulary-boundary disclosure; the DEL-08-04 vocabulary-extension follow-on is reported to HELP_HUMAN. PDU-035 and every threshold hold are untouched; lifecycle remains IN_PROGRESS.
@@ -29,3 +31,4 @@
 
 - 2026-09-05 - P4 physics audit repair checkpoint accepted for R02/R04/R06 finite active-set boundary and exact contact. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.
 - 2026-09-08 - The Owner-approved bounded current-normal friction repair reached technical integration after RF backcheck and final RI `PASS`; the completed repair item was removed from Remaining. State remains IN_PROGRESS, and the surviving formal-review/dimensional, direction/history, and broader-threshold holds are unchanged.
+- 2026-09-09 - The bounded static Coulomb repair replaced unconditional sliding persistence with final current-contact, current-normal-branch, force, and motion admissibility. Focused solver/product tests and the fresh independent ten-path source review passed with zero actionable findings; the later bounded native witness also returned `PASS` for its candidate source cut. External solver validation was not run. History/model, contact, numerical/threshold, export, formal-review, and lifecycle holds remain open; state remains IN_PROGRESS.

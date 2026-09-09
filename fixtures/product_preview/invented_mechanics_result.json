@@ -1602,8 +1602,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -1620,14 +1620,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.31556,
+      "value": -1.31556,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1638,14 +1638,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.461345,
+      "value": 0.461345,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -1656,8 +1656,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -1674,8 +1674,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -1692,8 +1692,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -1710,8 +1710,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -1728,8 +1728,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2538,8 +2538,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2556,14 +2556,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.92269,
+      "value": 0.92269,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2574,14 +2574,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -1.713676,
+      "value": 1.713676,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -2592,8 +2592,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2610,8 +2610,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2628,8 +2628,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2646,8 +2646,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -2664,8 +2664,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3499,8 +3499,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3517,14 +3517,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 3.427352,
+      "value": -3.427352,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3535,14 +3535,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.330577,
+      "value": -0.330577,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -3553,8 +3553,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3589,8 +3589,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3607,8 +3607,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3625,8 +3625,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3643,8 +3643,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -3752,7 +3752,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -3842,7 +3842,7 @@
         "coordinate_system": "pipe_section",
         "location": "midspan",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -3932,7 +3932,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -4514,7 +4514,7 @@
     {
       "id": "result:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.015279,
+      "value": -0.015279,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4525,14 +4525,14 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 4.088677,
+      "value": -4.088677,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4543,14 +4543,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.557094,
+      "value": 0.557094,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -4561,8 +4561,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4579,8 +4579,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4615,8 +4615,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4633,8 +4633,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4651,8 +4651,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4669,8 +4669,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -4778,7 +4778,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -4868,7 +4868,7 @@
         "coordinate_system": "pipe_section",
         "location": "midspan",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -4958,7 +4958,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -6543,8 +6543,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -6561,14 +6561,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 0.65778,
+      "value": -0.65778,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6579,14 +6579,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.230673,
+      "value": 0.230673,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -6597,8 +6597,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -6615,8 +6615,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -6633,8 +6633,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -6651,8 +6651,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -6669,8 +6669,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7479,8 +7479,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7497,14 +7497,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.461345,
+      "value": 0.461345,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7515,14 +7515,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.856838,
+      "value": 0.856838,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -7533,8 +7533,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7551,8 +7551,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7569,8 +7569,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7587,8 +7587,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -7605,8 +7605,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8440,8 +8440,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8458,14 +8458,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.713676,
+      "value": -1.713676,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8476,14 +8476,14 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.165288,
+      "value": -0.165288,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -8494,8 +8494,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8530,8 +8530,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8548,8 +8548,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8566,8 +8566,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8584,8 +8584,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -8693,7 +8693,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -8783,7 +8783,7 @@
         "coordinate_system": "pipe_section",
         "location": "midspan",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -8873,7 +8873,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -9455,7 +9455,7 @@
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.00764,
+      "value": -0.00764,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9466,14 +9466,14 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 2.044339,
+      "value": -2.044339,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9484,14 +9484,14 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
       "id": "result:loadcase:load-L-200:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.278547,
+      "value": 0.278547,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -9502,8 +9502,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9520,8 +9520,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_i",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9556,8 +9556,8 @@
         "component": "axial_normal_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive normal stress follows the element-local axial resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9574,8 +9574,8 @@
         "component": "bending_normal_stress_y",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local y bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9592,8 +9592,8 @@
         "component": "bending_normal_stress_z",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive bending normal stress follows the element-local z bending resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9610,8 +9610,8 @@
         "component": "torsional_shear_stress",
         "coordinate_system": "element_local",
         "location": "end_j",
-        "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive torsional shear stress follows the element-local torsional resultant at this endpoint"
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
       }
     },
     {
@@ -9719,7 +9719,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_1",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -9809,7 +9809,7 @@
         "coordinate_system": "pipe_section",
         "location": "midspan",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -9899,7 +9899,7 @@
         "coordinate_system": "pipe_section",
         "location": "quarter_3",
         "basis": "recovered_from_open_mechanics_stress_components",
-        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
       }
     },
     {
@@ -13643,7 +13643,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 1.644451,
+      "value": -1.644451,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -13665,7 +13665,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-100:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -0.576681,
+      "value": 0.576681,
       "unit": "MPa",
       "entity_ref": "pipe:P-100",
       "basis_ref": {
@@ -14083,7 +14083,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -1.153363,
+      "value": 1.153363,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -14105,7 +14105,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-110:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": -2.142095,
+      "value": 2.142095,
       "unit": "MPa",
       "entity_ref": "pipe:P-110",
       "basis_ref": {
@@ -14523,7 +14523,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": 4.28419,
+      "value": -4.28419,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -14567,7 +14567,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-120:end-i:torsional-shear",
       "kind": "element_local_torsional_shear_stress",
-      "value": 0.413221,
+      "value": -0.413221,
       "unit": "MPa",
       "entity_ref": "pipe:P-120",
       "basis_ref": {
@@ -15029,7 +15029,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:axial-normal",
       "kind": "element_local_axial_normal_stress",
-      "value": 0.019099,
+      "value": -0.019099,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -15051,7 +15051,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:bending-normal-y",
       "kind": "element_local_bending_normal_stress_y",
-      "value": 5.110847,
+      "value": -5.110847,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {
@@ -15073,7 +15073,7 @@
     {
       "id": "result:combination:combination-C-OPER-ALT:stress:pipe-P-130:end-i:bending-normal-z",
       "kind": "element_local_bending_normal_stress_z",
-      "value": -0.696368,
+      "value": 0.696368,
       "unit": "MPa",
       "entity_ref": "pipe:P-130",
       "basis_ref": {

@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "normalization_id": "PHYSICS_REMAINING_20260909_EOF_ONLY_V1",
+  "authority": "Root-requested evidence-hygiene follow-up after bounded evaluation acceptance",
+  "scope": "Whitespace-only removal of one surplus terminal LF byte from each named file",
+  "semantic_change": false,
+  "engineering_conclusion_change": false,
+  "test_or_build_rerun": false,
+  "source_or_governed_change": false,
+  "lossless_original_reconstruction": {
+    "rule": "For every entry original_bytes = active_normalized_bytes concatenated with the single byte 0x0A.",
+    "verification": "SHA256(original_bytes) and original_byte_length are recorded per entry; each reconstruction was computed and matched before this record was written."
+  },
+  "prior_active_manager_artifacts": {
+    "MANIFEST.sha256": "56e17fceee9af234f3389fb4d2867b8df2a02d25b127b3966e2974073371cdfc",
+    "VALIDATION.json": "ec38656f7976de65df7a4d98e34a7bb898d652faa142b6dae7fcb4991f134efd",
+    "FAN_IN_VALIDATION.json": "3cb38c7fb7bf40c9acf3eb019cc8fbd3008c7e974a6342f4a8606aad3fb729a5"
+  },
+  "entries": [
+    {
+      "path": "returns/NS/runtime_probe/Cargo.toml",
+      "change": "remove exactly one surplus terminal LF; [workspace] content unchanged",
+      "original_sha256": "062aca480015810c6b1ea3a5df13bee91b5007ac53f887c7b939058146dba402",
+      "original_byte_length": 413,
+      "active_sha256": "79792a1f243ae2c38c382deb4ed4a706c5f3f1d0b755395bea44692d81ba347e",
+      "active_byte_length": 412,
+      "original_reconstruction_sha256_verified": true
+    },
+    {
+      "path": "returns/PCB/COVERAGE.md",
+      "change": "remove exactly one surplus terminal LF after the final sentence; text unchanged",
+      "original_sha256": "d84b699df52edf3213a32d271d69fa292f90f053f733082544ebc8fe31cf033f",
+      "original_byte_length": 4770,
+      "active_sha256": "756f7c3d8517e04cc682f571232ddb0a7a0ef331d7f0be78de30aa0c786093f0",
+      "active_byte_length": 4769,
+      "original_reconstruction_sha256_verified": true
+    },
+    {
+      "path": "returns/PCB/RETURN.md",
+      "change": "remove exactly one surplus terminal LF after the final bullet; text unchanged",
+      "original_sha256": "218cf8c231dad7da36081471d7c98972bb7ce0d3e362c60276df15fad0ee65a0",
+      "original_byte_length": 18292,
+      "active_sha256": "33c0a0af5adf9b479571f10fe278fac23d03ecd34ffdf1c5a34bc1bd086b5b12",
+      "active_byte_length": 18291,
+      "original_reconstruction_sha256_verified": true
+    }
+  ]
+}

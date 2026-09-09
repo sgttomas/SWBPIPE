@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "node": "P5_ENDPOINT_REPAIR",
+  "supersedes_only_validation_scope_in": {
+    "path": "ENDPOINT_SECTION_CUT_IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+    "sha256": "63de9814380cf2403097cf79a175652a09526db92f0c512f783bd739f64ceb58"
+  },
+  "root_accepted_refinement": {
+    "path": "../PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_VALIDATION_REFINEMENT_V2.md",
+    "sha256": "e72dc729f68658bfe517554cb33b5a18b3b3bf872a4f514e66389be8c725d3aa"
+  },
+  "source_grant": {
+    "state": "RELEASED_AFTER_MANAGER_SCOPE_INTAKE",
+    "actual_manager_task": "/root/endpoint_repair_manager",
+    "role": "WORKING_ITEMS Agent 1 PKG-05",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "initial_file_fence_unchanged": [
+      "core/product_physics/src/lib.rs",
+      "fixtures/product_preview/invented_mechanics_result.json only after focused Rust PASS"
+    ]
+  },
+  "refined_work": "Within the existing product_physics file, align affected curved-station metadata to element_local and recovered_from_local_element_stiffness with the exact arc-frame/equilibrium sign_convention. Preserve station numeric leaves, raw end actions, stable IDs, kinds, and cases.",
+  "validation": "Validate the full affected straight and curved envelope. Do not expand schemas. If another failure is discovered, preserve its actual record before any proposed fence expansion.",
+  "concurrent_u7_status": {
+    "design_amendment": {
+      "path": "../U7/DESIGN_AMENDMENT_V2.md",
+      "sha256": "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719"
+    },
+    "child_brief": {
+      "path": "../U7/children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md",
+      "sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+    },
+    "final_design_review": "PENDING",
+    "source_release": "HELD"
+  },
+  "preserved": "No changed P5 file fence, broader pressure implementation, U7 source release, schema, library-math, dependency, DAG, lifecycle, decision, receipt, build, or Git effect."
+}

@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": [
+    {
+      "path": "WORK_GRAPH_V1.json",
+      "sha256": "61471cfa25a3773e279c860afd1be7a7535ed036c26b33eaae9fd4efa22aef47"
+    },
+    {
+      "path": "WORK_GRAPH_ENGINEERING_AMENDMENT_V2.json",
+      "sha256": "b0a269e929c5773b4fe16373d3835ece25d880923c5b314018c61601d86db46a"
+    }
+  ],
+  "provisional_input": {
+    "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_PRESSURE_IMPLEMENTATION_RECOMMENDATION_V1.md",
+    "sha256": "df940eb27fdbe091cabca9f9044c031367e412a629de831e65c4c298a8baaf15",
+    "status": "READY_FOR_INDEPENDENT_REFUTATION_P0_FINAL_FAN_IN_PENDING"
+  },
+  "add_node": {
+    "id": "PREVIEW_PRESSURE_DESIGN_REFUTATION",
+    "role": "fresh bounded Agent 2 independent engineering reviewer",
+    "state": "READY_FOR_ROOT_DISPATCH",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high",
+    "delegation": false,
+    "brief": {
+      "path": "instances/PREVIEW/PRESSURE_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md",
+      "sha256": "5e91ed1311cca5485c585a8efed7f7a2c3c3af770fd0e233cd2a79bdf7af3f48"
+    },
+    "writes": "instances/PREVIEW/design/** only",
+    "concurrent_with": [
+      "U7_ASSESS",
+      "P0_EVALUATE_REMAINING"
+    ],
+    "source_effect": "PROHIBITED"
+  },
+  "downstream": "Root may route a validated recommendation and corrected smallest coherent fence to WORKING_ITEMS through a later explicit source-release amendment.",
+  "preserved": "No source approval, implementation selection, formal dependency disposition, engineering/public-contract adoption, external-solver-validation claim, lifecycle change, DAG/decomposition change, receipt, build, or Git effect."
+}

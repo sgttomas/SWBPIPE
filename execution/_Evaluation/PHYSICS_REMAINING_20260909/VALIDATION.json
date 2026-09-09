@@ -1,0 +1,98 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "PHYSICS_REMAINING_20260909",
+  "role": "EVALUATION_AGENT_1_P0",
+  "source_basis_expected": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_observed_at_final_validation": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "authority": {
+    "owner_engineering_direction_v2_sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18",
+    "p0_engineering_authority_amendment_v2_sha256": "7db35358982d520d88b48c79fd39265acb55b90a474c2459fabf141e2fa9c06c",
+    "acknowledgement_sha256": "1df511b350e1cbfc3eb98bb67ab35355d7ac64c3c5d9e8fef0ad5610a17772ab"
+  },
+  "fan_in": {
+    "verdict": "PASS",
+    "child_count": 2,
+    "required_configuration": "gpt-5.6-sol/high",
+    "all_children_match_configuration": true,
+    "all_children_non_delegating": true,
+    "all_required_returns_exist": true,
+    "all_return_csv_headers_match_sealed_ten_column_schema": true,
+    "fan_in_validation_sha256": "250f714f16698cd3bf6dfc614bcf98c730dd4cd41e7d91eaed419eb6905642f0"
+  },
+  "manager_outputs": {
+    "EVALUATION_REPORT.md": "d45352b57ec68c747c3286bcef2b4747d4bf327c1165c2375037246885c08919",
+    "FINDINGS.csv": "0d83badf78ff84b5353dfc0d7cb561533efa11a77299b3972a62233809bb756e",
+    "HANDOFF.md": "2aae57a752d15bd1aa916c2b5a7c27144a8e1ca2a054816b6458845d2ee845db",
+    "EVIDENCE_NORMALIZATION_V1.json": "8f6f0dd8f2e03f88ed5575826d9a557b9aa85f159d511f63d0ed313ab9609b8e",
+    "POST_FAN_IN_REFINEMENTS.md": "feac415215a22cfda71ee370a2543411fb05937ebee28758402d840fd0addb00",
+    "PROVISIONAL_FRICTION_REPAIR_RECOMMENDATION_V1.md": "e24d93d740fedd32a2caedfa5d99d9626a496a9714d91372ddaa0b0cdd4b80a8",
+    "PROVISIONAL_ENDPOINT_SECTION_CUT_REPAIR_RECOMMENDATION_V1.md": "ef0c308843ead9cf634ffe77004ec5d250274d96e8e015d8f3f711e37630740f",
+    "PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379",
+    "PROVISIONAL_PRESSURE_IMPLEMENTATION_RECOMMENDATION_V1.md": "df940eb27fdbe091cabca9f9044c031367e412a629de831e65c4c298a8baaf15"
+  },
+  "checks": [
+    {
+      "id": "V-SOURCE-BASIS",
+      "result": "PASS",
+      "method": "git rev-parse HEAD"
+    },
+    {
+      "id": "V-MANAGER-CSV",
+      "result": "PASS",
+      "method": "Python csv parse; exact ten-column header; eight rows; every row width ten; no empty cells"
+    },
+    {
+      "id": "V-REPORT-CONTRACT",
+      "result": "PASS",
+      "method": "required Basis Method Coverage Validated-return inventory Findings Conflicts/unknowns Recommendations Decision queue Handoff summary sections present"
+    },
+    {
+      "id": "V-JSON",
+      "result": "PASS",
+      "method": "Python parse of work graphs child validation files and FAN_IN_VALIDATION.json"
+    },
+    {
+      "id": "V-NS-01-CURRENT-SHA-RUNTIME",
+      "result": "PASS_DEFECT_REPRODUCED",
+      "method": "single focused evaluation-local cargo run; exit 0; isolated target removed",
+      "observed": {
+        "sticking_seed": "converged=true; iterations=1; state=sticking; u=0; reaction=-1",
+        "sliding_seed": "converged=true; iterations=2; state=sliding; u=-0.02; reaction=-3; applied_friction=-3; reaction_times_u=+0.06"
+      }
+    },
+    {
+      "id": "V-PHYSICAL-TO-ANALYTICAL-QUALIFIED",
+      "result": "PASS",
+      "method": "launch-provided qualified Python ran tests/test_physical_to_analytical_transform.py; exit 0; no output"
+    },
+    {
+      "id": "V-PRIVATE-CARGO-CLEANUP",
+      "result": "PASS",
+      "method": "returns/NS/_scratch/target absent after focused run"
+    },
+    {
+      "id": "V-INDEPENDENT-DESIGN-REFINEMENTS",
+      "result": "PASS_INCORPORATED",
+      "method": "Verified hashes and incorporated root-owned FREFUTE friction review; PREVIEW endpoint brief and two refinements; PREVIEW pressure refutation. Provisional files remain historical inputs."
+    },
+    {
+      "id": "V-EVIDENCE-EOF-NORMALIZATION",
+      "result": "PASS_REVERSIBLE_WHITESPACE_ONLY",
+      "method": "Removed one surplus terminal LF from three flagged evidence files; verified every original as SHA256(active_bytes || 0x0A); recorded old/new hashes and lengths in EVIDENCE_NORMALIZATION_V1.json; no semantic text changed."
+    },
+    {
+      "id": "V-WRITE-SCOPE",
+      "result": "PASS_P0_OUTPUTS_ONLY_UNDER_EVALUATION_ROOT",
+      "method": "P0 and child authored files inventoried only beneath projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909"
+    }
+  ],
+  "finding_count": 8,
+  "reproduced_current_defect_count": 3,
+  "blanket_tests_run": false,
+  "full_build_run": false,
+  "gui_run": false,
+  "external_industry_solver_validation_run": false,
+  "score_produced": false,
+  "piping_design_extracted_equations_used_as_authority": false,
+  "overall_status": "COMPLETE_WITH_REPRODUCED_DEFECTS_AND_SELECTED_REPAIRS"
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": "chirality.p5.evidence-hygiene-resolver.v1",
+  "capture": {
+    "path": "P5_EVIDENCE_HYGIENE_PREIMAGE_V1.json",
+    "sha256": "9a00fbe54833b3004ebad0d2d785e8dd8c0cb62aff5f79c358c0be0db6937ca8",
+    "decode_verification": "PASS_ALL_11_MEMBERS"
+  },
+  "members": [
+    {
+      "path": "P5-A2-ENDPOINT-IMPLEMENTATION-RETURN.md",
+      "original_sha256": "5c9dcad37158720be71181ddfd4ffc15882cbf75318a76a134c06e9a7a3c6f2e",
+      "normalized_sha256": "4dc2dbd4271a149deda787e02c244ed91bbf799cdaefdfbcd01774da8a9ba8b2",
+      "normalized_bytes": 9924
+    },
+    {
+      "path": "P5-A2-ENDPOINT-IMPLEMENTATION-STATUS.json",
+      "original_sha256": "a732873e52ec137e8eaa9847d1e4977186ef9bcd0e4243087c44be5fef473899",
+      "normalized_sha256": "325f9f969d1a10d297b372884ce79511b2220f834a8ae9fc70f794c6de668a51",
+      "normalized_bytes": 2982
+    },
+    {
+      "path": "P5-A2-ENDPOINT-IMPLEMENTATION-MANIFEST.json",
+      "original_sha256": "099d631e5cf42b9d5a3fdeca678a6e2185cbe45b3a594a4692088497e1130c10",
+      "normalized_sha256": "050165a912ca64aa5caf2f84f8d8df7578ca2ec70a779d465a9fd891c0a0a020",
+      "normalized_bytes": 6729
+    },
+    {
+      "path": "PRE_WHITESPACE_NORMALIZATION_CAPTURE_V1.json",
+      "original_sha256": "68374cc5fdbf931c587144abaeebd067579c4cbe787475673bf9d0dd30ece5e3",
+      "normalized_sha256": "a2ea118cee22f52c885be38212b58c217d8d83c488629ac111a865389e7e575d",
+      "normalized_bytes": 7186
+    },
+    {
+      "path": "evidence/ARC_FRAME_PROOF_V1.md",
+      "original_sha256": "07bf45e4bd23b0ec11f4497f92fa3407f6abbcc31ab4882fef8ab59f5b0fb365",
+      "normalized_sha256": "13c382398741780b3391dae3f4651c18e6f7e560ed801b8c3cbde0409571206a",
+      "normalized_bytes": 2500
+    },
+    {
+      "path": "evidence/HEADLESS_SCHEMA_VALIDATION_PLAN_V1.md",
+      "original_sha256": "b63cfcc7f19ab825439eb82e6101a88c682a6767cb9dafa3bff1dd886ecea0bc",
+      "normalized_sha256": "662cd001bb2ac0d8337bc286fd9e1e9f45263780f14a946fbfc9e12071045b84",
+      "normalized_bytes": 6278
+    },
+    {
+      "path": "evidence/SCHEMA_BASELINE_GROUPED_PROOF_V1.json",
+      "original_sha256": "e4c279436de10c47b6c732410705042ab72b9003d38fef5317847fd097134c71",
+      "normalized_sha256": "5157823fabf415fef6583381d8a2718a2fd317e3df53918dc828837bf3df678e",
+      "normalized_bytes": 6899
+    },
+    {
+      "path": "schema_witness/Cargo.toml",
+      "original_sha256": "9db7433e50de17ced8ef8c5f1bc4faa378e731c0b917968246062397d950eeba",
+      "normalized_sha256": "948e068e5b46b8ae196af8d03d33f7384866f631aa21705d80ae257010ab8a1b",
+      "normalized_bytes": 337
+    },
+    {
+      "path": "schema_witness/VALIDATION.json",
+      "original_sha256": "de7221bd332d5889c1d67a175491ab6433eb52775842e2fa6b50d37445795ebf",
+      "normalized_sha256": "bba2573874051bcce6cc8d21b4c52eb32433e63b2d0040f32402f95a07a18f34",
+      "normalized_bytes": 142872
+    },
+    {
+      "path": "P5_MANAGER_FAN_IN_V1.md",
+      "original_sha256": "ecd5e2e74ca91fb16af0ebe854638eab5f9d8f98ec135f85f234e3ed3c6a1607",
+      "normalized_sha256": "f8094e67fd7114eb0a2476a66d4a711d06d72a352b414140e64a864c05fd4af8",
+      "normalized_bytes": 3994
+    },
+    {
+      "path": "P5_MANAGER_HANDOFF_V1.json",
+      "original_sha256": "708e8f4a31e42b7b102830b58c4386ac7791da24a409dd2e1fa015fb48372234",
+      "normalized_sha256": "bbf31fbf998ab32bbcaa448b73433004a5c56c1a8ee9f5f3fdfc52ad51b06317",
+      "normalized_bytes": 2212
+    }
+  ],
+  "path_anchor_replacements": {
+    "agent2_return_scope": "{PROJECT_ROOT}/execution/<DEL-05-03 path>",
+    "qualified_python": "{QUALIFIED_PYTHON}",
+    "headless_plan_working_root": "{PROJECT_ROOT}",
+    "headless_plan_dependency_roots": "{PROJECT_ROOT}/core/<crate path>"
+  },
+  "invariants": {
+    "source_and_fixture_unchanged": true,
+    "algorithm_unchanged": true,
+    "test_results_unchanged": true,
+    "schema_error_inventory_unchanged": true,
+    "evidence_verdicts_unchanged": true,
+    "only_whitespace_path_anchors_and_owning_hash_pointers_changed": true
+  },
+  "root_pointer_surfaces_to_bind_without_rewriting_historical_review_inputs": [
+    "EVIDENCE_NORMALIZATION_RESOLVER_V1.json",
+    "instances/FINAL_REVIEW/LAUNCH_BRIEF_V1.md",
+    "instances/FINAL_REVIEW/review/INPUT_INVENTORY.json",
+    "instances/FINAL_REVIEW/P5_VALIDATION_BOUNDARY_AMENDMENT_V1.json",
+    "instances/PREVIEW/design/PUBLIC_RESULT_SCHEMA_ACCEPTANCE_TRIAGE_ADDENDUM_V1.md",
+    "instances/PREVIEW/design/VALIDATION_V1.json"
+  ],
+  "status": "NORMALIZED_P5_POINTER_CHAIN_READY_FOR_ROOT_BINDING"
+}

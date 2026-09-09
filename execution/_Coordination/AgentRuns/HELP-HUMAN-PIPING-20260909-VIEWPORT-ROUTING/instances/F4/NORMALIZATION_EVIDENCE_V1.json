@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T06:44:39Z",
+  "authorization": "root-authorized evidence-only trailing-whitespace normalization",
+  "semantic_change": false,
+  "pre_normalization_manifest_sha256": "796cc7cc69b428a2d9c0ce868e5262b160d931d45fb27cfe39899f96acd294f4",
+  "files": [
+    {
+      "path": "FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+      "preimage_sha256": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566",
+      "preimage_byte_length": 11073,
+      "normalized_sha256": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+      "normalized_byte_length": 11067,
+      "reconstruction": {
+        "basis": "normalized file bytes",
+        "operation": "before the LF byte terminating each listed one-based line, insert the listed bytes",
+        "insertions": [
+          {"line": 3, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 4, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 5, "bytes_hex": "2020", "bytes_base64": "ICA="}
+        ],
+        "expected_reconstructed_sha256": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566"
+      }
+    },
+    {
+      "path": "implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "preimage_sha256": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f",
+      "preimage_byte_length": 10031,
+      "normalized_sha256": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+      "normalized_byte_length": 10011,
+      "reconstruction": {
+        "basis": "normalized file bytes",
+        "operation": "before the LF byte terminating each listed one-based line, insert the listed bytes",
+        "insertions": [
+          {"line": 5, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 6, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 7, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 8, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 9, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 10, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 11, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 12, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 13, "bytes_hex": "2020", "bytes_base64": "ICA="},
+          {"line": 14, "bytes_hex": "2020", "bytes_base64": "ICA="}
+        ],
+        "expected_reconstructed_sha256": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f"
+      }
+    }
+  ],
+  "normalization": "removed only the enumerated trailing ASCII SPACE bytes; all other bytes remain unchanged"
+}

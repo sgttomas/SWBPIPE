@@ -1,0 +1,26 @@
+{
+  "schema_version": "chirality.working_items.status.v1",
+  "recorded_at_utc": "2026-09-09T06:02:15Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "state": "FROZEN_AWAITING_INDEPENDENT_DESIGN_REVIEW",
+  "completed": [
+    "source inventory",
+    "three bounded source findings",
+    "selected orthogonal-plane design",
+    "exact six-path fence",
+    "dependency consumption",
+    "implementation and validation plan"
+  ],
+  "source_writes": false,
+  "tests_run": [],
+  "holds": [
+    "UREVIEW_DESIGN",
+    "ROOT_SOURCE_RELEASE",
+    "U7_IMPLEMENT",
+    "native witness",
+    "Git/integration"
+  ],
+  "blockers": [],
+  "next_owner": "/root"
+}

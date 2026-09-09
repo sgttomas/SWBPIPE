@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": {
+    "path": "WORK_GRAPH_FRICTION_REVIEW_AMENDMENT_V4.json",
+    "sha256": "80d59ada63a81d63c01551d39c0269a63c68890887b1b8ed6aace089bd13b388"
+  },
+  "accepted_inputs": [
+    {
+      "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_ENDPOINT_SECTION_CUT_REPAIR_RECOMMENDATION_V1.md",
+      "sha256": "ef0c308843ead9cf634ffe77004ec5d250274d96e8e015d8f3f711e37630740f"
+    },
+    {
+      "path": "instances/PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_BRIEF_V1.md",
+      "sha256": "c85c97a2946bbdf946da5cb26266d6ff42d2bf7f48fd9ad28a5daa6c7018dfe0"
+    },
+    {
+      "path": "instances/PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_METADATA_REFINEMENT_V1.md",
+      "sha256": "96c222c21bda132bebce7aca315564349d846109222380fa84e68bd89518963c"
+    }
+  ],
+  "add_nodes": [
+    {
+      "id": "P5_ENDPOINT_REPAIR",
+      "role": "WORKING_ITEMS Agent 1 PKG-05 plus one bounded Agent 2 child",
+      "state": "READY_FOR_ROOT_DISPATCH",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "brief": {
+        "path": "instances/P5/ENDPOINT_SECTION_CUT_IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+        "sha256": "63de9814380cf2403097cf79a175652a09526db92f0c512f783bd739f64ceb58"
+      },
+      "source_release": "ROOT_GRANTED_AFTER_MANAGER_SCOPE_INTAKE",
+      "initial_source_fence": [
+        "core/product_physics/src/lib.rs",
+        "fixtures/product_preview/invented_mechanics_result.json after focused Rust PASS"
+      ],
+      "writes": [
+        "instances/P5/**",
+        "DEL-05-03 _run_records/VIEWPORT_ROUTING_20260909/**",
+        "initial_source_fence only"
+      ]
+    },
+    {
+      "id": "P5_INDEPENDENT_DIFF_REVIEW",
+      "role": "fresh bounded Agent 2 code reviewer",
+      "state": "HELD",
+      "after": [
+        "P5_ENDPOINT_REPAIR"
+      ],
+      "condition": "review 100% frozen code and fixture diff before DEC-025"
+    }
+  ],
+  "actual_parallel_launches": [
+    {
+      "node": "F4_PREP",
+      "task": "/root/friction_repair_manager",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "state": "RUNNING_SOURCE_HELD"
+    },
+    {
+      "node": "FREFUTE",
+      "task": "/root/friction_design_refutation",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "delegation": false,
+      "state": "RUNNING_SOURCE_PROHIBITED"
+    }
+  ],
+  "parallelism": "P5 source is disjoint from the held F4 two-file solver fence and U7 six-file app fence. Root serializes heavy builds.",
+  "preserved": "Broader pressure/Poisson/topology remains design-only. No other source, schema, library-math, public-contract, dependency, DAG, decomposition, lifecycle, decision, receipt, build, or Git authority changes."
+}

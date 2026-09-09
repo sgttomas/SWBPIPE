@@ -11,6 +11,7 @@ use open_pipe_stress_solver_diagnostics::{
     convergence_diagnostic, DiagnosticSeverity, DiagnosticSource, SolverDiagnostic,
     SolverDiagnosticCode,
 };
+use std::collections::HashSet;
 use std::error::Error;
 use std::fmt;
 
@@ -329,7 +330,7 @@ pub fn active_set_report_assumptions() -> Vec<String> {
         "Support sign conventions are those encoded on each nonlinear support behavior.".to_string(),
         "Unilateral supports use the DEC-067 state-switched complementarity test: engaged supports (including closed gaps) classify on trial reaction sign, released supports classify on trial displacement penetration toward the support or explicit clearance."
             .to_string(),
-        "A friction support that was already sliding remains sliding through a released DOF while nonzero trial displacement persists; this is deterministic anti-chatter state logic, not a derived friction load model."
+        "Friction states are classified from the current trial; an assembled integration loop may supply validated current-branch friction states before convergence and diagnostics are formed."
             .to_string(),
     ]
 }
@@ -444,7 +445,19 @@ pub fn diagnostic_from_nonlinear_support_error(error: &NonlinearSupportError) ->
 pub fn evaluate_active_set_iteration(
     input: &ActiveSetIterationInput,
 ) -> Result<ActiveSetIteration, NonlinearSupportError> {
+    evaluate_active_set_iteration_with_resolved_friction_states(input, &[])
+}
+
+/// Evaluate one active-set iteration after applying integration-resolved
+/// friction states. The override slice is deliberately separate from the
+/// public iteration input so branch evidence remains private to the assembled
+/// integration loop.
+pub fn evaluate_active_set_iteration_with_resolved_friction_states(
+    input: &ActiveSetIterationInput,
+    resolved_friction_states: &[SupportStateRecord],
+) -> Result<ActiveSetIteration, NonlinearSupportError> {
     validate_nonnegative_finite("tolerance", input.tolerance)?;
+    validate_resolved_friction_states(&input.supports, resolved_friction_states)?;
 
     let mut states = Vec::with_capacity(input.supports.len());
     let mut changed_supports = Vec::new();
@@ -463,7 +476,11 @@ pub fn evaluate_active_set_iteration(
             .iter()
             .find(|prior| prior.support_id == support.support_id)
             .map(|prior| prior.state);
-        let state = classify_iteration_support_state(support, trial, prior_state)?;
+        let classified_state = classify_support_state(support, trial, prior_state)?;
+        let state = resolved_friction_states
+            .iter()
+            .find(|resolved| resolved.support_id == support.support_id)
+            .map_or(classified_state, |resolved| resolved.state);
         let changed = prior_state.is_none_or(|prior| prior != state);
 
         if changed {
@@ -515,26 +532,40 @@ pub fn evaluate_active_set_iteration(
     })
 }
 
+fn validate_resolved_friction_states(
+    supports: &[NonlinearSupport],
+    resolved_friction_states: &[SupportStateRecord],
+) -> Result<(), NonlinearSupportError> {
+    let mut seen = HashSet::new();
+    for resolved in resolved_friction_states {
+        if !seen.insert(resolved.support_id.as_str()) {
+            return Err(NonlinearSupportError::MissingFrictionData {
+                support_id: resolved.support_id.clone(),
+            });
+        }
+        let Some(support) = supports
+            .iter()
+            .find(|support| support.support_id == resolved.support_id)
+        else {
+            return Err(NonlinearSupportError::MissingFrictionData {
+                support_id: resolved.support_id.clone(),
+            });
+        };
+        if !matches!(support.behavior, NonlinearSupportBehavior::Friction)
+            || resolved.state == ActiveSetState::Active
+        {
+            return Err(NonlinearSupportError::MissingFrictionData {
+                support_id: resolved.support_id.clone(),
+            });
+        }
+    }
+    Ok(())
+}
+
 pub fn evaluate_active_set_report(
     input: &ActiveSetIterationInput,
 ) -> Result<ActiveSetReportRecord, NonlinearSupportError> {
     evaluate_active_set_iteration(input)?.to_report_record(input)
-}
-
-fn classify_iteration_support_state(
-    support: &NonlinearSupport,
-    trial: &TrialSupportState,
-    prior_state: Option<ActiveSetState>,
-) -> Result<ActiveSetState, NonlinearSupportError> {
-    let state = classify_support_state(support, trial, prior_state)?;
-    if matches!(support.behavior, NonlinearSupportBehavior::Friction)
-        && prior_state == Some(ActiveSetState::Sliding)
-        && state == ActiveSetState::Sticking
-        && trial.displacement != 0.0
-    {
-        return Ok(ActiveSetState::Sliding);
-    }
-    Ok(state)
 }
 
 /// State-switched complementarity classification (DEC-067).
@@ -1101,7 +1132,7 @@ mod tests {
     }
 
     #[test]
-    fn active_set_iteration_persists_sliding_for_released_friction_displacement() {
+    fn active_set_iteration_uses_current_friction_classification_without_persistence() {
         let support = NonlinearSupport::friction("friction-slide", 0, FrameDof::Ux, 0.30).unwrap();
         let trial = TrialSupportState::new("friction-slide", 0.12, 0.0)
             .unwrap()
@@ -1126,6 +1157,44 @@ mod tests {
 
         let iteration = evaluate_active_set_iteration(&input).unwrap();
 
+        assert!(!iteration.converged);
+        assert_eq!(
+            iteration.states,
+            vec![SupportStateRecord::new(
+                "friction-slide",
+                ActiveSetState::Sticking
+            )]
+        );
+        assert_eq!(iteration.changed_supports, vec!["friction-slide"]);
+    }
+
+    #[test]
+    fn active_set_iteration_applies_resolved_friction_state_before_convergence() {
+        let support = NonlinearSupport::friction("friction-slide", 0, FrameDof::Ux, 0.30).unwrap();
+        let input = ActiveSetIterationInput {
+            iteration: 1,
+            max_iterations: 4,
+            tolerance: 0.0,
+            supports: vec![support],
+            trial_states: vec![TrialSupportState::new("friction-slide", 0.12, 0.0)
+                .unwrap()
+                .with_friction_reactions(10.0, 0.0)
+                .unwrap()],
+            prior_states: vec![SupportStateRecord::new(
+                "friction-slide",
+                ActiveSetState::Sliding,
+            )],
+        };
+
+        let iteration = evaluate_active_set_iteration_with_resolved_friction_states(
+            &input,
+            &[SupportStateRecord::new(
+                "friction-slide",
+                ActiveSetState::Sliding,
+            )],
+        )
+        .unwrap();
+
         assert!(iteration.converged);
         assert_eq!(
             iteration.states,
@@ -1135,6 +1204,50 @@ mod tests {
             )]
         );
         assert!(iteration.changed_supports.is_empty());
+        assert!(iteration.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn resolved_friction_states_reject_unknown_duplicate_and_nonfriction_rows() {
+        let friction = NonlinearSupport::friction("friction", 0, FrameDof::Ux, 0.30).unwrap();
+        let one_way = NonlinearSupport::one_way(
+            "one-way",
+            0,
+            FrameDof::Uy,
+            ActivationSense::PositiveReaction,
+        );
+        let input = ActiveSetIterationInput {
+            iteration: 1,
+            max_iterations: 4,
+            tolerance: 0.0,
+            supports: vec![friction, one_way],
+            trial_states: vec![
+                TrialSupportState::new("friction", 0.0, 0.0)
+                    .unwrap()
+                    .with_friction_reactions(10.0, 0.0)
+                    .unwrap(),
+                TrialSupportState::new("one-way", 0.0, 0.0).unwrap(),
+            ],
+            prior_states: vec![
+                SupportStateRecord::new("friction", ActiveSetState::Sticking),
+                SupportStateRecord::new("one-way", ActiveSetState::Inactive),
+            ],
+        };
+
+        for overrides in [
+            vec![SupportStateRecord::new("unknown", ActiveSetState::Sliding)],
+            vec![
+                SupportStateRecord::new("friction", ActiveSetState::Sliding),
+                SupportStateRecord::new("friction", ActiveSetState::Sticking),
+            ],
+            vec![SupportStateRecord::new("one-way", ActiveSetState::Inactive)],
+            vec![SupportStateRecord::new("friction", ActiveSetState::Active)],
+        ] {
+            assert!(evaluate_active_set_iteration_with_resolved_friction_states(
+                &input, &overrides
+            )
+            .is_err());
+        }
     }
 
     #[test]

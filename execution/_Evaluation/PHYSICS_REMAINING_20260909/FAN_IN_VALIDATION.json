@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "evaluation_id": "PHYSICS_REMAINING_20260909",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "overall_verdict": "PASS",
+  "returns": [
+    {
+      "dispatch_id": "NS",
+      "verdict": "PASS",
+      "role": "bounded_ephemeral_agent_2_generalist",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "delegation_performed": false,
+      "finding_count": 4,
+      "required_artifacts": {
+        "RETURN.md": "52612be36e1d3f71219f54302a23159708f3bb707ab99939f3133b1821b8a32a",
+        "FINDINGS.csv": "673ea47f37eaeabbb22010cf4d4deeac3f57e4ccefbf71b677fa752b0e93b167",
+        "COVERAGE.md": "10d3bff966f6d4eb8198dc5204be062cf3509646becaba3d5841989dcb188cf3",
+        "VALIDATION.json": "ef0dab886b0ee858edee3d7c9b94e486362fc575338af542841175ed6b015948"
+      },
+      "schema_validation": "PASS_EXACT_TEN_COLUMNS_FOUR_ROWS_NO_EMPTY_CELLS",
+      "source_basis_validation": "PASS",
+      "write_scope_validation": "PASS_ONLY_RETURNS_NS",
+      "additional_evidence": {
+        "RUNTIME_PROBE.md": "bb7f3d08e6c9caafa4af602a8226ffcbe37bf8384e95d176ff259a9b50e04378",
+        "runtime_probe/Cargo.toml": "79792a1f243ae2c38c382deb4ed4a706c5f3f1d0b755395bea44692d81ba347e",
+        "runtime_probe/src/main.rs": "46a8a81d5c6a125e0973e6cfc562cdf028c60b177d76bb9144c18c19803bc7e0",
+        "current_sha_execution": "PASS_EXIT_0_FIRST_ATTEMPT",
+        "isolated_target_removed": true
+      },
+      "validation_note": "P0 rejected the initial eight-column CSV and requested the exact sealed ten-column schema before fan-in. The corrected preserved return passes."
+    },
+    {
+      "dispatch_id": "PCB",
+      "verdict": "PASS",
+      "role": "bounded_ephemeral_agent_2_generalist",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "delegation_performed": false,
+      "finding_count": 5,
+      "required_artifacts": {
+        "RETURN.md": "33c0a0af5adf9b479571f10fe278fac23d03ecd34ffdf1c5a34bc1bd086b5b12",
+        "FINDINGS.csv": "455bd7bee6af90b063f2fd241e7a9ab4ca3d3cc5a2d9351e866d87f8d12904d3",
+        "COVERAGE.md": "756f7c3d8517e04cc682f571232ddb0a7a0ef331d7f0be78de30aa0c786093f0",
+        "VALIDATION.json": "3291af21ff54e9ef1c300339b8d521ac2e77ad1e591fe647065e9cae636f0528"
+      },
+      "schema_validation": "PASS_EXACT_TEN_COLUMNS_FIVE_ROWS",
+      "source_basis_validation": "PASS",
+      "write_scope_validation": "PASS_ONLY_RETURNS_PCB",
+      "manager_followup": {
+        "reason": "PCB system Python lacked jsonschema although the launch supplied a qualified environment",
+        "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tests/test_physical_to_analytical_transform.py",
+        "working_directory": "/Users/ryan/.codex/worktrees/8728/chirality-viewport-routing-20260909/projects/chirality-piping",
+        "result": "PASS_EXIT_0_NO_OUTPUT"
+      },
+      "validation_note": "The qualified rerun resolves the environment-only missing-dependency result. It does not establish a product runtime consumer or industry-solver validation."
+    }
+  ],
+  "manager_register": {
+    "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/FINDINGS.csv",
+    "expected_columns": [
+      "FindingID",
+      "Concern",
+      "Classification",
+      "Severity",
+      "Scope",
+      "Claim",
+      "EvidenceRefs",
+      "Status",
+      "RecommendedOwner",
+      "RerunRequirement"
+    ],
+    "finding_count": 8
+  },
+  "blanket_tests_run": false,
+  "external_solver_comparison_run": false,
+  "score_produced": false
+}

@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "event_id": "F4_IMPL_SOURCE_RELEASE_001",
+  "timestamp_utc": "2026-09-09T06:43:00Z",
+  "issued_by": "/root/friction_repair_manager",
+  "authority_reported": "root",
+  "source_edits": "RELEASED",
+  "cargo_or_build": "HELD_PENDING_PARENT_TEST_SLOT_RELEASE",
+  "fence": [
+    "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+  ],
+  "sealed_brief_sha256": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f",
+  "plan_sha256": "8651bad68ea72425ee00d17fea200d3c1883404fdd65fe52cbb7e5f4b4c38566",
+  "c0_packaging_prerequisite": false,
+  "delegation_allowed": false,
+  "git_mutation_allowed": false
+}

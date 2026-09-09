@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4",
+  "status": "FOCUSED_IMPLEMENTATION_PASS_SOURCE_FROZEN",
+  "authority": {
+    "active_normalized_plan_sha256": "8e0b0f352921c98d05b5fce603a02e2f05106ec432f14f69c1bad4686366db7c",
+    "active_normalized_launch_brief_sha256": "88722b8597722f0a16e754d285cbafae602aa3f225b4a14e824d5bd98ac5b81d",
+    "priority_amendment_sha256": "b44297669accae8872102b347b4818c1d263428fe98486b8406ba0991ab2d5cc",
+    "validation_matrix_sha256": "91a2789b856cf5244dc942fb414e86753332bbc452b1859238e512ad23f4251b",
+    "independent_reconciliation_sha256": "9e2828f9364d77693db0d68e6c6d695f197def9b7a3eb89b3668e031e2cd0c45",
+    "independent_priority_reconciliation_sha256": "b18d7d9ed148130a121024006489eb7bd230b4fbe6a18912150c9dd4b35c4e5d"
+  },
+  "source": [
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce"
+    }
+  ],
+  "restricted_binary_diff_sha256": "1246d391a5c362b3f92a57288fe3c03a51b2eb88f4e6d733dc90b27c3ee6404f",
+  "outputs": {
+    "IMPLEMENTATION_MANAGER_RETURN_V1.md": "a3ef05a09e0f5cd12583db93560881e28c8be5297f92ca4df849b3f641abd1ef",
+    "IMPLEMENTATION_MANAGER_STATUS_V1.json": "779cc3cc4306f7b35b177789ae9d7f087bc14d9cc7bd0619df9065448af26a65",
+    "implementation/RETURN.md": "95febf9f25882077f8bd1be7f475779d700b73319551c5a56c158361fe153591",
+    "implementation/VALIDATION.json": "3e87ed13b58af1c2d2d892208f48218202ab1766b522e9e8c24d1d3b10536e56",
+    "implementation/STATUS.json": "8c4aac106b2dc7fde2727ed9a0fdff7a8d2f4e3527c8ebbb87fab7f67c0b92aa",
+    "implementation/RETURN_PATH_NORMALIZATION_V1.json": "3da4a78dfc4b52f79732c88253386aa2275cc86d3217f09520d560fc556cb511",
+    "implementation/PREFLIGHT_PATH_NORMALIZATION_V1.json": "ccf7e76eff9bbbc056919cb163e91dec2a2fa5657369df62357628cef6ea5818"
+  },
+  "validation": {
+    "focused_cargo": "PASS_22_38_19_3_1",
+    "rustfmt": "PASS",
+    "diff_check": "PASS",
+    "scope": "PASS_EXACT_TWO_SOURCE_FILES_PLUS_F4_EVIDENCE",
+    "external_solver": "NOT_RUN_NO_CLAIM",
+    "git_effect": "NONE"
+  },
+  "closure": "PENDING_ROOT_COMBINED_DIFF_REVIEW"
+}

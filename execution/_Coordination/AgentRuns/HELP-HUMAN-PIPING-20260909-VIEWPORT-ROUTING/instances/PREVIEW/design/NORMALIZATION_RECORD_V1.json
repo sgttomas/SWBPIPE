@@ -1,0 +1,70 @@
+{
+  "schema_version": "chirality.evidence-whitespace-normalization.v1",
+  "recorded_at_utc": "2026-09-09T06:46:36Z",
+  "scope": "owned PREVIEW/design evidence whitespace only",
+  "pre_normalization_manifest_sha256": "b49613262f140fd8d6d6550b7cfce6d692363497e2f82efade15a4acec13cf4d",
+  "reconstruction_contract": {
+    "basis": "Begin with the exact normalized UTF-8 bytes identified by normalized_sha256. Apply each listed operation in order. Line numbers are one-based and identify LF-terminated lines in the normalized file. insert_before_lf inserts the listed hexadecimal bytes immediately before that line's LF byte. append_eof appends the listed hexadecimal bytes after the normalized file's final byte.",
+    "hash_algorithm": "sha256",
+    "byte_encoding": "hex",
+    "lossless_reconstruction_verified": true
+  },
+  "files": [
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_BRIEF_V1.md",
+      "original_bytes": 5913,
+      "original_sha256": "c85c97a2946bbdf946da5cb26266d6ff42d2bf7f48fd9ad28a5daa6c7018dfe0",
+      "normalized_bytes": 5912,
+      "normalized_sha256": "a0c6830aa120703aedfbe522e0f919b343523dcef9c5d8e01d9ecf6bc3b58ff5",
+      "operations_to_reconstruct_original": [
+        {"operation": "append_eof", "bytes_hex": "0a"}
+      ]
+    },
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_METADATA_REFINEMENT_V1.md",
+      "original_bytes": 1655,
+      "original_sha256": "96c222c21bda132bebce7aca315564349d846109222380fa84e68bd89518963c",
+      "normalized_bytes": 1654,
+      "normalized_sha256": "76843ff691cdc81bc0f63a9e1d5deb3635fdaeafd045e85edfb18354ecde13c2",
+      "operations_to_reconstruct_original": [
+        {"operation": "append_eof", "bytes_hex": "0a"}
+      ]
+    },
+    {
+      "path": "ENDPOINT_SECTION_CUT_REPAIR_VALIDATION_REFINEMENT_V2.md",
+      "original_bytes": 2820,
+      "original_sha256": "e72dc729f68658bfe517554cb33b5a18b3b3bf872a4f514e66389be8c725d3aa",
+      "normalized_bytes": 2818,
+      "normalized_sha256": "b6fe8129604ee0824d9124cafd0bba010a8eb1b530e074587d563b4167cb7110",
+      "operations_to_reconstruct_original": [
+        {"operation": "insert_before_lf", "line": 3, "bytes_hex": "2020"}
+      ]
+    },
+    {
+      "path": "PRESSURE_DESIGN_REFUTATION_V1.md",
+      "original_bytes": 20537,
+      "original_sha256": "a5a21e755c3ee1b40462b19f00ab6052da720a3ff61f96759c875b0105f9f93f",
+      "normalized_bytes": 20531,
+      "normalized_sha256": "d0830b75fae3cb81e1add0f6f5370d9074a86452a92c0c3c251d14b091740336",
+      "operations_to_reconstruct_original": [
+        {"operation": "insert_before_lf", "line": 3, "bytes_hex": "2020"},
+        {"operation": "insert_before_lf", "line": 4, "bytes_hex": "2020"},
+        {"operation": "insert_before_lf", "line": 5, "bytes_hex": "2020"}
+      ]
+    },
+    {
+      "path": "PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md",
+      "original_bytes": 3667,
+      "original_sha256": "dc443b7dea76802072a7564fb8047b43221b37c143bd40ce4ccf32306956d3f9",
+      "normalized_bytes": 3663,
+      "normalized_sha256": "9b2ea96940fef754fa5ecd7310e8cf362bc9368d7d818ccaf8eb7b5df3d5c4a2",
+      "operations_to_reconstruct_original": [
+        {"operation": "insert_before_lf", "line": 3, "bytes_hex": "2020"},
+        {"operation": "insert_before_lf", "line": 4, "bytes_hex": "2020"}
+      ]
+    }
+  ],
+  "file_count": 5,
+  "semantic_change": "none",
+  "source_effect": "none"
+}

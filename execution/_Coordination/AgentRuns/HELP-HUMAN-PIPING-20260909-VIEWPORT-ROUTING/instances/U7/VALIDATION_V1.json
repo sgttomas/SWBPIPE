@@ -1,0 +1,27 @@
+{
+  "schema_version": "chirality.working_items.validation.v1",
+  "recorded_at_utc": "2026-09-09T06:02:15Z",
+  "result": "PASS_ASSESSMENT_ONLY",
+  "checks": {
+    "head_matches_basis": true,
+    "product_source_unchanged": true,
+    "assessment_write_containment": "instances/U7 only",
+    "source_findings_traced": true,
+    "exact_source_test_fence_present": true,
+    "dependency_formal_status_preserved": true,
+    "tests_executed": false,
+    "test_note": "No runtime tests were needed or run for the read-only assessment; proposed regressions are explicit and implementation remains held."
+  },
+  "source_inventory": {
+    "PipeViewport.tsx": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "routeDraft.ts": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4",
+    "displayQuantityService.ts": "65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef",
+    "unitCatalogService.ts": "0ef7dfe55e078d0cca10a954fd2cef67feb00d16b34e4942c2da07b8a78382b8",
+    "types.ts": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+    "App.tsx": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+    "App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c",
+    "styles.css": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26",
+    "linear-authoring.spec.ts": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305",
+    "operation_applier/src/lib.rs": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  }
+}

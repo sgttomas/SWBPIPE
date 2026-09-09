@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T07:24:53Z",
+  "reason": "apply SHARED_LAUNCH_CONTRACT_V1 machine-local path anchoring to terminal evidence while preserving exact executed-path preimages",
+  "semantic_change": false,
+  "replacement": {
+    "preimage_prefix_utf8_base64": "L1VzZXJzL3J5YW4vLmNvZGV4L3dvcmt0cmVlcy84NzI4L2NoaXJhbGl0eS12aWV3cG9ydC1yb3V0aW5nLTIwMjYwOTA5L3Byb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkc=",
+    "normalized_prefix": "{RUN_ROOT}"
+  },
+  "files": [
+    {
+      "path": "RETURN.md",
+      "preimage_sha256": "04ff09a224c3c4671194f4a7724c28e17f5a2aafbb5af93679ffc0f8b076e197",
+      "normalized_sha256": "95febf9f25882077f8bd1be7f475779d700b73319551c5a56c158361fe153591",
+      "replacement_count": 1
+    },
+    {
+      "path": "VALIDATION.json",
+      "preimage_sha256": "63ff5a9b80f9749aa179aebd65674eb1938bb529f6fd130bf633c1182566d410",
+      "normalized_sha256": "3e87ed13b58af1c2d2d892208f48218202ab1766b522e9e8c24d1d3b10536e56",
+      "replacement_count": 7
+    }
+  ],
+  "reconstruction": "Decode preimage_prefix_utf8_base64, then for each normalized file replace the normalized_prefix UTF-8 bytes with the decoded bytes exactly replacement_count times. The resulting SHA-256 must equal preimage_sha256. Exact machine-local execution paths remain additionally captured in the structural _run_records subtree."
+}

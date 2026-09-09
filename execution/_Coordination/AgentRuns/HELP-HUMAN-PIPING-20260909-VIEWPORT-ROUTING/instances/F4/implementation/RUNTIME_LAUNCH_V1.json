@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "event_id": "F4_IMPL_LAUNCH_001",
+  "timestamp_utc": "2026-09-09T06:40:01Z",
+  "parent_instance_id": "/root/friction_repair_manager",
+  "child_instance_id": "/root/friction_repair_manager/f4_impl",
+  "role": "TASK Agent 2",
+  "role_enforcement": "instruction_asserted",
+  "delegation_allowed": false,
+  "dispatch_class": "delegated-harness-native",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "fork_turns": "none",
+  "brief": {
+    "path": "instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+    "sha256": "883d89fcf0e408683e9ea257ccf53652ed9df27d7786f9785101872193a1de4f"
+  },
+  "source_release": {
+    "root_acceptance_reported": true,
+    "additive_control_record": "PENDING_C0",
+    "exact_fence": [
+      "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs"
+    ]
+  },
+  "launch_phase_permissions": {
+    "reads": "sealed inputs, exact source fence and directly relevant tests",
+    "writes": "instances/F4/implementation/** additive runtime/preflight evidence only",
+    "source_edits": "HELD_PENDING_P5_BUILD_SLOT_COMPLETION_MESSAGE",
+    "cargo_or_build": "HELD_PENDING_P5_BUILD_SLOT_COMPLETION_MESSAGE",
+    "git_mutation": false
+  },
+  "initial_expected_return": "READY_WAITING_BUILD_SLOT",
+  "terminal_requirements": [
+    "bounded implementation in exact two-file fence",
+    "isolated focused Cargo validation",
+    "manager fan-in",
+    "fresh independent read-only review of 100 percent frozen diff"
+  ]
+}

@@ -1,0 +1,115 @@
+{
+  "schema_version": "chirality.task.validation.v1",
+  "recorded_at_utc": "2026-09-09T06:34:13Z",
+  "evidence_normalized_at_utc": "2026-09-09T06:46:36Z",
+  "result": "CHANGES_REQUIRED_DESIGN_REVIEW_ONLY",
+  "verdict": "CHANGES_REQUIRED",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "checks": {
+    "basis_head_matched_at_review": true,
+    "sealed_brief_hash_match": true,
+    "candidate_hash_match": true,
+    "input_inventory_member_count": 23,
+    "input_inventory_hashes_match_declared_basis": true,
+    "four_case_exact_annulus_algebra": "PASS",
+    "lame_inner_outer_traction_boundaries": "PASS",
+    "wall_and_effective_force_separation": "PASS",
+    "eigenload_and_cap_transfer_signs": "PASS",
+    "p_zero_nu_zero_delta_t_zero_reductions_reviewed": true,
+    "equal_area_two_element_cap_cancellation": "PASS",
+    "area_change_residual_requires_owner": true,
+    "temperature_interpolation_isotropy_counterexample": {
+      "result": "CONFIRMED",
+      "relative_G_residual": -0.002417582417582467
+    },
+    "endpoint_action_to_section_cut_defect": "CONFIRMED",
+    "curved_endpoint_frame_requires_arc_equilibrium_helper": true,
+    "curved_station_metadata_schema_mismatch": "CONFIRMED",
+    "pressure_category_dimension_eligibility_mismatch": {
+      "result": "CONFIRMED_REACHABLE",
+      "upstream_pair_validation_blocks_case": false
+    },
+    "legacy_mode_and_document_migration_fence_incomplete": true,
+    "desktop_direct_preview_route_traced": true,
+    "headless_direct_preview_route_traced": true,
+    "canonical_transform_adapter_is_live_preview_route": false,
+    "new_result_kind_consumers_in_candidate_fence_complete": false,
+    "primary_sources_checked_directly": [
+      "MIT OCW 22.314 L.4 thick-cylinder/generalized-Hooke notes",
+      "Abaqus 2025 distributed pipe-pressure load documentation",
+      "Abaqus 2025 element section-variable documentation"
+    ],
+    "industry_solver_comparison_performed": false,
+    "source_or_schema_writes_by_reviewer": false,
+    "full_build_or_test_suite_run": false,
+    "deterministic_calculation_script": "PASS",
+    "owned_evidence_whitespace": "PASS",
+    "pre_normalization_bytes_losslessly_reconstructable": "PASS_5_OF_5",
+    "p5_public_result_schema_triage": {
+      "result": "FULL_PASS_UNACHIEVABLE_WITHIN_SELECTED_PHYSICS_REPAIR_FENCE",
+      "witness_sha256": "de7221bd332d5889c1d67a175491ab6433eb52775842e2fa6b50d37445795ebf",
+      "total_errors": 196,
+      "case_errors": {
+        "straight_full_document.json": 160,
+        "curved_tip_weight_full_document.json": 18,
+        "curved_pressure_full_document.json": 18
+      },
+      "field_errors": {
+        "canonicalization": 6,
+        "component": 135,
+        "location": 21,
+        "coordinate_system": 18,
+        "basis": 16
+      },
+      "nodal_displacement_rotation_component_errors": 114,
+      "remaining_values_traced_to_basis_head": true,
+      "exact_lossless_boundary_only_total_mapping_exists": false,
+      "partial_checksum_alias_exists": true,
+      "full_envelope_pass_claimed": false,
+      "dec_025_waived": false,
+      "disposition": "record baseline FAIL; accept selected repair only on affected-row and numerical/producer/test/review gates; route full closure to versioned public-contract adoption"
+    }
+  },
+  "tools": [
+    {
+      "tool": "python3 design/pressure_refutation_calculations.py",
+      "result": "PASS",
+      "record": "PRESSURE_CALCULATION_RESULTS_V1.json"
+    },
+    {
+      "tool": "sha256/hash and byte-count verification over INPUT_INVENTORY_V1.json",
+      "result": "PASS_23_OF_23",
+      "note": "Committed product_physics bytes were read from basis HEAD because a sibling implementation modified the shared working copy after review input capture."
+    },
+    {
+      "tool": "read/search source and schemas",
+      "result": "PASS_BOUNDED_STATIC_TRACE"
+    },
+    {
+      "tool": "web primary-source retrieval",
+      "result": "PASS_PRIMARY_SOURCES_CHECKED"
+    },
+    {
+      "tool": "git diff --no-index --check over every PREVIEW/design file",
+      "result": "PASS"
+    },
+    {
+      "tool": "NORMALIZATION_RECORD_V1.json reconstruction verifier",
+      "result": "PASS_5_OF_5_ORIGINAL_HASHES_AND_BYTE_COUNTS"
+    },
+    {
+      "tool": "static count aggregation over P5 schema witness plus git-show trace at basis HEAD",
+      "result": "PASS_196_CLASSIFIED_AND_BASELINE_PRODUCERS_CONFIRMED",
+      "record": "PUBLIC_RESULT_SCHEMA_ACCEPTANCE_TRIAGE_ADDENDUM_V1.md"
+    }
+  ],
+  "concurrent_workspace_note": "A product_physics working-tree modification by another task became visible after this review captured the committed basis. It was not written or reviewed by this reviewer and is excluded from this pre-effect verdict.",
+  "limitations": [
+    "No production source, schema, fixture, authority, dependency, evaluation-root, or Git state was changed by this reviewer.",
+    "No Rust, Python product test, schema suite, build, or native execution was run.",
+    "The industry-standard-solver comparison is a future validation gate.",
+    "Any implementation requires a separately fresh frozen-diff review.",
+    "The supplemental schema triage authorizes no checksum alias patch, schema adoption, public DTO change, producer change, or full-envelope PASS claim."
+  ],
+  "supplemental_schema_triage_recorded_at_utc": "2026-09-09T07:18:24Z"
+}

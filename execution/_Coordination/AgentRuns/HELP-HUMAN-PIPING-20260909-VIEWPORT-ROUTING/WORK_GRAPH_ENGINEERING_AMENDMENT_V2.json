@@ -1,0 +1,32 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": {
+    "path": "WORK_GRAPH_V1.json",
+    "sha256": "61471cfa25a3773e279c860afd1be7a7535ed036c26b33eaae9fd4efa22aef47"
+  },
+  "authority": {
+    "path": "OWNER_ENGINEERING_DIRECTION_V2.md",
+    "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+  },
+  "p0_brief_amendment": {
+    "path": "instances/P0/ENGINEERING_AUTHORITY_AMENDMENT_V2.md",
+    "sha256": "7db35358982d520d88b48c79fd39265acb55b90a474c2459fabf141e2fa9c06c"
+  },
+  "changes": [
+    "P0 may make evidence-grounded engineering model and method recommendations without automatic escalation solely for an engineering hold.",
+    "Each recommendation carries assumptions, limits, a proposed bounded implementation and source fence, independent refutation, and future industry-standard-solver validation.",
+    "Root routes accepted recommendations to WORKING_ITEMS through later bounded source releases."
+  ],
+  "unchanged_gates": [
+    "P0 product source remains read-only and substantive writes remain quarantined to execution/_Evaluation/PHYSICS_REMAINING_20260909/**.",
+    "No source scope is selected by this amendment.",
+    "Future industry-standard-solver validation is not complete.",
+    "Formal decision rows, dependency states, decomposition, DAG, lifecycle, public contracts, acceptance state, U7 source holds, review gates, CHANGE ownership, and receipt state remain unchanged."
+  ],
+  "model_contract": {
+    "agent_1_and_2": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false
+  }
+}

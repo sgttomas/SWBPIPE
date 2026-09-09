@@ -1,0 +1,15 @@
+{
+  "schema_version": "chirality.change.environment-host-paths.v1",
+  "recorded_at_utc": "2026-09-09T05:51:07Z",
+  "structural_role": "run_record_host_paths",
+  "paths": {
+    "qualified_python": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "npm_cache": "/Users/ryan/.npm",
+    "playwright_chromium": "/Users/ryan/Library/Caches/ms-playwright/chromium-1223/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"
+  },
+  "existence": {
+    "qualified_python": true,
+    "npm_cache": true,
+    "playwright_chromium": true
+  }
+}

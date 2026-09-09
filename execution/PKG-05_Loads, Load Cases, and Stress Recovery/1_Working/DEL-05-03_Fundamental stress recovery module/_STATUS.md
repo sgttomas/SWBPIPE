@@ -1,11 +1,13 @@
 # Status: DEL-05-03 Fundamental stress recovery module
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-05
+**Last Updated:** 2026-09-09
 
 ## Remaining
 
 - The 2026-09-08 four-case pressure-reference investigation is complete as candidate evidence; read its frozen report with `SIGN_CONVENTION_CLARIFICATION_V2.md`. RP technical PASS validates that packet only. Production pressure-physics and public-schema adoption remain open to Owner rulings on Poisson/material authority, closure topology/defaults, typed force/result compatibility, curved and expansion-joint treatment, thresholds, and verification fixtures. No lifecycle, dependency, or acceptance change is implied.
+- The 2026-09-09 endpoint section-cut, curved-frame metadata, and genuine-pressure eligibility repair passed focused and full `product_physics` validation plus the root-managed combined source-and-fixture review. The bounded repair has zero schema errors on affected endpoint and curved-station rows. The complete public envelope still has 196 unchanged baseline contract errors, so versioned public-result-contract work remains open.
+- Fresh native validation and integration remain pending. Broader pressure behavior, connector treatment, public result-contract work, DEC-025, and CHANGE-owned Git closeout remain open. No lifecycle or DAG promotion is recorded.
 
 ## History
 - 2026-04-30 - State set to OPEN (PREPARATION)
@@ -22,3 +24,4 @@
 - 2026-07-16 - DEC-081 claims-language alignment applied to ScopeOfWork.md (D-48 Wave 2).
 
 - 2026-09-05 - Bounded physics-audit product repairs R08 and R11 implemented with fresh full-diff review and independent original-input replay; see `MEMORY.md` and package `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Final stale-fixture regeneration and clean global/native checks remain root integration gates, not a lifecycle promotion. State remains IN_PROGRESS.
+- 2026-09-09 - Endpoint section-cut, curved-frame metadata, and pressure-eligibility repair implemented; focused 8/8 and full `product_physics` 145/145 passed, preservation checks passed, and the combined 100% source-and-fixture review returned PASS with no actionable findings. Root accepted the bounded schema criterion while retaining the 196-error baseline public-contract blocker. Fresh native validation and integration remain pending; state remains IN_PROGRESS.

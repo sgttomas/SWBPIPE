@@ -1,0 +1,28 @@
+{
+  "schema_version": "1.0",
+  "status": "ACTIVE",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_cut_unchanged": true,
+  "effective_review": {
+    "base": {
+      "path": "REVIEW.md",
+      "sha256": "a4b67dffa819b133034455f1b939e2f7a8140bfe7582dac351fa334dab178712"
+    },
+    "additive_correction": {
+      "path": "REVIEW_CLAIM_CORRECTION_V1.md",
+      "sha256": "2a50ffdad1ba36b740e6850be614ed514c78a03855037609a80369427af374af"
+    }
+  },
+  "preserved_manifest": {
+    "path": "MANIFEST.json",
+    "sha256": "5534b1700007a92773ced5fbb1d6ec96377fe2ccdbe6971643cb5991b8bcc23e"
+  },
+  "claim_calibration": {
+    "friction_zero_or_negative_normal": "selects Inactive and exits Sliding",
+    "browser_evidence": "supplied and assessed",
+    "native_candidate_build_identity": "available as external evidence",
+    "fresh_native_witness": "pending, not supplied as passing evidence, and not assessed by this code review"
+  },
+  "actionable_findings": 0,
+  "verdict": "PASS"
+}

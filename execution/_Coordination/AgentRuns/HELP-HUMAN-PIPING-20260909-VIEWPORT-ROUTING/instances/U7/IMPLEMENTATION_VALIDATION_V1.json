@@ -1,0 +1,62 @@
+{
+  "schema_version": "chirality.working_items.implementation-validation.v1",
+  "recorded_at_utc": "2026-09-09T07:30:00Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "source_manifest": "{RUN_ROOT}/instances/U7/IMPLEMENTATION_SOURCE_MANIFEST_V1.json",
+  "checks": [
+    {
+      "id": "HELPER_FOCUSED",
+      "result": "PASS",
+      "evidence": "20/20"
+    },
+    {
+      "id": "APP_FOCUSED",
+      "result": "PASS",
+      "evidence": "3/3 selected; additional affected selections passed"
+    },
+    {
+      "id": "APP_FULL_AFFECTED",
+      "result": "PASS",
+      "evidence": "163/163; 160.32s"
+    },
+    {
+      "id": "TYPESCRIPT",
+      "result": "PASS",
+      "evidence": "tsc -b"
+    },
+    {
+      "id": "DESKTOP_BUILD",
+      "result": "PASS",
+      "evidence": "npm run build; 1699 modules; Vite 1.21s"
+    },
+    {
+      "id": "PLAYWRIGHT_FIRST",
+      "result": "PRESERVED_FAIL",
+      "evidence": "2/2 late matcher-only failures against literal disabled fieldset"
+    },
+    {
+      "id": "PLAYWRIGHT_FINAL",
+      "result": "PASS",
+      "evidence": "2/2; chromium-desktop 10.0s and chromium-compact 10.4s"
+    },
+    {
+      "id": "DIFF_CHECK",
+      "result": "PASS",
+      "evidence": "six-path git diff --check"
+    },
+    {
+      "id": "SOURCE_REHASH",
+      "result": "PASS",
+      "evidence": "manager rehashed all six live members exactly"
+    },
+    {
+      "id": "MANAGER_SOURCE_REVIEW",
+      "result": "PASS",
+      "evidence": "read-only inspection of full six-path diff and critical gesture, projection, conversion, ghost, continuation, disabled-reason, and no-WebGL seams"
+    }
+  ],
+  "evidence_reuse_basis": "No source/test byte changed after the passing Playwright rerun and desktop build; child froze the exact six-member cut and manager rehashed it.",
+  "native_impact": "New visible/transient pointer routing behavior requires root-owned native mixed-unit capture and save/reopen witness. Existing model, operation, persistence, solve, and service contracts are unchanged.",
+  "verdict": "PASS_FOR_INDEPENDENT_COMBINED_REVIEW"
+}

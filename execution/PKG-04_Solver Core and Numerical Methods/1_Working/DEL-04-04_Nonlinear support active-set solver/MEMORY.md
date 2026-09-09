@@ -178,12 +178,14 @@ Durable context preserved after PKG-02 grounded finding resolution:
 
 ## 2026-06-21 - TP-R4-D9-FRICTIONSLIDE-001 friction sliding anti-chatter
 
-- Added a deterministic active-set iteration rule for friction supports:
-  when a support was already `Sliding`, and the released DOF still has nonzero
-  trial displacement, the iteration keeps the support in `Sliding` rather than
-  chattering back to `Sticking` solely because the released reaction is zero.
-- Direct per-state classification remains unchanged; the persistence rule is
-  scoped to iteration evaluation and documented in report assumptions.
+- This tranche introduced an interim deterministic persistence rule for a
+  previously `Sliding` support with nonzero released-DOF motion. The
+  2026-09-09 static Coulomb repair below supersedes that unconditional rule:
+  final state now depends on current contact, current normal-branch validity,
+  and final force/motion admissibility; the seed is only a numerical warm
+  start.
+- Direct per-state classification remained unchanged in this historical
+  tranche. Current behavior is recorded in the 2026-09-09 entry below.
 - Added focused crate coverage in `core/solver/nonlinear_supports` and
   assembled-loop coverage in `core/solver/nonlinear_integration`.
 - Evidence is recorded in the PKG-04 run record
@@ -218,8 +220,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
   classify on trial displacement penetration toward the bearing side (or the
   explicit gap clearance). Re-engagement of a lifted support and lift-off of a
   closed gap are now observable, and converged states no longer depend on
-  seeded `initial_states`. The friction stick/slip test and the deterministic
-  sliding-persistence anti-chatter rule are unchanged.
+  seeded `initial_states`. At this checkpoint the friction stick/slip test and
+  interim sliding-persistence rule were unchanged; the 2026-09-09 repair below
+  supersedes that persistence rule with final-state Coulomb admissibility.
 - `core/solver/nonlinear_integration` applies a bounded `+/- mu*N` Coulomb
   tangential force at supports classified sliding (opposing the prior
   iterate's motion, normal reaction from current-iterate evidence) instead of
@@ -242,11 +245,11 @@ Durable context preserved after PKG-02 grounded finding resolution:
   evidence retuned so bounded net drives stay exactly representable under the
   0.0 residual limits); product-preview canned envelope regenerated for the
   bounded-sliding rows.
-- Residuals: sliding-direction evidence comes from the prior iterate only, so
-  a sliding support whose bound exceeds the drive can oscillate to the visible
-  nonconvergence cap instead of re-sticking (anti-chatter interaction,
-  recorded, not silent); sliding-force magnitude is not itself a convergence
-  residual axis; arc interior stations remain open under DEC-070.
+- Historical residual at this checkpoint: direction evidence came from the
+  prior iterate and a sub-limit sliding seed could persist to the visible cap
+  instead of re-sticking. The 2026-09-09 repair below closes that static defect;
+  path/load-step friction history remains outside the model, and arc interior
+  stations remain open under DEC-070.
 - Boundaries preserved: user-entered values only, no defaults, no protected
   content, no lifecycle transition, release-readiness, professional,
   certification, sealing, authentication, or code-compliance claim.
@@ -271,9 +274,9 @@ Durable context preserved after PKG-02 grounded finding resolution:
   genuinely converges at `max_iterations == 1` gains no false positive; the
   existing state-switching capped-gap test now pins exactly one failure
   diagnostic.
-- Residuals unchanged otherwise: anti-chatter oscillation still reaches the
-  visible cap (now always loud), sliding-force magnitude is not a residual
-  axis, arc interior stations remain open under DEC-070.
+- At this checkpoint the known friction oscillation still reached the visible
+  cap and was made diagnostically loud. The 2026-09-09 repair below supersedes
+  that static behavior; arc interior stations remain open under DEC-070.
 ## 2026-07-12 - D-41 R5 T2 PDU-035 hold
 
 - Unit metadata binding remains technically addressed at metadata grain.
@@ -293,4 +296,33 @@ F4 completed the evidence-only current-iterate derived-normal friction phase at 
 
 ## 2026-09-08 — Current-iterate derived-normal friction repair
 
-Under the Owner-adopted bounded Step 1 exception, F4 implemented simultaneous affine current-normal coupling for active derived-normal sliding rows while preserving the existing sliding-direction and anti-chatter/history rules, DEC-046 state-count controls, public result and diagnostic semantics, canonical SI convention, and failure behavior. The signed fixtures, both seeds and solve modes, zero/sign/cap/coupled-order cases, unchanged M1-N-008 witness, and full crate passed; the RF successor backcheck closed the genuine signed-zero branch proof, and final RI returned technical `PASS` for the combined implementation. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/SUCCESSOR_MANIFEST.json` (`c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623`), `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/REVIEW.md` (`a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5`), and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/final/REVIEW.md` (`16f3faafc1c896a8863676cc84502b4ec9153611bd3672c72b00510f2cd47537`) plus `RETURN.md` (`6ace2a3a236e02c94235da2a0267bcfef3c8d0f2adf83b50d3a9a19652cd007b`) under the same implementation run. This resolves only the bounded current-normal repair; DEL-04-04 remains `IN_PROGRESS`, with formal PDU-035/dimensional review, prior-iterate direction/history policy, broader thresholds, lifecycle, engineering, release, and professional acceptance unchanged.
+Under the Owner-adopted bounded Step 1 exception, F4 implemented simultaneous affine current-normal coupling for active derived-normal sliding rows while preserving the then-existing sliding-direction/persistence behavior, DEC-046 state-count controls, public result and diagnostic semantics, canonical SI convention, and failure behavior. The signed fixtures, both seeds and solve modes, zero/sign/cap/coupled-order cases, unchanged M1-N-008 witness, and full crate passed; the RF successor backcheck closed the genuine signed-zero branch proof, and final RI returned technical `PASS` for the combined implementation. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/successors/RF-F4-001/SUCCESSOR_MANIFEST.json` (`c532b4ac8815545bca286694be35239fcd117e37fb00cb371b6a535d926ae623`), `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/successors/RF-F4-001-BACKCHECK/REVIEW.md` (`a1b9bab00a3484be384a9afe381c6d4d91f0462934a20ea75e1fe754dbd3a7e5`), and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RI/final/REVIEW.md` (`16f3faafc1c896a8863676cc84502b4ec9153611bd3672c72b00510f2cd47537`) plus `RETURN.md` (`6ace2a3a236e02c94235da2a0267bcfef3c8d0f2adf83b50d3a9a19652cd007b`) under the same implementation run. The 2026-09-09 repair below retains current-normal coupling and replaces the interim persistence behavior. DEL-04-04 remains `IN_PROGRESS`, with formal PDU-035/dimensional review, broader thresholds, lifecycle, engineering, release, and professional acceptance unchanged.
+
+## 2026-09-09 — Static final Coulomb admissibility repair
+
+F4 replaced unconditional sliding persistence with a deterministic static,
+path-independent final-state check. The assembled loop now evaluates explicit
+contact first, preserves the single deferred initial-sliding force trial,
+validates the current derived-normal branch, and then evaluates zero-limit or
+positive-limit force/motion admissibility. A force built from a disproven
+derived-normal branch is provisional and cannot converge until the row is
+retried on the observed branch. A branch-valid positive-limit row re-sticks
+when its applied or reported tangential force does not oppose nonzero final
+motion. Exact zero or negative contact becomes `Inactive`; positive-contact
+`mu=0` retains the existing frictionless released classification.
+
+Focused validation passed: `nonlinear_supports` 22/22,
+`nonlinear_integration` 38/38, nonlinear benchmarks 19/19, product
+`friction_preview` 3/3, and product mixed nonlinear preview 1/1. The fresh
+independent ten-path source review returned `PASS` with zero actionable
+findings; its additive claim correction accurately records that the native
+witness was still pending during that review. The later bounded native witness
+returned `PASS` for its candidate source cut. Evidence is under
+`execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/`
+and `instances/FINAL_REVIEW/review/` in that run.
+
+The repair adds no tolerance, public schema, history variable, or load-step
+friction model. External industry-solver validation was not run. Contact/model
+limits, numerical and threshold promotion, output/export closure, and
+formal/lifecycle acceptance remain open; state remains
+`IN_PROGRESS`.

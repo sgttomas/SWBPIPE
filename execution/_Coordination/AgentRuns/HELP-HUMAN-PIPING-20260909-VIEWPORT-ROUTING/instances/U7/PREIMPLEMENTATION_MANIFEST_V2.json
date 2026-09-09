@@ -1,0 +1,28 @@
+{
+  "schema_version": "chirality.working_items.preimplementation-manifest.v2",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "members": [
+    {
+      "path": "{RUN_ROOT}/instances/U7/MANIFEST_V1.json",
+      "bytes": 1869,
+      "sha256": "3c913d87c98cd2eb0ad30639d6d1cc410dbe704f1304b40d36472f45f22e5aeb"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/DESIGN_AMENDMENT_V2.md",
+      "bytes": 2322,
+      "sha256": "66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md",
+      "bytes": 6119,
+      "sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/WORK_GRAPH_V2.json",
+      "bytes": 2618,
+      "sha256": "42ed8c3c0e5cf0fdd668c7d90185c244b785fccae4e2835bea749d35270a98cb"
+    }
+  ],
+  "state": "SEALED_SOURCE_HELD",
+  "dispatch_condition": "terminal design review plus explicit root source release"
+}

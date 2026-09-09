@@ -1,0 +1,219 @@
+{
+  "schema_version": "chirality.change.wasm-engine-build.v1",
+  "recorded_at_utc": "2026-09-09T06:34:57Z",
+  "status": "PASS",
+  "identity": {
+    "task": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegated": false
+  },
+  "basis": {
+    "branch": "codex/piping-viewport-routing-20260909",
+    "head": "533332349a4607eee561d4ef90fb05a62d86519e"
+  },
+  "command": {
+    "cwd": "{WORKING_ROOT}",
+    "argv": [
+      "npm",
+      "run",
+      "build:wasm:desktop"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 16.03,
+    "network": "Cargo forced offline by build script"
+  },
+  "inputs": {
+    "roots": [
+      "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+      "projects/chirality-piping/core/model_operations/operation_applier",
+      "projects/chirality-piping/core/units",
+      "projects/chirality-piping/core/loads/self_weight_wasm"
+    ],
+    "tracked_member_count": 22,
+    "aggregate_serialization": "sha256__two_spaces__path__newline; lexicographic path order",
+    "aggregate_sha256": "9bd0355c9ebc61b6b58a37b19e90a95015438e9138eaea2a8bb60a93adee26a9",
+    "entries": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/scripts/build-wasm-engine.mjs",
+        "bytes": 8425,
+        "sha256": "331a792124925e9dc436e3c4dd563bdd22cc4d370cc87a53afe0a33f82a04ee5"
+      },
+      {
+        "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+        "bytes": 9530,
+        "sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597"
+      },
+      {
+        "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.toml",
+        "bytes": 536,
+        "sha256": "7e758b467ffed0a16629f5666f6dd06810c9b96e8e838a2ae4a080c0d4fa4850"
+      },
+      {
+        "path": "projects/chirality-piping/core/loads/self_weight_wasm/src/lib.rs",
+        "bytes": 10458,
+        "sha256": "61512d3c9d6a0343977a81fd3d8f93118d135ae1a25d204683a4fe9d4b93f8c8"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+        "bytes": 7052,
+        "sha256": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.toml",
+        "bytes": 1168,
+        "sha256": "0a60331dac87de644cdc3ff4c4b2a0a125a313b73fb74efcf3e6e29c55deeff6"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/atomic_batch.rs",
+        "bytes": 32168,
+        "sha256": "f73a763cd9d273e8f802304f1150c316ff5470739692fb41c95dc19ff2450aa6"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/boundary_association.rs",
+        "bytes": 39848,
+        "sha256": "3c31de07d6933f3200e4a95dc356a4bf7572412e642d7f88b66481657b927d8d"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/display_units.rs",
+        "bytes": 4470,
+        "sha256": "0c9a8902174b115da5a375f46debd84ee79b740816410096d9eb5a28e0e8d5c1"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs",
+        "bytes": 37979,
+        "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+        "bytes": 530814,
+        "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+        "bytes": 36817,
+        "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/src/section_bindings.rs",
+        "bytes": 8204,
+        "sha256": "424cba3f1e6292d75233bd403b60c922e2e56365c7c7b15b463c6efe58d9fd72"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/canonical_hash_parity.rs",
+        "bytes": 3286,
+        "sha256": "9b276fe31bed6dffb0da4e6e2e7fc63298862913defdce9a1395fe12851bf9ea"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/contract_corpus.rs",
+        "bytes": 18186,
+        "sha256": "87a55f4100875509e989d6eccb9844f9c0ed2b06c6fc974d175d39ba7989521b"
+      },
+      {
+        "path": "projects/chirality-piping/core/model_operations/operation_applier/tests/support_authoring_conflicts.rs",
+        "bytes": 10653,
+        "sha256": "ef036a20ef61ae87b8a6366d616392da4bf31d5b9b864b88b7a516c1f6611239"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/Cargo.lock",
+        "bytes": 2654,
+        "sha256": "5b8d09c07fd129c0bd2fe10a1ec268b13ba0306ff8ae5a9e025cda7d4886556b"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/Cargo.toml",
+        "bytes": 261,
+        "sha256": "7216e6bddcdd99ed45d7ed9a8fc9471016a719bbc80d201d980eda69592220a7"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/README.md",
+        "bytes": 9980,
+        "sha256": "4dd56649d12b76b6b57d5a1bba4d5f444c3e51570f7ec5a841397152dfa3e05f"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/_run_records/TASK_RUN_2026-06-12_0136.md",
+        "bytes": 2820,
+        "sha256": "76518c786024edaa69dfdb49b26bb54927d19251184e23d3abf81d443ebbeffa"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/schema_vocabulary.py",
+        "bytes": 927,
+        "sha256": "4e95f6e327beb96869656dad3b0191c1feec3d2523534f77c7570823f1fe5cd3"
+      },
+      {
+        "path": "projects/chirality-piping/core/units/src/lib.rs",
+        "bytes": 57390,
+        "sha256": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592"
+      }
+    ],
+    "postbuild_diff_to_head": "EMPTY"
+  },
+  "outputs": {
+    "classification": "ignored generated runtime artifacts",
+    "member_count": 8,
+    "aggregate_serialization": "sha256__two_spaces__path__newline; lexicographic path order",
+    "aggregate_sha256": "93856e88d6992b857387a65b02ab916af62bf3ba28611d4f8ef3167712eefef4",
+    "entries": [
+      {
+        "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+        "bytes": 3744,
+        "sha256": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8"
+      },
+      {
+        "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+        "bytes": 13172,
+        "sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7"
+      },
+      {
+        "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+        "bytes": 973632,
+        "sha256": "0735d6b5434cd00ed11489cbb5a41281e8cb34b3af8750d4a0836718feee5abf"
+      },
+      {
+        "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+        "bytes": 1261,
+        "sha256": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f"
+      },
+      {
+        "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+        "bytes": 1688,
+        "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+      },
+      {
+        "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+        "bytes": 6961,
+        "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+      },
+      {
+        "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+        "bytes": 683806,
+        "sha256": "35bce81c71163ebe8ef619a4f460427c1350aadba45e676b8696d325d572e0e5"
+      },
+      {
+        "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "bytes": 520,
+        "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+      }
+    ],
+    "atomic_swap_leftovers": []
+  },
+  "toolchain": {
+    "wasm_bindgen": "0.2.123",
+    "target": "wasm32-unknown-unknown",
+    "cargo_mode": "--offline --release --features wasm"
+  },
+  "log": {
+    "path": "projects/chirality-piping/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/WASM_ENGINE_BUILD_LOG_V1.base64.json",
+    "sha256": "519d9c03b8851f4e611d9f916c731ccff5293d10770261219e639caedd340375",
+    "decoded_sha256": "f7b78d60c7f21dc08c9bfc7ed030ac4dc14b9fc2ff9c8f817c17c6191fe362dd"
+  },
+  "scope_result": {
+    "tracked_source_changes": false,
+    "native_build": false,
+    "desktop_build": false,
+    "tests": false,
+    "full_sweep": false,
+    "git_mutation": false
+  },
+  "handoff": "Prepared operation and self-weight WASM engines are ready for U7 focused tests. The heavy-build slot was released to the supervisor immediately after PASS."
+}

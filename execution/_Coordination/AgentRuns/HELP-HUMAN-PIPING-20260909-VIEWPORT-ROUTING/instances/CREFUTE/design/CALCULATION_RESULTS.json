@@ -1,0 +1,68 @@
+{
+  "basis": "fixed SI numerical basis; radians treated dimensionless",
+  "checks": {
+    "Ke_eigenvalues": [
+      -2.1683261137670725e-15,
+      -9.132823844171954e-16,
+      0.0,
+      4.5533197064190725e-17,
+      4.3191576680623475e-16,
+      5.041166713679617e-16,
+      2.685438092474545,
+      4.0288776765861485,
+      5.6708329132472235,
+      18.099737409633594,
+      43.01868527256475,
+      57.85833902118977
+    ],
+    "Ke_symmetry_max_error": 3.552713678800501e-15,
+    "endpoint_reversal_B_max_error": 0.0,
+    "endpoint_reversal_energy_error": 0.0,
+    "endpoint_reversal_force_max_error": 1.1102230246251565e-16,
+    "finite_difference_B_max_error": 5.6643134627165637e-11,
+    "finite_difference_energy_gradient_max_error": 4.591149682653395e-11,
+    "force_balance_norm": 0.0,
+    "moment_balance_norms_three_origins": [
+      1.4946834900704541e-16,
+      3.3306690738754696e-16,
+      1.7763568394002505e-15
+    ],
+    "nonzero_q0_rigid_energy": 0.005360527499999954,
+    "nonzero_q0_rigid_force_norm": 0.4686878582880848,
+    "nonzero_q0_rigid_superposition_energy_error": 2.949029909160572e-16,
+    "nonzero_q0_rigid_superposition_force_max_error": 1.0325074129013956e-14,
+    "nonzero_q0_rigid_superposition_q_max_error": 6.869504964868156e-16,
+    "raw_relative_translation_rigid_rotation_qt_norms": [
+      2.4999999999999996,
+      3.3541019662496834,
+      3.6055512754639887
+    ],
+    "single_generalized_component_max_errors": [
+      2.220446049250313e-16,
+      5.551115123125783e-17,
+      2.220446049250313e-16,
+      5.551115123125783e-17,
+      1.8735013540549517e-16,
+      1.1102230246251565e-16
+    ],
+    "six_rigid_modes_stress_free_max_energy": 2.5998513505272172e-30,
+    "six_rigid_modes_stress_free_max_force": 9.624936720007133e-15,
+    "six_rigid_modes_stress_free_max_q": 8.881784197001252e-16,
+    "translated_rotated_installation_covariance_max_error": 4.996003610813204e-16
+  },
+  "geometry": {
+    "ai": [0.2, -0.1, 0.3],
+    "aj": [-0.15, 0.25, -0.05],
+    "r0": [2.6499999999999995, 2.35, 1.15],
+    "xi": [2.0, -1.0, 0.5],
+    "xj": [5.0, 1.0, 2.0]
+  },
+  "pass_thresholds": {
+    "PSD_min_eigenvalue": -1e-09,
+    "algebraic_max_abs": 1e-08,
+    "finite_difference_energy_gradient_max_abs": 1e-07,
+    "nonzero_q0_preload_min_force_norm": 1e-06,
+    "raw_mutation_each_rotation_min_norm": 1e-06
+  },
+  "status": "PASS"
+}

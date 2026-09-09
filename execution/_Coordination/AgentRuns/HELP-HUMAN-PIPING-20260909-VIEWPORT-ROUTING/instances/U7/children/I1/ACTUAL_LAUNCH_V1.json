@@ -1,0 +1,23 @@
+{
+  "schema_version": "chirality.agent2.launch.v1",
+  "recorded_at_utc": "2026-09-09T06:10:00Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "parent_instance": "/root/native_authoring",
+  "child_task": "/root/native_authoring/viewport_routing_i1",
+  "role": "bounded ephemeral Agent 2 generalist",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation_allowed": false,
+  "brief": {
+    "path": "{RUN_ROOT}/instances/U7/children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md",
+    "sha256": "986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"
+  },
+  "design_review": {
+    "path": "{RUN_ROOT}/instances/UREVIEW/design/DESIGN_REVIEW_V1.md",
+    "sha256": "1d17f43618667557b2aa673b2e1f24d5eafb2d4e1fe81a70d2e7bd14a267fd99",
+    "verdict": "PASS"
+  },
+  "root_source_release": "2026-09-09 parent relay after terminal fresh design PASS",
+  "source_fence": "six exact paths in sealed brief",
+  "state": "RUNNING"
+}

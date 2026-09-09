@@ -1,0 +1,37 @@
+{
+  "schema_version": "chirality.working_items.activation.v1",
+  "recorded_at_utc": "2026-09-09T06:02:15Z",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "role": "WORKING_ITEMS",
+  "agent_type": 1,
+  "parent": "/root",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "package_id": "PKG-07",
+  "selected_deliverables": [
+    "DEL-07-01"
+  ],
+  "objective": "Assess and freeze a bounded design and fence for useful 3D straight-route gestures, construction planes, axis constraints, ghost feedback, and accepted continuation.",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "authority": {
+    "work_graph": {
+      "path": "{RUN_ROOT}/WORK_GRAPH_V1.json",
+      "sha256": "61471cfa25a3773e279c860afd1be7a7535ed036c26b33eaae9fd4efa22aef47"
+    },
+    "launch_brief": {
+      "path": "{RUN_ROOT}/instances/U7/ASSESSMENT_LAUNCH_BRIEF_V1.md",
+      "sha256": "2239d2d4b78a1139966d2f44451a5399dc981bb54fb1e052cbba06a9cae82140"
+    },
+    "owner_direction": {
+      "path": "{RUN_ROOT}/OWNER_DIRECTION.md",
+      "sha256": "7efda9d1acd57374bc36cfc42d7aef6a08e7b3f06f6ad59b4868eb1181ece0f8"
+    },
+    "root_plane_refinement": "2026-09-09 root relay: orthogonal XY/XZ/YZ planes through From node and applicable X/Y/Z constraints"
+  },
+  "write_scope": [
+    "{RUN_ROOT}/instances/U7/**"
+  ],
+  "source_state": "HELD",
+  "delegation": "none during assessment"
+}

@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "review_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING_FREFUTE_DERIVED_NORMAL_PRIORITY_V1",
+  "role": "fresh_bounded_agent_2_independent_engineering_reviewer",
+  "delegation_performed": false,
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "working_candidate": {
+    "nonlinear_supports_sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+    "nonlinear_integration_sha256": "f4218ccf67e6d458be79fad9ac1b1b87ff836cdfc28a53b64696eae4e6dfc9d4"
+  },
+  "methods": [
+    {
+      "id": "V2-F4-CONFLICT-INPUT",
+      "method": "reviewed frozen F4 PR760 conflict trace and matched its values to the candidate source and fixture",
+      "result": "pass_conflict_confirmed",
+      "evidence_sha256": "2e05e9ba5468f5ae880ff5dda5a173cc92d80cebf4fdbd1f60d96a2907ebd0dd"
+    },
+    {
+      "id": "V2-PR760-ANALYTIC",
+      "method": "solved the fixture equations 150*u=Fx+Ft and Rn=-50*u-Fy on the assumed and observed signed-normal branches",
+      "result": "pass_priority_amendment",
+      "iteration_2": {
+        "u": "97/1350",
+        "source_normal": "-70/27",
+        "friction": "7/9",
+        "friction_times_u": ">0",
+        "assumed_branch": "+1",
+        "branch_admissible": false
+      },
+      "iteration_3": {
+        "u": "103/1650",
+        "source_normal": "-70/33",
+        "friction": "-7/11",
+        "friction_times_u": "<0",
+        "branch_admissible": true
+      }
+    },
+    {
+      "id": "V2-CONTACT-PRECEDENCE",
+      "method": "line-addressed review of trial normal construction and row resolver",
+      "result": "pass_with_required_order",
+      "observed": "explicit signed N<=0 and derived abs(source reaction)==0 are inactive before retry; negative nonzero derived signed source reaction remains positive contact magnitude"
+    },
+    {
+      "id": "V2-CONVERGENCE-GATES",
+      "method": "line-addressed review of assembled convergence expression and mixed-row behavior",
+      "result": "pass_keep_both_gates",
+      "required": "active_set.converged && !blocked && !sliding_force_deferred && tangential_branches_admissible && derived_normal_branches_admissible"
+    }
+  ],
+  "repository_build_run": false,
+  "focused_cargo_test_run": false,
+  "source_modified": false,
+  "git_effect": false,
+  "selected_priority_verdict": "PASS",
+  "unamended_working_candidate_verdict": "CHANGES_REQUIRED",
+  "required_change": "for a contacted sliding row with an inadmissible derived signed-normal branch, retain Sliding, skip provisional tangential state selection, and block convergence on the derived gate; apply tangential selection only after the derived branch is admissible"
+}

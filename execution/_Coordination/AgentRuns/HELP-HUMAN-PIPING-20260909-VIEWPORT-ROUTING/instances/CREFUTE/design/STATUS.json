@@ -1,0 +1,19 @@
+{
+  "actual_runtime_identity": "/root/connector_design_refutation",
+  "actual_role": "CREFUTE",
+  "agent_layer": "Agent 2 ephemeral generalist",
+  "parent": "/root",
+  "delegation": "none",
+  "launch_configuration_received": {
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "high"
+  },
+  "model_introspection": "unavailable; no substitution reported",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "status": "complete",
+  "verdict": "CHANGES_REQUIRED",
+  "primitive_algebra_status": "PASS",
+  "source_mutation": false,
+  "git_mutation": false,
+  "industry_solver_validation_claimed": false
+}

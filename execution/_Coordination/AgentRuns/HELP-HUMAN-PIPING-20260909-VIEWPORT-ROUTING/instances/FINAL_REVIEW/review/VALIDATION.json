@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS",
+  "completed_at": "2026-09-09T01:52:57-06:00",
+  "source_binding": {
+    "manifest_hash_match": true,
+    "live_final_hashes_match": 10,
+    "tracked_base_hashes_match": 8,
+    "new_files_absent_at_basis": 2,
+    "decoded_diff_hash_match": true,
+    "decoded_diff_path_count": 10,
+    "f4_diff_hash_match": true,
+    "scope_validation": "PASS"
+  },
+  "review_coverage": {
+    "changed_paths_reviewed": 10,
+    "changed_paths_total": 10,
+    "u7": ["callers", "model-to-draft units", "strict conversion", "pointer capture", "gesture slop", "cancellation", "async generation", "ghost provenance", "Add/review/Apply", "own-commit continuation", "no-WebGL", "tests"],
+    "f4": ["public override validation", "current-iterate state resolution", "applied-force direction", "reported-reaction direction", "signed contact", "zero limit", "derived-normal retry", "mixed-row identity", "convergence gate", "cap diagnostics", "dense/sparse tests"],
+    "p5": ["straight section cuts", "curved arc frames", "all six resultants", "stress mapping", "pressure eligibility", "raw actions", "result consumers", "fixture provenance", "structured preservation", "analytic oracles", "qualified schema boundary"]
+  },
+  "deterministic_helpers": {
+    "validate_change_scope.py": "PASS_ZERO_VIOLATIONS",
+    "select_affected_checks.py": ["desktop-build", "desktop-test", "evidence-sweep", "harness-self-check", "piping-pytest"],
+    "compare_structured.py": "PASS_NO_ADDED_OR_REMOVED_LEAVES_EXPECTED_RESULT_VALUE_AND_METADATA_CHANGES_ONLY",
+    "verify_generated_manifest.py": "NOT_APPLICABLE_MANIFEST_SHAPE_NOT_SUPPORTED"
+  },
+  "supplied_execution_evidence": {
+    "u7": "PASS_20_HELPER_3_FOCUSED_APP_163_FULL_APP_BUILD_TYPESCRIPT_2_PLAYWRIGHT_PROJECTS",
+    "f4": "PASS_22_SUPPORTS_38_INTEGRATION_19_BENCHMARK_3_PRODUCT_FRICTION_1_MIXED",
+    "p5": "PASS_145_PRODUCT_TESTS_PUBLIC_DOCUMENT_PARITY_AND_AFFECTED_ROW_SCHEMA_CHECKS"
+  },
+  "p5_schema_boundary": {
+    "full_schema_suite_pass": false,
+    "preexisting_total_errors": 196,
+    "affected_endpoint_errors": 0,
+    "affected_curved_station_errors": 0,
+    "public_contract_adopted": false,
+    "dec_025_required_downstream": true
+  },
+  "prohibited_actions": {
+    "source_writes": 0,
+    "git_mutations": 0,
+    "cargo_commands": 0,
+    "build_or_test_commands": 0,
+    "browser_or_server_commands": 0,
+    "delegations": 0
+  },
+  "actionable_findings": 0,
+  "verdict": "PASS"
+}

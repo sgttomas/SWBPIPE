@@ -1,0 +1,14 @@
+{
+  "schema_version": "chirality.native-witness.cleanup.v1",
+  "exact_app_process_pattern": "/OpenPipeStress Viewport Routing Witness 20260909 R1.app/Contents/MacOS/openpipestress-desktop",
+  "final_app_process": "ABSENT",
+  "owned_store_directory": "{APP_SUPPORT_ROOT}/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1",
+  "owned_store_file": "{APP_SUPPORT_ROOT}/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1/openpipestress-projects.sqlite3",
+  "pre_cleanup_inventory": [
+    {"type": "regular_file", "path": "{APP_SUPPORT_ROOT}/org.openpipestress.technical-preview.walkthrough-viewport-routing-20260909-r1/openpipestress-projects.sqlite3", "bytes": 102400, "sha256": "c1fa7b077d7d3201548127c640126b52ace7f33a5c1189f15bed9d5118776c35"}
+  ],
+  "cleanup_method": "Quit exact app; unlink exact database file; rmdir exact now-empty dedicated directory.",
+  "final_store_directory": "ABSENT",
+  "normal_store_inspected_or_modified": false,
+  "cleanup_pass": true
+}

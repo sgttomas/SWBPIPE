@@ -1,0 +1,10 @@
+{
+  "schema_version": "chirality.change.lossless-command-log.v1",
+  "recorded_at_utc": "2026-09-09T05:51:07Z",
+  "command": "${QUALIFIED_PYTHON} inline invocation of run_evidence_sweep.preflight_prerequisites({WORKING_ROOT})",
+  "exit_code": 0,
+  "encoding": "base64",
+  "decoded_bytes": 43,
+  "decoded_sha256": "e81bd92dbbe525e5f0d27767be299a926c55b1b68e8d6fab4c4750553693439c",
+  "content_base64": "ewogICJtYW5pZmVzdF9jb3VudCI6IDM4LAogICJlcnJvcnMiOiBbXQp9Cg=="
+}

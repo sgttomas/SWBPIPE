@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "run_id": "PHYSICS_REMAINING_20260909",
+  "parent_run": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "manager_node": "P0_EVALUATE",
+  "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "accepted_basis": [
+    "decomposition 0.12",
+    "SCA-009",
+    "DAG-010",
+    "R5"
+  ],
+  "protocol": {
+    "v1": {
+      "path": "EVALUATION_PROTOCOL.md",
+      "sha256": "ee2c4dbf05f4bce6c0b69ed4604a2e6bf7dc83892a59b13d4081cded75134310"
+    },
+    "owner_steering_amendment_v2": {
+      "path": "EVALUATION_PROTOCOL_AMENDMENT_V2.md",
+      "sha256": "eac0f0207f5aba1e35c4b5a4c66c3c36ce7066aef803fefbf504de395bc66472",
+      "issued_before_child_dispatch": true
+    }
+  },
+  "model_contract": {
+    "requested_model": "gpt-5.6-sol",
+    "requested_reasoning": "high",
+    "actual_exposed_attribution": "spawn configuration",
+    "astra_exception": false
+  },
+  "fanout_authority": "Owner-authorized independent bounded fan-out relayed by HELP_HUMAN",
+  "nodes": [
+    {
+      "id": "NS",
+      "role": "ephemeral Agent 2 generalist",
+      "state": "READY",
+      "independent_scope": "nonlinear and solver concerns",
+      "briefs": [
+        {
+          "path": "briefs/NS_BRIEF_V1.md",
+          "sha256": "64c95d01784b73adf3070e6bbd156da6211983bab8d19f508b8bf8490f8d443f"
+        },
+        {
+          "path": "briefs/NS_AUTHORITY_AMENDMENT_V2.md",
+          "sha256": "9fc719256852898515ddd1b6275b8678adcae3ee568b64aa189be06efa5fbaf8"
+        }
+      ],
+      "writes": "returns/NS/**",
+      "delegation": false
+    },
+    {
+      "id": "PCB",
+      "role": "ephemeral Agent 2 generalist",
+      "state": "READY",
+      "independent_scope": "pressure, connectors, and physical-to-analytical bridge concerns",
+      "briefs": [
+        {
+          "path": "briefs/PCB_BRIEF_V1.md",
+          "sha256": "702b2bad0fd33ee72052afd56158396f06ebb73321a9828ab32abd0af3305999"
+        },
+        {
+          "path": "briefs/PCB_AUTHORITY_AMENDMENT_V2.md",
+          "sha256": "3190e2775f25c7835eed648cc318f011ed2cc97229a3a1161daa5285e2e6ec0d"
+        }
+      ],
+      "writes": "returns/PCB/**",
+      "delegation": false
+    },
+    {
+      "id": "P0_FAN_IN",
+      "role": "EVALUATION Agent 1",
+      "state": "HELD",
+      "after": [
+        "NS",
+        "PCB"
+      ],
+      "condition": "both required return schemas validated or unresolved invalidity disclosed"
+    }
+  ],
+  "exclusions": [
+    "product source and tests writes",
+    "deliverable or governed-state writes",
+    "DAG, dependency, register, decision, lifecycle, receipt, or Git writes",
+    "historical N7 reopening",
+    "full re-audit or blanket tests",
+    "claims that future industry-solver validation is complete"
+  ]
+}

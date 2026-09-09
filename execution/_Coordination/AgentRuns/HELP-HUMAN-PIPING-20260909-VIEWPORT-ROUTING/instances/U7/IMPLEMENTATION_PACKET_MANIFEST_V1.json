@@ -1,0 +1,56 @@
+{
+  "schema_version": "chirality.working_items.implementation-packet-manifest.v1",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "U7",
+  "state": "FROZEN_AWAITING_COMBINED_INDEPENDENT_REVIEW_NATIVE_AND_FULL_SWEEP",
+  "members": [
+    {
+      "path": "{RUN_ROOT}/instances/U7/IMPLEMENTATION_SOURCE_MANIFEST_V1.json",
+      "bytes": 4341,
+      "sha256": "a4837e508067af4134ec88972645bed0de6eb6b8ee806cc53000d96a34499c59"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/IMPLEMENTATION_VALIDATION_V1.json",
+      "bytes": 2102,
+      "sha256": "d55009d88c9ba96ebdf4bcdc91b21d079a8f99df02afaa3d39aced38969ca81d"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/IMPLEMENTATION_MANAGER_RETURN_V1.md",
+      "bytes": 2044,
+      "sha256": "97b4908ca92b129fa7e7bec64cfd99c03d5302ce5e7edd2e3d64d5e2b52da515"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/BASE_TO_FROZEN_U7.diff.b64",
+      "bytes": 76249,
+      "sha256": "a1f5a4befe4739199e2c07cf50d277542f509611d23a1d23668f8bf68763b19f"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/BASE_TO_FROZEN_U7_DIFF_RESOLVER_V1.json",
+      "bytes": 591,
+      "sha256": "eb64814fa8ef9683e8fa7b9aee5f415ee260cdfb083f9dec08b013385ec5c985"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/children/I1/TERMINAL_RETURN_V1.md",
+      "bytes": 4835,
+      "sha256": "101d1586fee1942055bf8031f42812fd825ac76766fda023ffd9fb4e983864a2"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/children/I1/SOURCE_SNAPSHOT_RESOLVER_V1.md",
+      "bytes": 637,
+      "sha256": "74a66cdce40da0126504ba0f1e7e2a329c619f79d51d2774449ef1c4aacdede5"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/children/I1/SOURCE_SNAPSHOT_V1.tar.gz.b64",
+      "bytes": 177497,
+      "sha256": "c4a94940582e96e7d6bed834e6bcf397d6383dd9addae669708fe8ab21cbf91a"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/U7/children/I1/CHECK_RAW_RESULTS_V1.md",
+      "bytes": 2457,
+      "sha256": "3f7324a6cc177777e506d85c6b10643331f1ee8857fd1220c27d3de5cb8ab93a"
+    }
+  ],
+  "source_manifest_sha256": "a4837e508067af4134ec88972645bed0de6eb6b8ee806cc53000d96a34499c59",
+  "validation_sha256": "d55009d88c9ba96ebdf4bcdc91b21d079a8f99df02afaa3d39aced38969ca81d",
+  "manager_return_sha256": "97b4908ca92b129fa7e7bec64cfd99c03d5302ce5e7edd2e3d64d5e2b52da515"
+}

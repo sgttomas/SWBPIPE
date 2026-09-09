@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "p0_evaluation": {
+    "status": "COMPLETE_WITH_REPRODUCED_DEFECTS_AND_SELECTED_REPAIRS",
+    "derivative_only": true,
+    "handoff": {
+      "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/HANDOFF.md",
+      "sha256": "2aae57a752d15bd1aa916c2b5a7c27144a8e1ca2a054816b6458845d2ee845db"
+    },
+    "report": {
+      "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/EVALUATION_REPORT.md",
+      "sha256": "d45352b57ec68c747c3286bcef2b4747d4bf327c1165c2375037246885c08919"
+    },
+    "fan_in_validation": {
+      "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/FAN_IN_VALIDATION.json",
+      "sha256": "3cb38c7fb7bf40c9acf3eb019cc8fbd3008c7e974a6342f4a8606aad3fb729a5"
+    },
+    "manifest": {
+      "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/MANIFEST.sha256",
+      "sha256": "56e17fceee9af234f3389fb4d2867b8df2a02d25b127b3966e2974073371cdfc"
+    }
+  },
+  "u7_pre_effect_review": {
+    "status": "FROZEN_PASS",
+    "review": {
+      "path": "instances/UREVIEW/design/DESIGN_REVIEW_V1.md",
+      "sha256": "1d17f43618667557b2aa673b2e1f24d5eafb2d4e1fe81a70d2e7bd14a267fd99"
+    },
+    "validation": {
+      "path": "instances/UREVIEW/design/VALIDATION_V1.json",
+      "sha256": "bea2a96c9da56f375a418a7b85ecdc900f8f820b9ccd232b722012b90df2bd28"
+    },
+    "status_record": {
+      "path": "instances/UREVIEW/design/STATUS.json",
+      "sha256": "2b75b290e48ed3295cff96c750833d4b69f8cd6becda13f8137cb8489f382224"
+    },
+    "manifest": {
+      "path": "instances/UREVIEW/design/MANIFEST_V1.json",
+      "sha256": "5c0aac9ce98f8b5fef78d37ab1bdba6fb9c3c7ee94546ed8fd42c099b3b08ad0"
+    },
+    "finality": "Pre-effect design review only; fresh review of 100% frozen implementation diff remains required."
+  },
+  "formal_effect": "These pointers record completed derivative assessment/review evidence. They do not change formal dependency, DAG, decomposition, lifecycle, decision, acceptance, or receipt state."
+}

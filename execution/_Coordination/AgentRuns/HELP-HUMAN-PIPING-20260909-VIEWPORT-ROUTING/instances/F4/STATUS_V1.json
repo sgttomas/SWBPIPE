@@ -1,0 +1,39 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "instance_id": "F4",
+  "parent": "/root",
+  "role": "WORKING_ITEMS Agent 1",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning_effort": "high",
+  "exposed_model": "gpt-5.6-sol",
+  "exposed_reasoning_effort": "high",
+  "delegation_performed": false,
+  "preparation_status": "COMPLETE",
+  "source_effect": "NONE_HELD",
+  "source_basis_expected": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "source_basis_observed": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "sealed_inputs_verified": true,
+  "focused_execution": {
+    "read_search_math_only": true,
+    "cargo_or_build_run_by_f4": false,
+    "external_solver_comparison_run": false,
+    "p0_ns_return_observed": true,
+    "p0_ns_current_sha_compiled_probe_result": "PASS_DEFECT_REPRODUCED_ARTIFACT_OBSERVED",
+    "frefute_final_result": "CHANGES_REQUIRED_FULLY_RECONCILED_IN_PLAN",
+    "frefute_guidance": "ALL_CONDITIONS_INCORPORATED"
+  },
+  "closure_verdict": "PREPARATION_CLOSED_IMPLEMENTATION_HELD",
+  "derivative_status": "run-local preparation evidence; not decomposition truth, source authority, lifecycle acceptance, or external validation",
+  "next_owner": "/root",
+  "requested_action": "review the reconciled plan and sealed held child brief, then issue or withhold a bounded source-release amendment for F4_IMPL",
+  "rerun_requirements": [
+    "recompute source hashes immediately before implementation dispatch",
+    "run the exact validation matrix after source effect",
+    "perform fresh read-only 100 percent frozen-diff review after every remediation"
+  ],
+  "blockers": [
+    "root source-release gate not issued"
+  ],
+  "write_scope_compliance": "PASS_INSTANCES_F4_ONLY"
+}

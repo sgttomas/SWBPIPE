@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "amends": {
+    "path": "WORK_GRAPH_ENGINEERING_AMENDMENT_V2.json",
+    "sha256": "b0a269e929c5773b4fe16373d3835ece25d880923c5b314018c61601d86db46a"
+  },
+  "provisional_input": {
+    "path": "../../../_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_FRICTION_REPAIR_RECOMMENDATION_V1.md",
+    "sha256": "e24d93d740fedd32a2caedfa5d99d9626a496a9714d91372ddaa0b0cdd4b80a8",
+    "source_basis": "533332349a4607eee561d4ef90fb05a62d86519e",
+    "executable_child_return": "PENDING"
+  },
+  "add_nodes": [
+    {
+      "id": "F4_PREP",
+      "role": "WORKING_ITEMS Agent 1 PKG-04",
+      "state": "READY_FOR_ROOT_DISPATCH",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "brief": {
+        "path": "instances/F4/PREPARATION_LAUNCH_BRIEF_V1.md",
+        "sha256": "41117c946a09f0c904367372348546c247110baa0a1dd5316980e928315d4066"
+      },
+      "writes": "instances/F4/** only during preparation",
+      "source_effect": "HELD"
+    },
+    {
+      "id": "FREFUTE",
+      "role": "fresh bounded Agent 2 independent engineering reviewer",
+      "state": "READY_FOR_ROOT_DISPATCH",
+      "model": "gpt-5.6-sol",
+      "reasoning_effort": "high",
+      "delegation": false,
+      "brief": {
+        "path": "instances/FREFUTE/FRICTION_DESIGN_REFUTATION_LAUNCH_BRIEF_V1.md",
+        "sha256": "23911596636d7b4362b8e234bf2de0dc0b99d4a6ea404ffd6cb3b2a77f18355d"
+      },
+      "writes": "instances/FREFUTE/design/** only",
+      "source_effect": "PROHIBITED"
+    },
+    {
+      "id": "ROOT_FRICTION_SOURCE_RELEASE",
+      "role": "Agent 0 gate",
+      "state": "HELD",
+      "after": [
+        "F4_PREP",
+        "FREFUTE"
+      ],
+      "condition": "root accepts a reconciled method, sufficient exact fence, oracles, and independent refutation"
+    }
+  ],
+  "parallelism": "F4_PREP and FREFUTE may run concurrently with each other and the existing U7, P0, pressure-review, and viewport-review work in disjoint write scopes.",
+  "preserved": "No source changes, source release, friction-history or tolerance invention, external-validation claim, formal dependency or engineering/public-contract adoption, DAG/decomposition/lifecycle/receipt change, build, or Git effect."
+}

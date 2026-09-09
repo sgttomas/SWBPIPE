@@ -1,0 +1,41 @@
+{
+  "schema_version": "chirality.working-items.manager-handoff.v1",
+  "run_id": "HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING",
+  "package": "PKG-05",
+  "deliverable": "DEL-05-03",
+  "manager_verdict": "QUALIFIED_PASS_FOR_COMBINED_REVIEW",
+  "lifecycle_state": "IN_PROGRESS",
+  "source_and_fixture_frozen": true,
+  "frozen_product_hashes": {
+    "core/product_physics/src/lib.rs": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58",
+    "fixtures/product_preview/invented_mechanics_result.json": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+  },
+  "manager_evidence": {
+    "fan_in_historical_pre_normalization_sha256": "9ab6d1274fe446909b160a1b0ff37311eed9b24b83072c06ebf2c1dcccb12e90",
+    "fan_in_sha256": "f8094e67fd7114eb0a2476a66d4a711d06d72a352b414140e64a864c05fd4af8",
+    "fan_in_normalization_capture_sha256": "836befe74e3a602c5f256fd1e090ff8debcce5eb3a7749b635c7ad4a7326f60b",
+    "grouped_schema_baseline_proof_sha256": "5157823fabf415fef6583381d8a2718a2fd317e3df53918dc828837bf3df678e",
+    "arc_frame_proof_sha256": "13c382398741780b3391dae3f4651c18e6f7e560ed801b8c3cbde0409571206a",
+    "agent2_return_sha256": "4dc2dbd4271a149deda787e02c244ed91bbf799cdaefdfbcd01774da8a9ba8b2",
+    "agent2_manifest_sha256": "050165a912ca64aa5caf2f84f8d8df7578ca2ec70a779d465a9fd891c0a0a020"
+  },
+  "bounded_acceptance": {
+    "focused_tests": "PASS_8_OF_8",
+    "full_product_physics": "PASS_145_OF_145",
+    "raw_endpoint_action_rows": "PASS_144_OF_144_BYTE_EQUAL",
+    "station_numeric_leaves": "PASS_378_OF_378_PRESERVED",
+    "affected_endpoint_schema_errors": 0,
+    "affected_curved_station_schema_errors": 0,
+    "whole_output_producer_parity": "PASS_ALL_THREE_CASES",
+    "arc_frame_and_equilibrium_proof": "PASS"
+  },
+  "open_blockers": [
+    "fresh root-managed combined 100 percent source-and-fixture review",
+    "root bounded-criterion addendum record",
+    "separate versioned public-result-contract repair for 196 baseline schema errors",
+    "DEC-025 and CHANGE-owned Git integration"
+  ],
+  "full_schema_state": "FAIL_196_UNCHANGED_BASELINE_CONTRACT_ERRORS_NO_P5_AFFECTED_ROWS",
+  "memory_or_deliverable_status_edited": false,
+  "next_owner": "HELP_HUMAN"
+}

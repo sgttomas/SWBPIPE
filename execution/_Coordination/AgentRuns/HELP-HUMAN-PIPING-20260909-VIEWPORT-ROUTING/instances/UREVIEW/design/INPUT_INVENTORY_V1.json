@@ -1,0 +1,48 @@
+{
+  "schema_version": "chirality.task.input-inventory.v1",
+  "recorded_at_utc": "2026-09-09T06:17:48Z",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "execution_attribution": {
+    "role": "fresh Agent 2 TASK + software-code-review",
+    "actual_model": "gpt-6",
+    "reasoning_effort": "not mechanically exposed to the reviewer",
+    "delegation": false
+  },
+  "members": [
+    {"path":"AGENTS.md","bytes":18466,"sha256":"377a93c13dc8e727c2fb38b6ace5c0dd62833fff3ec50753ebe58d57937a9fc3"},
+    {"path":"projects/chirality-piping/AGENTS.md","bytes":10615,"sha256":"33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"},
+    {"path":"agents/AGENT_TASK.md","bytes":28842,"sha256":"80ed9374095b65c8f0ee221ec674ae1a0fa41cbf9ad2727c46853dd7f9ce9983"},
+    {"path":"skills/software-code-review/SKILL.md","bytes":1301,"sha256":"aae98f44d3f5d923e0879872a5c71e7133e9d109b0142dd9ff19aaac6e1fd031"},
+    {"path":"skills/software-code-review/BRIEF_SCHEMA.md","bytes":346,"sha256":"f4622f020e60cd9e99958cf992f1acb7bd87145c212ff634d485745e03bbe8d8"},
+    {"path":"skills/software-code-review/TOOL_POLICY.md","bytes":312,"sha256":"c06c32c9b08fe0e98329c1c670660135f84c1795a07a237a84f74e80306a5b26"},
+    {"path":"skills/software-code-review/QA_CHECKS.md","bytes":408,"sha256":"b6fd4756bbf2775baedc83488bc88219362715f0aec79e9f9330ebf19a5e2dc8"},
+    {"path":"{RUN_ROOT}/WORK_GRAPH_V1.json","bytes":3374,"sha256":"61471cfa25a3773e279c860afd1be7a7535ed036c26b33eaae9fd4efa22aef47"},
+    {"path":"{RUN_ROOT}/instances/UREVIEW/DESIGN_REVIEW_LAUNCH_BRIEF_V1.md","bytes":1166,"sha256":"2a26a7eed06d65dc0b19c5b17938cb03247d21a278ee5bfa74f77bd502c45796"},
+    {"path":"{RUN_ROOT}/instances/U7/ASSESSMENT_AND_FENCE_V1.md","bytes":8955,"sha256":"0dd7f2433dea46cbc6ba92d3aa5f8c10e63ff6fb68344e1067ae4fed275b1252"},
+    {"path":"{RUN_ROOT}/instances/U7/DEPENDENCY_CONSUMPTION_V1.md","bytes":2436,"sha256":"e65a714c7dbe7136da1122f8600fa61e5e0b406249521b1af3a469d2919635f8"},
+    {"path":"{RUN_ROOT}/instances/U7/MANIFEST_V1.json","bytes":1869,"sha256":"3c913d87c98cd2eb0ad30639d6d1cc410dbe704f1304b40d36472f45f22e5aeb"},
+    {"path":"{RUN_ROOT}/instances/U7/VALIDATION_V1.json","bytes":1553,"sha256":"b6dfcd5e1f9b5fab52d938c481902f0c7d411af6cd6ec45ae6bfb4e4379bec95"},
+    {"path":"{RUN_ROOT}/instances/U7/DESIGN_AMENDMENT_V2.md","bytes":2322,"sha256":"66974cc4c4773c2940c0a1abf5b903b220da99db8f7842cc0b86d1203a375719"},
+    {"path":"{RUN_ROOT}/instances/U7/children/I1/SEALED_IMPLEMENTATION_BRIEF_V1.md","bytes":6119,"sha256":"986ac8fe0e5c317e445805ba65a29c6c1259eab28459ef968b93259046418d55"},
+    {"path":"projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx","bytes":111644,"sha256":"d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda"},
+    {"path":"projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts","bytes":23073,"sha256":"cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4"},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/displayQuantityService.ts","bytes":1053,"sha256":"65a9557c32a628e3481242ac2cb26a51438ee91b39e492f892d15fefed172cef"},
+    {"path":"projects/chirality-piping/apps/desktop/src/types.ts","bytes":26474,"sha256":"b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf"},
+    {"path":"projects/chirality-piping/apps/desktop/src/App.tsx","bytes":141093,"sha256":"a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9"},
+    {"path":"projects/chirality-piping/apps/desktop/src/App.test.tsx","bytes":697391,"sha256":"5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c"},
+    {"path":"projects/chirality-piping/apps/desktop/src/styles.css","bytes":74284,"sha256":"cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26"},
+    {"path":"projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts","bytes":11289,"sha256":"338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305"},
+    {"path":"projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs","bytes":530814,"sha256":"83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"},
+    {"path":"projects/chirality-piping/software-workflow.json","bytes":1101,"sha256":"3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"},
+    {"path":"projects/chirality-piping/apps/desktop/playwright.config.ts","bytes":3290,"sha256":"d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0"},
+    {"path":"projects/chirality-piping/package.json","bytes":737,"sha256":"7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"},
+    {"path":"projects/chirality-piping/apps/desktop/package.json","bytes":1146,"sha256":"6dd5540cb4af6170e96ce433bab3630e8606ef6a8abc90b8601403c7542ba776"},
+    {"path":"tools/software_workflow/validate_change_scope.py","bytes":1941,"sha256":"6275277dcb214f78dfad6c159333decda95f9aa3e086d12e39c7f2f73a70cb0d"},
+    {"path":"tools/software_workflow/select_affected_checks.py","bytes":2000,"sha256":"ffcf15f4b9d55239dab7796378ca66cf109b65b143d5d6c79fdc2fcad593538f"}
+  ],
+  "planned_new_paths": [
+    {"path":"projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts","state":"absent_at_review"},
+    {"path":"projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts","state":"absent_at_review"}
+  ],
+  "member_count": 30
+}

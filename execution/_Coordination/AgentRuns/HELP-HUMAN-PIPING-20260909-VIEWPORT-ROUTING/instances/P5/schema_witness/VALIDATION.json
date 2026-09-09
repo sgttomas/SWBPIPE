@@ -1,0 +1,1021 @@
+{
+  "cases": [
+    {
+      "errors": [
+        {
+          "instance_path": "result_envelope/reproducibility/model_hash/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/reproducibility/run_hashes/0/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/0/metadata/basis",
+          "message": "'component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/0/metadata/component",
+          "message": "'expansion_joint_pressure_thrust' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/0/metadata/location",
+          "message": "'pipe:P-130' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/6/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/7/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/8/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/9/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/10/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/11/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/12/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/13/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/14/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/15/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/16/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/17/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/18/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/19/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/20/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/21/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/22/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/23/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/24/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/25/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/26/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/27/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/28/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/29/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/30/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/31/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/32/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/33/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/34/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/35/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/92/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/92/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/92/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/92/metadata/location",
+          "message": "'pipe:P-100:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/144/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/144/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/144/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/144/metadata/location",
+          "message": "'pipe:P-110:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/145/metadata/basis",
+          "message": "'component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/145/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/145/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/145/metadata/location",
+          "message": "'pipe:P-110:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/202/metadata/basis",
+          "message": "'component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/202/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/202/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/202/metadata/location",
+          "message": "'pipe:P-120:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/259/metadata/basis",
+          "message": "'component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/259/metadata/component",
+          "message": "'expansion_joint_pressure_thrust' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/259/metadata/location",
+          "message": "'pipe:P-130' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/265/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/266/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/267/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/268/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/269/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/270/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/271/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/272/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/273/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/274/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/275/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/276/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/277/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/278/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/279/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/280/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/281/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/282/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/283/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/284/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/285/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/286/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/287/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/288/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/289/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/290/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/291/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/292/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/293/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/294/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/351/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/351/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/351/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/351/metadata/location",
+          "message": "'pipe:P-100:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/403/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/403/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/403/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/403/metadata/location",
+          "message": "'pipe:P-110:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/404/metadata/basis",
+          "message": "'component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/404/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/404/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/404/metadata/location",
+          "message": "'pipe:P-110:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/461/metadata/basis",
+          "message": "'component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/461/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/461/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/461/metadata/location",
+          "message": "'pipe:P-120:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/519/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/520/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/521/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/522/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/523/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/524/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/526/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/527/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/528/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/529/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/530/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/531/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/533/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/534/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/535/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/536/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/537/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/538/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/540/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/541/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/542/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/543/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/544/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/545/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/547/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/548/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/549/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/550/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/551/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/552/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/673/metadata/component",
+          "message": "'expansion_joint_pressure_thrust' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/673/metadata/location",
+          "message": "'pipe:P-130' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/679/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/679/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/679/metadata/location",
+          "message": "'pipe:P-100:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/680/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/680/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/680/metadata/location",
+          "message": "'pipe:P-110:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/681/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/681/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/681/metadata/location",
+          "message": "'pipe:P-110:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/682/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/682/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/682/metadata/location",
+          "message": "'pipe:P-120:end_i' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/773/metadata/basis",
+          "message": "'support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/773/metadata/component",
+          "message": "'variable_spring_hanger_installed_load' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/773/metadata/coordinate_system",
+          "message": "'support_local_preview' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/773/metadata/location",
+          "message": "'node:N-140:installed-load' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/774/metadata/basis",
+          "message": "'support_family=variable_spring_hanger;field=cold-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/774/metadata/component",
+          "message": "'variable_spring_hanger_cold_load' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/774/metadata/coordinate_system",
+          "message": "'support_local_preview' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/774/metadata/location",
+          "message": "'node:N-140:cold-load' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/775/metadata/basis",
+          "message": "'support_family=variable_spring_hanger;field=hot-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/775/metadata/component",
+          "message": "'variable_spring_hanger_hot_load' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/775/metadata/coordinate_system",
+          "message": "'support_local_preview' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/775/metadata/location",
+          "message": "'node:N-140:hot-load' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/776/metadata/basis",
+          "message": "'support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/776/metadata/component",
+          "message": "'constant_effort_support_constant_load' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/776/metadata/coordinate_system",
+          "message": "'support_local_preview' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/776/metadata/location",
+          "message": "'node:N-120:constant-load' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        }
+      ],
+      "name": "straight_full_document.json",
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/straight_full_document.json",
+      "schema_error_count": 160,
+      "sha256": "004ea7feba57919c335931a0471f0888e74edf8410ee7a8fbeea9c118482a705",
+      "status": "FAIL"
+    },
+    {
+      "errors": [
+        {
+          "instance_path": "result_envelope/reproducibility/model_hash/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/reproducibility/run_hashes/0/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/2/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/3/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/4/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/5/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/6/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/7/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/8/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/9/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/10/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/11/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/12/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/13/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/66/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/66/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/66/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/66/metadata/location",
+          "message": "'pipe:P-100:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        }
+      ],
+      "name": "curved_tip_weight_full_document.json",
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/curved_tip_weight_full_document.json",
+      "schema_error_count": 18,
+      "sha256": "bfeaa07893d74d7b500aa691efb02c92431f338f6b57ad1cf30429bbe6e21e58",
+      "status": "FAIL"
+    },
+    {
+      "errors": [
+        {
+          "instance_path": "result_envelope/reproducibility/model_hash/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/model_hash/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/reproducibility/run_hashes/0/canonicalization",
+          "message": "'rfc8785_jcs' is not one of ['JCS', 'NONE', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/reproducibility/properties/run_hashes/items/properties/canonicalization/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/2/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/3/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/4/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/5/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/6/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/7/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/8/metadata/component",
+          "message": "'nodal_displacement_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/9/metadata/component",
+          "message": "'nodal_displacement_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/10/metadata/component",
+          "message": "'nodal_displacement_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/11/metadata/component",
+          "message": "'nodal_rotation_x' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/12/metadata/component",
+          "message": "'nodal_rotation_y' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/13/metadata/component",
+          "message": "'nodal_rotation_z' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/71/metadata/basis",
+          "message": "'component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness' is not one of ['recovered_from_local_element_stiffness', 'assembled_solver_load_vector', 'solved_from_global_linear_system', 'recovered_from_open_mechanics_stress_components', 'interpolated_from_endpoint_resultants', 'derived_from_user_entered_section_geometry', 'explicit_user_linear_combination', 'explicit_user_result_state_subtraction', 'explicit_user_range_envelope', 'stress_recovery_summary', 'rule_pack_evaluation', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/basis/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/71/metadata/component",
+          "message": "'user_entered_component_stress_multiplier' is not one of ['axial_force', 'shear_force_y', 'shear_force_z', 'torsional_moment', 'bending_moment_y', 'bending_moment_z', 'nodal_force_x', 'nodal_force_y', 'nodal_force_z', 'nodal_moment_x', 'nodal_moment_y', 'nodal_moment_z', 'axial_normal_stress', 'bending_normal_stress_y', 'bending_normal_stress_z', 'torsional_shear_stress', 'pressure_hoop_stress', 'pressure_longitudinal_stress', 'section_area', 'section_modulus_y', 'section_modulus_z', 'torsion_constant', 'torsion_radius', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/component/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/71/metadata/coordinate_system",
+          "message": "'component_review' is not one of ['global', 'element_local', 'pipe_section', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/coordinate_system/enum"
+        },
+        {
+          "instance_path": "result_envelope/result_sets/0/values/71/metadata/location",
+          "message": "'pipe:P-100:end_j' is not one of ['end_i', 'end_j', 'node', 'quarter_1', 'midspan', 'quarter_3', 'summary', 'TBD']",
+          "schema_path": "properties/result_envelope/properties/result_sets/items/properties/values/items/properties/metadata/properties/location/enum"
+        }
+      ],
+      "name": "curved_pressure_full_document.json",
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness/outputs/curved_pressure_full_document.json",
+      "schema_error_count": 18,
+      "sha256": "60418440ce86957d6aae7b8f4a5b56843b2d5c34ace6125ee2f0c32e5108bd20",
+      "status": "FAIL"
+    }
+  ],
+  "fixture_sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c",
+  "jsonschema_version": "4.26.0",
+  "qualified_python": "{QUALIFIED_PYTHON}",
+  "schema": "chirality.p5.full-envelope-schema-witness.v1",
+  "schema_path": "schemas/results.schema.yaml",
+  "schema_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+  "source_sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58",
+  "status": "FAIL",
+  "total_schema_errors": 196,
+  "validator": "jsonschema.Draft202012Validator"
+}

@@ -1,0 +1,16 @@
+{
+  "schema_version": "chirality.task.manifest.v1",
+  "recorded_at_utc": "2026-09-09T06:17:48Z",
+  "basis_head": "533332349a4607eee561d4ef90fb05a62d86519e",
+  "verdict": "PASS",
+  "members": [
+    {"path":"DESIGN_REVIEW_V1.md","bytes":9467,"sha256":"1d17f43618667557b2aa673b2e1f24d5eafb2d4e1fe81a70d2e7bd14a267fd99"},
+    {"path":"INPUT_INVENTORY_V1.json","bytes":5376,"sha256":"ac4c21e037340a9f804fd0d545f8bb364d558a6ef3c87dc6c77f46c602ba5c46"},
+    {"path":"VALIDATION_V1.json","bytes":2467,"sha256":"bea2a96c9da56f375a418a7b85ecdc900f8f820b9ccd232b722012b90df2bd28"},
+    {"path":"STATUS.json","bytes":1404,"sha256":"2b75b290e48ed3295cff96c750833d4b69f8cd6becda13f8137cb8489f382224"},
+    {"path":"_run_records/TASK_RUN_UREVIEW_DESIGN_2026-09-09_0611.md","bytes":3350,"sha256":"ecb37bf408f2b8464ee87ee83341d1b2a80d024ed4c72dd0c73e5567a5e220e9"}
+  ],
+  "member_count": 5,
+  "source_effect": "none",
+  "status": "FROZEN_TERMINAL_PASS"
+}

@@ -3,6 +3,7 @@ import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-
 import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import {
   describeUnitBasis,
   loadUnitCatalog,
@@ -40,6 +41,26 @@ import {
   type RouteDraft,
   type RouteEndMode
 } from "./routeDraft";
+import {
+  applicableRoutingAxes,
+  cancelPointerGesture,
+  constrainRoutingPoint,
+  convertedRoutingPoint,
+  normalizeRoutingAxis,
+  pointerGestureMayAuthor,
+  resolveExistingRouteGhost,
+  resolveNewRouteGhost,
+  routingConversionRequests,
+  RoutingPlacementGate,
+  routingPlaneDefinition,
+  startPointerGesture,
+  updatePointerGesture,
+  type PointerGesture,
+  type RouteGhost,
+  type RoutingAxisConstraint,
+  type RoutingPlane,
+  type RoutingPlaneDefinition
+} from "./viewportRouting";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
@@ -104,9 +125,26 @@ type AppliedRouteContinuation = {
   continuePipe: boolean;
   pipeDraft: PipeDraft;
   newEndCoordinateUnit: string;
+  routingAxis: RoutingAxisConstraint;
+  routingPlane: RoutingPlane;
 };
 
-type DraftProjector = (event: { clientX: number; clientY: number }) => Vec3 | null;
+type DraftProjector = (
+  event: { clientX: number; clientY: number },
+  plane: RoutingPlaneDefinition
+) => Vec3 | null;
+
+type PointerGhost = {
+  point: Vec3;
+  provenance: "captured" | "hover";
+};
+
+type RoutingVisualState = {
+  anchor: Vec3 | null;
+  ghost: RouteGhost | null;
+  plane: RoutingPlane;
+  showGrid: boolean;
+};
 
 type UnitOption = Pick<UnitCatalogEntry, "symbol" | "unit_id">;
 
@@ -195,6 +233,10 @@ export function PipeViewport({
   } | null>(null);
   const lastPresetRef = useRef<ViewPreset | null>(null);
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
+  const pointerGestureRef = useRef<{ gesture: PointerGesture; target: Element } | null>(null);
+  const placementGenerationRef = useRef(new RoutingPlacementGate());
+  const routingVisualUpdaterRef = useRef<((state: RoutingVisualState) => void) | null>(null);
+  const routingVisualStateRef = useRef<RoutingVisualState>({ anchor: null, ghost: null, plane: "XZ", showGrid: false });
   const selectionLayerRef = useRef<HTMLDivElement | null>(null);
   const gizmoHostRef = useRef<HTMLDivElement | null>(null);
   const defaultLengthUnit = model.project.units.length ?? "TBD";
@@ -214,6 +256,11 @@ export function PipeViewport({
     defaultComponentDraft(model, selection, queuedIntents)
   );
   const [pipeEndpointPickMode, setPipeEndpointPickMode] = useState<PipeEndpointPickMode>(null);
+  const [routingPlane, setRoutingPlane] = useState<RoutingPlane>("XZ");
+  const [routingAxis, setRoutingAxis] = useState<RoutingAxisConstraint>("Free");
+  const [pointerGhost, setPointerGhost] = useState<PointerGhost | null>(null);
+  const [placementMessage, setPlacementMessage] = useState<string | null>(null);
+  const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const [showLabels, setShowLabels] = useState(true);
   const [showLoads, setShowLoads] = useState(true);
@@ -222,6 +269,44 @@ export function PipeViewport({
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const pendingViewportIntents = [...reservedIntents, ...queuedIntents, ...localIntents];
+  const routeNodeMap = useMemo(
+    () => new Map(model.nodes.map((node) => [node.id, node.position] as const)),
+    [model]
+  );
+  const resolvedFrom = routeNodeMap.get(pipeDraft.from) ?? null;
+  const routeGhost = armedCreationTool !== "pipe"
+    ? null
+    : routeEndMode === "existing"
+      ? resolveExistingRouteGhost(routeNodeMap, pipeDraft.from, pipeDraft.to)
+      : resolveNewRouteGhost(resolvedFrom, pointerGhost?.point ?? null, pointerGhost?.provenance ?? null);
+  const routingControlsDisabled = draftReviewBusy || routeEndMode !== "new" || !resolvedFrom;
+  const routingControlReason = routeEndMode !== "new"
+    ? "Plane and axis apply only while authoring a new endpoint."
+    : !resolvedFrom
+      ? "Choose a resolved From node to enable the construction plane and axis."
+      : draftReviewBusy
+        ? "The frozen draft is being validated or applied."
+        : "Plane and axis constrain later pointer placement; typed coordinates remain authoritative.";
+  const pointerCaptureReason = webglAvailable === false
+    ? "Pointer placement is unavailable because the visible 3D WebGL projection is unavailable. Enter coordinates manually."
+    : routeEndMode !== "new"
+      ? "Pointer placement is available only for a new endpoint. Existing routes use exact node IDs."
+      : !resolvedFrom
+        ? "Choose a resolved From node before pointer placement."
+        : draftReviewBusy
+          ? "Pointer placement is unavailable while the frozen draft is being validated or applied."
+          : "Move over the visible 3D canvas to preview; click within 4 CSS pixels to capture.";
+  const nodePointerReason = webglAvailable === false
+    ? "Pointer node placement is unavailable because the visible 3D WebGL projection is unavailable. Enter coordinates manually."
+    : draftReviewBusy
+      ? "Pointer node placement is unavailable while the frozen draft is being validated or applied."
+      : "Click within 4 CSS pixels on the visible 3D canvas to capture on global XZ at Y=0.";
+  routingVisualStateRef.current = {
+    anchor: resolvedFrom,
+    ghost: routeGhost,
+    plane: routingPlane,
+    showGrid: armedCreationTool === "pipe" && routeEndMode === "new" && Boolean(resolvedFrom) && webglAvailable === true
+  };
   const nodeBuild = buildNodeCreationSubmission(
     model,
     pendingViewportIntents,
@@ -290,6 +375,7 @@ export function PipeViewport({
   }, []);
 
   useEffect(() => {
+    clearPointerPlacement();
     if (armedCreationTool === "pipe") {
       setPipeEndpointPickMode("from");
     } else {
@@ -298,10 +384,13 @@ export function PipeViewport({
       setPipeDraft(emptyPipeDraft(defaultLengthUnit));
       setRouteEndMode("existing");
       setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
+      setRoutingPlane("XZ");
+      setRoutingAxis("Free");
     }
   }, [armedCreationTool]);
 
   useEffect(() => {
+    clearPointerPlacement();
     const continuation = pendingAppliedRoute.current;
     if (continuation && modelCommitToken === continuation.commitToken) {
       pendingAppliedRoute.current = null;
@@ -316,17 +405,26 @@ export function PipeViewport({
     setRouteEndMode("existing");
     setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setPipeEndpointPickMode(null);
+    setRoutingPlane("XZ");
+    setRoutingAxis("Free");
   }, [model, modelCommitToken]);
 
   useEffect(() => {
+    clearPointerPlacement();
     invalidateDraftReview("The affected selection changed. Add again to review the current draft.");
   }, [selection.id, selection.type]);
+
+  useEffect(() => {
+    routingVisualUpdaterRef.current?.(routingVisualStateRef.current);
+  }, [resolvedFrom, routeGhost, routingPlane, routeEndMode, armedCreationTool, webglAvailable]);
 
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
     if (!hasWebGL()) {
-      draftProjectorRef.current = (event) => fallbackDraftPointFromHostEvent(host, event, model);
+      setWebglAvailable(false);
+      draftProjectorRef.current = null;
+      routingVisualUpdaterRef.current = null;
       host.replaceChildren();
       const fallback = document.createElement("div");
       fallback.className = "viewport-fallback";
@@ -337,6 +435,7 @@ export function PipeViewport({
         host.replaceChildren();
       };
     }
+    setWebglAvailable(true);
 
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xf6f7f4);
@@ -346,7 +445,7 @@ export function PipeViewport({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setSize(host.clientWidth, host.clientHeight);
     host.replaceChildren(renderer.domElement);
-    draftProjectorRef.current = (event) => raycastDraftPoint(event, renderer.domElement, camera);
+    draftProjectorRef.current = (event, plane) => raycastDraftPoint(event, renderer.domElement, camera, plane);
 
     // Interactive orbit/pan/zoom. Camera state is preserved across the scene
     // rebuilds that fire on model/selection/deformation changes, so picking an
@@ -447,6 +546,19 @@ export function PipeViewport({
       for (const arrow of buildLoadArrows(model, nodeMap)) scene.add(arrow);
     }
 
+    const routingGrid = routeConstructionGrid(model);
+    const routingGhost = routeGhostLine();
+    const routingMarker = marker({ x: 0, y: 0, z: 0 }, 0xf08c22, 0.105);
+    routingGrid.visible = false;
+    routingGhost.visible = false;
+    routingMarker.visible = false;
+    scene.add(routingGrid, routingGhost, routingMarker);
+    routingVisualUpdaterRef.current = (state) => {
+      updateRouteConstructionGrid(routingGrid, state.anchor, state.plane, state.showGrid);
+      updateRouteGhostObjects(routingGhost, routingMarker, state.ghost);
+    };
+    routingVisualUpdaterRef.current(routingVisualStateRef.current);
+
     // Raycast picking: clicking a mesh selects its entity (primary selection).
     const raycaster = new THREE.Raycaster();
     pickRef.current = (event) => {
@@ -541,6 +653,7 @@ export function PipeViewport({
       controls.dispose();
       pickRef.current = null;
       draftProjectorRef.current = null;
+      routingVisualUpdaterRef.current = null;
       renderer.dispose();
       gizmoRenderer?.dispose();
       if (gizmoHost) gizmoHost.replaceChildren();
@@ -594,12 +707,15 @@ export function PipeViewport({
   }
 
   function cancelPipeDraft() {
+    clearPointerPlacement();
     invalidateDraftReview("Route canceled. No reviewed operation can be applied.");
     setContinuePipe(false);
     setPipeDraft(emptyPipeDraft(defaultLengthUnit));
     setRouteEndMode("existing");
     setNewEndDraft(emptyNodeDraft(defaultLengthUnit));
     setPipeEndpointPickMode(null);
+    setRoutingPlane("XZ");
+    setRoutingAxis("Free");
     onArmCreationTool(null);
   }
 
@@ -636,7 +752,9 @@ export function PipeViewport({
             appliedEnd: routeEndNodeId(routeDraft),
             continuePipe,
             pipeDraft: structuredClone(pipeDraft),
-            newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit
+            newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit,
+            routingAxis,
+            routingPlane
           }
         : null;
     pendingAppliedRoute.current = routeContinuation;
@@ -664,14 +782,21 @@ export function PipeViewport({
     appliedEnd: routeEndNodeId(routeDraft),
     continuePipe,
     pipeDraft,
-    newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit
+    newEndCoordinateUnit: newEndDraft.coordinateUnit || defaultLengthUnit,
+    routingAxis,
+    routingPlane
   }) {
+    clearPointerPlacement();
     setPipeDraft(continuation.continuePipe
       ? { ...continuation.pipeDraft, id: "", label: "", from: continuation.appliedEnd, to: "" }
       : emptyPipeDraft(continuation.pipeDraft.lengthUnit || defaultLengthUnit));
-    setRouteEndMode("existing");
+    setRouteEndMode(continuation.continuePipe ? "new" : "existing");
     setNewEndDraft(emptyNodeDraft(continuation.newEndCoordinateUnit));
-    setPipeEndpointPickMode(continuation.continuePipe ? "to" : null);
+    setPipeEndpointPickMode(null);
+    setRoutingPlane(continuation.continuePipe ? continuation.routingPlane : "XZ");
+    setRoutingAxis(continuation.continuePipe
+      ? normalizeRoutingAxis(continuation.routingPlane, continuation.routingAxis)
+      : "Free");
   }
 
   function invalidateDraftReview(message: string | null = null) {
@@ -705,11 +830,17 @@ export function PipeViewport({
   }
 
   function updateNodeDraft(field: keyof NodeDraft, value: string) {
+    if (field === "x" || field === "y" || field === "z" || field === "coordinateUnit") {
+      clearPointerPlacement();
+    } else {
+      placementGenerationRef.current.invalidate();
+    }
     invalidateDraftReview();
     setNodeDraft((current) => ({ ...current, [field]: value }));
   }
 
   function updatePipeDraft(field: keyof PipeDraft, value: string) {
+    if (field === "from" || field === "to") clearPointerPlacement();
     invalidateDraftReview();
     setPipeDraft((current) => ({ ...current, [field]: value }));
     if (field === "from" || field === "to") {
@@ -718,6 +849,11 @@ export function PipeViewport({
   }
 
   function updateNewEndDraft(field: keyof NodeDraft, value: string) {
+    if (field === "x" || field === "y" || field === "z" || field === "coordinateUnit") {
+      clearPointerPlacement();
+    } else {
+      placementGenerationRef.current.invalidate();
+    }
     invalidateDraftReview();
     setNewEndDraft((current) => ({ ...current, [field]: value }));
   }
@@ -744,25 +880,98 @@ export function PipeViewport({
     onSelect(target.ref);
   }
 
-  function captureNodeDraftFromViewport(event: ReactPointerEvent<HTMLDivElement>) {
-    if (event.button !== 0 && event.button !== undefined) return;
-    const projected =
-      draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
-    if (!projected) return;
-    invalidateDraftReview();
-    setNodeDraft((current) =>
-      buildDraftNodeFromViewportPoint(
-        model,
-        [...queuedIntents, ...localIntents],
-        projected,
-        current.coordinateUnit || defaultLengthUnit
-      )
-    );
+  function clearPointerPlacement(message: string | null = null) {
+    placementGenerationRef.current.invalidate();
+    releasePointerCandidate();
+    setPointerGhost(null);
+    setPlacementMessage(message);
   }
 
   function handleViewportPointerDown(event: ReactPointerEvent<HTMLDivElement>) {
     if (draftReviewBusy) return;
     if (event.button !== 0 && event.button !== undefined) return;
+    if (event.isPrimary === false) return;
+    releasePointerCandidate();
+    const pointerId = finitePointerEventNumber(event.pointerId, 1);
+    const clientX = finitePointerEventNumber(event.clientX, 0);
+    const clientY = finitePointerEventNumber(event.clientY, 0);
+    const target = event.target as Element & { setPointerCapture?: (pointerId: number) => void };
+    pointerGestureRef.current = {
+      gesture: startPointerGesture(pointerId, clientX, clientY),
+      target
+    };
+    target.setPointerCapture?.(pointerId);
+  }
+
+  function handleViewportPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
+    const candidate = pointerGestureRef.current;
+    const pointerId = finitePointerEventNumber(event.pointerId, 1);
+    if (candidate) {
+      candidate.gesture = updatePointerGesture(
+        candidate.gesture,
+        pointerId,
+        finitePointerEventNumber(event.clientX, 0),
+        finitePointerEventNumber(event.clientY, 0)
+      );
+    }
+    if (
+      draftReviewBusy ||
+      armedCreationTool !== "pipe" ||
+      routeEndMode !== "new" ||
+      !resolvedFrom ||
+      !(event.target instanceof HTMLCanvasElement)
+    ) return;
+    const projected = projectRoutePoint(event, resolvedFrom);
+    if (!projected) {
+      setPointerGhost(null);
+      setPlacementMessage("The pointer ray has no finite intersection with the selected construction plane.");
+      return;
+    }
+    setPointerGhost({ point: projected, provenance: "hover" });
+    setPlacementMessage(null);
+  }
+
+  function handleViewportPointerLeave() {
+    setPointerGhost((current) => current?.provenance === "hover" ? null : current);
+  }
+
+  function handleViewportPointerCancel(event: ReactPointerEvent<HTMLDivElement>) {
+    const candidate = pointerGestureRef.current;
+    const pointerId = finitePointerEventNumber(event.pointerId, 1);
+    if (candidate && candidate.gesture.pointerId === pointerId) {
+      candidate.gesture = cancelPointerGesture(candidate.gesture);
+      releasePointerCandidate(pointerId);
+      setPointerGhost((current) => current?.provenance === "hover" ? null : current);
+      setPlacementMessage("Pointer placement canceled; coordinates were not changed.");
+    }
+  }
+
+  function handleViewportLostPointerCapture(event: ReactPointerEvent<HTMLDivElement>) {
+    const candidate = pointerGestureRef.current;
+    const pointerId = finitePointerEventNumber(event.pointerId, 1);
+    if (candidate && candidate.gesture.pointerId === pointerId) {
+      pointerGestureRef.current = null;
+      setPointerGhost((current) => current?.provenance === "hover" ? null : current);
+      setPlacementMessage("Pointer capture was lost; coordinates were not changed.");
+    }
+  }
+
+  function handleViewportPointerUp(event: ReactPointerEvent<HTMLDivElement>) {
+    const candidate = pointerGestureRef.current;
+    const pointerId = finitePointerEventNumber(event.pointerId, 1);
+    const clientX = finitePointerEventNumber(event.clientX, 0);
+    const clientY = finitePointerEventNumber(event.clientY, 0);
+    const mayAuthor = pointerGestureMayAuthor(
+      candidate?.gesture ?? null,
+      pointerId,
+      clientX,
+      clientY
+    );
+    releasePointerCandidate(pointerId);
+    if (!mayAuthor || draftReviewBusy) {
+      if (candidate) setPlacementMessage("Pointer movement exceeded 4 CSS pixels; no selection or coordinate was captured.");
+      return;
+    }
     const picked = pickRef.current?.(event);
     if (picked) {
       if (armedCreationTool === "pipe" && pipeEndpointPickMode && picked.type === "node") {
@@ -777,18 +986,102 @@ export function PipeViewport({
       return;
     }
     if (armedCreationTool === "node") {
-      captureNodeDraftFromViewport(event);
+      const projected = draftProjectorRef.current?.(
+        event,
+        routingPlaneDefinition("XZ", { x: 0, y: 0, z: 0 })
+      );
+      if (!projected) {
+        setPlacementMessage("Pointer node placement requires the visible WebGL projection; enter coordinates manually.");
+        return;
+      }
+      void captureConvertedPoint(projected, nodeDraft.coordinateUnit || defaultLengthUnit, "node");
     } else if (armedCreationTool === "pipe" && routeEndMode === "new") {
-      const projected = draftProjectorRef.current?.(event) ?? fallbackDraftPointFromHostEvent(event.currentTarget, event, model);
-      if (!projected) return;
-      invalidateDraftReview();
-      setNewEndDraft((current) => ({
-        ...current,
-        x: formatDraftCoordinate(projected.x),
-        y: formatDraftCoordinate(projected.y),
-        z: formatDraftCoordinate(projected.z)
-      }));
+      if (!resolvedFrom) {
+        setPlacementMessage("Choose a resolved From node before pointer placement.");
+        return;
+      }
+      const projected = projectRoutePoint(event, resolvedFrom);
+      if (!projected) {
+        setPlacementMessage("The pointer ray has no finite intersection with the selected construction plane.");
+        return;
+      }
+      void captureConvertedPoint(projected, newEndDraft.coordinateUnit || defaultLengthUnit, "route");
     }
+  }
+
+  function releasePointerCandidate(pointerId?: number) {
+    const candidate = pointerGestureRef.current;
+    if (!candidate) return;
+    const id = pointerId ?? candidate.gesture.pointerId;
+    const target = candidate.target as Element & {
+      hasPointerCapture?: (pointerId: number) => boolean;
+      releasePointerCapture?: (pointerId: number) => void;
+    };
+    try {
+      if (!target.hasPointerCapture || target.hasPointerCapture(id)) target.releasePointerCapture?.(id);
+    } catch {
+      // A browser may have already released capture while unmounting the canvas.
+    }
+    pointerGestureRef.current = null;
+  }
+
+  function projectRoutePoint(event: { clientX: number; clientY: number }, from: Vec3): Vec3 | null {
+    const projected = draftProjectorRef.current?.(event, routingPlaneDefinition(routingPlane, from)) ?? null;
+    return projected ? constrainRoutingPoint(projected, from, routingPlane, routingAxis) : null;
+  }
+
+  async function captureConvertedPoint(point: Vec3, coordinateUnit: string, target: "node" | "route") {
+    const generation = placementGenerationRef.current.invalidate();
+    setPlacementMessage(`Converting model coordinates from ${defaultLengthUnit} to ${coordinateUnit}…`);
+    try {
+      const results = await convertDisplayQuantities(
+        routingConversionRequests(point, defaultLengthUnit, coordinateUnit)
+      );
+      if (!placementGenerationRef.current.isCurrent(generation)) return;
+      const converted = convertedRoutingPoint(results, coordinateUnit);
+      if (!converted) {
+        setPlacementMessage("Pointer placement conversion failed: the engine did not return exactly one finite, matching result for X, Y, and Z.");
+        return;
+      }
+      invalidateDraftReview();
+      if (target === "node") {
+        setNodeDraft(buildDraftNodeFromViewportPoint(
+          model,
+          [...queuedIntents, ...localIntents],
+          converted,
+          coordinateUnit
+        ));
+      } else {
+        const identity = nextViewportNodeIdentity(model, [...queuedIntents, ...localIntents]);
+        setNewEndDraft({
+          id: identity.id,
+          label: identity.label,
+          coordinateUnit,
+          x: formatDraftCoordinate(converted.x),
+          y: formatDraftCoordinate(converted.y),
+          z: formatDraftCoordinate(converted.z),
+          provenance: ""
+        });
+        setPointerGhost({ point, provenance: "captured" });
+      }
+      setPlacementMessage(`Captured pointer coordinates in ${coordinateUnit}; provenance remains required.`);
+    } catch (error: unknown) {
+      if (!placementGenerationRef.current.isCurrent(generation)) return;
+      setPlacementMessage(`Pointer placement conversion failed: ${error instanceof Error ? error.message : "conversion unavailable"}`);
+    }
+  }
+
+  function changeRoutingPlane(nextPlane: RoutingPlane) {
+    clearPointerPlacement();
+    invalidateDraftReview();
+    setRoutingPlane(nextPlane);
+    setRoutingAxis((current) => normalizeRoutingAxis(nextPlane, current));
+  }
+
+  function changeRoutingAxis(nextAxis: RoutingAxisConstraint) {
+    clearPointerPlacement();
+    invalidateDraftReview();
+    setRoutingAxis(normalizeRoutingAxis(routingPlane, nextAxis));
   }
 
   const canCancelPipeDraft = armedCreationTool === "pipe" || continuePipe || Boolean(pipeEndpointPickMode) ||
@@ -799,6 +1092,19 @@ export function PipeViewport({
   const pipeToolActive = armedCreationTool === "pipe";
   const componentToolActive = armedCreationTool === "component";
   const viewportIntentPanelActive = nodeToolActive || pipeToolActive || componentToolActive || visibleIntents.length > 0;
+  const nodeAddReason = draftReviewBusy
+    ? "Add node is unavailable while the frozen draft is being validated or applied."
+    : nodeBuild.ok
+      ? "Ready to validate and freeze this explicit node create intent."
+      : nodeBuild.errors.join("; ");
+  const routeAddReason = draftReviewBusy
+    ? "Add route is unavailable while the frozen draft is being validated or applied."
+    : routeBuild.ok
+      ? "Ready to validate and freeze this explicit straight route."
+      : routeBuild.errors.join("; ");
+  const constructionPlaneReadout = resolvedFrom
+    ? `Construction plane: ${routingPlane} · ${routingPlaneDefinition(routingPlane, resolvedFrom).fixedAxis.toUpperCase()}=${formatDraftCoordinate(routingPlaneDefinition(routingPlane, resolvedFrom).fixedValue)} ${defaultLengthUnit} · through ${pipeDraft.from}`
+    : "Construction plane: unavailable · choose a resolved From node";
 
   return (
     <div className="viewport-shell">
@@ -852,9 +1158,14 @@ export function PipeViewport({
           className="viewport-canvas"
           data-testid="viewport-canvas"
           onPointerDown={handleViewportPointerDown}
+          onPointerMove={handleViewportPointerMove}
+          onPointerLeave={handleViewportPointerLeave}
+          onPointerUp={handleViewportPointerUp}
+          onPointerCancel={handleViewportPointerCancel}
+          onLostPointerCapture={handleViewportLostPointerCapture}
           ref={hostRef}
           aria-label="Three.js pipe centerline viewport"
-          title="Click a part to select it; drag to orbit, scroll to zoom"
+          title={webglAvailable === false ? pointerCaptureReason : "Click a part to select it; drag to orbit, scroll to zoom"}
         />
         {showLabels ? (
           <div
@@ -1068,6 +1379,8 @@ export function PipeViewport({
               </select>
             </label>
             <small data-testid="viewport-create-node-unit-basis">Coordinates: {nodeUnitBasis.label}</small>
+            <small data-testid="viewport-node-construction-plane">Pointer plane: global XZ · Y=0 {defaultLengthUnit}</small>
+            <small data-testid="viewport-node-pointer-status" title={nodePointerReason}>{placementMessage ?? nodePointerReason}</small>
             <label>
               <span>Provenance</span>
               <input
@@ -1080,13 +1393,15 @@ export function PipeViewport({
             <button
               data-testid="queue-explicit-node-intent"
               disabled={!nodeDraftValid || draftReviewBusy}
+              aria-describedby="viewport-node-add-reason"
               onClick={() => void addExplicitNodeIntent()}
-              title="Validate and freeze this explicit node create intent"
+              title={nodeAddReason}
               type="button"
             >
               <CirclePlus size={15} aria-hidden="true" />
               Add node
             </button>
+            <small id="viewport-node-add-reason" data-testid="viewport-node-add-reason">{nodeAddReason}</small>
           </div>
           <div
             className={`viewport-pipe-form${pipeToolActive ? " active" : ""}`}
@@ -1144,11 +1459,11 @@ export function PipeViewport({
             <fieldset className="viewport-end-mode" data-testid="viewport-route-end-mode">
               <legend>End mode</legend>
               <label>
-                <input type="radio" name="route-end-mode" value="existing" checked={routeEndMode === "existing"} onChange={() => { invalidateDraftReview(); setRouteEndMode("existing"); }} />
+                <input type="radio" name="route-end-mode" value="existing" checked={routeEndMode === "existing"} onChange={() => { clearPointerPlacement(); invalidateDraftReview(); setRouteEndMode("existing"); }} />
                 Existing node
               </label>
               <label>
-                <input type="radio" name="route-end-mode" value="new" checked={routeEndMode === "new"} onChange={() => { invalidateDraftReview(); setRouteEndMode("new"); setPipeEndpointPickMode(null); }} />
+                <input type="radio" name="route-end-mode" value="new" checked={routeEndMode === "new"} onChange={() => { clearPointerPlacement(); invalidateDraftReview(); setRouteEndMode("new"); setPipeEndpointPickMode(null); }} />
                 New node
               </label>
             </fieldset>
@@ -1184,6 +1499,49 @@ export function PipeViewport({
             <div className="viewport-new-endpoint" hidden={routeEndMode !== "new"} data-testid="viewport-route-new-endpoint">
               <strong>New endpoint</strong>
               <small>Typed coordinates are authoritative. Pointer placement is only a draft aid.</small>
+              <fieldset
+                className="viewport-routing-aids"
+                data-testid="viewport-routing-aids"
+                disabled={routingControlsDisabled}
+                aria-describedby="viewport-routing-control-reason"
+                title={routingControlReason}
+              >
+                <legend>Pointer routing aids</legend>
+                <label>
+                  <span>Plane</span>
+                  <select
+                    aria-label="Route construction plane"
+                    data-testid="viewport-routing-plane"
+                    value={routingPlane}
+                    onChange={(event) => changeRoutingPlane(event.target.value as RoutingPlane)}
+                    title={routingControlReason}
+                  >
+                    {(["XY", "XZ", "YZ"] as const).map((plane) => <option key={plane} value={plane}>{plane}</option>)}
+                  </select>
+                </label>
+                <div className="viewport-routing-axis" role="group" aria-label="Route axis constraint">
+                  {(["Free", "X", "Y", "Z"] as const).map((axis) => {
+                    const applicable = applicableRoutingAxes(routingPlane).includes(axis);
+                    const reason = applicable
+                      ? `${axis} is available in the ${routingPlane} plane.`
+                      : `${axis} is unavailable because it does not lie in the ${routingPlane} plane.`;
+                    return <label key={axis} title={reason}>
+                      <input
+                        type="radio"
+                        name="route-axis-constraint"
+                        value={axis}
+                        checked={routingAxis === axis}
+                        disabled={!applicable}
+                        onChange={() => changeRoutingAxis(axis)}
+                        title={reason}
+                      />
+                      {axis}
+                    </label>;
+                  })}
+                </div>
+              </fieldset>
+              <small id="viewport-routing-control-reason" data-testid="viewport-routing-control-reason">{routingControlReason}</small>
+              <small data-testid="viewport-pointer-placement-status" title={pointerCaptureReason}>{placementMessage ?? pointerCaptureReason}</small>
               <label><span>Node ID</span><input aria-label="Route end node ID" data-testid="viewport-route-end-id" value={newEndDraft.id} onChange={(event) => updateNewEndDraft("id", event.target.value)} /></label>
               <label><span>Label</span><input aria-label="Route end node label" data-testid="viewport-route-end-label" value={newEndDraft.label} onChange={(event) => updateNewEndDraft("label", event.target.value)} /></label>
               <label><span>X</span><input aria-label="Route end X coordinate" data-testid="viewport-route-end-x" inputMode="decimal" value={newEndDraft.x} onChange={(event) => updateNewEndDraft("x", event.target.value)} /></label>
@@ -1246,7 +1604,12 @@ export function PipeViewport({
               </select>
             </label>
             <small data-testid="viewport-create-pipe-unit-basis">Pipe geometry: {pipeUnitBasis.label}</small>
-            <small data-testid="viewport-construction-plane">Construction plane: XZ @ Y=0</small>
+            <small data-testid="viewport-construction-plane">{routeEndMode === "new" ? constructionPlaneReadout : "Construction plane inactive: existing endpoint uses exact node IDs."}</small>
+            <small data-testid="viewport-route-ghost-status">
+              {routeGhost
+                ? `${routeGhost.provenance} route ghost: ${formatDraftCoordinate(routeGhost.from.x)}, ${formatDraftCoordinate(routeGhost.from.y)}, ${formatDraftCoordinate(routeGhost.from.z)} → ${formatDraftCoordinate(routeGhost.to.x)}, ${formatDraftCoordinate(routeGhost.to.y)}, ${formatDraftCoordinate(routeGhost.to.z)} ${defaultLengthUnit}`
+                : "No route ghost is visible."}
+            </small>
             <label>
               <span>Yref X</span>
               <input
@@ -1305,13 +1668,15 @@ export function PipeViewport({
             <button
               data-testid="queue-explicit-pipe-intent"
               disabled={!pipeDraftValid || draftReviewBusy}
+              aria-describedby="viewport-route-add-reason"
               onClick={() => void addExplicitPipeIntent()}
-              title="Validate and freeze this explicit straight route"
+              title={routeAddReason}
               type="button"
             >
               <GitBranch size={15} aria-hidden="true" />
               Add route
             </button>
+            <small id="viewport-route-add-reason" data-testid="viewport-route-add-reason">{routeAddReason}</small>
           </div>
           <div
             className={`viewport-pipe-form${componentToolActive ? " active" : ""}`}
@@ -1720,16 +2085,24 @@ function buildDraftNodeFromViewportPoint(
   point: Vec3,
   coordinateUnit: string
 ): NodeDraft {
-  const id = nextViewportNodeId(model, queuedIntents);
+  const identity = nextViewportNodeIdentity(model, queuedIntents);
   return {
-    id,
-    label: `Viewport node ${shortEntityToken(id)}`,
+    id: identity.id,
+    label: identity.label,
     coordinateUnit,
     x: formatDraftCoordinate(point.x),
     y: formatDraftCoordinate(point.y),
     z: formatDraftCoordinate(point.z),
     provenance: ""
   };
+}
+
+function nextViewportNodeIdentity(
+  model: PreviewModel,
+  queuedIntents: EditorOperationIntent[]
+): { id: string; label: string } {
+  const id = nextViewportNodeId(model, queuedIntents);
+  return { id, label: `Viewport node ${shortEntityToken(id)}` };
 }
 
 function nextViewportNodeId(model: PreviewModel, queuedIntents: EditorOperationIntent[]): string {
@@ -1754,33 +2127,22 @@ function formatDraftCoordinate(value: number): string {
 function raycastDraftPoint(
   event: { clientX: number; clientY: number },
   canvas: HTMLCanvasElement,
-  camera: THREE.PerspectiveCamera
+  camera: THREE.PerspectiveCamera,
+  definition: RoutingPlaneDefinition
 ): Vec3 | null {
   const position = eventPositionFraction(canvas, event);
   const pointer = new THREE.Vector2(position.x * 2 - 1, -(position.y * 2 - 1));
   const raycaster = new THREE.Raycaster();
   raycaster.setFromCamera(pointer, camera);
-  const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
+  const normal = new THREE.Vector3(definition.normal.x, definition.normal.y, definition.normal.z);
+  const plane = new THREE.Plane().setFromNormalAndCoplanarPoint(
+    normal,
+    new THREE.Vector3(definition.anchor.x, definition.anchor.y, definition.anchor.z)
+  );
   const intersection = new THREE.Vector3();
   if (!raycaster.ray.intersectPlane(plane, intersection)) return null;
   if (![intersection.x, intersection.y, intersection.z].every(Number.isFinite)) return null;
   return { x: intersection.x, y: intersection.y, z: intersection.z };
-}
-
-function fallbackDraftPointFromHostEvent(
-  host: HTMLElement,
-  event: { clientX: number; clientY: number },
-  model: PreviewModel
-): Vec3 {
-  const position = eventPositionFraction(host, event);
-  const bounds = selectionBounds(model.nodes.map((node) => node.position));
-  const xPercent = clamp(position.x * 100, 12, 88);
-  const depthPercent = clamp(position.y * 100, 20, 78);
-  return {
-    x: unscale(xPercent, bounds.minX, bounds.maxX, 12, 88),
-    y: 0,
-    z: unscale(depthPercent, bounds.minDepth, bounds.maxDepth, 78, 20)
-  };
 }
 
 function eventPositionFraction(
@@ -2219,6 +2581,64 @@ function marker(position: Vec3, color: number, radius: number) {
     .translateX(position.x)
     .translateY(position.y)
     .translateZ(position.z);
+}
+
+function routeConstructionGrid(model: PreviewModel): THREE.GridHelper {
+  const positions = model.nodes.map((node) => node.position);
+  const coordinates = positions.flatMap((point) => [point.x, point.y, point.z]);
+  const span = coordinates.length ? Math.max(...coordinates) - Math.min(...coordinates) : 0;
+  const size = Math.max(8, Math.ceil(span * 1.5));
+  const grid = new THREE.GridHelper(size, Math.max(8, Math.min(40, size * 2)), 0x2f6f73, 0x9bb7b4);
+  const materials = Array.isArray(grid.material) ? grid.material : [grid.material];
+  for (const material of materials) {
+    material.transparent = true;
+    material.opacity = 0.44;
+    material.depthWrite = false;
+  }
+  grid.renderOrder = 1;
+  return grid;
+}
+
+function updateRouteConstructionGrid(
+  grid: THREE.GridHelper,
+  anchor: Vec3 | null,
+  plane: RoutingPlane,
+  visible: boolean
+) {
+  grid.visible = Boolean(anchor) && visible;
+  if (!anchor) return;
+  grid.position.set(anchor.x, anchor.y, anchor.z);
+  grid.rotation.set(0, 0, 0);
+  if (plane === "XY") grid.rotation.x = Math.PI / 2;
+  if (plane === "YZ") grid.rotation.z = Math.PI / 2;
+}
+
+function routeGhostLine(): THREE.Line<THREE.BufferGeometry, THREE.LineDashedMaterial> {
+  const geometry = new THREE.BufferGeometry();
+  geometry.setAttribute("position", new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, 0], 3));
+  const line = new THREE.Line(
+    geometry,
+    new THREE.LineDashedMaterial({ color: 0xf08c22, dashSize: 0.18, gapSize: 0.1, depthTest: false })
+  );
+  line.renderOrder = 3;
+  return line;
+}
+
+function updateRouteGhostObjects(
+  line: THREE.Line<THREE.BufferGeometry, THREE.LineDashedMaterial>,
+  endpoint: THREE.Mesh,
+  ghost: RouteGhost | null
+) {
+  line.visible = Boolean(ghost);
+  endpoint.visible = Boolean(ghost);
+  if (!ghost) return;
+  const position = line.geometry.getAttribute("position") as THREE.BufferAttribute;
+  position.setXYZ(0, ghost.from.x, ghost.from.y, ghost.from.z);
+  position.setXYZ(1, ghost.to.x, ghost.to.y, ghost.to.z);
+  position.needsUpdate = true;
+  line.computeLineDistances();
+  line.geometry.computeBoundingSphere();
+  endpoint.position.set(ghost.to.x, ghost.to.y, ghost.to.z);
 }
 
 function supportMesh(position: Vec3, active: boolean) {
@@ -2666,6 +3086,10 @@ function hasWebGL() {
   } catch {
     return false;
   }
+}
+
+function finitePointerEventNumber(value: number, fallback: number): number {
+  return Number.isFinite(value) ? value : fallback;
 }
 
 function safeToken(value: string): string {

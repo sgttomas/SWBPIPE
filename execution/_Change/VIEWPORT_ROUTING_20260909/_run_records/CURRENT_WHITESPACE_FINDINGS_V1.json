@@ -1,0 +1,263 @@
+{
+  "schema_version": "chirality.change.whitespace-findings.v1",
+  "recorded_at_utc": "2026-09-09T06:45:11Z",
+  "command": "python3 tools/validation/validate_candidate_whitespace.py",
+  "exit_code": 1,
+  "finding_count": 40,
+  "counts_by_owner": {
+    "F4": 13,
+    "NS": 1,
+    "P5": 16,
+    "PCB": 2,
+    "PREVIEW": 8
+  },
+  "findings": [
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+      "line": 4,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/FRICTION_REPAIR_IMPLEMENTATION_PLAN_V1.md",
+      "line": 5,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 5,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 6,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 7,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 8,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 9,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 10,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 11,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 12,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 13,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "F4",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/F4/implementation/IMPLEMENTATION_LAUNCH_BRIEF_V1.md",
+      "line": 14,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md",
+      "line": 4,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md",
+      "line": 5,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_AMENDMENT_V3.md",
+      "line": 6,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 4,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 5,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 6,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 7,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 8,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 9,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 12,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 13,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 14,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 15,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "P5",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/P5_CHILD_IMPLEMENTATION_BRIEF_V2.md",
+      "line": 16,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_BRIEF_V1.md",
+      "line": 39,
+      "finding": "blank line at end of file"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_METADATA_REFINEMENT_V1.md",
+      "line": 10,
+      "finding": "blank line at end of file"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/ENDPOINT_SECTION_CUT_REPAIR_VALIDATION_REFINEMENT_V2.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_DESIGN_REFUTATION_V1.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_DESIGN_REFUTATION_V1.md",
+      "line": 4,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_DESIGN_REFUTATION_V1.md",
+      "line": 5,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md",
+      "line": 3,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "PREVIEW",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_ELIGIBILITY_REPAIR_ADDENDUM_V1.md",
+      "line": 4,
+      "finding": "trailing whitespace"
+    },
+    {
+      "owner": "NS",
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/runtime_probe/Cargo.toml",
+      "line": 13,
+      "finding": "blank line at end of file"
+    },
+    {
+      "owner": "PCB",
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/COVERAGE.md",
+      "line": 39,
+      "finding": "blank line at end of file"
+    },
+    {
+      "owner": "PCB",
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/PCB/RETURN.md",
+      "line": 146,
+      "finding": "blank line at end of file"
+    }
+  ],
+  "raw_output": {
+    "encoding": "base64",
+    "decoded_bytes": 7365,
+    "decoded_sha256": "acb5724620163a9a8d13f037eb176d768a3f84ca267d972669413d1c904a56f0",
+    "content_base64": "VW50cmFja2VkIHRleHQgd2hpdGVzcGFjZSBmaW5kaW5nczoKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvRlJJQ1RJT05fUkVQQUlSX0lNUExFTUVOVEFUSU9OX1BMQU5fVjEubWQ6MzogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9GNC9GUklDVElPTl9SRVBBSVJfSU1QTEVNRU5UQVRJT05fUExBTl9WMS5tZDo0OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL0Y0L0ZSSUNUSU9OX1JFUEFJUl9JTVBMRU1FTlRBVElPTl9QTEFOX1YxLm1kOjU6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjU6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjY6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjc6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjg6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjk6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjEwOiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL0Y0L2ltcGxlbWVudGF0aW9uL0lNUExFTUVOVEFUSU9OX0xBVU5DSF9CUklFRl9WMS5tZDoxMTogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9GNC9pbXBsZW1lbnRhdGlvbi9JTVBMRU1FTlRBVElPTl9MQVVOQ0hfQlJJRUZfVjEubWQ6MTI6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvRjQvaW1wbGVtZW50YXRpb24vSU1QTEVNRU5UQVRJT05fTEFVTkNIX0JSSUVGX1YxLm1kOjEzOiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL0Y0L2ltcGxlbWVudGF0aW9uL0lNUExFTUVOVEFUSU9OX0xBVU5DSF9CUklFRl9WMS5tZDoxNDogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9BTUVORE1FTlRfVjMubWQ6MzogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9BTUVORE1FTlRfVjMubWQ6NDogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9BTUVORE1FTlRfVjMubWQ6NTogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9BTUVORE1FTlRfVjMubWQ6NjogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9CUklFRl9WMi5tZDozOiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjQ6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvUDUvUDVfQ0hJTERfSU1QTEVNRU5UQVRJT05fQlJJRUZfVjIubWQ6NTogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9CUklFRl9WMi5tZDo2OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjc6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvUDUvUDVfQ0hJTERfSU1QTEVNRU5UQVRJT05fQlJJRUZfVjIubWQ6ODogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QNS9QNV9DSElMRF9JTVBMRU1FTlRBVElPTl9CUklFRl9WMi5tZDo5OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjEyOiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjEzOiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjE0OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjE1OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1A1L1A1X0NISUxEX0lNUExFTUVOVEFUSU9OX0JSSUVGX1YyLm1kOjE2OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1BSRVZJRVcvZGVzaWduL0VORFBPSU5UX1NFQ1RJT05fQ1VUX1JFUEFJUl9CUklFRl9WMS5tZDozOTogYmxhbmsgbGluZSBhdCBlbmQgb2YgZmlsZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QUkVWSUVXL2Rlc2lnbi9FTkRQT0lOVF9TRUNUSU9OX0NVVF9SRVBBSVJfTUVUQURBVEFfUkVGSU5FTUVOVF9WMS5tZDoxMDogYmxhbmsgbGluZSBhdCBlbmQgb2YgZmlsZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QUkVWSUVXL2Rlc2lnbi9FTkRQT0lOVF9TRUNUSU9OX0NVVF9SRVBBSVJfVkFMSURBVElPTl9SRUZJTkVNRU5UX1YyLm1kOjM6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvUFJFVklFVy9kZXNpZ24vUFJFU1NVUkVfREVTSUdOX1JFRlVUQVRJT05fVjEubWQ6MzogdHJhaWxpbmcgd2hpdGVzcGFjZQpwcm9qZWN0cy9jaGlyYWxpdHktcGlwaW5nL2V4ZWN1dGlvbi9fQ29vcmRpbmF0aW9uL0FnZW50UnVucy9IRUxQLUhVTUFOLVBJUElORy0yMDI2MDkwOS1WSUVXUE9SVC1ST1VUSU5HL2luc3RhbmNlcy9QUkVWSUVXL2Rlc2lnbi9QUkVTU1VSRV9ERVNJR05fUkVGVVRBVElPTl9WMS5tZDo0OiB0cmFpbGluZyB3aGl0ZXNwYWNlCnByb2plY3RzL2NoaXJhbGl0eS1waXBpbmcvZXhlY3V0aW9uL19Db29yZGluYXRpb24vQWdlbnRSdW5zL0hFTFAtSFVNQU4tUElQSU5HLTIwMjYwOTA5LVZJRVdQT1JULVJPVVRJTkcvaW5zdGFuY2VzL1BSRVZJRVcvZGVzaWduL1BSRVNTVVJFX0RFU0lHTl9SRUZVVEFUSU9OX1YxLm1kOjU6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvUFJFVklFVy9kZXNpZ24vUFJFU1NVUkVfRUxJR0lCSUxJVFlfUkVQQUlSX0FEREVORFVNX1YxLm1kOjM6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0Nvb3JkaW5hdGlvbi9BZ2VudFJ1bnMvSEVMUC1IVU1BTi1QSVBJTkctMjAyNjA5MDktVklFV1BPUlQtUk9VVElORy9pbnN0YW5jZXMvUFJFVklFVy9kZXNpZ24vUFJFU1NVUkVfRUxJR0lCSUxJVFlfUkVQQUlSX0FEREVORFVNX1YxLm1kOjQ6IHRyYWlsaW5nIHdoaXRlc3BhY2UKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0V2YWx1YXRpb24vUEhZU0lDU19SRU1BSU5JTkdfMjAyNjA5MDkvcmV0dXJucy9OUy9ydW50aW1lX3Byb2JlL0NhcmdvLnRvbWw6MTM6IGJsYW5rIGxpbmUgYXQgZW5kIG9mIGZpbGUKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0V2YWx1YXRpb24vUEhZU0lDU19SRU1BSU5JTkdfMjAyNjA5MDkvcmV0dXJucy9QQ0IvQ09WRVJBR0UubWQ6Mzk6IGJsYW5rIGxpbmUgYXQgZW5kIG9mIGZpbGUKcHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9leGVjdXRpb24vX0V2YWx1YXRpb24vUEhZU0lDU19SRU1BSU5JTkdfMjAyNjA5MDkvcmV0dXJucy9QQ0IvUkVUVVJOLm1kOjE0NjogYmxhbmsgbGluZSBhdCBlbmQgb2YgZmlsZQpGQUlMOiBjYW5kaWRhdGUgd2hpdGVzcGFjZSBmaW5kaW5ncyAodW50cmFja2VkIGJpbmFyeS9zeW1saW5rIHBhdGhzIHNhZmVseSBza2lwcGVkOiAwKS4K"
+  },
+  "disposition": "Route each finding to its owning evidence writer. CHANGE makes no repair outside its scope."
+}
