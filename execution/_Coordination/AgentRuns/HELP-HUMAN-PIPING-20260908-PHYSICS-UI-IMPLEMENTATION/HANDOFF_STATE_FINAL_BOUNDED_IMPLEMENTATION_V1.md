@@ -1,0 +1,13 @@
+# Handoff state: bounded physics/UI implementation verified
+
+Status: `VERIFIED — EVIDENCE PUBLICATION PENDING`
+
+Root accepts the bounded selected physics/UI implementation and its technical evidence at tested source commit `e6f694877acf524188d0bd0e5006ea78e2864d0d`. The immutable acceptance is [`ACCEPTANCE.json`](snapshots/FINAL_BOUNDED_IMPLEMENTATION_VERIFICATION_V1/ACCEPTANCE.json), SHA-256 `9de38fd6e79c6a943f0da813574c7018c86263260fd2f2485acd81b31175ed72`. Receipt 137 is appended to `projects/chirality-piping/loop/LOOP_RECEIPTS.md`; its post-append ledger SHA-256 is `a385d6652219374690e2a2602cb681fcbc5bd001c08b37def3eee55eb1ddf273`. Its `Examined-Through` is the tested source commit above, never the forthcoming evidence-only commit.
+
+The final 17-member binding is `58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9`, aggregate `d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a`. Clean verification record `7655458d115dbcb5c767835d53d096bdc224c32b14af52da17e669628dc1dba8` binds the complete G0–G4 PASS sweep `8accd33a0cad0ea58930c39c94423f20ef7eca697f7e5b7ffad65409bd9671cf`, source equality, and practitioner PASS. Prior G0, G2, browser, and native failures and their resolvers remain immutable.
+
+The accepted native packet remains exact historical evidence for the unchanged solver, operation route, persistence, and packaged default-fixture behavior at its older cut. The final accessibility repair changed title/priority metadata only; the registered clean sweep rebuilt and tested the final frontend. No fresh exact final-annotation native bundle claim is made.
+
+This run's derivative acceptance package is current for bounded implementation verification and does not replace accepted decomposition truth. Decomposition 0.12, SCA-009, DAG-010, R5, requirements, dependencies, lifecycle, public contracts, and engineering decisions remain unchanged. Pressure and public-compatibility choices remain unadopted. Broader physical-model choices, additional selectable UI slices, and broader 3D workflows remain open. This is not whole-project, release, professional-reliance, or lifecycle closure.
+
+Next, CHANGE may create the evidence-only commit containing Receipt 137 and final evidence, prove the tested product source remains unchanged, run final receipt/path/whitespace/containment checks, push and open the PR, require green CI for the exact head, and merge under the standing Git authority. Do not describe the evidence-only commit as swept source. The original local handoff remains preserved at SHA-256 `ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035`. All Agent 1 and Agent 2 work remains `gpt-5.6-sol` at high reasoning; no Astra exception was granted.

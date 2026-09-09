@@ -1,0 +1,95 @@
+{
+  "schema_version": "1.0",
+  "record_type": "final_bounded_implementation_verification_snapshot",
+  "status": "ACCEPTED_AWAITING_EVIDENCE_COMMIT_PR_CI_MERGE",
+  "examined_through": "e6f694877acf524188d0bd0e5006ea78e2864d0d",
+  "accepted_upstream": {
+    "decomposition": "0.12",
+    "scope_change": "SCA-009",
+    "dag": "DAG-010",
+    "stage": "R5",
+    "parent_receipt": "Receipt-136",
+    "state": "UNCHANGED"
+  },
+  "source": {
+    "binding_path": "../../instances/U7/post_g2_accessibility/COMPLETE_BINDING_V2.json",
+    "binding_sha256": "58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9",
+    "members": 17,
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "pipe_viewport_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "post_test_equality": "PASS"
+  },
+  "accepted_evidence": {
+    "integration_snapshot_sha256": "442720b7c0285d964bf59caf2bebccde3c4c0a384f336177036ed3a02f8d980b",
+    "final_g2_fan_in": {
+      "path": "../../post_g2_accessibility/FINAL_G2_FAN_IN_CHANGE_RERUN_RELEASE_V1.json",
+      "sha256": "9ba85a30a5150174380fedad9faa72f686af92f123f86885c2e72d4e6ec5955b"
+    },
+    "rf_final_applied_review_sha256": "4a6fb4191140f762658e49e4a608d537d5f54c35280b8a59dfe5b1845ca88d7c",
+    "ru_g2_review_sha256": "259ef23216bb6060ee5d7e8e9ea2f00491651e590181d4bd2a62ea923abb351d",
+    "clean_verification": {
+      "path": "../../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/CLEAN_VERIFICATION_RESULT_V1.json",
+      "sha256": "7655458d115dbcb5c767835d53d096bdc224c32b14af52da17e669628dc1dba8"
+    },
+    "dec025": {
+      "path": "../../../../../../validation/evidence/sweeps/SWEEP_20260909T041958Z_e6f694877acf.json",
+      "sha256": "8accd33a0cad0ea58930c39c94423f20ef7eca697f7e5b7ffad65409bd9671cf",
+      "status": "G0_THROUGH_G4_PASS",
+      "clean_start": true,
+      "duration_seconds": 395.485,
+      "summary_counts": "Python 1012; Vitest 804 across 46 files; Playwright 30 dev plus 3 dist; production build PASS"
+    },
+    "practitioner": {
+      "status": "379_PASS",
+      "duration_seconds": 33.38,
+      "archive_sha256": "d9438653e71e2b788f5fcf4395a7a22fea05fd75513150fc055f2c77b2bee274",
+      "decoded_sha256": "569be908fea1054c81bf7c6ccc5e369d1fd586fdea5d133d28a23a5128e475b5"
+    },
+    "dec025_raw_archive": {
+      "sha256": "eca3715fd0aa718047fc243d8a03a5c20e7e71a9b6f3aac3698b6886804ea3e4",
+      "decoded_sha256": "419e339b4fad107ecd273034cd15766a11b8f1c41698c0b82f7f0ecae462eb7e",
+      "decoded_bytes": 128776
+    }
+  },
+  "native_calibration": {
+    "final_manifest_sha256": "57887e5e702d751ec625af462f3a4f51e103bc78eb4447d4432ab8aa0b0a7bdd",
+    "status": "ACCEPTED_HISTORICAL_EXACT_OLDER_CUT_EVIDENCE",
+    "supports": "unchanged solver, operation route, persistence, and default-fixture packaged-path behavior",
+    "does_not_claim": "fresh exact final title/priority annotation bundle witness",
+    "final_frontend": "The clean registered DEC-025 sweep rebuilt and tested the final frontend cut; no new native-walkthrough claim is made."
+  },
+  "failure_lineage": "Historical G0, G2, browser, and native failures and their resolvers remain immutable and are not replaced by the terminal PASS records.",
+  "derivative_package": {
+    "status": "CURRENT_FOR_BOUNDED_IMPLEMENTATION_VERIFICATION",
+    "basis": "Accepted upstream decomposition 0.12 / SCA-009 / DAG-010 / R5 plus exact reviewed source and test evidence. This snapshot is derivative evidence, not decomposition truth.",
+    "current": [
+      "17-member source binding and independent reviews",
+      "clean DEC-025 and practitioner evidence",
+      "this acceptance snapshot"
+    ],
+    "historical": [
+      "native packet at its exact older cut",
+      "all failed attempts and correction resolvers"
+    ],
+    "deferred": [
+      "evidence-only commit and final CHANGE closeout",
+      "PR and exact-head hosted CI",
+      "any DAG, dependency, requirement, or lifecycle regeneration not selected by this tranche"
+    ]
+  },
+  "acceptance": "The bounded selected physics/UI implementation and its evidence are technically verified at the examined-through commit. Receipt 137 may record this gate outcome.",
+  "continuing_limits": {
+    "whole_project_closed": false,
+    "lifecycle_or_requirement_changed": false,
+    "dependency_or_dag_changed": false,
+    "public_contract_or_engineering_acceptance_changed": false,
+    "professional_reliance": false,
+    "pressure_and_public_compatibility_choices": "UNADOPTED",
+    "remaining_work": [
+      "broader pressure and physical-model choices",
+      "additional selectable UI slices and broader 3D workflows",
+      "evidence-only publication container, PR, exact-head CI, and merge"
+    ]
+  },
+  "publication_next": "After Receipt 137 and root fan-in, CHANGE may create the evidence-only commit, validate exact source equality, push/open the PR, require exact-head green CI, and merge under standing Git authority. No future commit is the Examined-Through value."
+}

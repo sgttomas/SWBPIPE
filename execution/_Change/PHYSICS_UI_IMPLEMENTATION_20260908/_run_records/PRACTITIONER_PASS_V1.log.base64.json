@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "record_type": "lossless_command_output_archive",
+  "encoding": "base64",
+  "decoded_bytes": 501,
+  "decoded_sha256": "569be908fea1054c81bf7c6ccc5e369d1fd586fdea5d133d28a23a5128e475b5",
+  "source_command": "PYTHONDONTWRITEBYTECODE=1 PYTHON_ENV/bin/python -m pytest -q tools/practitioner_harness",
+  "source_working_directory": "REPO_ROOT",
+  "content_base64": "Li4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIFsgMTglXQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gWyAzNyVdCi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLiBbIDU2JV0KLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uIFsgNzUlXQouLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4uLi4gWyA5NCVdCi4uLi4uLi4uLi4uLi4uLi4uLi4gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBbMTAwJV0KMzc5IHBhc3NlZCBpbiAzMy4zOHMK"
+}
