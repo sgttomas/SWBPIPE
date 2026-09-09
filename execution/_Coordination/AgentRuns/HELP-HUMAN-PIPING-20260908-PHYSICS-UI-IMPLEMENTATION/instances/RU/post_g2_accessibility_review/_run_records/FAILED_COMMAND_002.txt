@@ -1,0 +1,30 @@
+COMMAND (workdir /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908):
+sha256sum -c projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g2_accessibility_review/INPUT_INVENTORY.sha256
+
+EXIT: 1
+OUTPUT:
+AGENTS.md: FAILED
+projects/chirality-piping/apps/desktop/src/App.deadControls.test.tsx: OK
+projects/chirality-piping/apps/desktop/src/App.test.tsx: OK
+projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g2_accessibility/G2_ACCESSIBILITY_REPAIR_RELEASE_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/ACTIVATION_V1.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/WORK_GRAPH_V1.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/WORK_GRAPH_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/children/A1/SEALED_BRIEF_V1.md: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/children/A1/SUCCESSOR_BRIEF_V2.md: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/children/A1/RETURN_V1.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/children/A1/RETURN_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/COMPLETE_BINDING_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/MANAGER_VALIDATION_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/MANAGER_RETURN_V2.md: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json: OK
+projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_FINAL_V2.json: OK
+projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_BUILD_RESULT_V2.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/NATIVE/successors/INVENTED-PROVENANCE-R2/FINAL_MANIFEST.json: OK
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/NATIVE/successors/INVENTED-PROVENANCE-R2/STATUS.json: FAILED
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g2_accessibility/FINAL_ACCESSIBILITY_REPAIR_MANIFEST_V2.json: OK
+projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g2_accessibility/PIPEVIEWPORT_ACCESSIBILITY_DIFF_V1.base64.json: OK
+sha256sum: WARNING: 1 line is improperly formatted
+sha256sum: WARNING: 2 computed checksums did NOT match

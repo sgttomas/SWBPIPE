@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "agent": "U7",
+  "role": "WORKING_ITEMS",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "status": "ACTIVE_CHILD_DISPATCH_AUTHORIZED",
+  "head": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+  "authority": "Root bounded dispatch under the Owner standing broad initiative after clean DEC-025 G0/G1/G2 and one unchanged accessibility-audit failure",
+  "failure": "App.deadControls.test.tsx:211 reports initial apply-reviewed-draft disabled without an accessible reason",
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "preimage_sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad"
+  },
+  "write_scope": [
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/**",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g2_accessibility/**"
+  ],
+  "prohibitions": "No other source/test, behavior, enablement, apply, model, physics, API, Git, build, native, store, or global-test changes"
+}

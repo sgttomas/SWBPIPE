@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "record_type": "bounded_agent2_successor_return",
+  "status": "PASS",
+  "agent": "A1-V2",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": false,
+  "authority": {
+    "successor_brief_sha256": "5dfe89bf39c6e732d226c25e9244202c5cb3dddefaf6fb3f47a665eb8fb5717e",
+    "work_graph_v2_sha256": "924599085c18cbd8e004c6b49362434dd6767935b49a91394b4ecc687990382f"
+  },
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "predecessor_sha256": "edab67d889d8658cf0cbcde5721b13a5b6b12ec7414ac23a07f3bd1805c8a6e3",
+    "final_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "change": "Reordered only title selection to draftReviewBusy, then !draftReview, then !onApplyDraft.",
+    "messages_changed": false,
+    "disabled_predicate_changed": false,
+    "click_handler_changed": false,
+    "visible_label_changed": false,
+    "other_source_bytes_changed": false
+  },
+  "validation": {
+    "dead_controls": {
+      "command": "npm test -- src/App.deadControls.test.tsx",
+      "result": "PASS",
+      "test_files": "1 passed (1)",
+      "tests": "1 passed (1)",
+      "duration": "37.62s"
+    },
+    "draft_review_behavior": {
+      "disposition": "REUSED_FROM_V1_AS_DIRECTED",
+      "evidence": "RETURN_V1.json",
+      "evidence_sha256": "b3fe988cac18ef3316b6554484fd1b775df26e853d860a5846a2699b5be638af",
+      "result": "3 passed, 159 skipped (162)",
+      "duration": "3.59s"
+    },
+    "diff_check": {
+      "command": "git diff --check -- projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "result": "PASS"
+    }
+  },
+  "scope": {
+    "tests_or_other_source_edited": false,
+    "raw_diff_artifact_written": false,
+    "git_mutations_performed": false
+  },
+  "handoff": "Final successor source is frozen for parent fan-in and independent review."
+}

@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "status": "SEALED_SUCCESSOR_FOR_EXECUTION",
+  "predecessor_graph_sha256": "0df1458adee2ec05b048bc4ea50b017afdbb6208540fdcb31e10c89650ac59e4",
+  "nodes": [
+    {"id": "U7", "role": "Agent 1 WORKING_ITEMS", "work": "sealed successor dispatch and final fan-in"},
+    {"id": "A1-V1", "role": "Agent 2 bounded implementation", "status": "PASS_FROZEN_HISTORY", "source_sha256": "edab67d889d8658cf0cbcde5721b13a5b6b12ec7414ac23a07f3bd1805c8a6e3"},
+    {"id": "A1-V2", "role": "same Agent 2 bounded successor", "model": "gpt-5.6-sol", "reasoning": "high", "delegation": false},
+    {"id": "RU", "role": "fresh independent review", "owner": "root", "state": "waiting for final successor"}
+  ],
+  "edges": [
+    {"from": "A1-V1", "to": "A1-V2", "type": "wording-priority successor"},
+    {"from": "U7", "to": "A1-V2", "type": "sealed successor brief"},
+    {"from": "A1-V2", "to": "U7", "type": "final source and focused evidence"},
+    {"from": "U7", "to": "RU", "type": "frozen handoff through root"}
+  ]
+}

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "preimage_sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad",
+    "v1_intermediate_sha256": "edab67d889d8658cf0cbcde5721b13a5b6b12ec7414ac23a07f3bd1805c8a6e3",
+    "final_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "changed_files": 1,
+    "diff_sha256": "18111a2aa9fc445abc53183650ea757b06549ee75026d7adf8c608f0c98131ce",
+    "diff_archive_sha256": "ef808b2ef030e9d2c79e320e95dddd1c30b905d622abedae6933287d08ef6766"
+  },
+  "behavior_proof": {
+    "disabled_predicate_unchanged": "!draftReview || draftReviewBusy || !onApplyDraft",
+    "click_handler_unchanged": "() => void applyDraftReview()",
+    "visible_label_unchanged": "Apply",
+    "app_wiring_unchanged": ["onAddDraft={handleAddDraftReview}", "onApplyDraft={handleApplyDraftReview}"],
+    "accessible_title_priority": ["draftReviewBusy", "!draftReview", "!onApplyDraft"],
+    "enabled_title": null
+  },
+  "tests": {
+    "final_dead_controls": "PASS 1/1 in 37.62s",
+    "v1_draft_review_regressions_reused": "PASS 3/3 with 159 skipped in 3.59s",
+    "reuse_basis": "The successor only reorders conditional title selection; enablement, click, state, handler and Apply behavior are byte-unchanged.",
+    "git_diff_check": "PASS"
+  },
+  "binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/COMPLETE_BINDING_V2.json",
+    "sha256": "58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9",
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "entry_count": 17,
+    "unchanged_members": 16
+  },
+  "native_impact": "A rebuilt packaged UI will expose a truthful title/tooltip for the existing disabled Apply control. No action, state transition, handler, IPC, Tauri, Rust, WASM, physics, data contract, model, persistence, or solver behavior changes. The existing native workflow remains valid; this title-only accessibility change does not causally require a separate native walkthrough, while CHANGE's required clean build and full rerun will include the final source.",
+  "manager_conclusion": "The original audit defect is closed without weakening its test or changing Apply semantics. Source is frozen for RU."
+}

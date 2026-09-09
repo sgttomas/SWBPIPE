@@ -1484,7 +1484,23 @@ export function PipeViewport({
               <h4>Review and Apply</h4>
               {draftReviewMessage ? <p role="status" data-testid="viewport-draft-review-message">{draftReviewMessage}</p> : null}
               {draftReview ? <DraftReviewPreview review={draftReview} /> : <p className="muted">Add a complete node or route to generate the service validation and exact diff.</p>}
-              <button type="button" data-testid="apply-reviewed-draft" disabled={!draftReview || draftReviewBusy || !onApplyDraft} onClick={() => void applyDraftReview()}>Apply</button>
+              <button
+                type="button"
+                data-testid="apply-reviewed-draft"
+                disabled={!draftReview || draftReviewBusy || !onApplyDraft}
+                onClick={() => void applyDraftReview()}
+                title={
+                  draftReviewBusy
+                    ? "Wait for the current draft request to finish."
+                    : !draftReview
+                      ? "Add and review a draft before applying."
+                      : !onApplyDraft
+                        ? "Applying drafts is unavailable."
+                        : undefined
+                }
+              >
+                Apply
+              </button>
             </section>
           ) : null}
           <details className="viewport-technical-details"><summary>Unit source</summary><small data-testid="viewport-unit-catalog-status">

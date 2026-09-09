@@ -1,0 +1,54 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "head_basis": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+  "authority": {
+    "root_release_sha256": "9f2813cbbf997feb215e3f511c5cee1ffd4381939c15bcf8b8c7e84b68c02fef",
+    "activation_sha256": "32e6b044cb2817d990e45ebd4ab410d574581431b6e46d4c9b7feaa388a6c8fe",
+    "work_graph_v1_sha256": "0df1458adee2ec05b048bc4ea50b017afdbb6208540fdcb31e10c89650ac59e4",
+    "work_graph_v2_sha256": "924599085c18cbd8e004c6b49362434dd6767935b49a91394b4ecc687990382f"
+  },
+  "execution": {
+    "agent_2": "/root/native_authoring/u7_post_g2_accessibility",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false,
+    "brief_v1_sha256": "f8bc100ea895d7e364dc746d8e7a7ea5c47ddb2d368bb0d1d1cc4e76949d7b17",
+    "successor_brief_v2_sha256": "5dfe89bf39c6e732d226c25e9244202c5cb3dddefaf6fb3f47a665eb8fb5717e",
+    "return_v1_sha256": "b3fe988cac18ef3316b6554484fd1b775df26e853d860a5846a2699b5be638af",
+    "return_v2_sha256": "d2bf9d65df6ff5d5d63888e9525d981007750cf76a5cee68e7dbfbb948cdd17d"
+  },
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "preimage_sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad",
+    "v1_intermediate_sha256": "edab67d889d8658cf0cbcde5721b13a5b6b12ec7414ac23a07f3bd1805c8a6e3",
+    "final_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "changed_files": 1
+  },
+  "diff": {
+    "archive_path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g2_accessibility/PIPEVIEWPORT_ACCESSIBILITY_DIFF_V1.base64.json",
+    "archive_sha256": "ef808b2ef030e9d2c79e320e95dddd1c30b905d622abedae6933287d08ef6766",
+    "decoded_sha256": "18111a2aa9fc445abc53183650ea757b06549ee75026d7adf8c608f0c98131ce",
+    "decoded_bytes": 1848
+  },
+  "validation": {
+    "final_dead_controls": "PASS 1/1 in 37.62s",
+    "v1_draft_review_tests": "PASS 3/3 with 159 skipped in 3.59s",
+    "v2_reuse_basis": "Only title-condition priority changed; disabled predicate, click handler and Apply behavior are unchanged.",
+    "git_diff_check": "PASS"
+  },
+  "binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g2_accessibility/COMPLETE_BINDING_V2.json",
+    "sha256": "58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9",
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "entry_count": 17,
+    "unchanged_members": 16,
+    "updated_member": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx"
+  },
+  "manager": {
+    "validation_sha256": "ca4c07afbc09a10eaf5e27ac1dc66279a319c96a6bd47d9c11863f8a362b80a8",
+    "return_sha256": "dfee62b10ff59ff53f51e10bbbd390facee736cef3768027e8a3216542dc747b"
+  },
+  "native_impact": "Rendered disabled-button title only; no native or application action/state contract changed and no separate native walkthrough is causally required.",
+  "next_gate": "root-routed RU review, then CHANGE clean build and full rerun"
+}

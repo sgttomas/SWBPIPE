@@ -1,0 +1,116 @@
+{
+  "schema_version": "2.0",
+  "record_type": "routine_bounded_source_repair_release",
+  "status": "U7_CHILD_ACTUALLY_DISPATCHED_RUNNING_NO_FREEZE_OR_PASS",
+  "supersedes": {
+    "path": "G2_ACCESSIBILITY_REPAIR_RELEASE_V1.json",
+    "sha256": "9f2813cbbf997feb215e3f511c5cee1ffd4381939c15bcf8b8c7e84b68c02fef",
+    "corrections": [
+      "Use five parent levels from this directory to project-level validation.",
+      "Classify the disabled-Apply accessible-reason omission as a production UI accessibility defect, not a physics or solver defect.",
+      "Bind the actual child dispatch without implying completion."
+    ]
+  },
+  "failed_verification": {
+    "tested_source_commit": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+    "g0": {
+      "status": "PASS",
+      "seconds": 62.986
+    },
+    "g1": {
+      "status": "PASS",
+      "tests": 1012,
+      "seconds": 19.578
+    },
+    "g2": {
+      "status": "FAIL",
+      "wasm": "PASS",
+      "tests_passed": 803,
+      "tests_failed": 1,
+      "seconds": 160.469,
+      "test": "App.deadControls.test.tsx:211",
+      "defect": "Production UI accessibility omission: the initially disabled apply-reviewed-draft control exposes no accessible disabled-state reason.",
+      "physics_or_solver_defect": false
+    },
+    "g3": "NOT_RUN",
+    "g4": "NOT_RUN",
+    "practitioner": "NOT_RUN",
+    "change_state": "STOPPED; raw failure preserved; no post-failure staging, commit, retry, or native action."
+  },
+  "reference_files": [
+    {
+      "id": "sweep_summary",
+      "path": "../../../../../validation/evidence/sweeps/SWEEP_20260909T034554Z_f67498d4fe8d.json",
+      "sha256": "68121f70d90dcb5a89334b71dc4025bc934703abd10651049656b2a0cfdeeef3"
+    },
+    {
+      "id": "change_failure",
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G2_FAILURE_V2.json",
+      "sha256": "2e3238204726e6d1399bd25691f9d3e158b13a06020b4cfe67b162354503b2f0"
+    },
+    {
+      "id": "lossless_failure_log",
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G2_FAILURE_V2.log.base64.json",
+      "sha256": "5665d7461f5813bbc224d3f5e75df9c473cfd20c7cae96efa6f28fa8bd609356",
+      "decoded_sha256": "afaa27d93cd2aff878e93e292f767b49e365b5d6fd555df0d303c3fbd57dcb9f",
+      "decoded_bytes": 144357
+    },
+    {
+      "id": "owner_direction",
+      "path": "../post_g0/OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    {
+      "id": "u7_activation",
+      "path": "../instances/U7/post_g2_accessibility/ACTIVATION_V1.json",
+      "sha256": "32e6b044cb2817d990e45ebd4ab410d574581431b6e46d4c9b7feaa388a6c8fe"
+    },
+    {
+      "id": "u7_graph",
+      "path": "../instances/U7/post_g2_accessibility/WORK_GRAPH_V1.json",
+      "sha256": "0df1458adee2ec05b048bc4ea50b017afdbb6208540fdcb31e10c89650ac59e4"
+    },
+    {
+      "id": "child_brief",
+      "path": "../instances/U7/post_g2_accessibility/children/A1/SEALED_BRIEF_V1.md",
+      "sha256": "f8bc100ea895d7e364dc746d8e7a7ea5c47ddb2d368bb0d1d1cc4e76949d7b17"
+    }
+  ],
+  "authority": {
+    "basis": "Owner broad session initiative plus root bounded repair routing; no new Owner ceremony and no per-hash permission gate.",
+    "prior_exact_exception": "TERMINATED_AND_HISTORICAL; not revived.",
+    "scope_boundary": "One existing production UI file and accessibility metadata for existing disabled conditions only; enable logic, handler, model, physics, contracts, and test criteria remain unchanged."
+  },
+  "actual_dispatch": {
+    "manager": "/root/native_authoring",
+    "child": "/root/native_authoring/u7_post_g2_accessibility",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "fresh_instance": true,
+    "delegation": false,
+    "current_state": "RUNNING; no source freeze, test PASS, return, or stop claimed."
+  },
+  "writable_scope": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "path_kind": "mutable execution scope, not a frozen reference",
+    "evidence_scopes": [
+      "instances/U7/post_g2_accessibility/**",
+      "DEL-07-01 existing run post_g2_accessibility/**"
+    ]
+  },
+  "required_sequence": [
+    "U7 freezes the one-file repair and focused evidence, then stops.",
+    "Root dispatches independent RU review after source freeze.",
+    "After accepted fan-in, CHANGE creates a new clean tested commit and reruns the complete DEC-025 sweep from G0.",
+    "Practitioner runs only after complete sweep PASS.",
+    "Receipt 137 waits for exact tested-source and full-sweep PASS evidence."
+  ],
+  "native_disposition": "Retain prior native evidence pending causal-impact review. A changed metadata hash alone neither proves retention nor requires rerun.",
+  "limits": {
+    "full_sweep_pass_claimed": false,
+    "receipt_137_written": false,
+    "lifecycle_or_dag_change": false,
+    "engineering_or_acceptance_change": false,
+    "c0_source_or_git_write": false
+  }
+}

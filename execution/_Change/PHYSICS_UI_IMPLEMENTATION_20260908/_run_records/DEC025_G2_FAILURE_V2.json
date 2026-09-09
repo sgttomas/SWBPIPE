@@ -1,0 +1,65 @@
+{
+  "schema_version": "1.0",
+  "record_type": "change_dec025_failure",
+  "status": "PRESERVED_FAILURE_HELD_FOR_ROOT_ROUTING",
+  "recorded_at_utc": "2026-09-09T03:52:04Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "tested_source_commit": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+  "source_binding": {
+    "members": 17,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "committed_equality": "PASS"
+  },
+  "upstream": {
+    "origin_main": "781b478176db46ca66ebd38991607612e0ce9338",
+    "already_ancestor": true,
+    "integration_commit_required": false
+  },
+  "sweep": {
+    "summary_path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260909T034554Z_f67498d4fe8d.json",
+    "summary_sha256": "68121f70d90dcb5a89334b71dc4025bc934703abd10651049656b2a0cfdeeef3",
+    "overall_status": "fail",
+    "G0": {
+      "status": "pass",
+      "duration_seconds": 62.986
+    },
+    "G1": {
+      "status": "pass",
+      "tests_passed": 1012,
+      "duration_seconds": 19.578
+    },
+    "G2": {
+      "status": "fail",
+      "wasm_build": "pass",
+      "desktop_test_exit_code": 1,
+      "test_files": "1 failed, 45 passed",
+      "tests": "1 failed, 803 passed",
+      "duration_seconds": 160.469,
+      "failure": "src/App.deadControls.test.tsx:211 — initial testid apply-reviewed-draft is disabled without title, aria-label, or aria-describedby; visible text Apply"
+    },
+    "G3": {
+      "status": "not_run"
+    },
+    "G4": {
+      "status": "not_run"
+    },
+    "practitioner": {
+      "status": "not_run",
+      "reason": "DEC-025 did not pass"
+    }
+  },
+  "raw_output_archive": {
+    "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G2_FAILURE_V2.log.base64.json",
+    "archive_sha256": "5665d7461f5813bbc224d3f5e75df9c473cfd20c7cae96efa6f28fa8bd609356",
+    "decoded_sha256": "afaa27d93cd2aff878e93e292f767b49e365b5d6fd555df0d303c3fbd57dcb9f",
+    "decoded_bytes": 144320
+  },
+  "next_state": "No retry, source edit, additional suite, publication, push, PR, or merge. Root owns bounded diagnosis and repair routing.",
+  "native_binding_calibration": "Accepted native evidence remains historical and unchanged; root evaluates reuse from actual affected production bytes and dependency chain after any correction."
+}

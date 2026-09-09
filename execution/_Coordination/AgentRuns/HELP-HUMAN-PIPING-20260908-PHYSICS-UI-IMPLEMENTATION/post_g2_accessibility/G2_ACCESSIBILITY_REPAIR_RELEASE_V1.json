@@ -1,0 +1,104 @@
+{
+  "schema_version": "1.0",
+  "record_type": "routine_bounded_source_repair_release",
+  "status": "U7_MANAGER_ACTUALLY_DISPATCHED_CHILD_BRIEF_AND_REPAIR_PENDING",
+  "failed_verification": {
+    "tested_source_commit": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+    "sweep_summary": {
+      "path": "../../../../validation/evidence/sweeps/SWEEP_20260909T034554Z_f67498d4fe8d.json",
+      "sha256": "68121f70d90dcb5a89334b71dc4025bc934703abd10651049656b2a0cfdeeef3"
+    },
+    "g0": {
+      "status": "PASS",
+      "seconds": 62.986
+    },
+    "g1": {
+      "status": "PASS",
+      "tests": 1012,
+      "seconds": 19.578
+    },
+    "g2": {
+      "status": "FAIL",
+      "wasm": "PASS",
+      "tests_passed": 803,
+      "tests_failed": 1,
+      "seconds": 160.469,
+      "test": "App.deadControls.test.tsx:211",
+      "finding": "The initial apply-reviewed-draft control has no accessible reason for its disabled state."
+    },
+    "g3": "NOT_RUN",
+    "g4": "NOT_RUN",
+    "practitioner": "NOT_RUN",
+    "change_disposition": "Raw failure preserved; publication and Receipt 137 remain held.",
+    "change_failure_packet": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G2_FAILURE_V2.json",
+      "sha256": "2e3238204726e6d1399bd25691f9d3e158b13a06020b4cfe67b162354503b2f0"
+    },
+    "lossless_log_archive": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G2_FAILURE_V2.log.base64.json",
+      "sha256": "5665d7461f5813bbc224d3f5e75df9c473cfd20c7cae96efa6f28fa8bd609356",
+      "decoded_sha256": "afaa27d93cd2aff878e93e292f767b49e365b5d6fd555df0d303c3fbd57dcb9f",
+      "decoded_bytes": 144357
+    },
+    "change_terminal_state": "STOPPED; no staging, commit, retry, or native action after failure."
+  },
+  "authority": {
+    "owner_direction": {
+      "path": "../post_g0/OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    "root_grant": "Routine bounded source repair under the Owner session initiative and instruction to continue toward the intended goal.",
+    "prior_exact_exception": "TERMINATED_AND_HISTORICAL; not revived.",
+    "per_hash_owner_gate_created": false,
+    "new_owner_approval_required": false
+  },
+  "repair": {
+    "manager": "U7 WORKING_ITEMS /root/native_authoring",
+    "manager_dispatch": "ROOT_ACTUALLY_FOLLOWED_UP",
+    "child_state": "SEALED_BRIEF_AND_AGENT2_EXECUTION_PENDING; no child PASS or stop claimed",
+    "sole_writable_path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "target": "existing button near line 1487",
+    "purpose": "Expose accessible reasons for the existing disabled conditions on apply-reviewed-draft.",
+    "must_preserve": [
+      "enable conditions",
+      "handler",
+      "model behavior",
+      "physics behavior",
+      "public contracts",
+      "existing test criteria"
+    ],
+    "evidence_scopes": [
+      "instances/U7/post_g2_accessibility/**",
+      "DEL-07-01 existing run post_g2_accessibility/**"
+    ],
+    "model_contract": {
+      "agent_2": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": false
+    },
+    "not_yet_known": [
+      "final child brief",
+      "source successor hash",
+      "test result",
+      "manager validation",
+      "source freeze"
+    ]
+  },
+  "required_sequence": [
+    "U7 freezes the exact one-file repair and focused validation, then stops its source writer.",
+    "Root dispatches an independent RU review after the repair source freeze.",
+    "CHANGE creates a new clean tested commit only after accepted repair fan-in.",
+    "Run the complete DEC-025 sweep again from G0; prior G0/G1 PASS does not waive rerun.",
+    "Run the practitioner suite only after the complete sweep passes.",
+    "Append Receipt 137 only after exact tested-source and full-sweep PASS evidence exists."
+  ],
+  "native_evidence_disposition": "Retain prior native evidence pending an actual causal-impact review. A changed hash alone does not require a native rerun; no retention or rerun conclusion is claimed yet.",
+  "limits": {
+    "production_defect_claimed": false,
+    "full_sweep_pass_claimed": false,
+    "receipt_137_written": false,
+    "lifecycle_or_dag_change": false,
+    "engineering_decision": false,
+    "c0_source_or_git_write": false
+  }
+}

@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "record_type": "bounded_agent2_return",
+  "status": "PASS",
+  "agent": "A1",
+  "role": "bounded Agent 2",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "delegation": false,
+  "head_basis": "f67498d4fe8df4f5a7c0d6c279a8e62e1cc77634",
+  "sealed_brief": {
+    "path": "SEALED_BRIEF_V1.md",
+    "sha256": "f8bc100ea895d7e364dc746d8e7a7ea5c47ddb2d368bb0d1d1cc4e76949d7b17"
+  },
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "preimage_sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad",
+    "postimage_sha256": "edab67d889d8658cf0cbcde5721b13a5b6b12ec7414ac23a07f3bd1805c8a6e3",
+    "diff_numstat": "17 insertions, 1 deletion",
+    "change_map": {
+      "control": "apply-reviewed-draft",
+      "location": "PipeViewport route-review section near original line 1487",
+      "only_semantic_addition": "A conditional title attribute gives a distinct accessible explanation for each disabled cause and is undefined when enabled.",
+      "title_mapping": [
+        {
+          "condition": "!draftReview",
+          "title": "Add and review a draft before applying."
+        },
+        {
+          "condition": "draftReviewBusy",
+          "title": "Wait for the current draft request to finish."
+        },
+        {
+          "condition": "!onApplyDraft",
+          "title": "Applying drafts is unavailable."
+        },
+        {
+          "condition": "enabled",
+          "title": null
+        }
+      ],
+      "format_only": "The existing single-line button was expanded across JSX lines to hold the title expression."
+    }
+  },
+  "preserved_contracts": {
+    "disabled_predicate": "!draftReview || draftReviewBusy || !onApplyDraft",
+    "click_handler": "() => void applyDraftReview()",
+    "visible_label": "Apply",
+    "predicate_order_unchanged": true,
+    "add_review_apply_behavior_unchanged": true,
+    "app_producer_consumer_contracts_unchanged": true,
+    "app_wiring_observed_read_only": [
+      "onAddDraft={handleAddDraftReview}",
+      "onApplyDraft={handleApplyDraftReview}"
+    ]
+  },
+  "validation": [
+    {
+      "command": "npm test -- src/App.deadControls.test.tsx",
+      "working_directory": "projects/chirality-piping/apps/desktop",
+      "result": "PASS",
+      "test_files": "1 passed (1)",
+      "tests": "1 passed (1)",
+      "duration": "37.78s"
+    },
+    {
+      "command": "npm test -- src/App.test.tsx -t 'validates and applies a new endpoint as one ordered batch with one checkpoint|disables every route control during delayed Add and discards the result after permitted selection invalidation|invalidates a frozen hash-bound route review after another model revision'",
+      "working_directory": "projects/chirality-piping/apps/desktop",
+      "result": "PASS",
+      "test_files": "1 passed (1)",
+      "tests": "3 passed, 159 skipped (162)",
+      "duration": "3.59s",
+      "coverage": [
+        "enabled Apply and one-checkpoint application",
+        "busy delayed-Add invalidation",
+        "stale frozen-review invalidation"
+      ]
+    },
+    {
+      "command": "git diff --check -- projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "result": "PASS"
+    },
+    {
+      "command": "LC_ALL=C rg -n <CR-byte> projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "result": "PASS: no CR bytes found; source is LF-clean"
+    }
+  ],
+  "scope": {
+    "source_files_changed_by_a1": [
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx"
+    ],
+    "tests_changed": false,
+    "raw_diff_artifact_written": false,
+    "excluded_commands_run": false,
+    "git_mutations_performed": false
+  },
+  "native_impact": "None identified. The change only adds a React-rendered title attribute to an existing HTML button; it does not change IPC, Tauri/native code, Rust, WASM, physics, data contracts, handlers, or state transitions. No native rerun is causally required by this source change.",
+  "handoff": "Source is frozen after focused PASS and ready for parent validation and independent read-only review."
+}

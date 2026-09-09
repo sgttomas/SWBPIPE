@@ -1,0 +1,17 @@
+COMMAND (workdir /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908):
+set -euo pipefail
+RUN='projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION'
+SRC='ui/src/components/PipeViewport.tsx'
+CONTROL="$RUN/post_g2_accessibility/G2_ACCESSIBILITY_REPAIR_RELEASE_V2.json"
+sha256sum "$SRC" "$CONTROL"
+printf '\n-- control --\n'
+cat "$CONTROL"
+printf '\n-- Apply region --\n'
+sed -n '1470,1505p' "$SRC"
+printf '\n-- U7 files --\n'
+rg --files "$RUN/instances/U7/post_g2_accessibility" | sort
+
+EXIT: 1
+OUTPUT:
+sha256sum: ui/src/components/PipeViewport.tsx: No such file or directory
+e4e087609bde32c6f2130c6e534c0fc44ec92d4be5e5a1e6c5167e2076605727  projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g2_accessibility/G2_ACCESSIBILITY_REPAIR_RELEASE_V2.json

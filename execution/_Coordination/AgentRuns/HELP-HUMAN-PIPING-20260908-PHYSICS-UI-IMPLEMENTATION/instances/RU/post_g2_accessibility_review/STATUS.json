@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "record_type": "independent_bounded_review_status",
+  "status": "PASS_STOPPED",
+  "verdict": "PASS",
+  "agent": "RU",
+  "role": "ephemeral Agent 2 independent reviewer",
+  "model_request": "gpt-5.6-sol/high",
+  "identity_evidence": "instruction-asserted; runtime identity not mechanically exposed",
+  "delegation": false,
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+    "preimage_sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad",
+    "final_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+    "changed_files": 1
+  },
+  "findings": [],
+  "binding": {
+    "sha256": "58a94da8227c96734a433f8ddd116fee4558527fa01ab5354c35f0dc48ecb7e9",
+    "aggregate_sha256": "d80b48eaa2c1c60532c17fbace51eddd9f049123396af7d01c66a3a2ab20ca6a",
+    "entry_count": 17,
+    "live_mismatches": 0,
+    "changed_vs_predecessor": [
+      "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx"
+    ]
+  },
+  "native_disposition": "Retain older-cut native evidence as historical proof for unchanged solver/route behavior; do not claim a fresh or exact final-cut native bundle. No separate native walkthrough is causally required by the title-only delta.",
+  "next_gate": "CHANGE clean build and complete DEC-025 rerun on the accepted final source",
+  "source_or_test_writes": false,
+  "tests_or_builds_executed_by_ru": false
+}

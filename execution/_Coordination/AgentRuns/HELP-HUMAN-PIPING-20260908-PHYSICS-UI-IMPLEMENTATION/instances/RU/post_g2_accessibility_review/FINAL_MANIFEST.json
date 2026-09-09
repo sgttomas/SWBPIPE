@@ -1,0 +1,55 @@
+{
+  "schema_version": "1.0",
+  "record_type": "independent_review_output_manifest",
+  "status": "PASS_STOPPED",
+  "verdict": "PASS",
+  "source_sha256": "d284969e4d52e6140625fe48c8ad482a406307917845b99af58338e5f9048eda",
+  "input_inventory_validation": "PASS_25_OF_25",
+  "files": [
+    {
+      "path": "SEALED_BRIEF.md",
+      "sha256": "2b894215a5797c74a5f185742354216ab44ab1e1ea0560e67dcff894f6fa7315",
+      "bytes": 1617
+    },
+    {
+      "path": "PREP_RECOMMENDATION.md",
+      "sha256": "19185fbd94728fba0c394935eab1b813533cd994e955f6fe624aa5db1dac9224",
+      "bytes": 2414
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "259ef23216bb6060ee5d7e8e9ea2f00491651e590181d4bd2a62ea923abb351d",
+      "bytes": 2612
+    },
+    {
+      "path": "VALIDATION.md",
+      "sha256": "4a31e88d0f6f950e5645aa919671ca2f5e4f5bc6421414d901fcad69fb6dca9c",
+      "bytes": 1456
+    },
+    {
+      "path": "INPUT_INVENTORY.sha256",
+      "sha256": "f3085a51324ea58f3e85007ac1df438de4ed468811c571aefd10c7816010d93e",
+      "bytes": 5420
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "3e131476524e4ba4ab0c917906c728c2dfe9adc72e9fbaf3914744728e77b19f",
+      "bytes": 785
+    },
+    {
+      "path": "STATUS.json",
+      "sha256": "23fd5e30dc9e88a6fc2574792ab11f5d0376ca230276c8b2f8f10299230dc5b0",
+      "bytes": 1472
+    },
+    {
+      "path": "_run_records/FAILED_COMMAND_001.txt",
+      "sha256": "b69a72e1b2d462f2654f2a07148cd3e03552547a4d644813fa56cb4eabeb3152",
+      "bytes": 901
+    },
+    {
+      "path": "_run_records/FAILED_COMMAND_002.txt",
+      "sha256": "e729268b5bcfb82e07d0b18e361fe557f6521f05a63a960dd90c642143ef358f",
+      "bytes": 4072
+    }
+  ]
+}
