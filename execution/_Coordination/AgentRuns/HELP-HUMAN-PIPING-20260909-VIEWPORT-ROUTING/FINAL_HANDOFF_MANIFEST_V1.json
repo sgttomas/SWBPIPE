@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "record_type": "final_bounded_verification_handoff",
+  "recorded_at_utc": "2026-09-09T09:27:07Z",
+  "state": "BOUNDED_IMPLEMENTATION_VERIFIED_PUBLICATION_PENDING",
+  "tested_source_commit": "cf58e6fe452b56351446311a1c3bab903af4ab8f",
+  "accepted_upstream": {
+    "decomposition_sca_dag_lifecycle": "unchanged",
+    "derivative_status": "This run is a bounded derivative implementation and evidence package; it does not replace authoritative decomposition truth or close the whole project.",
+    "preintegration_handoff": {
+      "path": "{RUN_ROOT}/PREINTEGRATION_FAN_IN_HANDOFF_V1.json",
+      "sha256": "98799ab13c414fa780ecad09978a81fe53090799125eb6b7b748653bab12f0de"
+    }
+  },
+  "authority_continuity": {
+    "owner_direction": {
+      "path": "{RUN_ROOT}/OWNER_DIRECTION.md",
+      "sha256": "7efda9d1acd57374bc36cfc42d7aef6a08e7b3f06f6ad59b4868eb1181ece0f8"
+    },
+    "engineering_direction": {
+      "path": "{RUN_ROOT}/OWNER_ENGINEERING_DIRECTION_V2.md",
+      "sha256": "34f63986512e53b3e574563a61e4411b14bb27815cd30c18b3d5907dacd32c18"
+    },
+    "effect": "Broad engineering judgment and standing Git authority continue; ordinary defensible engineering choices do not require renewed permission. All Agent 1 and Agent 2 work remains gpt-5.6-sol/high unless the Owner grants a specific exception."
+  },
+  "accepted_evidence": {
+    "original_ten_source_cut": {
+      "path": "{RUN_ROOT}/instances/FINAL_REVIEW/SOURCE_CUT_MANIFEST_V1.json",
+      "sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d"
+    },
+    "original_source_review": {
+      "path": "{RUN_ROOT}/instances/FINAL_REVIEW/review/ACTIVE_REVIEW_POINTER_V2.json",
+      "sha256": "77e4572c5a86daf39982646d0a68f8ce4536db4608ef9397098a0a0ae3d81a41",
+      "verdict": "PASS"
+    },
+    "headless_test_review": {
+      "path": "{RUN_ROOT}/instances/HEADLESS_TEST_REVIEW/review/MANIFEST_V1.json",
+      "sha256": "c718b3cc98e950ba1af82ac65c149d5ce59b1d2a4def4c2f38d3f49f4d4207c2",
+      "verdict": "PASS"
+    },
+    "python_ui_test_review": {
+      "path": "{RUN_ROOT}/instances/PYTHON_UI_TEST_REVIEW/review/MANIFEST_V1.json",
+      "sha256": "0b392731f741d22fb9ff7e235af95a551406de504320829db1aaaef25100fc7a",
+      "verdict": "PASS",
+      "cumulative_unique_changed_paths": "13/13"
+    },
+    "routing_native_witness": {
+      "path": "{RUN_ROOT}/instances/NATIVE_WITNESS/witness/FINAL_MANIFEST.json",
+      "sha256": "3c2cc2d851dc181cb6684222e76a56faca6d0196a8a269b3447f994e72daace6",
+      "verdict": "PASS",
+      "calibration": "Actual native evidence covers routing, operations, and persistence on the reviewed runtime bytes. It is not numerical-physics or external-solver validation; later changes were reviewed test-only deltas."
+    },
+    "clean_dec025": {
+      "path": "{PROJECT_ROOT}/execution/_Change/VIEWPORT_ROUTING_20260909/CLEAN_DEC025_RESULT_V1.json",
+      "sha256": "80b870af268c266bd0d1531c67d867dc41783bd314b1b765f601312648fffe29",
+      "sweep": {
+        "path": "{PROJECT_ROOT}/validation/evidence/sweeps/SWEEP_20260909T091618Z_cf58e6fe452b.json",
+        "sha256": "d38b91a08946b63dfe6ac84f05e4c6516250ad058d55f0b6fb63e721ae2f409f"
+      },
+      "verdict": "PASS_G0_THROUGH_G4_FROM_CLEAN_SOURCE"
+    },
+    "practitioner_and_selfcheck": {
+      "path": "{PROJECT_ROOT}/execution/_Change/VIEWPORT_ROUTING_20260909/PRACTITIONER_AND_SELFCHECK_RESULT_V1.json",
+      "sha256": "4cb11120947019dd7e9d651975c1f65075bf7461f45e752c5b8af97103c80496",
+      "verdict": "PASS_WITH_ESTABLISHED_SELFCHECK_FINDINGS"
+    }
+  },
+  "historical_resolution": {
+    "run_evidence": {
+      "path": "{RUN_ROOT}/EVIDENCE_NORMALIZATION_RESOLVER_V1.json",
+      "sha256": "48fef99a132652f6a0516ed848b3aa212fa5c88efc51fa979d7e293759aa0b75"
+    },
+    "p5": {
+      "path": "{RUN_ROOT}/instances/P5/P5_EVIDENCE_HYGIENE_RESOLVER_V1.json",
+      "sha256": "dd1e613d8e943724adc8232af0dc9026b21c2da1882006005fee326052c35962"
+    },
+    "f4": {
+      "path": "{RUN_ROOT}/instances/F4/implementation/EVIDENCE_HYGIENE_RESOLVER_V1.json",
+      "sha256": "f14baabf5f207cfd4e1ae69e0ff27318a246f8436e0bb27fad06d694f6733f5b"
+    },
+    "native": {
+      "path": "{RUN_ROOT}/instances/NATIVE_WITNESS/witness/_run_records/PATH_NORMALIZATION_RESOLVER_V1.json",
+      "sha256": "c7df030dae19841589efeaf10e6726da2911a5bd49b00bed852b317e34253786"
+    },
+    "failed_attempts": "The prior G0/G1 failures and nonterminal G3 diagnostic remain preserved; the clean registered sweep supersedes them only for final validation."
+  },
+  "acceptance": {
+    "verdict": "ACCEPT_BOUNDED_ENGINEERING_AND_VIEWPORT_ROUTING_IMPLEMENTATION",
+    "scope": "The reviewed physics repairs, viewport routing and palette integration, test corrections, native routing witness, and clean source-bound verification are accepted at the tested source commit.",
+    "receipt": "Receipt-138 is appended to the loop ledger and records bounded verification, not whole-project closure."
+  },
+  "open_limits": {
+    "public_schema": "The pre-existing 196 complete-document schema failures remain open under the bounded P5 validation boundary; no full-schema PASS or public-contract adoption is claimed.",
+    "external_industry_solver_validation": "NOT_YET_PERFORMED",
+    "future_physics": "Pressure and connector work requires the refuted designs' corrected runtime-contract, migration, topology, and result-consumer fences. Contact recovery and pivot/factorization diagnostics remain future work.",
+    "future_ui": "Further palette editing remains open.",
+    "formal_state": "Requirements, decomposition, SCA, DAG, dependencies, lifecycle, release, certification, and professional-reliance status are unchanged."
+  },
+  "handoff": {
+    "change_owner": "CHANGE",
+    "pending": [
+      "create the evidence-only container commit",
+      "run final publication and committed-range checks",
+      "push and open the PR under standing Git authority",
+      "require exact-head hosted CI before merge",
+      "merge only after all required gates pass"
+    ],
+    "publication_status": "PENDING_CHANGE",
+    "pr_status": "NOT_YET_RECORDED",
+    "merge_status": "NOT_YET_RECORDED"
+  }
+}

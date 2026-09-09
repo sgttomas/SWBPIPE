@@ -3160,3 +3160,11 @@
   - Checks: independent bounded reviews, exact source equality, clean complete five-surface DEC-025 sweep, practitioner harness, receipt contract, path anchors, and candidate whitespace: PASS. Exact measurements and failure lineage remain in the cited artifacts.
   - Model-Attribution: HELP_HUMAN supervised F4/U7/CHANGE managers and bounded implementation, review, native-witness, and recorder Agent 2 instances under `gpt-5.6-sol` with high reasoning. Exact identities and retained procedural qualifications are in the named run. No `gpt-6-astra` exception was granted.
   - Gate-Outcome: `EXECUTED` — the bounded selected physics/UI implementation and evidence are technically verified at the tested source commit. Historical G0/G2/browser/native failures remain preserved; the accepted native packet is exact older-cut evidence for unchanged behavior, not a fresh final-annotation bundle claim. The evidence-only commit, PR, exact-head CI, and merge remain pending. Broader pressure, physical-model and 3D/UI work remain open; requirements, dependencies, DAG, lifecycle, public-contract, engineering, release, and professional-reliance status are unchanged. This is not whole-project closure.
+
+- **2026-09-09 — Receipt 138** (viewport routing and bounded engineering verification).
+  - Receipt-ID: `Receipt-138`
+  - Examined-Through: `cf58e6fe452b56351446311a1c3bab903af4ab8f`
+  - Parent-Receipt: `Receipt-137`
+  - Pointers: branch `codex/piping-viewport-routing-20260909`; `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/FINAL_HANDOFF_MANIFEST_V1.json`; clean sweep `validation/evidence/sweeps/SWEEP_20260909T091618Z_cf58e6fe452b.json`.
+  - Checks: independent cumulative source/test review, native routing witness, complete clean registered DEC-025 sweep, practitioner harness, qualified repository self-check, normalization resolution and receipt contract: PASS.
+  - Gate-Outcome: `EXECUTED` — bounded physics repairs, viewport routing and palette integration are technically verified at the tested source commit. Public-schema and external industry-solver validation remain open; formal decomposition, dependency, DAG, lifecycle, release and reliance status are unchanged. Evidence-only publication, PR, exact-head CI and merge remain pending under standing authority; this is not whole-project closure.
