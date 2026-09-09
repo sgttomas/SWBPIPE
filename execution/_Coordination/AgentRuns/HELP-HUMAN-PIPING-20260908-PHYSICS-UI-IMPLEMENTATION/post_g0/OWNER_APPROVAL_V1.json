@@ -1,0 +1,29 @@
+{
+  "schema_version": "1.0",
+  "record_type": "owner_approval",
+  "status": "APPROVED",
+  "owner_quote_as_relayed": "I approve the [bounded six-file extension](.../post_g0/PROPOSED_OWNER_ACT_V2.md)",
+  "owner_quote_utf8_sha256": "718e6708d2ff7efa8cbe073ce1a6fb2270414fb2ef7a989777ead21138c603b5",
+  "approved_instrument": {
+    "path": "PROPOSED_OWNER_ACT_V2.md",
+    "sha256": "9dfa3140d7762514479eb3983178298977bb1f5fedfdcf91253547a42b62a400"
+  },
+  "interpretation": "Approval activates only the exact six-path corrective tranche, its prescribed gates, and its stated expiry. It does not alter frozen predecessor bytes.",
+  "source_exception": {
+    "state": "ACTIVE_FOR_APPROVED_TRANCHE",
+    "starts_at": "OWNER_APPROVAL",
+    "expires_at": "ROOT_ACCEPTED_CORRECTED_SOURCE_FAN_IN_AFTER_ALL_PRESCRIBED_RELEASE_VERIFICATION",
+    "silent_expansion": false
+  },
+  "standing_directions": {
+    "git": "Commit, push, PR creation, and merge remain authorized in the approved V2 order; merge follows all required gates.",
+    "agent_1_and_2_model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false
+  },
+  "holds_preserved": [
+    "DEC-025 G0 failure history",
+    "Receipt 137 until tested source and clean sweep",
+    "implementation publication until all gates pass"
+  ]
+}

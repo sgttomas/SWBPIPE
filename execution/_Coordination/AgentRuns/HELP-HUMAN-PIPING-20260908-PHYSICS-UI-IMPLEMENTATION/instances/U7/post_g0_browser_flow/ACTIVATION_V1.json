@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "agent": "U7",
+  "role": "WORKING_ITEMS",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "status": "ACTIVE_CHILD_DISPATCH_AUTHORIZED",
+  "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "authority": {
+    "owner_direction_sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326",
+    "ownership_transfer_sha256": "317732dcd0c786674ae58168b1bd0d056a69c9b06af50444b30bea19ead3a6b7",
+    "root_release": "F4/I4 terminal BLOCKED evidence frozen; F4 and root released browser-test ownership to U7"
+  },
+  "preimage": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248"
+  },
+  "write_scope": [
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/**",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/**"
+  ],
+  "prohibitions": [
+    "No production behavior, source, API, fixture, physics, Python, build, native, Git, or other deliverable changes",
+    "Agent 2 must not delegate"
+  ]
+}

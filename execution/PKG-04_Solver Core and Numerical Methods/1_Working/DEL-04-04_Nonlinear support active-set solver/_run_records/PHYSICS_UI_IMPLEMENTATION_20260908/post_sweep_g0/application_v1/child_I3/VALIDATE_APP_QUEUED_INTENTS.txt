@@ -1,0 +1,15 @@
+COMMAND: npm --prefix projects/chirality-piping run test --workspace apps/desktop -- --run src/App.test.tsx -t carries queued editor intents into the report packet as review-only operation context
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/App.test.tsx -t carries queued editor intents into the report packet as review-only operation context
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 161 skipped (162)
+   Start at  19:16:50
+   Duration  5.78s (transform 750ms, setup 46ms, import 883ms, tests 4.67s, environment 122ms)
+
+EXIT: 0

@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "package": "V2_PORTABLE_PUBLICATION_V2",
+  "verdict": "GLOBAL_CANDIDATE_WHITESPACE_PASS",
+  "global_whitespace_findings": 0,
+  "replaced_ru_evidence_diff_paths": 2,
+  "v1_raw_patch_decoded_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445",
+  "v2_raw_patch_decoded_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "candidate_postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "frozen_manifests_byte_unchanged": true,
+  "live_product_or_test_writes": false,
+  "source_test_browser_or_build_execution": false
+}

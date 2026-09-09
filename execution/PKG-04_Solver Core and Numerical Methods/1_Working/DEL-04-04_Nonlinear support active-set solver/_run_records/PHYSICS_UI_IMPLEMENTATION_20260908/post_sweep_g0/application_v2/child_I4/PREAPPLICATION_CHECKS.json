@@ -1,0 +1,130 @@
+{
+  "authority": [
+    {
+      "kind": "reviewed_plan",
+      "match": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/browser_provenance_amendment/PROPOSED_OWNER_AMENDMENT_V2.md",
+      "sha256": "fcc4a837799cc67ff8bec32866b965edf0313b3fc516611c7f460322c3b84316"
+    },
+    {
+      "kind": "rf_review",
+      "match": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_browser_candidate_review_v1/REVIEW.md",
+      "sha256": "e8eb280f1081e4a885b6edeba4f5bdaa86fdd2d95f4c8151859e7eb24982b1ac"
+    },
+    {
+      "kind": "prior_application_manifest",
+      "match": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v1/APPLICATION_MANIFEST_V1.json",
+      "sha256": "473d3fb987d0aaf0c776b9c34f0534afb264e406410bd8e0824b429d4c6c2b8b"
+    },
+    {
+      "kind": "patch_archive",
+      "match": true,
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json",
+      "sha256": "020ec2c68f9fc317f7de0ffb0162563555947caff4b767a8feb90c424e255c46"
+    },
+    {
+      "kind": "prior_17_binding",
+      "match": true,
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_sweep_g0/application_v1/child_I3/COMPLETE_BINDING.json",
+      "sha256": "032d50ea69013be10f87257d8e30c9fc676704a0abfa77a4aabe7f1856555e63"
+    }
+  ],
+  "current_preimage": {
+    "bytes": 101709,
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17"
+  },
+  "decoded_patch_additions": 3,
+  "decoded_patch_deletions": 0,
+  "decoded_patch_paths": [
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "schema_version": "1.0",
+  "status": "PASS",
+  "unchanged_count": 16,
+  "unchanged_prior_binding_entries": [
+    {
+      "bytes": 11289,
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305"
+    },
+    {
+      "bytes": 697391,
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c"
+    },
+    {
+      "bytes": 141093,
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9"
+    },
+    {
+      "bytes": 119519,
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78"
+    },
+    {
+      "bytes": 11313,
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+      "sha256": "5f42c1d77a479c9cfb00cd9f98d901b7953c4bc7f900dc094e54e2a99c615712"
+    },
+    {
+      "bytes": 111152,
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad"
+    },
+    {
+      "bytes": 15543,
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+      "sha256": "9de95189460a18bc67e231308c641978f38ee1d971f9e6c6343e0b5969d94633"
+    },
+    {
+      "bytes": 23073,
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4"
+    },
+    {
+      "bytes": 14715,
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f"
+    },
+    {
+      "bytes": 74284,
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26"
+    },
+    {
+      "bytes": 572,
+      "path": "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+      "sha256": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241"
+    },
+    {
+      "bytes": 677565,
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5"
+    },
+    {
+      "bytes": 126220,
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+    },
+    {
+      "bytes": 634410,
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13"
+    },
+    {
+      "bytes": 737,
+      "path": "projects/chirality-piping/package.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    },
+    {
+      "bytes": 21550,
+      "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+      "sha256": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735"
+    }
+  ]
+}

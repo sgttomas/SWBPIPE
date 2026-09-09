@@ -212,11 +212,13 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert nonlinear_friction_state["value"] == 3
     assert nonlinear_friction_state["metadata"]["basis"].endswith("final_state=sliding")
     assert nonlinear_friction_displacement["value"] != 0
-    # Generated-fixture transport/parity, not an independent friction-law oracle.
-    # The existing friction policy hold does not assert mu times final normal.
-    assert nonlinear_friction_reaction["value"] == 0.411514
+    # Generated-fixture parity plus the accepted same-iterate current-normal law.
+    assert nonlinear_friction_reaction["value"] == 0.411203
     assert nonlinear_friction_normal["kind"] == "nonlinear_support_friction_normal_reaction_derived"
-    assert nonlinear_friction_normal["value"] == 41.120255
+    assert nonlinear_friction_normal["value"] == 41.120279
+    assert nonlinear_friction_reaction["value"] == round(
+        0.01 * nonlinear_friction_normal["value"], 6
+    )
     assert "derived_support_reaction" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_ref=support:S-130" in nonlinear_friction_normal["metadata"]["basis"]
     assert "source_dof=uy" in nonlinear_friction_normal["metadata"]["basis"]

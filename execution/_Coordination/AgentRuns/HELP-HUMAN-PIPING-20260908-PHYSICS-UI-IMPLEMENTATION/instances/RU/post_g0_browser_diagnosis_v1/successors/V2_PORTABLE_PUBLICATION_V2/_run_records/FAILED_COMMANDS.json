@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "commands": [
+    {
+      "command": "python3 tools/validation/validate_candidate_whitespace.py --repo-root .",
+      "exit_code": 1,
+      "combined_output_path": "_run_records/VALIDATE_GLOBAL_WHITESPACE_INITIAL.txt",
+      "classification": "Exactly four findings: mandatory unified-diff context spaces in the V1 and V2 raw applicable diff files. Both original byte streams were archived and both physical paths were replaced by non-applicable portable pointers."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+COMMAND: CARGO_TARGET_DIR=/tmp/chirality-f4-i3-product-physics-target CARGO_NET_OFFLINE=true cargo run --quiet --locked --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --example preview_result > [authorized evidence]/GENERATED_FIXTURE.json
+GENERATOR_EXIT: 0
+GENERATED_SHA256: e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13
+BYTE_EQUALITY_EXIT: 0

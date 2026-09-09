@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "status": "BLOCKED_VALIDATED",
+  "authority": {
+    "owner_approval_sha256": "cdd26a7a0347331e8ff99a1d621a912fac0737f8c2fcfba358130855e3c46fd6",
+    "approved_proposal_sha256": "9dfa3140d7762514479eb3983178298977bb1f5fedfdcf91253547a42b62a400",
+    "launch_amendment_sha256": "8da19cbb8c259ad89ef0280f399c425b399bb89081d8b8db286c2463e1c1f504",
+    "work_graph_sha256": "d8d55111332b464735854478d744326d53da0f3388f3fbebf7cee8d89f0aa6be"
+  },
+  "execution": {
+    "child_brief_sha256": "e28651139cb8abda4e6c3f1fb11e6eb2124be43e9b41bb4d09ecf1a84d289194",
+    "child_return_sha256": "724a70361c770858e70c569cc5f4119259b5b613e511302c932a4ba1d9399c9f",
+    "child_status_sha256": "b6719b950fdb15e6b8083440eaf75e5ed64359951f3129abac683e84a9d88afa",
+    "child_evidence_manifest_sha256": "9a56cd2a9d1d447565ec6ac5bf90bb7676f0b459c49327468db089c45b91a82f",
+    "validation_summary_sha256": "fbb95a0b85a924af566e734c01b4c3615cf8cbca238a6589790ac3b7cd7c1523",
+    "applied_patch_binding_sha256": "085154f02663b3bda2330aaf2143190d2fedcfa875013daaf676b7c9d4981f9d",
+    "complete_binding_sha256": "032d50ea69013be10f87257d8e30c9fc676704a0abfa77a4aabe7f1856555e63",
+    "complete_binding_aggregate_sha256": "2eb48c1af8d0d6d13e64204fb0fefd70da6ed3c89493ee206d3ae2fb97c5af8e",
+    "lossless_text_evidence_sha256": "ee122428143ee4de4935716ec8da72c8c98a931a565ae0abd6f19ed9f73696aa"
+  },
+  "applied_postimages_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c",
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17"
+  },
+  "manager": {
+    "validation_sha256": "e4e784552221baad8c193dad1c26c91f810bc924897f8f460ed0d38148250908",
+    "return_sha256": "1f3124c4fafe9d90a4d1c01c5e01e54cf4d1c02d28385ecb337d22f38da27c45",
+    "status_sha256": "58bdd077ff5e457132f58b01cc20aae46d94220b65e88ba60263d4dbdfaa6b79",
+    "publication_correction_scope_sha256": "5faa148be350c147214e30b4dac3e8420e7d6f26642245fe0dcdb11e36763e05",
+    "publication_correction_manifest_sha256": "7b482b068f2416fe4adb4ae959745b4b40a939c5c03da2e400261935c4e3e5d0"
+  },
+  "validation_disposition": {
+    "non_browser": "PASS",
+    "browser": "FAIL 0/2 at r2-smoke.spec.ts:552; preserved without retry",
+    "acceptance": "HELD"
+  },
+  "exclusive_six_path_resources_released": true,
+  "next_gate": "root-routed fresh independent review plus separately authorized browser-test repair"
+}

@@ -1,0 +1,12 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+  "checked_file_count": 4279,
+  "finding_count": 0,
+  "findings": [],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 0,
+    "policy_issues": 0,
+    "acknowledged_control": 31
+  }
+}

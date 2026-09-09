@@ -1,0 +1,29 @@
+{
+  "record_kind": "native_bundle_inventory_v2",
+  "schema_version": "1.0",
+  "path_basis": "WORKING_ROOT",
+  "root": "apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Physics UI Post-G0 Witness 20260908 R2.app",
+  "entry_count": 3,
+  "content_set_serialization": "sha256__two_spaces__kind__two_spaces__bytes__two_spaces__relative_path__newline",
+  "content_set_sha256": "a59ddabf2c37924b99782d3ffe97ebf20661bc3d7e0c773d5af1f1b42c1c4037",
+  "entries": [
+    {
+      "path": "Contents/Info.plist",
+      "kind": "file",
+      "bytes": 1129,
+      "sha256": "da293f5283d30ad3077aedc4d2e49eba341f4bb27cdf2ec982657dc89600ca13"
+    },
+    {
+      "path": "Contents/MacOS/openpipestress-desktop",
+      "kind": "file",
+      "bytes": 19861280,
+      "sha256": "d897c3ddb61fedee8889fcb7ad0910b74d0db5130241764e82e54893bb0828b1"
+    },
+    {
+      "path": "Contents/Resources/icon.icns",
+      "kind": "file",
+      "bytes": 77148,
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+Untracked text whitespace findings:
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/CANDIDATE_TEST_CORRECTION_V2.diff:10: trailing whitespace
+projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/CANDIDATE_TEST_CORRECTION_V2.diff:18: trailing whitespace
+FAIL: candidate whitespace findings (untracked binary/symlink paths safely skipped: 0).
+EXIT: 1

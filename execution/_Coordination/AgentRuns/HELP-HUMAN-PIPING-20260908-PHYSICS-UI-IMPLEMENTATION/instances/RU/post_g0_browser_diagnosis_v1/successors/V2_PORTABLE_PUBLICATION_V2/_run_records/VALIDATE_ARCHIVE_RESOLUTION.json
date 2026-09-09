@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS",
+  "resolved_diff_count": 2,
+  "resolved_diffs": [
+    {
+      "logical_id": "v1_raw_patch",
+      "decoded_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445",
+      "expected_original_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445",
+      "physical_pointer_sha256": "05202a6b8205644d624f23baf341eacb36b40ac3899b15d5c08b441dbad08f5e",
+      "expected_physical_pointer_sha256": "05202a6b8205644d624f23baf341eacb36b40ac3899b15d5c08b441dbad08f5e",
+      "pass": true
+    },
+    {
+      "logical_id": "v2_raw_patch",
+      "decoded_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "expected_original_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "physical_pointer_sha256": "2693611904f5ca2d85c0b8c3d318f0070047ad14259f75585b829c01d06a84bf",
+      "expected_physical_pointer_sha256": "2693611904f5ca2d85c0b8c3d318f0070047ad14259f75585b829c01d06a84bf",
+      "pass": true
+    }
+  ],
+  "candidate_postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "candidate_postimage_expected_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "frozen_manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/OUTPUT_MANIFEST.sha256",
+      "sha256": "f9e8a1306f5e514bffa22deb3b0328f114cf13cd7b9a6501f6b405a77569801a",
+      "expected_sha256": "f9e8a1306f5e514bffa22deb3b0328f114cf13cd7b9a6501f6b405a77569801a",
+      "pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/OUTPUT_MANIFEST.sha256",
+      "sha256": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6",
+      "expected_sha256": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6",
+      "pass": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/OUTPUT_MANIFEST.sha256",
+      "sha256": "51688243fc73bdd3f529bac134a62a505961c18ad08973b2bfcbbe01573aa1af",
+      "expected_sha256": "51688243fc73bdd3f529bac134a62a505961c18ad08973b2bfcbbe01573aa1af",
+      "pass": true
+    }
+  ]
+}

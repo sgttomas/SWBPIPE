@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "status": "BLOCKED",
+  "role": "bounded Agent 2 one-file browser repair executor",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "delegation_used": false,
+  "acceptance_claimed": false,
+  "application": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "preimage_sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+    "postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "postimage_bytes": 101982,
+    "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+    "applied_once": true,
+    "additions": 3,
+    "deletions": 0,
+    "scoped_live_diff_equals_decoded_patch": true,
+    "outside_fence_source_test_fixture_mutation_by_child": false
+  },
+  "validation": {
+    "single_invocation": true,
+    "retry_attempted": false,
+    "configured_projects": [
+      "chromium-desktop",
+      "chromium-compact"
+    ],
+    "selected_journeys": [
+      "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "R2 from-blank GUI journey authors the A12 rehearsal script"
+    ],
+    "result": "FAIL 0 passed; 4 failed",
+    "changed_v4_numeric_assertion_reached_and_passed_in_both_main_journey_projects": true,
+    "main_smoke_failure": "Both projects failed at line 785: expected operation summary 1 queued; 0 applied, received 0 queued; 0 applied this session.",
+    "from_blank_failure": "Both projects failed at line 907: viewport-intent-unit-validation-create_node was not found."
+  },
+  "binding": {
+    "entry_count": 17,
+    "updated_binding_sha256": "94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b",
+    "updated_aggregate_sha256": "847866e6be422966e285968bd280b1bfe5415d084419f263b64936c977a93801",
+    "changed_member_count": 1,
+    "unchanged_member_count": 16
+  },
+  "evidence": {
+    "authority_binding_sha256": "355a49046b722cc017faa12762c65511b40a6e4c80ce17fb46667b2fa8043157",
+    "application_proof_sha256": "cd0468986a213faabbedd003a775269fec8ea184ad88b4dde104056aa00c463a",
+    "patch_application_log_sha256": "60481125148e90ff5302da025e9672a16aefd7bd112b3df9b79a90b355b38706",
+    "playwright_log_sha256": "1026851786303ecef405be5fdce91699a13ea3f69a32f7ba2d7b631509275ca9",
+    "failure_contexts_sha256": "2b2c26161c7807b01bf27ad3e4c38265cc19679f1ed8ad4baa1c19a4f17b16d3",
+    "failure_artifacts_sha256": "1a2be06b9cbbafe6a70d22f005fd8b8adac8e610eb8acdf31ad9518473809135",
+    "validation_summary_sha256": "d6f3e04b49dd4afa29342dc63090c1d08ff0212a26840650c5a54ea8b4407e7b",
+    "evidence_manifest_sha256": "f2ac07eb5e641fc67ebcdb60f6bce5ca9b0ab8fe4bb94627039021dfd88a087a",
+    "evidence_aggregate_sha256": "53947ccb33e7d6779a2348e2dd575a9de060eafff9b846f201f328d2c76c0578",
+    "return_sha256": "c415ceb917faaedb980086f457eb23afeda42069449d9289cd46b594b2a70890"
+  },
+  "direction_bindings": {
+    "owner_direction_sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326",
+    "dispatch_amendment_sha256": "331cad21e0283520e28f9b14922a9d8634abdd728eb45f951f645d12594524b4",
+    "work_graph_v4_sha256": "b907dcaa6a7b9254234a46b0acf3d67dc7b8f38d2e0713ae3e7bde6e06e6f492",
+    "i4_direction_binding_amendment_sha256": "3ec0122a42ac49d6cde34e4d149978681ffe9560955e3f91ec74f8c49c115d0c"
+  },
+  "blocker": "Both required journeys failed in both browser projects; a versioned successor scope and fresh review are required for any further repair.",
+  "excluded_not_run": [
+    "native build",
+    "full DEC-025",
+    "practitioner suite",
+    "already passed Rust, Python, service, and App checks"
+  ],
+  "exclusive_one_file_browser_repair_ownership_released": true
+}

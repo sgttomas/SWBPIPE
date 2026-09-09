@@ -1,0 +1,6 @@
+patching file 'projects/chirality-piping/core/product_physics/src/lib.rs'
+patching file 'projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json'
+patching file 'projects/chirality-piping/tests/product_preview/test_product_preview_service.py'
+patching file 'projects/chirality-piping/apps/desktop/src/services/previewService.test.ts'
+patching file 'projects/chirality-piping/apps/desktop/src/App.test.tsx'
+patching file 'projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts'

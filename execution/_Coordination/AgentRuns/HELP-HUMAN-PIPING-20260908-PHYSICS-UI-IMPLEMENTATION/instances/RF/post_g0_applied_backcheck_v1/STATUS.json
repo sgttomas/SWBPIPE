@@ -1,0 +1,12 @@
+{
+  "status": "STAGED_COMPLETE_PENDING_R2",
+  "role": "independent read-only Agent 2 reviewer",
+  "parent": "/root (HELP_HUMAN)",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation": "prohibited and not used",
+  "writes_outside_review_output": false,
+  "stable_five_verdict": "PASS",
+  "whole_tranche_verdict": "PENDING"
+}

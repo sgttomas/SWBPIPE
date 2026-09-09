@@ -1,0 +1,24 @@
+{
+  "schema": "native_default_fixture_validation_v1",
+  "json_parse": "PASS",
+  "actual_native_visual": {
+    "path": "FINAL_SELECTED_RESULT_1024x768.png",
+    "width": 1024,
+    "height": 768,
+    "result": "PASS"
+  },
+  "global_path_anchors": {
+    "command": "python3 tools/validation/validate_path_anchors.py --text .",
+    "result": "PASS: no literal home-dir absolute paths found in 4338 live path-anchor surfaces"
+  },
+  "candidate_whitespace": {
+    "command": "python3 tools/validation/validate_candidate_whitespace.py --repo-root . --paths {RUN_ROOT}/instances/NATIVE/post_g0_default_fixture",
+    "result": "PASS: candidate whitespace is clean (untracked binary/symlink paths safely skipped: 12)."
+  },
+  "active_record_host_path_check": "PASS; raw host paths occur only in structural _run_records",
+  "source_build_git_written_by_task": false,
+  "exact_process_absent": true,
+  "exact_dedicated_store_absent": true,
+  "normal_store_accessed": false,
+  "result": "PASS"
+}

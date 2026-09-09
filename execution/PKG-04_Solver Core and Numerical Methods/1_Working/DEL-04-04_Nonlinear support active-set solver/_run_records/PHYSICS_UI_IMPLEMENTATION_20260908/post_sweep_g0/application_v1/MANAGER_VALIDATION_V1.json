@@ -1,0 +1,56 @@
+{
+  "all_six_postimages_match": true,
+  "candidate_applied_exactly": true,
+  "child_evidence_manifest_sha256": "9a56cd2a9d1d447565ec6ac5bf90bb7676f0b459c49327468db089c45b91a82f",
+  "child_return_sha256": "724a70361c770858e70c569cc5f4119259b5b613e511302c932a4ba1d9399c9f",
+  "child_status_sha256": "b6719b950fdb15e6b8083440eaf75e5ed64359951f3129abac683e84a9d88afa",
+  "complete_binding_aggregate_sha256": "2eb48c1af8d0d6d13e64204fb0fefd70da6ed3c89493ee206d3ae2fb97c5af8e",
+  "complete_binding_entry_count": 17,
+  "complete_binding_sha256": "032d50ea69013be10f87257d8e30c9fc676704a0abfa77a4aabe7f1856555e63",
+  "decoded_patch_sha256": "c31a705a39c4629aacf6a79871c1497a8b8d3976e389478f79e41f4f7752c334",
+  "f4_candidate_whitespace_findings": 0,
+  "f4_path_anchor_findings": 0,
+  "global_validator_note": "Global validators still report separate RU evidence findings outside F4 ownership; F4 application/evidence subtree has none.",
+  "lossless_archive_members_verified": 17,
+  "lossless_archive_sha256": "ee122428143ee4de4935716ec8da72c8c98a931a565ae0abd6f19ed9f73696aa",
+  "manager_disposition": "Preserve six applied postimages; hold acceptance and route browser failure for separately authorized repair and fresh validation.",
+  "publication_correction_manifest_sha256": "7b482b068f2416fe4adb4ae959745b4b40a939c5c03da2e400261935c4e3e5d0",
+  "reverse_apply_check_exit": 0,
+  "schema_version": "1.0",
+  "scoped_diff_check_exit": 0,
+  "status": "BLOCKED_VALIDATED",
+  "validation": {
+    "app_computed_diagnostics": {
+      "exit": 0,
+      "result": "1 passed; 161 skipped"
+    },
+    "app_queued_intents": {
+      "exit": 0,
+      "result": "1 passed; 161 skipped"
+    },
+    "browser_smoke": {
+      "exit": 1,
+      "result": "2 failed; chromium-desktop and chromium-compact"
+    },
+    "desktop_preview_service": {
+      "exit": 0,
+      "result": "16 passed; 0 failed"
+    },
+    "generator_parity": {
+      "exit": 0,
+      "result": "generated SHA-256 exact and byte-equal to live fixture"
+    },
+    "product_physics_crate": {
+      "exit": 0,
+      "result": "138 passed; 0 failed; doc-tests 0"
+    },
+    "python_preview": {
+      "exit": 0,
+      "result": "9 passed; 0 failed"
+    },
+    "rust_witness": {
+      "exit": 0,
+      "result": "1 passed; 0 failed"
+    }
+  }
+}

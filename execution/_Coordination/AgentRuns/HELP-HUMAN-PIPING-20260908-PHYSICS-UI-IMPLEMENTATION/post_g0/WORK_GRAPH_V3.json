@@ -1,0 +1,100 @@
+{
+  "schema_version": "3.0",
+  "run_id": "HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION",
+  "status": "OWNER_APPROVED_POST_G0_CORRECTION",
+  "predecessor": {
+    "path": "../WORK_GRAPH_V2.json",
+    "sha256": "c3f06622d8e4cdb99ae481453efaaa2b6eede1901a332ce394f0ed7a01e87d66"
+  },
+  "authority": {
+    "owner_approval": {
+      "path": "OWNER_APPROVAL_V1.json",
+      "sha256": "cdd26a7a0347331e8ff99a1d621a912fac0737f8c2fcfba358130855e3c46fd6"
+    },
+    "approved_proposal": {
+      "path": "PROPOSED_OWNER_ACT_V2.md",
+      "sha256": "9dfa3140d7762514479eb3983178298977bb1f5fedfdcf91253547a42b62a400"
+    },
+    "exact_six_path_only": true,
+    "exception_expiry": "ROOT_ACCEPTED_CORRECTED_SOURCE_FAN_IN_AFTER_ALL_PRESCRIBED_RELEASE_VERIFICATION"
+  },
+  "model_contract": {
+    "agent_1_and_2": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false,
+    "agent_2_delegation": false
+  },
+  "nodes": [
+    {
+      "id": "F4_APPLY",
+      "state": "READY_FOR_ROOT_DISPATCH",
+      "manager": "F4",
+      "brief": {
+        "path": "F4_SIX_PATH_APPLICATION_LAUNCH_AMENDMENT_V1.md",
+        "sha256": "8da19cbb8c259ad89ef0280f399c425b399bb89081d8b8db286c2463e1c1f504"
+      },
+      "scope": "apply exact six post-images; focused Rust/Python/service/App/browser checks; full product_physics crate; exact generator parity",
+      "writes": "approved six paths plus F4 post-G0 evidence only"
+    },
+    {
+      "id": "RF_APPLIED_BACKCHECK",
+      "state": "HELD",
+      "after": [
+        "F4_APPLY"
+      ],
+      "scope": "fresh independent read-only review of applied six-path diff, complete binding, and validations"
+    },
+    {
+      "id": "CHANGE_NATIVE_BUILD",
+      "state": "HELD",
+      "after": [
+        "RF_APPLIED_BACKCHECK"
+      ],
+      "scope": "fresh packaged-native build and exact source/fixture/dist/bundle identity binding"
+    },
+    {
+      "id": "NATIVE_DEFAULT_FIXTURE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_NATIVE_BUILD"
+      ],
+      "scope": "one bounded default-fixture native smoke/solve in an isolated store"
+    },
+    {
+      "id": "CHANGE_SOURCE_VERIFY",
+      "state": "HELD",
+      "after": [
+        "NATIVE_DEFAULT_FIXTURE"
+      ],
+      "scope": "authorized source-freeze and tested commits, then clean full five-surface DEC-025 and practitioner suite"
+    },
+    {
+      "id": "CHANGE_EVIDENCE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_SOURCE_VERIFY"
+      ],
+      "scope": "Receipt 137 validation and evidence-only commit against exact tested commit and sweep"
+    },
+    {
+      "id": "CHANGE_PR_CI_MERGE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_EVIDENCE"
+      ],
+      "scope": "push and open PR; exact-head CI; merge only after every required gate passes"
+    }
+  ],
+  "preserved_holds": "Receipt 137 and publication remain held. The failed G0 packet remains immutable historical evidence. No pressure, public API, history, threshold, unit, dependency, DAG, lifecycle, or engineering decision is changed.",
+  "standing_git_authority": "The user authorizes prerequisite commits, push, PR creation, and merge in the approved V2 order; merge remains gated on all required PASS results.",
+  "step0_context": {
+    "loader": "WORKPLAN_2026-07-18b_piping_loop.md",
+    "pointers": "decomp 0.12 / SCA-009 / DAG-010",
+    "stage": "R5",
+    "latest_receipt": "Receipt 136",
+    "receipt_validator": "PASS",
+    "self_check": "exit 0 with baseline INFO 14 / NA 1 / REVIEW 4 / WARN 55",
+    "deliverable_listing_dag_010": "exit 0",
+    "initial_identifier_argument_error": "A prior identifier-only CLI invocation was given a full path, failed FileNotFoundError, and had no state effect."
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "schema": "native_default_fixture_status_v1",
+  "verdict": "PASS",
+  "sealed_brief_sha256": "5b6845619240555135f95108060a829e922791173eb752d825c76b9870b7cf5e",
+  "project_id": "project:invented-loop-01",
+  "native_job_id": "backend-solve-job-1",
+  "native_generation": 4,
+  "canonical_run_id": "run:preview-linear-static-001",
+  "result_rows": 830,
+  "solve_count": 1,
+  "save_count": 1,
+  "retry_count": 0,
+  "default_fixture_unchanged": true,
+  "corrected_friction_reaction_n": 0.411203,
+  "derived_normal_reaction_n": 41.120279,
+  "load_l100_n140_displacement_mm": 3.977301,
+  "normalized_overlay_max_mm": 4.927112,
+  "actual_native_visual": {
+    "path": "FINAL_SELECTED_RESULT_1024x768.png",
+    "width": 1024,
+    "height": 768,
+    "source": "same-dimension PNG conversion of an actual 1024x768 native CUA capture"
+  },
+  "native_app_quit": true,
+  "exact_process_absent": true,
+  "exact_dedicated_store_absent": true,
+  "normal_store_accessed": false,
+  "source_build_git_changed_by_this_task": false,
+  "root_acceptance_required": true
+}

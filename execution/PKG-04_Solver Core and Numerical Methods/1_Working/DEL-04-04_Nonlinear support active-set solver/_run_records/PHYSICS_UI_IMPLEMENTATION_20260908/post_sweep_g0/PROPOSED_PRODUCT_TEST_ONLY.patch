@@ -1,0 +1,31 @@
+--- a/projects/chirality-piping/core/product_physics/src/lib.rs
++++ b/projects/chirality-piping/core/product_physics/src/lib.rs
+@@ -10722,13 +10722,11 @@
+             // DEC-067: the sliding support carries the bounded +mu*N tangential
+             // reaction opposing its negative-Z motion instead of a released zero
+             // reaction.
+-            assert_eq!(
+-                result_value(
+-                    &result,
+-                    "result:nonlinear-support:support-NL-130-FRIC:uz-reaction"
+-                ),
+-                0.490101
++            let friction_reaction = result_value(
++                &result,
++                "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+             );
++            assert_eq!(friction_reaction, 0.489527);
+             let normal_evidence = result
+                 .results
+                 .iter()
+@@ -10743,6 +10741,10 @@
+                 "nonlinear_support_friction_normal_reaction_derived"
+             );
+             assert_eq!(normal_evidence.value, 48.952652);
++            assert_eq!(
++                friction_reaction,
++                round6(0.01 * normal_evidence.value)
++            );
+             let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
+             assert!(normal_metadata.basis.contains("derived_support_reaction"));
+             assert!(normal_metadata.basis.contains("source_ref=support:S-130"));

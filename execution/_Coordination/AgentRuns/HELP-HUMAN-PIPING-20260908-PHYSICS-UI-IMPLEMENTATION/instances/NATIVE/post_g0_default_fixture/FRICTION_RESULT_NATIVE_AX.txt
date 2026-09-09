@@ -1,0 +1,495 @@
+Window: "OpenPipeStress Technical Preview", App: OpenPipeStress Physics UI Post-G0 Witness 20260908 R2.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Invented Utility Loop Preview
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: on
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button (disabled) Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 26  of  26  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Invented Utility Loop Preview, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented carbon-steel-like material material:invented-carbon-steel, Help: Invented carbon-steel-like material (material:invented-carbon-steel), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Pump nozzle node:N-100, Help: Pump nozzle (node:N-100), Value: off
+						54 toggle button Low point elbow node:N-110, Help: Low point elbow (node:N-110), Value: off
+						55 toggle button Riser elbow node:N-120, Help: Riser elbow (node:N-120), Value: off
+						56 toggle button Rack turn node:N-130, Help: Rack turn (node:N-130), Value: off
+						57 toggle button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140), Value: off
+						58 heading Pipes, Value: 3
+							59 text Pipes
+						60 toggle button Pump discharge run pipe:P-100, Help: Pump discharge run (pipe:P-100), Value: off
+						61 toggle button Vertical riser pipe:P-110, Help: Vertical riser (pipe:P-110), Value: off
+						62 toggle button Rack span pipe:P-120, Help: Rack span (pipe:P-120), Value: off
+						63 toggle button Tie-in rise pipe:P-130, Help: Tie-in rise (pipe:P-130), Value: off
+						64 heading Supports, Value: 3
+							65 text Supports
+						66 toggle button Anchor at pump nozzle support:S-100, Help: Anchor at pump nozzle (support:S-100), Value: off
+						67 toggle button Guide on riser support:S-120, Help: Guide on riser (support:S-120), Value: off
+						68 toggle button Rack shoe support:S-130, Help: Rack shoe (support:S-130), Value: off
+						69 toggle button Preview one-way terminal stop support:NL-140, Help: Preview one-way terminal stop (support:NL-140), Value: off
+						70 toggle button Preview sliding-friction rack shoe support:NL-130-FRIC, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: on
+						71 toggle button Invented variable spring hanger support:SH-140, Help: Invented variable spring hanger (support:SH-140), Value: off
+						72 toggle button Invented constant-effort support support:CE-120, Help: Invented constant-effort support (support:CE-120), Value: off
+						73 heading Components, Value: 3
+							74 text Components
+						75 toggle button Invented elbow marker component:C-110, Help: Invented elbow marker (component:C-110), Value: off
+						76 toggle button Invented branch connection marker component:C-120, Help: Invented branch connection marker (component:C-120), Value: off
+						77 toggle button Invented semi-rigid valve marker component:C-130, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+						78 toggle button Invented tie-in marker component:C-140, Help: Invented tie-in marker (component:C-140), Value: off
+						79 toggle button Invented expansion joint marker component:C-150, Help: Invented expansion joint marker (component:C-150), Value: off
+						80 heading Load Cases, Value: 3
+							81 text Load Cases
+						82 toggle button Invented operating gravity and pressure preview load:L-100, Help: Invented operating gravity and pressure preview (load:L-100), Value: off
+						83 toggle button Invented alternate gravity and pressure preview load:L-200, Help: Invented alternate gravity and pressure preview (load:L-200), Value: off
+						84 heading Combinations, Value: 3
+							85 text Combinations
+						86 toggle button Invented explicit operating plus alternate preview combination:C-OPER-ALT, Help: Invented explicit operating plus alternate preview (combination:C-OPER-ALT), Value: off
+					87 text 3D Centerline
+					88 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						89 summary Deformation · normalized, Value: off
+							90 text Deformation · normalized
+					91 container Viewport display toggles
+						92 toggle button Labels, Help: Show or hide entity labels, Value: on
+						93 toggle button Loads, Help: Show or hide load arrows, Value: on
+						94 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					95 text Selected:  support:NL-130-FRIC
+					96 container
+						97 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						98 container Viewport entity selection
+							99 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
+							100 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							101 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							102 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
+							103 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: off
+							104 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
+							105 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							106 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							107 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
+							108 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+							109 toggle button Select Guide on riser in viewport, Help: Guide on riser (support:S-120), Value: off
+							110 toggle button Select Rack shoe in viewport, Help: Rack shoe (support:S-130), Value: off
+							111 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							112 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: on
+							113 toggle button Select Invented variable spring hanger in viewport, Help: Invented variable spring hanger (support:SH-140), Value: off
+							114 toggle button Select Invented constant-effort support in viewport, Help: Invented constant-effort support (support:CE-120), Value: off
+							115 toggle button Select Invented elbow marker in viewport, Help: Invented elbow marker (component:C-110), Value: off
+							116 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							117 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							118 toggle button Select Invented tie-in marker in viewport, Help: Invented tie-in marker (component:C-140), Value: off
+							119 toggle button Select Invented expansion joint marker in viewport, Help: Invented expansion joint marker (component:C-150), Value: off
+						120 container Orientation gizmo
+						121 container View controls
+							122 toggle button Front, Value: off
+							123 toggle button Top, Value: off
+							124 toggle button Iso, Value: on
+						125 text 1 m
+					126 container Command and selection bar
+						127 container Object creation tools
+							128 toggle button Node, Help: Arm node creation, Value: off
+							129 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							130 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							131 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							132 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						133 text Select
+						134 summary Selection & navigation, Value: off
+							135 text Selection & navigation
+					136 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					137 container Property inspector
+						138 heading Preview sliding-friction rack shoe, Value: 2
+							139 text Preview sliding-friction rack shoe
+						140 summary All properties, Value: off
+							141 text All properties
+						142 container Inspector review context
+							143 container Required flags
+								144 text REQUIRED
+								145 container
+									146 text ⚑  Restraints
+						147 container Editor operation intent
+							148 heading Edit name, Value: 3
+								149 text  Edit  name
+							150 container
+								151 text Property
+								152 pop up button Property to edit, Value: Name
+							153 container Current value
+								154 text CURRENT  NAME
+								155 text Preview sliding-friction rack shoe
+							156 container
+								157 text New  name
+								158 text field (settable) New name, Value: Preview sliding-friction rack shoe
+							159 button (disabled) Queue change, Help: Add this change to the review queue
+							160 button (disabled) Validate, Help: Validate without applying
+							161 button (disabled) Apply, Help: Apply this exact displayed intent through the operation service
+							162 summary Operation details, Value: off
+								163 text Operation details
+							164 text Validate to check this change before applying it.
+						165 summary Sources and units, Value: off
+							166 text Sources and units
+						167 container (expanded) Secondary Actions: Collapse
+							168 summary Support configuration, Value: on
+								169 text Support configuration
+							170 container Support configuration
+								171 heading Support configuration, Value: 3
+									172 text Support configuration
+								173 text Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.
+								174 container Edit support
+									175 text Edit support
+									176 container
+										177 checkbox Create a new support, Value: 0
+										178 text Create a new support
+									179 container
+										180 text Preview sliding-friction rack shoe  — support:NL-130-FRIC , node  node:N-130
+									181 container
+										182 text Support family
+										183 pop up button Support family, Value: Nonlinear support
+									184 container Restrained degrees of freedom
+										185 text Restrained degrees of freedom
+										186 container
+											187 checkbox Restrain UX, Value: 0
+											188 text UX
+										189 container
+											190 checkbox Restrain UY, Value: 0
+											191 text UY
+										192 container
+											193 checkbox Restrain UZ, Value: 0
+											194 text UZ
+										195 container
+											196 checkbox Restrain RX, Value: 0
+											197 text RX
+										198 container
+											199 checkbox Restrain RY, Value: 0
+											200 text RY
+										201 container
+											202 checkbox Restrain RZ, Value: 0
+											203 text RZ
+									204 container
+										205 text Support provenance
+										206 text field (settable) Support provenance, Value: invented_example_user_entered_friction_support_no_catalog_derived_normal_from_named_support_reaction
+									207 button Add support stiffness
+									208 container
+										209 checkbox Include hanger data, Value: 0
+										210 text Include hanger data
+									211 container
+										212 checkbox Include nonlinear behavior, Value: 1
+										213 text Include nonlinear behavior
+									214 container Nonlinear behavior
+										215 text Nonlinear behavior
+										216 container
+											217 text Nonlinear behavior
+											218 pop up button Nonlinear behavior, Value: friction
+										219 container
+											220 text Nonlinear DOF
+											221 pop up button Nonlinear DOF, Value: UZ
+										222 container
+											223 text Initial state
+											224 pop up button Initial state, Value: sliding
+										225 container
+											226 text active when
+											227 pop up button active when, Value: Not provided
+										228 container
+											229 text contact when
+											230 pop up button contact when, Value: Not provided
+										231 container
+											232 text closes when
+											233 pop up button closes when, Value: Not provided
+										234 container gap
+											235 text gap
+											236 container
+												237 text Expected dimension:  length . Enter an explicit compatible unit; validation checks compatibility.
+											238 container
+												239 text Value
+												240 text field (settable) gap value
+											241 container
+												242 text Unit
+												243 text field (settable) gap unit
+										244 container friction coefficient
+											245 text friction coefficient
+											246 container
+												247 text Expected dimension: dimensionless coefficient . Enter an explicit compatible unit; validation checks compatibility.
+											248 container
+												249 text Value
+												250 text field (settable) friction coefficient value, Value: 0.01
+											251 container
+												252 text Unit
+												253 text field (settable) friction coefficient unit, Value: none
+											254 button Clear friction coefficient
+										255 container normal reaction
+											256 text normal reaction
+											257 container
+												258 text Expected dimension:  force . Enter an explicit compatible unit; validation checks compatibility.
+											259 container
+												260 text Value
+												261 text field (settable) normal reaction value
+											262 container
+												263 text Unit
+												264 text field (settable) normal reaction unit
+										265 container
+											266 checkbox Derive normal reaction from a support, Value: 1
+											267 text Derive normal reaction from a support
+										268 container
+											269 text Reaction source support
+											270 pop up button Reaction source support, Value: support:S-130
+										271 container
+											272 text Reaction source DOF
+											273 pop up button Reaction source DOF, Value: UY
+										274 text Choose a linear support’s restrained translational DOF. Clear any entered normal reaction to use this source.
+									275 button Queue support configuration
+						276 summary New section, Value: off
+							277 text New section
+						278 summary New material, Value: off
+							279 text New material
+						280 summary New support, Value: off
+							281 text New support
+						282 summary New component, Value: off
+							283 text New component
+						284 container Delete support intent
+							285 heading Delete support, Value: 3
+								286 text Delete support
+							287 button Queue delete support, Help: Queue support delete intent
+							288 container
+								289 text Operation op:delete-support-support:NL-130-FRIC; delete; proposed Target Support; support:NL-130-FRIC Change delete_support; Explicit support deletion; supports; before=Preview sliding-friction rack shoe; after=not_present Unit basis dimensionless; unit=none; explicit user-entered support deletion; reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered support deletion for project:invented-loop-01; requires reference validation before durable model change.
+				290 container Workspace sections
+					291 container
+						292 heading Results, Value: 2
+							293 text Results
+						294 button Close
+					295 container Results section
+						296 container Results
+							297 text RESULTS
+							298 container Result filtering
+								299 text Source result units
+								300 container
+									301 text MPa, N, N*m, mm, rad, boolean, count, m, mode_code, N*m/rad, N/m, state_code  ·  830  rows · entered units preserved; displayed quantities follow the display preference where available
+								302 container Result family filter
+									303 toggle button All 830, Value: on
+									304 toggle button Displacement 111, Value: off
+									305 toggle button Reaction 33, Value: off
+									306 toggle button Force 182, Value: off
+									307 toggle button Moment 182, Value: off
+									308 toggle button Stress 290, Value: off
+									309 toggle button Other 32, Value: off
+								310 container
+									311 text Filter results
+									312 search text field (settable) Filter result rows, Value: result:reaction:support-NL-130-FRIC, Placeholder: ID, entity, component, location, or basis
+										313 text (settable) result:reaction:support-NL-130-FRIC
+										314 button cancel
+								315 text 2  of  830  results match filter
+								316 button Clear result filter
+								317 container Result page controls
+									318 container
+										319 text Rows
+										320 pop up button Rows per result page, Value: 50
+									321 text Showing  1  to  2  of  2  matching results; page  1  of  1
+									322 button (disabled) Previous result page
+									323 button (disabled) Next result page
+							324 container Result detail
+								325 heading Result Detail, Value: 3
+									326 text Result Detail
+								327 description list
+									328 text Result
+									329 text result:reaction:support-NL-130-FRIC
+									330 text Family
+									331 text reaction
+									332 text Entity ref
+									333 text support:NL-130-FRIC
+									334 text Value
+									335 container
+										336 text 0.411203 N
+									337 text Component
+									338 text reaction_resultant
+									339 text Coordinate system
+									340 text result_envelope
+									341 text Location
+									342 text summary
+									343 text Recovery basis
+									344 text reported_result_value; load_case:load:L-100
+									345 text Sign convention
+									346 text not specified in result metadata
+									347 text Source results
+									348 text not a combined result
+									349 text Diagnostics
+									350 text diagnostic:nonlinear:load-L-100:support-NL-130-FRIC:state, diagnostic:nonlinear:load-L-200:support-NL-130-FRIC:state
+									351 text Knowledge
+									352 text none linked
+									353 text Source run
+									354 text DEL-14-02; run:preview-linear-static-001; 1 result value hashes
+									355 text Envelope hash
+									356 text available
+									357 text Boundary
+									358 text review-only interpretation; human review remains required; acceptance stays with the responsible engineer
+							359 container Governing ratio state
+								360 heading Governing Ratio, Value: 3
+									361 text Governing Ratio
+								362 text unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
+								363 text This view reports supplied ratio rows only; it does not synthesize allowables or code criteria. Acceptance and professional judgment remain with the responsible engineer.
+							364 container Reaction results
+								365 heading Reaction, Value: 3
+									366 text Reaction
+								367 table
+									368 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
+									369 row (selected)
+										370 cell (selectable) result:reaction:support-NL-130-FRIC
+										371 cell (selectable) support:NL-130-FRIC
+										372 cell (selectable) summary
+										373 cell (selectable) 0.411203
+N
+										374 cell (selectable) Entered:
+0.411203
+N
+									375 row (selectable)
+										376 cell (selectable) result:combination:combination-C-OPER-ALT:reaction:support-NL-130-FRIC
+										377 cell (selectable) support:NL-130-FRIC
+										378 cell (selectable) summary
+										379 cell (selectable) 0.514003
+N
+										380 cell (selectable) Entered:
+0.514003
+N
+							381 container Mechanics gap ledger
+								382 heading Mechanics Gap Ledger, Value: 3
+									383 text Mechanics Gap Ledger
+								384 container
+									385 text Endpoint-j local force/moment recovery implemented End-i and end-j local force/moment preview results are emitted and paired in result detail; arbitrary station sweeps remain deferred.
+								386 container
+									387 text Endpoint stress component recovery implemented End-i and end-j open-mechanics stress component preview results are emitted and paired when stress recovery succeeds.
+								388 container
+									389 text Intermediate station result recovery implemented Fixed station-grid preview force, moment, shear force, and stress rows are emitted from interpolated endpoint resultants; arbitrary station sweeps, exact internal diagrams, and shear stress recovery remain deferred.
+								390 container
+									391 text Pressure-to-frame load conversion implemented Closed-end pressure thrust for straight preview pipes is applied to frame resultants; broader pressure behavior remains deferred.
+								392 container
+									393 text Thermal behavior implemented Uniform axial temperature-change loads for straight preview pipes are implemented with explicit material expansion input; temperature-dependent properties and thermal combinations remain deferred.
+								394 container
+									395 text Support stiffness completeness deferred Linear support restraints are preview inputs; richer stiffness and nonlinear behavior require explicit data.
+								396 container
+									397 text Load combinations implemented Explicit mechanics-basis user load combinations are emitted from matching scalar load-case result rows; code/rule combinations remain deferred/private.
+								398 container
+									399 text Protected rule/code checks requires private inputs Private criteria, allowables, SIF/flexibility tables, and code checks are not bundled publicly.
+						400 container Comparison workspace
+							401 text COMPARISON Reference
+							402 text load:L-100; 279 rows
+							403 text Target
+							404 text combination:C-OPER-ALT; 261 rows
+							405 text Mapped
+							406 text 261 comparable pairs; 23 reference-only; 0 target-only
+							407 text Tolerance
+							408 text not_tolerance_checked; profile=TBD
+							409 text Source unit evidence
+							410 text units=MPa,N,N*m,mm,rad; matching=equal_explicit_units; conversion=false; tolerance=not_tolerance_checked
+							411 text Boundary
+							412 text review-only comparison; acceptance and professional judgment remain with the responsible engineer
+							413 text stable result IDs plus explicit source_result_refs from the preview mechanics result envelope
+							414 button result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150 not tolerance checked component:C-150 expansion_joint_pressure_thrust;pipe:P-130 5400 N Reference:21600 N Target: 27000N
+							415 button result:combination:combination-C-OPER-ALT:reaction:support-S-120 not tolerance checked support:S-120 reaction_resultant; summary 191.44409499999995N Reference:765.77638 N Target:957.220475 N
+							416 button result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z not tolerance checked pipe:P-120 bending_moment_z; quarter_3 181.39244100000008N*m Reference:725.569765N*m Target:906.962206N*m
+							417 button result:combination:combination-C-OPER-ALT:force:pipe-P-120:shear-y not tolerance checked pipe:P-120 shear_force_y;end_i 168.86962699999992N Reference:675.478507 N Target:844.348134 N
+							418 text 1  comparison diagnostic ; top 4  deltas shown from  261  mapped pairs.
+						419 container Design-authoring workspace
+							420 text DESIGN WORKSPACE
+							421 container
+								422 checkbox Include known private values in this local export, Value: 0
+								423 text Include known private values in this local export
+							424 text decisions= 127 ; findings= 127 ; blocked= true
+							425 container design-workspace-export-link redaction decisions
+								426 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classificat
+							427 container design-workspace-export-link redaction findings
+								428 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANC
+							429 text Workspace JSON
+							430 text knowledge= 3 ; states= 1 ; runs= 1 ; comparisons= 261 ; operations= 0 Core contract
+							431 text records=2; warnings=1; states=2; runs=2; overlays=5
+							432 text Current browser
+							433 text analysis_run=run:preview-linear-static-001; comparison=comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT; result_rows=830
+							434 text Operation review
+							435 text records=0; accepted_mutation=false; application=empty_operation_queue
+							436 text Routing
+							437 text selected=result:result:reaction:support-NL-130-FRIC; route=review_navigation_available
+							438 text Units
+							439 text model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code; comparison=MPa,N,N*m,mm,rad; conversion=false
+							440 text Boundary
+							441 text private_payload=false; protected=false; professional_claim=false
+							442 text Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state; acceptance and professional judgment remain with the responsible engineer.
+				443 container Workspace status
+					444 container Analysis statuses
+						445 summary Mechanics mechanics solved, Value: off
+							446 text Mechanics
+							447 text mechanics solved
+						448 summary Rule check Inputs needed, Value: off
+							449 text Rule check
+							450 text Inputs needed
+						451 summary Professional Review required, Value: off
+							452 text Professional
+							453 text Review required
+						454 container (expanded) Secondary Actions: Collapse
+							455 summary Value: on, Solve proof seam=tauri backend job; project=project:invented-loop-01; result model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input manifest sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+								456 text Solve proof
+								457 text seam=tauri backend job; project=project:invented-loop-01; result model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input manifest sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+							458 text Recorded status
+							459 text seam=tauri_backend_job; project=project:invented-loop-01; result_model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model_sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input_manifest_sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+					460 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					461 button (collapsed) ⚑ 36 Issues, Secondary Actions: Expand
+				462 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	463 close button
+	464 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	465 minimize button
+	466 text OpenPipeStress Technical Preview
+467 menu bar
+	468 OpenPipeStress Physics UI Post-G0 Witness 20260908 R2
+	469 File
+	470 Edit
+	471 View
+	472 Insert
+	473 Analyze
+
+The focused UI element is 369 row (selected)

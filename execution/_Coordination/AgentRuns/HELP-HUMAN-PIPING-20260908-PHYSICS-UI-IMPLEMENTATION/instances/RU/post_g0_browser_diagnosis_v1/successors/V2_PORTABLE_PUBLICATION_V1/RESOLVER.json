@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "record_kind": "portable_publication_resolver",
+  "status": "FROZEN_V2_PHYSICAL_PATHS_PRESERVED",
+  "repo_anchor": "{REPO_ROOT}",
+  "v1_output_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/OUTPUT_MANIFEST.sha256",
+    "sha256": "f9e8a1306f5e514bffa22deb3b0328f114cf13cd7b9a6501f6b405a77569801a"
+  },
+  "v2_output_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/OUTPUT_MANIFEST.sha256",
+    "sha256": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6"
+  },
+  "publication_diff_pointer": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/CANDIDATE_TEST_CORRECTION_V2.diff",
+    "status": "NON_APPLICABLE_POINTER",
+    "resolves_logical_id": "v2_raw_patch"
+  },
+  "objects": [
+    {
+      "logical_id": "v2_raw_patch",
+      "original_physical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/CANDIDATE_TEST_CORRECTION_V2.diff",
+      "original_physical_path_status": "PRESERVED_UNCHANGED",
+      "original_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "encoded_archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json",
+      "encoded_archive_sha256": "020ec2c68f9fc317f7de0ffb0162563555947caff4b767a8feb90c424e255c46",
+      "encoding": "base64",
+      "decode_rule": "base64-decode payload_base64 exactly; do not append or remove bytes"
+    },
+    {
+      "logical_id": "v2_candidate_postimage",
+      "original_physical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/candidate/r2-smoke.spec.ts",
+      "original_physical_path_status": "PRESERVED_UNCHANGED",
+      "original_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+      "encoded_archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/r2-smoke.spec.ts.original.base64.json",
+      "encoded_archive_sha256": "4da9614f52b5b4a3fda5641343a13de6a9583580a8346a2762e9abaa145b6c19",
+      "encoding": "base64",
+      "decode_rule": "base64-decode payload_base64 exactly; do not append or remove bytes"
+    },
+    {
+      "logical_id": "v1_sealed_brief",
+      "original_physical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/SEALED_BRIEF.md",
+      "original_physical_path_status": "REPLACED_BY_PORTABLE_POINTER",
+      "physical_pointer_sha256": "26a8b9f7d63de26df586eac020fbc7585ade79a4ea0ddfe2ce9f99a6bd139941",
+      "original_sha256": "28bb58011ae2db326e15dbc7b190012bb3459ed23867c1550fee8bc6d9da63ca",
+      "encoded_archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/SEALED_BRIEF.md.original.base64.json",
+      "encoded_archive_sha256": "334d622dcd7829c7447ebad8f3104df30784a81d97c0aabe4d44880b20d1be19",
+      "encoding": "base64",
+      "decode_rule": "base64-decode payload_base64 exactly; do not append or remove bytes"
+    }
+  ],
+  "publication_resolution": "The publication .diff path is a non-applicable pointer. Decode the referenced archive payload for exact patch bytes and require its decoded SHA-256. The frozen V2 original paths remain authoritative evidence and were not replaced or relocated.",
+  "frozen_manifest_resolution": {
+    "rule": "V1 manifest references to SEALED_BRIEF.md retain logical SHA-256 28bb58011ae2db326e15dbc7b190012bb3459ed23867c1550fee8bc6d9da63ca and resolve through the v1_sealed_brief archive object; V1 and V2 manifest files themselves remain byte-unchanged.",
+    "v1_manifest_physical_sha256": "f9e8a1306f5e514bffa22deb3b0328f114cf13cd7b9a6501f6b405a77569801a",
+    "v2_manifest_physical_sha256": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6"
+  }
+}

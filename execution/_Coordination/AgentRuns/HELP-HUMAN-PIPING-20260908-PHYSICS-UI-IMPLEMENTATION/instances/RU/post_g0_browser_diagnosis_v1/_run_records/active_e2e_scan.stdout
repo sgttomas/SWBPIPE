@@ -1,0 +1,118 @@
+FILE:projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts
+FILE:projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+28-  await page.goto("/");
+29-  await expect(page.getByTestId("desktop-preview-shell")).toBeVisible();
+30-  await expect(page.getByTestId("operation-engine-chip")).toContainText("Engine ready");
+31-  await page.getByRole("button", { name: "New blank" }).click();
+32-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+33-
+34-  await page.getByTestId("command-node").click();
+35-  await page.getByTestId("viewport-create-node-id").fill("node:UI-A-100");
+36-  await page.getByTestId("viewport-create-node-label").fill("Anchor");
+37-  for (const axis of ["x", "y", "z"]) await page.getByTestId(`viewport-create-node-${axis}`).fill("0");
+38-  await page.getByTestId("viewport-create-node-provenance").fill("synthetic_ui_acceptance_input");
+39-  await assertPersistentCompactCanvas(page);
+40:  await page.getByTestId("queue-explicit-node-intent").click();
+41-  await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("Single operation");
+42-  await page.getByTestId("apply-reviewed-draft").click();
+43-  await expect(page.getByTestId("tree-row-node:UI-A-100")).toBeAttached();
+44-  await page.getByRole("button", { name: "Save local" }).click();
+45-  await page.getByRole("button", { name: "Open local" }).click();
+46-  await expect(page.getByTestId("tree-row-node:UI-A-100")).toBeAttached();
+47-  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+48-
+49-  if (await page.getByTestId("toggle-inspector").getAttribute("aria-expanded") !== "true") await page.getByTestId("toggle-inspector").click();
+50-  await page.getByTestId("toolkit-entry").click();
+51-  await page.getByTestId("toolkit-properties.material").click();
+52-  await page.getByTestId("create-material-id").fill("material:ui-phase-a-invented");
+FILE:projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+540-    "browser preview uses model metadata"
+541-  );
+542-  await expect(page.getByTestId("viewport-create-node-unit")).toHaveValue("m");
+543-  await expect(page.getByTestId("viewport-create-node-unit-basis")).toContainText(
+544-    "Coordinates: m, model metadata"
+545-  );
+546-  await canvas.click({ position: { x: 64, y: 64 } });
+547-  await expect(page.getByTestId("viewport-create-node-id")).toHaveValue("node:V-001");
+548-  await expect(page.getByTestId("viewport-create-node-label")).toHaveValue("Viewport node V-001");
+549-  await expect(page.getByTestId("viewport-create-node-x")).toHaveValue(/^-?\d/);
+550-  await expect(page.getByTestId("viewport-create-node-y")).toHaveValue("0");
+551-  await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
+552:  await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
+553-
+554-  await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
+555-  await expect(page.getByTestId("viewport-create-pipe-length-unit")).toHaveValue("m");
+556-  await expect(page.getByTestId("viewport-create-pipe-unit-basis")).toContainText(
+557-    "Pipe geometry: m, model metadata"
+558-  );
+559-
+560-  await ensurePipeEndpointPick(page, "viewport-pick-pipe-from");
+561-  await page.getByTestId("viewport-select-node:N-100").click();
+562-  await expect(page.getByTestId("viewport-create-pipe-from")).toHaveValue("node:N-100");
+563-  await expect(page.getByTestId("viewport-pick-pipe-to")).toHaveAttribute("aria-pressed", "true");
+564-  await page.getByTestId("viewport-select-node:N-140").click();
+--
+768-  const exportAdapterSdk = page.getByLabel("Export adapter SDK");
+769-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("conversion=false");
+770-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText("witnesses=5");
+771-  await expect(exportAdapterSdk.getByTestId("export-adapter-sdk-units")).toContainText(
+772-    "candidate_targets_without_claiming_target_writer_conversion"
+773-  );
+774-
+775-  // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
+776-  // node intent through the structured-operation seam in a real browser and
+777-  // verify the honest wasm-engine route on the applied receipt. Runs last:
+778-  // applying clears earlier solve results by design.
+779-  await ensureCreationToolArmed(page, "command-node", "Node tool armed");
+780:  await page.getByTestId("queue-explicit-node-intent").click();
+781-  await openWorkspaceSection(page, "operations");
+782-  const applyPanel = page.getByTestId("operation-apply-panel");
+783-  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
+784-  await openReviewTab(page, "details");
+785-  await expect(page.getByTestId("operation-ledger-unit-policy")).toBeVisible();
+786-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("records=1");
+787-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("unit_bearing_changes=1");
+788-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("dimensionless_changes=0");
+789-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+790-    "unit_validations=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+791-  );
+792-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
+--
+891-  await openWorkspaceSection(page, "project");
+892-  await expect(page.getByTestId("workspace-section-project")).toBeVisible();
+893-  await openWorkspaceSection(page, "operations");
+894-  await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
+895-  await openWorkspaceSection(page, "loads");
+896-  await expect(page.getByTestId("load-case-manager-summary")).toContainText(
+897-    "0 load cases; 0 primitive loads; 0 combinations"
+898-  );
+899-  await ensureInspectorExpanded(page);
+900-
+901-  const startNode = stepPayload("create_node", "node:R2-100");
+902-  await fillNodeDraft(page, startNode);
+903:  await page.getByTestId("queue-explicit-node-intent").click();
+904-  await openViewportPendingChanges(page);
+905-  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
+906-    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
+907-  );
+908-  await applyQueuedIntent(page, 1, startNode.id);
+909-
+910-  const loadedNode = stepPayload("create_node", "node:R2-110");
+911-  await fillNodeDraft(page, loadedNode);
+912:  await page.getByTestId("queue-explicit-node-intent").click();
+913-  await applyQueuedIntent(page, 2, loadedNode.id);
+914-
+915-  const material = stepPayload("create_material", "material:r2-carbon-steel");
+916-  await chooseToolkit(page, "properties.material", "create-material-id");
+917-  await page.getByTestId("create-material-id").fill(material.id);
+918-  await page.getByTestId("create-material-label").fill(material.label);
+919-  await page.getByTestId("create-material-elastic").fill(String(material.elastic_modulus.value));
+920-  await page.getByTestId("create-material-shear").fill(String(material.shear_modulus.value));
+921-  await page.getByTestId("create-material-provenance").fill(material.provenance);
+922-  await page.getByTestId("queue-create-material-intent").click();
+923-  await applyQueuedIntent(page, 3, material.id);
+924-
+FILE:projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts
+FILE:projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts
+FILE:projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts
+FILE:projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts

@@ -1,0 +1,34 @@
+COMMAND: CARGO_TARGET_DIR=/tmp/chirality-f4-i3-product-physics-target CARGO_NET_OFFLINE=true cargo test --locked --offline --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml tests::valid_invented_model_exposes_nonlinear_support_loop_evidence -- --exact
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling serde v1.0.228
+   Compiling serde_json v1.0.149
+   Compiling memchr v2.8.0
+   Compiling itoa v1.0.18
+   Compiling open_pipe_stress_units v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/units)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.72s
+     Running unittests src/lib.rs (/tmp/chirality-f4-i3-product-physics-target/debug/deps/open_pipe_stress_product_physics-196ac3689b43e14f)
+
+running 1 test
+test tests::valid_invented_model_exposes_nonlinear_support_loop_evidence ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 137 filtered out; finished in 0.02s
+
+EXIT: 0

@@ -1,0 +1,43 @@
+{
+  "schema_version": "1.0",
+  "record_type": "owner_direction",
+  "status": "ACTIVE",
+  "owner_quote": "Fair enough!  Yes, I think you have a good handle on it now, in terms of what I want you to take the initiative for.  It's quite broad.  Good work, keep going.  Since we're at a juncture, before you set off, tell me where you stand in regards to the goals you set out to accomplish.",
+  "owner_quote_utf8_sha256": "2523aa0326ae20e7a03dac98e425a562cb774e6b6b535ce31c69e46ff205e862",
+  "conversation_basis": "The Owner direction followed root explaining that exact review hashes were an unnecessarily brittle permission boundary and that routine bounded implementation/test repairs preserving behavior, engineering decisions, acceptance criteria, and write scope should proceed autonomously.",
+  "root_interpretation": {
+    "authorized_now": [
+      "Apply the reviewed three-line browser provenance correction.",
+      "Proceed autonomously with routine bounded repairs necessary to complete this tranche when they preserve behavior, engineering decisions, acceptance criteria, and the existing write scope."
+    ],
+    "evidence_rule": "Exact hashes remain immutable review and freeze evidence; they are not a new Owner-approval boundary for each bounded edit. Every successor must still be frozen, validated, and independently reviewed as required.",
+    "not_inferred": [
+      "new engineering decision",
+      "new public contract or API",
+      "new acceptance criterion or waiver",
+      "source-fence expansion",
+      "DAG, dependency, requirement, or lifecycle change"
+    ]
+  },
+  "standing_directions": {
+    "git_authority": "Existing authority for commit, push, PR creation, and merge persists in the gated order.",
+    "agent_1_and_2_model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false
+  },
+  "root_revalidation": {
+    "tested_commit": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "six_live_hashes": "PASS",
+    "receipt_validator": "PASS"
+  },
+  "preserved_gates": [
+    "F4 bounded application and validation",
+    "fresh RF applied backcheck",
+    "CHANGE fresh native build and identity binding",
+    "isolated native default-fixture smoke",
+    "source-freeze and tested commits",
+    "clean full five-surface DEC-025 and practitioner suite",
+    "Receipt 137 and evidence-only commit",
+    "push, PR, exact-head CI, then merge"
+  ]
+}

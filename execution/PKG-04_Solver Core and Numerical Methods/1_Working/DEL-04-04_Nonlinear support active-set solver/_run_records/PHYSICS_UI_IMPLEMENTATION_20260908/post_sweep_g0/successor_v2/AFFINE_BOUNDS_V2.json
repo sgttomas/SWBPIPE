@@ -1,0 +1,145 @@
+{
+  "calibration": "The retained-spring L-200 normal interval straddles one final-digit publication boundary; its exact public value is therefore observational, while its friction publication is independently unique. All other listed publications are independently unique.",
+  "dense_sparse_all_rows_equal": true,
+  "method": "Existing public API at mu=0 with explicit independent global-Z nodal probes. Six-decimal probe intervals are intersected before the affine fixed-point calculation. The mu=0.01 run is used only to observe the published target and backcheck the independently bounded relation.",
+  "publication_half_interval_n": "5E-7",
+  "results": [
+    {
+      "affine_equation": "N = N0 + H*q; q = mu*N; N* = N0/(1-mu*H)",
+      "bounded_H_normal_n_per_tangential_n": [
+        "-0.075639321428571428571428571428571428571428571428571",
+        "-0.075639315789473684210526315789473684210526315789474"
+      ],
+      "bounded_N0_n": [
+        "41.151382090909090909090909090909090909090909090909",
+        "41.15138214"
+      ],
+      "bounded_fixed_point_friction_n": [
+        "0.41120278992244895453657685964911272692276058018870",
+        "0.41120279040551624227185601555845249233227681367762"
+      ],
+      "bounded_fixed_point_normal_n": [
+        "41.120278992244895453657685964911272692276058018870",
+        "41.120279040551624227185601555845249233227681367762"
+      ],
+      "converged": 1.0,
+      "dense_sparse_equal": true,
+      "fixture": "retained_spring",
+      "independent_published_friction_n": "0.411203",
+      "independent_published_normal_candidates_n": [
+        "41.120279"
+      ],
+      "iterations": 2.0,
+      "load_case": "L-100",
+      "mu": "0.01",
+      "observed_target_published_friction_n": "0.411203",
+      "observed_target_published_normal_n": "41.120279",
+      "probe_count": 21,
+      "stable_friction_state_code": 3.0,
+      "stable_one_way_state_code": 1.0
+    },
+    {
+      "affine_equation": "N = N0 + H*q; q = mu*N; N* = N0/(1-mu*H)",
+      "bounded_H_normal_n_per_tangential_n": [
+        "-0.075639322046106559153993410185839578434327077230005",
+        "-0.075639319697982512415825859910902149384704420348047"
+      ],
+      "bounded_N0_n": [
+        "20.575691039209090229498392763698886147865739702474",
+        "20.575691106116878474630070518320184462144819216053"
+      ],
+      "bounded_fixed_point_friction_n": [
+        "0.20560139489256915410928551479671277830628850068322",
+        "0.20560139556114055034804949658835687173839115047034"
+      ],
+      "bounded_fixed_point_normal_n": [
+        "20.560139489256915410928551479671277830628850068322",
+        "20.560139556114055034804949658835687173839115047034"
+      ],
+      "converged": 1.0,
+      "dense_sparse_equal": true,
+      "fixture": "retained_spring",
+      "independent_published_friction_n": "0.205601",
+      "independent_published_normal_candidates_n": [
+        "20.560139",
+        "20.560140"
+      ],
+      "iterations": 2.0,
+      "load_case": "L-200",
+      "mu": "0.01",
+      "observed_target_published_friction_n": "0.205601",
+      "observed_target_published_normal_n": "20.56014",
+      "probe_count": 47,
+      "stable_friction_state_code": 3.0,
+      "stable_one_way_state_code": 1.0
+    },
+    {
+      "affine_equation": "N = N0 + H*q; q = mu*N; N* = N0/(1-mu*H)",
+      "bounded_H_normal_n_per_tangential_n": [
+        "-0.11724908108108108108108108108108108108108108108108",
+        "-0.11724908"
+      ],
+      "bounded_N0_n": [
+        "49.010115500000000000000000000000000000000000000000",
+        "49.010115522988505747126436781609195402298850574713"
+      ],
+      "bounded_fixed_point_friction_n": [
+        "0.48952718886940857022435556138214135466511624812177",
+        "0.48952718910206232940899626828000508052588873362894"
+      ],
+      "bounded_fixed_point_normal_n": [
+        "48.952718886940857022435556138214135466511624812177",
+        "48.952718910206232940899626828000508052588873362894"
+      ],
+      "converged": 1.0,
+      "dense_sparse_equal": true,
+      "fixture": "historical_no_spring",
+      "independent_published_friction_n": "0.489527",
+      "independent_published_normal_candidates_n": [
+        "48.952719"
+      ],
+      "iterations": 2.0,
+      "load_case": "L-100",
+      "mu": "0.01",
+      "observed_target_published_friction_n": "0.489527",
+      "observed_target_published_normal_n": "48.952719",
+      "probe_count": 21,
+      "stable_friction_state_code": 3.0,
+      "stable_one_way_state_code": 1.0
+    },
+    {
+      "affine_equation": "N = N0 + H*q; q = mu*N; N* = N0/(1-mu*H)",
+      "bounded_H_normal_n_per_tangential_n": [
+        "-0.11724908047389869611671599171717362732954491731357",
+        "-0.11724907775050043060163744900753806451676748674363"
+      ],
+      "bounded_N0_n": [
+        "24.505057733869907134895087840710744287065919796113",
+        "24.505057743583713980562684143741036348418946076206"
+      ],
+      "bounded_fixed_point_friction_n": [
+        "0.24476359428123080749096051097019814921802564009015",
+        "0.24476359437875906908330424276421376426038676395057"
+      ],
+      "bounded_fixed_point_normal_n": [
+        "24.476359428123080749096051097019814921802564009015",
+        "24.476359437875906908330424276421376426038676395057"
+      ],
+      "converged": 1.0,
+      "dense_sparse_equal": true,
+      "fixture": "historical_no_spring",
+      "independent_published_friction_n": "0.244764",
+      "independent_published_normal_candidates_n": [
+        "24.476359"
+      ],
+      "iterations": 2.0,
+      "load_case": "L-200",
+      "mu": "0.01",
+      "observed_target_published_friction_n": "0.244764",
+      "observed_target_published_normal_n": "24.476359",
+      "probe_count": 47,
+      "stable_friction_state_code": 3.0,
+      "stable_one_way_state_code": 1.0
+    }
+  ]
+}

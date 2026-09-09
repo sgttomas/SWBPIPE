@@ -1,0 +1,149 @@
+{
+  "schema_version": "1.0",
+  "record_type": "corrected_source_native_fan_in_and_publication_verification_release",
+  "status": "ROOT_ACCEPTED_CHANGE_DISPATCH_READY",
+  "authority": {
+    "owner_direction": {
+      "path": "OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    "publication_plan": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/PUBLICATION_PLAN_V2.md",
+      "sha256": "5d543ec339ca6453c0720583388ce49ce1d3e8a4bc12a307210a04d86ecedcdd"
+    },
+    "standing_git_authority": "Commit, push, PR creation, and merge remain authorized in the gated order; merge requires exact-head green CI.",
+    "model_contract": {
+      "agent_1_and_2": "gpt-5.6-sol",
+      "reasoning": "high",
+      "astra_exception_granted": false
+    }
+  },
+  "accepted_source_fan_in": {
+    "binding": {
+      "path": "../instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+      "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+      "members": 17,
+      "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc"
+    },
+    "u7_final_manifest_sha256": "dc40d93d94dd806111645f38dcf66c62dce2163cd76eddafa41ba4a001e0edb9",
+    "rf_final": {
+      "path_root": "../instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1",
+      "manifest_sha256": "97fff5dc92c4b056bd120aba828ba91e91e2695207726380a0cbd110878fc641",
+      "review_sha256": "4a6fb4191140f762658e49e4a608d537d5f54c35280b8a59dfe5b1845ca88d7c",
+      "return_sha256": "bb1aa244a1966cd27eb57d79a9a53a92e0e61312f8aad363b1da14c5f9999056",
+      "status_sha256": "8363a4c49384c1aed3edb9377d54f4d6f6a62184eae6b63aa3a1c0a1b086a0d9",
+      "verdict": "PASS_NO_FINDINGS"
+    },
+    "source_writers": "STOPPED"
+  },
+  "accepted_native_fan_in": {
+    "agent": "/root/native_default_fixture",
+    "dispatch": "Fresh Agent 2 launched after root verified the sealed brief and prelaunch identities; gpt-5.6-sol/high; no delegation.",
+    "path_root": "../instances/NATIVE/post_g0_default_fixture",
+    "final_manifest_sha256": "57887e5e702d751ec625af462f3a4f51e103bc78eb4447d4432ab8aa0b0a7bdd",
+    "manifest_outputs": 29,
+    "return_sha256": "b96cc1cade0674d6f8fca7e485b6355cc0379cb759352a21ef9b771d42839826",
+    "status_sha256": "edad8717358d575c171b7bf1a39dee2f8d465e667b659489f76b9832d03fbdea",
+    "validation_sha256": "e730868d045e56856bf5ece1b8daa9042f4ccb64471644e4a1ef7d12710ea0f7",
+    "complete_solve_tuple_sha256": "efc83c8957032d2196593627f300d30a2e419b18739e1e09265dcaa8f0474169",
+    "cleanup_evidence_sha256": "713554c49777cb6f996b56b050e6ff4cb6cd01558628233a617ef510f09f1d8d",
+    "execution": {
+      "solve_count": 1,
+      "save_count": 1,
+      "retry_count": 0,
+      "fixture_changed": false,
+      "rows": 830,
+      "blocking_errors": 0
+    },
+    "exact_cells": [
+      {
+        "id": "result:reaction:support-NL-130-FRIC",
+        "value": 0.411203,
+        "unit": "N"
+      },
+      {
+        "id": "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+        "value": 0.411203,
+        "unit": "N"
+      },
+      {
+        "id": "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+        "value": 41.120279,
+        "unit": "N"
+      },
+      {
+        "id": "result:disp:node-N-140",
+        "value": 3.977301,
+        "unit": "mm"
+      },
+      {
+        "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140",
+        "value": 4.927112,
+        "unit": "mm"
+      }
+    ],
+    "final_visual": {
+      "sha256": "3357331e1e7940f6ff2b8b07b8f1146bbc3dc27201702bea2404d5c754fa6020",
+      "dimensions": "1024x768",
+      "visible_claims": [
+        "830 rows",
+        "backend-solve-job-1 solved footer",
+        "normalized maximum 4.927112"
+      ],
+      "calibration": "The exact selected table cell is below the fold in the compact final image; separate result capture, accessibility evidence, and the saved lossless tuple support the exact-cell claims. The earlier raw 1203x768 capture is not described as 1024x768."
+    },
+    "postconditions": {
+      "exact_bundle_process": "ABSENT",
+      "dedicated_store": "ABSENT",
+      "native_writer": "STOPPED"
+    },
+    "prefreeze_manifest_superseded": {
+      "sha256": "b8d6e9c98f40a06720d38758fcc815b7c305a9663a949caa2f51b9ac3d36283f",
+      "reason": "Validation path count finalized from 4336 to 4338 before the terminal freeze; no technical result changed."
+    }
+  },
+  "historical_failure_resolution": {
+    "g0_hold": {
+      "path": "../dispositions/DEC025_G0_FAILURE_HOLD_V1.json",
+      "sha256": "f91a721992b62659e768c6e8a867cf8c9e34586fac9132374a319a4b53fdc505",
+      "state": "PRESERVED; cannot satisfy the new sweep gate"
+    },
+    "failed_sweep_sha256": "0d6f31872b51d3c1021d574d42d127aabaf0b400fa06690720672dfb5625268e",
+    "browser_failure_packet": {
+      "application_manifest_sha256": "473d3fb987d0aaf0c776b9c34f0534afb264e406410bd8e0824b429d4c6c2b8b",
+      "manager_return_sha256": "1f3124c4fafe9d90a4d1c01c5e01e54cf4d1c02d28385ecb337d22f38da27c45",
+      "resolution": "Preserved and superseded by U7 focused 4/4 PASS plus final RF PASS."
+    },
+    "portable_diff_resolver_sha256": "a64c4198ecd4ceb7da6939637775b4caf9d44a85adb69d659ecc310ce126f2f4"
+  },
+  "global_validation": {
+    "candidate_whitespace": "PASS",
+    "binary_files_skipped": 12,
+    "path_anchor_surfaces": 4338,
+    "path_anchor_findings": 0
+  },
+  "source_exception": {
+    "state": "TERMINATED_AT_THIS_ROOT_ACCEPTED_CORRECTED_SOURCE_NATIVE_FAN_IN",
+    "basis": "The approved bounded correction source is frozen, independently reviewed, natively witnessed, and all source/native writers are stopped. Downstream release verification requires no further source-edit authority.",
+    "new_source_writes_authorized": false
+  },
+  "change_release": {
+    "state": "READY_FOR_ROOT_ACTUAL_DISPATCH",
+    "authorized_next": [
+      "Rehash accepted bindings and stopped-writer state.",
+      "Create the authorized source-freeze and tested commits in the prescribed order.",
+      "Run the clean complete five-surface DEC-025 sweep and practitioner suite."
+    ],
+    "not_yet_performed": [
+      "new source-freeze or tested commit",
+      "clean DEC-025 sweep",
+      "practitioner suite",
+      "Receipt 137",
+      "evidence-only commit",
+      "push or PR",
+      "exact-head CI",
+      "merge"
+    ]
+  },
+  "acceptance_limits": "This accepts the corrected technical source/native fan-in and releases CHANGE verification only. It is not full release, lifecycle, dependency, DAG, public-contract, engineering, professional-reliance, CI, or merge acceptance. Receipt 137 remains unwritten until the tested source commit and full clean sweep pass."
+}

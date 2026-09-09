@@ -1,0 +1,32 @@
+{
+  "browser_validation": {
+    "changed_numeric_assertion_inference": "Both main journeys reached later line 785, so the earlier changed V4 numeric assertion passed in both projects.",
+    "exit": 1,
+    "from_blank_failure_line": 907,
+    "main_failure_line": 785,
+    "result": "0 passed; 4 failed",
+    "retry_attempted": false
+  },
+  "child_return_sha256": "c415ceb917faaedb980086f457eb23afeda42069449d9289cd46b594b2a70890",
+  "child_status_sha256": "d5876f92d83434a3d4004fba024f2c106722ba49aa1242cc0733b81844495e8a",
+  "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "encoded_payloads_verified": true,
+  "evidence_manifest_sha256": "f2ac07eb5e641fc67ebcdb60f6bce5ca9b0ab8fe4bb94627039021dfd88a087a",
+  "evidence_members_verified": 15,
+  "f4_candidate_whitespace_findings": 0,
+  "f4_path_anchor_findings": 0,
+  "manager_disposition": "Freeze current one-file postimage and binding; transfer exclusive r2-smoke repair ownership to U7 through root; acceptance remains held.",
+  "one_file_postimage_match": true,
+  "patch_delta": {
+    "additions": 3,
+    "deletions": 0
+  },
+  "postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "prior_binding_members_unchanged": 16,
+  "reverse_apply_check_exit": 0,
+  "schema_version": "1.0",
+  "scoped_diff_check_exit": 0,
+  "status": "BLOCKED_VALIDATED",
+  "updated_binding_aggregate_sha256": "847866e6be422966e285968bd280b1bfe5415d084419f263b64936c977a93801",
+  "updated_binding_sha256": "94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b"
+}

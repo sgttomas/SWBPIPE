@@ -1,0 +1,42 @@
+{
+  "members": [
+    {
+      "path": "{RUN_ROOT}/post_g0/browser_provenance_amendment/PROPOSED_OWNER_AMENDMENT_V2.md",
+      "sha256": "fcc4a837799cc67ff8bec32866b965edf0313b3fc516611c7f460322c3b84316"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/RF/post_g0_browser_candidate_review_v1/REVIEW.md",
+      "sha256": "e8eb280f1081e4a885b6edeba4f5bdaa86fdd2d95f4c8151859e7eb24982b1ac"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/F4/post_sweep_g0/application_v1/APPLICATION_MANIFEST_V1.json",
+      "sha256": "473d3fb987d0aaf0c776b9c34f0534afb264e406410bd8e0824b429d4c6c2b8b"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json",
+      "sha256": "020ec2c68f9fc317f7de0ffb0162563555947caff4b767a8feb90c424e255c46"
+    },
+    {
+      "path": "{RUN_ROOT}/post_g0/OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    {
+      "path": "{RUN_ROOT}/post_g0/F4_BROWSER_PROVENANCE_DISPATCH_AMENDMENT_V1.md",
+      "sha256": "331cad21e0283520e28f9b14922a9d8634abdd728eb45f951f645d12594524b4"
+    },
+    {
+      "path": "{RUN_ROOT}/post_g0/WORK_GRAPH_V4.json",
+      "sha256": "b907dcaa6a7b9254234a46b0acf3d67dc7b8f38d2e0713ae3e7bde6e06e6f492"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/F4/post_sweep_g0/application_v2/children/I4/DIRECTION_BINDING_AMENDMENT_V1.md",
+      "sha256": "3ec0122a42ac49d6cde34e4d149978681ffe9560955e3f91ec74f8c49c115d0c"
+    },
+    {
+      "path": "{RUN_ROOT}/instances/F4/post_sweep_g0/application_v2/children/I4/SEALED_BROWSER_REPAIR_BRIEF.md",
+      "sha256": "209b3af301574bc5d41e14ab9cf229ee460ead3c02da8a7c415d4c2179dff8be"
+    }
+  ],
+  "schema_version": "1.0",
+  "status": "PASS"
+}

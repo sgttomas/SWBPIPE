@@ -1,0 +1,8 @@
+NON_APPLICABLE_PUBLICATION_POINTER
+record_kind: encoded_raw_diff_pointer
+status: do_not_apply_this_pointer
+repo_anchor: {REPO_ROOT}
+frozen_raw_path: {REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/CANDIDATE_TEST_CORRECTION_V2.diff
+frozen_raw_sha256: e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc
+lossless_archive_path: {REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json
+resolution: base64-decode the archive payload_base64 exactly and require the frozen_raw_sha256 before application

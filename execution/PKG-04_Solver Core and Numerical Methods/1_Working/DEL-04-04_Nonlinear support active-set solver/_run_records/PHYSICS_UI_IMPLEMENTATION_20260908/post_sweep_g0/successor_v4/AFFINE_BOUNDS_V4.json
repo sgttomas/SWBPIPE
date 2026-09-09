@@ -1,0 +1,124 @@
+{
+  "calibration": "Both L-200 normal bounds span two publication cells; their exact target normal is therefore observation-backed. Both L-200 friction publications and both L-100 pairs are uniquely fixed by the independent affine bounds.",
+  "method": "Exact Fraction intersections of six-decimal mu=0 public normal observations under independent global-Z probes; target mu=0.01 is observational only.",
+  "results": [
+    {
+      "affine_equation": "N=N0+Hq; q=mu*N; N*=N0/(1-mu*H)",
+      "arithmetic": "exact_fraction",
+      "bounded_H_fraction": [
+        "-2117901/28000000",
+        "-1437147/19000000"
+      ],
+      "bounded_N0_fraction": [
+        "452665203/11000000",
+        "2057569107/50000000"
+      ],
+      "bounded_fixed_friction_decimal": [
+        "0.411202789922448954536576859649112726922760580188694681720211",
+        "0.411202790405516242271856015558452492332276813677616583823788"
+      ],
+      "bounded_fixed_normal_decimal": [
+        "41.1202789922448954536576859649112726922760580188694681720211",
+        "41.1202790405516242271856015558452492332276813677616583823788"
+      ],
+      "fixture": "retained_spring",
+      "independent_published_friction_n": "0.411203",
+      "independent_published_normal_cells_n": [
+        "41.120279"
+      ],
+      "load_case": "L-100",
+      "observed_target_friction_n": "0.411203",
+      "observed_target_normal_n": "41.120279",
+      "probe_count": 21
+    },
+    {
+      "affine_equation": "N=N0+Hq; q=mu*N; N*=N0/(1-mu*H)",
+      "arithmetic": "exact_fraction",
+      "bounded_H_fraction": [
+        "-2049849/27100309",
+        "-421502/5572525"
+      ],
+      "bounded_N0_fraction": [
+        "550482038063/26754000000",
+        "1498565730589803/72831854000000"
+      ],
+      "bounded_fixed_friction_decimal": [
+        "0.205601394892569154109285514796712778306288500683233524509195",
+        "0.205601395561140550348049496588356871738391150470346955769836"
+      ],
+      "bounded_fixed_normal_decimal": [
+        "20.5601394892569154109285514796712778306288500683233524509195",
+        "20.5601395561140550348049496588356871738391150470346955769836"
+      ],
+      "fixture": "retained_spring",
+      "independent_published_friction_n": "0.205601",
+      "independent_published_normal_cells_n": [
+        "20.560139",
+        "20.56014"
+      ],
+      "load_case": "L-200",
+      "observed_target_friction_n": "0.205601",
+      "observed_target_normal_n": "20.56014",
+      "probe_count": 47
+    },
+    {
+      "affine_equation": "N=N0+Hq; q=mu*N; N*=N0/(1-mu*H)",
+      "arithmetic": "exact_fraction",
+      "bounded_H_fraction": [
+        "-542277/4625000",
+        "-2931227/25000000"
+      ],
+      "bounded_N0_fraction": [
+        "98020231/2000000",
+        "8527760101/174000000"
+      ],
+      "bounded_fixed_friction_decimal": [
+        "0.489527188869408570224355561382141354665116248121767075709158",
+        "0.489527189102062329408996268280005080525888733628911904276483"
+      ],
+      "bounded_fixed_normal_decimal": [
+        "48.9527188869408570224355561382141354665116248121767075709158",
+        "48.9527189102062329408996268280005080525888733628911904276483"
+      ],
+      "fixture": "historical_no_spring",
+      "independent_published_friction_n": "0.489527",
+      "independent_published_normal_cells_n": [
+        "48.952719"
+      ],
+      "load_case": "L-100",
+      "observed_target_friction_n": "0.489527",
+      "observed_target_normal_n": "48.952719",
+      "probe_count": 21
+    },
+    {
+      "affine_equation": "N=N0+Hq; q=mu*N; N*=N0/(1-mu*H)",
+      "arithmetic": "exact_fraction",
+      "bounded_H_fraction": [
+        "-620019/5288050",
+        "-473923/4042019"
+      ],
+      "bounded_N0_fraction": [
+        "38383693221909/1566358000000",
+        "1955807475989/79812400000"
+      ],
+      "bounded_fixed_friction_decimal": [
+        "0.244763594281230807490960510970198149218025640090142762180405",
+        "0.244763595043142730369208166109331036451769959775624953274273"
+      ],
+      "bounded_fixed_normal_decimal": [
+        "24.4763594281230807490960510970198149218025640090142762180405",
+        "24.4763595043142730369208166109331036451769959775624953274273"
+      ],
+      "fixture": "historical_no_spring",
+      "independent_published_friction_n": "0.244764",
+      "independent_published_normal_cells_n": [
+        "24.476359",
+        "24.47636"
+      ],
+      "load_case": "L-200",
+      "observed_target_friction_n": "0.244764",
+      "observed_target_normal_n": "24.476359",
+      "probe_count": 47
+    }
+  ]
+}

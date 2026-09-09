@@ -1,0 +1,71 @@
+{
+  "schema_version": "1.0",
+  "record_type": "lossless_raw_diff_resolver",
+  "status": "ACTIVE",
+  "reason": "Raw unified-diff context lines are losslessly archived while active paths remain portable and candidate-whitespace clean.",
+  "entries": [
+    {
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/SEALED_PREIMAGE_TO_FINAL.diff",
+      "logical_sha256": "cf53ac74b52ba38757aca4600f9ce2a8998c9a40d564ad1b402b2273c9ea4e69",
+      "decoded_bytes": 14555,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/SEALED_PREIMAGE_TO_FINAL.diff.base64.json",
+      "archive_sha256": "4e25e148f04bf81fed833872385113ab99cf9dd0586b33d204136b88302d7e6e",
+      "active_physical_kind": "NON_APPLICABLE_PORTABLE_POINTER",
+      "active_physical_sha256": "e8fcd4810972a603e6ddfc5cdab4dc9f02557f789491a6489add4418040f5041",
+      "active_physical_bytes": 570
+    },
+    {
+      "logical_path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/HEAD_TO_FROZEN_BROWSER_FLOW.diff",
+      "logical_sha256": "8c6f2d13f7af4d210c1236e8a04c36b6f28d944ec8eb5cdb3d70bcd04364648d",
+      "decoded_bytes": 17359,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/HEAD_TO_FROZEN_BROWSER_FLOW.diff.base64.json",
+      "archive_sha256": "7684cb7a8841884eac6e8dc2a112a588d0c12c901c0e44a738e5a450322bd29a",
+      "active_physical_kind": "NON_APPLICABLE_PORTABLE_POINTER",
+      "active_physical_sha256": "e82fbfa3afa9137589f61c063e17e65fcaa5a5e1960bd8d15adb9ff3f1678b57",
+      "active_physical_bytes": 562
+    },
+    {
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/RETURN.md",
+      "logical_sha256": "b5ef49627863d45dba30742566fecc1730300a1c8be863983938feb54e91a525",
+      "decoded_bytes": 3835,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/RETURN.md.b5ef49627863d45d.original.base64.json",
+      "archive_sha256": "a917fdd72c304f8cd24cddcd5ed6fed5be29d4611001d514f8d60262682140f7",
+      "active_physical_kind": "LF_CLEAN_SUCCESSOR",
+      "active_physical_sha256": "6b06b7de2844eb151e807f77fc758810b9a800a508690fd1c65ea0e4e52b7bb7",
+      "active_physical_bytes": 3834
+    },
+    {
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/STATUS.md",
+      "logical_sha256": "a25c556eb7c5bbcc9ab3ca65c9d1a8e0f8009d90cb937828f6f08b708b27955d",
+      "decoded_bytes": 528,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/STATUS.md.a25c556eb7c5bbcc.original.base64.json",
+      "archive_sha256": "2c9a1ce194292eae68abad570c0fc187bd83d6fbc7314a7196ff671b7b97cdf7",
+      "active_physical_kind": "LF_CLEAN_SUCCESSOR",
+      "active_physical_sha256": "e27196112dafee4fa72a08284eb159d8c0d94b4da7905c6fe6bb8ce8619d63cc",
+      "active_physical_bytes": 527
+    },
+    {
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/MANAGER_VALIDATION_V1.md",
+      "logical_sha256": "2957756da9c8de02aee970380d39455f26f1eee185d421da4f076ebb78aba601",
+      "decoded_bytes": 1540,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/MANAGER_VALIDATION_V1.md.2957756da9c8de02.original.base64.json",
+      "archive_sha256": "275d8dd9339cd161c7e645b9a98f6c8e7c0d519160c0e2ba0d52da1026f6fc72",
+      "active_physical_kind": "PORTABLE_SUCCESSOR",
+      "active_physical_sha256": "6ca9e203523b748f173014731ff52e343df99e715549c06d836ce008a6d7b789",
+      "active_physical_bytes": 1652
+    },
+    {
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/MANAGER_RETURN_V1.md",
+      "logical_sha256": "6b7313ef51e62c92ca8504003b4fd05682bb8ede37d606d8010ae4cd3714df68",
+      "decoded_bytes": 1026,
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/raw_archives/MANAGER_RETURN_V1.md.6b7313ef51e62c92.original.base64.json",
+      "archive_sha256": "5bb308431920d9963016b7fe5e7bc06f1e19520afb8cc896b027e9a8ba610810",
+      "active_physical_kind": "PORTABLE_SUCCESSOR",
+      "active_physical_sha256": "417fd2b0865ece7b9c418ca9bab0e5e2d34c16534b73b126d13544a97491d5b0",
+      "active_physical_bytes": 1157
+    }
+  ],
+  "historical_reference_resolution": "References to each logical SHA-256 identify the decoded payload in its archive. Active physical hashes identify portable pointer or LF-clean successor files.",
+  "source_semantics_changed": false,
+  "test_rerun_required": false
+}

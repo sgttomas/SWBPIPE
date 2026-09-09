@@ -1,0 +1,19 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+  "checked_file_count": 4272,
+  "finding_count": 1,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/SEALED_BRIEF.md",
+      "line": 15,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908",
+      "text": "- Current lane: `/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908`."
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 1,
+    "active_unclassified": 0,
+    "policy_issues": 0,
+    "acknowledged_control": 31
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "schema": "native_default_fixture_complete_solve_tuple_v1",
+  "execution": {
+    "surface": "actual packaged native application through CUA",
+    "bundle": "{WORKING_ROOT}/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Physics UI Post-G0 Witness 20260908 R2.app",
+    "solve_count": 1,
+    "save_count": 1,
+    "retry_count": 0,
+    "fixture_changed": false,
+    "new_blank_used": false,
+    "rename_used": false,
+    "input_edits": 0
+  },
+  "native_identity": {
+    "seam": "tauri_backend_job",
+    "project": "project:invented-loop-01",
+    "result_model": "project:invented-loop-01",
+    "identity": "match",
+    "canonical_run_id": "run:preview-linear-static-001",
+    "native_job_id": "backend-solve-job-1",
+    "native_generation": 4,
+    "solver_mode": "sparse_interactive",
+    "model_sha256": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+    "input_manifest_sha256": "e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4",
+    "state_ref": "state:project:invented-loop-01:preview"
+  },
+  "persisted_hashes": {
+    "analysis_run_record_sha256_rfc8785_jcs": "bb4a65b562571ccae5c9ea8848a784b380f43b90bd4a5968b5b79ac7d0eee6c7",
+    "result_envelope_sha256_rfc8785_jcs": "69ed73376bce44e6c3322eff1b2f6a2d961783163b2274abdb6d9c5d94f11744",
+    "project_envelope_sha256_rfc8785_jcs": "sha256:55c4f390dbf71b6e2c49a37892c6e5ed3653b4b250ba861a2e87e800b107a561",
+    "raw_analysis_run_json_sha256": "b8234ca9a116460e818ea8d8a9f58ef3c95f75bb08a2288ead2f87bb948b6a46",
+    "raw_mechanics_result_json_sha256": "c88c9da7e0daac650f9dd5bfa007280411669fb3d20104132bc8d558b645bf1f",
+    "raw_model_json_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "lossless_store_row_sha256": "95bd47fe00a5a9adf87e8547389482219cbbd9d3a505203800628599fa672c37",
+    "lossless_store_row_bytes": 1014349
+  },
+  "status": {
+    "mechanics": "MECHANICS_SOLVED",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED",
+    "accepted_model_state_mutated": false,
+    "result_rows": 830
+  },
+  "diagnostics": {
+    "native_workspace": {
+      "total": 32,
+      "warnings": 12,
+      "blocking_or_error": 0
+    },
+    "persisted_result_envelope": {
+      "total": 31,
+      "info": 20,
+      "warnings": 11,
+      "blocking_or_error": 0
+    }
+  },
+  "exact_result_cells": [
+    {
+      "id": "result:reaction:support-NL-130-FRIC",
+      "basis_ref": "load:L-100",
+      "entity_ref": "support:NL-130-FRIC",
+      "value": 0.411203,
+      "unit": "N"
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+      "basis_ref": "load:L-100",
+      "entity_ref": "support:NL-130-FRIC",
+      "value": 0.411203,
+      "unit": "N"
+    },
+    {
+      "id": "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+      "basis_ref": "load:L-100",
+      "entity_ref": "support:NL-130-FRIC",
+      "value": 41.120279,
+      "unit": "N"
+    },
+    {
+      "id": "result:disp:node-N-140",
+      "basis_ref": "load:L-100",
+      "entity_ref": "node:N-140",
+      "value": 3.977301,
+      "unit": "mm"
+    },
+    {
+      "id": "result:combination:combination-C-OPER-ALT:disp:node-N-140",
+      "basis_ref": "combination:C-OPER-ALT",
+      "entity_ref": "node:N-140",
+      "value": 4.927112,
+      "unit": "mm"
+    }
+  ],
+  "summary": {
+    "max_displacement": {
+      "result_ref": "result:disp:node-N-140",
+      "location_ref": "node:N-140",
+      "value": 3.977301,
+      "unit": "mm"
+    },
+    "max_open_formula_stress": {
+      "result_ref": "result:stress:pipe-P-120",
+      "location_ref": "pipe:P-120",
+      "value": 5.347969,
+      "unit": "MPa"
+    },
+    "overlay": {
+      "nodes": 5,
+      "max": 4.927112,
+      "unit": "mm",
+      "scale": "normalized_display_offset_not_physical_length"
+    }
+  },
+  "backend_parity_boundary": "Native backend success is a packaged-path parity witness and is not independent physics proof."
+}

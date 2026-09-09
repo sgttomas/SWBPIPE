@@ -549,6 +549,8 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("viewport-create-node-x")).toHaveValue(/^-?\d/);
   await expect(page.getByTestId("viewport-create-node-y")).toHaveValue("0");
   await expect(page.getByTestId("viewport-create-node-z")).toHaveValue(/^-?\d/);
+  await expect(page.getByTestId("queue-explicit-node-intent")).toBeDisabled();
+  await page.getByTestId("viewport-create-node-provenance").fill("invented_synthetic_ui_acceptance_input");
   await expect(page.getByTestId("queue-explicit-node-intent")).toBeEnabled();
 
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
@@ -586,7 +588,7 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=830");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
   await setDisclosure(page.getByTestId("viewport-deformation-status"));
-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.927109 mm");
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("available; nodes=5; max=4.927112 mm");
   await expect(page.getByTestId("viewport-deformation-boundary")).toContainText(
     "scale=normalized_display_offset_not_physical_length"
   );
@@ -772,38 +774,21 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
     "candidate_targets_without_claiming_target_writer_conversion"
   );
 
-  // Engine-route receipt (TP-SEAM-SWAP-001): apply the prepared explicit
-  // node intent through the structured-operation seam in a real browser and
-  // verify the honest wasm-engine route on the applied receipt. Runs last:
-  // applying clears earlier solve results by design.
+  // Engine-route receipt (TP-SEAM-SWAP-001): Add the prepared explicit node,
+  // review its frozen service validation and exact diff, then Apply it through
+  // the structured-operation seam in a real browser. Runs last because Apply
+  // clears earlier solve results by design.
   await ensureCreationToolArmed(page, "command-node", "Node tool armed");
-  await page.getByTestId("queue-explicit-node-intent").click();
-  await openWorkspaceSection(page, "operations");
-  const applyPanel = page.getByTestId("operation-apply-panel");
-  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 0 applied");
-  await openReviewTab(page, "details");
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toBeVisible();
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("records=1");
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("unit_bearing_changes=1");
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("dimensionless_changes=0");
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
-    "unit_validations=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
-  );
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText(
-    "receipt_units=not_serialized_in_review_ledger"
-  );
-  await expect(page.getByTestId("operation-ledger-unit-policy")).toContainText("conversion=false");
-  await openReviewTab(page, "review");
-  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 unit-bearing queued");
-  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 dimensionless queued");
-  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 applied receipts");
-  await page.getByTestId("apply-intent-editor-intent-1").click();
-  await expect(applyPanel.getByTestId("applied-operation-route-applied-1-editor-intent-1")).toContainText(
-    "Applied through local_wasm_engine"
-  );
-  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 1 applied");
-  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("0 unit-bearing queued");
-  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText("1 applied receipts");
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:V-001-001",
+    diff: "node:V-001 nodes: not_present",
+    reviewSequence: 1,
+    appliedSequence: 1,
+    publishedTestId: "tree-row-node:V-001",
+    publishedText: "Viewport node V-001"
+  });
   await openWorkspaceSection(page, "solve");
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=not_started");
 
@@ -820,9 +805,10 @@ test("R2 desktop preview smoke covers solve, results, report, and viewport overl
   );
   await page.getByTestId("queue-create-combination-intent").click();
   await openWorkspaceSection(page, "operations");
+  const applyPanel = page.getByTestId("operation-apply-panel");
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("1 queued; 1 applied");
-  await page.getByTestId("apply-intent-editor-intent-2").click();
-  await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-2")).toContainText(
+  await page.getByTestId("apply-intent-editor-intent-1").click();
+  await expect(applyPanel.getByTestId("applied-operation-route-applied-2-editor-intent-1")).toContainText(
     "Applied through local_wasm_engine"
   );
   await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText("0 queued; 2 applied");
@@ -900,17 +886,29 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
 
   const startNode = stepPayload("create_node", "node:R2-100");
   await fillNodeDraft(page, startNode);
-  await page.getByTestId("queue-explicit-node-intent").click();
-  await openViewportPendingChanges(page);
-  await expect(page.getByTestId("viewport-intent-unit-validation-create_node")).toContainText(
-    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
-  );
-  await applyQueuedIntent(page, 1, startNode.id);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:R2-100-001",
+    diff: "node:R2-100 nodes: not_present",
+    reviewSequence: 1,
+    appliedSequence: 1,
+    publishedTestId: "tree-row-node:R2-100",
+    publishedText: startNode.label
+  });
 
   const loadedNode = stepPayload("create_node", "node:R2-110");
   await fillNodeDraft(page, loadedNode);
-  await page.getByTestId("queue-explicit-node-intent").click();
-  await applyQueuedIntent(page, 2, loadedNode.id);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-node-intent",
+    unitTestId: "viewport-create-node-unit",
+    operationId: "op:viewport-create-node-node:R2-110-001",
+    diff: "node:R2-110 nodes: not_present",
+    reviewSequence: 2,
+    appliedSequence: 2,
+    publishedTestId: "tree-row-node:R2-110",
+    publishedText: loadedNode.label
+  });
 
   const material = stepPayload("create_material", "material:r2-carbon-steel");
   await chooseToolkit(page, "properties.material", "create-material-id");
@@ -920,7 +918,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("create-material-shear").fill(String(material.shear_modulus.value));
   await page.getByTestId("create-material-provenance").fill(material.provenance);
   await page.getByTestId("queue-create-material-intent").click();
-  await applyQueuedIntent(page, 3, material.id);
+  await applyQueuedIntent(page, 1, 3, material.id);
 
   const section = stepPayload("create_section", "section:r2-pipe");
   await chooseToolkit(page, "properties.section", "create-section-id");
@@ -930,7 +928,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("create-section-wall").fill(String(section.properties.wall_thickness.value));
   await page.getByTestId("create-section-provenance").fill(section.provenance);
   await page.getByTestId("queue-create-section-intent").click();
-  await applyQueuedIntent(page, 4, section.id);
+  await applyQueuedIntent(page, 2, 4, section.id);
 
   const pipe = stepPayload("connect_pipe_run", "pipe:R2-100");
   await ensureCreationToolArmed(page, "command-pipe", "Pipe tool armed");
@@ -945,12 +943,16 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("viewport-create-pipe-yref-y").fill(String(pipe.y_reference.y));
   await page.getByTestId("viewport-create-pipe-yref-z").fill(String(pipe.y_reference.z));
   await page.getByTestId("viewport-create-pipe-provenance").fill(pipe.provenance);
-  await page.getByTestId("queue-explicit-pipe-intent").click();
-  await openViewportPendingChanges(page);
-  await expect(page.getByTestId("viewport-intent-unit-validation-connect_pipe_run")).toContainText(
-    "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview"
-  );
-  await applyQueuedIntent(page, 5, pipe.id);
+  await applyReviewedDraft(page, {
+    addTestId: "queue-explicit-pipe-intent",
+    unitTestId: "viewport-create-pipe-length-unit",
+    operationId: "op:viewport-connect-pipe-pipe:R2-100-001",
+    diff: "pipe:R2-100 pipe_segments: not_present",
+    reviewSequence: 3,
+    appliedSequence: 5,
+    publishedTestId: "tree-row-pipe:R2-100",
+    publishedText: pipe.label
+  });
 
   const support = stepPayload("create_support", "support:R2-anchor");
   await page.getByTestId("command-support").click();
@@ -964,7 +966,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   }
   await page.getByTestId("create-support-provenance").fill(support.provenance);
   await page.getByTestId("queue-create-support-intent").click();
-  await applyQueuedIntent(page, 6, support.id);
+  await applyQueuedIntent(page, 3, 6, support.id);
 
   const loadCase = stepPayload("create_load_case", "load:R2-L-100");
   await openWorkspaceSection(page, "loads");
@@ -974,7 +976,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("load-manager-create-load-status").fill(loadCase.status);
   await page.getByTestId("load-manager-create-load-provenance").fill(loadCase.provenance);
   await page.getByTestId("queue-create-load-case-intent").click();
-  await applyQueuedIntent(page, 7, loadCase.id);
+  await applyQueuedIntent(page, 4, 7, loadCase.id);
 
   const primitive = stepPayload("create_primitive_load", "load:R2-L-100-FY");
   await openWorkspaceSection(page, "loads");
@@ -986,7 +988,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("load-manager-create-primitive-magnitude").fill(String(primitive.magnitude.value));
   await page.getByTestId("load-manager-create-primitive-provenance").fill(primitive.provenance);
   await page.getByTestId("queue-create-primitive-intent").click();
-  await applyQueuedIntent(page, 8, primitive.id);
+  await applyQueuedIntent(page, 5, 8, primitive.id);
 
   const combination = stepPayload("create_combination", "combination:R2-C-100");
   await openWorkspaceSection(page, "loads");
@@ -997,7 +999,7 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("load-manager-create-combination-provenance").fill(combination.provenance);
   await page.getByTestId("load-manager-create-combination-rationale").fill("A8 GUI replay of the A12 invented rehearsal.");
   await page.getByTestId("queue-create-combination-intent").click();
-  await applyQueuedIntent(page, 9, combination.id);
+  await applyQueuedIntent(page, 6, 9, combination.id);
 
   await openWorkspaceSection(page, "loads");
   await expect(page.getByTestId("load-case-manager-summary")).toContainText(
@@ -1669,24 +1671,85 @@ async function fillNodeDraft(page: Page, payload: any): Promise<void> {
   await page.getByTestId("viewport-create-node-x").fill(String(payload.position.x));
   await page.getByTestId("viewport-create-node-y").fill(String(payload.position.y));
   await page.getByTestId("viewport-create-node-z").fill(String(payload.position.z));
+  await page.getByTestId("viewport-create-node-provenance").fill(payload.provenance);
 }
 
-async function applyQueuedIntent(page: Page, sequence: number, expectedOperation: string): Promise<void> {
+async function applyReviewedDraft(
+  page: Page,
+  expectation: {
+    addTestId: string;
+    unitTestId: string;
+    operationId: string;
+    diff: string;
+    reviewSequence: number;
+    appliedSequence: number;
+    publishedTestId: string;
+    publishedText: string;
+  }
+): Promise<void> {
+  await expect(page.getByTestId(expectation.unitTestId)).toBeVisible();
+  await expect(page.getByTestId(expectation.unitTestId)).toHaveValue("m");
+  await page.getByTestId(expectation.addTestId).click();
+
+  const review = page.getByTestId("viewport-draft-review-preview");
+  await expect(review).toContainText("Single operation");
+  await expect(review).toContainText(expectation.operationId);
+  await expect(review).toContainText("Validated model hash: sha256:");
+  await expect(review).toContainText(expectation.diff);
+  await expect(review).toContainText("[m]");
+
+  const apply = page.getByTestId("apply-reviewed-draft");
+  await expect(apply).toBeEnabled();
+  await openWorkspaceSection(page, "operations");
+  const applyPanel = page.getByTestId("operation-apply-panel");
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText(
+    `0 queued; ${expectation.appliedSequence - 1} applied`
+  );
+  await apply.click();
+  await expect(applyPanel.getByTestId("operation-apply-message")).toContainText(
+    `Applied reviewed ${expectation.operationId}`
+  );
+  await expect(page.getByTestId(expectation.publishedTestId)).toContainText(expectation.publishedText);
+  await expect(applyPanel.getByTestId("operation-apply-summary")).toContainText(
+    `0 queued; ${expectation.appliedSequence} applied`
+  );
+  await expect(applyPanel.getByTestId("operation-unit-policy-chip")).toContainText(
+    `${expectation.appliedSequence} applied receipts`
+  );
+
+  const receipt = applyPanel.getByTestId(
+    `applied-operation-route-applied-viewport-draft-review-${expectation.reviewSequence}`
+  );
+  await expect(receipt).toContainText("Applied through local_wasm_engine");
+  await expect(receipt).toContainText("Acceptance basis user_initiated_apply_in_local_session");
+  await expect(receipt).toContainText("persistence session_state_only_not_yet_saved");
+  await expect(receipt).toContainText("professional approval not recorded");
+}
+
+async function applyQueuedIntent(
+  page: Page,
+  queuedSequence: number,
+  appliedSequence: number,
+  expectedOperation: string
+): Promise<void> {
   // Authoring forms live in the persistent core or the Load Cases section;
   // the Operation Apply section is the receipt and audit surface.
-  const key = `editor-intent-${sequence}`;
+  const key = `editor-intent-${queuedSequence}`;
   await openWorkspaceSection(page, "operations");
-  await expect(page.getByTestId("operation-apply-summary")).toContainText(`1 queued; ${sequence - 1} applied`);
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(
+    `1 queued; ${appliedSequence - 1} applied`
+  );
   await page.getByTestId(`apply-intent-${key}`).click();
   await expect(page.getByTestId("workspace-section-operations")).toBeVisible();
-  await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${sequence} applied`);
-  await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
-    "Applied through local_wasm_engine"
+  await expect(page.getByTestId("operation-apply-summary")).toContainText(`0 queued; ${appliedSequence} applied`);
+  const receipt = page.getByTestId(`applied-operation-route-applied-${appliedSequence}-${key}`);
+  await expect(receipt).toContainText("Applied through local_wasm_engine");
+  await expect(receipt).toContainText("Acceptance basis user_initiated_apply_in_local_session");
+  await expect(receipt).toContainText("persistence session_state_only_not_yet_saved");
+  await expect(receipt).toContainText("professional approval not recorded");
+  await expect(page.getByTestId(`applied-operation-applied-${appliedSequence}-${key}`)).toContainText(
+    expectedOperation
   );
-  await expect(page.getByTestId(`applied-operation-route-applied-${sequence}-${key}`)).toContainText(
-    "professional approval not recorded"
-  );
-  await expect(page.getByTestId(`applied-operation-applied-${sequence}-${key}`)).toContainText(expectedOperation);
 }
 
 type PngImage = {

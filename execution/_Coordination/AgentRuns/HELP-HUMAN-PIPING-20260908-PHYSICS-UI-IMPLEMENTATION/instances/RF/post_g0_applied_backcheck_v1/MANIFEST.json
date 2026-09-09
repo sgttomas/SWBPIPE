@@ -1,0 +1,72 @@
+{
+  "schema": "rf-post-g0-applied-backcheck-v1",
+  "status": "STAGED_COMPLETE_PENDING_R2",
+  "scope": "Five stable applied paths and frozen supporting evidence; mutable r2-smoke excluded.",
+  "stable_five_verdict": "PASS",
+  "whole_tranche_verdict": "PENDING",
+  "outputs": [
+    {
+      "path": "REVIEW_BRIEF.md",
+      "sha256": "02c15dca2344103798dc26c85aee9ea3293e20840d2508d42af7fad0435cd1a0",
+      "bytes": 1255
+    },
+    {
+      "path": "STATUS.json",
+      "sha256": "9c49f99a66b23012188413db90278f4aba2f8ba9ceb3a300a17034de8fe44bef",
+      "bytes": 414
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "ce4c3d983154376e5a0410c6aa6da96be2d5645e2ac13b89431402aa9be1ded2",
+      "bytes": 4769
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "f236dd041c9984e6c560ff7dab208023961c7143e745a24d658a9b6057d2f522",
+      "bytes": 612
+    }
+  ],
+  "principal_inputs": [
+    {
+      "label": "F4 application V1 manifest",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v1/APPLICATION_MANIFEST_V1.json",
+      "sha256": "473d3fb987d0aaf0c776b9c34f0534afb264e406410bd8e0824b429d4c6c2b8b"
+    },
+    {
+      "label": "F4 application V1 manager return",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v1/MANAGER_RETURN_V1.md",
+      "sha256": "1f3124c4fafe9d90a4d1c01c5e01e54cf4d1c02d28385ecb337d22f38da27c45"
+    },
+    {
+      "label": "F4 application V2 manifest",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v2/APPLICATION_MANIFEST_V2.json",
+      "sha256": "9dd2fd40570c534c8bfdbb83ad1e476634d3e61050f015dd58e0544a419637ec"
+    },
+    {
+      "label": "F4 application V2 manager return",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v2/MANAGER_RETURN_V2.md",
+      "sha256": "0ea81314242f04867a54c5b7b56c578241534db9ee916fc235f97d1207a92963"
+    },
+    {
+      "label": "F4 application V2 manager status",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/application_v2/MANAGER_STATUS_V2.json",
+      "sha256": "50807226ad180a0c851e2fadcb21d6ffbff2b81c822782492bc5ed4326fb3ac3"
+    }
+  ],
+  "stable_postimages": {
+    "core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735",
+    "apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "apps/desktop/src/App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c"
+  },
+  "excluded_mutable_path": "apps/desktop/e2e/r2-smoke.spec.ts",
+  "execution": {
+    "tests_rerun": false,
+    "builds_run": false,
+    "browser_run": false,
+    "git_actions": false,
+    "source_writes": false,
+    "delegation_used": false
+  }
+}

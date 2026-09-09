@@ -1,0 +1,163 @@
+{
+  "aggregate_serialization": "sha256__two_spaces__bytes__two_spaces__relative_path__newline; lexicographic relative path order",
+  "aggregate_sha256": "545fd7685d3fc0365235f2a4d278579dc542711f190602e28aa0d388d5ae5753",
+  "browser_failure_artifacts": [
+    {
+      "bytes": 145,
+      "path": "E2E_OUTPUT/.last-run.json",
+      "sha256": "f87fbca8fe126b6eca6c5779010cfefa3074ce9709cf5db93cae72d7379f546f"
+    },
+    {
+      "bytes": 16067,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394"
+    },
+    {
+      "bytes": 17673800,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "sha256": "3a60f634dbe86ce7cecfe975455ebd0890cb540f7907eda8d4995755ed4521eb"
+    },
+    {
+      "bytes": 16067,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+      "sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394"
+    },
+    {
+      "bytes": 17543274,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip",
+      "sha256": "fe6608ea5b1f482a7023f86c6aaa678365f629487ae42d1635b074e9f6fdd1df"
+    }
+  ],
+  "member_count": 25,
+  "members": [
+    {
+      "bytes": 2732,
+      "path": "APPLIED_PATCH_BINDING.json",
+      "sha256": "085154f02663b3bda2330aaf2143190d2fedcfa875013daaf676b7c9d4981f9d"
+    },
+    {
+      "bytes": 228,
+      "path": "CLEANUP_PRIVATE_CARGO_TARGET.txt",
+      "sha256": "4d7328d910897bc8a1b1d9d666671d599944c6b88b9a6d9868d1c54a3d7f8d52"
+    },
+    {
+      "bytes": 5772,
+      "path": "COMPLETE_BINDING.json",
+      "sha256": "032d50ea69013be10f87257d8e30c9fc676704a0abfa77a4aabe7f1856555e63"
+    },
+    {
+      "bytes": 2723,
+      "path": "COMPLETE_BINDING_AGGREGATE.txt",
+      "sha256": "2eb48c1af8d0d6d13e64204fb0fefd70da6ed3c89493ee206d3ae2fb97c5af8e"
+    },
+    {
+      "bytes": 145,
+      "path": "E2E_OUTPUT/.last-run.json",
+      "sha256": "f87fbca8fe126b6eca6c5779010cfefa3074ce9709cf5db93cae72d7379f546f"
+    },
+    {
+      "bytes": 16067,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394"
+    },
+    {
+      "bytes": 17673800,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "sha256": "3a60f634dbe86ce7cecfe975455ebd0890cb540f7907eda8d4995755ed4521eb"
+    },
+    {
+      "bytes": 16067,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+      "sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394"
+    },
+    {
+      "bytes": 17543274,
+      "path": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip",
+      "sha256": "fe6608ea5b1f482a7023f86c6aaa678365f629487ae42d1635b074e9f6fdd1df"
+    },
+    {
+      "bytes": 634410,
+      "path": "GENERATED_FIXTURE.json",
+      "sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13"
+    },
+    {
+      "bytes": 232759,
+      "path": "LOSSLESS_TEXT_EVIDENCE.b64.json",
+      "sha256": "ee122428143ee4de4935716ec8da72c8c98a931a565ae0abd6f19ed9f73696aa"
+    },
+    {
+      "bytes": 507,
+      "path": "PATCH_APPLY.txt",
+      "sha256": "f1a7bf00309c7efb2879212418b03f1b84b63c11fca02e5622548d8c12cc5885"
+    },
+    {
+      "bytes": 507,
+      "path": "PATCH_DRY_RUN.txt",
+      "sha256": "f1a7bf00309c7efb2879212418b03f1b84b63c11fca02e5622548d8c12cc5885"
+    },
+    {
+      "bytes": 879,
+      "path": "POSTIMAGE_CHECKS.txt",
+      "sha256": "b50fac5b3610d2b34e8a71cd6524801ad397c2f76979f890b0276f97deaa4239"
+    },
+    {
+      "bytes": 3625,
+      "path": "PREAPPLICATION_CHECKS.txt",
+      "sha256": "fb8dd6598a1ec223899f6fc89863cb3e73b77962a5e25c4be38c0647248e2b85"
+    },
+    {
+      "bytes": 105030,
+      "path": "REVIEWED_PATCH.diff",
+      "sha256": "c31a705a39c4629aacf6a79871c1497a8b8d3976e389478f79e41f4f7752c334"
+    },
+    {
+      "bytes": 706,
+      "path": "VALIDATE_APP_COMPUTED_DIAGNOSTICS.txt",
+      "sha256": "30e06015c2aed0f4acf024c96c366d1dcc729a4dc3c8e4b533f7dbdcb6bd9630"
+    },
+    {
+      "bytes": 690,
+      "path": "VALIDATE_APP_QUEUED_INTENTS.txt",
+      "sha256": "aefa200f105ba9a90322b8770badc2670aeb2f07d6c2e50d5bbfe7ef68589f8d"
+    },
+    {
+      "bytes": 7627,
+      "path": "VALIDATE_BROWSER_SMOKE.txt",
+      "sha256": "e80398806723565a79a1770dcb4d7e4279286daaa6237930c8865ded4f837482"
+    },
+    {
+      "bytes": 533,
+      "path": "VALIDATE_DESKTOP_SERVICE.txt",
+      "sha256": "b493220c77a77da40221facd34921345972850c32cfdb135487a89f99906f696"
+    },
+    {
+      "bytes": 399,
+      "path": "VALIDATE_GENERATOR_PARITY.txt",
+      "sha256": "286de8abb1fdfd079cb62085ea818c1bfaf3dd33169c0cf3f3ea348ae4844c3c"
+    },
+    {
+      "bytes": 11859,
+      "path": "VALIDATE_PRODUCT_PHYSICS_CRATE.txt",
+      "sha256": "ed0b8d9baef7db29198d7fdd0af247358e3dcbd23451a84121fe2a8bbe4faf23"
+    },
+    {
+      "bytes": 741,
+      "path": "VALIDATE_PYTHON_PREVIEW.txt",
+      "sha256": "84eb061e210779b7674f7237a2e5d4b5ed380c8a297e1e5197279a69c591f4cc"
+    },
+    {
+      "bytes": 3428,
+      "path": "VALIDATE_RUST_WITNESS.txt",
+      "sha256": "dd7ece3dc69aca6ad31dcc2a883841d8c6fab8f7d7d48a2d399e56e46c0e7daa"
+    },
+    {
+      "bytes": 1928,
+      "path": "VALIDATION_SUMMARY.json",
+      "sha256": "fbb95a0b85a924af566e734c01b4c3615cf8cbca238a6589790ac3b7cd7c1523"
+    }
+  ],
+  "non_source_writes": "authorized child evidence plus cleaned private /tmp Cargo target",
+  "schema_version": "1.0",
+  "source_fence": "six exact applied paths; all other repository writes excluded",
+  "status": "BLOCKED"
+}

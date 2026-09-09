@@ -10723,12 +10723,9 @@ mod tests {
             // DEC-067: the sliding support carries the bounded +mu*N tangential
             // reaction opposing its negative-Z motion instead of a released zero
             // reaction.
-            assert_eq!(
-                result_value(
-                    &result,
-                    "result:nonlinear-support:support-NL-130-FRIC:uz-reaction"
-                ),
-                0.490101
+            let friction_reaction = result_value(
+                &result,
+                "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
             );
             let normal_evidence = result
                 .results
@@ -10742,7 +10739,9 @@ mod tests {
                 normal_evidence.kind,
                 "nonlinear_support_friction_normal_reaction_derived"
             );
-            assert_eq!(normal_evidence.value, 48.952652);
+            assert_eq!(friction_reaction, 0.489527);
+            assert_eq!(normal_evidence.value, 48.952719);
+            assert_eq!(friction_reaction, round6(0.01 * normal_evidence.value));
             let normal_metadata = normal_evidence.metadata.as_ref().unwrap();
             assert!(normal_metadata.basis.contains("derived_support_reaction"));
             assert!(normal_metadata.basis.contains("source_ref=support:S-130"));

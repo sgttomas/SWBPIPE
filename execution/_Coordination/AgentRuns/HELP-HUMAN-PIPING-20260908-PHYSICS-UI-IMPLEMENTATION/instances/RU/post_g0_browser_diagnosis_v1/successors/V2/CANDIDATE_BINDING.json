@@ -1,0 +1,16 @@
+{
+  "schema_version": "1.0",
+  "status": "UNAPPLIED_REVIEW_REQUIRED",
+  "supersedes_candidate_only": "../../CANDIDATE_BINDING.json",
+  "diagnosis_inherited_from": "../../DIAGNOSIS.md",
+  "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+  "live_preimage_sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+  "candidate_postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "candidate_postimage": "candidate/r2-smoke.spec.ts",
+  "patch": "CANDIDATE_TEST_CORRECTION_V2.diff",
+  "canvas_provenance_witness": "invented_synthetic_ui_acceptance_input",
+  "helper_provenance_source": "payload.provenance",
+  "live_source_modified": false,
+  "browser_or_test_rerun": false
+}

@@ -1,0 +1,59 @@
+{
+  "schema_version": "1.0",
+  "record_kind": "portable_publication_resolver",
+  "status": "GLOBAL_WHITESPACE_READY",
+  "repo_anchor": "{REPO_ROOT}",
+  "supersedes_resolver": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/RESOLVER.json",
+    "sha256": "2413db0bb05f9179fec597cf47ba4e8be519e397121601561aa45e1f44d3ba3e"
+  },
+  "frozen_manifests": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/OUTPUT_MANIFEST.sha256",
+      "sha256": "f9e8a1306f5e514bffa22deb3b0328f114cf13cd7b9a6501f6b405a77569801a",
+      "status": "BYTE_UNCHANGED_LOGICAL_REFERENCES_RESOLVE_HERE"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/OUTPUT_MANIFEST.sha256",
+      "sha256": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6",
+      "status": "BYTE_UNCHANGED_LOGICAL_REFERENCES_RESOLVE_HERE"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/OUTPUT_MANIFEST.sha256",
+      "sha256": "51688243fc73bdd3f529bac134a62a505961c18ad08973b2bfcbbe01573aa1af",
+      "status": "BYTE_UNCHANGED_SUPERSEDED_BY_THIS_RESOLVER"
+    }
+  ],
+  "objects": [
+    {
+      "logical_id": "v1_raw_patch",
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/CANDIDATE_TEST_CORRECTION.diff",
+      "original_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445",
+      "original_byte_length": 1210,
+      "physical_path_status": "REPLACED_BY_NON_APPLICABLE_PORTABLE_POINTER",
+      "physical_pointer_sha256": "05202a6b8205644d624f23baf341eacb36b40ac3899b15d5c08b441dbad08f5e",
+      "encoded_archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V2/archives/CANDIDATE_TEST_CORRECTION.diff.original.base64.json",
+      "encoded_archive_sha256": "7efd98bc01d4a28dacdb1d500c407b715148af8748119021f3575e419677c3f0",
+      "encoding": "base64",
+      "decoded_archive_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445"
+    },
+    {
+      "logical_id": "v2_raw_patch",
+      "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/CANDIDATE_TEST_CORRECTION_V2.diff",
+      "original_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "original_byte_length": 1219,
+      "physical_path_status": "REPLACED_BY_NON_APPLICABLE_PORTABLE_POINTER",
+      "physical_pointer_sha256": "2693611904f5ca2d85c0b8c3d318f0070047ad14259f75585b829c01d06a84bf",
+      "encoded_archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json",
+      "encoded_archive_sha256": "020ec2c68f9fc317f7de0ffb0162563555947caff4b767a8feb90c424e255c46",
+      "encoding": "base64",
+      "decoded_archive_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc"
+    }
+  ],
+  "candidate_postimage": {
+    "logical_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2/candidate/r2-smoke.spec.ts",
+    "sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "status": "PHYSICAL_BYTES_UNCHANGED"
+  },
+  "resolution_rule": "Each replaced .diff path is a non-applicable pointer. Resolve the applicable patch only by decoding its bound archive payload and verifying original_sha256. Frozen manifest files remain byte-unchanged; their original diff hashes are logical identities resolved by this table."
+}

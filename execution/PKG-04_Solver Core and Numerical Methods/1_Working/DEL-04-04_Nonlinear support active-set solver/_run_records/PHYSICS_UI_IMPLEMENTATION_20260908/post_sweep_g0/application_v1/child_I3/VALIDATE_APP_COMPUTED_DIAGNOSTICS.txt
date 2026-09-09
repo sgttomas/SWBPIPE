@@ -1,0 +1,15 @@
+COMMAND: npm --prefix projects/chirality-piping run test --workspace apps/desktop -- --run src/App.test.tsx -t shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/App.test.tsx -t shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 161 skipped (162)
+   Start at  19:16:50
+   Duration  13.90s (transform 762ms, setup 51ms, import 909ms, tests 12.76s, environment 126ms)
+
+EXIT: 0

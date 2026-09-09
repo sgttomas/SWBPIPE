@@ -1,0 +1,65 @@
+{
+  "all_six_postimages_match": true,
+  "blocker": "Focused browser smoke failed in both configured viewport projects; candidate is not acceptance-ready.",
+  "checks": [
+    {
+      "exit": 0,
+      "id": "rust_witness",
+      "log": "VALIDATE_RUST_WITNESS.txt",
+      "result": "1 passed; 0 failed"
+    },
+    {
+      "exit": 0,
+      "id": "product_physics_crate",
+      "log": "VALIDATE_PRODUCT_PHYSICS_CRATE.txt",
+      "result": "138 passed; 0 failed; doc-tests 0"
+    },
+    {
+      "exit": 0,
+      "id": "python_preview",
+      "log": "VALIDATE_PYTHON_PREVIEW.txt",
+      "result": "9 passed; 0 failed"
+    },
+    {
+      "exit": 0,
+      "id": "desktop_preview_service",
+      "log": "VALIDATE_DESKTOP_SERVICE.txt",
+      "result": "16 passed; 0 failed"
+    },
+    {
+      "exit": 0,
+      "id": "app_queued_intents",
+      "log": "VALIDATE_APP_QUEUED_INTENTS.txt",
+      "result": "1 passed; 161 skipped"
+    },
+    {
+      "exit": 0,
+      "id": "app_computed_diagnostics",
+      "log": "VALIDATE_APP_COMPUTED_DIAGNOSTICS.txt",
+      "result": "1 passed; 161 skipped"
+    },
+    {
+      "exit": 0,
+      "id": "generator_parity",
+      "log": "VALIDATE_GENERATOR_PARITY.txt",
+      "result": "generated SHA-256 exact and byte-equal to live fixture"
+    },
+    {
+      "exit": 1,
+      "failure": "r2-smoke.spec.ts:552: queue-explicit-node-intent remained disabled during 10000ms toBeEnabled timeout",
+      "id": "browser_smoke",
+      "log": "VALIDATE_BROWSER_SMOKE.txt",
+      "result": "2 failed; chromium-desktop and chromium-compact",
+      "retry_attempted": false
+    }
+  ],
+  "decoded_patch_sha256": "c31a705a39c4629aacf6a79871c1497a8b8d3976e389478f79e41f4f7752c334",
+  "excluded_not_run": [
+    "full DEC-025 sweep",
+    "practitioner suite",
+    "native build"
+  ],
+  "preservation": "Failure retained exactly; no assertion changes, weakening, or rerun.",
+  "schema_version": "1.0",
+  "status": "BLOCKED"
+}

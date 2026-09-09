@@ -1,0 +1,174 @@
+{
+  "schema_version": "1.0",
+  "status": "CHANGES_REQUIRED",
+  "reviewer": "/root/friction_code_review",
+  "parent": "/root (HELP_HUMAN)",
+  "brief_sha256": "2fd51a8973bcfec8b1f6d21cc75e524f4038482d4b6ab6923bad3d0a6a39bdef",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation_used": false,
+  "inputs": [
+    {
+      "name": "review_brief",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/REVIEW_BRIEF_V1.md",
+      "sha256": "2fd51a8973bcfec8b1f6d21cc75e524f4038482d4b6ab6923bad3d0a6a39bdef"
+    },
+    {
+      "name": "sealed_diagnosis_scope",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/F4/post_sweep_g0/SEALED_DIAGNOSIS_SCOPE_V1.md",
+      "sha256": "3c45244661582ba5976cd46280b53420a7cb2040ce7fe04d8339f1a2953b9a5c"
+    },
+    {
+      "name": "diagnosis",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_sweep_g0/DIAGNOSIS_V1.md",
+      "sha256": "bd3a0ee21221eafd966bc5654d912f3f5c018e6608f3202d3269fbe700748a82"
+    },
+    {
+      "name": "proposed_patch",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_sweep_g0/PROPOSED_PRODUCT_TEST_ONLY.patch",
+      "sha256": "30c4b8203a43d7b9e2979730dd5b80fa0994a86346ad43e34859a0aabf5ba9f5"
+    },
+    {
+      "name": "product_physics",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903"
+    },
+    {
+      "name": "nonlinear_integration",
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+    },
+    {
+      "name": "preview_model",
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    {
+      "name": "failure_record",
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G0_FAILURE_V1.json",
+      "sha256": "b350be906fe94575a28d35e4f498b0a931c74da36831946c9490133817335ffc"
+    },
+    {
+      "name": "sweep_summary",
+      "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260908T202715Z_7b73460c5e2d.json",
+      "sha256": "0d6f31872b51d3c1021d574d42d127aabaf0b400fa06690720672dfb5625268e"
+    },
+    {
+      "name": "stable_friction_record",
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/WORKING_ITEMS_RUN_2026-07-10_TP-PMM-P2-FRICTION-001.md",
+      "sha256": "b021f4d1e949e0af732d4d9c74963525a371c9305c9d9ab3f8df830b996f3314"
+    },
+    {
+      "name": "active_mechanics_fixture",
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee"
+    },
+    {
+      "name": "python_service_test",
+      "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+      "sha256": "467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27"
+    },
+    {
+      "name": "desktop_service_test",
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7"
+    },
+    {
+      "name": "python_fixture_service",
+      "path": "projects/chirality-piping/core/product_preview/service.py",
+      "sha256": "b356e8ce660af055c4f8323900f9673494890062641f80479a87db4da309ea1e"
+    },
+    {
+      "name": "desktop_fixture_service",
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e"
+    },
+    {
+      "name": "result_schema_test",
+      "path": "projects/chirality-piping/tests/test_results_schema.py",
+      "sha256": "64854f2e43c74349b695f7f8a1d5fb6609d3d3dd7fa78ab9ca3abdfa70c4d553"
+    },
+    {
+      "name": "analysis_run_test",
+      "path": "projects/chirality-piping/tests/test_analysis_run_records.py",
+      "sha256": "32b84518b856c4ebc7f5960d3b40dbe4cbd8d2eaa6f019f19898a6a4aa56616d"
+    },
+    {
+      "name": "desktop_gui_spec",
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10"
+    },
+    {
+      "name": "sweep_runner",
+      "path": "projects/chirality-piping/tools/release/run_evidence_sweep.py",
+      "sha256": "dce9b1eb34131e202b30de9b41927586e675a436d1607836203033b4f4778dda"
+    },
+    {
+      "name": "generator_registration",
+      "path": "projects/chirality-piping/package.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    }
+  ],
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/REVIEW.md",
+      "sha256": "17dde8ec770db7af923511a369d7ae167dad5cbbeef56b5779b791d4dd0a4e39"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/RETURN.md",
+      "sha256": "eb3b764fa6c587dc30b8f1e5a667dd652e2d27966ad1903a06b7624ce6a20df8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/STATUS.json",
+      "sha256": "4967aff9d8ce7edfea3e6249b12cebb3fe97cb87620803fe03e9f068e9bdceba"
+    }
+  ],
+  "numeric_derivation": {
+    "coefficient": 0.01,
+    "conditional_current_normal": 48.952652,
+    "required_friction": 0.489527,
+    "previous_normal": 49.010116,
+    "previous_normal_friction": 0.490101,
+    "retained_spring_current_pairs_are_inconsistent": [
+      {
+        "friction": 0.411514,
+        "normal": 41.120255,
+        "relation_result": 0.411203
+      },
+      {
+        "friction": 0.205757,
+        "normal": 20.560128,
+        "relation_result": 0.205601
+      }
+    ]
+  },
+  "candidate": {
+    "sha256": "30c4b8203a43d7b9e2979730dd5b80fa0994a86346ad43e34859a0aabf5ba9f5",
+    "applied": false,
+    "test_only": true,
+    "production_bytes_changed": false,
+    "complete_correction_package": false
+  },
+  "required_mutable_scope": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "scope": "existing test block only"
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "scope": "deterministic generator-produced replacement only"
+    },
+    {
+      "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+      "scope": "stale fixture expectations/comments only"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "scope": "stale fixture expectations/comments only"
+    }
+  ],
+  "historical_records_mutable": false,
+  "owner_act_required": true,
+  "source_fixture_build_test_git_writes_performed": false
+}

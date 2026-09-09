@@ -1,0 +1,15 @@
+{
+  "additions": 3,
+  "application_log": "PATCH_APPLICATION_LOG.base64.json",
+  "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "deletions": 0,
+  "outside_fence_source_test_fixture_mutation_by_child": false,
+  "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+  "postimage_bytes": 101982,
+  "postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "preimage_sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+  "proof_method": "exact patch input plus in-memory reverse reconstruction of sealed preimage from live postimage",
+  "schema_version": "1.0",
+  "scoped_live_diff_equals_decoded_patch": true,
+  "status": "PASS"
+}

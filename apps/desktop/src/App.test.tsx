@@ -6977,7 +6977,7 @@ describe("OpenPipeStress desktop preview", () => {
     await waitFor(() =>
       expect(
         screen.getByTestId("viewport-deformation-status").textContent,
-      ).toContain("available; nodes=5; max=4.927109 mm"),
+      ).toContain("available; nodes=5; max=4.927112 mm"),
     );
     expect(
       screen.getByTestId("viewport-deformation-boundary").textContent,
@@ -11400,7 +11400,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(results).getByText("result:disp:node-N-140"),
     ).toBeInTheDocument();
-    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977299 mm");
+    expect(within(results).getByTestId("result-row-result:disp:node-N-140")).toHaveTextContent("3.977301 mm");
     expect(
       within(results).getByTestId("result-filter-summary").textContent,
     ).toContain("830 of 830 results match filter");
@@ -11824,7 +11824,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(knowledge).getByText(/Computed displacement review/i),
     ).toBeInTheDocument();
-    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977299 mm");
+    expect(within(knowledge).getByTestId("knowledge-record-knowledge:computed-max-displacement")).toHaveTextContent("result:disp:node-N-140 is 3.977301 mm");
     expect(
       within(knowledge).getByText(/result:force:pipe-P-120:axial is/i),
     ).toBeInTheDocument();

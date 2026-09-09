@@ -1,0 +1,35 @@
+{
+  "schema": "native_default_fixture_cleanup_evidence_v1",
+  "native_app_quit_through_close_control": true,
+  "exact_process_absent_before_cleanup": true,
+  "dedicated_store_precleanup": {
+    "path": "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2/openpipestress-projects.sqlite3",
+    "member_count": 1,
+    "members": [
+      {
+        "basename": "openpipestress-projects.sqlite3",
+        "bytes": 1523712,
+        "sha256": "336409daa6d85717b7f45213182ddc298dc06a5903669bcd91dd0e3f786e9892"
+      }
+    ],
+    "sqlite_integrity": "ok",
+    "local_project_rows": 1
+  },
+  "guard": {
+    "literal_directory_equality": true,
+    "owned_prefix_equality": true,
+    "exact_allowed_member_names_only": true,
+    "wildcard_used": false,
+    "recursive_delete_used": false
+  },
+  "removed": [
+    "exact openpipestress-projects.sqlite3 member",
+    "exact dedicated identifier directory"
+  ],
+  "post_cleanup_exact_process_absent": true,
+  "post_cleanup_dedicated_store_absent": true,
+  "normal_store_inspected": false,
+  "normal_store_accessed": false,
+  "normal_store_modified": false,
+  "result": "PASS"
+}

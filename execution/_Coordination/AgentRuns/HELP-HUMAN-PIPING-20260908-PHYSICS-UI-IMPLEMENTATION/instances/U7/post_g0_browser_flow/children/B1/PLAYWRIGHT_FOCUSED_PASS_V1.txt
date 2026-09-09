@@ -1,0 +1,8 @@
+cwd: projects/chirality-piping/apps/desktop
+command: PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/r2-smoke.spec.ts --grep 'R2 desktop preview smoke covers solve, results, report, and viewport overlay|R2 from-blank GUI journey authors the A12 rehearsal script' --workers=1
+exit_code: 0
+PASS chromium-desktop | R2 desktop preview smoke covers solve, results, report, and viewport overlay | 20.0s
+PASS chromium-desktop | R2 from-blank GUI journey authors the A12 rehearsal script | 10.6s
+PASS chromium-compact | R2 desktop preview smoke covers solve, results, report, and viewport overlay | 19.4s
+PASS chromium-compact | R2 from-blank GUI journey authors the A12 rehearsal script | 10.2s
+summary: 4 passed (1.6m)

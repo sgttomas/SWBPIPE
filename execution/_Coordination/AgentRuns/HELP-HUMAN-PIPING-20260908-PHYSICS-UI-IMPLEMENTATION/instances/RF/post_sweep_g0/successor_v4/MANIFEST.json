@@ -1,0 +1,38 @@
+{
+  "actual_model_attribution": "not exposed to this agent",
+  "authority": "technical review only; new bounded six-path Owner act required before application",
+  "candidate_post_sha256": {
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735"
+  },
+  "delegation_used": false,
+  "live_files_changed": false,
+  "outputs_sha256": {
+    "RETURN.md": "e6b4d07d8d91efdddd948308243836e11903f8f5767199896adaf986a51a578d",
+    "REVIEW.md": "102bb9938617b4c8ca88e032c022bb8f121d9817543bf2fcadd4098cf43f482a",
+    "STATUS.json": "47562640aba4e6f79ba6fa21a1768f74e3980d2028f38f50125bed21dc69c30c"
+  },
+  "parent": "/root (HELP_HUMAN)",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "reviewed_inputs_sha256": {
+    "amendment": "7682ebba8f7dc5181c05d8ec1197f038944e68f04c7a7b54a40b788e54a7bf8f",
+    "decoded_patch": "c31a705a39c4629aacf6a79871c1497a8b8d3976e389478f79e41f4f7752c334",
+    "f4_manifest": "4cd095a4a7e133a5b0dfdc290e41dea903cad6e166e2bb17a115d7988e7646b8",
+    "fraction_derivation": "81b0e9a9a616d65c5fbb51a8cb8949198a64bacd13af368b23a4fbafe3455cdd",
+    "fraction_output": "4863cb9b4c0f8dda61508b54455e68d7f927fe69494f14e7d0cf5f381c470bf9",
+    "patch_envelope": "5103bf895c4792989d4180a2667ec06adefe45c0247abdfe13f0a95df5c49928",
+    "review_brief": "16117f799b8c286636e507652b8ecdf17017d289396f6849793752089abed804",
+    "rf_v3_review": "d85c41cb75caebd3d0a61c2da3c674a8fd7e7ad1082ba1d067e5f7c904562274",
+    "verification_program": "37afc53c5117b31b8981d17b31549facbeaa84f449cbd76aacb17ce753d816cd",
+    "verification_result": "a291da477ba802a63c8617dc63ccf7b9a7d79f3ec9ceae6cd4e836d2d44a1116"
+  },
+  "role": "independent read-only Agent 2 reviewer",
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "PASS"
+}

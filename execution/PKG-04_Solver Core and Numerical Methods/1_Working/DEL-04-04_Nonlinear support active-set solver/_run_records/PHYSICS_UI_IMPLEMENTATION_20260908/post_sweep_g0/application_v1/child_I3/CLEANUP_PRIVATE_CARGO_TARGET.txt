@@ -1,0 +1,4 @@
+COMMAND: cargo clean --manifest-path projects/chirality-piping/core/product_physics/Cargo.toml --target-dir /tmp/chirality-f4-i3-product-physics-target
+     Removed 2199 files, 347.3MiB total
+CLEAN_EXIT: 0
+TARGET_ABSENT_EXIT: 0

@@ -1,0 +1,21 @@
+{
+  "schema_version": "3.0",
+  "status": "CORRECTED_CANDIDATE_HELD_PENDING_RF_AND_OWNER_ACT",
+  "v2_preserved_failed_candidate": true,
+  "live_candidate_applied": false,
+  "v3_changes_from_v2": ["Rust candidate post-image and full patch envelope only"],
+  "decoded_patch_sha256": "9daf0cfb0ca9795731f691cce0f80c11a093fe5f9d93875dd34dd51ae0249e8a",
+  "patch_envelope_sha256": "ab4bde7f07d6f6bab9be44f5f7f8b19f2eaf8037d69f59ff6cd5333bce6257c8",
+  "rust_candidate_post_sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+  "unchanged_v2_candidate_post_sha256": {
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f"
+  },
+  "verification_sha256": "045ac51f390a9bb433dcb33aba6926fcb3c10bdf4b9504202af1911b04d067df",
+  "verification_script_sha256": "741af822326cc6d9602e05b5fb21e7022c4b31946a26db37c4014d180daf080a",
+  "correction_sha256": "c0c8e2b2db5863f01dfb0d7480ab5db68327ab45be9ec214df6930081b999391",
+  "review_brief_sha256": "17d85f915b47b94493d80d640026cfadea7e7d5ce3b34c43c049dd342cd62c58",
+  "return_sha256": "996f27147ad1daaede22b8782480f8a0e3bb09e693eb922ce438606d8ba958ae",
+  "next_gate": "fresh RF V3 correction review, then new bounded four-path Owner act"
+}

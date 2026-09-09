@@ -126,32 +126,33 @@ describe("previewService mechanics browser fallback", () => {
       entity_ref: "support:NL-130-FRIC",
       value: 3,
     });
-    expect(
-      result.results.find(
-        (item) =>
-          item.id ===
-          "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
-      ),
-    ).toMatchObject({
+    const frictionReaction = result.results.find(
+      (item) =>
+        item.id ===
+        "result:nonlinear-support:support-NL-130-FRIC:uz-reaction",
+    );
+    expect(frictionReaction).toMatchObject({
       kind: "nonlinear_support_final_reaction",
       entity_ref: "support:NL-130-FRIC",
       unit: "N",
-      // Generated-fixture transport/parity only; the existing friction policy
-      // remains held. This does not verify mu times the final normal reaction.
-      value: 0.411514,
+      value: 0.411203,
     });
-    expect(
-      result.results.find(
-        (item) =>
-          item.id ===
-          "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
-      ),
-    ).toMatchObject({
+    const frictionNormal = result.results.find(
+      (item) =>
+        item.id ===
+        "result:nonlinear-support:support-NL-130-FRIC:friction-normal-reaction",
+    );
+    expect(frictionNormal).toMatchObject({
       kind: "nonlinear_support_friction_normal_reaction_derived",
       entity_ref: "support:NL-130-FRIC",
-      value: 41.120255,
+      value: 41.120279,
       unit: "N",
     });
+    expect(frictionReaction?.value).toBe(
+      Math.round(
+        0.01 * (frictionNormal?.value ?? Number.NaN) * 1_000_000,
+      ) / 1_000_000,
+    );
     const normalBasis = result.results.find(
       (item) =>
         item.id ===

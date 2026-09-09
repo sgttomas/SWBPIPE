@@ -1,0 +1,16 @@
+{
+  "allowed_paths_exact": true,
+  "applied_in_memory": true,
+  "candidate_post_sha256": {
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735"
+  },
+  "decoded_patch_sha256": "9daf0cfb0ca9795731f691cce0f80c11a093fe5f9d93875dd34dd51ae0249e8a",
+  "old_state_metadata_diagnostic_assertions_retained": true,
+  "required_rust_assertions_present_exactly_once": true,
+  "rust_change_confined_to_affected_test": true,
+  "stale_rust_literals_absent_from_affected_test": true,
+  "status": "PASS"
+}

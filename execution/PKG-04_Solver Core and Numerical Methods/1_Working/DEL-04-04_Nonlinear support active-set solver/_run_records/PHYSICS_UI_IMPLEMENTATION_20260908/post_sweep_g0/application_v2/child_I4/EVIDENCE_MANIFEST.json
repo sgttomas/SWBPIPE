@@ -1,0 +1,89 @@
+{
+  "aggregate_serialization": "sha256__two_spaces__bytes__two_spaces__relative_path__newline; lexicographic relative path order",
+  "aggregate_sha256": "53947ccb33e7d6779a2348e2dd575a9de060eafff9b846f201f328d2c76c0578",
+  "member_count": 15,
+  "members": [
+    {
+      "bytes": 748,
+      "path": "APPLICATION_PROOF.json",
+      "sha256": "cd0468986a213faabbedd003a775269fec8ea184ad88b4dde104056aa00c463a"
+    },
+    {
+      "bytes": 1833,
+      "path": "AUTHORITY_BINDING.json",
+      "sha256": "355a49046b722cc017faa12762c65511b40a6e4c80ce17fb46667b2fa8043157"
+    },
+    {
+      "bytes": 5998,
+      "path": "COMPLETE_BINDING.json",
+      "sha256": "94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b"
+    },
+    {
+      "bytes": 2723,
+      "path": "COMPLETE_BINDING_AGGREGATE.txt",
+      "sha256": "847866e6be422966e285968bd280b1bfe5415d084419f263b64936c977a93801"
+    },
+    {
+      "bytes": 1858,
+      "path": "DECODED_PATCH.base64.json",
+      "sha256": "71d1f8e6c5008f95552103020147a783b84cc6c17ca57925be8b0438faf3bb19"
+    },
+    {
+      "bytes": 659,
+      "path": "PATCH_APPLICATION_LOG.base64.json",
+      "sha256": "60481125148e90ff5302da025e9672a16aefd7bd112b3df9b79a90b355b38706"
+    },
+    {
+      "bytes": 1616,
+      "path": "PLAYWRIGHT_FAILURE_ARTIFACTS.json",
+      "sha256": "1a2be06b9cbbafe6a70d22f005fd8b8adac8e610eb8acdf31ad9518473809135"
+    },
+    {
+      "bytes": 95161,
+      "path": "PLAYWRIGHT_FAILURE_CONTEXTS.base64.json",
+      "sha256": "2b2c26161c7807b01bf27ad3e4c38265cc19679f1ed8ad4baa1c19a4f17b16d3"
+    },
+    {
+      "bytes": 19000,
+      "path": "PLAYWRIGHT_VALIDATION_LOG.base64.json",
+      "sha256": "1026851786303ecef405be5fdce91699a13ea3f69a32f7ba2d7b631509275ca9"
+    },
+    {
+      "bytes": 5749,
+      "path": "PREAPPLICATION_CHECKS.json",
+      "sha256": "77f1315fdfaa874559c35c092b99deca3d870e639bfe4bc22a858592599bbfe0"
+    },
+    {
+      "bytes": 39177544,
+      "path": "TRACES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact.trace.zip",
+      "sha256": "a5e02b4f9a41d8699b563225239f5904609f1444823a0e0c92e43c321f9fe185"
+    },
+    {
+      "bytes": 40754430,
+      "path": "TRACES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop.trace.zip",
+      "sha256": "5726eabd84c908c0682af8d87bc3c3518c3153a771c748e13da4524b23b60996"
+    },
+    {
+      "bytes": 10429861,
+      "path": "TRACES/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact.trace.zip",
+      "sha256": "ae1838064e5c0ff5b49b9febbe07feb6f8cba08e69104feddc1e9d9a9d2843a0"
+    },
+    {
+      "bytes": 10492586,
+      "path": "TRACES/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop.trace.zip",
+      "sha256": "94b46b048005897e008429ea20d45efc708bb5e1b7e4e203e4be2826cac38902"
+    },
+    {
+      "bytes": 1752,
+      "path": "VALIDATION_SUMMARY.json",
+      "sha256": "d6f3e04b49dd4afa29342dc63090c1d08ff0212a26840650c5a54ea8b4407e7b"
+    }
+  ],
+  "outside_fence_source_test_fixture_mutation_by_child": false,
+  "schema_version": "1.0",
+  "source_write_fence": [
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "status": "BLOCKED",
+  "temporary_browser_output_removed_after_failure_preservation": true
+}

@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "scope_sha256": "5faa148be350c147214e30b4dac3e8420e7d6f26642245fe0dcdb11e36763e05",
+  "frozen_child_evidence_manifest_sha256": "9a56cd2a9d1d447565ec6ac5bf90bb7676f0b459c49327468db089c45b91a82f",
+  "lossless_archive": {
+    "path": "{DEL_RUN}/post_sweep_g0/application_v1/child_I3/LOSSLESS_TEXT_EVIDENCE.b64.json",
+    "sha256": "ee122428143ee4de4935716ec8da72c8c98a931a565ae0abd6f19ed9f73696aa"
+  },
+  "successors": [
+    {
+      "path": "{DEL_RUN}/post_sweep_g0/application_v1/child_I3/VALIDATE_BROWSER_SMOKE.txt",
+      "original_sha256": "e80398806723565a79a1770dcb4d7e4279286daaa6237930c8865ded4f837482",
+      "archive_member": "VALIDATE_BROWSER_SMOKE.txt",
+      "successor_sha256": "9a1ee1a719b4f482fb243fd522116d749946a6b2ee663ee213ac91ec678e723d"
+    },
+    {
+      "path": "{DEL_RUN}/post_sweep_g0/application_v1/child_I3/E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "original_sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394",
+      "archive_member": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "successor_sha256": "e7223db70cbd753e58c7bc0982a71f980169cc03a83ca541651f639a594432ee"
+    },
+    {
+      "path": "{DEL_RUN}/post_sweep_g0/application_v1/child_I3/E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+      "original_sha256": "0e786e835aaf65906ab4203ae13cc3bfc8d71237af112bd5657f39491952d394",
+      "archive_member": "E2E_OUTPUT/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+      "successor_sha256": "82cffa4b963c2156e0096dbfa87db89de9e6789a8cec6dfde3c0c4003f2bd13a"
+    }
+  ],
+  "semantic_result_changed": false,
+  "browser_result": "FAIL 0/2 at r2-smoke.spec.ts:552; no retry or weakening",
+  "source_test_fixture_changed": false
+}

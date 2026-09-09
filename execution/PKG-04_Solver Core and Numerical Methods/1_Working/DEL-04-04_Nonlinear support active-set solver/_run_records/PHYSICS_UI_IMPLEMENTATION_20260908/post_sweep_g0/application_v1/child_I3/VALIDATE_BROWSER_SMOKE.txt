@@ -1,0 +1,5 @@
+I3 browser validation evidence pointer
+
+Result: FAIL 0/2. Both configured browser projects timed out at r2-smoke.spec.ts:552 because queue-explicit-node-intent remained disabled. No retry or test weakening occurred.
+
+The exact original 7,627-byte log is preserved as member VALIDATE_BROWSER_SMOKE.txt in LOSSLESS_TEXT_EVIDENCE.b64.json. Original SHA-256: e80398806723565a79a1770dcb4d7e4279286daaa6237930c8865ded4f837482.

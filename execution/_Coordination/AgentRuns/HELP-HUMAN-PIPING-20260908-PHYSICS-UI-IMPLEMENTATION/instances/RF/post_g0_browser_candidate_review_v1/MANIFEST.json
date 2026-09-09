@@ -1,0 +1,36 @@
+{
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation_used": false,
+  "live_files_changed": false,
+  "outputs_sha256": {
+    "RETURN.md": "b506324b398c512e1c05a6064b5d5e8e3c1f896f107f5f88c6835b17eee6ede0",
+    "REVIEW.md": "e8eb280f1081e4a885b6edeba4f5bdaa86fdd2d95f4c8151859e7eb24982b1ac",
+    "REVIEW_BRIEF.md": "6402e1d619f4c6aa3a8f90041b31dfb6de88f250eab539d802412fcde6da249f",
+    "STATUS.json": "9929ecbc5bd98b7c5d777bfb81f6491553ea90d2ab1edd7ba5b820ed5888fcf0"
+  },
+  "parent": "/root (HELP_HUMAN)",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "reviewed_inputs_sha256": {
+    "live_preimage": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+    "preserved_browser_failure_log": "e80398806723565a79a1770dcb4d7e4279286daaa6237930c8865ded4f837482",
+    "ru_v1_diagnosis": "acc20e3cef0d38e5b0abcb28f4921ceb5b0cf8e74da80c9366153a26477e2e2a",
+    "ru_v2_binding": "4bc27366c74035128642b644fedfdeff19d51964f788b9b2ccbedb80ed334907",
+    "ru_v2_output_manifest": "e4cd61ccdd07d9b33f94788839a4074c2bbed3cd36c3a895c33437db95865fa6",
+    "ru_v2_patch": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+    "ru_v2_postimage": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "ru_v2_return": "7d5cb1606bd73539ab5233998d0b1c168997487540a5b4ff457cc1ae8691d225"
+  },
+  "role": "independent read-only Agent 2 reviewer",
+  "schema_version": "1.0",
+  "scope_limits": [
+    "candidate remains unapplied",
+    "candidate remains untested",
+    "separate applied-six acceptance remains pending",
+    "bounded Owner scope amendment required before application"
+  ],
+  "sealed_review_brief_sha256": "6402e1d619f4c6aa3a8f90041b31dfb6de88f250eab539d802412fcde6da249f",
+  "status": "COMPLETE",
+  "tests_or_builds_run": false,
+  "verdict": "PASS"
+}

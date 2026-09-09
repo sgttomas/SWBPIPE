@@ -1,0 +1,32 @@
+{
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation_used": false,
+  "live_files_changed": false,
+  "outputs_sha256": {
+    "RETURN.md": "720993c6cdf1244a6a8b44db11a7a08e992fea1ff94481890c327b5be31dece7",
+    "REVIEW.md": "962fb2cb20af04b451b40c5ab38e1a2f0997f2e21345129a3dd1a96b4a505ec2",
+    "STATUS.json": "1e240a3eaa9842ad687d217d3af5ca72791f44e7b79597eb325b50061a4b1fd6"
+  },
+  "parent": "/root (HELP_HUMAN)",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "reusable_verified_evidence": [
+    "280-row branch/state/convergence and full Dense/Sparse parity",
+    "exact 340-leaf fixture inventory",
+    "four V2 in-memory post-image identities"
+  ],
+  "reviewed_inputs_sha256": {
+    "affine_bounds": "4172c62c88ec1eece8fa1784d24ad1b0bd362c20a54ace3fbae84cdc67f66e8a",
+    "affine_output": "c556a9db4ab4f15e2603ce3c50793b96dc5a7aaa8f2a08f3386707757e6ff351",
+    "decoded_patch": "9210169b6968d7f319506cfb53b8d6bc71132b713fba8fa52736b2ee4bc8e8d7",
+    "diagnosis": "9c7814a14198b7840aa228abd03c701d1de542ffdcb28ff3c0da0480cf1d3bb3",
+    "f4_manifest": "728c5e89053428e9a3a6004b248d5476ab1e68b20f32d7bc7085cef0c07195e3",
+    "fixture_inventory": "d04ce5db7266969e0ab46ef7ceabdd43e32d8a3928e13cd172a26c45b6938d87",
+    "patch_envelope": "faa878e6278c5f5aac405817dca56655b1b9a07e231ee8324852e939e82595eb",
+    "review_brief": "d2f536c8540e7bdf0be3c136df976592dbe998afbe382ae7db6e1469e7273402"
+  },
+  "role": "independent read-only Agent 2 reviewer",
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "CHANGES_REQUIRED"
+}

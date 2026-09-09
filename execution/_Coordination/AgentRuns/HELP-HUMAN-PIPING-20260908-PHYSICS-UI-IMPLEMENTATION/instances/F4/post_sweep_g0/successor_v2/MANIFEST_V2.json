@@ -1,0 +1,54 @@
+{
+  "schema_version": "2.0",
+  "status": "COMPLETE_CANDIDATE_HELD_PENDING_FRESH_REVIEW_AND_NEW_OWNER_ACT",
+  "tested_source_commit": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "v1_disposition": "preserved_preliminary_superseded_by_v2",
+  "live_candidate_applied": false,
+  "mutable_candidate_paths": [
+    "projects/chirality-piping/core/product_physics/src/lib.rs:test_block_only",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json:generated_runtime_reference",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py:test_only",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts:test_only"
+  ],
+  "current_inputs": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46",
+    "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7",
+    "projects/chirality-piping/package.json": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656",
+    "projects/chirality-piping/core/product_physics/examples/preview_result.rs": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241",
+    "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G0_FAILURE_V1.json": "b350be906fe94575a28d35e4f498b0a931c74da36831946c9490133817335ffc",
+    "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260908T202715Z_7b73460c5e2d.json": "0d6f31872b51d3c1021d574d42d127aabaf0b400fa06690720672dfb5625268e",
+    "{RUN_ROOT}/instances/RF/post_sweep_g0/REVIEW.md": "17dde8ec770db7af923511a369d7ae167dad5cbbeef56b5779b791d4dd0a4e39",
+    "{RUN_ROOT}/instances/RF/post_sweep_g0/RETURN.md": "eb3b764fa6c587dc30b8f1e5a667dd652e2d27966ad1903a06b7624ce6a20df8"
+  },
+  "outputs": {
+    "{DEL0404_V2}/DIAGNOSIS_V2.md": "9c7814a14198b7840aa228abd03c701d1de542ffdcb28ff3c0da0480cf1d3bb3",
+    "{DEL0404_V2}/AFFINE_BOUNDS_V2.json": "4172c62c88ec1eece8fa1784d24ad1b0bd362c20a54ace3fbae84cdc67f66e8a",
+    "{DEL0404_V2}/AFFINE_BOUND_DERIVATION_V2.py": "ea6af7da522b0e92c3a9103a00975d89ceba01335f08b90b5d3f63b1cad60342",
+    "{DEL0404_V2}/PUBLIC_API_AFFINE_HARNESS_V2.rs": "b61560b184e39e6915ae0fd9749c0371336a0fe3364a00715cfdc8a49f1e56b0",
+    "{DEL0404_V2}/PUBLIC_API_MODEL_VARIANTS_GENERATOR_V2.py": "00f04bb9679f0cfe19b2d95d4fd12861ac15376c7ef2e454868dfa6241e3c233",
+    "{DEL0404_V2}/PUBLIC_API_AFFINE_OUTPUT_V2.jsonl": "c556a9db4ab4f15e2603ce3c50793b96dc5a7aaa8f2a08f3386707757e6ff351",
+    "{DEL0404_V2}/GENERATED_FIXTURE_CHANGE_INVENTORY_V2.json": "d04ce5db7266969e0ab46ef7ceabdd43e32d8a3928e13cd172a26c45b6938d87",
+    "{DEL0404_V2}/PROPOSED_ACTIVE_ORACLE_UPDATE_V2.patch.b64.json": "faa878e6278c5f5aac405817dca56655b1b9a07e231ee8324852e939e82595eb",
+    "decoded_candidate_patch": "9210169b6968d7f319506cfb53b8d6bc71132b713fba8fa52736b2ee4bc8e8d7",
+    "candidate_generated_fixture": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "{RUN_ROOT}/instances/F4/post_sweep_g0/successor_v2/REVIEW_BRIEF_V2.md": "d2f536c8540e7bdf0be3c136df976592dbe998afbe382ae7db6e1469e7273402",
+    "{RUN_ROOT}/instances/F4/post_sweep_g0/successor_v2/RETURN_V2.md": "826d95eb3464c439a1ac5022197c00ea3f5681ca577b78ce4adc0329a6c460d2"
+  },
+  "candidate_post_image_sha256": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "d24294d911ed584ee5907df35016901ab671779e4f7f375f4125ba3e6d462745",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f"
+  },
+  "generated_fixture_change_counts": {
+    "result_rows_total": 830,
+    "diagnostics_total": 31,
+    "summary_entries_changed": 2,
+    "result_value_entries_changed": 338
+  },
+  "next_gate": "fresh RF V2 review, then new bounded four-path Owner act"
+}

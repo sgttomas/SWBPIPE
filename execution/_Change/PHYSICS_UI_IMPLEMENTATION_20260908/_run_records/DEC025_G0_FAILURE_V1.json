@@ -1,0 +1,42 @@
+{
+  "record_kind": "dec025_g0_failure_evidence",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-08T20:30:06Z",
+  "actual_task_identity": "/root/implementation_change",
+  "role": "CHANGE",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "source_freeze_commit": "831bd21d4b62202662629db010bff9a8722bbc43",
+  "tested_source_commit": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "tested_source_parents": [
+    "831bd21d4b62202662629db010bff9a8722bbc43",
+    "781b478176db46ca66ebd38991607612e0ce9338"
+  ],
+  "command": "PYTHON_ENV/bin/python tools/release/run_evidence_sweep.py --execute",
+  "working_directory": "projects/chirality-piping",
+  "exit_code": 1,
+  "failed_surface": "cargo_crate_sweep",
+  "failed_crate": "core/product_physics",
+  "crate_test_counts": {
+    "passed": 137,
+    "failed": 1,
+    "ignored": 0
+  },
+  "failed_test": "tests::valid_invented_model_exposes_nonlinear_support_loop_evidence",
+  "assertion_location": "projects/chirality-piping/core/product_physics/src/lib.rs:10726",
+  "assertion": {
+    "observed": 0.489527,
+    "expected": 0.490101
+  },
+  "raw_stdout_excerpt": "---- tests::valid_invented_model_exposes_nonlinear_support_loop_evidence stdout ----\n\nthread 'tests::valid_invented_model_exposes_nonlinear_support_loop_evidence' (42180021) panicked at src/lib.rs:10726:13:\nassertion `left == right` failed\n  left: 0.489527\n right: 0.490101\nnote: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n\nfailures:\n    tests::valid_invented_model_exposes_nonlinear_support_loop_evidence\n\ntest result: FAILED. 137 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s\n\nerror: test failed, to rerun pass `--lib`\nfailed: cargo test core/product_physics exited 101\n[evidence-sweep] FAILED at surface cargo_crate_sweep; remaining surfaces recorded as not_run\n\n[evidence-sweep] overall: fail\n[evidence-sweep] commit: 7b73460c5e2d85a9f050344069d211fea4af7b3e\n[evidence-sweep] summary: validation/evidence/sweeps/SWEEP_20260908T202715Z_7b73460c5e2d.json\n",
+  "sweep_summary": {
+    "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260908T202715Z_7b73460c5e2d.json",
+    "sha256": "0d6f31872b51d3c1021d574d42d127aabaf0b400fa06690720672dfb5625268e",
+    "overall_status": "fail",
+    "remaining_surfaces": "not_run"
+  },
+  "publication_state": "HELD_PENDING_ROUTED_SOURCE_ANALYSIS_AND_REVIEWED_CORRECTION",
+  "source_modified_after_failure": false,
+  "full_sweep_retried": false
+}

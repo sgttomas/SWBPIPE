@@ -1,0 +1,59 @@
+{
+  "record_kind": "native_build_postcheck_v2",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T02:59:21Z",
+  "build_exit_code": 0,
+  "source_binding_sha256": "0f415e24a67127bbbaed95b25adfd8015c7f2013b0c885483d1d9c90ab6daef4",
+  "source_17": {
+    "expected_aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "actual_aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "all_members_match": true,
+    "mismatches": []
+  },
+  "tracked_lockfiles": {
+    "entry_count": 38,
+    "expected_set_sha256": "c4f709da57e0f569305de6b2934b5d3d35c4355f1b752ad548530f24f98decaa",
+    "actual_set_sha256": "c4f709da57e0f569305de6b2934b5d3d35c4355f1b752ad548530f24f98decaa",
+    "all_match": true,
+    "mismatches": [],
+    "git_status_changes": []
+  },
+  "dist": {
+    "before_entry_count": 21,
+    "before_content_set_sha256": "4026576b9665b655895ba169529e660596700b0837dce514d81eeb774fc785e0",
+    "after_entry_count": 21,
+    "after_content_set_sha256": "797ed84568627d37879268dba0d61709087539c5cf0ab914d7e8105cf8221baf",
+    "inventory_sha256": "b121ba76522039d5bee7ad505c1116f7c308524d152e1ec1f44e8a5d4b709ed2"
+  },
+  "bundle": {
+    "entry_count": 3,
+    "content_set_sha256": "a59ddabf2c37924b99782d3ffe97ebf20661bc3d7e0c773d5af1f1b42c1c4037",
+    "inventory_sha256": "0b210e1337d8767e9abe940146d37313e3d20d471be05ed0cf3ab3679964c5f0",
+    "info_plist_sha256": "da293f5283d30ad3077aedc4d2e49eba341f4bb27cdf2ec982657dc89600ca13",
+    "identity": {
+      "CFBundleIdentifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2",
+      "CFBundleName": "OpenPipeStress Physics UI Post-G0 Witness 20260908 R2",
+      "CFBundleExecutable": "openpipestress-desktop"
+    },
+    "identity_match": true
+  },
+  "build_log_archive": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUILD_V2.log.base64.json",
+    "sha256": "f41f4dabe7f562ca9a8ef8a931f01f6fd7c07eabaf0b799516a3a6cde98db28c",
+    "decoded_sha256": "1f9ea0a73de6cdda7e4389d3a3f8aa4a3ffac5bca473a2c5aa5a75c3bacb5507",
+    "decoded_bytes": 4304,
+    "roundtrip_match": true
+  },
+  "isolation": {
+    "exact_store_directory": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2",
+    "store_absent_after_build": true,
+    "exact_bundle_process_absent": true,
+    "pgrep_exit_code": 1,
+    "normal_application_store_inspected": false,
+    "normal_application_store_accessed": false,
+    "normal_application_store_modified": false
+  },
+  "launch_performed": false,
+  "product_source_written_by_change": false,
+  "result": "PASS_BUILD_COMPLETE_LAUNCH_HELD"
+}

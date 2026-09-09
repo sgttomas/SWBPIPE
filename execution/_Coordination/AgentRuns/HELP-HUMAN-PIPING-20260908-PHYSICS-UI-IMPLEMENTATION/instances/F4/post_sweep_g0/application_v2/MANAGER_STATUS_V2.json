@@ -1,0 +1,23 @@
+{
+  "schema_version": "1.0",
+  "status": "BLOCKED_VALIDATED",
+  "manager": "WORKING_ITEMS F4",
+  "child": "/root/friction_execution/f4_i1_affine_repair",
+  "child_model": "gpt-5.6-sol",
+  "child_reasoning": "high",
+  "child_delegation_used": false,
+  "one_file_postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "browser_validation": "FAIL 0/4 without retry; main line 785 and from-blank line 907",
+  "changed_numeric_assertion_reached_and_passed": true,
+  "updated_binding_sha256": "94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b",
+  "updated_binding_aggregate_sha256": "847866e6be422966e285968bd280b1bfe5415d084419f263b64936c977a93801",
+  "child_return_sha256": "c415ceb917faaedb980086f457eb23afeda42069449d9289cd46b594b2a70890",
+  "child_status_sha256": "d5876f92d83434a3d4004fba024f2c106722ba49aa1242cc0733b81844495e8a",
+  "manager_validation_sha256": "60a9469fe07070c25451549b9e53dfdabef061a9549486f5bdbce47c26479c24",
+  "manager_return_sha256": "0ea81314242f04867a54c5b7b56c578241534db9ee916fc235f97d1207a92963",
+  "acceptance_claimed": false,
+  "exclusive_r2_smoke_browser_build_resources_released": true,
+  "next_owner": "U7 via root for broader stale browser-flow repair",
+  "next_gate": "versioned U7 repair and fresh independent review"
+}

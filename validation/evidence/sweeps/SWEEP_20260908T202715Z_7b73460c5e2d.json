@@ -1,0 +1,82 @@
+{
+  "artifact": "openpipestress.evidence_sweep_summary",
+  "schema_version": 3,
+  "decision_basis": [
+    "DEC-025",
+    "DEC-093"
+  ],
+  "boundary_note": "Commit-bound development evidence; the tool performs no network lookup. Not a release claim, professional approval, certification, sealing, authentication, or code-compliance determination.",
+  "git": {
+    "commit_hash": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "branch": "codex/piping-physics-ui-implementation-20260908",
+    "status_capture_failed": false,
+    "working_tree_dirty": false,
+    "dirty_paths": []
+  },
+  "runtime": {
+    "platform": "macOS-26.6.2-arm64-arm-64bit-Mach-O",
+    "python": "3.13.14",
+    "node": "v24.18.0",
+    "npm": "11.16.0",
+    "cargo": "cargo 1.97.1 (c980f4866 2026-06-30)",
+    "rustc": "rustc 1.97.1 (8bab26f4f 2026-07-14)"
+  },
+  "started_utc": "2026-09-08T20:27:15+00:00",
+  "finished_utc": "2026-09-08T20:27:47+00:00",
+  "duration_seconds": 32.671,
+  "surfaces": [
+    {
+      "order": 1,
+      "surface_id": "cargo_crate_sweep",
+      "description": "Rust crate tests across all discovered crate manifests.",
+      "execution_capability": "sandboxed",
+      "commands": [
+        {
+          "argv": [
+            "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+            "tools/release/check_release_readiness.py",
+            "--profile",
+            "cargo",
+            "--execute"
+          ],
+          "exit_code": 101,
+          "duration_seconds": 32.67
+        }
+      ],
+      "status": "fail"
+    },
+    {
+      "order": 2,
+      "surface_id": "python_pytest",
+      "description": "Repository Python contract, governance, and validation tests.",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    },
+    {
+      "order": 3,
+      "surface_id": "desktop_vitest",
+      "description": "Desktop unit/contract tests; wasm engine built first.",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    },
+    {
+      "order": 4,
+      "surface_id": "desktop_playwright_e2e",
+      "description": "Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).",
+      "execution_capability": "host",
+      "commands": [],
+      "status": "not_run"
+    },
+    {
+      "order": 5,
+      "surface_id": "desktop_production_build",
+      "description": "Desktop production build (tsc -b && vite build).",
+      "execution_capability": "sandboxed",
+      "commands": [],
+      "status": "not_run"
+    }
+  ],
+  "overall_status": "fail"
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "status": "BLOCKED_VALIDATED_AND_RESOURCES_RELEASED",
+  "authority": {
+    "owner_direction_sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326",
+    "dispatch_amendment_sha256": "331cad21e0283520e28f9b14922a9d8634abdd728eb45f951f645d12594524b4",
+    "work_graph_v4_sha256": "b907dcaa6a7b9254234a46b0acf3d67dc7b8f38d2e0713ae3e7bde6e06e6f492",
+    "reviewed_plan_sha256": "fcc4a837799cc67ff8bec32866b965edf0313b3fc516611c7f460322c3b84316",
+    "rf_candidate_review_sha256": "e8eb280f1081e4a885b6edeba4f5bdaa86fdd2d95f4c8151859e7eb24982b1ac"
+  },
+  "execution": {
+    "sealed_brief_sha256": "209b3af301574bc5d41e14ab9cf229ee460ead3c02da8a7c415d4c2179dff8be",
+    "direction_binding_amendment_sha256": "3ec0122a42ac49d6cde34e4d149978681ffe9560955e3f91ec74f8c49c115d0c",
+    "child_return_sha256": "c415ceb917faaedb980086f457eb23afeda42069449d9289cd46b594b2a70890",
+    "child_status_sha256": "d5876f92d83434a3d4004fba024f2c106722ba49aa1242cc0733b81844495e8a",
+    "application_proof_sha256": "cd0468986a213faabbedd003a775269fec8ea184ad88b4dde104056aa00c463a",
+    "evidence_manifest_sha256": "f2ac07eb5e641fc67ebcdb60f6bce5ca9b0ab8fe4bb94627039021dfd88a087a",
+    "evidence_aggregate_sha256": "53947ccb33e7d6779a2348e2dd575a9de060eafff9b846f201f328d2c76c0578",
+    "validation_summary_sha256": "d6f3e04b49dd4afa29342dc63090c1d08ff0212a26840650c5a54ea8b4407e7b"
+  },
+  "application": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "preimage_sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+    "postimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+    "additions": 3,
+    "deletions": 0
+  },
+  "binding": {
+    "entry_count": 17,
+    "sha256": "94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b",
+    "aggregate_sha256": "847866e6be422966e285968bd280b1bfe5415d084419f263b64936c977a93801",
+    "changed_from_v1": 1,
+    "unchanged_from_v1": 16
+  },
+  "validation": {
+    "result": "FAIL 0/4 without retry",
+    "main_failure": "line 785 after changed numeric assertion passed in both projects",
+    "from_blank_failure": "line 907 in both projects",
+    "acceptance": "HELD"
+  },
+  "manager": {
+    "validation_sha256": "60a9469fe07070c25451549b9e53dfdabef061a9549486f5bdbce47c26479c24",
+    "return_sha256": "0ea81314242f04867a54c5b7b56c578241534db9ee916fc235f97d1207a92963",
+    "status_sha256": "50807226ad180a0c851e2fadcb21d6ffbff2b81c822782492bc5ed4326fb3ac3"
+  },
+  "exclusive_r2_smoke_browser_build_resources_released": true,
+  "next_owner": "U7 via root",
+  "next_gate": "broader stale browser-flow repair under versioned scope and fresh review"
+}

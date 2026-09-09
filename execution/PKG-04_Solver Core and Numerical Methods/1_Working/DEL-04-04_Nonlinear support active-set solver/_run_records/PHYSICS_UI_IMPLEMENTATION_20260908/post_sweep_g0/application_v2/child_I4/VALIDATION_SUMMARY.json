@@ -1,0 +1,47 @@
+{
+  "blocker": "Both required journeys failed in both configured projects; no retry or source change is authorized.",
+  "command_log": "PLAYWRIGHT_VALIDATION_LOG.base64.json",
+  "command_log_sha256": "1026851786303ecef405be5fdce91699a13ea3f69a32f7ba2d7b631509275ca9",
+  "configured_projects": [
+    "chromium-desktop",
+    "chromium-compact"
+  ],
+  "exit": 1,
+  "expected_executions": 4,
+  "failure_artifacts_sha256": "1a2be06b9cbbafe6a70d22f005fd8b8adac8e610eb8acdf31ad9518473809135",
+  "failure_contexts_sha256": "2b2c26161c7807b01bf27ad3e4c38265cc19679f1ed8ad4baa1c19a4f17b16d3",
+  "failures": [
+    {
+      "expected": "1 queued; 0 applied",
+      "journey": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "line": 785,
+      "locator": "operation-apply-panel / operation-apply-summary",
+      "projects": [
+        "chromium-desktop",
+        "chromium-compact"
+      ],
+      "received": "0 queued; 0 applied this session",
+      "timeout_ms": 10000
+    },
+    {
+      "expected": "unit_validation=length=model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview",
+      "journey": "R2 from-blank GUI journey authors the A12 rehearsal script",
+      "line": 907,
+      "locator": "viewport-intent-unit-validation-create_node",
+      "projects": [
+        "chromium-desktop",
+        "chromium-compact"
+      ],
+      "received": "element(s) not found",
+      "timeout_ms": 10000
+    }
+  ],
+  "observed_result": "4 failed; 0 passed",
+  "retry_attempted": false,
+  "schema_version": "1.0",
+  "selected_journeys": [
+    "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+    "R2 from-blank GUI journey authors the A12 rehearsal script"
+  ],
+  "status": "BLOCKED"
+}

@@ -1,0 +1,10 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "STALE_TEST_FLOW",
+  "candidate_version": "V2",
+  "candidate_status": "UNAPPLIED_REVIEW_REQUIRED",
+  "live_product_or_test_writes": false,
+  "browser_build_or_test_execution": false,
+  "delegation": false
+}

@@ -1,0 +1,23 @@
+{
+  "command": [
+    "patch",
+    "--batch",
+    "--forward",
+    "-p1"
+  ],
+  "exit": 0,
+  "input_decoded_patch_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "schema_version": "1.0",
+  "stderr": {
+    "bytes": 0,
+    "encoding": "base64",
+    "payload_base64": "",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "bytes": 76,
+    "encoding": "base64",
+    "payload_base64": "cGF0Y2hpbmcgZmlsZSAncHJvamVjdHMvY2hpcmFsaXR5LXBpcGluZy9hcHBzL2Rlc2t0b3AvZTJlL3IyLXNtb2tlLnNwZWMudHMnCg==",
+    "sha256": "65b8be63949309fde3a6d402e85292db60181822c06ce892bef3c9f8d3b418ce"
+  }
+}

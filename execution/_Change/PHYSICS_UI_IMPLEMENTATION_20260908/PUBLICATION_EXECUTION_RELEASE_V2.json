@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "record_type": "change_publication_execution_release",
+  "status": "ENTRY_PREFLIGHT_PASS_SOURCE_FREEZE_AUTHORIZED",
+  "recorded_at_utc": "2026-09-09T03:42:40Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "authority": {
+    "publication_plan_v2_sha256": "5d543ec339ca6453c0720583388ce49ce1d3e8a4bc12a307210a04d86ecedcdd",
+    "root_accepted_release_sha256": "34c7d26d752a43dd6b31d387d89d02bf689dc031e6cfaa077849e610b896ec1f",
+    "standing_git_authority": "Scoped commit, push, branch publication, PR creation, exact-head green-CI merge; no force, bypass, history rewrite, or destructive cleanup.",
+    "source_and_native_writers": "STOPPED"
+  },
+  "entry_bindings": {
+    "branch": "codex/piping-physics-ui-implementation-20260908",
+    "pre_freeze_head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "accepted_source_binding_sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+    "source_members": 17,
+    "source_aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "all_source_member_hashes_and_byte_counts_match": true,
+    "native_final_manifest_sha256": "57887e5e702d751ec625af462f3a4f51e103bc78eb4447d4432ab8aa0b0a7bdd",
+    "native_manifest_outputs": 29,
+    "all_native_manifest_output_hashes_and_byte_counts_match": true,
+    "native_verdict": "PASS",
+    "native_return_sha256": "b96cc1cade0674d6f8fca7e485b6355cc0379cb759352a21ef9b771d42839826",
+    "native_tuple_sha256": "efc83c8957032d2196593627f300d30a2e419b18739e1e09265dcaa8f0474169",
+    "native_cleanup_sha256": "713554c49777cb6f996b56b050e6ff4cb6cd01558628233a617ef510f09f1d8d",
+    "native_validation_sha256": "e730868d045e56856bf5ece1b8daa9042f4ccb64471644e4a1ef7d12710ea0f7",
+    "original_local_handoff_sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+  },
+  "entry_checks": {
+    "receipt_validator": {
+      "result": "PASS",
+      "validated_cursor": "Receipt-136"
+    },
+    "repository_self_check": {
+      "exit_code": 0,
+      "finding_summary": "INFO=14, NOT_APPLICABLE=1, REVIEW=4, WARN=55"
+    },
+    "path_anchor_validator": {
+      "result": "PASS",
+      "live_surfaces": 4339,
+      "findings": 0
+    },
+    "candidate_whitespace_validator": {
+      "result": "PASS",
+      "binary_or_symlink_paths_skipped": 12
+    },
+    "candidate_json_parse": "PASS",
+    "candidate_allowlist": {
+      "result": "PASS",
+      "status_records_before_this_record": 254,
+      "out_of_scope_records": 0
+    }
+  },
+  "current_main_observation": {
+    "method": "read-only GitHub API observation; local refs unchanged",
+    "origin_main": "781b478176db46ca66ebd38991607612e0ce9338",
+    "status_since_last_known_main": "IDENTICAL",
+    "changed_paths": 0,
+    "refresh_required_after_source_freeze": true
+  },
+  "next_actions": [
+    "Create the exact scoped source-freeze commit.",
+    "Fetch and integrate current main only if required by the accepted plan.",
+    "Require exact 17-member equality and a clean tree at the tested source commit.",
+    "Run the complete unchanged DEC-025 five-surface sweep, then the full practitioner harness."
+  ],
+  "held_after_tests": "Return tested-source and verification evidence to root. Receipt 137 and evidence-only publication remain later C0/root-gated steps."
+}

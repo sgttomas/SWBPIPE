@@ -1,0 +1,12 @@
+COMMAND: /var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python -m pytest projects/chirality-piping/tests/product_preview/test_product_preview_service.py
+============================= test session starts ==============================
+platform darwin -- Python 3.13.14, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908
+plugins: xdist-3.8.0
+collected 9 items
+
+projects/chirality-piping/tests/product_preview/test_product_preview_service.py . [ 11%]
+........                                                                 [100%]
+
+============================== 9 passed in 0.07s ===============================
+EXIT: 0

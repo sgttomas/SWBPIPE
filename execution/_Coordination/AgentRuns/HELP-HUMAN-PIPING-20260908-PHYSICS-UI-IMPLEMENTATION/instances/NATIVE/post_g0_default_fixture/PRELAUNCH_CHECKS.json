@@ -1,0 +1,34 @@
+{
+  "schema": "native_default_fixture_prelaunch_checks_v1",
+  "sealed_brief_sha256": "5b6845619240555135f95108060a829e922791173eb752d825c76b9870b7cf5e",
+  "source_binding": {
+    "path": "{WORKING_ROOT}/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_SOURCE_BINDING_FINAL_V2.json",
+    "sha256": "0f415e24a67127bbbaed95b25adfd8015c7f2013b0c885483d1d9c90ab6daef4",
+    "member_count": 17,
+    "mismatches": 0,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc"
+  },
+  "build_result": {
+    "path": "{WORKING_ROOT}/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_BUILD_RESULT_V2.json",
+    "sha256": "d2a7f2b6c90609bba75121977f053402fdd33e37062226d424503c5f550234e4"
+  },
+  "distribution": {
+    "inventory_sha256": "b121ba76522039d5bee7ad505c1116f7c308524d152e1ec1f44e8a5d4b709ed2",
+    "entry_count": 21,
+    "content_set_sha256": "797ed84568627d37879268dba0d61709087539c5cf0ab914d7e8105cf8221baf"
+  },
+  "bundle": {
+    "inventory_sha256": "0b210e1337d8767e9abe940146d37313e3d20d471be05ed0cf3ab3679964c5f0",
+    "entry_count": 3,
+    "content_set_sha256": "a59ddabf2c37924b99782d3ffe97ebf20661bc3d7e0c773d5af1f1b42c1c4037",
+    "CFBundleIdentifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2",
+    "CFBundleName": "OpenPipeStress Physics UI Post-G0 Witness 20260908 R2",
+    "CFBundleExecutable": "openpipestress-desktop"
+  },
+  "prelaunch_exact_process_absent": true,
+  "prelaunch_dedicated_store_absent": true,
+  "normal_store_inspected": false,
+  "normal_store_accessed": false,
+  "dist_bundle_provenance": "The bound build chain records generated distribution and bundle inventories; this witness makes no literal embedded dist-to-bundle byte-equality claim.",
+  "result": "PASS_LAUNCH_ALLOWED"
+}

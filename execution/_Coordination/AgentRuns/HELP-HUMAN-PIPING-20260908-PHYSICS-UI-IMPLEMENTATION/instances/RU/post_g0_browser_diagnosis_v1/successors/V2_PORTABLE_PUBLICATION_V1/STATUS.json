@@ -1,0 +1,14 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "package": "V2_PORTABLE_PUBLICATION_V1",
+  "raw_patch_decoded_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+  "candidate_postimage_decoded_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+  "v1_sealed_brief_logical_sha256": "28bb58011ae2db326e15dbc7b190012bb3459ed23867c1550fee8bc6d9da63ca",
+  "archive_decode": "PASS",
+  "raw_patch_path_dry_run": "PASS",
+  "publishable_candidate_whitespace": "PASS",
+  "path_anchors": "PASS",
+  "live_product_or_test_writes": false,
+  "source_test_browser_or_build_execution": false
+}

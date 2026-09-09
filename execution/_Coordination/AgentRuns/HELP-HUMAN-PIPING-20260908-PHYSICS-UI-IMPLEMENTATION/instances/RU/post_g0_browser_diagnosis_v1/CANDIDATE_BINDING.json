@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "UNAPPLIED_REVIEW_REQUIRED",
+  "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+  "live_preimage_sha256": "3f500eb5e061ab0581123d8cc28d581fa4a17b654afc247d624f60af4dfe6f17",
+  "candidate_postimage_sha256": "5a8af00f21a2618c6429d73737926d9371954ab7ebe69ec513f88ef493319287",
+  "decoded_patch_sha256": "48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445",
+  "candidate_postimage": "candidate/r2-smoke.spec.ts",
+  "patch": "CANDIDATE_TEST_CORRECTION.diff",
+  "live_source_modified": false,
+  "browser_or_test_rerun": false,
+  "authorized_next_step": "owner amendment, independent patch review, exact one-file application, focused two-journey Playwright verification"
+}

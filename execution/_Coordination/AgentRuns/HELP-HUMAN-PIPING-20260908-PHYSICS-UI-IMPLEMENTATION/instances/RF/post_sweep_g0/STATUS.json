@@ -1,0 +1,17 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "role": "independent read-only Agent 2 reviewer",
+  "parent": "/root (HELP_HUMAN)",
+  "brief_sha256": "2fd51a8973bcfec8b1f6d21cc75e524f4038482d4b6ab6923bad3d0a6a39bdef",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation": "prohibited and not used",
+  "source_build_test_git_writes": false,
+  "verdict": "CHANGES_REQUIRED",
+  "findings": [
+    "active retained-spring Python, desktop, and generated-fixture goldens omitted",
+    "current-run normal not established because the preceding friction assertion failed"
+  ],
+  "owner_act_required": true
+}

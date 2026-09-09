@@ -1,0 +1,94 @@
+{
+  "schema_version": "5.0",
+  "status": "BROWSER_FLOW_OWNERSHIP_TRANSFERRED_U7_INTAKE",
+  "predecessor": {
+    "path": "WORK_GRAPH_V4.json",
+    "sha256": "b907dcaa6a7b9254234a46b0acf3d67dc7b8f38d2e0713ae3e7bde6e06e6f492"
+  },
+  "authority": {
+    "ownership_transfer": {
+      "path": "BROWSER_TEST_OWNERSHIP_TRANSFER_V1.json",
+      "sha256": "317732dcd0c786674ae58168b1bd0d056a69c9b06af50444b30bea19ead3a6b7"
+    },
+    "owner_direction": {
+      "path": "OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    "boundaries": "No functional, engineering, public-contract, acceptance, or write-fence expansion."
+  },
+  "model_contract": {
+    "agent_1_and_2": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false,
+    "agent_2_delegation": false
+  },
+  "nodes": [
+    {
+      "id": "F4_I4",
+      "state": "FROZEN_RESOURCE_RELEASED",
+      "result": "provenance postimage exact; two journeys x two browser projects fail later; all evidence preserved"
+    },
+    {
+      "id": "U7_BROWSER_FLOW",
+      "state": "READ_ONLY_INTAKE_ROOT_CHILD_RELEASE_PENDING",
+      "after": [
+        "F4_I4"
+      ],
+      "writes": [
+        "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+        "instances/U7/post_g0_browser_flow/**",
+        "DEL-07-01 existing run post_g0_browser_flow/**"
+      ],
+      "scope": "update both journeys/helper/receipt sequencing to accepted Add -> frozen review -> Apply flow; preserve equivalent and legacy-tool coverage"
+    },
+    {
+      "id": "RF_COMPLETE_BACKCHECK",
+      "state": "HELD",
+      "after": [
+        "U7_BROWSER_FLOW"
+      ],
+      "scope": "fresh full review of changed test, all six applied postimages, focused validation, and preserved behavior"
+    },
+    {
+      "id": "CHANGE_NATIVE_BUILD",
+      "state": "HELD",
+      "after": [
+        "RF_COMPLETE_BACKCHECK"
+      ],
+      "scope": "fresh packaged-native build and identities"
+    },
+    {
+      "id": "NATIVE_DEFAULT_FIXTURE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_NATIVE_BUILD"
+      ],
+      "scope": "isolated default-fixture native smoke/solve"
+    },
+    {
+      "id": "CHANGE_SOURCE_VERIFY",
+      "state": "HELD",
+      "after": [
+        "NATIVE_DEFAULT_FIXTURE"
+      ],
+      "scope": "source-freeze/tested commits, clean full DEC-025, practitioner suite"
+    },
+    {
+      "id": "CHANGE_EVIDENCE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_SOURCE_VERIFY"
+      ],
+      "scope": "Receipt 137 and evidence-only commit"
+    },
+    {
+      "id": "CHANGE_PR_CI_MERGE",
+      "state": "HELD",
+      "after": [
+        "CHANGE_EVIDENCE"
+      ],
+      "scope": "push/PR, exact-head CI, then merge"
+    }
+  ],
+  "preserved": "Other five postimages and production source remain unchanged. No gate is waived; no full sweep PASS is claimed; Receipt 137 remains unwritten."
+}

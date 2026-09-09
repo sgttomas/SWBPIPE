@@ -1,0 +1,45 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "authority": {
+    "owner_direction_sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326",
+    "ownership_transfer_sha256": "317732dcd0c786674ae58168b1bd0d056a69c9b06af50444b30bea19ead3a6b7",
+    "work_graph_v5_sha256": "8010a83fbcbf223e732413ff1105927b2a8720cba88dd3db877eac4f3b7dae30"
+  },
+  "execution": {
+    "activation_sha256": "e9b749bbfcd4b6fbc09f9921ec3d5805e7b22f83b749a3959c52b90cfbc2deb3",
+    "work_graph_sha256": "8adbbc29c10338607e0d44ca2dd4c9668e727d1e1090fa98a470d5d7d4bd09ca",
+    "sealed_brief_sha256": "1efa44993519392a81b8234a7780733dc71387fd6d84a7f93c3095fd4773add2",
+    "agent_2": "/root/native_authoring/u7_post_g0_browser_flow",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "preimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "postimage_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+    "sealed_preimage_delta_sha256": "cf53ac74b52ba38757aca4600f9ce2a8998c9a40d564ad1b402b2273c9ea4e69",
+    "head_to_frozen_diff_sha256": "8c6f2d13f7af4d210c1236e8a04c36b6f28d944ec8eb5cdb3d70bcd04364648d"
+  },
+  "validation": {
+    "command_scope": "two named R2 journeys in chromium-desktop and chromium-compact, workers=1",
+    "result": "PASS 4/4",
+    "playwright_evidence_sha256": "875968a90feebaf7019f47a3cedb231d7f62e26a3b2e34827135492654979f68",
+    "child_status_sha256": "a25c556eb7c5bbcc9ab3ca65c9d1a8e0f8009d90cb937828f6f08b708b27955d",
+    "child_return_sha256": "b5ef49627863d45dba30742566fecc1730300a1c8be863983938feb54e91a525",
+    "manager_validation_sha256": "2957756da9c8de02aee970380d39455f26f1eee185d421da4f076ebb78aba601",
+    "manager_return_sha256": "6b7313ef51e62c92ca8504003b4fd05682bb8ede37d606d8010ae4cd3714df68"
+  },
+  "binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+    "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+    "entry_count": 17,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "unchanged_members": 16,
+    "updated_member": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+  },
+  "scope": "One browser test file plus U7/B1 evidence only; no product behavior, API, fixture, physics, other tests, build, native, sweep, or Git mutation",
+  "next_gate": "root-routed independent frozen-diff and binding review"
+}

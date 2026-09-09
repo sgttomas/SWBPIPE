@@ -1,0 +1,216 @@
+{
+  "record_kind": "native_build_precheck_v2",
+  "schema_version": "1.0",
+  "recorded_at_utc": "2026-09-09T02:56:21Z",
+  "source_binding_sha256": "0f415e24a67127bbbaed95b25adfd8015c7f2013b0c885483d1d9c90ab6daef4",
+  "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "source_17_aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+  "source_17_match": true,
+  "tracked_lockfiles": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 122788,
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    },
+    {
+      "path": "projects/chirality-piping/core/gui/viewport_editor/Cargo.lock",
+      "bytes": 176,
+      "sha256": "d871a939c3dcc85917be768f3f64a22bb7f5e227fa4b0419ed3d98d0b4aa991c"
+    },
+    {
+      "path": "projects/chirality-piping/core/library_import/library_import_document/Cargo.lock",
+      "bytes": 2699,
+      "sha256": "7917e4b0640898de17c923ce5280b24ab833ee9216f4c209a9255b2b41941b93"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "bytes": 9530,
+      "sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/Cargo.lock",
+      "bytes": 750,
+      "sha256": "9a3be2f4cf345dcd7622550c60c41b68a1d61bdf015c37c40463dcd702e1e170"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/user_loads/Cargo.lock",
+      "bytes": 779,
+      "sha256": "7331cbd2e60f8f78c2e13c3e0cbccbde335802e1c51e6545cf99607bc4693dfe"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "bytes": 7052,
+      "sha256": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/Cargo.lock",
+      "bytes": 4852,
+      "sha256": "36b1eb6477d894b642e615d49c77a7f2b4bc00ba5569ddc80fbc66593356b58a"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/pdf_emitter/Cargo.lock",
+      "bytes": 5584,
+      "sha256": "3561f4a7a568249c5e680d104e9a49f9ac6a1cd1b27b4e1798ee0402799e0038"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/protected_content_linter/Cargo.lock",
+      "bytes": 185,
+      "sha256": "afeb72449b83edbad1673fccae3c838a011ef66237a4e7c5a442d9d7aa159fb9"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "bytes": 6425,
+      "sha256": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_renderer/Cargo.lock",
+      "bytes": 5319,
+      "sha256": "73aa0934be155ab49838a5cf85eb1397decccfded2bc2f9ef698f633b2c6cfd8"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_sections/Cargo.lock",
+      "bytes": 1839,
+      "sha256": "e50d6c2e7a3a7325e30c63d6167d6771a200589ec905b25faf5df0789b02c3c4"
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/expression_evaluator/Cargo.lock",
+      "bytes": 181,
+      "sha256": "8c7978aa4f14c5a8c43443a900352c0016c4cd9bece8eb27c0a21bd7848d2cf9"
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+      "bytes": 3681,
+      "sha256": "c4ef95b578d017d0774e090ad515f2c7483a73c902f3619bcbdb09d02b6faeff"
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+      "bytes": 3270,
+      "sha256": "46565cdb405f9713399fa30b841c849c2fa59a7650551b1ba6bacbb7154da9a8"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+      "bytes": 2859,
+      "sha256": "7d0c6b916947c528c80a181bad28b314e306342b3e335cb2cc73ffef9cb35b7c"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.lock",
+      "bytes": 1345,
+      "sha256": "c52dbeacafd93946cd1121643d01d0774d3ec3f2dddb3604b7e02aae400a0f57"
+    },
+    {
+      "path": "projects/chirality-piping/core/units/Cargo.lock",
+      "bytes": 2654,
+      "sha256": "5b8d09c07fd129c0bd2fe10a1ec268b13ba0306ff8ae5a9e025cda7d4886556b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-01_Mechanics benchmark suite/_run_records/PHYSICS_UI_EXECUTION_20260908/production_comparison_harness/Cargo.lock",
+      "bytes": 4994,
+      "sha256": "4e9752028350c5a8bfec231e3e1f75373d10a21d06ac9e377ffc1ea4402bea7e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/_run_records/REPAIRED_UNITS_V1/Cargo.lock",
+      "bytes": 9428,
+      "sha256": "9be0ff77fd86fda63b26b7705959168382e5cb828c4e432ee82d174714fa6be1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-DESIGN-IMPLEMENTATION/instances/A2/snapshots/UNITS_V1/Cargo.lock",
+      "bytes": 9428,
+      "sha256": "9be0ff77fd86fda63b26b7705959168382e5cb828c4e432ee82d174714fa6be1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/SOURCE_SNAPSHOT_V5/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 122788,
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-UI-TOOLKIT-PARITY/instances/N1_WI_PKG07/children/B0_UI_INTEGRATION/SOURCE_SNAPSHOT_V9/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "bytes": 122788,
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/_run_records/Cargo.lock",
+      "bytes": 4979,
+      "sha256": "91bc8df076a720d7b6a3bd650027f463245e7050171a7fa79f63e952805e3bc2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-E/harness/Cargo.lock",
+      "bytes": 3229,
+      "sha256": "6d798bd16da427d2769041b0285d596e9f828edda717648b213a1da23bf54ba1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-L/harness/Cargo.lock",
+      "bytes": 956,
+      "sha256": "94489091e712057a5b816379259e5f131a22d3ed1c3872a9846ddb138f275e78"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/harness/Cargo.lock",
+      "bytes": 1532,
+      "sha256": "3e7b26fce7707d3dbfd62b453a90af604ec5f639cc2979e7ccb2a6fabb152b88"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/M1/M1-N/supplement_v2/harness/Cargo.lock",
+      "bytes": 1538,
+      "sha256": "ac1abea2355eafb839ee15c8dbde2cb500710b66217106c9b036b59d54461cd4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/compatibility_v1/manager/driver/Cargo.lock",
+      "bytes": 4986,
+      "sha256": "d9494103e16842785f5b68c782358a9f89a358008ab9df95e69253dab139bec7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/driver/Cargo.lock",
+      "bytes": 4979,
+      "sha256": "10673dcd39e413d1f738447ed0459635c23d94d326aa4fa0c28eb73269b114ef"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P9/author_revision_v2/source_before/Cargo.lock",
+      "bytes": 5003,
+      "sha256": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577"
+    },
+    {
+      "path": "projects/chirality-piping/package-lock.json",
+      "bytes": 127558,
+      "sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+    },
+    {
+      "path": "projects/chirality-piping/provenance/build-artifacts/package-lock.json",
+      "bytes": 149519,
+      "sha256": "11ae62574fe41c3c2fdff907298af41e9ab2271cdb993210bd076aa67cf3043d"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "bytes": 6384,
+      "sha256": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/nonlinear/Cargo.lock",
+      "bytes": 1599,
+      "sha256": "5ee3e1f71a489cbc1c6ff3af0ba77253714d5132f925c716788fa57bf27546f7"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/physics_audit_regression/Cargo.lock",
+      "bytes": 5003,
+      "sha256": "f713f5d43afe63b41332bfd21e8268feb20f6c09a57d484465129e88989cb577"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+      "bytes": 5764,
+      "sha256": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4"
+    }
+  ],
+  "tracked_lockfile_set_sha256": "c4f709da57e0f569305de6b2934b5d3d35c4355f1b752ad548530f24f98decaa",
+  "dist_before": {
+    "entry_count": 21,
+    "content_set_sha256": "4026576b9665b655895ba169529e660596700b0837dce514d81eeb774fc785e0"
+  },
+  "exact_isolation": {
+    "store_directory": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2",
+    "store_directory_absent": true,
+    "expected_bundle": "/Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress Physics UI Post-G0 Witness 20260908 R2.app",
+    "expected_bundle_absent": true,
+    "normal_application_store_inspected": false,
+    "normal_application_store_accessed": false
+  },
+  "launch_performed": false,
+  "result": "PASS_BUILD_ALLOWED"
+}

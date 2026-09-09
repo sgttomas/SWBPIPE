@@ -1,0 +1,58 @@
+{
+  "schema": "native_default_fixture_recoverable_failures_v1",
+  "retry_count": 0,
+  "solve_count_impact": 0,
+  "save_count_impact": 0,
+  "events": [
+    {
+      "phase": "preflight_command_composition",
+      "command": "functions.exec JavaScript template containing unescaped shell ${...}",
+      "exact_failure": "SyntaxError: Missing } in template expression",
+      "effect": "transport rejected before shell execution; no state change"
+    },
+    {
+      "phase": "preflight_script_first_run",
+      "command": "zsh {RUN_ROOT}/instances/NATIVE/post_g0_default_fixture/_run_records/preflight_check.zsh",
+      "exact_failure": "line 18: command not found: stat",
+      "cause": "zsh special variable path was overwritten by a loop variable",
+      "effect": "preflight stopped before launch; corrected variable name and reran"
+    },
+    {
+      "phase": "preflight_process_observer",
+      "command": "ps -axo pid=,command= | awk -v needle=EXACT_EXECUTABLE 'index($0, needle) {print}'",
+      "exact_failure": "observer awk process matched its own argv",
+      "effect": "false observer match only; replaced by exact ps comm comparison before launch"
+    },
+    {
+      "phase": "result_filter_navigation",
+      "command": "await app.setValue(319, \"result:combination:combination-C-OPER-ALT:disp:node-N-140\")",
+      "exact_failure": "Computer Use server error -10005: Cannot set a value for an element that is not settable",
+      "cause": "stale accessibility index after result selection",
+      "effect": "no input changed; refreshed AX state and used the current settable result-filter index"
+    },
+    {
+      "phase": "dedicated_store_read",
+      "command": "sqlite3 -readonly '/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2/openpipestress-projects.sqlite3' '.tables'",
+      "exact_failure": "Error: unable to open database file",
+      "effect": "no database write; percent-encoded file URI with mode=ro&immutable=1 succeeded"
+    },
+    {
+      "phase": "dedicated_store_schema_query",
+      "command": "select project_id, name, ..., generation from local_projects;",
+      "exact_failure": "Error: in prepare, no such column: name",
+      "effect": "no database write; schema was read and corrected query used project_name"
+    },
+    {
+      "phase": "precleanup_command_composition",
+      "command": "functions.exec JavaScript template containing unescaped shell ${member...}",
+      "exact_failure": "SyntaxError: Missing } in template expression",
+      "effect": "transport rejected before shell execution; no cleanup or state change"
+    },
+    {
+      "phase": "visual_layout_attempt",
+      "command": "await app.drag([500,456],[500,320])",
+      "exact_failure": "the drag selected visible text instead of moving a pane divider",
+      "effect": "no model/input/result mutation; visual candidate was not promoted"
+    }
+  ]
+}

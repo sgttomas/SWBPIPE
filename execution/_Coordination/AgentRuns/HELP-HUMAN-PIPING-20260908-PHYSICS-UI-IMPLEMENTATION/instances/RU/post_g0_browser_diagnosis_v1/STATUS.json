@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "STALE_TEST_FLOW",
+  "production_regression_confirmed": false,
+  "candidate_status": "UNAPPLIED_REVIEW_REQUIRED",
+  "active_consumers_requiring_correction": 2,
+  "live_product_or_test_writes": false,
+  "browser_build_or_test_execution": false,
+  "delegation": false,
+  "model_requested": "sol/high",
+  "model_identity_note": "runtime identity was not mechanically exposed to RU"
+}

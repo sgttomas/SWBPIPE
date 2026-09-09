@@ -1,0 +1,137 @@
+{
+  "record_kind": "native_dist_inventory_v2",
+  "schema_version": "1.0",
+  "path_basis": "WORKING_ROOT",
+  "root": "apps/desktop/dist",
+  "entry_count": 21,
+  "content_set_serialization": "sha256__two_spaces__kind__two_spaces__bytes__two_spaces__relative_path__newline",
+  "content_set_sha256": "797ed84568627d37879268dba0d61709087539c5cf0ab914d7e8105cf8221baf",
+  "entries": [
+    {
+      "path": "assets/index-BNHitlyv.js",
+      "kind": "file",
+      "bytes": 1122452,
+      "sha256": "739d701f3915ceb978ea4b4920c6fc85c98eb9d8987337aceda61cdfb262978d"
+    },
+    {
+      "path": "assets/index-fu0eFfg_.css",
+      "kind": "file",
+      "bytes": 57957,
+      "sha256": "9c2a29b4063bc339613a9306643e880ad58d1474d5ae58baeb50646c4ed4cd2d"
+    },
+    {
+      "path": "assets/invented_agent_proposal-Bm57LVt-.js",
+      "kind": "file",
+      "bytes": 1820,
+      "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c"
+    },
+    {
+      "path": "assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "kind": "file",
+      "bytes": 10858,
+      "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a"
+    },
+    {
+      "path": "assets/invented_design_knowledge-H12r-oKQ.js",
+      "kind": "file",
+      "bytes": 1660,
+      "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040"
+    },
+    {
+      "path": "assets/invented_mechanics_result-SUfYDSKt.js",
+      "kind": "file",
+      "bytes": 500417,
+      "sha256": "d46627cc75589defa8acf83a28692da8f8d20c0dbae7f3e5d46e011ddb6ac763"
+    },
+    {
+      "path": "assets/invented_preview_model-pJA3_nB8.js",
+      "kind": "file",
+      "bytes": 12670,
+      "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a"
+    },
+    {
+      "path": "assets/vendor-7OC5HNn7.js",
+      "kind": "file",
+      "bytes": 3613,
+      "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76"
+    },
+    {
+      "path": "assets/vendor-icons-Fcg__Luf.js",
+      "kind": "file",
+      "bytes": 18788,
+      "sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c"
+    },
+    {
+      "path": "assets/vendor-react-BT_8sX57.js",
+      "kind": "file",
+      "bytes": 188744,
+      "sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4"
+    },
+    {
+      "path": "assets/vendor-tauri-DlQNAQKj.js",
+      "kind": "file",
+      "bytes": 91,
+      "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73"
+    },
+    {
+      "path": "assets/vendor-three-C7YCSTwK.js",
+      "kind": "file",
+      "bytes": 525969,
+      "sha256": "74160b63cdc8eb80afb5e0289dc06e966135449097eef41daf960c66d0fcbce5"
+    },
+    {
+      "path": "index.html",
+      "kind": "file",
+      "bytes": 1158,
+      "sha256": "72649faf70beed5069624d10f27b26b684c2ed4584ceac88af7694e0af13a39f"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "kind": "file",
+      "bytes": 1688,
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "kind": "file",
+      "bytes": 6961,
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "kind": "file",
+      "bytes": 683795,
+      "sha256": "7efb0d1c95bcba208827e6ff46ed66a7de9c46c213c63925617fcda21d2d4c33"
+    },
+    {
+      "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "kind": "file",
+      "bytes": 520,
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "kind": "file",
+      "bytes": 3744,
+      "sha256": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier.js",
+      "kind": "file",
+      "bytes": 13172,
+      "sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "kind": "file",
+      "bytes": 973632,
+      "sha256": "b6857f102e281d1ee171c7a35e347db0435487d26a3c77d755f3b2bf203c6972"
+    },
+    {
+      "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "kind": "file",
+      "bytes": 1261,
+      "sha256": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f"
+    }
+  ]
+}

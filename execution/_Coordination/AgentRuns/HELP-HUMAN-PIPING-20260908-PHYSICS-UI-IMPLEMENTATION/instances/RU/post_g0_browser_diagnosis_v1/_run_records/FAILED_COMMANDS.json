@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "commands": [
+    {
+      "command": "for f in projects/chirality-piping/apps/desktop/e2e/*.spec.ts; do echo \"FILE:$f\"; rg -n -C 12 \"queue-explicit-node-intent\" \"$f\"; done",
+      "exit_code": 1,
+      "stdout_path": "_run_records/active_e2e_scan.stdout",
+      "stderr_path": "_run_records/active_e2e_scan.stderr",
+      "classification": "Expected rg no-match status propagated from the final active spec; scan output was still complete and used. No product command failed."
+    }
+  ]
+}

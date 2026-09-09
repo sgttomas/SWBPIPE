@@ -1,0 +1,7 @@
+NON_APPLICABLE_PUBLICATION_POINTER
+record_kind: encoded_raw_diff_pointer
+status: do_not_apply_this_pointer
+repo_anchor: {REPO_ROOT}
+logical_raw_sha256: 48295ed5a031fe2405e8189acb1a627d9d191538b6de85c2a20d84c0708c1445
+lossless_archive_path: {REPO_ROOT}/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V2/archives/CANDIDATE_TEST_CORRECTION.diff.original.base64.json
+resolution: base64-decode payload_base64 exactly, verify logical_raw_sha256, then apply the decoded bytes

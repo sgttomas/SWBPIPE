@@ -1,0 +1,427 @@
+Window: "OpenPipeStress Technical Preview", App: OpenPipeStress Physics UI Post-G0 Witness 20260908 R2.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Invented Utility Loop Preview
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: on
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button (disabled) Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 26  of  26  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Invented Utility Loop Preview, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented carbon-steel-like material material:invented-carbon-steel, Help: Invented carbon-steel-like material (material:invented-carbon-steel), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Pump nozzle node:N-100, Help: Pump nozzle (node:N-100), Value: off
+						54 toggle button Low point elbow node:N-110, Help: Low point elbow (node:N-110), Value: off
+						55 toggle button Riser elbow node:N-120, Help: Riser elbow (node:N-120), Value: off
+						56 toggle button Rack turn node:N-130, Help: Rack turn (node:N-130), Value: off
+						57 toggle button Terminal tie-in node:N-140, Help: Terminal tie-in (node:N-140), Value: on
+						58 heading Pipes, Value: 3
+							59 text Pipes
+						60 toggle button Pump discharge run pipe:P-100, Help: Pump discharge run (pipe:P-100), Value: off
+						61 toggle button Vertical riser pipe:P-110, Help: Vertical riser (pipe:P-110), Value: off
+						62 toggle button Rack span pipe:P-120, Help: Rack span (pipe:P-120), Value: off
+						63 toggle button Tie-in rise pipe:P-130, Help: Tie-in rise (pipe:P-130), Value: off
+						64 heading Supports, Value: 3
+							65 text Supports
+						66 toggle button Anchor at pump nozzle support:S-100, Help: Anchor at pump nozzle (support:S-100), Value: off
+						67 toggle button Guide on riser support:S-120, Help: Guide on riser (support:S-120), Value: off
+						68 toggle button Rack shoe support:S-130, Help: Rack shoe (support:S-130), Value: off
+						69 toggle button Preview one-way terminal stop support:NL-140, Help: Preview one-way terminal stop (support:NL-140), Value: off
+						70 toggle button Preview sliding-friction rack shoe support:NL-130-FRIC, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+						71 toggle button Invented variable spring hanger support:SH-140, Help: Invented variable spring hanger (support:SH-140), Value: off
+						72 toggle button Invented constant-effort support support:CE-120, Help: Invented constant-effort support (support:CE-120), Value: off
+						73 heading Components, Value: 3
+							74 text Components
+						75 toggle button Invented elbow marker component:C-110, Help: Invented elbow marker (component:C-110), Value: off
+						76 toggle button Invented branch connection marker component:C-120, Help: Invented branch connection marker (component:C-120), Value: off
+						77 toggle button Invented semi-rigid valve marker component:C-130, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+						78 toggle button Invented tie-in marker component:C-140, Help: Invented tie-in marker (component:C-140), Value: off
+						79 toggle button Invented expansion joint marker component:C-150, Help: Invented expansion joint marker (component:C-150), Value: off
+						80 heading Load Cases, Value: 3
+							81 text Load Cases
+						82 toggle button Invented operating gravity and pressure preview load:L-100, Help: Invented operating gravity and pressure preview (load:L-100), Value: off
+						83 toggle button Invented alternate gravity and pressure preview load:L-200, Help: Invented alternate gravity and pressure preview (load:L-200), Value: off
+						84 heading Combinations, Value: 3
+							85 text Combinations
+						86 toggle button Invented explicit operating plus alternate preview combination:C-OPER-ALT, Help: Invented explicit operating plus alternate preview (combination:C-OPER-ALT), Value: off
+					87 text 3D Centerline
+					88 container (expanded) Viewport deformation overlay status, Secondary Actions: Collapse
+						89 summary Deformation · normalized, Value: on
+							90 text Deformation · normalized
+						91 container
+							92 text available; nodes= 5 ; max= 4.927112 mm scale=normalized_display_offset_not_physical_length; vector_direction=global_cartesian_displacement_components; unit_basis=mm; professional_claim=false
+					93 container Viewport display toggles
+						94 toggle button Labels, Help: Show or hide entity labels, Value: on
+						95 toggle button Loads, Help: Show or hide load arrows, Value: on
+						96 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					97 text Selected:  node:N-140
+					98 container
+						99 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						100 container Viewport entity selection
+							101 toggle button Select Pump nozzle in viewport, Help: Pump nozzle (node:N-100), Value: off
+							102 toggle button Select Low point elbow in viewport, Help: Low point elbow (node:N-110), Value: off
+							103 toggle button Select Riser elbow in viewport, Help: Riser elbow (node:N-120), Value: off
+							104 toggle button Select Rack turn in viewport, Help: Rack turn (node:N-130), Value: off
+							105 toggle button Select Terminal tie-in in viewport, Help: Terminal tie-in (node:N-140), Value: on
+							106 toggle button Select Pump discharge run in viewport, Help: Pump discharge run (pipe:P-100), Value: off
+							107 toggle button Select Vertical riser in viewport, Help: Vertical riser (pipe:P-110), Value: off
+							108 toggle button Select Rack span in viewport, Help: Rack span (pipe:P-120), Value: off
+							109 toggle button Select Tie-in rise in viewport, Help: Tie-in rise (pipe:P-130), Value: off
+							110 toggle button Select Anchor at pump nozzle in viewport, Help: Anchor at pump nozzle (support:S-100), Value: off
+							111 toggle button Select Guide on riser in viewport, Help: Guide on riser (support:S-120), Value: off
+							112 toggle button Select Rack shoe in viewport, Help: Rack shoe (support:S-130), Value: off
+							113 toggle button Select Preview one-way terminal stop in viewport, Help: Preview one-way terminal stop (support:NL-140), Value: off
+							114 toggle button Select Preview sliding-friction rack shoe in viewport, Help: Preview sliding-friction rack shoe (support:NL-130-FRIC), Value: off
+							115 toggle button Select Invented variable spring hanger in viewport, Help: Invented variable spring hanger (support:SH-140), Value: off
+							116 toggle button Select Invented constant-effort support in viewport, Help: Invented constant-effort support (support:CE-120), Value: off
+							117 toggle button Select Invented elbow marker in viewport, Help: Invented elbow marker (component:C-110), Value: off
+							118 toggle button Select Invented branch connection marker in viewport, Help: Invented branch connection marker (component:C-120), Value: off
+							119 toggle button Select Invented semi-rigid valve marker in viewport, Help: Invented semi-rigid valve marker (component:C-130), Value: off
+							120 toggle button Select Invented tie-in marker in viewport, Help: Invented tie-in marker (component:C-140), Value: off
+							121 toggle button Select Invented expansion joint marker in viewport, Help: Invented expansion joint marker (component:C-150), Value: off
+						122 container Orientation gizmo
+						123 container View controls
+							124 toggle button Front, Value: off
+							125 toggle button Top, Value: off
+							126 toggle button Iso, Value: on
+						127 text 1 m
+					128 container Command and selection bar
+						129 container Object creation tools
+							130 toggle button Node, Help: Arm node creation, Value: off
+							131 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							132 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							133 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							134 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						135 text Select
+						136 summary Selection & navigation, Value: off
+							137 text Selection & navigation
+					138 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					139 container Property inspector
+						140 heading Terminal tie-in, Value: 2
+							141 text Terminal tie-in
+						142 summary All properties, Value: off
+							143 text All properties
+						144 container Editor operation intent
+							145 heading Edit name, Value: 3
+								146 text  Edit  name
+							147 container
+								148 text Property
+								149 pop up button Property to edit, Value: Name
+							150 container Current value
+								151 text CURRENT  NAME
+								152 text Terminal tie-in
+							153 container
+								154 text New  name
+								155 text field (settable) New name, Value: Terminal tie-in
+							156 button (disabled) Queue change, Help: Add this change to the review queue
+							157 button (disabled) Validate, Help: Validate without applying
+							158 button (disabled) Apply, Help: Apply this exact displayed intent through the operation service
+							159 summary Operation details, Value: off
+								160 text Operation details
+							161 text Validate to check this change before applying it.
+						162 summary Sources and units, Value: off
+							163 text Sources and units
+						164 summary New support configuration, Value: off
+							165 text New support configuration
+						166 summary New section, Value: off
+							167 text New section
+						168 summary New material, Value: off
+							169 text New material
+						170 summary New support, Value: off
+							171 text New support
+						172 summary New component, Value: off
+							173 text New component
+						174 container Delete node intent
+							175 heading Delete node, Value: 3
+								176 text Delete node
+							177 button Queue delete node, Help: Queue node delete intent
+							178 container
+								179 text Operation op:delete-node-node:N-140; delete; proposed Target Node; node:N-140 Change delete_node; Explicit node deletion; nodes; before=Terminal tie-in; x=7.6; y=2.4; z=2.2; after=not_present Unit basis dimensionless; unit=none; explicit user-entered node deletion; endpoint and load reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered node deletion for project:invented-loop-01; requires reference validation before durable model change.
+				180 container Workspace sections
+					181 container
+						182 heading Results, Value: 2
+							183 text Results
+						184 button Close
+					185 container Results section
+						186 container Results
+							187 text RESULTS
+							188 container Result filtering
+								189 text Source result units
+								190 container
+									191 text MPa, N, N*m, mm, rad, boolean, count, m, mode_code, N*m/rad, N/m, state_code  ·  830  rows · entered units preserved; displayed quantities follow the display preference where available
+								192 container Result family filter
+									193 toggle button All 830, Value: on
+									194 toggle button Displacement 111, Value: off
+									195 toggle button Reaction 33, Value: off
+									196 toggle button Force 182, Value: off
+									197 toggle button Moment 182, Value: off
+									198 toggle button Stress 290, Value: off
+									199 toggle button Other 32, Value: off
+								200 container
+									201 text Filter results
+									202 search text field (settable) Filter result rows, Value: result:combination:combination-C-OPER-ALT:disp:node-N-140, Placeholder: ID, entity, component, location, or basis
+										203 text (settable) result:combination:combination-C-OPER-ALT:disp:node-N-140
+										204 button cancel
+								205 text 7  of  830  results match filter
+								206 button Clear result filter
+								207 container Result page controls
+									208 container
+										209 text Rows
+										210 pop up button Rows per result page, Value: 50
+									211 text Showing  1  to  7  of  7  matching results; page  1  of  1
+									212 button (disabled) Previous result page
+									213 button (disabled) Next result page
+							214 container Result detail
+								215 heading Result Detail, Value: 3
+									216 text Result Detail
+								217 description list
+									218 text Result
+									219 text result:combination:combination-C-OPER-ALT:disp:node-N-140
+									220 text Family
+									221 text displacement
+									222 text Entity ref
+									223 text node:N-140
+									224 text Value
+									225 container
+										226 text 4.927112 mm
+									227 text Component
+									228 text displacement_magnitude
+									229 text Coordinate system
+									230 text result_envelope
+									231 text Location
+									232 text summary
+									233 text Recovery basis
+									234 text reported_result_value; combination:combination:C-OPER-ALT
+									235 text Sign convention
+									236 text not specified in result metadata
+									237 text Source results
+									238 text result:combination:combination-C-OPER-ALT:disp:node-N-140:ux, result:combination:combination-C-OPER-ALT:disp:node-N-140:uy, result:combination:combination-C-OPER-ALT:disp:node-N-140:uz
+									239 text Diagnostics
+									240 text none linked
+									241 text Knowledge
+									242 text knowledge:computed-max-displacement
+									243 text Source run
+									244 text DEL-14-02; run:preview-linear-static-001; 1 result value hashes
+									245 text Envelope hash
+									246 text available
+									247 text Boundary
+									248 text review-only interpretation; human review remains required; acceptance stays with the responsible engineer
+							249 container Governing ratio state
+								250 heading Governing Ratio, Value: 3
+									251 text Governing Ratio
+								252 text unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
+								253 text This view reports supplied ratio rows only; it does not synthesize allowables or code criteria. Acceptance and professional judgment remain with the responsible engineer.
+							254 container Displacement results
+								255 heading Displacement, Value: 3
+									256 text Displacement
+								257 table
+									258 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
+									259 row (selected)
+										260 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140
+										261 cell (selectable) node:N-140
+										262 cell (selectable) summary
+										263 cell (selectable) 4.927112
+mm
+										264 cell (selectable) Entered:
+4.927112
+mm
+									265 row (selectable)
+										266 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:rx
+										267 cell (selectable) node:N-140
+										268 cell (selectable) node
+										269 cell (selectable) -0.00001
+rad
+										270 cell (selectable) Entered:
+-0.00001
+rad
+									271 row (selectable)
+										272 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:ry
+										273 cell (selectable) node:N-140
+										274 cell (selectable) node
+										275 cell (selectable) 0.000121
+rad
+										276 cell (selectable) Entered:
+0.000121
+rad
+									277 row (selectable)
+										278 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:rz
+										279 cell (selectable) node:N-140
+										280 cell (selectable) node
+										281 cell (selectable) 0
+rad
+										282 cell (selectable) Entered:
+0
+rad
+									283 row (selectable)
+										284 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:ux
+										285 cell (selectable) node:N-140
+										286 cell (selectable) node
+										287 cell (selectable) 1.252767
+mm
+										288 cell (selectable) Entered:
+1.252767
+mm
+									289 row (selectable)
+										290 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:uy
+										291 cell (selectable) node:N-140
+										292 cell (selectable) node
+										293 cell (selectable) 0
+mm
+										294 cell (selectable) Entered:
+0
+mm
+									295 row (selectable)
+										296 cell (selectable) result:combination:combination-C-OPER-ALT:disp:node-N-140:uz
+										297 cell (selectable) node:N-140
+										298 cell (selectable) node
+										299 cell (selectable) -4.765187
+mm
+										300 cell (selectable) Entered:
+-4.765187
+mm
+							301 container Mechanics gap ledger
+								302 heading Mechanics Gap Ledger, Value: 3
+									303 text Mechanics Gap Ledger
+								304 container
+									305 text Endpoint-j local force/moment recovery implemented End-i and end-j local force/moment preview results are emitted and paired in result detail; arbitrary station sweeps remain deferred.
+								306 container
+									307 text Endpoint stress component recovery implemented End-i and end-j open-mechanics stress component preview results are emitted and paired when stress recovery succeeds.
+								308 container
+									309 text Intermediate station result recovery implemented Fixed station-grid preview force, moment, shear force, and stress rows are emitted from interpolated endpoint resultants; arbitrary station sweeps, exact internal diagrams, and shear stress recovery remain deferred.
+								310 container
+									311 text Pressure-to-frame load conversion implemented Closed-end pressure thrust for straight preview pipes is applied to frame resultants; broader pressure behavior remains deferred.
+								312 container
+									313 text Thermal behavior implemented Uniform axial temperature-change loads for straight preview pipes are implemented with explicit material expansion input; temperature-dependent properties and thermal combinations remain deferred.
+								314 container
+									315 text Support stiffness completeness deferred Linear support restraints are preview inputs; richer stiffness and nonlinear behavior require explicit data.
+								316 container
+									317 text Load combinations implemented Explicit mechanics-basis user load combinations are emitted from matching scalar load-case result rows; code/rule combinations remain deferred/private.
+								318 container
+									319 text Protected rule/code checks requires private inputs Private criteria, allowables, SIF/flexibility tables, and code checks are not bundled publicly.
+						320 container Comparison workspace
+							321 text COMPARISON Reference
+							322 text load:L-100; 279 rows
+							323 text Target
+							324 text combination:C-OPER-ALT; 261 rows
+							325 text Mapped
+							326 text 261 comparable pairs; 23 reference-only; 0 target-only
+							327 text Tolerance
+							328 text not_tolerance_checked; profile=TBD
+							329 text Source unit evidence
+							330 text units=MPa,N,N*m,mm,rad; matching=equal_explicit_units; conversion=false; tolerance=not_tolerance_checked
+							331 text Boundary
+							332 text review-only comparison; acceptance and professional judgment remain with the responsible engineer
+							333 text stable result IDs plus explicit source_result_refs from the preview mechanics result envelope
+							334 button result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150 not tolerance checked component:C-150 expansion_joint_pressure_thrust;pipe:P-130 5400 N Reference:21600 N Target: 27000N
+							335 button result:combination:combination-C-OPER-ALT:reaction:support-S-120 not tolerance checked support:S-120 reaction_resultant; summary 191.44409499999995N Reference:765.77638 N Target:957.220475 N
+							336 button result:combination:combination-C-OPER-ALT:moment:pipe-P-120:quarter-3:bending-z not tolerance checked pipe:P-120 bending_moment_z; quarter_3 181.39244100000008N*m Reference:725.569765N*m Target:906.962206N*m
+							337 button result:combination:combination-C-OPER-ALT:force:pipe-P-120:shear-y not tolerance checked pipe:P-120 shear_force_y;end_i 168.86962699999992N Reference:675.478507 N Target:844.348134 N
+							338 text 1  comparison diagnostic ; top 4  deltas shown from  261  mapped pairs.
+						339 container Design-authoring workspace
+							340 text DESIGN WORKSPACE
+							341 container
+								342 checkbox Include known private values in this local export, Value: 0
+								343 text Include known private values in this local export
+							344 text decisions= 127 ; findings= 127 ; blocked= true
+							345 container design-workspace-export-link redaction decisions
+								346 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classificat
+							347 container design-workspace-export-link redaction findings
+								348 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANC
+							349 text Workspace JSON
+							350 text knowledge= 3 ; states= 1 ; runs= 1 ; comparisons= 261 ; operations= 0 Core contract
+							351 text records=2; warnings=1; states=2; runs=2; overlays=5
+							352 text Current browser
+							353 text analysis_run=run:preview-linear-static-001; comparison=comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT; result_rows=830
+							354 text Operation review
+							355 text records=0; accepted_mutation=false; application=empty_operation_queue
+							356 text Routing
+							357 text selected=result:result:combination:combination-C-OPER-ALT:disp:node-N-140; route=review_navigation_available
+							358 text Units
+							359 text model=angle=rad,force=N,length=m,pressure=Pa,stress=MPa,temperature=degC; results=MPa,N,N*m,N*m/rad,N/m,boolean,count,m,mm,mode_code,rad,state_code; comparison=MPa,N,N*m,mm,rad; conversion=false
+							360 text Boundary
+							361 text private_payload=false; protected=false; professional_claim=false
+							362 text Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state; acceptance and professional judgment remain with the responsible engineer.
+				363 container Workspace status
+					364 container Analysis statuses
+						365 summary Mechanics mechanics solved, Value: off
+							366 text Mechanics
+							367 text mechanics solved
+						368 summary Rule check Inputs needed, Value: off
+							369 text Rule check
+							370 text Inputs needed
+						371 summary Professional Review required, Value: off
+							372 text Professional
+							373 text Review required
+						374 summary Value: off, Solve proof seam=tauri backend job; project=project:invented-loop-01; result model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input manifest sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+							375 text Solve proof
+							376 text seam=tauri backend job; project=project:invented-loop-01; result model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input manifest sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4
+					377 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					378 button (collapsed) ⚑ 36 Issues, Secondary Actions: Expand
+				379 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	380 close button
+	381 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	382 minimize button
+	383 text OpenPipeStress Technical Preview
+384 menu bar
+	385 OpenPipeStress Physics UI Post-G0 Witness 20260908 R2
+	386 File
+	387 Edit
+	388 View
+	389 Insert
+	390 Analyze
+
+The focused UI element is 374 summary Value: off, Solve proof seam=tauri backend job; project=project:invented-loop-01; result model=project:invented-loop-01; identity=match; rows=830; generation=4; job=backend-solve-job-1; model sha256=sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3; input manifest sha256=e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4

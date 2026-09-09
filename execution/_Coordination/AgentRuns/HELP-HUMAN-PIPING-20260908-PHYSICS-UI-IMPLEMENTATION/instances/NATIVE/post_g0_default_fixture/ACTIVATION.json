@@ -1,0 +1,29 @@
+{
+  "schema": "native_default_fixture_activation_v1",
+  "recorded_at_utc": "2026-09-09T03:27:09Z",
+  "task_identity": "/root/native_default_fixture",
+  "parent_task_identity": "/root",
+  "role": "Agent 2 ephemeral bounded native verification generalist",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "delegation": false,
+  "non_delegation_evidence": "instruction_asserted",
+  "sealed_brief": {
+    "path": "{RUN_ROOT}/post_g0/NATIVE_DEFAULT_FIXTURE_SMOKE_BRIEF_V1.md",
+    "sha256": "5b6845619240555135f95108060a829e922791173eb752d825c76b9870b7cf5e"
+  },
+  "write_scope": [
+    "{RUN_ROOT}/instances/NATIVE/post_g0_default_fixture/**",
+    "{USER_APPLICATION_SUPPORT}/org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2/openpipestress-projects.sqlite3 and its exact owned SQLite sidecars during the witness"
+  ],
+  "excluded_writes": [
+    "source",
+    "tests",
+    "fixtures",
+    "Git state",
+    "receipts",
+    "predecessor evidence",
+    "normal application store"
+  ],
+  "result": "ACTIVATED_AND_EXECUTED_WITHIN_SCOPE"
+}

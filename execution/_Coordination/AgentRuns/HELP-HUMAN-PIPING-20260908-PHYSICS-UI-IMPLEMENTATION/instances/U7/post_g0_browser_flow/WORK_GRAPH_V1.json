@@ -1,0 +1,30 @@
+{
+  "schema_version": "1.0",
+  "status": "SEALED_FOR_EXECUTION",
+  "nodes": [
+    {
+      "id": "U7",
+      "role": "Agent 1 WORKING_ITEMS",
+      "work": "read-only intake, sealed dispatch, fan-in validation, freeze and return"
+    },
+    {
+      "id": "B1",
+      "role": "Agent 2 bounded implementation",
+      "model": "gpt-5.6-sol",
+      "reasoning": "high",
+      "delegation": "forbidden",
+      "work": "one-file browser-test flow maintenance and focused validation"
+    },
+    {
+      "id": "RF",
+      "role": "fresh independent review",
+      "owner": "root",
+      "state": "held until U7 freeze"
+    }
+  ],
+  "edges": [
+    {"from": "U7", "to": "B1", "type": "sealed brief"},
+    {"from": "B1", "to": "U7", "type": "source and evidence return"},
+    {"from": "U7", "to": "RF", "type": "frozen review handoff through root"}
+  ]
+}

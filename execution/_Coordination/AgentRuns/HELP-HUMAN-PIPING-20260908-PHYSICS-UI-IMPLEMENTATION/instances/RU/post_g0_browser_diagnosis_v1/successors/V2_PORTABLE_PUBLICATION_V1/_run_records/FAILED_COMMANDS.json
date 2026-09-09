@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "commands": [
+    {
+      "command": "python3 tools/validation/validate_candidate_whitespace.py --repo-root . --paths <frozen V2 raw diff> <frozen V2 candidate postimage>",
+      "exit_code": 1,
+      "combined_output_path": "_run_records/VALIDATE_CANDIDATE_WHITESPACE.txt",
+      "classification": "The candidate postimage is clean; the raw unified diff contains required single-space blank context lines at lines 10 and 18. The raw bytes remain frozen and are transported through the lossless base64 archive. The portable .diff successor is an explicit non-applicable whitespace-clean pointer."
+    },
+    {
+      "command": "python3 tools/validation/validate_path_anchors.py . --json",
+      "exit_code": 1,
+      "combined_output_path": "_run_records/VALIDATE_PATH_ANCHORS_INITIAL_FAILURE.json",
+      "classification": "The registered validator found the frozen V1 sealed brief's machine-local lane path. Exact original bytes were archived and the physical evidence path received a portable pointer; the final validator rerun is recorded separately."
+    }
+  ]
+}

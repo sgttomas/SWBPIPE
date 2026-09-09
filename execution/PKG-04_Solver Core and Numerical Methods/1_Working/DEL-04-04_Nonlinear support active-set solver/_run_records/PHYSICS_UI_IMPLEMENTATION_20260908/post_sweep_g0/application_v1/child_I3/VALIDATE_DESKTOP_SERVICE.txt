@@ -1,0 +1,15 @@
+COMMAND: npm --prefix projects/chirality-piping run test --workspace apps/desktop -- --run src/services/previewService.test.ts
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run --run src/services/previewService.test.ts
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-physics-ui-implementation-20260908/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  19:16:23
+   Duration  440ms (transform 53ms, setup 65ms, import 23ms, tests 83ms, environment 208ms)
+
+EXIT: 0

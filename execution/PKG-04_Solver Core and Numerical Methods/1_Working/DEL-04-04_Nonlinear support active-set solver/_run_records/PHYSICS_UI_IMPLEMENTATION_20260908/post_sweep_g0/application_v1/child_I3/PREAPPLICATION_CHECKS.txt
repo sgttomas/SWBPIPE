@@ -1,0 +1,18 @@
+OK authority cdd26a7a0347331e8ff99a1d621a912fac0737f8c2fcfba358130855e3c46fd6 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/OWNER_APPROVAL_V1.json
+OK authority 9dfa3140d7762514479eb3983178298977bb1f5fedfdcf91253547a42b62a400 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/PROPOSED_OWNER_ACT_V2.md
+OK authority 8da19cbb8c259ad89ef0280f399c425b399bb89081d8b8db286c2463e1c1f504 projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/F4_SIX_PATH_APPLICATION_LAUNCH_AMENDMENT_V1.md
+OK authority d8d55111332b464735854478d744326d53da0f3388f3fbebf7cee8d89f0aa6be projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/post_g0/WORK_GRAPH_V3.json
+OK review 102bb9938617b4c8ca88e032c022bb8f121d9817543bf2fcadd4098cf43f482a projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/successor_v4/REVIEW.md
+OK review e6b4d07d8d91efdddd948308243836e11903f8f5767199896adaf986a51a578d projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/successor_v4/RETURN.md
+OK review 082b45c0cacfc19435c1687e78c80a5e39531e6f0a9d9d27c46f646d2903ee7b projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/successor_v4/MANIFEST.json
+OK review 47562640aba4e6f79ba6fa21a1768f74e3980d2028f38f50125bed21dc69c30c projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_sweep_g0/successor_v4/STATUS.json
+OK envelope 5103bf895c4792989d4180a2667ec06adefe45c0247abdfe13f0a95df5c49928 projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_sweep_g0/successor_v4/PROPOSED_ACTIVE_ORACLE_UPDATE_V4.patch.b64.json
+OK preimage e757b8a51e2c4ae68ac4d6c37620663bf4d698ff03b8d6349b40b484bb591903 projects/chirality-piping/core/product_physics/src/lib.rs
+OK preimage f0a0ddcdc896df844e303b8278e0bbced295166dedf0f674a26014e5fe35bdee projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json
+OK preimage 467350784ed4217a00ff0b36e37a087fc68d3c45aa930a599a2469e6cb0ecc27 projects/chirality-piping/tests/product_preview/test_product_preview_service.py
+OK preimage c10969ff404ec652395a85ac2b817a314543ec5e3cc68878409ae58a851351e7 projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
+OK preimage 629037c503c6cf9b32ef3cc6b59e3c04234ec2c8ad61879e6ba73ef43cd3a1be projects/chirality-piping/apps/desktop/src/App.test.tsx
+OK preimage 4cd16a28a710789d07f3ee0ebd89c946896ef8d51bc2877cc64865da1dc0b430 projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts
+OK decoded_patch c31a705a39c4629aacf6a79871c1497a8b8d3976e389478f79e41f4f7752c334
+OK decoded_bytes 105030
+OK patch_paths ["projects/chirality-piping/core/product_physics/src/lib.rs", "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json", "projects/chirality-piping/tests/product_preview/test_product_preview_service.py", "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts", "projects/chirality-piping/apps/desktop/src/App.test.tsx", "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"]

@@ -1,0 +1,21 @@
+# RF final applied-correction backcheck
+
+Verdict: `PASS`
+
+No actionable finding was found in the frozen six-file applied correction. Its source-specific gate for a reversible native build is satisfied.
+
+The final browser test postimage `da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6` is the exact reviewed source. Its sealed delta from RU V2 preimage `be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248` has logical SHA-256 `cf53ac74b52ba38757aca4600f9ce2a8998c9a40d564ad1b402b2273c9ea4e69`. The full diff against HEAD `7b73460c5e2d85a9f050344069d211fea4af7b3e` contains the previously accepted numeric/provenance updates plus this test-flow repair only.
+
+The main and from-blank journeys now follow the production Add -> frozen review -> Apply behavior for direct viewport node and existing-end pipe drafts. `applyReviewedDraft` checks a visible `m` input, `Single operation`, the exact expected operation ID, hash-bound validation text, the expected entity/field/not-present diff and `[m]`, enabled Apply, published tree entity, total applied count, engine route, local-session acceptance basis, session-only persistence, and the professional-approval boundary. The unchanged placeholder journey retains explicit browser-preview unit-validation assertions for node, pipe, and component intents.
+
+The counters are correctly independent. Direct reviews use `viewport-draft-review-1`, `-2`, and `-3` without consuming legacy editor-intent IDs. Legacy queued forms use `editor-intent-1` through `-6`; total applied receipts advance through 1 to 9. The main combination correctly uses legacy key 1 after direct review 1 and total receipt 2. The from-blank journey correctly interleaves direct receipts 1, 2, and 5 with legacy keys 1 through 6 and total receipts 3, 4, and 6 through 9. Legacy helpers retain queued count, applied count, operation identity, route, acceptance, persistence, and professional-boundary checks. Existing model, solve-clearing, save/open, unit round-trip, edited-model diagnostic, and report assertions remain.
+
+Focused browser evidence `875968a90feebaf7019f47a3cedb231d7f62e26a3b2e34827135492654979f68` records exit zero and 4/4 PASS: both named journeys in `chromium-desktop` and `chromium-compact`, workers 1. Prior bound non-browser evidence remains Rust 138/138, Python 9/9, preview service 16/16, two focused App tests 1/1 each, and byte-exact generator parity. RF did not rerun any check.
+
+Final manifest `dc40d93d94dd806111645f38dcf66c62dce2163cd76eddafa41ba4a001e0edb9` binds the source, validation, active records, binding, and evidence resolution. Binding `7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2` matches all 17 live members by hash and byte count; aggregate `f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc` reconstructs exactly. Relative to predecessor binding `94b19000230b24001d98101916c55e9e891634cf1d90e927bf6309881f05530b`, only `r2-smoke.spec.ts` changed. The other 16 entries retain the stable-five postimages and original reviewed members. Product logic and runtime resource serialization remain unchanged.
+
+Resolver `a64c4198ecd4ceb7da6939637775b4caf9d44a85adb69d659ecc310ce126f2f4` covers all six replaced evidence members. Each archive hash, decoded byte count, logical SHA-256, active path hash, and byte count verifies. Immutable V1 manifest `ee63426ef0e91c57533cff7addcdf5b62b8b48a3b14ab6d76905c4cc55504017` therefore remains losslessly resolvable. Scoped active records pass path-portability, LF, and trailing-whitespace checks.
+
+Bindings: stable-five RF manifest `2c4a8c9188e00842c383f318cbfe80fa704250e73c986257942e78971250da0d`; active child return `6b06b7de2844eb151e807f77fc758810b9a800a508690fd1c65ea0e4e52b7bb7`; child status `e27196112dafee4fa72a08284eb159d8c0d94b4da7905c6fe6bb8ce8619d63cc`; manager validation `6ca9e203523b748f173014731ff52e343df99e715549c06d836ce008a6d7b789`; manager return `417fd2b0865ece7b9c418ca9bab0e5e2d34c16534b73b126d13544a97491d5b0`.
+
+This verdict covers the final applied correction and its focused validation. Fresh packaged-native build/smoke, broader build/integration gates, full DEC-025, practitioner review, Git acts, lifecycle, release, and owner acceptance remain separate.

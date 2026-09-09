@@ -1,0 +1,101 @@
+{
+  "schema": "rf-final-applied-correction-v1",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "scope": "Final six-file applied correction and focused validation.",
+  "source_specific_build_gate": "SATISFIED",
+  "outputs": [
+    {
+      "path": "REVIEW_BRIEF.md",
+      "sha256": "1435baa89a03abc9841d8c47ce47f44b4d3f276114347386a15bd99bb591d29e",
+      "bytes": 1093
+    },
+    {
+      "path": "STATUS.json",
+      "sha256": "8363a4c49384c1aed3edb9377d54f4d6f6a62184eae6b63aa3a1c0a1b086a0d9",
+      "bytes": 628
+    },
+    {
+      "path": "REVIEW.md",
+      "sha256": "4a6fb4191140f762658e49e4a608d537d5f54c35280b8a59dfe5b1845ca88d7c",
+      "bytes": 4247
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "bb1aa244a1966cd27eb57d79a9a53a92e0e61312f8aad363b1da14c5f9999056",
+      "bytes": 851
+    }
+  ],
+  "principal_inputs": [
+    {
+      "label": "stable-five RF manifest",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_applied_backcheck_v1/MANIFEST.json",
+      "sha256": "2c4a8c9188e00842c383f318cbfe80fa704250e73c986257942e78971250da0d"
+    },
+    {
+      "label": "U7 final browser-flow manifest",
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/FINAL_BROWSER_FLOW_MANIFEST_V2.json",
+      "sha256": "dc40d93d94dd806111645f38dcf66c62dce2163cd76eddafa41ba4a001e0edb9"
+    },
+    {
+      "label": "U7 complete binding",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+      "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2"
+    },
+    {
+      "label": "U7 resolver",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/RAW_DIFF_RESOLVER_V1.json",
+      "sha256": "a64c4198ecd4ceb7da6939637775b4caf9d44a85adb69d659ecc310ce126f2f4"
+    },
+    {
+      "label": "U7 manager validation",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/MANAGER_VALIDATION_V1.md",
+      "sha256": "6ca9e203523b748f173014731ff52e343df99e715549c06d836ce008a6d7b789"
+    },
+    {
+      "label": "U7 manager return",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/MANAGER_RETURN_V1.md",
+      "sha256": "417fd2b0865ece7b9c418ca9bab0e5e2d34c16534b73b126d13544a97491d5b0"
+    },
+    {
+      "label": "B1 focused Playwright evidence",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/PLAYWRIGHT_FOCUSED_PASS_V1.txt",
+      "sha256": "875968a90feebaf7019f47a3cedb231d7f62e26a3b2e34827135492654979f68"
+    },
+    {
+      "label": "active child return",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/RETURN.md",
+      "sha256": "6b06b7de2844eb151e807f77fc758810b9a800a508690fd1c65ea0e4e52b7bb7"
+    },
+    {
+      "label": "active child status",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/children/B1/STATUS.md",
+      "sha256": "e27196112dafee4fa72a08284eb159d8c0d94b4da7905c6fe6bb8ce8619d63cc"
+    }
+  ],
+  "reviewed_postimages": {
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735"
+  },
+  "binding": {
+    "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+    "entry_count": 17,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "changed_from_predecessor": [
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+    ]
+  },
+  "execution": {
+    "tests_rerun": false,
+    "builds_run": false,
+    "browser_run": false,
+    "native_run": false,
+    "git_actions": false,
+    "source_writes": false,
+    "delegation_used": false
+  }
+}

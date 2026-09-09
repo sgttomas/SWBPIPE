@@ -1,0 +1,29 @@
+{
+  "actual_model_attribution": "not exposed to this agent",
+  "delegation_used": false,
+  "live_files_changed": false,
+  "outputs_sha256": {
+    "RETURN.md": "571778794f806ad54ae039b28256fd4886880aff565c3fc83f4e0ab8bef5cc15",
+    "REVIEW.md": "d85c41cb75caebd3d0a61c2da3c674a8fd7e7ad1082ba1d067e5f7c904562274",
+    "STATUS.json": "558a987a8286c68d43d0932efcdecb2c7f605b1e18d9bfe084fdd5b55bf687db"
+  },
+  "parent": "/root (HELP_HUMAN)",
+  "requested_model": "gpt-5.6-sol",
+  "requested_reasoning": "high",
+  "reusable_verified_evidence": [
+    "V3 Rust correction narrow PASS",
+    "V2 numeric/fixture/runtime evidence"
+  ],
+  "reviewed_inputs_sha256": {
+    "correction": "c0c8e2b2db5863f01dfb0d7480ab5db68327ab45be9ec214df6930081b999391",
+    "decoded_patch": "9daf0cfb0ca9795731f691cce0f80c11a093fe5f9d93875dd34dd51ae0249e8a",
+    "f4_manifest": "cfe530319d3ee9f4b9c471517a47e0981036b2a045919c7a69d9b9a0b34d17d8",
+    "patch_envelope": "ab4bde7f07d6f6bab9be44f5f7f8b19f2eaf8037d69f59ff6cd5333bce6257c8",
+    "review_brief": "17d85f915b47b94493d80d640026cfadea7e7d5ce3b34c43c049dd342cd62c58",
+    "verification": "045ac51f390a9bb433dcb33aba6926fcb3c10bdf4b9504202af1911b04d067df"
+  },
+  "role": "independent read-only Agent 2 reviewer",
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "CHANGES_REQUIRED"
+}

@@ -1,0 +1,238 @@
+{
+  "record_kind": "native_build_final_live_source_binding_v2",
+  "schema_version": "1.0",
+  "path_basis": "REPO_ROOT",
+  "recorded_at_utc": "2026-09-09T02:56:21Z",
+  "recorded_by": {
+    "task_identity": "/root/implementation_change",
+    "role": "CHANGE",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "delegation": false
+  },
+  "state": "SEALED_BUILD_RELEASED_LAUNCH_HELD",
+  "git": {
+    "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "contains_complete_17_member_post_g0_cut": false,
+    "dirty_bound_members": [
+      "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+      "projects/chirality-piping/tests/product_preview/test_product_preview_service.py"
+    ],
+    "explanation": "HEAD contains the previously committed tranche; six reviewed post-G0 corrections remain live and uncommitted. The exact 17-member binding, not HEAD alone, defines this build cut."
+  },
+  "binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+    "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+    "entry_count": 17,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "all_live_hashes_and_bytes_match": true,
+    "entries": [
+      {
+        "bytes": 11289,
+        "classifications": [
+          "test",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+        "sha256": "338625b6d893a2aa47804327cec57127464f4bc600c30556d4ff1946b6faa305"
+      },
+      {
+        "bytes": 103117,
+        "classifications": [
+          "test",
+          "applied"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+        "sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6"
+      },
+      {
+        "bytes": 697391,
+        "classifications": [
+          "test",
+          "applied",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+        "sha256": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c"
+      },
+      {
+        "bytes": 141093,
+        "classifications": [
+          "source",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+        "sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9"
+      },
+      {
+        "bytes": 119519,
+        "classifications": [
+          "source",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+        "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78"
+      },
+      {
+        "bytes": 11313,
+        "classifications": [
+          "test",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/typedInspector.test.tsx",
+        "sha256": "5f42c1d77a479c9cfb00cd9f98d901b7953c4bc7f900dc094e54e2a99c615712"
+      },
+      {
+        "bytes": 111152,
+        "classifications": [
+          "source",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+        "sha256": "ac3789a6b4e8c452fe398d062183b25d884f55f5763af877ac6f1b3d4cb9f2ad"
+      },
+      {
+        "bytes": 15543,
+        "classifications": [
+          "test",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.test.ts",
+        "sha256": "9de95189460a18bc67e231308c641978f38ee1d971f9e6c6343e0b5969d94633"
+      },
+      {
+        "bytes": 23073,
+        "classifications": [
+          "source",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+        "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4"
+      },
+      {
+        "bytes": 14715,
+        "classifications": [
+          "test",
+          "applied"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+        "sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f"
+      },
+      {
+        "bytes": 74284,
+        "classifications": [
+          "source",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+        "sha256": "cefbc458a1f2189268e467608dc9be0e24d6c132234d28586551cfb7a599ca26"
+      },
+      {
+        "bytes": 572,
+        "classifications": [
+          "source",
+          "fixture_generator_source"
+        ],
+        "path": "projects/chirality-piping/core/product_physics/examples/preview_result.rs",
+        "sha256": "6cb68ea97330ee541d80318a5bcd69469957bfd39edcbf71d4313faae85e8241"
+      },
+      {
+        "bytes": 677565,
+        "classifications": [
+          "source",
+          "applied"
+        ],
+        "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+        "sha256": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5"
+      },
+      {
+        "bytes": 126220,
+        "classifications": [
+          "source",
+          "nonlinear_solver_producer",
+          "ri_original_member"
+        ],
+        "path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+        "sha256": "6e163a47db60288179f844d473992d28a53599ad2204149093186c760723ad46"
+      },
+      {
+        "bytes": 634410,
+        "classifications": [
+          "fixture",
+          "applied"
+        ],
+        "path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json",
+        "sha256": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13"
+      },
+      {
+        "bytes": 737,
+        "classifications": [
+          "generator_registration"
+        ],
+        "path": "projects/chirality-piping/package.json",
+        "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+      },
+      {
+        "bytes": 21550,
+        "classifications": [
+          "test",
+          "applied"
+        ],
+        "path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py",
+        "sha256": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735"
+      }
+    ]
+  },
+  "review_and_release_inputs": {
+    "u7_complete_binding": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+      "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+      "match": true
+    },
+    "u7_final_browser_flow_manifest": {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/FINAL_BROWSER_FLOW_MANIFEST_V2.json",
+      "sha256": "dc40d93d94dd806111645f38dcf66c62dce2163cd76eddafa41ba4a001e0edb9",
+      "match": true
+    },
+    "rf_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1/MANIFEST.json",
+      "sha256": "97fff5dc92c4b056bd120aba828ba91e91e2695207726380a0cbd110878fc641",
+      "match": true
+    },
+    "rf_review": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1/REVIEW.md",
+      "sha256": "4a6fb4191140f762658e49e4a608d537d5f54c35280b8a59dfe5b1845ca88d7c",
+      "match": true
+    },
+    "rf_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1/RETURN.md",
+      "sha256": "bb1aa244a1966cd27eb57d79a9a53a92e0e61312f8aad363b1da14c5f9999056",
+      "match": true
+    },
+    "rf_status": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1/STATUS.json",
+      "sha256": "8363a4c49384c1aed3edb9377d54f4d6f6a62184eae6b63aa3a1c0a1b086a0d9",
+      "match": true
+    },
+    "overlay": {
+      "path": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V2.json",
+      "sha256": "ee733c1acda7fd0af88c325e8e6a98aa6a8e843bc93afc578172221e39f2d21e",
+      "match": true
+    }
+  },
+  "build_release": {
+    "root_released": true,
+    "source_and_browser_writers_stopped": true,
+    "launch_released": false
+  },
+  "expected_outputs": {
+    "dist_inventory": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_DIST_INVENTORY_V2.json",
+    "bundle_inventory": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUNDLE_INVENTORY_V2.json",
+    "build_log_archive": "projects/chirality-piping/execution/_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_BUILD_V2.log.base64.json"
+  },
+  "result": "PASS_FINAL_BINDING_BUILD_ALLOWED_LAUNCH_HELD"
+}

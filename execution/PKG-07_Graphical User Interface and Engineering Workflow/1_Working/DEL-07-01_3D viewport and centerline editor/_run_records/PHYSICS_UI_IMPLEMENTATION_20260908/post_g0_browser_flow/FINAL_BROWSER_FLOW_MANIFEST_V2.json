@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS_FROZEN_FOR_INDEPENDENT_REVIEW",
+  "head": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+  "predecessor_manifest": {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/FROZEN_BROWSER_FLOW_MANIFEST_V1.json",
+    "sha256": "ee63426ef0e91c57533cff7addcdf5b62b8b48a3b14ab6d76905c4cc55504017",
+    "status": "IMMUTABLE_LOGICAL_REFERENCES_RESOLVED_BY_SUCCESSOR"
+  },
+  "authority": {
+    "owner_direction_sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326",
+    "ownership_transfer_sha256": "317732dcd0c786674ae58168b1bd0d056a69c9b06af50444b30bea19ead3a6b7",
+    "work_graph_v5_sha256": "8010a83fbcbf223e732413ff1105927b2a8720cba88dd3db877eac4f3b7dae30"
+  },
+  "source": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "preimage_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "postimage_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+    "semantic_change_after_browser_pass": false
+  },
+  "validation": {
+    "result": "PASS 4/4",
+    "projects": ["chromium-desktop", "chromium-compact"],
+    "playwright_evidence_sha256": "875968a90feebaf7019f47a3cedb231d7f62e26a3b2e34827135492654979f68",
+    "test_rerun_after_evidence_representation_repair": false
+  },
+  "active_records": {
+    "child_status_sha256": "e27196112dafee4fa72a08284eb159d8c0d94b4da7905c6fe6bb8ce8619d63cc",
+    "child_return_sha256": "6b06b7de2844eb151e807f77fc758810b9a800a508690fd1c65ea0e4e52b7bb7",
+    "manager_validation_sha256": "6ca9e203523b748f173014731ff52e343df99e715549c06d836ce008a6d7b789",
+    "manager_return_sha256": "417fd2b0865ece7b9c418ca9bab0e5e2d34c16534b73b126d13544a97491d5b0"
+  },
+  "binding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/COMPLETE_BINDING_V1.json",
+    "sha256": "7eaf4e22e3ed32b00b980938f1da5398907eb4dcbb7c93a2764c2446187ec5e2",
+    "entry_count": 17,
+    "aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "unchanged_members": 16,
+    "updated_member": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+  },
+  "evidence_resolution": {
+    "resolver_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/U7/post_g0_browser_flow/RAW_DIFF_RESOLVER_V1.json",
+    "resolver_sha256": "a64c4198ecd4ceb7da6939637775b4caf9d44a85adb69d659ecc310ce126f2f4",
+    "resolved_member_count": 6,
+    "logical_diff_sha256": [
+      "cf53ac74b52ba38757aca4600f9ce2a8998c9a40d564ad1b402b2273c9ea4e69",
+      "8c6f2d13f7af4d210c1236e8a04c36b6f28d944ec8eb5cdb3d70bcd04364648d"
+    ],
+    "active_diff_pointer_sha256": [
+      "e8fcd4810972a603e6ddfc5cdab4dc9f02557f789491a6489add4418040f5041",
+      "e82fbfa3afa9137589f61c063e17e65fcaa5a5e1960bd8d15adb9ff3f1678b57"
+    ]
+  },
+  "scope": "One browser test file plus U7/B1 evidence representation only; no product behavior, API, fixture, physics, other tests, build, native, sweep, or Git mutation",
+  "next_gate": "root-routed independent frozen-source and evidence backcheck"
+}

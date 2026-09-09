@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "status": "PASS",
+  "object_count": 3,
+  "objects": [
+    {
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/CANDIDATE_TEST_CORRECTION_V2.diff.original.base64.json",
+      "archive_sha256": "020ec2c68f9fc317f7de0ffb0162563555947caff4b767a8feb90c424e255c46",
+      "decoded_byte_length": 1219,
+      "decoded_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "expected_sha256": "e7fc8179bd12f00969c8692ef2bc3ee5a6209f3a1f3dfa9014d79ea0d202fbcc",
+      "pass": true
+    },
+    {
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/SEALED_BRIEF.md.original.base64.json",
+      "archive_sha256": "334d622dcd7829c7447ebad8f3104df30784a81d97c0aabe4d44880b20d1be19",
+      "decoded_byte_length": 2049,
+      "decoded_sha256": "28bb58011ae2db326e15dbc7b190012bb3459ed23867c1550fee8bc6d9da63ca",
+      "expected_sha256": "28bb58011ae2db326e15dbc7b190012bb3459ed23867c1550fee8bc6d9da63ca",
+      "pass": true
+    },
+    {
+      "archive_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260908-PHYSICS-UI-IMPLEMENTATION/instances/RU/post_g0_browser_diagnosis_v1/successors/V2_PORTABLE_PUBLICATION_V1/archives/r2-smoke.spec.ts.original.base64.json",
+      "archive_sha256": "4da9614f52b5b4a3fda5641343a13de6a9583580a8346a2762e9abaa145b6c19",
+      "decoded_byte_length": 101982,
+      "decoded_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+      "expected_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "contexts_base64": "PLAYWRIGHT_FAILURE_CONTEXTS.base64.json",
+  "retry_attempted": false,
+  "schema_version": "1.0",
+  "status": "FAIL",
+  "traces": [
+    {
+      "bytes": 39177544,
+      "preserved_path": "TRACES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact.trace.zip",
+      "sha256": "a5e02b4f9a41d8699b563225239f5904609f1444823a0e0c92e43c321f9fe185",
+      "source_relative_path": "r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip"
+    },
+    {
+      "bytes": 40754430,
+      "preserved_path": "TRACES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop.trace.zip",
+      "sha256": "5726eabd84c908c0682af8d87bc3c3518c3153a771c748e13da4524b23b60996",
+      "source_relative_path": "r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip"
+    },
+    {
+      "bytes": 10429861,
+      "preserved_path": "TRACES/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact.trace.zip",
+      "sha256": "ae1838064e5c0ff5b49b9febbe07feb6f8cba08e69104feddc1e9d9a9d2843a0",
+      "source_relative_path": "r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip"
+    },
+    {
+      "bytes": 10492586,
+      "preserved_path": "TRACES/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop.trace.zip",
+      "sha256": "94b46b048005897e008429ea20d45efc708bb5e1b7e4e203e4be2826cac38902",
+      "source_relative_path": "r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip"
+    }
+  ]
+}

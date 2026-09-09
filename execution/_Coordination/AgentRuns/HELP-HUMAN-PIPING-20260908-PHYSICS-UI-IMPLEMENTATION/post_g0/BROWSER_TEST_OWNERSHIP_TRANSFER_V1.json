@@ -1,0 +1,51 @@
+{
+  "schema_version": "1.0",
+  "record_type": "bounded_ownership_transfer",
+  "status": "SEALED_ROOT_CHILD_RELEASE_PENDING",
+  "authority": {
+    "owner_direction": {
+      "path": "OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    "basis": "Routine test-flow maintenance inside the existing write and behavior boundaries requires no additional Owner approval."
+  },
+  "observed_state": {
+    "provenance_correction": "APPLIED_EXACTLY",
+    "r2_smoke_sha256": "be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248",
+    "focused_result": "Both named journeys failed in both configured browser projects after the provenance correction.",
+    "main_journey": "line 785 expects a legacy queue sequence",
+    "from_blank_journey": "line 907 expects legacy queued-unit evidence",
+    "accepted_flow": "U7 R3 uses Add, frozen review, and Apply through App onAddDraft/onApplyDraft.",
+    "production_defect_claimed": false,
+    "full_release_sweep_pass_claimed": false
+  },
+  "transfer": {
+    "from": "F4 WORKING_ITEMS",
+    "to": "U7 WORKING_ITEMS",
+    "f4_resource_state": "FROZEN_AND_RELEASED",
+    "sole_writable_path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "u7_task": "/root/native_authoring",
+    "u7_current_state": "READ_ONLY_INTAKE",
+    "child_release": "HELD_UNTIL_ROOT_RELEASE_AFTER_SEALED_CONTROL",
+    "u7_evidence_scopes": [
+      "instances/U7/post_g0_browser_flow/**",
+      "DEL-07-01 existing run post_g0_browser_flow/**"
+    ]
+  },
+  "objective": "Comprehensively update both journeys, their related helper, and downstream receipt/sequence assumptions to the accepted Add -> frozen review -> Apply flow while preserving equivalent coverage and legacy-tool checks.",
+  "frozen_other_five_postimages": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "f1ae3322a752d92e2125274e7c5ccc0f7ca2c26a00f19d8d5cd3d6c4234a3ed5",
+    "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json": "e246338e5accd330c4fb7a7602510f15d8fac42cc4cee5c09fecbab227b0df13",
+    "projects/chirality-piping/tests/product_preview/test_product_preview_service.py": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "5fa1e1e0439690db4692033eda0ae66c98c79fb050ce2cd1214fb74c417d855c"
+  },
+  "required_fan_in": "Fresh RF review must cover the complete changed test and all six applied postimages before native and release gates resume.",
+  "model_contract": {
+    "agent_1_and_2": "gpt-5.6-sol",
+    "reasoning": "high",
+    "astra_exception_granted": false,
+    "agent_2_delegation": false
+  },
+  "preserved_history": "All zero-of-four browser failures and predecessor packets remain immutable."
+}

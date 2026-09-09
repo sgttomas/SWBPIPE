@@ -1,0 +1,69 @@
+{
+  "record_type": "downstream_validation_hold",
+  "status": "HELD",
+  "basis": {
+    "accepted_integration_snapshot": {
+      "path": "INTEGRATION_ACCEPTANCE_SNAPSHOT_V1.json",
+      "sha256": "442720b7c0285d964bf59caf2bebccde3c4c0a384f336177036ed3a02f8d980b"
+    },
+    "integration_acceptance_preserved": true,
+    "step1_exception": "EXPIRED_AT_INTEGRATION_DECISION",
+    "new_source_authority": false
+  },
+  "tested_state": {
+    "source_freeze_commit": "831bd21d4b62202662629db010bff9a8722bbc43",
+    "tested_merge_commit": "7b73460c5e2d85a9f050344069d211fea4af7b3e",
+    "main_parent": "781b478176db46ca66ebd38991607612e0ce9338",
+    "root_verified_zero_piping_diff_against_main": true,
+    "root_verified_ten_source_members_unchanged": true
+  },
+  "failed_gate": {
+    "gate": "DEC-025_G0",
+    "command": "PYTHON_ENV/bin/python tools/release/run_evidence_sweep.py --execute",
+    "elapsed_seconds": 32.671,
+    "exit_code": 101,
+    "change_failure_record": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/DEC025_G0_FAILURE_V1.json",
+      "sha256": "b350be906fe94575a28d35e4f498b0a931c74da36831946c9490133817335ffc"
+    },
+    "sweep_summary": {
+      "path": "../../../../validation/evidence/sweeps/SWEEP_20260908T202715Z_7b73460c5e2d.json",
+      "sha256": "0d6f31872b51d3c1021d574d42d127aabaf0b400fa06690720672dfb5625268e"
+    },
+    "surface": "cargo_crate_sweep",
+    "crate": "core/product_physics",
+    "test": "tests::valid_invented_model_exposes_nonlinear_support_loop_evidence",
+    "assertion_location": "core/product_physics/src/lib.rs:10726",
+    "observed": 0.489527,
+    "expected": 0.490101,
+    "passed_tests": 137,
+    "failed_tests": 1,
+    "gates_g1_through_g4": "NOT_RUN",
+    "root_reported_adjacent_expectation_context": {
+      "friction_coefficient_mu": 0.01,
+      "next_normal_assertion": 48.952652,
+      "provenance": "Root report; not asserted as a field from the CHANGE failure record."
+    }
+  },
+  "disposition": {
+    "publication": "HELD",
+    "receipt_137": "NOT_APPENDED",
+    "full_sweep_pass": false,
+    "accepted_integration_reopened": false,
+    "interpretation": "This is a downstream validation hold at the accepted integration cut.",
+    "current_work": "F4 may perform bounded independent diagnosis and prepare a candidate under instances/F4/post_sweep_g0 only; it has no source-edit authority.",
+    "required_review": "A fresh RF read-only review must assess the concrete candidate before any owner extension is requested.",
+    "owner_extension": "No approval exists. Because the adopted owner act did not cover this source-fence expansion and its exception expired, root must present the reviewed test-only extension concretely to the owner before application.",
+    "prohibited_claims": [
+      "Do not claim DEC-025 passed.",
+      "Do not claim G1 through G4 ran.",
+      "Do not claim Receipt 137 exists.",
+      "Do not claim source authority or owner approval."
+    ]
+  },
+  "recorder_scope": {
+    "source_changes": false,
+    "decision_ruling_changes": false,
+    "git_changes": false
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "record_type": "bounded_fan_in_acceptance",
+  "status": "ACCEPTED_FOR_NATIVE_BUILD_ONLY",
+  "authority": {
+    "owner_direction": {
+      "path": "OWNER_DIRECTION_BOUNDED_DISCRETION_V1.json",
+      "sha256": "adfa58c038967c4a62fa490edc49139d33fb9442af99bb750ca66009ee3c4326"
+    },
+    "work_graph": {
+      "path": "WORK_GRAPH_V5.json",
+      "sha256": "8010a83fbcbf223e732413ff1105927b2a8720cba88dd3db877eac4f3b7dae30"
+    }
+  },
+  "chronology": [
+    "The release field in BROWSER_TEST_OWNERSHIP_TRANSFER_V1.json was anticipatory, not evidence that release had occurred.",
+    "F4 later reported I4 terminal BLOCKED, live r2-smoke SHA-256 be0650f640986a9282db43803107439f0c08d71a7c37639508e3758fa6c13248, no active Playwright/Vite/WASM/Cargo process, and explicit source/build release.",
+    "Root rehashed source and controls, then actually released U7. F4 evidence sealing continued only in its disjoint evidence scope.",
+    "U7 and RF completed and all source writers stopped before root accepted this fan-in for native build."
+  ],
+  "u7_fan_in": {
+    "final_manifest": {
+      "path": "../../../../PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_run_records/PHYSICS_UI_IMPLEMENTATION_20260908/post_g0_browser_flow/FINAL_BROWSER_FLOW_MANIFEST_V2.json",
+      "sha256": "dc40d93d94dd806111645f38dcf66c62dce2163cd76eddafa41ba4a001e0edb9"
+    },
+    "complete_binding_members": 17,
+    "complete_binding_aggregate_sha256": "f2dd0992528f9d4f00b36f97e845e0041e2b78189bbc7d37730f8cf8466f52dc",
+    "focused_browser_4_of_4": {
+      "path": "../instances/U7/post_g0_browser_flow/children/B1/PLAYWRIGHT_FOCUSED_PASS_V1.txt",
+      "sha256": "875968a90feebaf7019f47a3cedb231d7f62e26a3b2e34827135492654979f68"
+    },
+    "six_member_resolver": {
+      "path": "../instances/U7/post_g0_browser_flow/RAW_DIFF_RESOLVER_V1.json",
+      "sha256": "a64c4198ecd4ceb7da6939637775b4caf9d44a85adb69d659ecc310ce126f2f4",
+      "verification": "6/6 PASS"
+    }
+  },
+  "rf_fan_in": {
+    "path_root": "../instances/RF/post_g0_applied_backcheck_v1/successors/final_applied_correction_v1",
+    "manifest_sha256": "97fff5dc92c4b056bd120aba828ba91e91e2695207726380a0cbd110878fc641",
+    "review_sha256": "4a6fb4191140f762658e49e4a608d537d5f54c35280b8a59dfe5b1845ca88d7c",
+    "return_sha256": "bb1aa244a1966cd27eb57d79a9a53a92e0e61312f8aad363b1da14c5f9999056",
+    "status_sha256": "8363a4c49384c1aed3edb9377d54f4d6f6a62184eae6b63aa3a1c0a1b086a0d9",
+    "verdict": "PASS_NO_FINDINGS",
+    "native_build_gate": "SATISFIED"
+  },
+  "global_validation": {
+    "path_anchor_surfaces": 4319,
+    "path_anchor_findings": 0,
+    "candidate_whitespace": "PASS"
+  },
+  "actual_dispatch": {
+    "manager": "CHANGE",
+    "action": "Fresh unique native build actually dispatched by root; native application launch remains held.",
+    "plan": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/NATIVE_WITNESS_PLAN_V2.md",
+      "sha256": "1a579f23617509f844ef2122d283e31c2ae8b097455763b5437cf14279540aa6"
+    },
+    "overlay": {
+      "path": "../../../../_Change/PHYSICS_UI_IMPLEMENTATION_20260908/_run_records/NATIVE_WITNESS_TAURI_OVERLAY_V2.json",
+      "sha256": "ee733c1acda7fd0af88c325e8e6a98aa6a8e843bc93afc578172221e39f2d21e"
+    },
+    "bundle_identifier": "org.openpipestress.technical-preview.walkthrough-physics-ui-post-g0-20260908-r2"
+  },
+  "limits": {
+    "corrected_source_full_release_acceptance": false,
+    "source_exception_expired": false,
+    "native_launch_released": false,
+    "full_dec025_pass": false,
+    "receipt_137_written": false,
+    "publication_released": false,
+    "source_or_receipt_write_by_c0": false
+  },
+  "next_gate": "CHANGE must freeze and root must verify the exact source, fixture, frontend distribution, bundle identities, build result, and isolated-store prelaunch state before a native Agent 2 brief may be sealed for dispatch."
+}
