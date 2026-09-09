@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "findings": 0,
+  "basis": "ab1016e653afd7db6e0d8243b83492c4a54ede31",
+  "launch_brief_sha256": "845f85ed6d453f792faa12535f9234d45fc5c88c0e080505ce464933941eeca0",
+  "combined_diff_sha256": "26ec1f3a03dad9d9901be1ed2752918964ce5c69fe708fc7b9179240f00d57ab",
+  "files": [
+    {"path": "projects/chirality-piping/tests/product_preview/test_product_preview_service.py", "base_sha256": "8598a69f44e915e4ba724a30fe5fd7e6381cac959dcec059a13666906e2a8735", "final_sha256": "451924c6c2f9aa1a47b75f822459e35d1ea8740c6b77bbb73e4086ff77f19032", "diff_sha256": "b4c082fdfb9c19661ab7feae6c3b891b3e0a7d910e4ae0ee9ec4b98e79b868ee"},
+    {"path": "projects/chirality-piping/tests/test_results_schema.py", "base_sha256": "64854f2e43c74349b695f7f8a1d5fb6609d3d3dd7fa78ab9ca3abdfa70c4d553", "final_sha256": "4af1dce79e20c2c68d4f848d961ff735c7ef6bf048faf9fb76b97099d454aacb", "diff_sha256": "7ffe50a1c376adfd268b9557f902e907d75e42751177c334c71051220f9a410e"},
+    {"path": "projects/chirality-piping/apps/desktop/src/App.test.tsx", "base_sha256": "46357cd1128c5f7d6818f950848b1af4fcf921318a9ab72022045cbc0d3c7232", "final_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b", "diff_sha256": "5aa878ba13911d5acbe3784773c693f7390c8317768351608bbd66f22a6b5b1a"}
+  ],
+  "evidence": {
+    "predecessor_final_review_sha256": "77e4572c5a86daf39982646d0a68f8ce4536db4608ef9397098a0a0ae3d81a41",
+    "predecessor_headless_review_sha256": "c718b3cc98e950ba1af82ac65c149d5ce59b1d2a4def4c2f38d3f49f4d4207c2",
+    "p5_amendment_sha256": "c686e80ba0a4447cf068c939a343d7695ca773b94e718340385ba3e02051459e",
+    "p5_return_sha256": "e45e1cc79649f0c590ebe5dc6390b7cd29860a8f6d40d1a21f14c9c08a7bf0e6",
+    "u7_brief_sha256": "df463b375e472564fd527695b803d9be9ed6a41735473be36bcc221270612c89",
+    "u7_return_sha256": "ecaecca688a6614ef10c53520a6159262a68c9ac4f47155f078823e4afcfb301",
+    "failed_g1_sweep_sha256": "591c0f297abb12720d6f86a431e6543d205292767669b87f765f3849afe1b489",
+    "remaining_surfaces_diagnostic_sha256": "a5770d7670d7dd1f2b9705da46b751aeefbb76bdb2e2aec73b65e69413a61c07"
+  },
+  "validation": {
+    "test_only": true,
+    "prior_chain_unchanged_except_reviewed_app_delta": true,
+    "cumulative_unique_paths": "13/13",
+    "supplied_p5": "focused 3/3 PASS; modules 13/13 PASS",
+    "supplied_u7": "focused 1/1 PASS; 162 skipped",
+    "g3_development": "NOT_PASS_EXIT_130_MISSING_REGISTERED_SINGLE_WORKER_ENV",
+    "clean_registered_g0_g4_required": true
+  },
+  "outputs": [
+    {"path": "REVIEW_V1.md", "sha256": "66b75355823f080a552d6b7acc5ba8dbef8e93087dc9cf9f0cafc6ea84b86693"},
+    {"path": "_run_records/TASK_RUN_PYTHON_UI_TEST_REVIEW_2026-09-09_0312.md", "sha256": "04b6720831c2d5ce60ac7cae81c959f6c9933f18fe631add202453b7d54772f9"}
+  ]
+}

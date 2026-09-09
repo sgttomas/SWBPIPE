@@ -236,10 +236,22 @@ def test_mechanics_result_keeps_status_boundaries_separate():
     assert torsional_stress_end_j["metadata"]["component"] == "torsional_shear_stress"
     assert (
         torsional_stress_end_j["metadata"]["basis"]
-        == "recovered_from_open_mechanics_stress_components"
+        == "recovered_from_local_element_stiffness"
     )
+    assert "j-side section action" in torsional_stress_end_j["metadata"]["sign_convention"]
+    assert "element-local frame" in torsional_stress_end_j["metadata"]["sign_convention"]
+    assert "section equilibrium" in torsional_stress_end_j["metadata"]["sign_convention"]
     assert pressure_hoop["metadata"]["coordinate_system"] == "pipe_section"
     assert pressure_hoop["metadata"]["component"] == "pressure_hoop_stress"
+    assert (
+        pressure_hoop["metadata"]["basis"]
+        == "recovered_from_open_mechanics_stress_components"
+    )
+    assert (
+        pressure_hoop["metadata"]["sign_convention"]
+        == "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+    )
+    assert "section action" not in pressure_hoop["metadata"]["sign_convention"]
     assert combination_axial["basis_ref"] == {
         "ref_type": "combination",
         "ref_id": "combination:C-OPER-ALT",

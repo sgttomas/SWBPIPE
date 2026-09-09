@@ -11776,7 +11776,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("pipe:P-120");
     expect(
       within(detail).getByTestId("selected-result-recovery-basis").textContent,
-    ).toContain("recovered_from_open_mechanics_stress_components");
+    ).toContain("recovered_from_local_element_stiffness");
     expect(
       within(detail).getByTestId("endpoint-pair-table").textContent,
     ).toContain("result:stress:pipe-P-120:end-i:torsional-shear");

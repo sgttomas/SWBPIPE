@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "status": "DIAGNOSTIC_COMPLETE_DEC025_STILL_FAIL",
+  "tested_commit": "ab1016e653afd7db6e0d8243b83492c4a54ede31",
+  "worktree_calibration": "Tracked source was commit-equal; preserved G1 failure evidence made the overall worktree dirty.",
+  "surfaces": {
+    "G2_desktop_vitest": {
+      "status": "FAIL",
+      "wasm_build": "PASS",
+      "test_files_passed": 46,
+      "test_files_failed": 1,
+      "tests_passed": 824,
+      "tests_failed": 1,
+      "failure": "src/App.test.tsx:11779 expected recovered_from_open_mechanics_stress_components; actual recovered_from_local_element_stiffness",
+      "log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_DIAGNOSTIC_G2_LOG_V1.base64.json"
+    },
+    "G3_desktop_playwright_dev": {
+      "status": "NONTERMINAL_AFTER_RESULTS_STOPPED",
+      "individual_results": "30/30 emitted PASS",
+      "wrapper_exit_code": 130,
+      "elapsed_at_owned_process_inspection": "00:03:33",
+      "reason": "The Playwright wrapper retained its Vite server and workers after every individual result was emitted. CHANGE stopped only the owned unified session with Ctrl-C and does not represent the command as PASS.",
+      "log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_DIAGNOSTIC_G3_DEV_LOG_V1.base64.json"
+    },
+    "G3_desktop_playwright_dist": {
+      "status": "PASS",
+      "tests_passed": 3,
+      "tests_failed": 0,
+      "exit_code": 0,
+      "log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_DIAGNOSTIC_G3_DIST_LOG_V1.base64.json"
+    },
+    "G4_desktop_production_build": {
+      "status": "PASS",
+      "exit_code": 0,
+      "log": "execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_DIAGNOSTIC_G4_LOG_V1.base64.json"
+    }
+  },
+  "acceptance": "These diagnostic continuations do not waive the failed full sweep; a fresh clean five-surface rerun remains required after reviewed repair."
+}
