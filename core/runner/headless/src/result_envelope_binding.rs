@@ -928,7 +928,9 @@ mod tests {
                 ) {
                     continue;
                 }
-                let canonical = values.iter().find(|value| value["result_id"].as_str() == Some(row.id.as_str()));
+                let canonical = values
+                    .iter()
+                    .find(|value| value["result_id"].as_str() == Some(row.id.as_str()));
                 let preview_metadata = serde_json::to_value(metadata).unwrap();
                 let actual_metadata = if let Some(canonical) = canonical {
                     &canonical["metadata"]
@@ -938,12 +940,20 @@ mod tests {
                     // mapping to make this bounded metadata test pass.
                     assert_eq!(row.kind, "pipe_section_pressure_longitudinal_stress");
                     assert!(mapped_family_dimension(&row.kind, &row.unit).is_none());
-                    assert!(diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE).iter().any(|diagnostic| {
-                        diagnostic["message"].as_str().is_some_and(|message| message.contains(&format!("id={} ", row.id)))
-                    }));
+                    assert!(
+                        diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE)
+                            .iter()
+                            .any(|diagnostic| {
+                                diagnostic["message"].as_str().is_some_and(|message| {
+                                    message.contains(&format!("id={} ", row.id))
+                                })
+                            })
+                    );
                     &preview_metadata
                 };
-                let actual = actual_metadata.as_object().expect("station metadata object");
+                let actual = actual_metadata
+                    .as_object()
+                    .expect("station metadata object");
                 for key in required {
                     let key = key.as_str().unwrap();
                     assert!(
@@ -981,30 +991,61 @@ mod tests {
                         .contains("explicit user linear combination"));
                 } else {
                     primitive_components.insert(metadata.component.as_str());
-                    let stress = row.kind.contains("stress");
-                    assert_eq!(
-                        actual["basis"],
-                        if stress {
-                            "recovered_from_open_mechanics_stress_components"
-                        } else {
-                            "recovered_from_local_element_stiffness"
-                        }
-                    );
                     let convention = actual["sign_convention"].as_str().unwrap();
-                    for detail in [
-                        "j-side section action",
-                        "element-local frame",
-                        "section equilibrium",
-                        "stiffness-recovered end actions",
-                        "consistent distributed-load fixed-end correction",
-                    ] {
-                        assert!(
-                            convention.contains(detail),
-                            "{} lacks {detail}: {convention}",
-                            row.id
-                        );
+                    match row.kind.as_str() {
+                        "pipe_section_pressure_hoop_stress" => {
+                            assert_eq!(actual["component"], "pressure_hoop_stress");
+                            assert_eq!(actual["coordinate_system"], "pipe_section");
+                            assert_eq!(
+                                actual["basis"],
+                                "recovered_from_open_mechanics_stress_components"
+                            );
+                            assert_eq!(
+                                convention,
+                                "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
+                            );
+                            assert!(!convention.contains("section action"));
+                        }
+                        "pipe_section_pressure_longitudinal_stress" => {
+                            assert_eq!(actual["component"], "pressure_longitudinal_stress");
+                            assert_eq!(actual["coordinate_system"], "pipe_section");
+                            assert_eq!(
+                                actual["basis"],
+                                "recovered_from_open_mechanics_stress_components"
+                            );
+                            assert_eq!(
+                                convention,
+                                "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis at this station"
+                            );
+                            assert!(!convention.contains("section action"));
+                        }
+                        _ => {
+                            assert_eq!(actual["coordinate_system"], "element_local");
+                            let stress = row.kind.contains("stress");
+                            assert_eq!(
+                                actual["basis"],
+                                if stress {
+                                    "recovered_from_open_mechanics_stress_components"
+                                } else {
+                                    "recovered_from_local_element_stiffness"
+                                }
+                            );
+                            for detail in [
+                                "j-side section action",
+                                "element-local frame",
+                                "section equilibrium",
+                                "stiffness-recovered end actions",
+                                "consistent distributed-load fixed-end correction",
+                            ] {
+                                assert!(
+                                    convention.contains(detail),
+                                    "{} lacks {detail}: {convention}",
+                                    row.id
+                                );
+                            }
+                            assert!(!convention.contains("interpolated"));
+                        }
                     }
-                    assert!(!convention.contains("interpolated"));
                 }
             }
             for component in [
@@ -1027,6 +1068,8 @@ mod tests {
             }
             if label == "zero_pressure" {
                 assert!(primitive_components.contains("pressure_longitudinal_stress"));
+            } else {
+                assert!(!primitive_components.contains("pressure_longitudinal_stress"));
             }
             assert!(combinations > 0);
             // Optional test-only evidence export. Normal tests write nothing;

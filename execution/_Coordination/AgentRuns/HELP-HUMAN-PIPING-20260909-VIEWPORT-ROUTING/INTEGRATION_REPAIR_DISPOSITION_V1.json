@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "record_type": "integration_repair_disposition",
+  "state": "G0_FAILED_REPAIR_ROUTED",
+  "tested_commit": "67f39cd498089dfb38aa61a787fa7fb217acf213",
+  "source_evidence_commit": "c19fddb26756dbba57d117a627c1a57a0f40ab7e",
+  "integrated_origin_main": "33b0f2787cfa3057670df455f5dad8060e908d35",
+  "failure_evidence": {
+    "change_record": {
+      "path": "{PROJECT_ROOT}/execution/_Change/VIEWPORT_ROUTING_20260909/DEC025_G0_FAILURE_V1.json",
+      "sha256": "2b9eed2d654deb1d7df8b8c9075ddb2717d1092383452d26c37c092c41212025"
+    },
+    "lossless_log": {
+      "path": "{PROJECT_ROOT}/execution/_Change/VIEWPORT_ROUTING_20260909/_run_records/DEC025_G0_FAILURE_LOG_V1.base64.json",
+      "sha256": "bc208fb96749bd669916fca11f421891ddb38407b8b532d1102b4712822eb4f3",
+      "decoded_sha256": "074bce55869d127dde9824b03a0e613ea77e1bdfc30827537e686bad23c2f2cb",
+      "decoded_bytes": 98986
+    },
+    "sweep_summary": {
+      "path": "{PROJECT_ROOT}/validation/evidence/sweeps/SWEEP_20260909T083548Z_67f39cd49808.json",
+      "sha256": "b778a78f7f6fef708f2ffe7f867f63ac01350db8d96bb3be5de644639194b98c"
+    },
+    "surface": "G0 cargo_crate_sweep",
+    "test": "result_envelope_binding::tests::straight_station_library_document_metadata_uses_canonical_schema_categories",
+    "result": "38 passed; 1 failed; G1-G4 not run",
+    "observed_mismatch": "The pressure-hoop quarter-1 case wrongly requires a j-side section action."
+  },
+  "frozen_predecessor": {
+    "source_cut": {
+      "path": "{RUN_ROOT}/instances/FINAL_REVIEW/SOURCE_CUT_MANIFEST_V1.json",
+      "sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d"
+    },
+    "ten_source_paths": "frozen and unchanged at this cut"
+  },
+  "repair_route": {
+    "manager": "P5 WORKING_ITEMS",
+    "status": "bounded diagnosis and potential repair routed; outcome pending",
+    "permitted_additional_path": "core/runner/headless/src/result_envelope_binding.rs",
+    "authority": "test-only repair within the Owner's standing broad engineering discretion",
+    "required_process": [
+      "seal diagnosis and exact test-only amendment",
+      "run focused validation",
+      "freeze the resulting diff",
+      "obtain fresh independent review",
+      "rerun the clean full DEC-025 sweep from G0"
+    ]
+  },
+  "holds": {
+    "change_integration": "held after preserved failed sweep",
+    "receipt_138": "not authorized before a clean full verification PASS",
+    "result_prediction": "none",
+    "source_or_git_write_by_c0": false,
+    "formal_decomposition_dependency_lifecycle_or_public_contract_change": false
+  }
+}

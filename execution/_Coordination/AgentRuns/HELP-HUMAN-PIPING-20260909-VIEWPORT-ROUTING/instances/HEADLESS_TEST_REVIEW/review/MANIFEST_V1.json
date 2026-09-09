@@ -1,0 +1,62 @@
+{
+  "schema_version": "1.0",
+  "status": "COMPLETE",
+  "verdict": "PASS",
+  "actionable_findings": 0,
+  "basis": "67f39cd498089dfb38aa61a787fa7fb217acf213",
+  "launch_brief_sha256": "4c07e1028951780fc0bfc86aa63e4101c59d2e40f3f35e1f97721ba86ae9716c",
+  "successor_diff": {
+    "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+    "base_sha256": "2ed810b577d5db34824e65a36e9d696d3758dd14d8c4bdd0941c1cb797cf9c85",
+    "current_sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+    "diff_sha256": "eccac5843cd0f5c5a513ee8e89db5a9479a867c95c1aaa2abac2ab2ec5b90751",
+    "insertions": 70,
+    "deletions": 27,
+    "scope": "straight_station_library_document_metadata_uses_canonical_schema_categories only",
+    "production_mutation": false
+  },
+  "reviewed_files": [
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx", "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts", "sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.test.ts", "sha256": "960b69dfdbdf2e05544c60f8c43806fae9e64c886eb2648068fddbf7229bd011"},
+    {"path": "projects/chirality-piping/apps/desktop/src/App.test.tsx", "sha256": "46357cd1128c5f7d6818f950848b1af4fcf921318a9ab72022045cbc0d3c7232"},
+    {"path": "projects/chirality-piping/apps/desktop/src/styles.css", "sha256": "e33086d3bf832cc0f79592eff86f86b6c50356a3ee680f614665cc482a485304"},
+    {"path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts", "sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c"},
+    {"path": "projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs", "sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11"},
+    {"path": "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs", "sha256": "d0b130fd8fe78c6eb18a824ebfec917bbff3f7865ceef9ccca1d332b17f228ce"},
+    {"path": "projects/chirality-piping/core/product_physics/src/lib.rs", "sha256": "dbfff6d5c2fa9241e972042fd2c3a6ce35c6d60f4a973dd5a083a7fe5dfb9c58"},
+    {"path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json", "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"},
+    {"path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs", "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0"}
+  ],
+  "evidence": {
+    "prior_source_manifest_sha256": "66cedbd0ad3f09f972d5036f27c821c9f8238b55d125e2046dd749f89bafa60d",
+    "prior_active_review_pointer_sha256": "77e4572c5a86daf39982646d0a68f8ce4536db4608ef9397098a0a0ae3d81a41",
+    "amendment_sha256": "39b2de6032477f0922add4e2efba045942663bca002add04e5f0d37e39b15619",
+    "repair_return_sha256": "8e5561b0d7c4613bd616fa97c70e13b89f3ec290ce8747a80f17d77bd5764e60",
+    "terminal_p5_run_record_sha256": "61c8d6be67ff84e6a59b44213b2d5057a6b7c9bd25148217aa1082946a401412",
+    "integration_disposition_sha256": "2ce3207e62cc2b450f0a5782f863f0aa865096e7080aa56c0921df7b2a48b46d",
+    "g0_failure_record_sha256": "2b9eed2d654deb1d7df8b8c9075ddb2717d1092383452d26c37c092c41212025",
+    "g0_log_wrapper_sha256": "bc208fb96749bd669916fca11f421891ddb38407b8b532d1102b4712822eb4f3",
+    "g0_log_decoded_sha256": "074bce55869d127dde9824b03a0e613ea77e1bdfc30827537e686bad23c2f2cb",
+    "g0_sweep_summary_sha256": "b778a78f7f6fef708f2ffe7f867f63ac01350db8d96bb3be5de644639194b98c"
+  },
+  "validation": {
+    "changed_function_only": true,
+    "prior_ten_hashes_unchanged": true,
+    "cumulative_paths_reviewed": 11,
+    "cumulative_paths_total": 11,
+    "schema_checks_retained": true,
+    "combination_checks_retained": true,
+    "disclosure_checks_retained": true,
+    "mechanical_checks_retained": true,
+    "meaningful_pressure_checks_retained": true,
+    "public_contract_invented": false,
+    "tests_rerun_by_reviewer": false,
+    "supplied_results": ["focused 1/1 PASS", "headless library 39/39 PASS", "headless_preview_runner 1/1 PASS", "openpipestress-runner 15/15 PASS", "doc-tests 0 failures"]
+  },
+  "outputs": [
+    {"path": "REVIEW_V1.md", "sha256": "d811732c0facfa5134a4d5d69574d2c3b2f7a954443d38525e54d1de831c1930"},
+    {"path": "_run_records/TASK_RUN_HEADLESS_TEST_REVIEW_2026-09-09_0249.md", "sha256": "e7ef8007d7be62b9ae5e9e6887bdf370202d8934de5f7811565e912fc697cfd7"}
+  ],
+  "return": "PASS with zero actionable findings; valid for manager fan-in and CHANGE-owned integrated sweep restart"
+}
