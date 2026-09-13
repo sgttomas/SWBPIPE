@@ -1,0 +1,23 @@
+[
+  {
+    "cwd": "projects/chirality-piping",
+    "command": "npm ci --cache .native-witness-npm-cache",
+    "exit_code": 0,
+    "log": "_run_records/npm-ci.log",
+    "cache": "private integration-local npm cache; no linked dependency tree"
+  },
+  {
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "command": "CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app --ci --no-sign --config ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/tauri-isolated-overlay.json",
+    "exit_code": 0,
+    "log": "_run_records/fresh-native-build.log",
+    "cache": "default integration-local cargo targets; shared registry source cache read only under offline cargo"
+  },
+  {
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "command": "<fresh isolated bundle>/Contents/MacOS/openpipestress-desktop --self-test-saved-edited-load",
+    "exit_code": 0,
+    "log": "_run_records/fresh-packaged-selftest.json",
+    "stderr": "_run_records/fresh-packaged-selftest.stderr"
+  }
+]

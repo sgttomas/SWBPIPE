@@ -1,0 +1,50 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/HistoricalRunContext.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/results/HistoricalRunContext.test.tsx (7 tests | 2 failed) 385ms
+     × matches the existing bound analysis hash for native-shaped raw rows without changing saved evidence 96ms
+     × retains an incorrect explicit dimension and surfaces the existing binder admission failure 50ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/results/HistoricalRunContext.test.tsx > transient HistoricalRunContext integrity > matches the existing bound analysis hash for native-shaped raw rows without changing saved evidence
+AssertionError: expected [ …(2) ] to not include 'HISTORICAL_RESULT_HASH_MISMATCH'
+ ❯ src/features/results/HistoricalRunContext.test.tsx:31:35
+     29|     const context = await buildHistoricalRunContext(saved);
+     30|     expect(context!.findings).toContain("HISTORICAL_INPUT_MANIFEST_MIS…
+     31|     expect(context!.findings).not.toContain("HISTORICAL_RESULT_HASH_MI…
+       |                                   ^
+     32|     expect(context!.findings).not.toContain("HISTORICAL_ENVELOPE_HASH_…
+     33|     expect(context!.findings).not.toContain("HISTORICAL_MODEL_HASH_MIS…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/results/HistoricalRunContext.test.tsx > transient HistoricalRunContext integrity > retains an incorrect explicit dimension and surfaces the existing binder admission failure
+AssertionError: expected [ …(3) ] to include 'HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE'
+ ❯ src/features/results/HistoricalRunContext.test.tsx:61:31
+     59|     const before = JSON.stringify(saved);
+     60|     const context = await buildHistoricalRunContext(saved);
+     61|     expect(context!.findings).toContain("HISTORICAL_HASH_RECOMPUTE_UNA…
+       |                               ^
+     62|     expect(context!.mechanicsResult).toBe(saved.mechanics_result);
+     63|     expect(row.dimension).toBe("stress");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 5 passed (7)
+   Start at  15:00:17
+   Duration  828ms (transform 116ms, setup 63ms, import 125ms, tests 385ms, environment 180ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/results/HistoricalRunContext.test.tsx

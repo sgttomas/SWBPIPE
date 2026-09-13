@@ -1,0 +1,52 @@
+{
+  "freeze_utc": "2026-09-13T20:59:10.759540+00:00",
+  "authority": "Parent explicit second distinct native finding repair after genuine saved500 fresh-process reopen hash mismatch; approved historical integrity behavior",
+  "parent": "/root HELP_HUMAN",
+  "manager": "/root/workflow_implementation_manager WORKING_ITEMS",
+  "writer": "/root/workflow_implementation_manager/workflow_task TASK configured Sol/high, runtime attestation not independently proven; no delegation",
+  "write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    }
+  ],
+  "record_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/",
+  "host_log_prefix": "projects/chirality-piping/_run_records/workflow-native-history-hash-20260913/",
+  "excluded": "No other source, DTO/schema/migration/native persist/operation/core changes, saved evidence byte changes, missing manifest invention, repeated formula, helper transport, prior frozen V2/selector packet overwrite, browser/native/WASM/dist/build executions, commits/push/PR",
+  "independent_expectations": [
+    "Native-shaped saved mechanics rows without dimension must match result_envelope analysis hash produced by exact existing dimension binding",
+    "Original persisted mechanics/analysis/model/envelope fields and byte representations remain unchanged; no current solve or missing input manifest invented",
+    "Genuine changed numerical value still yields HISTORICAL_RESULT_HASH_MISMATCH after shared binding",
+    "Incorrect explicit dimension is rejected by existing bindSourceResultDimensions, never overwritten; historical integrity finding remains visible",
+    "Existing normalized historical saved record tests and service loader/native strict solve/dimension admission tests stay valid"
+  ],
+  "native_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/historical-native-result-hash-diagnosis.json",
+      "sha256": "f69e93ef5a711a7416d3bc909220048dc87e0ceb2bc4916af0abf71215be9e66",
+      "origin": "Parent contact/integration lane native GUI record"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/gui-solved500.json",
+      "sha256": "a4f6a38e7f0e82176270890954b9c1881319dd330b62d7bbb5b4c8115b3a0b43",
+      "origin": "Parent contact/integration lane SQLite row snapshot;67 result rows without dimensions"
+    }
+  ],
+  "native_oracle": {
+    "stored_bound_result_hash": "6902df80c2569baf04dfea0508b375976df1cba6eb805e1b0e92bc6ec0bf3f16",
+    "raw_result_hash": "413f871dc5c83feb57158bf6493582673abb95b48dccbb477b6945ffc5d4179a",
+    "all_rows_lacked_dimensions": true,
+    "all_dimensions_known": true
+  },
+  "method": "Export and reuse exact existing binder for transient result hash only; do not mutate or return normalized saved evidence; do not duplicate source-dimension formulas",
+  "checks": "Freeze/run missing-dimension regression before source repair; targeted Historical/service unit and TypeScript allowed with existing WASM; no build/native/browser execution while parent baseline active",
+  "failure_rule": "After two unproductive cycles without new evidence request parent Astra diagnosis."
+}

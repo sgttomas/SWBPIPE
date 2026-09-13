@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/HistoricalRunContext.test.tsx src/services/previewService.test.ts
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  2 passed (2)
+      Tests  28 passed (28)
+   Start at  15:00:41
+   Duration  1.04s (transform 234ms, setup 166ms, import 228ms, tests 663ms, environment 434ms)
+

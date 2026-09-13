@@ -1,0 +1,148 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t native primitive case selection display
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+stderr | src/App.test.tsx > native primitive case selection display > keeps an empty draft visibly unselected until a real sole-case transition queues the exact case
+An update to LoadCaseManagerPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > native primitive case selection display > keeps an empty node target honest until its sole available entity is explicitly selected
+An update to LoadCaseManagerPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > native primitive case selection display > keeps an empty pipe target honest until its sole available entity is explicitly selected
+An update to LoadCaseManagerPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | src/App.test.tsx > native primitive case selection display > keeps an empty support target honest until its sole available entity is explicitly selected
+An update to LoadCaseManagerPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ❯ src/App.test.tsx (173 tests | 4 failed | 169 skipped) 185ms
+     × keeps an empty draft visibly unselected until a real sole-case transition queues the exact case 65ms
+     × keeps an empty node target honest until its sole available entity is explicitly selected 34ms
+     × keeps an empty pipe target honest until its sole available entity is explicitly selected 42ms
+     × keeps an empty support target honest until its sole available entity is explicitly selected 43ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > native primitive case selection display > keeps an empty draft visibly unselected until a real sole-case transition queues the exact case
+AssertionError: expected 'load:L-100' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ load:L-100
+
+ ❯ src/App.test.tsx:16698:30
+    16696|     // Before any synthetic change event, HTML's displayed selection m…
+    16697|     // with the still-empty controlled draft instead of displaying the…
+    16698|     expect(caseSelect.value).toBe("");
+       |                              ^
+    16699|     expect(caseSelect.selectedIndex).toBe(0);
+    16700|     expect(caseSelect.selectedOptions[0]).toHaveValue("");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/App.test.tsx > native primitive case selection display > keeps an empty node target honest until its sole available entity is explicitly selected
+AssertionError: expected 'node:N-100' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ node:N-100
+
+ ❯ src/App.test.tsx:16750:32
+    16748|
+    16749|     view.rerender(<LoadCaseManagerPanel {...props} model={withTarget} …
+    16750|     expect(targetSelect.value).toBe("");
+       |                                ^
+    16751|     expect(targetSelect.selectedIndex).toBe(0);
+    16752|     expect(targetSelect.selectedOptions[0]).toHaveValue("");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/App.test.tsx > native primitive case selection display > keeps an empty pipe target honest until its sole available entity is explicitly selected
+AssertionError: expected 'pipe:P-100' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ pipe:P-100
+
+ ❯ src/App.test.tsx:16750:32
+    16748|
+    16749|     view.rerender(<LoadCaseManagerPanel {...props} model={withTarget} …
+    16750|     expect(targetSelect.value).toBe("");
+       |                                ^
+    16751|     expect(targetSelect.selectedIndex).toBe(0);
+    16752|     expect(targetSelect.selectedOptions[0]).toHaveValue("");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/App.test.tsx > native primitive case selection display > keeps an empty support target honest until its sole available entity is explicitly selected
+AssertionError: expected 'support:S-100' to be '' // Object.is equality
+
+- Expected
++ Received
+
++ support:S-100
+
+ ❯ src/App.test.tsx:16750:32
+    16748|
+    16749|     view.rerender(<LoadCaseManagerPanel {...props} model={withTarget} …
+    16750|     expect(targetSelect.value).toBe("");
+       |                                ^
+    16751|     expect(targetSelect.selectedIndex).toBe(0);
+    16752|     expect(targetSelect.selectedOptions[0]).toHaveValue("");
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 169 skipped (173)
+   Start at  14:52:30
+   Duration  1.97s (transform 1.20s, setup 70ms, import 1.44s, tests 185ms, environment 189ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/App.test.tsx -t 'native primitive case selection display'

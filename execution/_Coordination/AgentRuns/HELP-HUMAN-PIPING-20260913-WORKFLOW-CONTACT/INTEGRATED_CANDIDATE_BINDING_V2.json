@@ -1,0 +1,47 @@
+{
+  "previous_candidate": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625",
+  "status": "native findings repaired; rebuilt GUI/finalreview/fullgates pending",
+  "code_paths": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+    "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": "a207caf3687db846c842fdf7b854d8a02498025b48b23925541a700844de7365",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78"
+  },
+  "doc_paths": {
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "83824e2eba65395a1888535c0d0135397f2a63893b50709437ebc42d12364afa",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "13f9416a42949ff33831176cbd66f194c93e626b4d7d8cfeb7fb63814d677d18",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md": "844e1e7e418988420b3fa724811c52d63dbd0a6b372f7463feb8d259e40da13b",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md": "8e1b120fe9c036e8c70c1898adfc09d8d9727961af4e10a549da7e58acdb2cc1",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md": "a8e527d01b9f423c96ec0e0735267b59c3627bd5fb28edafc0382578e3ee83b2",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md": "c760f9f3b56f263497989c50764dc5d3383209cd82cb512204ef6f253fbbef26",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "e2329299562ec8fb2374e54061739c69e1c8d2514bf9db6fbf28575b6eba9d70",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "ff8462e33bd68986209ebd2236f07f7ffafd6dc2fc94cbfaac7edae920932c05"
+  },
+  "history_patch_sha256": "022664b18962cd7eae5ba8a8fdcc98004bb3307ee8f17ccdc52e6e34281c598d",
+  "raw_bindings": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/HANDOFF_STATE.json": "b91b50109b2f3feeedd62dbf829036f30cc17fdda15e407bb927a2b3c49ed46a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/PREEDIT_PREVIEW_SERVICE.txt": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/SEALED_WRITE_FENCE.json": "0532f8828133c7f62b2c8bf7f90ba9e9cba8c17156a7528c80ae46a0f59abb5b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/SOURCE_MANIFEST.json": "879359cf9e6a51dfb72552ac47f86b2866802b8c02a7043f964731e3bd023d05",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/RETURN.md": "bf7a4d43b343471aeafe53a0190239f8d8f68d9d07bff0a0b3bd6c8d9b533749",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/MANAGER_RETURN.md": "f82f008bf4aa34ff5753dae5e1e19c888949198e410ee661c8cc074b5ea9a37c",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/FINAL_MANIFEST.json": "5d2609c9fe16bf293bce6a6db5f446b7a888d96de564fcf73faafac6b779e6b8",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/SOURCE_TEST_DELTA.patch": "022664b18962cd7eae5ba8a8fdcc98004bb3307ee8f17ccdc52e6e34281c598d",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/CHECKS.json": "4b5236622d01aaf225d5f10e09886028aef929ea8cbdf454b2304e17efca9626",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/FROZEN_REGRESSIONS.json": "ab3ce93d9755414e20a97a39a3286e157784976b37c63261307458d15766805a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/REPAIR_NATIVE_HISTORY_HASH/TASK_BRIEF.md": "127812fdbed75721872e22df7c9c5e61630fdefbff29f466c344294aea7f0e7e",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/project_run_records/workflow-native-history-hash-20260913/preedit-regressions.log": "73a594cc525f3f5b7e862de895b88d5f6d7df8c83f783bdc8cfc896fd2ccd5b6",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/project_run_records/workflow-native-history-hash-20260913/typescript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/project_run_records/workflow-native-history-hash-20260913/COMMAND_METADATA.json": "e55f5a9abc64cd4aff84736d7868be3afcd3121c913dd5857159359e84c181b5",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_HISTORY_REPAIR_V1/RAW/project_run_records/workflow-native-history-hash-20260913/final-focused.log": "0375c690663e4171e1bea80505d0e2ad0db45b4c5649af059fb5c241fedef069"
+  },
+  "baseline": "qualified PASS withNV001/NV002; old raw/bundle evidence unchanged",
+  "limits": "no saved payload mutation/schemachange; no stateclosure"
+}

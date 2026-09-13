@@ -1,0 +1,42 @@
+{
+  "records": [
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/results/HistoricalRunContext.test.tsx",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-native-history-hash-20260913/preedit-regressions.log",
+      "result": "2substantive failures / 5passed; missing-dimension false mismatch and lack of explicit-dimension historical unavailable finding; changed-value negative already passed; runtime component/service still sealed prehashes",
+      "log_sha256": "73a594cc525f3f5b7e862de895b88d5f6d7df8c83f783bdc8cfc896fd2ccd5b6"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/features/results/HistoricalRunContext.test.tsx src/services/previewService.test.ts",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-native-history-hash-20260913/final-focused.log",
+      "result": "2files / 28distinct tests passed;7 historical including3new + all21service; final runtime and frozen unchanged test bytes",
+      "log_sha256": "0375c690663e4171e1bea80505d0e2ad0db45b4c5649af059fb5c241fedef069"
+    },
+    {
+      "command": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "log": "_run_records/workflow-native-history-hash-20260913/typescript.log",
+      "result": "PASS; no build or generated distribution",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "git apply --reverse --check projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/SOURCE_TEST_DELTA.patch",
+      "cwd": ".",
+      "exit_code": 0,
+      "result": "PASS incremental patch matches current exact three files; check only, no mutation"
+    }
+  ],
+  "forbidden_execution": "none; no browser/native/WASM/dist/build",
+  "dependency_inspection": "one-way HistoricalRunContext imports existing previewService binder; preview/inputManifest/hash dependencies do not import historical module"
+}

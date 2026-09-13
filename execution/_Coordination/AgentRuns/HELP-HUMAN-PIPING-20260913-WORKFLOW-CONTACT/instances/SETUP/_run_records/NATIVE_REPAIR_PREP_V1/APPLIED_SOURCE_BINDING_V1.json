@@ -1,0 +1,8 @@
+{
+  "status": "selector applied exact frozen bytes; checkpoint pending NV002 repair",
+  "source_bindings": {
+    "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+  },
+  "baseline": "qualified PASS with findings pending"
+}

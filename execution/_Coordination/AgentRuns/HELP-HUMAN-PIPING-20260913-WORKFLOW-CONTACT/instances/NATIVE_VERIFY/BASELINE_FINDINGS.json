@@ -1,0 +1,47 @@
+{
+  "basis": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625 actual fresh packaged native GUI",
+  "findings": [
+    {
+      "id": "NV-001",
+      "status": "owner repair pending final build confirmation",
+      "source": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx:154",
+      "source_selection": "lines562-568 controlled primitive Case select has no empty option",
+      "reproduction": [
+        "Start native app; New blank.",
+        "Author and apply one load case through Case creation.",
+        "Open Primitive Load; Case visually shows sole newly created case.",
+        "Enter valid primitive ID, node target, direction, magnitude, category and provenance.",
+        "Queue load stays disabled; selecting sole existing option does not change initially empty loadCaseId."
+      ],
+      "observation": "draft initializes against blank load_cases, later Case option renders without synchronizing empty draft. Native select visually implies selection without valid internal draft.",
+      "parent_authorized_workaround": [
+        "Create temporary empty case load:TEMP through existing controls.",
+        "Select TEMP then designated load:WF with native menu and Return.",
+        "Queue and apply primitive350 N.",
+        "Delete TEMP through normal queued operation and apply."
+      ],
+      "qualification": "Actual baseline GUI authoring used workaround. No workaround-free authoring PASS. Saved350/500/undo/redo/restored models contain only load:WF.",
+      "evidence": "BASELINE_ASSERTIONS.json; _run_records/gui-authored350.json; _run_records/gui-solved500.json"
+    },
+    {
+      "id": "NV-002",
+      "status": "owner manager repair required",
+      "source": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx:43",
+      "normalization_source": "projects/chirality-piping/apps/desktop/src/services/previewService.ts:162",
+      "reproduction": [
+        "Actually solve native authored500 N model.",
+        "Save local including mechanics result and analysis run.",
+        "Quit app process; verify absent.",
+        "Reopen same isolated bundle/store; Open local; Results."
+      ],
+      "observation": "Historical correctly designated; unexpected HISTORICAL_RESULT_HASH_MISMATCH despite untouched native saved payload. All67 persisted native rows lack dimension. Existing buildAnalysisRunPreview adds declared dimensions before result envelope hash. Existing declaration-normalized payload exactly matches stored hash; raw payload does not.",
+      "evidence": [
+        "_run_records/gui-reopened-historical-ax.txt",
+        "_run_records/gui-reopened-historical.png",
+        "_run_records/historical-native-result-hash-diagnosis.json",
+        "_run_records/gui-solved500.json"
+      ],
+      "scope_distinction": "Native persisted result-envelope binding discrepancy. Not a claim that deferred whole-result schema validation was executed. No source repair performed."
+    }
+  ]
+}

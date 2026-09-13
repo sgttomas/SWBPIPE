@@ -1,0 +1,14 @@
+{
+  "phase": "test added; component unchanged before source correction",
+  "expectation": "mounted empty draft stays HTML value empty / selectedIndex0 / selected empty placeholder after sole case added, then real empty-to-case DOM transition enables Queue and exact existing case target",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "c47b1cf94785cca3caf2c91f6777ceecbf236836cec5f1acde05086dfb11abae"
+    }
+  ]
+}

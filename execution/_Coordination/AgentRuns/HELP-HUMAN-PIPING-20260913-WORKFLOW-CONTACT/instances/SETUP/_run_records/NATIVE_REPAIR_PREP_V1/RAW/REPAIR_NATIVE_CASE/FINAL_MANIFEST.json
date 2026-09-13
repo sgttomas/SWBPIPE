@@ -1,0 +1,167 @@
+{
+  "schema": "chirality-bounded-native-primitive-selection-repair/v1",
+  "freeze_utc": "2026-09-13T20:55:07.222844+00:00",
+  "status": "LOCAL_VERIFIED_PENDING_PARENT_NATIVE",
+  "previous_v2_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FINAL_MANIFEST.json",
+    "sha256": "a1445724a9f6149b0f841d80cedaaec43e90096214fea6672ce26898ac19905f",
+    "unchanged": true
+  },
+  "native_upstream_witness": "Parent packaged GUI on integrated df5ce915; controlled-empty Case visually sole-selected and unchanged selection emits no native change",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e",
+      "post_sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "post_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "bindings": {
+    "SEALED_WRITE_FENCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_WRITE_FENCE.json",
+      "sha256": "d76702a1f9095ce29ea6352f10123d006dab425280576223806aa970ee2452d3"
+    },
+    "SEALED_AMENDMENT_TARGETS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_AMENDMENT_TARGETS.json",
+      "sha256": "13ae7b98c45396d52aac616196facad93b2a3840e85f7fec97241b4d07045535"
+    },
+    "TASK_BRIEF.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/TASK_BRIEF.md",
+      "sha256": "8c711c5f51cec92eaacc2a3b9cd7ffaf9569d9e1572bc633138adf11963513ca"
+    },
+    "FROZEN_REGRESSION.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_REGRESSION.json",
+      "sha256": "b69f9567c64d5e90227fb0d631be7b63b2af41b9090cdaf87d575543f402ad44"
+    },
+    "FROZEN_ALL_FOUR_REGRESSIONS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_ALL_FOUR_REGRESSIONS.json",
+      "sha256": "5852aedfb65866d1259cb39733e6e1992c49430e01594781a23486fd149a829b"
+    },
+    "SOURCE_MANIFEST.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_MANIFEST.json",
+      "sha256": "3beb3bab8b6797e42b987cbd12b1173054a201fe5efafe7c603bc34ea8115862"
+    },
+    "SOURCE_TEST_DELTA.patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch",
+      "sha256": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec"
+    },
+    "CHECKS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/CHECKS.json",
+      "sha256": "a4b2668498b2d3a1831a67556785fb51e7d733ab1113e48e37f1fd4ab37700b0"
+    },
+    "RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/RETURN.md",
+      "sha256": "2dc6fe33444f3a7b2e643ddd34efd7b010783143d47c0cc02e76130aac8ec6d2"
+    },
+    "HANDOFF_STATE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/HANDOFF_STATE.json",
+      "sha256": "054ce2f115b1a78bc575cc4c43cf4e3b830995dc87631f1d32ae6d104a4a35d0"
+    },
+    "MANAGER_RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/MANAGER_RETURN.md",
+      "sha256": "0b8ca49043f19888d3d68b6ecb8e978df625eaf4565f30aa3dffe01fec8706e1"
+    }
+  },
+  "scope": "Exactly four empty placeholder option rows; one existing component test import and four additive regressions. No default/state/applier/wire/core changes.",
+  "test_result": "Focused22 PASS includes4 new and18 existing; TypeScript PASS; all-four baseline4fail before event/source mutation retained. No OS-native/browser/build/WASM/dist run.",
+  "manager_fan_in": "Independent exact incremental diff review and final two source SHA verification; previous V2 manifest/check record bytes unchanged. Child reverse patch check passed.",
+  "parent_remaining": "Apply incremental patch against sealed V2 prehashes, review final integrated diff, fresh native GUI author/solve lifecycle and required integrated checks; no lifecycle closure.",
+  "raw_import_scope": {
+    "coordination_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/",
+    "host_log_prefix": "projects/chirality-piping/_run_records/workflow-native-case-20260913/",
+    "source_patch_only": "SOURCE_TEST_DELTA.patch against V2, not full Gitbase diff",
+    "excluded": "No dependencies/generated outputs, no prior frozen V2 record replacement"
+  },
+  "packet_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/CHECKS.json",
+      "sha256": "a4b2668498b2d3a1831a67556785fb51e7d733ab1113e48e37f1fd4ab37700b0",
+      "bytes": 2899
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_ALL_FOUR_REGRESSIONS.json",
+      "sha256": "5852aedfb65866d1259cb39733e6e1992c49430e01594781a23486fd149a829b",
+      "bytes": 852
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_REGRESSION.json",
+      "sha256": "b69f9567c64d5e90227fb0d631be7b63b2af41b9090cdaf87d575543f402ad44",
+      "bytes": 677
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/HANDOFF_STATE.json",
+      "sha256": "054ce2f115b1a78bc575cc4c43cf4e3b830995dc87631f1d32ae6d104a4a35d0",
+      "bytes": 4269
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/MANAGER_RETURN.md",
+      "sha256": "0b8ca49043f19888d3d68b6ecb8e978df625eaf4565f30aa3dffe01fec8706e1",
+      "bytes": 2072
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/RETURN.md",
+      "sha256": "2dc6fe33444f3a7b2e643ddd34efd7b010783143d47c0cc02e76130aac8ec6d2",
+      "bytes": 3423
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_AMENDMENT_TARGETS.json",
+      "sha256": "13ae7b98c45396d52aac616196facad93b2a3840e85f7fec97241b4d07045535",
+      "bytes": 1874
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_WRITE_FENCE.json",
+      "sha256": "d76702a1f9095ce29ea6352f10123d006dab425280576223806aa970ee2452d3",
+      "bytes": 2561
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_MANIFEST.json",
+      "sha256": "3beb3bab8b6797e42b987cbd12b1173054a201fe5efafe7c603bc34ea8115862",
+      "bytes": 1187
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch",
+      "sha256": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec",
+      "bytes": 8808
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/TASK_BRIEF.md",
+      "sha256": "8c711c5f51cec92eaacc2a3b9cd7ffaf9569d9e1572bc633138adf11963513ca",
+      "bytes": 2353
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/COMMAND_METADATA.json",
+      "sha256": "84adb7b0e487804b82e2cde6fe1089e504dab690e859c17ddf026b58c3a0fb09",
+      "bytes": 3346
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/final-regressions.log",
+      "sha256": "774937f294f16df1bb09d14862e951b9ee056a1c0d2a2434b0c86f09ac39271a",
+      "bytes": 426
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/focused-preservation.log",
+      "sha256": "a75ea403af7aac6e499ad674192402076684a2594ec82fcf2298df2063d71998",
+      "bytes": 455
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/preedit-all-four.log",
+      "sha256": "01cfd5aed34bd2f025f00db297510b52537d35c0ff226575836f0fefe5e8ebfd",
+      "bytes": 6528
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/preedit-regression.log",
+      "sha256": "db62e6d8141d7205366dc9a7c5b8bb1703cd1cbdaf6807123d53f83d57a427fd",
+      "bytes": 2479
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-native-case-20260913/typescript.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ],
+  "configuration": "Existing TASK configured sol/high, supplied metadata only; Type2 no delegation instruction-asserted."
+}

@@ -1,0 +1,1 @@
+Root END-FREEZE/release: history normalization hash3source patch verified; additive raw packet only. Combined selector/history checkpoint with frozen baseline evidence authorized; no builds/fullgates/publication.

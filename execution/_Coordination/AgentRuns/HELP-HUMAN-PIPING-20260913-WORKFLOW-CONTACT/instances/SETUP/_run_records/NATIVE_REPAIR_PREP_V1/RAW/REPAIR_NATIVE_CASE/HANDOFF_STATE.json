@@ -1,0 +1,66 @@
+{
+  "state": "LOCAL_VERIFIED_PENDING_PARENT",
+  "freeze_utc": "2026-09-13T20:54:30.289043+00:00",
+  "records": {
+    "TASK_BRIEF.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/TASK_BRIEF.md",
+      "sha256": "8c711c5f51cec92eaacc2a3b9cd7ffaf9569d9e1572bc633138adf11963513ca"
+    },
+    "SEALED_WRITE_FENCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_WRITE_FENCE.json",
+      "sha256": "d76702a1f9095ce29ea6352f10123d006dab425280576223806aa970ee2452d3"
+    },
+    "SEALED_AMENDMENT_TARGETS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SEALED_AMENDMENT_TARGETS.json",
+      "sha256": "13ae7b98c45396d52aac616196facad93b2a3840e85f7fec97241b4d07045535"
+    },
+    "FROZEN_REGRESSION.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_REGRESSION.json",
+      "sha256": "b69f9567c64d5e90227fb0d631be7b63b2af41b9090cdaf87d575543f402ad44"
+    },
+    "FROZEN_ALL_FOUR_REGRESSIONS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/FROZEN_ALL_FOUR_REGRESSIONS.json",
+      "sha256": "5852aedfb65866d1259cb39733e6e1992c49430e01594781a23486fd149a829b"
+    },
+    "SOURCE_MANIFEST.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_MANIFEST.json",
+      "sha256": "3beb3bab8b6797e42b987cbd12b1173054a201fe5efafe7c603bc34ea8115862"
+    },
+    "SOURCE_TEST_DELTA.patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch",
+      "sha256": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec"
+    },
+    "CHECKS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/CHECKS.json",
+      "sha256": "a4b2668498b2d3a1831a67556785fb51e7d733ab1113e48e37f1fd4ab37700b0"
+    },
+    "RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/RETURN.md",
+      "sha256": "2dc6fe33444f3a7b2e643ddd34efd7b010783143d47c0cc02e76130aac8ec6d2"
+    }
+  },
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e",
+      "post_sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "post_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "derivative_package_status": "bounded TASK repair source/evidence; not decomposition truth or lifecycle acceptance",
+  "upstream_accepted": "sealed parent repair brief/fence and target amendment; immutable V2 intake hashes",
+  "closure_verdict": "local focused checks passed; parent native GUI witness and integration acceptance pending",
+  "rerun_requirements": [
+    "parent patch integration and complete final diff acceptance",
+    "fresh native GUI primitive Case/Node/Pipe/Support authoring witness after current verifier ends"
+  ],
+  "remaining_blockers": [
+    "parent acceptance/witness outstanding; no child implementation blocker"
+  ],
+  "claims": "controlled HTML display and exact queued references verified; OS popup/native end-to-end authoring not claimed",
+  "excluded_execution": "no native/browser/build/WASM/dist; no Git mutation or delegation"
+}

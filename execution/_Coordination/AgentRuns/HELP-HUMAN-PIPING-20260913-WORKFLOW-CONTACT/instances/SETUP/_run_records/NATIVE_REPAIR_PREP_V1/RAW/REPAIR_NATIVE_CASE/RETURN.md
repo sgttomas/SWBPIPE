@@ -1,0 +1,17 @@
+# TASK primitive select repair return
+
+Verdict: LOCAL_VERIFIED_PENDING_PARENT. The exact two-file authorized repair is frozen in SOURCE_TEST_DELTA.patch, incremental against the sealed prehashes of already integrated workflow V2. Original frozen V2 records and logs were not overwritten. New evidence is additive in REPAIR_NATIVE_CASE; actual host command metadata and logs are only _run_records/workflow-native-case-20260913.
+
+A controlled primitive draft with an empty Case/Node/Pipe/Support value had no matching empty option. Once a sole entity appeared, HTML displayed that entity while the authored draft remained empty and Queue disabled. Selecting the already displayed sole option need not emit a native change event. Four explicit empty placeholder options now make the displayed value agree with draft state and allow an actual empty-to-entity selection. Existing nonempty choices, authored defaults, queue operation payloads, batching, persistence and model state semantics are unchanged. No derived default, automatic retarget, core/wire/schema/operation change or unrelated selector sweep was made.
+
+The case-only test was independently frozen while the component had its sealed original hash and failed substantively before any change event. Following the sealed same-class target amendment, the Node/Pipe/Support tests were also frozen before component correction. All-four baseline failed4/169 skipped: the displayed DOM values were the sole case/entity ids instead of the empty draft value. Test assertions check HTML value, selectedIndex and selected option before synthetic events; then explicitly select the previously unselected real option, dispatch its change and verify Queue enablement plus exact queued existing case/target. Target tests preserve the existing selected case and verify no model mutation or selection callback. Test expectations and test bytes were retained unchanged through source repair.
+
+After the four placeholder additions, the new-only run passed4/169 skipped. The combined targeted load-manager run passed22/151 skipped in17.98 seconds, including4 new regressions and18 existing queue/apply checks; these are22 distinct tests, not26. TypeScript --noEmit passed and git diff --check passed. Incremental patch reverse --check passed against current source without mutation. CHECKS.json records exact portable commands, source-time results and log SHA256 values. No browser, native, WASM, desktop build or distribution commands were run while the parent native verifier was active.
+
+Vitest verifies native HTML controlled-selection agreement and queue payload behavior; it does not reproduce an OS select popup or independently prove native GUI authoring. Parent retains final diff acceptance, patch integration and fresh native GUI authoring witness. No deliverable/lifecycle closure or professional acceptance is claimed.
+
+projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx post-SHA256 a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515 (sealed pre-SHA256 391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e).
+
+projects/chirality-piping/apps/desktop/src/App.test.tsx post-SHA256 386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e (sealed pre-SHA256 6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa).
+
+Patch SHA256 c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec.

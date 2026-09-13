@@ -1,0 +1,15 @@
+{
+  "productName": "SWBPIPE Workflow Contact Witness 20260913",
+  "identifier": "org.openpipestress.technical-preview.workflow-contact-20260913",
+  "app": {
+    "windows": [
+      {
+        "title": "SWBPIPE Workflow Contact Witness 20260913",
+        "width": 1440,
+        "height": 920,
+        "minWidth": 1024,
+        "minHeight": 768
+      }
+    ]
+  }
+}

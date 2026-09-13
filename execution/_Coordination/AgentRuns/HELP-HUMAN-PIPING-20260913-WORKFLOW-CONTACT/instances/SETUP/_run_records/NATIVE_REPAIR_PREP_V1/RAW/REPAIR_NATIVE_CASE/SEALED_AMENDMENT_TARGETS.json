@@ -1,0 +1,31 @@
+{
+  "utc": "2026-09-13T20:51:35.531246+00:00",
+  "authority": "Parent HELP_HUMAN explicit same-class primitive target select repair extension",
+  "unchanged_exact_two_source_write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    }
+  ],
+  "component_sha256_at_amendment": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e",
+  "fence_sha256": "d76702a1f9095ce29ea6352f10123d006dab425280576223806aa970ee2452d3",
+  "expanded_controls": [
+    "Primitive load case",
+    "Primitive load support",
+    "Primitive load pipe",
+    "Primitive load node"
+  ],
+  "repair": "Add explicit value=\"\" placeholder option to these four controlled selects only, keeping initial empty state honest when sole entity appears and preserving existing validated state/operation semantics.",
+  "additional_independent_expectations": [
+    "Empty\u2192sole support/pipe/node availability displays empty placeholder until actual value transition",
+    "Selecting available target uses exact id and permits existing valid load queue where other requirements satisfied",
+    "No implicit retarget/state/model mutation or automatic first-entity choice introduced",
+    "No unrelated app selector sweep, operation changes or new schema"
+  ],
+  "pre_source_requirement": "Freeze added target regression expectations/hashes and baseline failures before extending component correction; retain case-only baseline if already run.",
+  "checks": "Targeted Vitest and TypeScript allowed; no browser/native/build/WASM/dist while parent native witness active."
+}

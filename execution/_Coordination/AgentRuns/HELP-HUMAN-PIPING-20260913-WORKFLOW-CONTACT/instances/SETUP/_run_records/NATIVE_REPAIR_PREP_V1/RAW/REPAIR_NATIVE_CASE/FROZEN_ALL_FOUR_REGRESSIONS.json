@@ -1,0 +1,18 @@
+{
+  "phase": "all four controlled selects independently frozen before source correction",
+  "expectations": [
+    "Case empty draft remains visibly empty after sole case addition; genuine selection queues exact case",
+    "Node/Pipe/Support empty draft remains visibly empty after sole target addition; genuine selection enables Queue and exact existing target id",
+    "Existing selected case remains unchanged; queue does not mutate model or emit onSelect"
+  ],
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ]
+}

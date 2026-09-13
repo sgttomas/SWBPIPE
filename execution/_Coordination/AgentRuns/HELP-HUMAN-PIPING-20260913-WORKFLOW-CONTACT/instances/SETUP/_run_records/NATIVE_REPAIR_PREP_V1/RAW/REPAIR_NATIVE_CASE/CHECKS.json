@@ -1,0 +1,57 @@
+{
+  "records": [
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'native primitive case selection display'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-native-case-20260913/preedit-regression.log",
+      "result": "case-only substantive DOM mismatch before any change event;1failed169skipped",
+      "log_sha256": "db62e6d8141d7205366dc9a7c5b8bb1703cd1cbdaf6807123d53f83d57a427fd"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'native primitive case selection display'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-native-case-20260913/preedit-all-four.log",
+      "result": "all four substantive DOM mismatches before any change event;4failed169skipped; original component unchanged",
+      "log_sha256": "01cfd5aed34bd2f025f00db297510b52537d35c0ff226575836f0fefe5e8ebfd"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'native primitive case selection display'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-native-case-20260913/final-regressions.log",
+      "result": "4passed169skipped",
+      "log_sha256": "774937f294f16df1bb09d14862e951b9ee056a1c0d2a2434b0c86f09ac39271a"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'native primitive case selection display|through the manager panel'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-native-case-20260913/focused-preservation.log",
+      "result": "22passed151skipped; registered load-manager queue/apply checks retained;17.98seconds",
+      "log_sha256": "a75ea403af7aac6e499ad674192402076684a2594ec82fcf2298df2063d71998"
+    },
+    {
+      "command": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "log": "_run_records/workflow-native-case-20260913/typescript.log",
+      "result": "PASS; no build or generated distribution output",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "PASS"
+    },
+    {
+      "command": "git apply --reverse --check projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch",
+      "cwd": ".",
+      "exit_code": 0,
+      "result": "PASS incremental patch corresponds exactly to currently edited two files; check only, no mutation"
+    }
+  ],
+  "native_browser_build_wasm_dist_execution": "none; native verifier active; OS-native popup witness parent-owned"
+}

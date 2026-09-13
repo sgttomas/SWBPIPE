@@ -1,0 +1,10 @@
+{
+  "model_json": true,
+  "mechanics_result_json": true,
+  "analysis_run_json": true,
+  "model_hash_json": true,
+  "project_envelope_hash_json": true,
+  "editor_intents_json": true,
+  "proposal_json": true,
+  "selected_review_target_json": true
+}

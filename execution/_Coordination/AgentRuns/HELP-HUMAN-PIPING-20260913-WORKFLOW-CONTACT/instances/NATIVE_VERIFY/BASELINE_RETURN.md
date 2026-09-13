@@ -1,0 +1,13 @@
+# Native baseline return — qualified, final candidate pending
+
+Source `df5ce9156151eb60392a2b0a18e4cbf75f4a3625`; upstream `b2c133d7aef38034d10fed2b9b7ef64f517f2ba0`. The10 supplied source hashes matched before/after fresh build and after GUI execution. All bound bundle/dist files remained unchanged. This is derivative witness evidence from the integrated source snapshot, not decomposition authority or publication/lifecycle acceptance.
+
+Observed PASS: fresh private integration build (WASM/dist/native), packaged file-backed self-test, actual typed blank native authoring with the parent-authorized TEMP-case workaround, actual350 N solve,500 N edit, exact full-model350 undo and500 redo, attachment preservation, actual500 N solve, local save, real process quit, fresh process reopen same isolated bundle/store, Historical designation with unavailable current deformation/comparison/report readiness, unchanged Historical save preserving eight payload fields byte-for-byte, actual restored500 N re-solve with67 identical result rows. Published displacement/rotation, root resultant and end-i actions met frozen publication precision; signed global reactions are an analytical transformation of authored local axes and directly observed end-i action rows, not direct support component DTO observations.
+
+Two findings remain open for owner repair/recheck: NV-001 sole primitive-case visual/default mismatch; NV-002 untouched saved native result hash mismatch caused by persisted raw rows versus dimension-bound hashed analysis result. See `BASELINE_FINDINGS.json`. This run is qualified baseline evidence and does not PASS final candidate acceptance. TEMP is absent from every saved designated witness model.
+
+Unexecuted: workaround-free repaired authoring; repaired native saved-hash confirmation; malformed-analysis safety GUI injection; broad malformed mechanics/whole-result schema compatibility; busy/stale/late cancellation/rejection GUI paths; exhaustive properties/tools/private rules/report export. Packaged CLI evidence does not substitute for observed GUI history or real quit/reopen.
+
+Raw key screenshots: `_run_records/gui-solved500.png`, `_run_records/gui-reopened-historical.png`, `_run_records/gui-resolved500.png`. Exact source/build identities in `FRESH_BUILD_BINDING.json`; assertions/store identity in `BASELINE_ASSERTIONS.json`; immutable raw command/UI/store snapshots under `_run_records`.
+
+Handoff: all isolated witness processes closed. Exclusive build/native/GUI lease released to HELP_HUMAN. Required rerun: owner repair integration checkpoint -> fresh bound build -> native authoring and relevant lifecycle confirmation -> parent fresh100% integrated review -> clean DEC025. No publication/lifecycle claim or phase closure inferred.

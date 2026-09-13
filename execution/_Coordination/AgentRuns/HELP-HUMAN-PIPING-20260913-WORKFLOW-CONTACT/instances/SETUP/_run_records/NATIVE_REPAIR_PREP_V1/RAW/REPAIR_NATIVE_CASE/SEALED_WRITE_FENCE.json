@@ -1,0 +1,32 @@
+{
+  "freeze_utc": "2026-09-13T20:50:21.936382+00:00",
+  "authority": "Parent HELP_HUMAN explicit bounded repair instruction after real packaged GUI authoring witness on integrated df5ce915",
+  "parent": "/root",
+  "manager": "/root/workflow_implementation_manager",
+  "writer": "/root/workflow_implementation_manager/workflow_task TASK",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "claim": "Supplied metadata only, runtime attestation not independently proven; Type2 nondelegation instruction-asserted",
+  "write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    }
+  ],
+  "additional_record_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/",
+  "host_log_prefix": "projects/chirality-piping/_run_records/workflow-native-case-20260913/",
+  "excluded": "No other source, operation/wire/core changes, browser/build/WASM/dist/native execution, existing frozen V2 packet overwrites, commits/push/PR",
+  "independent_expectations": [
+    "Displayed selected primitive case must agree with authored draft state after adding sole case to initially blank mounted manager",
+    "Explicit controlled empty placeholder remains displayed until genuine empty-to-case selection; selected case then enables Queue with valid target/input state",
+    "Queue uses existing case id and operation payload; no synthetic event selecting an already displayed option as only proof",
+    "Existing selected cases, queued load and batch/persistence semantics preserved"
+  ],
+  "proposed_fix": "One explicit value=\"\" placeholder in existing primitive Case select; smallest controlled-state display fix, no new default mutation semantics",
+  "tests": "Existing App.test.tsx direct component/native HTML state regression permitted alongside existing focused load authoring tests; freeze new test hash and observed failing assertions while source component unchanged before source mutation; regular targeted Vitest with lane existing WASM and TypeScript allowed; no browser or build lease while native verifier active",
+  "failure_rule": "After two unproductive cycles without new evidence request parent Astra diagnosis."
+}

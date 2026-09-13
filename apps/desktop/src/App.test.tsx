@@ -23,6 +23,7 @@ import { PropertyInspector } from "./features/model-tree/PropertyInspector";
 import { DiagnosticsPanel } from "./features/diagnostics/DiagnosticsPanel";
 import { buildMissingDataBlockingPacket, MissingDataBlockingPanel } from "./features/missing-data/MissingDataBlockingPanel";
 import { ResultsPanel } from "./features/results/ResultsPanel";
+import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel";
 import {
   buildDeformationOverlay,
   PipeViewport,
@@ -16671,6 +16672,112 @@ describe("synchronous busy history boundary", () => {
   });
 });
 
+
+describe("native primitive case selection display", () => {
+  it("keeps an empty draft visibly unselected until a real sole-case transition queues the exact case", async () => {
+    const bundled = structuredClone(await loadPreviewModel());
+    const withoutCases = { ...bundled, load_cases: [], combinations: [] };
+    const soleCase = { ...bundled.load_cases[0], primitive_loads: [] };
+    const onQueueIntent = vi.fn();
+    const props = {
+      onQueueIntent,
+      onSelect: vi.fn(),
+      selection: { type: "node" as const, id: bundled.nodes[0].id },
+    };
+    const view = render(<LoadCaseManagerPanel {...props} model={withoutCases} />);
+    const caseSelect = screen.getByTestId("load-manager-create-primitive-load-case") as HTMLSelectElement;
+    const queue = screen.getByTestId("queue-create-primitive-intent");
+    expect(caseSelect.value).toBe("");
+    expect(queue).toBeDisabled();
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_case_regression" } });
+
+    view.rerender(<LoadCaseManagerPanel {...props} model={{ ...withoutCases, load_cases: [soleCase] }} />);
+    // Before any synthetic change event, HTML's displayed selection must agree
+    // with the still-empty controlled draft instead of displaying the sole case.
+    expect(caseSelect.value).toBe("");
+    expect(caseSelect.selectedIndex).toBe(0);
+    expect(caseSelect.selectedOptions[0]).toHaveValue("");
+    expect(caseSelect.selectedOptions[0]).toHaveTextContent("Select load case");
+    expect(queue).toBeDisabled();
+    expect(onQueueIntent).not.toHaveBeenCalled();
+
+    const caseOption = Array.from(caseSelect.options).find((option) => option.value === soleCase.id)!;
+    expect(caseOption.selected).toBe(false);
+    caseOption.selected = true;
+    expect(caseSelect.value).toBe(soleCase.id);
+    fireEvent.change(caseSelect);
+    expect(caseSelect.selectedOptions[0]).toBe(caseOption);
+    expect(queue).toBeEnabled();
+    fireEvent.click(queue);
+    expect(onQueueIntent).toHaveBeenCalledTimes(1);
+    const intent = onQueueIntent.mock.calls[0][0] as EditorOperationIntent;
+    expect(intent.target).toEqual({ object_type: "Load", ref: soleCase.id });
+    expect(intent.change.change_kind).toBe("create_primitive_load");
+    expect(JSON.parse(intent.change.after)).toMatchObject({
+      target: { type: "node", node: bundled.nodes[0].id },
+      magnitude: { value: 350, unit: "N" },
+      provenance: "invented_native_case_regression",
+    });
+  });
+
+  it.each([
+    ["node", "nodes", "concentrated_force", "node", "Select node"],
+    ["pipe", "pipe_segments", "distributed_force", "pipe", "Select pipe"],
+    ["support", "supports", "imposed_displacement", "support", "Select support"],
+  ] as const)("keeps an empty %s target honest until its sole available entity is explicitly selected", async (kind, modelField, category, control, placeholder) => {
+    const bundled = structuredClone(await loadPreviewModel());
+    const soleEntity = bundled[modelField][0];
+    const soleCase = { ...bundled.load_cases[0], primitive_loads: [] };
+    const withoutTarget = { ...bundled, load_cases: [soleCase], combinations: [], [modelField]: [] } as PreviewModel;
+    const withTarget = { ...withoutTarget, [modelField]: [soleEntity] } as PreviewModel;
+    const originalModel = structuredClone(withTarget);
+    const onQueueIntent = vi.fn();
+    const onSelect = vi.fn();
+    const props = { onQueueIntent, onSelect, selection: { type: "load" as const, id: soleCase.id } };
+    const view = render(<LoadCaseManagerPanel {...props} model={withoutTarget} />);
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-category"), { target: { value: category } });
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-magnitude"), { target: { value: "350" } });
+    fireEvent.change(screen.getByTestId("load-manager-create-primitive-provenance"), { target: { value: "invented_native_target_regression" } });
+    const targetSelect = screen.getByTestId(`load-manager-create-primitive-${control}`) as HTMLSelectElement;
+    const caseSelect = screen.getByTestId("load-manager-create-primitive-load-case") as HTMLSelectElement;
+    const queue = screen.getByTestId("queue-create-primitive-intent");
+    expect(targetSelect.value).toBe("");
+    expect(caseSelect.value).toBe(soleCase.id);
+    expect(queue).toBeDisabled();
+
+    view.rerender(<LoadCaseManagerPanel {...props} model={withTarget} />);
+    expect(targetSelect.value).toBe("");
+    expect(targetSelect.selectedIndex).toBe(0);
+    expect(targetSelect.selectedOptions[0]).toHaveValue("");
+    expect(targetSelect.selectedOptions[0]).toHaveTextContent(placeholder);
+    expect(queue).toBeDisabled();
+    expect(onQueueIntent).not.toHaveBeenCalled();
+    expect(onSelect).not.toHaveBeenCalled();
+    expect(withTarget).toEqual(originalModel);
+
+    const targetOption = Array.from(targetSelect.options).find((option) => option.value === soleEntity.id)!;
+    expect(targetOption.selected).toBe(false);
+    targetOption.selected = true;
+    expect(targetSelect.value).toBe(soleEntity.id);
+    fireEvent.change(targetSelect);
+    expect(targetSelect.selectedOptions[0]).toBe(targetOption);
+    expect(caseSelect.value).toBe(soleCase.id);
+    expect(queue).toBeEnabled();
+    fireEvent.click(queue);
+    expect(onQueueIntent).toHaveBeenCalledTimes(1);
+    const intent = onQueueIntent.mock.calls[0][0] as EditorOperationIntent;
+    expect(intent.target).toEqual({ object_type: "Load", ref: soleCase.id });
+    const expectedTarget = kind === "node"
+      ? { type: "node", node: soleEntity.id }
+      : kind === "pipe"
+        ? { type: "element", pipe: soleEntity.id }
+        : { type: "support", support: soleEntity.id, dof: "UZ" };
+    expect(JSON.parse(intent.change.after)).toMatchObject({ target: expectedTarget, magnitude: { value: 350 }, provenance: "invented_native_target_regression" });
+    expect(withTarget).toEqual(originalModel);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+});
 
 describe("historical lifecycle history transitions", () => {
   it("clears reopened computed evidence on model edit and exact undo/redo transitions", async () => {

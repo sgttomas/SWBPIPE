@@ -1,0 +1,1 @@
+Root confirmed baseline END-FREEZE and lease release. Selector patch apply now authorized; checkpoint withheld until historical normalized result-hash repair release/import. Baseline qualified PASS with NV-001/NV-002 findings pending. No build/GUI/publication.

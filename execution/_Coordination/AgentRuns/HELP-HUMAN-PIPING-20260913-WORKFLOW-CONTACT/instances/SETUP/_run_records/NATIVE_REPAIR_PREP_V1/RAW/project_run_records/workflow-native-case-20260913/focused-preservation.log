@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t native primitive case selection display|through the manager panel
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  22 passed | 151 skipped (173)
+   Start at  14:53:04
+   Duration  17.98s (transform 1.20s, setup 84ms, import 1.44s, tests 16.14s, environment 223ms)
+

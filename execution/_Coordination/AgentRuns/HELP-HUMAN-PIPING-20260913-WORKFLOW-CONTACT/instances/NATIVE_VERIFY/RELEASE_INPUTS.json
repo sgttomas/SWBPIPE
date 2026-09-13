@@ -1,0 +1,50 @@
+{
+  "source_sha": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625",
+  "upstream_sha": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "released_by": "/root HELP_HUMAN",
+  "lease": "exclusive native/WASM/dist build, packaged selftest and GUI until return or explicit release",
+  "released_utc": "2026-09-13T20:40:18.937347+00:00",
+  "source_checks": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": {
+      "expected": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "actual": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    },
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": {
+      "expected": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "actual": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": {
+      "expected": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "actual": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    },
+    "projects/chirality-piping/apps/desktop/src/App.tsx": {
+      "expected": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+      "actual": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": {
+      "expected": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341",
+      "actual": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    },
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": {
+      "expected": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6",
+      "actual": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": {
+      "expected": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+      "actual": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    },
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": {
+      "expected": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57",
+      "actual": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    "projects/chirality-piping/core/product_physics/src/lib.rs": {
+      "expected": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "actual": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"
+    },
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": {
+      "expected": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+      "actual": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78"
+    }
+  },
+  "binding_sha256": "182956d0f2cbd5e70162299a8b2b6999290fdce58ac033e5d478e91e3587b980"
+}

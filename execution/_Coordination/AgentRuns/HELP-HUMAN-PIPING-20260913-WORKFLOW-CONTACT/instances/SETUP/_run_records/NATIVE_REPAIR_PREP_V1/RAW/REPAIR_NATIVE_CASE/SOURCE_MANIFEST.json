@@ -1,0 +1,21 @@
+{
+  "freeze_utc": "2026-09-13T20:53:56.452964+00:00",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e",
+      "post_sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "post_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "scope": "exactly four empty primitive select options; one test import plus additive four regressions; incremental against sealed V2 prehashes",
+  "patch": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch",
+    "sha256": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec"
+  },
+  "original_frozen_v2_records": "untouched; accepted additive repair packet supersedes only these two current source paths"
+}

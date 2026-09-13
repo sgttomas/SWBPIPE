@@ -1,0 +1,1 @@
+Parent authorized immutable raw copy/hash verification/applicability only for native primitive selection repair. Source apply/staging/commit withheld pending baseline GUI freeze and explicit root lease release. Preserve candidate df5ce915 exact product source during baseline witness.

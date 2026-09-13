@@ -1,0 +1,51 @@
+{
+  "status": "prepared only; source unchanged; parent release required",
+  "base_candidate": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625",
+  "patch_sha256": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec",
+  "raw_bindings": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/HANDOFF_STATE.json": "054ce2f115b1a78bc575cc4c43cf4e3b830995dc87631f1d32ae6d104a4a35d0",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/SEALED_WRITE_FENCE.json": "d76702a1f9095ce29ea6352f10123d006dab425280576223806aa970ee2452d3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/SOURCE_MANIFEST.json": "3beb3bab8b6797e42b987cbd12b1173054a201fe5efafe7c603bc34ea8115862",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/RETURN.md": "2dc6fe33444f3a7b2e643ddd34efd7b010783143d47c0cc02e76130aac8ec6d2",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/MANAGER_RETURN.md": "0b8ca49043f19888d3d68b6ecb8e978df625eaf4565f30aa3dffe01fec8706e1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/FINAL_MANIFEST.json": "377a250a2f70ff74d165c4d625f388c7b88d895a10a172f8014b9a72e8b45561",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/SOURCE_TEST_DELTA.patch": "c4f3cff17a31a2193aab41c522f0271c2b0a3bdb00a480f7ed54690ac05046ec",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/CHECKS.json": "a4b2668498b2d3a1831a67556785fb51e7d733ab1113e48e37f1fd4ab37700b0",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/SEALED_AMENDMENT_TARGETS.json": "13ae7b98c45396d52aac616196facad93b2a3840e85f7fec97241b4d07045535",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/TASK_BRIEF.md": "8c711c5f51cec92eaacc2a3b9cd7ffaf9569d9e1572bc633138adf11963513ca",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/FROZEN_REGRESSION.json": "b69f9567c64d5e90227fb0d631be7b63b2af41b9090cdaf87d575543f402ad44",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/REPAIR_NATIVE_CASE/FROZEN_ALL_FOUR_REGRESSIONS.json": "5852aedfb65866d1259cb39733e6e1992c49430e01594781a23486fd149a829b",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/final-regressions.log": "774937f294f16df1bb09d14862e951b9ee056a1c0d2a2434b0c86f09ac39271a",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/typescript.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/COMMAND_METADATA.json": "84adb7b0e487804b82e2cde6fe1089e504dab690e859c17ddf026b58c3a0fb09",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/focused-preservation.log": "a75ea403af7aac6e499ad674192402076684a2594ec82fcf2298df2063d71998",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/preedit-regression.log": "db62e6d8141d7205366dc9a7c5b8bb1703cd1cbdaf6807123d53f83d57a427fd",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/NATIVE_REPAIR_PREP_V1/RAW/project_run_records/workflow-native-case-20260913/preedit-all-four.log": "01cfd5aed34bd2f025f00db297510b52537d35c0ff226575836f0fefe5e8ebfd"
+  },
+  "proposed_source_bindings": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+    "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+  },
+  "source_delta": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "pre_sha256": "391756508c612c0b030c510e3401e9e1b420fd071c4e1e9a2a49e2390233a64e",
+      "post_sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "post_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "followup": "apply released two-file patch; checkpoint; fresh native build/witness; final100%review; complete cleanDEC025/publication gates"
+}

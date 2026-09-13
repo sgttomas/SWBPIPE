@@ -1,0 +1,8 @@
+{
+  "stored_result_envelope_sha256": "6902df80c2569baf04dfea0508b375976df1cba6eb805e1b0e92bc6ec0bf3f16",
+  "raw_mechanics_previewService_canonical_sha256": "413f871dc5c83feb57158bf6493582673abb95b48dccbb477b6945ffc5d4179a",
+  "dimension_bound_previewService_canonical_sha256": "6902df80c2569baf04dfea0508b375976df1cba6eb805e1b0e92bc6ec0bf3f16",
+  "all_rows_lacked_dimensions": true,
+  "all_dimensions_known": true,
+  "dimension_bound_matches_stored": true
+}

@@ -1,0 +1,68 @@
+{
+  "state": "LOCAL_VERIFIED_PENDING_PARENT",
+  "freeze_utc": "2026-09-13T21:01:58.342769+00:00",
+  "records": {
+    "TASK_BRIEF.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/TASK_BRIEF.md",
+      "sha256": "127812fdbed75721872e22df7c9c5e61630fdefbff29f466c344294aea7f0e7e"
+    },
+    "SEALED_WRITE_FENCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/SEALED_WRITE_FENCE.json",
+      "sha256": "0532f8828133c7f62b2c8bf7f90ba9e9cba8c17156a7528c80ae46a0f59abb5b"
+    },
+    "PREEDIT_PREVIEW_SERVICE.txt": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/PREEDIT_PREVIEW_SERVICE.txt",
+      "sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    "FROZEN_REGRESSIONS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/FROZEN_REGRESSIONS.json",
+      "sha256": "ab3ce93d9755414e20a97a39a3286e157784976b37c63261307458d15766805a"
+    },
+    "SOURCE_MANIFEST.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/SOURCE_MANIFEST.json",
+      "sha256": "879359cf9e6a51dfb72552ac47f86b2866802b8c02a7043f964731e3bd023d05"
+    },
+    "SOURCE_TEST_DELTA.patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/SOURCE_TEST_DELTA.patch",
+      "sha256": "022664b18962cd7eae5ba8a8fdcc98004bb3307ee8f17ccdc52e6e34281c598d"
+    },
+    "CHECKS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/CHECKS.json",
+      "sha256": "4b5236622d01aaf225d5f10e09886028aef929ea8cbdf454b2304e17efca9626"
+    },
+    "RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_NATIVE_HISTORY_HASH/RETURN.md",
+      "sha256": "bf7a4d43b343471aeafe53a0190239f8d8f68d9d07bff0a0b3bd6c8d9b533749"
+    }
+  },
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57",
+      "post_sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6",
+      "post_sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341",
+      "post_sha256": "a207caf3687db846c842fdf7b854d8a02498025b48b23925541a700844de7365"
+    }
+  ],
+  "accepted_upstream": "sealed parent historical hash repair brief/fence; original settled V2 threeprehashes",
+  "derivative_package_status": "bounded TASK repair source/evidence return; not authoritative decomposition or native lifecycle acceptance",
+  "closure_verdict": "focused tests/typecheck passed; parent integration and fresh native witness pending",
+  "rerun_requirements": [
+    "parent integrate both native fixes and build fresh bundle after current baseline",
+    "fresh native GUI saved/reopen integrity and authoring witnesses",
+    "final complete source review and registered integration gates"
+  ],
+  "remaining_blockers": [
+    "parent acceptance and integration/native witnesses outstanding; no child implementation blocker"
+  ],
+  "evidence_boundary": "native-shaped unit regression; pinned actual native67-row GUI record not independently replayed; generic malformed historical MechanicsResult compatibility deferred",
+  "excluded_execution": "no browser/native/WASM/dist/build; no Git mutation/delegation"
+}

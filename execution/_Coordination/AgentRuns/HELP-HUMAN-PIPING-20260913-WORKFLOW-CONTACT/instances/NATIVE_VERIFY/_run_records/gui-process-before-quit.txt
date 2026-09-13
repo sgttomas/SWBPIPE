@@ -1,0 +1,1 @@
+34803 Sun Sep 13 14:42:39 2026     /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Workflow Contact Witness 20260913.app/Contents/MacOS/openpipestress-desktop

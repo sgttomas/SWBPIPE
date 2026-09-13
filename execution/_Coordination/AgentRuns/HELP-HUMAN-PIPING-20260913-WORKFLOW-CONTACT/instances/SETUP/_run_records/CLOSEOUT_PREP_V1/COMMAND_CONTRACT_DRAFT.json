@@ -1,0 +1,73 @@
+{
+  "status": "working draft; no checks executed",
+  "candidate": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625",
+  "sequence": [
+    "finish GUI witness; parent accepts native return",
+    "freeze any repairs and exact source/native binding",
+    "fresh read-only100%integrated review PASS using .agents/skills/software-code-review",
+    "commit required frozen evidence and state under later parent release; clean candidate",
+    "complete all registered DEC025 surfaces; no selected shortcut",
+    "root full practitioner harness/self-check/receipt validation",
+    "scoped commit/evidence as authorized and rerun affected candidate gates if source changes",
+    "revalidate upstream; scoped push and onePR only after review+localgatesPASS",
+    "required actual-candidate CI/reviewPASS before merge under standingauthority"
+  ],
+  "environment": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "Python": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "CARGO_TARGET_DIR": "optional private ignored integration target; verify compatibility without command/source modifications"
+  },
+  "commands": [
+    {
+      "cwd": "{WORKING_ROOT}",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/release/run_evidence_sweep.py",
+        "--execute",
+        "--require-capability",
+        "host"
+      ]
+    },
+    {
+      "cwd": "{REPO_ROOT}",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "-m",
+        "pytest",
+        "tools/practitioner_harness",
+        "-q"
+      ]
+    },
+    {
+      "cwd": "{REPO_ROOT}",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ]
+    },
+    {
+      "cwd": "{REPO_ROOT}",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ]
+    }
+  ],
+  "CI": {
+    "required_branch_protection": "harness (app15368); queried read-only configuredidentity",
+    "expected_path_selected": [
+      "governance-harness/harness",
+      "Piping Desktop E2E/Desktop E2E (source mode)"
+    ],
+    "not_selected_by_scope": [
+      "Runtime/harness build"
+    ],
+    "requirement": "inspect actual PR candidate checks/review and CI source SHA; branch protection minimum does not replace projectDesktopE2E gate"
+  },
+  "known_prerequisite": "untracked .native-witness-npm-cache currently visible; root/nativeowner must preserve or relocate to ignored/private cache before clean candidate sweep, never stage cache",
+  "baseline_findings": "4REVIEW112WARN14INFO1NA; no suppressions"
+}

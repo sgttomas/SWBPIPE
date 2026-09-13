@@ -1,0 +1,18 @@
+{
+  "phase": "native-shaped missing-dimension regression and changed-value/explicit-dimension negatives frozen before runtime edits",
+  "expectation": "historical transient result hash matches production bound analysis; envelope/model hashes remain based on original raw evidence; no saved bytes normalized; altered value mismatch retained; explicit contradictory dimension yields existing admission failure and historical unavailable finding; missing historical manifest retained",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "a207caf3687db846c842fdf7b854d8a02498025b48b23925541a700844de7365"
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence } from "../../types";
 import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
+import { bindSourceResultDimensions } from "../../services/previewService";
 import { ResultsPanel } from "./ResultsPanel";
 
 // Transient evidence only. Saved run references do not contain the historical
@@ -40,7 +41,8 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
     if (mechanicsResult) {
       const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === "result_envelope") : null;
       if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
-      else if ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256Hex(mechanicsResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${mechanicsResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+      // Analysis hashes bind dimensions; preserve raw saved rows everywhere else.
+      else if ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256Hex(bindSourceResultDimensions(mechanicsResult)) || storedResultHash.payload_ref?.ref !== `result-envelope:${mechanicsResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
     }
   } catch {
     findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");

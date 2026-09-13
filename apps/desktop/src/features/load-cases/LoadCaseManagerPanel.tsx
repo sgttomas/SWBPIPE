@@ -562,6 +562,7 @@ export function LoadCaseManagerPanel({
               onChange={(event) => updatePrimitiveLoadDraft("loadCaseId", event.target.value)}
               value={primitiveLoadDraft.loadCaseId}
             >
+              <option value="">Select load case</option>
               {model.load_cases.map((loadCase) => (
                 <option key={loadCase.id} value={loadCase.id}>
                   {loadCase.id}
@@ -587,6 +588,7 @@ export function LoadCaseManagerPanel({
                 onChange={(event) => updatePrimitiveLoadDraft("targetSupport", event.target.value)}
                 value={primitiveLoadDraft.targetSupport}
               >
+                <option value="">Select support</option>
                 {model.supports.map((support) => (
                   <option key={support.id} value={support.id}>
                     {support.id}
@@ -603,6 +605,7 @@ export function LoadCaseManagerPanel({
                 onChange={(event) => updatePrimitiveLoadDraft("targetPipe", event.target.value)}
                 value={primitiveLoadDraft.targetPipe}
               >
+                <option value="">Select pipe</option>
                 {model.pipe_segments.map((pipe) => (
                   <option key={pipe.id} value={pipe.id}>
                     {pipe.id}
@@ -619,6 +622,7 @@ export function LoadCaseManagerPanel({
                 onChange={(event) => updatePrimitiveLoadDraft("targetNode", event.target.value)}
                 value={primitiveLoadDraft.targetNode}
               >
+                <option value="">Select node</option>
                 {model.nodes.map((node) => (
                   <option key={node.id} value={node.id}>
                     {node.id}
