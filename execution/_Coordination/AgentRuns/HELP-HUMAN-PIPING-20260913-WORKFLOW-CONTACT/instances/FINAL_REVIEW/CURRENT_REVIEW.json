@@ -1,0 +1,8 @@
+{
+  "verdict": "PASS",
+  "reviewed_candidate": "ede49d4de19ea76dd310bc3d3e19a6b89bbace72",
+  "return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/FINAL_REVIEW/_run_records/POST_DEC025_FINAL_REVIEW_V1/RETURN.md",
+  "return_sha256": "0c9e832bef4321096554b9bd09310c3d4b6f4f7b4b4de420694d62f7ae6470cc",
+  "RV-V3-001": "CLOSED at ede49d4d",
+  "publication": "pending full local and actualcandidateCI gates"
+}
