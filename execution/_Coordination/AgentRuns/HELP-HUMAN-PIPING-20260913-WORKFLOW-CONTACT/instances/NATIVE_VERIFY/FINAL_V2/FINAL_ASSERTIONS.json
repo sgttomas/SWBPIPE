@@ -1,0 +1,310 @@
+{
+  "source_sha": "7e45f6ec8714250319afb94c1633dee61d48e3c4",
+  "accepted_upstream_binding": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/INTEGRATED_CANDIDATE_BINDING_V2.json",
+  "derivative_evidence_only": true,
+  "gate_verdict": "native_workflow_witness_passed_pending_independent_review_and_DEC025",
+  "actual_gui_project_id": "project:blank-local-20260913t210608z",
+  "gui_hash350": "sha256:2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+  "gui_hash500": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf",
+  "gui_history_full_model_byte_exact": true,
+  "attachments": [
+    {
+      "snapshot": "_run_records/gui-authored350.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 350
+    },
+    {
+      "snapshot": "_run_records/gui-human-undo350.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 350
+    },
+    {
+      "snapshot": "_run_records/gui-agent-input350.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 350
+    },
+    {
+      "snapshot": "_run_records/gui-solved350.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 350
+    },
+    {
+      "snapshot": "_run_records/gui-human-edited500.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-human-redo500.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-agent-edited500.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-solved500.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-historical-before-save.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-historical-after-save.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    },
+    {
+      "snapshot": "_run_records/gui-resolved500.json",
+      "all_exact": true,
+      "no_temporary_case": true,
+      "force_N": 500
+    }
+  ],
+  "unchanged_historical_save_all_8_raw_fields": {
+    "model_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true,
+    "project_envelope_hash_json": true,
+    "editor_intents_json": true,
+    "proposal_json": true,
+    "selected_review_target_json": true
+  },
+  "re_solve_all_67_native_rows_raw_byte_equal": true,
+  "numerics": [
+    {
+      "snapshot": "gui-solved350",
+      "force_N": 350,
+      "checks": [
+        {
+          "row_id": "result:disp:node-WF-TIP:uy",
+          "actual": 1.663072,
+          "expected": 1.663071716046058,
+          "unit": "mm",
+          "absolute_error": 2.8395394213731606e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:disp:node-WF-TIP:rz",
+          "actual": 0.00078,
+          "expected": 0.0007795648668965897,
+          "unit": "rad",
+          "absolute_error": 4.351331034102568e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:reaction:support-WF-ROOT",
+          "actual": 350,
+          "expected": 350,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:force:pipe-WF:shear-z",
+          "actual": 350,
+          "expected": 350,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:moment:pipe-WF:bending-y",
+          "actual": -1120,
+          "expected": -1120.0,
+          "unit": "N*m",
+          "absolute_error": 0.0,
+          "allowance": 5.001e-07,
+          "passed": true
+        }
+      ],
+      "transformed_global_root_reaction_y_N": -350,
+      "transformed_global_root_moment_z_Nm": -1120,
+      "direct_support_resultant_N": 350
+    },
+    {
+      "snapshot": "gui-solved500",
+      "force_N": 500,
+      "checks": [
+        {
+          "row_id": "result:disp:node-WF-TIP:uy",
+          "actual": 2.375817,
+          "expected": 2.375816737208654,
+          "unit": "mm",
+          "absolute_error": 2.6279134601736587e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:disp:node-WF-TIP:rz",
+          "actual": 0.001114,
+          "expected": 0.0011136640955665567,
+          "unit": "rad",
+          "absolute_error": 3.35904433443248e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:reaction:support-WF-ROOT",
+          "actual": 500,
+          "expected": 500,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:force:pipe-WF:shear-z",
+          "actual": 500,
+          "expected": 500,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:moment:pipe-WF:bending-y",
+          "actual": -1600,
+          "expected": -1600.0,
+          "unit": "N*m",
+          "absolute_error": 0.0,
+          "allowance": 5.001e-07,
+          "passed": true
+        }
+      ],
+      "transformed_global_root_reaction_y_N": -500,
+      "transformed_global_root_moment_z_Nm": -1600,
+      "direct_support_resultant_N": 500
+    },
+    {
+      "snapshot": "gui-resolved500",
+      "force_N": 500,
+      "checks": [
+        {
+          "row_id": "result:disp:node-WF-TIP:uy",
+          "actual": 2.375817,
+          "expected": 2.375816737208654,
+          "unit": "mm",
+          "absolute_error": 2.6279134601736587e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:disp:node-WF-TIP:rz",
+          "actual": 0.001114,
+          "expected": 0.0011136640955665567,
+          "unit": "rad",
+          "absolute_error": 3.35904433443248e-07,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:reaction:support-WF-ROOT",
+          "actual": 500,
+          "expected": 500,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:force:pipe-WF:shear-z",
+          "actual": 500,
+          "expected": 500,
+          "unit": "N",
+          "absolute_error": 0,
+          "allowance": 5.001e-07,
+          "passed": true
+        },
+        {
+          "row_id": "result:moment:pipe-WF:bending-y",
+          "actual": -1600,
+          "expected": -1600.0,
+          "unit": "N*m",
+          "absolute_error": 0.0,
+          "allowance": 5.001e-07,
+          "passed": true
+        }
+      ],
+      "transformed_global_root_reaction_y_N": -500,
+      "transformed_global_root_moment_z_Nm": -1600,
+      "direct_support_resultant_N": 500
+    }
+  ],
+  "reaction_evidence_boundary": "Direct support DTO publishes reaction_resultant only. Signed global root Y force is analytical transform -local end-i shear-z because local z=-globalY; global root Z moment is local end-i bending-y because local y=globalZ. No direct support component DTO rows are claimed.",
+  "historical": {
+    "only_expected_missing_manifest": true,
+    "no_false_result_hash_mismatch": true,
+    "raw_native_rows_still_without_dimension": true,
+    "current_overlay_unavailable": true,
+    "current_result_rows_zero": true,
+    "current_analysis_absent": true,
+    "current_report_not_renderable": true,
+    "saved_rows_preserved": 67
+  },
+  "native_fixes": {
+    "NV-001": "cleared: final blank sole-case first authoring observed explicit empty selection and no temporary-case workaround",
+    "NV-002": "cleared: baseline V1 and new final native500 correct Historical; unchanged saves preserve raw fields"
+  },
+  "agent_equivalence": {
+    "actual_gui_review_intake_and_native_apply_observed": true,
+    "actual_input_snapshot": "_run_records/gui-agent-input350.json",
+    "draft": "_run_records/agent-load-batch-source-bound.json",
+    "expected_frozen_oracle": "_run_records/agent-load-independent-expectation.json",
+    "actual_output_snapshot": "_run_records/gui-agent-edited500.json",
+    "input_full_model_equal_gui350": true,
+    "output_full_model_equal_human500": true,
+    "source_identity_file_supplied_not_authenticated": true,
+    "connected_provider_executed": false,
+    "initial_incomplete_source_draft_correctly_blocked": true
+  },
+  "packaged_selftest": {
+    "raw_record": "_run_records/fresh-packaged-selftest.json",
+    "exit_code": 0,
+    "fixture_hashes_separate_from_actual_gui": {
+      "agent_intent": "sha256:89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336",
+      "baseline": "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c",
+      "edit": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+      "equivalent_agent": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+      "human_intent": "sha256:a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401",
+      "redo_checkpoint": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+      "undo_checkpoint": "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c"
+    },
+    "not_substitute_for_gui": true
+  },
+  "source_build_identity": "FRESH_BUILD_BINDING.json",
+  "post_gui_binding": "POST_GUI_SOURCE_BUILD_BINDING.json",
+  "machine_store_and_process_identity": "_run_records/GUI_STORE_IDENTITY.json",
+  "screenshots": [
+    "_run_records/gui-solved500.png",
+    "_run_records/gui-reopened-historical.png",
+    "_run_records/gui-resolved500-tip.png"
+  ],
+  "unexecuted": [
+    "Connected external agent provider identity/authentication",
+    "Whole saved-result schema compatibility beyond exact malformed-analysis safety",
+    "Professional acceptance, protected rule criteria, publication or lifecycle transition",
+    "Final independent 100percent integrated review and complete clean DEC025 (parent stages)"
+  ],
+  "normal_app_store_or_daemon_touched": false,
+  "isolated_processes_closed": true
+}

@@ -1,0 +1,12 @@
+{
+  "isolated_store_raw_path": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.workflow-contact-20260913/openpipestress-projects.sqlite3",
+  "isolated_store_sha256_at_final_close": "753aa5eda20fcfad9da4ebcb503a51d0429381e525f7688cc4799c1ca9fbb526",
+  "binary_raw_path": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Workflow Contact Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "identifier": "org.openpipestress.technical-preview.workflow-contact-20260913",
+  "process_before_quit": "38654 Sun Sep 13 15:05:17 2026     /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Workflow Contact Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "process_after_reopen": "39464 Sun Sep 13 15:16:38 2026     /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Workflow Contact Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "original_pid_absent_after_quit": true,
+  "reopened_process_absent_after_final_close": true,
+  "normal_store_access": false,
+  "daemon_operations": false
+}

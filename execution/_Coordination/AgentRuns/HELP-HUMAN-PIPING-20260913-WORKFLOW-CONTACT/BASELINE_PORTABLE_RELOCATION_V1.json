@@ -1,0 +1,19 @@
+{
+  "derivative": true,
+  "reason": "Frozen baseline assertion contains machine-specific store identity outside raw records. Preserve exact bytes and expose portable reference without altering evidence.",
+  "relocations": [
+    {
+      "previous_active": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/BASELINE_ASSERTIONS.json",
+      "immutable_raw": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_ASSERTIONS.json",
+      "preserved_sha256": "25db04b763016aaecb6c40cd6071b670c8318b4fdb07337effa09aab14c2aa72",
+      "current_wrapper_sha256": "25966cbdd05348b1db4d4acc296fa44bd281f6f19677dda2f53e04d2f7718210"
+    },
+    {
+      "previous_active": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/BASELINE_EVIDENCE_MANIFEST.json",
+      "immutable_raw": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_EVIDENCE_MANIFEST.json",
+      "preserved_sha256": "3cb24944061b869060a2ab3bfededbba98e560cde9071a819da38138b1cc7728",
+      "current_binding_sha256": "edb07f91de4f37c9a639d5ec97e8688cea35b90d14d3efc0f33fa67d4187787a"
+    }
+  ],
+  "references": "Existing baseline return/findings resolve BASELINE_ASSERTIONS.json portable wrapper; historical manifest remains exact raw evidence. Active manifest transparently binds wrapper and relocated originals. No FINAL_V2/source changes."
+}

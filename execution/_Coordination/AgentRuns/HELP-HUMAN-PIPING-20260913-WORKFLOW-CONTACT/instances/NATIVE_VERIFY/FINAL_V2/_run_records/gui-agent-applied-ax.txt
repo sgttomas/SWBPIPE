@@ -1,0 +1,181 @@
+Window: "SWBPIPE Workflow Contact Witness 20260913", App: SWBPIPE Workflow Contact Witness 20260913.
+0 standard window SWBPIPE Workflow Contact Witness 20260913, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: off
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: on
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 7  of  7  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: on
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+						54 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+						55 heading Pipes, Value: 3
+							56 text Pipes
+						57 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+						58 heading Supports, Value: 3
+							59 text Supports
+						60 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: off
+						61 heading Load Cases, Value: 3
+							62 text Load Cases
+						63 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: off
+					64 text 3D Centerline
+					65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						66 summary Deformation · unavailable, Value: off
+							67 text Deformation · unavailable
+					68 container Viewport display toggles
+						69 toggle button Labels, Help: Show or hide entity labels, Value: on
+						70 toggle button Loads, Help: Show or hide load arrows, Value: on
+						71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					72 text Selected:  project:blank-local-20260913t210608z
+					73 container
+						74 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						75 container Viewport entity selection
+							76 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+							77 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+							78 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+							79 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: off
+						80 container Orientation gizmo
+						81 container View controls
+							82 toggle button Front, Value: off
+							83 toggle button Top, Value: off
+							84 toggle button Iso, Value: on
+						85 text 1 m
+					86 container Command and selection bar
+						87 container Object creation tools
+							88 toggle button Node, Help: Arm node creation, Value: off
+							89 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							90 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							91 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							92 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						93 text Select
+						94 summary Selection & navigation, Value: off
+							95 text Selection & navigation
+				96 container Workspace sections
+					97 container
+						98 heading Review changes, Value: 2
+							99 text Review changes
+						100 button Close
+					101 container Operation Apply section
+						102 container Editing and review tools
+							103 toggle button Review changes, Value: on
+							104 toggle button Geometry, Value: off
+							105 toggle button Supports, Value: off
+							106 toggle button Self weight, Value: off
+							107 toggle button Agent, Value: off
+							108 toggle button Details, Value: off
+						109 container Batch review
+							110 heading Batch review, Value: 3
+								111 text Batch review
+							112 container
+								113 text 0  queued batches;  2  batches applied this session.
+							114 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
+							115 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
+							116 text Batch applied once. Previous solve results were cleared; one undo checkpoint is available.
+							117 summary Applied batch: batch:viewport-straight-route-pipe:WF-001, Value: off
+								118 text Applied batch: 
+								119 text batch:viewport-straight-route-pipe:WF-001
+							120 summary Applied batch: batch:native-final-agent-load-source-bound, Value: off
+								121 text Applied batch: 
+								122 text batch:native-final-agent-load-source-bound
+						123 container Apply structured operations
+							124 text APPLY OPERATIONS
+							125 container
+								126 text 0  queued;  8  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
+							127 container Operation status
+								128 text Engine  ready 0 unit-bearing queued, 0 dimensionless queued; no unit validations yet; 8 applied receipts.
+							129 container Session edit history
+								130 button Undo, Help: Undo last local session model edit
+								131 button (disabled) Redo, Help: Redo last undone local session model edit
+								132 text 7  undo /  0  redo
+							133 text Pending changes cleared. Requests already running will not change this session.
+							134 text Queue a review intent from the property inspector or viewport to validate and apply it here.
+							135 text APPLIED THIS SESSION
+							136 container
+								137 text op:editor-intent-load:WF-primitive_loads.0.magnitude.value Load load:WF ;  primitive_loads.0.magnitude.value :  350  to {"value":500,"unit":"N"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:6c909e3114442b2fb…
+							138 container
+								139 text op:load-manager-load:WF-load:WF-FY-primitive Load load:WF ;  primitive_loads :  not_present  to {"id":"load:WF-FY","category":"concentrated_force","target":{"type":"node","node":"node:WF-TIP"},"direction":"global_y","magnitude":{"value":350,"unit":"N"},"dimension":"force","provenance":"invented_synthetic_workflow_input"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:2932edda205a4531a…
+							140 container
+								141 text op:load-manager-create-load:WF Load load:WF ;  load_cases :  not_present  to {"id":"load:WF","label":"Synthetic tip force","kind":"primitive_user_load","status":"preview_only","provenance":"invented_synthetic_workflow_input","primitive_loads":[]} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:9b24da5142ab31363…
+							142 container
+								143 text op:create-support-support:WF-ROOT Support support:WF-ROOT ;  supports :  not_present  to {"id":"support:WF-ROOT","label":"Root anchor","node":"node:WF-ROOT","restraints":["UX","UY","UZ","RX","RY","RZ"],"provenance":"invented_synthetic_workflow_input"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:56c12b696305b486d…
+							144 container
+								145 text op:create-material-material:WF Material material:WF ;  materials :  not_present  to {"id":"material:WF","label":"Invented workflow material","elastic_modulus":{"value":200000000000,"unit":"Pa"},"shear_modulus":{"value":77000000000,"unit":"Pa"},"provenance":"invented_synthetic_workflow_input"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:559033d1cc854368f…
+							146 container
+								147 text op:viewport-create-node-node:WF-ROOT-001 Node node:WF-ROOT ;  nodes :  not_present  to {"id":"node:WF-ROOT","label":"Root","position":{"x":0,"y":2.4,"z":0},"provenance":"invented_synthetic_workflow_input"} Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:15076cc109664cfc0…
+							148 container
+								149 text batch:viewport-straight-route-pipe:WF-001 Model project:blank-local-20260913t210608z ;  batch : sha256:559033d1cc854368fed6ab93219dac95ea1c066ee27fc0f76e8d4f4ada28be3e  to sha256:adf8ac59255e1151beeaf2f826c706cd39d7d48f2978e45f104699270f0f0214 Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:adf8ac59255e1151b…
+							150 container
+								151 text batch:native-final-agent-load-source-bound Model project:blank-local-20260913t210608z ;  batch : sha256:2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788  to sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf Applied through  tauri_backend_apply . Acceptance basis  user_initiated_apply_in_local_session ; persistence session_state_only_not_yet_saved ; professional approval not recorded . model_hash= sha256:6c909e3114442b2fb…
+							152 text Applying a structured operation records a user-initiated local-session acceptance only; acceptance and professional judgment remain with the responsible engineer. Results of earlier solves are cleared because they no longer describe the edited model.
+				153 container Workspace status
+					154 container Analysis statuses
+						155 summary Mechanics model incomplete, Value: off
+							156 text Mechanics
+							157 text model incomplete
+						158 summary Rule check Inputs needed, Value: off
+							159 text Rule check
+							160 text Inputs needed
+						161 summary Professional Review required, Value: off
+							162 text Professional
+							163 text Review required
+					164 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					165 button (collapsed) ⚑ 5 Issues, Secondary Actions: Expand
+				166 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	167 close button
+	168 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	169 minimize button
+	170 text SWBPIPE Workflow Contact Witness 20260913
+171 menu bar
+	172 SWBPIPE Workflow Contact Witness 20260913
+	173 File
+	174 Edit
+	175 View
+	176 Insert
+	177 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

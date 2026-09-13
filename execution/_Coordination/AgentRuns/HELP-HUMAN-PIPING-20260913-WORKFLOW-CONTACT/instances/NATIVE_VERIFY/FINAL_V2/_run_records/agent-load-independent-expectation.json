@@ -1,0 +1,9 @@
+{
+  "input_gui_snapshot": "gui-authored350.json",
+  "input_model_hash": "sha256:2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+  "expected_matching_human_snapshot": "gui-human-edited500.json",
+  "expected_model_hash": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf",
+  "author_type": "agent",
+  "identity_not_verified": true,
+  "submission": "agent-load-batch.json"
+}

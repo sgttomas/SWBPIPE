@@ -1,0 +1,28 @@
+{
+  "parent": "/root HELP_HUMAN",
+  "native_acceptance": "bounded witness accepted; publication/lifecycle closure not accepted",
+  "native_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/FINAL_V2/FINAL_EVIDENCE_MANIFEST.json",
+  "native_manifest_sha256": "c560514def69f289e37ba4cf6e3bc17ac47f5c826108f712133db9620d305a40",
+  "verified_file_count": 93,
+  "source_basis": "7e45f6ec8714250319afb94c1633dee61d48e3c4",
+  "source_binding": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/INTEGRATED_CANDIDATE_BINDING_V2.json",
+  "source_binding_sha256": "2eee2294c50264c48fa6f76001b762130c11b94de273b72d35129dd7897e103e",
+  "parent_independent_fanin": [
+    "exact Undo/Redo full model bytes and hashes",
+    "actual GUI human and agent500 model/hash equivalence",
+    "eight saved historical fields exact",
+    "all67 re-solved rows exact",
+    "published numerical oracle allowances",
+    "original handoff unchanged",
+    "upstream main b2c133d7"
+  ],
+  "review_release": "parent will launch fresh TASK gpt-6-astra/high against exact checkpoint HEAD; read-only complete cumulative diff; no outputs/children/builds",
+  "pending": [
+    "fresh100%integrated review",
+    "complete clean registeredDEC025",
+    "full practitioner/self-check/receipt",
+    "actual affected localCI entrypoints",
+    "actual candidateCI/review/PR/merge"
+  ],
+  "command_contract_current": "instances/SETUP/_run_records/CLOSEOUT_PREP_V1/COMMAND_CONTRACT_DRAFT_V2.json"
+}

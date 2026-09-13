@@ -1,0 +1,231 @@
+Window: "SWBPIPE Workflow Contact Witness 20260913", App: SWBPIPE Workflow Contact Witness 20260913.
+0 standard window SWBPIPE Workflow Contact Witness 20260913, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Created blank local model document without fixture entities or external file copies. Details, Value: off
+						17 text Created blank local model document without fixture entities or external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: on
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: off
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: off
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 7  of  7  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+						54 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+						55 heading Pipes, Value: 3
+							56 text Pipes
+						57 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+						58 heading Supports, Value: 3
+							59 text Supports
+						60 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: off
+						61 heading Load Cases, Value: 3
+							62 text Load Cases
+						63 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: on
+					64 text 3D Centerline
+					65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						66 summary Deformation · unavailable, Value: off
+							67 text Deformation · unavailable
+					68 container Viewport display toggles
+						69 toggle button Labels, Help: Show or hide entity labels, Value: on
+						70 toggle button Loads, Help: Show or hide load arrows, Value: on
+						71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					72 text Selected:  load:WF
+					73 container
+						74 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						75 container Viewport entity selection
+							76 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+							77 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+							78 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+							79 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: off
+						80 container Orientation gizmo
+						81 container View controls
+							82 toggle button Front, Value: off
+							83 toggle button Top, Value: off
+							84 toggle button Iso, Value: on
+						85 text 1 m
+					86 container Command and selection bar
+						87 container Object creation tools
+							88 toggle button Node, Help: Arm node creation, Value: off
+							89 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							90 toggle button Support, Help: Arm support creation in the Inspector, Value: on
+							91 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							92 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						93 text Support tool armed
+						94 summary Selection & navigation, Value: off
+							95 text Selection & navigation
+				96 container Workspace sections
+					97 container
+						98 heading Load Cases, Value: 2
+							99 text Load Cases
+						100 button Close
+					101 container Load Cases section
+						102 container Load case manager
+							103 text LOAD CASES
+							104 container
+								105 text 1  load cases;  0  primitive loads;  0  combinations; unit posture=single_unit_system_preview; saved_project_mutated=false
+							106 container Create load case
+								107 text load:WF
+								108 text new empty load case; primitives=0; unit=none
+								109 container
+									110 text ID
+									111 text field (settable) New load case id, Value: load:WF
+								112 container
+									113 text Label
+									114 text field (settable) New load case label, Value: Synthetic tip force
+								115 container
+									116 text Kind
+									117 text field (settable) New load case kind, Value: primitive_user_load
+								118 container
+									119 text Status
+									120 text field (settable) New load case status, Value: preview_only
+								121 container
+									122 text Provenance
+									123 text field (settable) New load case provenance, Value: invented_synthetic_workflow_input
+								124 button (disabled) Queue case, Help: Queue load-case creation operation
+								125 text id=load:WF already exists; no load case queued
+							126 container Create primitive load
+								127 text load:L-100-F300
+								128 text concentrated_force ; target= node:N-100 ; unit= N
+								129 container
+									130 text Type
+									131 pop up button Primitive load category, Value: concentrated_force
+								132 container
+									133 text Case
+									134 pop up button Primitive load case, Value: Select load case
+								135 container
+									136 text ID
+									137 text field (settable) New primitive load id, Value: load:L-100-F300
+								138 container
+									139 text Node
+									140 pop up button Concentrated force target node, Value: Select node
+								141 container
+									142 text Dir
+									143 pop up button Primitive load direction, Value: global_y
+								144 container
+									145 text Magnitude unit
+									146 pop up button Primitive load unit, Value: N (DEC-018 canonical)
+								147 container
+									148 text Magnitude ( N, DEC-018 canonical )
+									149 text field (settable) Primitive load magnitude, Value: 250
+								150 container
+									151 text Provenance
+									152 text field (settable) Primitive load provenance, Value: user_entered_local_preview
+								153 button (disabled) Queue load, Help: Queue primitive load operation
+								154 text complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load
+							155 container Create combination
+								156 text combination:C-300
+								157 text basis=mechanics; term=load:WF x 1
+								158 container
+									159 text ID
+									160 text field (settable) New combination id, Value: combination:C-300
+								161 container
+									162 text Label
+									163 text field (settable) New combination label, Value: User mechanics combination
+								164 container
+									165 text Basis
+									166 pop up button New combination basis, Value: mechanics
+								167 container
+									168 text Load
+									169 pop up button New combination initial load case, Value: load:WF
+								170 container
+									171 text Factor
+									172 text field (settable) New combination factor, Value: 1
+								173 container
+									174 text Provenance
+									175 text field (settable) New combination provenance, Value: user_entered_local_preview
+								176 container
+									177 text Rationale
+									178 text field (settable) New combination rationale, Value: user_entered_combination_create_preview_change
+								179 button Queue combo, Help: Queue combination creation operation
+								180 text op:load-manager-create-combination:C-300; before=not_present; after=combination:C-300; term=load:WF x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+							181 button Synthetic tip force load:WF; primitive_user_load; preview_only; primitives=0 invented_synthetic_workflow_input
+							182 container Load case metadata editor
+								183 text load:WF
+								184 text field= status ; current= preview_only ; path= status
+								185 container
+									186 text Field
+									187 pop up button Load case metadata field, Value: Status
+								188 container
+									189 text Value
+									190 pop up button Load case metadata value, Value: preview_only
+								191 container
+									192 text Rationale
+									193 text field (settable) Load case metadata rationale, Value: user_entered_load_case_metadata_preview_change
+								194 button (disabled) Queue metadata, Help: Queue load-case metadata operation
+								195 text current=preview_only; no changed status queued
+								196 container
+									197 text Delete rationale
+									198 text field (settable) Load case delete rationale, Value: user_entered_load_case_delete_preview_change
+								199 button Queue delete case, Help: Queue load-case delete operation
+								200 text op:load-manager-load:WF-delete; before=load:WF; Synthetic tip force; primitive_user_load; preview_only; primitives=0; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
+							201 text No primitive loads are available in the current model.
+							202 text Load edits are queued as structured operations, applied only after user action, and remain local-session changes until saved. This panel does not add rule-code combinations, protected standards content, or professional approval.
+				203 container Workspace status
+					204 container Analysis statuses
+						205 summary Mechanics model incomplete, Value: off
+							206 text Mechanics
+							207 text model incomplete
+						208 summary Rule check Inputs needed, Value: off
+							209 text Rule check
+							210 text Inputs needed
+						211 summary Professional Review required, Value: off
+							212 text Professional
+							213 text Review required
+					214 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					215 button (collapsed) ⚑ 5 Issues, Secondary Actions: Expand
+				216 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	217 close button
+	218 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	219 minimize button
+	220 text SWBPIPE Workflow Contact Witness 20260913
+221 menu bar
+	222 SWBPIPE Workflow Contact Witness 20260913
+	223 File
+	224 Edit
+	225 View
+	226 Insert
+	227 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

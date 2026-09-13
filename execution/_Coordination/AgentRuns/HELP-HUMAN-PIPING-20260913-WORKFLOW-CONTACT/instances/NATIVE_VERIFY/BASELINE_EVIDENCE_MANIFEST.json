@@ -1,6 +1,6 @@
 {
   "ATTRIBUTION_PREP.json": "5b8913233384fa588b2ab51696587669fe62df2aaeb3d93990749aff83521389",
-  "BASELINE_ASSERTIONS.json": "25db04b763016aaecb6c40cd6071b670c8318b4fdb07337effa09aab14c2aa72",
+  "BASELINE_ASSERTIONS.json": "25966cbdd05348b1db4d4acc296fa44bd281f6f19677dda2f53e04d2f7718210",
   "BASELINE_FINDINGS.json": "07349bc344f5f7f5d1a235aa4ab6dfc2eedaed4184fff264f0101742be0f830f",
   "BASELINE_RETURN.md": "0620ed95e731047540d2ef80624c4a61c712183fb346c1eec36a8a6551309c5a",
   "CACHE_RELOCATION.md": "19083eb8cb1f157fc3e80ce17b7b1ef59112bb667131a6da2509ace3b3c5a8a8",
@@ -66,5 +66,7 @@
   "_run_records/gui-undo350.sqlite3-wal": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "_run_records/historical-native-result-hash-diagnosis.json": "f69e93ef5a711a7416d3bc909220048dc87e0ceb2bc4916af0abf71215be9e66",
   "_run_records/npm-ci.log": "96bff21e97ce5497cd17dfe0abb5e04ee6d727db662b14810b6bd1c67776d69c",
-  "_run_records/tauri-isolated-overlay.json": "ecc314749359490acde713753e0a65766cb26eb7333830244efd014e7897b1d6"
+  "_run_records/tauri-isolated-overlay.json": "ecc314749359490acde713753e0a65766cb26eb7333830244efd014e7897b1d6",
+  "_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_ASSERTIONS.json": "25db04b763016aaecb6c40cd6071b670c8318b4fdb07337effa09aab14c2aa72",
+  "_run_records/BASELINE_PORTABILITY_RELOCATION_V1/BASELINE_EVIDENCE_MANIFEST.json": "3cb24944061b869060a2ab3bfededbba98e560cde9071a819da38138b1cc7728"
 }

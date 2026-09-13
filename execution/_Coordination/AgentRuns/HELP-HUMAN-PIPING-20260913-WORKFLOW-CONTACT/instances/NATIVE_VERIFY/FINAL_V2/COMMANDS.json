@@ -1,0 +1,15 @@
+[
+  {
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "command": "CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app --ci --no-sign --config <own FINAL_V2 raw overlay>",
+    "exit_code": 0,
+    "log": "_run_records/fresh-native-build.log"
+  },
+  {
+    "cwd": "projects/chirality-piping/apps/desktop",
+    "command": "<fresh bound isolated bundle binary> --self-test-saved-edited-load",
+    "exit_code": 0,
+    "log": "_run_records/fresh-packaged-selftest.json",
+    "stderr": "_run_records/fresh-packaged-selftest.stderr"
+  }
+]

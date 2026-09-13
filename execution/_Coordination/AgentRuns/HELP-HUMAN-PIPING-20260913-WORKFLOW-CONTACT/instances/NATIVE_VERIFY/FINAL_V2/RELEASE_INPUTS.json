@@ -1,0 +1,24 @@
+{
+  "source_sha": "7e45f6ec8714250319afb94c1633dee61d48e3c4",
+  "upstream_baseline_source_sha": "df5ce9156151eb60392a2b0a18e4cbf75f4a3625",
+  "source_11_hashes": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+    "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": "a207caf3687db846c842fdf7b854d8a02498025b48b23925541a700844de7365",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78"
+  },
+  "baseline_manifest_all_files_unchanged": true,
+  "source_clean": true,
+  "binding": "INTEGRATED_CANDIDATE_BINDING_V2.json",
+  "lease": "exclusive build/WASM/dist/native/GUI parent grant",
+  "frozen_method": "../SEALED_BRIEF_PREP.md",
+  "frozen_expectations": "../FROZEN_INDEPENDENT_EXPECTATIONS.json",
+  "raw_config": "_run_records/tauri-isolated-overlay.json"
+}

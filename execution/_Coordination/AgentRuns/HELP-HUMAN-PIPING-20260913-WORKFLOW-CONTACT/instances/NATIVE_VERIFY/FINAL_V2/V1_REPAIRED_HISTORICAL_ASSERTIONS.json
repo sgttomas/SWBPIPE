@@ -1,0 +1,14 @@
+{
+  "eight_raw_fields_preserved": {
+    "model_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true,
+    "project_envelope_hash_json": true,
+    "editor_intents_json": true,
+    "proposal_json": true,
+    "selected_review_target_json": true
+  },
+  "only_expected_missing_manifest_finding": true,
+  "raw_native_rows_still_omit_dimension": true
+}
