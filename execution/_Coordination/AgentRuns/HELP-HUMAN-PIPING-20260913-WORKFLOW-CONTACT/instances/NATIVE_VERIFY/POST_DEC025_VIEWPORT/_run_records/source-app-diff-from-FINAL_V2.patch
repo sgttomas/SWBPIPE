@@ -1,0 +1,13 @@
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index a9bb4021d..272bca20f 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -1974,7 +1974,7 @@ function AppSession() {
+               onSelect={handleSelectEntity}
+               queuedIntents={editorIntents}
+               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
+-              result={currentSolvedResult}
++              result={result}
+               selection={selection}
+             />
+           </div>

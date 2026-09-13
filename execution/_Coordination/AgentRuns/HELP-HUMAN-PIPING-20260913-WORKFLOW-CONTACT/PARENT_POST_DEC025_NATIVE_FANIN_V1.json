@@ -1,0 +1,24 @@
+{
+  "parent": "/root HELP_HUMAN",
+  "acceptance": "Bounded post-repair native witness accepted. Publication, lifecycle and full deterministic closure remain pending.",
+  "native_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/FINAL_EVIDENCE_MANIFEST.json",
+  "native_manifest_sha256": "055ec5617b126d0ef97a62725d3093e0d5acd4e7b033953f7f3cfa45f5ddeb2d",
+  "source_basis": "d51169a2c89e98d49175c23dea2c4b78d55ea8be",
+  "source_binding": "INTEGRATED_CANDIDATE_BINDING_V3.json",
+  "parent_independent_fanin": [
+    "82 native entries verified; prior93-entry FINAL_V2 unchanged",
+    "all12 source hashes unchanged",
+    "two unchanged-save comparisons preserve eight fields exactly",
+    "initial and recovery model/result bytes and all67 rows exact",
+    "ten published numerical allowances independently recomputed",
+    "blocked report/viewport, recovered solved500 and fresh Historical screenshots visually inspected"
+  ],
+  "lease": "released; isolated process closed",
+  "review_release": "Fresh independent integrated evidence backcheck on clean checkpoint; reviewer decides closure of RV-V3-001 after committed blob verification",
+  "pending": [
+    "final independent review backcheck",
+    "complete clean DEC025",
+    "practitioner/self-check/receipt and affected CI entrypoints",
+    "actual candidate CI/PR/merge"
+  ]
+}

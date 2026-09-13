@@ -1,0 +1,1 @@
+Exact isolated bundled executable absent after actual final GUI close.

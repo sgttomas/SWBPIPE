@@ -1,0 +1,186 @@
+{
+  "source_sha": "d51169a2c89e98d49175c23dea2c4b78d55ea8be",
+  "gate_verdict": "bounded_post_DEC025_native_viewport_recheck_passed_pending_parent_review_full_sweep",
+  "derivative_evidence_only": true,
+  "source_12_code_8_docs_and_full_bundle_dist_sets_match_after_GUI": true,
+  "prior_FINAL_V2_93_files_byte_exact": true,
+  "actual_GUI500_model_hash": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf",
+  "actual_reduced_support_model_hash": "sha256:ec3e6eb0d9dfb4063bc1efb0252a4b0b673226b01afa73031f6155d07fde2fe9",
+  "support_restraints_only_delta": true,
+  "all_attachments_and_full_model_bytes_exact_after_undo": true,
+  "first_historical_preservation_all8": {
+    "model_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true,
+    "project_envelope_hash_json": true,
+    "editor_intents_json": true,
+    "proposal_json": true,
+    "selected_review_target_json": true
+  },
+  "fresh_process_reopen_historical_preservation_all8": {
+    "model_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true,
+    "project_envelope_hash_json": true,
+    "editor_intents_json": true,
+    "proposal_json": true,
+    "selected_review_target_json": true
+  },
+  "native_current_blocked": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "rows": 0,
+    "diagnostic": {
+      "affected_refs": [
+        "supports"
+      ],
+      "code": "SOLVER_SYSTEM_BLOCKED",
+      "id": "diagnostic:physics:under-restrained",
+      "message": "fewer than six independent ground DOFs including positive springs; restrained global DOF classes: UX,UY,UZ; missing global rigid-body DOF classes: RX,RY,RZ; support contributions: support:WF-ROOT@node:WF-ROOT=UX,UY,UZ",
+      "severity": "blocking",
+      "source": "core/product_physics"
+    },
+    "honest_viewport_blocked_summary": true,
+    "no_not_started_claim": true,
+    "scale_not_generated": true,
+    "deformed_geometry_observation": "Screenshot plus unchanged source guard: non-solved returns empty nodePositions; renderer draws deformation only in available state. Internal map not directly inspected in native runtime.",
+    "render_and_save_report_buttons_disabled": true
+  },
+  "recovery": {
+    "current_native_solve": true,
+    "result_rows": 67,
+    "all67_native_rows_raw_byte_equal_prior500": true,
+    "same_input_manifest_hash": true,
+    "viewport_normalized_available": true,
+    "local_technical_report_controls_reenabled_no_publication": true
+  },
+  "published_numerics": [
+    {
+      "snapshot": "initial-solved500",
+      "row_id": "result:disp:node-WF-TIP:uy",
+      "actual": 2.375817,
+      "expected": 2.375816737208654,
+      "unit": "mm",
+      "absolute_error": 2.6279134601736587e-07,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "initial-solved500",
+      "row_id": "result:disp:node-WF-TIP:rz",
+      "actual": 0.001114,
+      "expected": 0.0011136640955665567,
+      "unit": "rad",
+      "absolute_error": 3.35904433443248e-07,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "initial-solved500",
+      "row_id": "result:reaction:support-WF-ROOT",
+      "actual": 500,
+      "expected": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "initial-solved500",
+      "row_id": "result:force:pipe-WF:shear-z",
+      "actual": 500,
+      "expected": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "initial-solved500",
+      "row_id": "result:moment:pipe-WF:bending-y",
+      "actual": -1600,
+      "expected": -1600,
+      "unit": "N*m",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "recovery-solved500",
+      "row_id": "result:disp:node-WF-TIP:uy",
+      "actual": 2.375817,
+      "expected": 2.375816737208654,
+      "unit": "mm",
+      "absolute_error": 2.6279134601736587e-07,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "recovery-solved500",
+      "row_id": "result:disp:node-WF-TIP:rz",
+      "actual": 0.001114,
+      "expected": 0.0011136640955665567,
+      "unit": "rad",
+      "absolute_error": 3.35904433443248e-07,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "recovery-solved500",
+      "row_id": "result:reaction:support-WF-ROOT",
+      "actual": 500,
+      "expected": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "recovery-solved500",
+      "row_id": "result:force:pipe-WF:shear-z",
+      "actual": 500,
+      "expected": 500,
+      "unit": "N",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    },
+    {
+      "snapshot": "recovery-solved500",
+      "row_id": "result:moment:pipe-WF:bending-y",
+      "actual": -1600,
+      "expected": -1600,
+      "unit": "N*m",
+      "absolute_error": 0,
+      "allowance": 5.001e-07,
+      "passed": true
+    }
+  ],
+  "signed_reaction_boundary": "Direct support DTO is resultant500N. Authored localz=-globalY transforms published end-i shearZ500N to signed globalY-500N; localy=globalZ transforms end-i bendingY-1600Nm to signed globalZ-1600Nm. No direct support component DTO claim.",
+  "fresh_build_and_packaged_selftest_exit0": true,
+  "embedded_native_fixture_hashes_separate": {
+    "agent_intent": "sha256:89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336",
+    "baseline": "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c",
+    "edit": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+    "equivalent_agent": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+    "human_intent": "sha256:a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401",
+    "redo_checkpoint": "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+    "undo_checkpoint": "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c"
+  },
+  "genuine_quit_fresh_reopen_observed": true,
+  "isolated_final_process_closed": true,
+  "machine_identity_raw_record": "_run_records/STORE_PROCESS_IDENTITY.json",
+  "source_build_binding": "FRESH_BUILD_BINDING.json",
+  "old_full_authoring_history_agent_witness_applicability": "FINAL_V2 unchanged relevant controls/native source equality proven in SOURCE_EQUALITY_BINDING.json; full blank cycle not repeated in this focused recheck.",
+  "literal_MECHANICS_NONCONVERGED_native_route": "unexecuted; maintained owner focused App tests mock IPC result branch; not actual native-authored nonconvergence",
+  "unexecuted": [
+    "Literal MECHANICS_BLOCKED/MECHANICS_NONCONVERGED native-authored outcomes",
+    "Connected provider identity/authentication",
+    "Whole saved-result schema compatibility",
+    "Professional acceptance, protected rule criteria, publication/lifecycle transition",
+    "Parent fresh independent integrated review and full clean DEC025"
+  ],
+  "normal_user_store_or_daemon_operations": false,
+  "exclusive_lease": "released_when_frozen_return_delivered"
+}

@@ -1,0 +1,43 @@
+{
+  "status": "four exactarchivesavailable; absentfromcommittedd511; packagingcorrectionpending",
+  "preserves": "INTEGRATED_CANDIDATE_BINDING_V3.json and d511 unchanged",
+  "archives": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-attempt1-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "expected_sha256": "b97aa5b6aca13b2332578402c51ef3b5c8cc58503e48861de6586aae3c92105b",
+      "exact_local_bytes_available": true,
+      "local_sha256": "b97aa5b6aca13b2332578402c51ef3b5c8cc58503e48861de6586aae3c92105b",
+      "committed_at_d511": false,
+      "ignore_rule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-attempt1-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "required_correction": "explicit force inclusion under later staging release; verify committed blob SHA aftercheckpoint"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-attempt1-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "expected_sha256": "13d30451c3019a891705d960284e596758260e88ce3ded1139f0483a584079e5",
+      "exact_local_bytes_available": true,
+      "local_sha256": "13d30451c3019a891705d960284e596758260e88ce3ded1139f0483a584079e5",
+      "committed_at_d511": false,
+      "ignore_rule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-attempt1-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "required_correction": "explicit force inclusion under later staging release; verify committed blob SHA aftercheckpoint"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "expected_sha256": "c0d72df1bd6440fe2f61782cd4e83d9c2e9bdf099a11f54b91dc537b20f77d21",
+      "exact_local_bytes_available": true,
+      "local_sha256": "c0d72df1bd6440fe2f61782cd4e83d9c2e9bdf099a11f54b91dc537b20f77d21",
+      "committed_at_d511": false,
+      "ignore_rule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "required_correction": "explicit force inclusion under later staging release; verify committed blob SHA aftercheckpoint"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "expected_sha256": "e99ed698480cdbfd384e0c011fa7499ff43001c0f02b6de33a2957afe863598a",
+      "exact_local_bytes_available": true,
+      "local_sha256": "e99ed698480cdbfd384e0c011fa7499ff43001c0f02b6de33a2957afe863598a",
+      "committed_at_d511": false,
+      "ignore_rule": ".gitignore:76:*.zip\tprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/VIEWPORT_REPAIR_INTEGRATION_V1/RAW/project_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "required_correction": "explicit force inclusion under later staging release; verify committed blob SHA aftercheckpoint"
+    }
+  ],
+  "next_checkpoint_contract": "enumerate every manifest-bound archive, explicitly stageignoredrawarchives underparentrelease, verify git show HEAD:path bytes SHA256 against manifest; worktreeonlyequality insufficient; no reconstruction/rerun"
+}

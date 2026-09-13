@@ -1,0 +1,41 @@
+# Frozen post-DEC025 native viewport recheck
+
+**PASS** for the bounded native viewport recheck on source `d51169a2c89e98d49175c23dea2c4b78d55ea8be`. No new product defect was observed. Actual native under-restraint now retains honest `Deformation · blocked` status and diagnostics while solved-only report controls remain disabled. Exact Undo and native recovery restore current eligible deformation/results. This is additive derivative technical-preview evidence, pending parent fresh independent integrated review and a complete clean DEC025; it does not issue professional approval, publication or lifecycle acceptance.
+
+The accepted source binding is `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/INTEGRATED_CANDIDATE_BINDING_V3.json` (SHA-256 `eb925a53c451e9d377fc0d6c24e0aa7eb0049f1784fd7576ad8d3f5b2c0f6d1a`). All 12 code/test and eight doc hashes matched at release, after build and after GUI. Complete fresh bundle/dist file sets and hashes remained unchanged through execution. `RELEASE_INPUTS.json`, `SOURCE_EQUALITY_BINDING.json`, `FRESH_BUILD_BINDING.json` and `FINAL_ASSERTIONS.json` contain portable bindings. Relative local references resolve within this packet; explicit `projects/` paths resolve from the repo root. Machine paths occur only under `_run_records`.
+
+## Observed and passed
+
+1. Fresh isolated native build from desktop, with `CARGO_NET_OFFLINE=true` and the existing Tauri config overlay, exited 0. Fresh binary `--self-test-saved-edited-load` exited 0. Its embedded fixture hashes remain separate from actual GUI model hashes.
+2. The existing invented actual-GUI500 project `project:blank-local-20260913t210608z` opened as Historical. Only expected `HISTORICAL_INPUT_MANIFEST_MISSING` appeared, with no false result hash mismatch. Current deformation/result analysis was unavailable; unchanged GUI save preserved all eight raw saved payload fields against FINAL_V2, including the original native 67-row mechanics data without added dimension properties.
+3. Actual native500 solve produced `MECHANICS_SOLVED`, 67 rows, current normalized deformation and the exact original full model/hash, result basis and input-manifest hash. Its native result envelope was byte-equal to FINAL_V2's successful500 result.
+4. Existing typed Support Restraints editing selected `support:WF-ROOT`, entered `UX, UY, UZ`, and applied through the native structured operation service. Before solving, the persisted model was independently compared to the saved500 oracle: only the three rotational restraints were removed. Geometry, load, units, provenance and all attachments remained unchanged. The actual edited hash was frozen before the blocked solve.
+5. Actual native solve returned **MODEL_INCOMPLETE**, zero rows, and blocking `SOLVER_SYSTEM_BLOCKED` / `diagnostic:physics:under-restrained`, explicitly naming missing RX/RY/RZ. The viewport showed `Deformation · blocked` and expanded exact text `blocked; mechanics=model incomplete; rows=0 scale=not_generated; professional_claim=false`. The diagnostic remained visible in Issues; current results/comparison were unavailable. Both Render report and Save Report Package were visibly disabled. Screenshot evidence showed the undeformed centerline with the blocked state; unchanged source guard evidence confirms non-solved results return empty nodePositions and the renderer draws deformation only for available state. No claim is made that screenshots directly inspect the internal map.
+6. Actual GUI Undo restored original500 full model bytes and exact hash, including all six root restraints and attachments. Fresh actual native recovery solve restored current normalized deformation and enabled the local technical report controls, without rendering, exporting or publishing a report. All 67 mechanics rows/envelope were byte-equal to initial500 and FINAL_V2. Ten published numerical assertions across initial and recovery500 passed within `0.5e-6 + 1e-10` in each declared unit; tip Uy was `2.375817 mm`, tip Rz `0.001114 rad`, root resultant `500 N`, local end-i shear-z `500 N`, and bending-y `-1600 N*m`.
+7. Saving recovered500 and genuine GUI quit closed PID 49342; the exact isolated bundled executable was absent. Fresh reopen created PID 50050 with a new process start against the same isolated store. Reopened500 appeared as Historical again, with only expected missing-manifest notice, unavailable current deformation/result analysis and no rendered-report readiness. Its unchanged save preserved all eight raw fields against the pre-quit recovery record. The reopened app then genuinely closed; the exact executable was absent at final verification.
+
+| Model checkpoint | Exact model hash |
+| --- | --- |
+| Original/solved500, Undo recovery, restored save/reopen | `sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf` |
+| Support rotational-restraint reduction and actual blocked solve | `sha256:ec3e6eb0d9dfb4063bc1efb0252a4b0b673226b01afa73031f6155d07fde2fe9` |
+
+Native signed-root verification is explicitly analytical transformation of published end-i actions using the authored local axes: local z = -global Y and local y = global Z give global root forceY `-500 N` and momentZ `-1600 N*m`. Direct support DTO evidence publishes only the `500 N` resultant; no direct support component rows are claimed.
+
+## Identity and visual evidence
+
+- Identifier `org.openpipestress.technical-preview.workflow-contact-20260913`; product `SWBPIPE Workflow Contact Witness 20260913`.
+- Fresh binary SHA-256 `d52b0cad07c1c5449d47aa7653f31e12272c732a3e54afe6ddc1235639a3b84e`.
+- Bundle tree SHA-256 `32a0fd675740a009edd260d8e4738282ab409f08073a2e8cc3056bb59402eb25`.
+- Dist tree SHA-256 `d39d9f5fab455809deadc5859c7078974551f59db817db1a240769813ce98f00`.
+- Isolated store SHA-256 at final close `e1089e258c9fa615896dcd0d4e7b11c9348d655c9e44ca77db7b3d132e002b6c`. Exact machine store/executable paths and process starts/absence checks are in `_run_records/STORE_PROCESS_IDENTITY.json`. No ordinary user store or daemon operation occurred.
+- Key screenshots: `_run_records/blocked-viewport-diagnostics.png`, `_run_records/blocked-report-viewport.png`, `_run_records/recovery-solved500.png`, `_run_records/fresh-reopened-historical.png`. Exact stored observations and AX records support screenshots; screenshots alone are not the numerical/hash/process proof.
+
+The window title remains `OpenPipeStress Technical Preview` although the isolated product/app identity is as bound in plist/process records. A CUA external-change notice interrupted one attempted Results click; refreshed native state showed the operation had not run, and repeating it observed the intended state. No workaround model or source edit was introduced.
+
+## Coverage and handoff
+
+FINAL_V2's 93 manifest-bound files and its manifest remain byte-exact. Relative to its source, the sole App product delta is `PipeViewport result={currentSolvedResult}` to `result={result}`; the existing guard, native mechanics/store/operations and history/agent/selector/Historical controls are source-equal. Earlier complete blank authoring350/500, history and actual offline agent-equivalence evidence therefore remains unchanged-controls evidence, rather than a repeated full blank cycle in this focused run.
+
+The literal MECHANICS_BLOCKED and MECHANICS_NONCONVERGED IPC branches remain owner-maintained mocked focused-test coverage; they were not native-authored GUI outcomes in this recheck. The actual under-restraint result is the distinct MODEL_INCOMPLETE blocked branch. Connected-provider identity/authentication, whole saved-result schema compatibility, protected rule criteria, professional acceptance, publication and lifecycle issuance remain unexecuted and unclaimed.
+
+`FINAL_EVIDENCE_MANIFEST.json` seals this additive packet. The isolated app process is closed and the exclusive native build/browser/GUI lease is **RELEASED** on delivery. Parent must obtain the fresh independent integrated review and execute the complete clean DEC025 sweep before push. This witness does not close those stages; any later source change requires fresh relevant bound execution. This TASK made no Git mutation or source repair and did not run the full DEC025 sweep.

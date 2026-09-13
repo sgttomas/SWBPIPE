@@ -1,0 +1,308 @@
+Window: "OpenPipeStress Technical Preview", App: SWBPIPE Workflow Contact Witness 20260913.
+0 standard window OpenPipeStress Technical Preview, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: on
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 7  of  7  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: off
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+						54 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+						55 heading Pipes, Value: 3
+							56 text Pipes
+						57 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+						58 heading Supports, Value: 3
+							59 text Supports
+						60 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: on
+						61 heading Load Cases, Value: 3
+							62 text Load Cases
+						63 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: off
+					64 text 3D Centerline
+					65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						66 summary Deformation · blocked, Value: off
+							67 text Deformation · blocked
+					68 container Viewport display toggles
+						69 toggle button Labels, Help: Show or hide entity labels, Value: on
+						70 toggle button Loads, Help: Show or hide load arrows, Value: on
+						71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					72 text Selected:  support:WF-ROOT
+					73 container
+						74 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						75 container Viewport entity selection
+							76 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+							77 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+							78 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+							79 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: on
+						80 container Orientation gizmo
+						81 container View controls
+							82 toggle button Front, Value: off
+							83 toggle button Top, Value: off
+							84 toggle button Iso, Value: on
+						85 text 1 m
+					86 container Command and selection bar
+						87 container Object creation tools
+							88 toggle button Node, Help: Arm node creation, Value: off
+							89 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							90 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							91 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							92 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						93 text Select
+						94 summary Selection & navigation, Value: off
+							95 text Selection & navigation
+					96 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					97 container Property inspector
+						98 heading Root anchor, Value: 2
+							99 text Root anchor
+						100 summary All properties, Value: off
+							101 text All properties
+						102 container Inspector review context
+							103 container Required flags
+								104 text REQUIRED
+								105 container
+									106 text ⚑  Family
+						107 container Editor operation intent
+							108 heading Edit name, Value: 3
+								109 text  Edit  name
+							110 container
+								111 text Property
+								112 pop up button Property to edit, Value: Name
+							113 container Current value
+								114 text CURRENT  NAME
+								115 text Root anchor
+							116 container
+								117 text New  name
+								118 text field (settable) New name, Value: Root anchor
+							119 button (disabled) Queue change, Help: Add this change to the review queue
+							120 button (disabled) Validate, Help: Validate without applying
+							121 button (disabled) Apply, Help: Apply this exact displayed intent through the operation service
+							122 summary Operation details, Value: off
+								123 text Operation details
+							124 text Validate to check this change before applying it.
+						125 summary Sources and units, Value: off
+							126 text Sources and units
+						127 container (expanded) Secondary Actions: Collapse
+							128 summary Support configuration, Value: on
+								129 text Support configuration
+							130 container Support configuration
+								131 heading Support configuration, Value: 3
+									132 text Support configuration
+								133 text Choose the support family and enter its physical inputs. Family names do not supply restraints or engineering values. Missing inputs remain missing; validation determines readiness.
+								134 container Edit support
+									135 text Edit support
+									136 container
+										137 checkbox Create a new support, Value: 0
+										138 text Create a new support
+									139 container
+										140 text Root anchor  —  support:WF-ROOT , node  node:WF-ROOT
+									141 container
+										142 text Support family
+										143 pop up button Support family, Value: Not provided (preserved)
+									144 container Restrained degrees of freedom
+										145 text Restrained degrees of freedom
+										146 container
+											147 checkbox Restrain UX, Value: 1
+											148 text UX
+										149 container
+											150 checkbox Restrain UY, Value: 1
+											151 text UY
+										152 container
+											153 checkbox Restrain UZ, Value: 1
+											154 text UZ
+										155 container
+											156 checkbox Restrain RX, Value: 0
+											157 text RX
+										158 container
+											159 checkbox Restrain RY, Value: 0
+											160 text RY
+										161 container
+											162 checkbox Restrain RZ, Value: 0
+											163 text RZ
+									164 container
+										165 text Support provenance
+										166 text field (settable) Support provenance, Value: invented_synthetic_workflow_input
+									167 button Add support stiffness
+									168 container
+										169 checkbox Include hanger data, Value: 0
+										170 text Include hanger data
+									171 container
+										172 checkbox Include nonlinear behavior, Value: 0
+										173 text Include nonlinear behavior
+									174 button Queue support configuration
+						175 summary New section, Value: off
+							176 text New section
+						177 summary New material, Value: off
+							178 text New material
+						179 summary New support, Value: off
+							180 text New support
+						181 summary New component, Value: off
+							182 text New component
+						183 container Delete support intent
+							184 heading Delete support, Value: 3
+								185 text Delete support
+							186 button Queue delete support, Help: Queue support delete intent
+							187 container
+								188 text Operation op:delete-support-support:WF-ROOT; delete; proposed Target Support; support:WF-ROOT Change delete_support; Explicit support deletion; supports; before=Root anchor; after=not_present Unit basis dimensionless; unit=none; explicit user-entered support deletion; reference integrity required Validation not_run; not_run; not_required_dimensionless; not_generated; not_applied Audit boundary Routed through the structured operations only; no direct model mutation; requires your acceptance; does not change the accepted model until applied Professional boundary Requires human review; no compliance claim; no approval claim Rationale explicit user-entered support deletion for project:blank-local-20260913t210608z; requires reference validation before durable model change.
+				189 container Workspace sections
+					190 container
+						191 heading Results, Value: 2
+							192 text Results
+						193 button Close
+					194 container Results section
+						195 container Results
+							196 text RESULTS
+							197 container Result filtering
+								198 text Source result units
+								199 container
+									200 text none  ·  0  rows · entered units preserved; displayed quantities follow the display preference where available
+								201 container Result family filter
+									202 toggle button All 0, Value: on
+								203 container
+									204 text Filter results
+									205 search text field (settable) Filter result rows, Placeholder: ID, entity, component, location, or basis
+										206 text ID, entity, component, location, or basis
+								207 text 0  of  0  results match filter
+								208 button (disabled) Clear result filter
+								209 container Result page controls
+									210 container
+										211 text Rows
+										212 pop up button Rows per result page, Value: 50
+									213 text Showing  0  to  0  of  0  matching results; page  1  of  1
+									214 button (disabled) Previous result page
+									215 button (disabled) Next result page
+							216 container Result detail
+								217 heading Result Detail, Value: 3
+									218 text Result Detail
+								219 text Select a computed result row to inspect recovery context and review boundary.
+							220 container Governing ratio state
+								221 heading Governing Ratio, Value: 3
+									222 text Governing Ratio
+								223 text unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
+								224 text This view reports supplied ratio rows only; it does not synthesize allowables or code criteria. Acceptance and professional judgment remain with the responsible engineer.
+							225 text No computed preview result rows match this filter.
+							226 container Mechanics gap ledger
+								227 heading Mechanics Gap Ledger, Value: 3
+									228 text Mechanics Gap Ledger
+								229 container
+									230 text Endpoint-j local force/moment recovery implemented End-i and end-j local force/moment preview results are emitted and paired in result detail; arbitrary station sweeps remain deferred.
+								231 container
+									232 text Endpoint stress component recovery implemented End-i and end-j open-mechanics stress component preview results are emitted and paired when stress recovery succeeds.
+								233 container
+									234 text Intermediate station result recovery implemented Fixed station-grid preview force, moment, shear force, and stress rows are emitted from interpolated endpoint resultants; arbitrary station sweeps, exact internal diagrams, and shear stress recovery remain deferred.
+								235 container
+									236 text Pressure-to-frame load conversion implemented Closed-end pressure thrust for straight preview pipes is applied to frame resultants; broader pressure behavior remains deferred.
+								237 container
+									238 text Thermal behavior implemented Uniform axial temperature-change loads for straight preview pipes are implemented with explicit material expansion input; temperature-dependent properties and thermal combinations remain deferred.
+								239 container
+									240 text Support stiffness completeness deferred Linear support restraints are preview inputs; richer stiffness and nonlinear behavior require explicit data.
+								241 container
+									242 text Load combinations implemented Explicit mechanics-basis user load combinations are emitted from matching scalar load-case result rows; code/rule combinations remain deferred/private.
+								243 container
+									244 text Protected rule/code checks requires private inputs Private criteria, allowables, SIF/flexibility tables, and code checks are not bundled publicly.
+						245 container Comparison workspace
+							246 text COMPARISON
+							247 text Run mechanics preview to populate the local comparison workspace from stable result IDs and explicit source result references.
+						248 container Design-authoring workspace
+							249 text DESIGN WORKSPACE
+							250 container
+								251 checkbox Include known private values in this local export, Value: 0
+								252 text Include known private values in this local export
+							253 text decisions= 112 ; findings= 112 ; blocked= true
+							254 container design-workspace-export-link redaction decisions
+								255 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classificat
+							256 container design-workspace-export-link redaction findings
+								257 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANC
+							258 text Workspace JSON
+							259 text knowledge= 3 ; states= 1 ; runs= 1 ; comparisons= 0 ; operations= 0 Core contract
+							260 text records=2; warnings=1; states=2; runs=2; overlays=5
+							261 text Current browser
+							262 text analysis_run=run:preview-linear-static-blocked; comparison=not generated; result_rows=0
+							263 text Operation review
+							264 text records=0; accepted_mutation=false; application=empty_operation_queue
+							265 text Routing
+							266 text selected=none; route=no_selected_review_target
+							267 text Units
+							268 text model=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; results=none; comparison=none; conversion=false
+							269 text Boundary
+							270 text private_payload=false; protected=false; professional_claim=false
+							271 text Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state; acceptance and professional judgment remain with the responsible engineer.
+				272 container Workspace status
+					273 container Analysis statuses
+						274 summary Mechanics model incomplete, Value: off
+							275 text Mechanics
+							276 text model incomplete
+						277 summary Rule check Inputs needed, Value: off
+							278 text Rule check
+							279 text Inputs needed
+						280 summary Professional Review required, Value: off
+							281 text Professional
+							282 text Review required
+					283 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					284 button (collapsed) ⚑ 6 Issues, Secondary Actions: Expand
+				285 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	286 close button
+	287 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	288 minimize button
+	289 text OpenPipeStress Technical Preview
+290 menu bar
+	291 SWBPIPE Workflow Contact Witness 20260913
+	292 File
+	293 Edit
+	294 View
+	295 Insert
+	296 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

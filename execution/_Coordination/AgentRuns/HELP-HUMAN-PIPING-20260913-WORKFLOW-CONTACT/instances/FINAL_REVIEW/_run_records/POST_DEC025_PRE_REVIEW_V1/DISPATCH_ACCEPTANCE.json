@@ -1,0 +1,14 @@
+{
+  "parent": "/root",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "candidate": "d51169a2c89e98d49175c23dea2c4b78d55ea8be",
+  "base": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "launch": "root latest postDEC025 freshreview dispatch; nativecollaboration",
+  "writes": false,
+  "children": false,
+  "return_sha256": "a69d4d3f48b1ecb49a5c2b44ccef2148d6a22a73fd04bfacc0559844e3073eef",
+  "parent_acceptance": "provisionalsource assessment only",
+  "RV-V3-001": "OPEN until committedfourarchives and reviewerbackcheck; no finalPASS"
+}

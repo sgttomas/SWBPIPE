@@ -1,0 +1,14 @@
+{
+  "build": {
+    "command": "CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app --ci --no-sign --config <POST_DEC025_VIEWPORT raw overlay>",
+    "cwd_repo_relative": "projects/chirality-piping/apps/desktop",
+    "log": "_run_records/fresh-native-build.log",
+    "exit_code": 0
+  },
+  "packaged_selftest": {
+    "command": "<fresh isolated bundle binary> --self-test-saved-edited-load",
+    "stdout": "_run_records/fresh-packaged-selftest.json",
+    "stderr": "_run_records/fresh-packaged-selftest.stderr",
+    "exit_code": 0
+  }
+}

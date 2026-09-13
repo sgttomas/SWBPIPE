@@ -1,0 +1,12 @@
+{
+  "support_delta_only_verified": true,
+  "expected_model_hash_before_solve": "sha256:ec3e6eb0d9dfb4063bc1efb0252a4b0b673226b01afa73031f6155d07fde2fe9",
+  "raw_snapshot": "_run_records/support-reduced-before-solve.json",
+  "support_target": "support:WF-ROOT",
+  "restraints": [
+    "UX",
+    "UY",
+    "UZ"
+  ],
+  "original_restored500_hash": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf"
+}

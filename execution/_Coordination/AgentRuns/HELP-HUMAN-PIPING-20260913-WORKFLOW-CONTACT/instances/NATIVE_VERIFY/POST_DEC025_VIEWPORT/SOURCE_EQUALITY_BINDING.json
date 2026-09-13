@@ -1,0 +1,12 @@
+{
+  "released_source": "d51169a2c89e98d49175c23dea2c4b78d55ea8be",
+  "parent_12_code_8_doc_hashes_match": true,
+  "prior_native_witness_source": "7e45f6ec8714250319afb94c1633dee61d48e3c4",
+  "unchanged_relevant_controls_and_guards": {
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  },
+  "app_product_delta": "one PipeViewport prop currentSolvedResult to raw current result",
+  "diff_raw_record": "_run_records/source-app-diff-from-FINAL_V2.patch"
+}
