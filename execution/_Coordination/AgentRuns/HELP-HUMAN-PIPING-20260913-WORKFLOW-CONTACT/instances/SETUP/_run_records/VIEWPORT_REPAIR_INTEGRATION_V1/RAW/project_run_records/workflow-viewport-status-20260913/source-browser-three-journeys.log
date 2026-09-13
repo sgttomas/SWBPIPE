@@ -1,0 +1,91 @@
+[WebServer] (node:46305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:46307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46307) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.1s)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.3s)
+  ✘  3 [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (25.9s)
+(node:46503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:46503) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (17.9s)
+  ✓  5 [chromium-compact] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.2s)
+  ✘  6 [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (25.8s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('rendered-report-unit-basis')
+    Expected substring: [32m"unit_system=unit-system:dec-018-si-dual-display"[39m
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('rendered-report-unit-basis')[22m
+
+
+      1056 |   await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+      1057 |   await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+    > 1058 |   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+           |                                                                ^
+      1059 |     "unit_system=unit-system:dec-018-si-dual-display"
+      1060 |   );
+      1061 |   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
+        at /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:1058:64
+
+    Error Context: test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByTestId('rendered-report-unit-basis')
+    Expected substring: [32m"unit_system=unit-system:dec-018-si-dual-display"[39m
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 10000ms[22m
+    [2m  - waiting for getByTestId('rendered-report-unit-basis')[22m
+
+
+      1056 |   await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+      1057 |   await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+    > 1058 |   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
+           |                                                                ^
+      1059 |     "unit_system=unit-system:dec-018-si-dual-display"
+      1060 |   );
+      1061 |   await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
+        at /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:1058:64
+
+    Error Context: test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+    [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+  4 passed (2.5m)

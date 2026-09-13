@@ -1,0 +1,10 @@
+{
+  "stage": "preparation_only_source_and_lease_pending",
+  "reference_base": "repository_root_for_files",
+  "files": {
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/FROZEN_EXPECTATIONS.json": "4342ceb9b411c3861c2a413c294e4dd43ffb5db2e0cb85c5e4aabe11585bdbe0",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/PREPARATION_BINDING.json": "42476c5e49d89f8717539f213d9010887fd524dbc19fca5bfa3d8258a1a6f1c1",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/PREP_RETURN.md": "e13b54d5066c9ccbe970a62a6157841e5979118b25d01eee8fdb652d72da3a09",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/SEALED_BRIEF_PREP.md": "1001d73cfe4350b66041c9c4751f9491745067d65119617fbac56bd2df83bb49"
+  }
+}

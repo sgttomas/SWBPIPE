@@ -1044,25 +1044,32 @@ test("R2 from-blank GUI journey authors the A12 rehearsal script", async ({ page
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await expect(page.getByTestId("solve-job-summary")).toContainText("result_rows=0");
+  await expect(page.getByTestId("solve-job-unit-policy")).toContainText("length=m");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("results=none");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("rows=0");
   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+  expect(await page.getByTestId("solve-job-export-link").getAttribute("href")).toBeNull();
+  await expect(page.getByTestId("solve-job-export-link-redaction-summary")).toContainText("blocked=true");
+  await page.getByTestId("solve-job-export-link-local-private-intent").setChecked(true);
+  await expect(page.getByTestId("solve-job-export-link")).toHaveAttribute("href", /^data:application\/json/);
+  const solveJobHref = await page.getByTestId("solve-job-export-link").getAttribute("href");
+  expect(solveJobHref).toBeTruthy();
+  const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref!.split(",", 2)[1]));
+  expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+  expect(solveJobPacket.unit_policy_evidence.model_units.length).toBe("m");
+  expect(solveJobPacket.unit_policy_evidence.result_units).toEqual([]);
+  expect(solveJobPacket.unit_policy_evidence.result_row_count).toBe(0);
+  expect(solveJobPacket.unit_policy_evidence.conversion_performed).toBe(false);
   await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText(
     "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL"
   );
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
   await openWorkspaceSection(page, "report");
-  await expect(page.getByTestId("rendered-report-render")).toBeEnabled();
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText(
-    "unit_system=unit-system:dec-018-si-dual-display"
-  );
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("length=m");
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("results=none");
-  await expect(page.getByTestId("rendered-report-unit-basis")).toContainText("conversion=false");
+  await expect(page.getByTestId("rendered-report-render")).toBeDisabled();
+  await expect(page.getByTestId("rendered-report-precondition")).toBeVisible();
+  await expect(page.getByTestId("rendered-report-unit-basis")).toHaveCount(0);
   await expectWorkspaceStatusClearOfTarget(page, "rendered-report-render");
-  await page.getByTestId("rendered-report-render").click();
-  await expect(page.getByTestId("rendered-report-redaction-summary")).toContainText("blocked=true");
   await expect(page.getByTestId("rendered-report-route")).toHaveCount(0);
   await expect(page.getByTestId("rendered-report-preview")).toHaveCount(0);
 });

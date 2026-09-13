@@ -1,0 +1,7 @@
+{
+  "phase": "manager-approved existing-control setup expectation frozen before source test edit; attempt2 complete and artifacts retained",
+  "before_r2_sha256": "29bca1d55b2af1086378399a2318cde3ca8c774e48b4cfd067d35d378d772c0c",
+  "expectation": "known blank private diagnostic export href initially absent and redaction blocked; opt in only existing local private Solve job checkbox for invented diagnostic; await data JSON href then unchanged exact unit assertions; visible model lengthm retained; report still disabled/unavailable; no report optin/external destination/API change",
+  "evidence": "_run_records/workflow-viewport-status-20260913/source-browser-final-results; both null-href failures explicitly LOCAL_PRIVATE_INTENT_REQUIRED",
+  "runtime_App_sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+}

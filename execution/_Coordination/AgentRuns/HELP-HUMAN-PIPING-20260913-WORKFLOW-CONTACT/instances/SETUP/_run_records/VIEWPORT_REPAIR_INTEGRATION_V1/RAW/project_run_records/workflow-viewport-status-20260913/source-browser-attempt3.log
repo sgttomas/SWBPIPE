@@ -1,0 +1,21 @@
+[WebServer] (node:47490) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:47492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47492) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (19.5s)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.4s)
+  ✓  3 [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.0s)
+(node:47638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.0s)
+  ✓  5 [chromium-compact] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.4s)
+  ✓  6 [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.0s)
+
+  6 passed (2.1m)

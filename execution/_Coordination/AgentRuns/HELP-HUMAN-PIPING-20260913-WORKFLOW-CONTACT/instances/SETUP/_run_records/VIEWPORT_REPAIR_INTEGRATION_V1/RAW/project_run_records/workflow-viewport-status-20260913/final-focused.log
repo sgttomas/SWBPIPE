@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t workflow current and historical result boundaries
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  4 passed | 170 skipped (174)
+   Start at  15:52:31
+   Duration  4.53s (transform 1.16s, setup 66ms, import 1.38s, tests 2.82s, environment 190ms)
+

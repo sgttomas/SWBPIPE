@@ -1,0 +1,120 @@
+{
+  "records": [
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'workflow current and historical result boundaries'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "preserved oldApp1090 + frozen strengthened testbd1;3substantive status failures/1history pass170skips; blocked/nonconverged are mocked native job poll outcomes, not actual native execution",
+      "log": "_run_records/workflow-viewport-status-20260913/old-runtime-baseline.log",
+      "log_sha256": "3093e2fa287e8fba6b7d9b3cb98c3b62fce54518dfe5ce684301da2d8b4ffde2"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'workflow current and historical result boundaries'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "final onepropApp345 + frozen unchanged testbd1;4passed170skipped",
+      "log": "_run_records/workflow-viewport-status-20260913/final-focused.log",
+      "log_sha256": "0499608cb6403e14d2fe244f737d969d86482b3ff7eff34f130c0bb8f474d228"
+    },
+    {
+      "command": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "result": "PASS final App/source tests; no build",
+      "log": "_run_records/workflow-viewport-status-20260913/typescript.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model|historical lifecycle history transitions'",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "2passed172skipped; changed existing real browser inspector edit/re-solve/save + existing historical edit/undo/redo transitions",
+      "log": "_run_records/workflow-viewport-status-20260913/affected-inspector-history.log",
+      "log_sha256": "3e11b9cf67c907cba27e7859eea0ada6568b23d34eee5a9ff5d72e8e26b9b6bc"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/gui-workflow-validation.spec.ts e2e/r2-smoke.spec.ts --grep 'DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions|R2 from-blank GUI journey authors the A12 rehearsal script|R2 desktop preview smoke covers solve, results, report, and viewport overlay' > ../../_run_records/workflow-viewport-status-20260913/source-browser-three-journeys.log 2>&1",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 1,
+      "result": "attempt1r2_1b53;4passed2failed: stale absent rendered-report-unit-basis assertion; DE09-04 and untouched solved-positive pass both viewports; failures retained",
+      "log": "_run_records/workflow-viewport-status-20260913/source-browser-three-journeys.log",
+      "log_sha256": "837e2bda38fcfd3110b215154a75bcda7e527a4835e3e1da1cd1203f93153925"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/gui-workflow-validation.spec.ts e2e/r2-smoke.spec.ts --grep 'DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions|R2 from-blank GUI journey authors the A12 rehearsal script|R2 desktop preview smoke covers solve, results, report, and viewport overlay' --output ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results > ../../_run_records/workflow-viewport-status-20260913/source-browser-final.log 2>&1",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 1,
+      "result": "attempt2r2_29bca;4passed2failed: diagnostichref null because existing local-private intent required; exact unit expectations unchanged; failures retained",
+      "log": "_run_records/workflow-viewport-status-20260913/source-browser-final.log",
+      "log_sha256": "33b96200fb68afd3cb6ce4ce08dd7d26d69a4c4a4b93e562d22ca08d34087826"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/gui-workflow-validation.spec.ts e2e/r2-smoke.spec.ts --grep 'DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions|R2 from-blank GUI journey authors the A12 rehearsal script|R2 desktop preview smoke covers solve, results, report, and viewport overlay' --output ../../_run_records/workflow-viewport-status-20260913/source-browser-attempt3-results > ../../_run_records/workflow-viewport-status-20260913/source-browser-attempt3.log 2>&1",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "result": "finalr2_12c97;6passed2.1m: exact three journeys bothconfiguredviewports, one worker; blockeddiagnostic/solvedpositive/reportunavailability+unitmetadata; fresh no-reuse integrityserver",
+      "log": "_run_records/workflow-viewport-status-20260913/source-browser-attempt3.log",
+      "log_sha256": "53af05e2710a440f9c92d116963575440ace214323342285d81899a4dc9a196b"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "both ports free before/after isolated sourcebrowser attempts",
+      "log": "_run_records/workflow-viewport-status-20260913/ports-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "both ports free before/after isolated sourcebrowser attempts",
+      "log": "_run_records/workflow-viewport-status-20260913/ports-attempt1-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "both ports free before/after isolated sourcebrowser attempts",
+      "log": "_run_records/workflow-viewport-status-20260913/ports-final-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "both ports free before/after isolated sourcebrowser attempts",
+      "log": "_run_records/workflow-viewport-status-20260913/ports-attempt3-before.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 1,
+      "result": "both ports free before/after isolated sourcebrowser attempts",
+      "log": "_run_records/workflow-viewport-status-20260913/ports-attempt3-after.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "projects/chirality-piping",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "_run_records/workflow-viewport-status-20260913/diff-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": "git apply --reverse --check projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_TEST_DELTA.patch",
+      "cwd": ".",
+      "exit_code": 0,
+      "result": "PASS exact incremental3path patch; check only, no mutation",
+      "log": "_run_records/workflow-viewport-status-20260913/patch-check.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "lease_status": "parent released prior DEC025; child exclusive focused/sourcebrowser lease released explicitly after final sixpass/serverteardown; no further runtime execution",
+  "WASM_build_native_dist": "not executed; existing laneignoredWASM sufficient",
+  "failure_calibration": "3substantive old-runtime currentstatus gaps reproduced; browserattempt1/2 are distinct new stale reportunit/checkexportintent setup evidence, not additional product defects; all preserved",
+  "host_artifacts": "firstattempt defaultlane test-results moved intact into source-browser-attempt1-results; later output directly hostrecords; no integration writes or final lane test-results leftovers"
+}

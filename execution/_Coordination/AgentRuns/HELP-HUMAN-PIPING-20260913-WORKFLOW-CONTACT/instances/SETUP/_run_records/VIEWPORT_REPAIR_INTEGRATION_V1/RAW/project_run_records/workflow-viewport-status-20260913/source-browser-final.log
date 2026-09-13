@@ -1,0 +1,75 @@
+[WebServer] (node:47132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 6 tests using 1 worker
+
+(node:47134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.2s)
+  ✓  2 [chromium-desktop] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (34.2s)
+  ✘  3 [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.4s)
+(node:47252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:47252) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.2s)
+  ✓  5 [chromium-compact] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.7s)
+  ✘  6 [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.5s)
+
+
+  1) [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mnull[39m
+
+      1049 |   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+      1050 |   const solveJobHref = await page.getByTestId("solve-job-export-link").getAttribute("href");
+    > 1051 |   expect(solveJobHref).toBeTruthy();
+           |                        ^
+      1052 |   const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref!.split(",", 2)[1]));
+      1053 |   expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+      1054 |   expect(solveJobPacket.unit_policy_evidence.model_units.length).toBe("m");
+        at /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:1051:24
+
+    Error Context: ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeTruthy[2m()[22m
+
+    Received: [31mnull[39m
+
+      1049 |   await expect(page.getByTestId("solve-job-unit-policy")).toContainText("conversion=false");
+      1050 |   const solveJobHref = await page.getByTestId("solve-job-export-link").getAttribute("href");
+    > 1051 |   expect(solveJobHref).toBeTruthy();
+           |                        ^
+      1052 |   const solveJobPacket = JSON.parse(decodeURIComponent(solveJobHref!.split(",", 2)[1]));
+      1053 |   expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe("unit-system:dec-018-si-dual-display");
+      1054 |   expect(solveJobPacket.unit_policy_evidence.model_units.length).toBe("m");
+        at /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts:1051:24
+
+    Error Context: ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../_run_records/workflow-viewport-status-20260913/source-browser-final-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+    [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script 
+  4 passed (2.3m)

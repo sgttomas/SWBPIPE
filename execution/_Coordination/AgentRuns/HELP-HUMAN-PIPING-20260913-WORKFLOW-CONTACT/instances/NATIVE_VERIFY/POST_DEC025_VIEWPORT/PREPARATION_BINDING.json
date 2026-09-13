@@ -1,0 +1,27 @@
+{
+  "instance": "/root/native_workflow_verify",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type2",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "mechanism": "delegated-harness-native",
+  "non_delegation": "instruction-asserted",
+  "prepared_utc": "2026-09-13T21:53:52.266120+00:00",
+  "preparation_head": "5337a10231252cdeee53d6fb3a74cc4b4789999d",
+  "execution_source": "pending_parent_release",
+  "execution_lease": "not_granted_preparation_only",
+  "prior_FINAL_V2_manifest_sha256": "c560514def69f289e37ba4cf6e3bc17ac47f5c826108f712133db9620d305a40",
+  "prior_FINAL_V2_all_93_manifest_files_byte_exact": true,
+  "read_bindings": {
+    "AGENTS.md": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+    "projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "projects/chirality-piping/docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+    "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+    "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7"
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "phase": "strengthened/additive test expectations frozen before runtime source repair; execution held pending parentlease",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "1b53e8804797737920004b57d658a50de3b3803b7829d66a9486afe908fa9fc9"
+    }
+  ],
+  "expectations": [
+    "Current browser edited MODEL_INCOMPLETE viewport exact blocked mechanics/zero rows, diagnostics retained, no solved-only consumers",
+    "MECHANICS_BLOCKED/NONCONVERGED with actual numerical rows show exact blocked status and row count; helper empty nodePositions; no report/rule/comparison/proof eligibility",
+    "Historical open keeps current viewport not_started and zero current rows; separate historical rows readable/preserved",
+    "Fromblank unsupported browser solve Render report disabled/precondition visible/zero route+preview; all authoring/unit/blockeddiagnostics retained; positive solvedreport unchanged"
+  ]
+}

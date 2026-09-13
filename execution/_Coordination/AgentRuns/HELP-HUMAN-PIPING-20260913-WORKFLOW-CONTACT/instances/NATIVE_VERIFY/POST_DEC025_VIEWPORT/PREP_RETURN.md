@@ -1,0 +1,9 @@
+# Preparation return
+
+Prepared and sealed the additive native viewport boundary recheck. Execution is pending the parent's repaired source checkpoint/binding and exclusive build/native/GUI lease. No build, browser, packaged executable, GUI, store, or product-state operation was performed in this preparation stage.
+
+The reversible existing typed support edit is feasible: PropertyInspector exposes Support Restraints as `update_support`; native operation-applier tests accept comma-separated canonical restraint tokens. Reducing the root anchor to `UX, UY, UZ` supplies three independent ground DOFs and deterministically reaches the existing under-restraint guard. That outcome is **MODEL_INCOMPLETE with SOLVER_SYSTEM_BLOCKED and zero rows**; expected viewport state is `blocked`, not `not started`. Literal MECHANICS_BLOCKED and MECHANICS_NONCONVERGED branch coverage remains maintained focused tests unless existing native controls produce them directly; no injected fixture will be used.
+
+The plan uses the existing invented500 native saved record, verifies correct Historical/unchanged-save preservation, performs fresh solve500, actual typed support reduction/blocked status and diagnostics/report fences, exact Undo restoration and successful recovery solve, then real quit/fresh-process reopen and final bindings. Earlier full blank authoring/history/agent-equivalence evidence remains immutable and is reused only for source-equal unchanged controls confirmed at release.
+
+FINAL_V2's 93 manifest-bound files and its manifest were rechecked byte-exact in preparation. `PREPARATION_BINDING.json` records these immutable checks, declared attribution and read-source hashes. `FROZEN_EXPECTATIONS.json` seals the finite oracles. No concrete execution blocker was found beyond the deliberately pending source/lease. Parent retains fresh review and complete clean DEC025 responsibility after the bounded recheck.

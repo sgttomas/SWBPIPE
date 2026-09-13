@@ -1,0 +1,7 @@
+{
+  "listener_exit_code": 0,
+  "listener_output": "COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nnode    46305 ryan   16u  IPv4 0xf4d990a028c420f0      0t0  TCP 127.0.0.1:5174 (LISTEN)\n",
+  "expected_cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+  "process": "  PID  PPID COMMAND\n46305 46281 node /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/node_modules/.bin/vite --host 127.0.0.1 --port 5174\n",
+  "cwd": "p46305\nfcwd\nn/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop\n"
+}

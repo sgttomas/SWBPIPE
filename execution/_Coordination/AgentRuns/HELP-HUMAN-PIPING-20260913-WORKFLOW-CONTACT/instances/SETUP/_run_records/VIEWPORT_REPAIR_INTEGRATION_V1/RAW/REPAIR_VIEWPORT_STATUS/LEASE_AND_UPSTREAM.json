@@ -1,0 +1,22 @@
+{
+  "utc": "2026-09-13T21:52:34.647801+00:00",
+  "parent_authorization": "Prior complete integration sweep terminated FAIL, all execution processes explicitly released. Manager workflowlane owns exclusive focused test/WASM/build/sourcebrowser lease now; child sole source writer.",
+  "authoritative_upstream": {
+    "path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T213728Z_5337a1023125.json",
+    "sha256": "c766468b6a967cc85e755eca41a046d9bb0efd8dbd21050711259dfa9ff9362f",
+    "origin": "Parent integration lane immutable failed sweep summary; tool/runtime absolute metadata remain original host record",
+    "overall_status": "fail",
+    "surfaces": {
+      "cargo_crate_sweep": "pass",
+      "python_pytest": "pass",
+      "desktop_vitest": "pass",
+      "desktop_playwright_e2e": "fail",
+      "desktop_production_build": "not_run"
+    },
+    "parent_count_summary": "38 Rust manifests;1012 Python tests;847desktop tests passed; sourcebrowser26passed4failed in2known semantic classes",
+    "immutable_raw_wrapper": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V1"
+  },
+  "assigned_commands": "Preserved-oldApp focusedbaseline, finalfocusedApp/TypeScript, exact3 sourcebrowser journeys across BOTH viewport projects using fresh lane-owned server/freeports; existingWASM preferred, WASM/build permitted only if needed",
+  "exclusions": "No integration writes, nativeGUI, completeDEC025, publication or priorfrozenrecord mutation",
+  "lease_release_obligation": "Report explicit completion/release after focusedsourcebrowserserver processes exit."
+}

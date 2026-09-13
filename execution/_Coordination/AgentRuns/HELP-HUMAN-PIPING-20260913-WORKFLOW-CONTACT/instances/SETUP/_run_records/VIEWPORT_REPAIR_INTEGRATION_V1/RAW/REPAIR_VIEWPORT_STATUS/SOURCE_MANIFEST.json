@@ -1,0 +1,23 @@
+{
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+      "post_sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+      "post_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "pre_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+      "post_sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711"
+    }
+  ],
+  "patch_sha256": "6ab012ff42ecdfc25bbf5d33ff6382daa0480b62d87743e4e5cdb4068e6a5603",
+  "scope": "exactly one viewport prop; failed-status/history App regression strengthening and real browser edit test; same A12 report availability and existing guarded diagnostic unit download test; all other consumers/positive report journey untouched",
+  "freeze_utc": "2026-09-13T22:04:28.888968+00:00",
+  "lease_status": "released after six browser passes/server teardown; no further runtime execution assigned"
+}

@@ -13656,7 +13656,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(
       screen.getByTestId("viewport-deformation-status").textContent,
-    ).toContain("not started; result rows=0");
+    ).toContain("blocked; mechanics=model incomplete; rows=0");
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>
@@ -16570,6 +16570,30 @@ async function workflowStoredEnvelope() {
 }
 
 describe("workflow current and historical result boundaries", () => {
+  it("discloses MODEL_INCOMPLETE as blocked after a real browser model edit", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(screen.getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE"));
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("blocked; mechanics=model incomplete; rows=0");
+    expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
+    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("result_rows=0");
+    expect(screen.getByTestId("rendered-report-render")).toBeDisabled();
+    expect(screen.getByTestId("rendered-report-precondition")).toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-route")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    expect(screen.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toBeInTheDocument();
+  });
+
   it("opens saved results as readable history and preserves their exact fields on unchanged save", async () => {
     const envelope = await workflowStoredEnvelope();
     let saved: Record<string, unknown> | undefined;
@@ -16585,7 +16609,10 @@ describe("workflow current and historical result boundaries", () => {
     await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent(envelope.mechanics_result!.run_id));
     expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
     expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("not started; result rows=0");
+    expect(buildDeformationOverlay(envelope.model, null).nodePositions.size).toBe(0);
+    expect(within(screen.getByTestId("historical-run-context")).getByTestId("result-unit-policy")).toHaveTextContent(`${envelope.mechanics_result!.results.length} rows`);
+    expect(screen.getByTestId("rendered-report-render")).toBeDisabled();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
@@ -16604,6 +16631,12 @@ describe("workflow current and historical result boundaries", () => {
     const model = await loadPreviewModel();
     const output = structuredClone(await runPreviewMechanics(model));
     output.status.mechanics = mechanics;
+    expect(output.results.length).toBeGreaterThan(0);
+    const overlay = buildDeformationOverlay(model, output);
+    const failedSummary = `blocked; mechanics=${mechanics.toLowerCase().replaceAll("_", " ")}; rows=${output.results.length}`;
+    expect(overlay.state).toBe("blocked");
+    expect(overlay.summary).toBe(failedSummary);
+    expect(overlay.nodePositions.size).toBe(0);
     output.diagnostics.push({ id: "diagnostic:workflow-outcome", code: "WORKFLOW_OUTCOME_DIAGNOSTIC", severity: "blocking", message: "Synthetic outcome retained" });
     invokeMock.mockImplementation((command: string) => {
       if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
@@ -16617,7 +16650,12 @@ describe("workflow current and historical result boundaries", () => {
     await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent(mechanics));
     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC")).toHaveTextContent("Synthetic outcome retained");
-    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent(failedSummary);
+    expect(screen.getByTestId("viewport-deformation-boundary")).toHaveTextContent("scale=not_generated");
+    expect(screen.getByTestId("rendered-report-render")).toBeDisabled();
+    expect(screen.getByTestId("rendered-report-precondition")).toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-route")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("rendered-report-preview")).not.toBeInTheDocument();
     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();

@@ -1,0 +1,78 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t workflow current and historical result boundaries
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/App.test.tsx (174 tests | 3 failed | 170 skipped) 2725ms
+     × discloses MODEL_INCOMPLETE as blocked after a real browser model edit 907ms
+     × keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers 492ms
+     × keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers 525ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > discloses MODEL_INCOMPLETE as blocked after a real browser model edit
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  blocked; mechanics=model incomplete; rows=0
+Received:
+  Deformation · unavailablenot started; result rows=0scale=not_generated; professional_claim=false
+ ❯ src/App.test.tsx:16583:63
+    16581|     fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    16582|     await waitFor(() => expect(screen.getByTestId("status-pill-mechani…
+    16583|     expect(screen.getByTestId("viewport-deformation-status")).toHaveTe…
+       |                                                               ^
+    16584|     expect(screen.getByTestId("viewport-deformation-boundary")).toHave…
+    16585|     expect(screen.getByTestId("solve-job-summary")).toHaveTextContent(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  blocked; mechanics=mechanics blocked; rows=830
+Received:
+  Deformation · unavailablenot started; result rows=0scale=not_generated; professional_claim=false
+ ❯ src/App.test.tsx:16653:63
+    16651|     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    16652|     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC"…
+    16653|     expect(screen.getByTestId("viewport-deformation-status")).toHaveTe…
+       |                                                               ^
+    16654|     expect(screen.getByTestId("viewport-deformation-boundary")).toHave…
+    16655|     expect(screen.getByTestId("rendered-report-render")).toBeDisabled(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  blocked; mechanics=mechanics nonconverged; rows=830
+Received:
+  Deformation · unavailablenot started; result rows=0scale=not_generated; professional_claim=false
+ ❯ src/App.test.tsx:16653:63
+    16651|     fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    16652|     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC"…
+    16653|     expect(screen.getByTestId("viewport-deformation-status")).toHaveTe…
+       |                                                               ^
+    16654|     expect(screen.getByTestId("viewport-deformation-boundary")).toHave…
+    16655|     expect(screen.getByTestId("rendered-report-render")).toBeDisabled(…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 1 passed | 170 skipped (174)
+   Start at  15:52:14
+   Duration  4.54s (transform 1.11s, setup 94ms, import 1.31s, tests 2.73s, environment 317ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/App.test.tsx -t 'workflow current and historical result boundaries'

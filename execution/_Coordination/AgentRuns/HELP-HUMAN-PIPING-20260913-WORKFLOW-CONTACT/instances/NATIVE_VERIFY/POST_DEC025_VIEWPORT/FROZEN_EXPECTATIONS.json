@@ -1,0 +1,93 @@
+{
+  "status": "frozen_pre_execution_expectations",
+  "existing_actual_gui_project_id": "project:blank-local-20260913t210608z",
+  "saved500_model_hash": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf",
+  "saved500_oracle_repo_relative": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/FINAL_V2/_run_records/gui-solved500.json",
+  "saved_payload_fields": [
+    "model_json",
+    "mechanics_result_json",
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "editor_intents_json",
+    "proposal_json",
+    "selected_review_target_json"
+  ],
+  "support_delta": {
+    "id": "support:WF-ROOT",
+    "node": "node:WF-ROOT",
+    "field": "restraints",
+    "before": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+    ],
+    "after": [
+      "UX",
+      "UY",
+      "UZ"
+    ],
+    "only_model_delta_allowed": true,
+    "edited_hash": "freeze_actual_native_edit_before_solve"
+  },
+  "blocked_native": {
+    "status_mechanics": "MODEL_INCOMPLETE",
+    "result_rows": 0,
+    "diagnostic_code": "SOLVER_SYSTEM_BLOCKED",
+    "diagnostic_id": "diagnostic:physics:under-restrained",
+    "viewport_summary": "Deformation \u00b7 blocked",
+    "viewport_expanded_detail": "blocked; mechanics=model incomplete; rows=0",
+    "viewport_boundary": "scale=not_generated; professional_claim=false",
+    "deformed_geometry": false,
+    "report_readiness": false,
+    "diagnostics_retained": true
+  },
+  "undo": {
+    "full_model_json_bytes_equal_saved500": true,
+    "model_hash_equal_saved500": true,
+    "attachments_preserved": true
+  },
+  "solve500": {
+    "native_route": "tauri backend job",
+    "result_rows": 67,
+    "mechanics": "MECHANICS_SOLVED",
+    "model_hash_equal_saved500": true,
+    "input_manifest_hash": "58ae395f84e13f711365857329952e29ac1c88e15bc91cac05f6433b5e91f2c6",
+    "result_basis": "load:WF",
+    "tip_uy_mm": 2.375816737208654,
+    "tip_rz_rad": 0.0011136640955665567,
+    "direct_support_resultant_N": 500,
+    "local_end_i_shear_z_N": 500,
+    "local_end_i_bending_y_Nm": -1600,
+    "signed_root_global_y_N_analytical_transform": -500,
+    "signed_root_global_z_Nm_analytical_transform": -1600,
+    "published_absolute_allowance": 5.001e-07,
+    "all_67_result_rows_equal_prior500": true
+  },
+  "historical": {
+    "expected_only_issue": "HISTORICAL_INPUT_MANIFEST_MISSING",
+    "false_result_hash_mismatch": false,
+    "current_overlay": false,
+    "current_report_readiness": false,
+    "unchanged_save_eight_fields_raw_equal": true
+  },
+  "native_nonconverged": "unexecuted_unless_existing_native_controls_author_it; maintained_focused_tests_only_if_not",
+  "required_final": [
+    "exact_source_and_complete_bundle_dist_bindings",
+    "fresh_packaged_selftest",
+    "actual_typed_support_native_edit_and_blocked_solve",
+    "actual_undo_and_recovery_solve",
+    "genuine_process_quit_fresh_reopen_same_isolated_store",
+    "final_close_and_explicit_lease_release"
+  ],
+  "not_claimed": [
+    "professional_acceptance",
+    "publication",
+    "lifecycle_transition",
+    "whole_saved_result_schema_compatibility",
+    "connected_provider_identity"
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "state": "LOCAL_VERIFIED_PENDING_PARENT",
+  "freeze_utc": "2026-09-13T22:05:32.987899+00:00",
+  "records": {
+    "TASK_BRIEF.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/TASK_BRIEF.md",
+      "sha256": "73541d2f728bdc705cdb8d83c68ccf627cc59d3082ce7f2fedbb915ed625d84a"
+    },
+    "SEALED_WRITE_FENCE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SEALED_WRITE_FENCE.json",
+      "sha256": "2c8d2b676018e972b728c193fad613da0afa2d608db4e359506fda3bc4e41b80"
+    },
+    "SEALED_AMENDMENT_REPORT_TEST.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SEALED_AMENDMENT_REPORT_TEST.json",
+      "sha256": "c559db9a2a643cd845e6485425903c4e368df47559d6867b9273666573719807"
+    },
+    "FROZEN_REGRESSIONS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/FROZEN_REGRESSIONS.json",
+      "sha256": "64de782279facc52ebcdfc1b59b778bab47a1b21e6707ae5bd6f44434df31ad5"
+    },
+    "SOURCE_READY_PRECHECK.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_READY_PRECHECK.json",
+      "sha256": "52e23acd1c02a4c227abd5cf06f8769a5ef497fd879590208702572a60105b54"
+    },
+    "SOURCE_TEST_DELTA_PRECHECK.patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_TEST_DELTA_PRECHECK.patch",
+      "sha256": "6a0038b35535cdc9168a3ee483827ccb66d8a7332590daec21c44b86cea78770"
+    },
+    "FROZEN_REPORT_UNIT_ADOPTION.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/FROZEN_REPORT_UNIT_ADOPTION.json",
+      "sha256": "a0ec6cfd5e5e0f09e4c11e3681ab05fdc5aba992ae7c39e17383008a7a851551"
+    },
+    "SOURCE_AT_ADOPTION_FREEZE.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_AT_ADOPTION_FREEZE.json",
+      "sha256": "61a413832174f79bd293d2fcd69ef044d492c81e7da6672dc7f8904922f57aa9"
+    },
+    "FROZEN_DIAGNOSTIC_PRIVATE_INTENT_SETUP.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/FROZEN_DIAGNOSTIC_PRIVATE_INTENT_SETUP.json",
+      "sha256": "fade845a77cd5dec1e7b34ed91f1656b4b69b413ea1763aac83a94b0288a0207"
+    },
+    "SOURCE_MANIFEST.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_MANIFEST.json",
+      "sha256": "100e5a2a92da6cb9a6a4141a3c7bfc11bd13ff64fa5793c45d984acfd8a5ae39"
+    },
+    "SOURCE_TEST_DELTA.patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/SOURCE_TEST_DELTA.patch",
+      "sha256": "6ab012ff42ecdfc25bbf5d33ff6382daa0480b62d87743e4e5cdb4068e6a5603"
+    },
+    "CODE_REVIEW.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/CODE_REVIEW.json",
+      "sha256": "7d6875d4abd863d87c0f2a9e6a823101be69c9b8d900e2304e681e7a896dca4e"
+    },
+    "CHECKS.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/CHECKS.json",
+      "sha256": "6970188f15aeeb324f791f6b66623b0a0fc845202324d546879cecd20394aee5"
+    },
+    "RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/RETURN.md",
+      "sha256": "d6ec412873e3f0e63c15fc386f8820e3e0e611d78cf0c2e99e24f8872cfda359"
+    }
+  },
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+      "post_sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+      "post_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "pre_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+      "post_sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711"
+    }
+  ],
+  "accepted_upstream": "sealed parent repair brief/fence/report amendment; copied immutable actual DEC025 twofailurecontexts/excerpts; manager/parent truthful reportunit adoption and existing local diagnostic intent setup approvals",
+  "derivative_package_status": "bounded TASK implementation/evidence; not authoritative decomposition/native lifecycle or completeDEC025 acceptance",
+  "closure_verdict": "selected local checks passed; parent integration/review/new completeDEC025 pending",
+  "rerun_requirements": [
+    "parent integrate exact3path patch and bind final candidate",
+    "fresh native/browser followup and independent final re-review",
+    "new completeDEC025 registered integration gates"
+  ],
+  "remaining_blockers": [
+    "parent acceptance and integration gate outstanding; no child implementation blocker"
+  ],
+  "lease_status": "explicitly released after6sourcebrowserpass/teardown; no further runtime execution",
+  "evidence_boundary": "4+2 App unit cases; blocked/nonconverged use mocked native polls;6 actual sourcebrowser cases in2viewports; no native/WASM/build/dist/fullsuite run in repair; no report eligibility admitted",
+  "prior_repairs": "selector/historyhash source hashes unchanged; previous frozen packets not overwritten"
+}

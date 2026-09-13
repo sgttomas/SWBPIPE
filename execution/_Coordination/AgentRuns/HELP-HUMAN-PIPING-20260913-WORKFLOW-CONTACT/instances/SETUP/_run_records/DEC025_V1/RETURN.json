@@ -1,0 +1,11 @@
+{
+  "status": "FAILED",
+  "exit_code": 1,
+  "source_hashes_match": true,
+  "checkpoint": "5337a10231252cdeee53d6fb3a74cc4b4789999d",
+  "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T213728Z_5337a1023125.json",
+  "failed_surface": "desktop_playwright_e2e",
+  "browser_source": "26pass4fail; two assertionclasses across desktop/compact",
+  "remaining_checks": "not executed: sweep failed; distribution/prodbuild notrun; postgate fullpractitioner/CI withheld",
+  "lease": "released after runner ended; no competingbuild/browserprocess"
+}

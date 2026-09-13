@@ -1,0 +1,2 @@
+  ✘   1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (28.8s)
+  ✘  16 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (28.5s)

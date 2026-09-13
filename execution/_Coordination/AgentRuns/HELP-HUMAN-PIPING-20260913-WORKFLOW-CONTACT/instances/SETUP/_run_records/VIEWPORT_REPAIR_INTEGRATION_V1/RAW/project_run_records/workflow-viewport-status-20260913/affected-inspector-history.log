@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model|historical lifecycle history transitions
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 172 skipped (174)
+   Start at  15:55:42
+   Duration  7.45s (transform 1.10s, setup 64ms, import 1.30s, tests 5.82s, environment 179ms)
+

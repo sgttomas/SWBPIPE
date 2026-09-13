@@ -1,0 +1,50 @@
+{
+  "freeze_utc": "2026-09-13T21:48:28.596971+00:00",
+  "authority": "Parent current bounded workflow plan and real complete DEC025 sourcebrowser failed-state regression; no assertion weakening",
+  "integration_candidate": "Fresh review candidate3d4d51; gate-only HEAD5337a10231252cdeee53d6fb3a74cc4b4789999d with unchanged INTEGRATED_CANDIDATE_BINDING_V2 product source",
+  "source_assertion": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+    "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+    "line": 286,
+    "expected": "blocked; mechanics=model incomplete; rows=0",
+    "received_from_parent_failure": "Deformation \u00b7 unavailablenot started; result rows=0scale=not_generated; professional_claim=false",
+    "timeout_ms": 10000,
+    "matching_wrong_class_count": 24,
+    "test": "e2e/gui-workflow-validation.spec.ts:100:1"
+  },
+  "frozen_context": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/BASELINE_ERROR_CONTEXT.md",
+    "sha256": "c36a11c656577db4010b065f914eac186fcb878c0c23d7692b41a9de577a4603",
+    "read_only_origin": "projects/chirality-piping/apps/desktop/test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-desktop/error-context.md",
+    "origin": "Parent integration checkout test-results; copied bytes, source untouched"
+  },
+  "frozen_log_excerpt": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/BASELINE_SWEEP_EXCERPT.txt",
+    "sha256": "c5560871121acdd02d45b53a5189fff1cfdf3a7b6ea4462cbebfc3b6e2df3a01",
+    "read_only_origin": "projects/chirality-piping/target/workflow-contact-dec025/gate-logs/sweep.stdout.txt",
+    "origin": "Parent live sweep stdout; excerpt snapshot only, live run unmodified"
+  },
+  "write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "record_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/",
+  "host_log_prefix": "projects/chirality-piping/_run_records/workflow-viewport-status-20260913/",
+  "diagnosis": "App sends currentSolvedResult=null to viewport for failed current solve. PipeViewport existing helper refuses all deformation data before row reading for non-solved mechanics, retaining blocked status if current result supplied. All rendering requires available state. Historical result is already separated and current result cleared.",
+  "proposed_fix": "Change only PipeViewport result prop from currentSolvedResult to current result; keep every other solved-only consumer gate.",
+  "independent_expectations": [
+    "MODEL_INCOMPLETE current browser solve retains exact blocked status and0 rows, never not_started",
+    "MECHANICS_BLOCKED and MECHANICS_NONCONVERGED current outputs retain blocked viewport status while existing helper returns zero nodePositions even if rows present",
+    "No solved-only rule/comparison/report/proof/overlay eligibility admitted",
+    "Historical saved reopen current result remains null/not_started with no overlays; raw historical rows readable separately"
+  ],
+  "checks_lease": "NO TESTS, TypeScript, builds, browser, native, WASM or dist until parent releases test lease after existing sweep ends; read/diagnose/test-source preparation and source repair allowed now. No integration worktree or test-results/cache writes.",
+  "exclusions": "No other productsource, new interface, guard weakening, e2e assertion weakening, integration writes, frozenV1/V2/native packets overwrites, Git publication or lifecycle changes",
+  "writer": "Same TASK configuredSol/high, no further descendants; suppliedmetadata only; runtimeattestation not independently proven."
+}

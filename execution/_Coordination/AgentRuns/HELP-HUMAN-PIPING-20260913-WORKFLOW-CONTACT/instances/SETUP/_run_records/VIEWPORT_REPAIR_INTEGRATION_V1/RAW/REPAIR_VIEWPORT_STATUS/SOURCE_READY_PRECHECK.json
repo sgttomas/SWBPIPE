@@ -1,0 +1,22 @@
+{
+  "state": "source ready, unexecuted pending parentlease",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+      "post_sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e",
+      "post_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "pre_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6",
+      "post_sha256": "1b53e8804797737920004b57d658a50de3b3803b7829d66a9486afe908fa9fc9"
+    }
+  ],
+  "patch_sha256": "6a0038b35535cdc9168a3ee483827ccb66d8a7332590daec21c44b86cea78770",
+  "execution_status": "no tests/typecheck/build/browser/native/WASM/dist executed"
+}

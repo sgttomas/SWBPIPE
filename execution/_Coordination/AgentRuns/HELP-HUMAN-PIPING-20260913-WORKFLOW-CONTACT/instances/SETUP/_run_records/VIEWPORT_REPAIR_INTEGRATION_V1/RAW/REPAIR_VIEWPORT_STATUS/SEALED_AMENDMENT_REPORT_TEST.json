@@ -1,0 +1,42 @@
+{
+  "freeze_utc": "2026-09-13T21:49:08.507129+00:00",
+  "authority": "Parent explicit routine same-tranche sourcebrowser expectation correction after second sweep finding",
+  "fence_sha256": "2c8d2b676018e972b728c193fad613da0afa2d608db4e359506fda3bc4e41b80",
+  "additional_write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "pre_sha256": "da2efafca0594a417cfd3c03aa99c143325048e6419a7d3a1c4ff4434a5b82b6"
+    }
+  ],
+  "existing_write_paths_unchanged": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "386322eda2f66021edc4f2427e9d2164a6dec8949c5f13ced068ca69858ae41e"
+    }
+  ],
+  "old_report_expectation": {
+    "test_line": 860,
+    "assertion_line": 1055,
+    "semantic": "Explicitly asserts browser edited-model backend required and0 result rows, then expects Render report enabled/clicks and expects blocked redaction; obsolete for approved MECHANICS_SOLVED-only current report consumers"
+  },
+  "approved_report_expectation": "Keep all authoring/unit/blocked diagnostic assertions; expect Render report disabled and precondition visible; no click; zero rendered report route and preview; positive solved report coverage at265 untouched",
+  "viewport_expectation": "Keep gui-workflow-validation blocked; mechanics=model incomplete; rows=0 exactly, never accept not started",
+  "report_failure_context": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/BASELINE_REPORT_ERROR_CONTEXT.md",
+    "sha256": "365722b85e4cd9d496f51c6a7d6006da181e3f6c060fa0031dee3abd030b51b4",
+    "read_only_origin": "projects/chirality-piping/apps/desktop/test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/error-context.md",
+    "origin": "Parent live integration test-results copied bytes only"
+  },
+  "frozen_two_failure_excerpt": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_VIEWPORT_STATUS/BASELINE_TWO_FAILURE_EXCERPT.txt",
+    "sha256": "fd91aea185a52ed19b3bf44f7bf2f9bf9bb28c62a2973d05e4330568232d0fcc",
+    "read_only_origin": "projects/chirality-piping/target/workflow-contact-dec025/gate-logs/sweep.stdout.txt",
+    "origin": "Parent live sweep read-only excerpt; existing run untouched"
+  },
+  "execution_lease": "NO tests/TypeScript/builds/native/browser/WASM/dist until explicit parent release; source/test prep allowed now",
+  "excluded": "No reportpanel/productchanges, no gui-workflow-validation.spec.ts edits, no positive solvedreport weakening, no integration/source test-results/cache writes, no previousfrozenpacket overwrites."
+}
