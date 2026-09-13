@@ -1,0 +1,58 @@
+{
+  "finding": "RV-V5-001 OPEN pending reviewer backcheck",
+  "cause": "Previous evidence staging audits were limited to new repair manifests and omitted ignored original failed-sweep traces outside those manifests. Complete failed sweep preservation was required; this is a packaging failure, not a source failure.",
+  "audit_scope": "ALL ignored/untracked files recursively beneath current run including all failed-sweep records and imported dedicated raw trees; no caches imported",
+  "archives": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V1/source-browser-test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-compact/trace.zip",
+      "sha256": "26c5e643cf80e6117e6e6664d6210ca92f1cf59e539e80fb9a7d7a38a40790c7",
+      "bytes": 35261341,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V1/source-browser-test-results/gui-workflow-validation-DE-a6ecf-st-solve-result-transitions-chromium-desktop/trace.zip",
+      "sha256": "d335b6b1cf7d4a3e20959dd97688c3bb162cc8f074dfe2b11694a0c21b574c2b",
+      "bytes": 35954288,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V1/source-browser-test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-compact/trace.zip",
+      "sha256": "b0806659517a320bfbb9d1684e7891689198770742c1858c42ef3131f6bb15e6",
+      "bytes": 46228407,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V1/source-browser-test-results/r2-smoke-R2-from-blank-GUI-5b60d-rs-the-A12-rehearsal-script-chromium-desktop/trace.zip",
+      "sha256": "63d4c10e1037c903ff9eff2dfdf67c15154b5352ed8a6584a91d9d71f8c5d027",
+      "bytes": 46466803,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/source-browser-test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-compact/trace.zip",
+      "sha256": "293ef7fd67f5693249f80fd96ccb334bd467462cc992f4cc199958fdef665458",
+      "bytes": 31282683,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/source-browser-test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/trace.zip",
+      "sha256": "85a5dd8b093b1e98929b52cc5da26f3b5c7ac3239a28e5b8fd08a6eb5030d27b",
+      "bytes": 32770681,
+      "ZIP_CRC": "PASS",
+      "previous_committed_absence": true,
+      "ignore_rule": "*.zip"
+    }
+  ],
+  "new_repair38_bindings": "unchanged",
+  "prior_returns_manifests": "unchanged",
+  "closure": "reviewer owns closure after committed blob checks"
+}
