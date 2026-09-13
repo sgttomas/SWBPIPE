@@ -1,0 +1,85 @@
+{
+  "freeze_utc": "2026-09-13T20:34:38.295178+00:00",
+  "status": "SUPERSEDED; native loader fallback spillover discovered by parent fan-in; numerical/native/browser/838-unit V1 evidence retained as actual source-time evidence, not final scoped acceptance",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+      "post_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+      "post_sha256": "b165cd1dfe499403c72ae3089fd0cbc0660c485c814edcc589d191fec190e603"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": null,
+      "post_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": null,
+      "post_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "pre_sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+      "post_sha256": "ab49338939e85e66a3c96b14c8930e770190b67e9c4280f26833c9fe6cacf08a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b",
+      "post_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "pre_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "post_sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c",
+      "post_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "deliverable_doc_packet": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/DELIVERABLE_DOC_PACKET.json",
+    "sha256": "95396ac137a52eeef176bd701ad47f0f27e68e95efbe4debcb395794be58b21e"
+  },
+  "deliverable_docs": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+      "pre_sha256": "d506c29e733fecf3994f616a2c1ab6e9deab77d67301d69e140e7bc697b0c854",
+      "post_sha256": "17b7db88f619a7ce7b35331939621c0fc071a037dfd19b0a3a041c918322e746"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "pre_sha256": "755e944ec0fa816ab999134276da23bd7ab695eb39610f7a7c5843db3b2537e5",
+      "post_sha256": "c4d01da0aefece86d22238e5b7f96a9f73e2d20252f7d38636e12509a831306d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "pre_sha256": "307acc7b16b8cb1b2e7b5de2a4768fc44b4287a9bd578f24a45bf67115008bc1",
+      "post_sha256": "ef602e887bddde8a70ff6908251a3251a015cf8be8d7031769472bbd8476ec60"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "pre_sha256": "b5e7bca7e32b349f45380f549cb30f3cce3b439401cb0de277e010dd44a7b50d",
+      "post_sha256": "a60c2c74fdd4b3940eb079c01dfda44d67cdd8452156ea0694c5cb2c899cbfa5"
+    }
+  ],
+  "patch": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SUPERSEDED_V1/WORKFLOW_IMPLEMENTATION.patch",
+    "sha256": "408b2511aa04458869b01081cdd7179fa16394898b009d88a679acde56ae2304"
+  },
+  "full_unit": {
+    "command": "npm run test:desktop",
+    "cwd": "projects/chirality-piping",
+    "result": "PASS48files838tests",
+    "log": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-unit-final.log",
+    "sha256": "46620591022b62b23751d377b045fdacce5f11a61de78640776ce537549e86a8"
+  },
+  "required_correction": "Restore unrelated model/knowledge loader catch fallback; strict native direct solve remains. Freeze unaffected-loader contract gap before correction, run services/build, update V2 packet.",
+  "claim_boundary": "Historical context guards malformed analysis evidence only; full MechanicsResult shape/schema compatibility deferred."
+}

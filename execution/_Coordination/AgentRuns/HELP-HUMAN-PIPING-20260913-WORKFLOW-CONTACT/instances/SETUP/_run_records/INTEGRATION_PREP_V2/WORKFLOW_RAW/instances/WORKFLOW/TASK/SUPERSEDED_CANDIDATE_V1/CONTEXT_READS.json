@@ -1,0 +1,122 @@
+[
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+    "sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af"
+  },
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+    "sha256": "dfb94b10c777df62fd41a33053b11b4a33a4a695dc4f5de0e2d34a887b6b1361"
+  },
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+    "sha256": "8d18e255ac56e0f713ac5dda24e9e74a4ac7f03fa59e1f5653345df49deff4cd"
+  },
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+    "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7"
+  },
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+    "sha256": "8671b445ce7f168ae6d0197a41971cf889a9b0fa076190d78dbd9e249bb9b469"
+  },
+  {
+    "path": "execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+    "sha256": "18de954191934d4fe7cfb1d4d9b58c322c478bab4161a7e103553609f7afafd5"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/Dependencies.csv",
+    "sha256": "b30266d95aa573c2172b5342f1db6ad5a58270777e9502b8b7702ec63752c260"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_CONTEXT.md",
+    "sha256": "7fc80d884877e6ffad0be1c248d38940c1d22eb965870097a3000cc8b7bdcd96"
+  },
+  {
+    "path": "execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+    "sha256": "dd0229328bb017fb13260802f9ab2b5203d29025128050b8e007695c59b28bd7"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+    "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+    "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+    "sha256": "5cd659fe82bd40224fdd3345b18ced909a2f29a27c3691949cde5b7a1732399c"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+    "sha256": "4bf9bede3e5467fb6b03fe8eb42b3d0e9c6191fbca44469620cd436e741346d5"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+    "sha256": "ed7f09455774a79cc32a476551126c308772d0766fc94944c52d61e725848138"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+    "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+    "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+    "sha256": "af413bb0a7429968f8943d152100092fa16541dc4236534229ba4b669ddba9dd"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/Dependencies.csv",
+    "sha256": "f28b941100992d1687448e3ad694be4b741efbe839df0a64809b77c61905114e"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_CONTEXT.md",
+    "sha256": "98905789a8df97324b033217015c0fc1d78e8bcdca9cda26eab9bd0f2d8756c9"
+  },
+  {
+    "path": "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+    "sha256": "f19149afe287b28c3716ef647d414f9cad66fe86dde2bdccd812129ecbff6940"
+  },
+  {
+    "path": "AGENTS.md",
+    "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "workflows/software-bounded-implementation/WORKFLOW.md",
+    "sha256": "2ea0ddf4f53241fa94274e709b8042ad9de4d8beb9c82cd1ed1dcd0c6f8f0f7b",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+    "sha256": "9cc54bfb649168801c2ea060acb242145f48a0e08ac893e6ca38824439f7c5b3",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "projects/chirality-piping/software-workflow.json",
+    "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "projects/chirality-piping/docs/CONTRACT.md",
+    "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "origin": "active checkout selected instruction/profile/contract; read-only"
+  },
+  {
+    "path": "caller sealed WORKFLOW brief in contact lane",
+    "sha256": "fd3834bfb1b77762d255da6f9f5b2e1a071a0bddafc6164fff33267523ba4b5c",
+    "origin": "manager supplied exact origin; full path in host command/tool history"
+  }
+]

@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/services/previewService.test.ts src/features/results/HistoricalRunContext.test.tsx src/App.test.tsx -t native mechanics failure boundary|workflow current and historical result boundaries|transient HistoricalRunContext integrity|synchronous busy history boundary
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  11 passed | 179 skipped (190)
+   Start at  14:19:57
+   Duration  6.47s (transform 1.47s, setup 220ms, import 1.69s, tests 5.05s, environment 608ms)
+

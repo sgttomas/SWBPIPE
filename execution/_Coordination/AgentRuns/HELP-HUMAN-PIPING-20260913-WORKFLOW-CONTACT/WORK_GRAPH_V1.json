@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "nodes": [
+    {
+      "id": "SETUP",
+      "parent": "HELP_HUMAN",
+      "role": "TASK",
+      "model": "gpt-5.6-sol",
+      "effort": "medium",
+      "status": "completed"
+    },
+    {
+      "id": "PHYSICS",
+      "parent": "HELP_HUMAN",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "sealed_ready",
+      "brief": "briefs/PHYSICS.md",
+      "brief_sha256": "c8c0d3c538a04e132588c1d4ceff6d9db757d13a782e2f4b49f613febf53b292",
+      "max_children": 1
+    },
+    {
+      "id": "WORKFLOW",
+      "parent": "HELP_HUMAN",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "sealed_ready",
+      "brief": "briefs/WORKFLOW.md",
+      "brief_sha256": "fd3834bfb1b77762d255da6f9f5b2e1a071a0bddafc6164fff33267523ba4b5c",
+      "max_children": 1
+    },
+    {
+      "id": "FAN_IN",
+      "parent": "HELP_HUMAN",
+      "status": "pending"
+    },
+    {
+      "id": "INDEPENDENT_REVIEW",
+      "role": "TASK",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "status": "pending"
+    },
+    {
+      "id": "NATIVE_VERIFY",
+      "role": "TASK",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "pending"
+    },
+    {
+      "id": "CHANGE",
+      "role": "TASK under CHANGE",
+      "model": "gpt-5.6-sol",
+      "effort": "medium",
+      "status": "pending"
+    }
+  ],
+  "edges": [
+    [
+      "SETUP",
+      "PHYSICS"
+    ],
+    [
+      "SETUP",
+      "WORKFLOW"
+    ],
+    [
+      "PHYSICS",
+      "FAN_IN"
+    ],
+    [
+      "WORKFLOW",
+      "FAN_IN"
+    ],
+    [
+      "FAN_IN",
+      "INDEPENDENT_REVIEW"
+    ],
+    [
+      "INDEPENDENT_REVIEW",
+      "NATIVE_VERIFY"
+    ],
+    [
+      "NATIVE_VERIFY",
+      "CHANGE"
+    ]
+  ],
+  "scheduling": "implementation parallel; native/build/final git serialized; max6 active"
+}

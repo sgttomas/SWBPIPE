@@ -1,0 +1,1 @@
+Parent /root released workflow V2 source patch 222b6120f2a62dcc1b28827b5a6717f8b1340cff7f07bb0269f9ce7bdf7c6047, 97669 bytes, eight source and four doc paths; final raw import waits end-freeze. Scoped pre-final-review candidate checkpoint authorized after static fan-in and upstream validation. No publication.

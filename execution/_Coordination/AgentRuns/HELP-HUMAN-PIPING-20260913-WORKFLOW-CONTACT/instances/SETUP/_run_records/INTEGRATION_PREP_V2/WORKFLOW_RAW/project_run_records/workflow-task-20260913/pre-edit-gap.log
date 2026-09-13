@@ -1,0 +1,18 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop --run src/services/previewService.test.ts src/App.test.tsx -t native mechanics failure boundary|workflow current and historical result boundaries
+
+npm warn "src/services/previewService.test.ts" is being parsed as a normal command line argument.
+npm warn "native mechanics failure boundary|workflow current and historical result boundaries" is being parsed as a normal command line argument.
+npm warn Unknown cli config "--run". This will stop working in the next major version of npm.
+npm warn Unknown cli config "--t". This will stop working in the next major version of npm.
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/services/previewService.test.ts src/App.test.tsx native mechanics failure boundary|workflow current and historical result boundaries
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/services/previewService.test.ts (19 tests | 2 failed) 435ms
+     × propagates direct native solve rejection without a bundled result 47ms
+     × propagates native job-start rejection without browser designation 1ms

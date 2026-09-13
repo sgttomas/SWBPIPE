@@ -1,0 +1,13 @@
+{
+  "method": "Independent sorted-key ECMAScript JSON canonicalization; fixture keys ASCII, finite numbers, compatible RFC8785 fixture subset. Product Rust hash crosscheck remains required.",
+  "fixture_file_sha256": "519119c01291d66953f863151fbc43ea35a97842d02cd7b597a383059565e07b",
+  "baseline_model_canonical_sha256": "4571bfa054138274f76c0aa8b51e109564543fb5fbcd75f23d6a7c4c68a464d2",
+  "edited_model_canonical_sha256": "751b49d24f7e06ebc20ea30456644260ceb67b945c660da719ff746e99b0d201",
+  "human_intent_canonical_sha256": "b9707a20a3ba0263bcc9fcc035fe2152caf74983eb6f24675167e33d8b9a4f8b",
+  "agent_intent_canonical_sha256": "0da2f3d18a5f2f243b8102b346f4cd69304dbcfe706dc3e39aafbc3f40ad6b42",
+  "exact_history_expected": {
+    "undo": "4571bfa054138274f76c0aa8b51e109564543fb5fbcd75f23d6a7c4c68a464d2",
+    "redo": "751b49d24f7e06ebc20ea30456644260ceb67b945c660da719ff746e99b0d201"
+  },
+  "equivalent_intents_model_hash_expected": "751b49d24f7e06ebc20ea30456644260ceb67b945c660da719ff746e99b0d201"
+}

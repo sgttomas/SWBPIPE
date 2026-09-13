@@ -1,0 +1,14 @@
+{
+  "utc": "2026-09-13T20:36:23.005826+00:00",
+  "command": [
+    "git",
+    "apply",
+    "--reverse",
+    "--check",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/WORKFLOW_IMPLEMENTATION.patch"
+  ],
+  "cwd": ".",
+  "exit_code": 0,
+  "stderr": "",
+  "note": "Read-only reverse applicability check against exact frozen lane contents, including two new helper/test files. No index or source mutation."
+}

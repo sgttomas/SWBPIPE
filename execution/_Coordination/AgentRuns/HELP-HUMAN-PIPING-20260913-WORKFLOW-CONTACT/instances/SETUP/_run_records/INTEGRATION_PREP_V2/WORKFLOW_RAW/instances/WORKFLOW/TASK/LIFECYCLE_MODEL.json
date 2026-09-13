@@ -1,0 +1,140 @@
+{
+  "schema_version": "0.2.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+    "id": "project:workflow-cantilever",
+    "name": "Invented workflow cantilever",
+    "description": "Synthetic Euler-Bernoulli lifecycle witness; not an engineering acceptance.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC",
+      "stress": "MPa"
+    }
+  },
+  "materials": [
+    {
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "elastic_modulus": {
+        "value": 200000000000,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example_no_material_standard"
+    }
+  ],
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:WF-ROOT",
+      "label": "Root",
+      "position": {
+        "x": 0,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "synthetic_workflow_input"
+    },
+    {
+      "id": "node:WF-TIP",
+      "label": "Tip",
+      "position": {
+        "x": 3.2,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "synthetic_workflow_input"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:WF",
+      "label": "Cantilever",
+      "from": "node:WF-ROOT",
+      "to": "node:WF-TIP",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "synthetic_workflow_input"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:WF-ROOT",
+      "label": "Root anchor",
+      "node": "node:WF-ROOT",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "synthetic_workflow_input"
+    }
+  ],
+  "components": [],
+  "load_cases": [
+    {
+      "id": "load:WF",
+      "label": "Synthetic tip force",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:WF-FY",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:WF-TIP"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 350,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "synthetic_workflow_input"
+        }
+      ],
+      "provenance": "synthetic_workflow_input"
+    }
+  ],
+  "combinations": [],
+  "diagnostics": []
+}

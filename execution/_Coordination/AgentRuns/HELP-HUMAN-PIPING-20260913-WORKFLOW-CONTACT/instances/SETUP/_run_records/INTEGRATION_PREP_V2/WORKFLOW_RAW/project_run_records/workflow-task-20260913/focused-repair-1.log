@@ -1,0 +1,214 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/services/previewService.test.ts src/features/results/HistoricalRunContext.test.tsx src/App.test.tsx -t native mechanics failure boundary|workflow current and historical result boundaries|transient HistoricalRunContext integrity
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/App.test.tsx (166 tests | 2 failed | 163 skipped) 1835ms
+     × keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers 533ms
+     × keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers 454ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers
+ FAIL  src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers
+TestingLibraryElementError: Unable to find an element by: [data-testid="diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<main[39m
+      [33mclass[39m=[32m"app-shell native-menu"[39m
+      [33mdata-testid[39m=[32m"desktop-preview-shell"[39m
+    [36m>[39m
+      [36m<header[39m
+        [33mclass[39m=[32m"titlebar"[39m
+      [36m>[39m
+        [36m<div>[39m
+          [36m<h1>[39m
+            [0mOpenPipeStress[0m
+          [36m</h1>[39m
+          [36m<p>[39m
+            [0mInvented Utility Loop Preview[0m
+          [36m</p>[39m
+        [36m</div>[39m
+        [36m<div[39m
+          [33maria-label[39m=[32m"Local project controls"[39m
+          [33mclass[39m=[32m"titlebar-actions"[39m
+        [36m>[39m
+          [36m<details[39m
+            [33mclass[39m=[32m"display-preference-control"[39m
+          [36m>[39m
+            [36m<summary>[39m
+              [0mUnits[0m
+            [36m</summary>[39m
+            [36m<div>[39m
+              [36m<label[39m
+                [33mfor[39m=[32m"display-unit-preference"[39m
+              [36m>[39m
+                [0mDisplay units[0m
+              [36m</label>[39m
+              [0m [0m
+              [36m<select[39m
+                [33mid[39m=[32m"display-unit-preference"[39m
+              [36m>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"entered"[39m
+                [36m>[39m
+                  [0mEntered[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"SI"[39m
+                [36m>[39m
+                  [0mSI[0m
+                [36m</option>[39m
+                [36m<option[39m
+                  [33mvalue[39m=[32m"US"[39m
+                [36m>[39m
+                  [0mUS[0m
+                [36m</option>[39m
+              [36m</select>[39m
+              [36m<p>[39m
+                [0mReadouts use the selected units where conversion is available. Unavailable quantities retain entered values. Editing uses entered units.[0m
+              [36m</p>[39m
+            [36m</div>[39m
+          [36m</details>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-database"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"15"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"15"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<ellipse[39m
+                [33mcx[39m=[32m"12"[39m
+                [33mcy[39m=[32m"5"[39m
+                [33mrx[39m=[32m"9"[39m
+                [33mry[39m=[32m"3"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 5V19A9 3 0 0 0 21 19V5"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 12A9 3 0 0 0 21 12"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mCreate local[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-file-plus"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"15"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"15"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M14 2v4a2 2 0 0 0 2 2h4"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M9 15h6"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M12 18v-6"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mNew blank[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-folder-open"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"15"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"15"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"m6 14 1.5-2.9A2 2 0 0 1 9.24 10H20a2 2 0 0 1 1.94 2.5l-1.54 6a2 2 0 0 1-1.95 1.5H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h3.9a2 2 0 0 1 1.69.9l.81 1.2a2 2 0 0 0 1.67.9H18a2 2 0 0 1 2 2v2"[39m
+              [36m/>[39m
+            [36m</svg>[39m
+            [0mOpen local[0m
+          [36m</button>[39m
+          [36m<button[39m
+            [33mtype[39m=[32m"button"[39m
+          [36m>[39m
+            [36m<svg[39m
+              [33maria-hidden[39m=[32m"true"[39m
+              [33mclass[39m=[32m"lucide lucide-list"[39m
+              [33mfill[39m=[32m"none"[39m
+              [33mheight[39m=[32m"15"[39m
+              [33mstroke[39m=[32m"currentColor"[39m
+              [33mstroke-linecap[39m=[32m"round"[39m
+              [33mstroke-linejoin[39m=[32m"round"[39m
+              [33mstroke-width[39m=[32m"2"[39m
+              [33mviewBox[39m=[32m"0 0 24 24"[39m
+              [33mwidth[39m=[32m"15"[39m
+              [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+            [36m>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 12h.01"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 18h.01"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M3 6h.01"[39m
+              [36m/>[39m
+              [36m<path[39m
+                [33md[39m=[32m"M8 12h13"[39m...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/App.test.tsx:16672:19
+    16670|     act(() => nativeMenuCommand("analyze.run"));
+    16671|     await waitFor(() => expect(screen.getByTestId("status-pill-mechani…
+    16672|     expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC"…
+       |                   ^
+    16673|     expect(screen.getByTestId("viewport-deformation-status")).toHaveTe…
+    16674|     expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed | 2 passed (3)
+      Tests  2 failed | 7 passed | 179 skipped (188)
+   Start at  14:17:05
+   Duration  3.40s (transform 1.33s, setup 215ms, import 1.66s, tests 2.03s, environment 593ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/services/previewService.test.ts src/features/results/HistoricalRunContext.test.tsx src/App.test.tsx -t 'native mechanics failure boundary|workflow current and historical result boundaries|transient HistoricalRunContext integrity'

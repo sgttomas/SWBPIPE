@@ -1,0 +1,28 @@
+{
+  "status": "V2 IMPLEMENTED; parent independent review/acceptance pending",
+  "basis": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0 + sealed child V1 + parent V2 direction",
+  "scope_anchor": "DEL-04-04 PKG04 SOW012 OBJ003; localized product caller PKG09 DEL09-03 SOW026 OBJ008",
+  "source_hashes": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"
+  },
+  "diff_sha256": "62d3e525a74f446acbcd0b77020303947e263e311dd67155ae1b1f608e19b32a",
+  "frozen_expectations": {
+    "FROZEN_NEW_TESTS.rs": "40ca751b4a659fa9465d514f3db749a4d369e87ef3cfeb7909b7c061314d01d9",
+    "FROZEN_WARNING_TEST.rs": "026ad8e5fca31a725912189e1d2a8c7071d575ba82df9fcdccd7a131642daba7",
+    "TEST_FREEZE.json": "a734430aab3f9ea899546cdbdccc6a0d53e99ed08a53d3b807a28204389ee761",
+    "ORACLE_EXPECTATIONS.md": "0a871e9f79f69dd0102e42077702224999a457fdc2abb645930c920d68916adf"
+  },
+  "v1_immutable_record_hashes": {
+    "MANIFEST.json": "ea2e799314dbde52219dff6cbb6e10980dcca9da77fab15009affee1d30d7669",
+    "FROZEN_DIFF.patch": "59992a8fd04fd6948e9cdda0a8cc80de82f1e238a9aa38d84adf7b6f857071b7",
+    "RETURN.md": "10520dfac76a2d43fc58ebeb5ada1453ba43320e0a1516f37473ee1cbe8734cb",
+    "CHECKS.json": "914a84bf497a95f7a6b5392aba99cb4b3ed91a9fafbd41facbf6f46f9d9cdd89"
+  },
+  "write_scope_verdict": "PASS: only named lib.rs source files and IMPLEMENT_V2 child/raw evidence; no V1 record modifications; no Git mutation",
+  "execution_attribution": "native descendant TASK Type2; parent configured Sol/high, instruction-asserted; no independent runtime proof",
+  "parent_v2_authority": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/children/IMPLEMENT_V2/AUTHORITY_V2.md",
+    "sha256": "aee0dabeb0449424b267ab818b76ebc624de6170f164e4fb072133a4c35744bb"
+  }
+}

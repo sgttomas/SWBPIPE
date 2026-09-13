@@ -1,0 +1,24 @@
+{
+  "preserves": [
+    "WORK_GRAPH_V1.json",
+    "WORK_GRAPH_CORRECTION_V1.json",
+    "briefs/drafts/NATIVE_VERIFY.md"
+  ],
+  "reason": "Align execution ordering with approved user plan; no dependent phase had executed",
+  "supersedes": "review-before-native edge and native draft approved-full-review prerequisite",
+  "sequence": [
+    "workstream source integration",
+    "focused checks",
+    "fresh native GUI witness",
+    "native-induced repairs and focused verification if needed",
+    "freeze complete integrated source",
+    "fresh final 100% integrated review PASS",
+    "complete clean DEC025 sweep and publication gates"
+  ],
+  "native_prerequisites": [
+    "frozen source hashes",
+    "parent explicit release",
+    "exclusive root build/GUI lease"
+  ],
+  "final_review_requirement": "includes all native-induced repairs"
+}

@@ -77,6 +77,7 @@ import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel
 import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
 import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
 import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
+import { buildHistoricalRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./features/results/HistoricalRunContext";
 import { SolvePanel } from "./features/solve/SolvePanel";
 import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
 import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
@@ -422,6 +423,8 @@ function AppSession() {
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
   const [selection, setSelection] = useState<EntityRef | null>(null);
   const [result, setResult] = useState<MechanicsResult | null>(null);
+  const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
+  const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
   const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
   const [inputManifest, setInputManifest] =
     useState<CurrentSessionInputManifestEvidence | null>(null);
@@ -518,8 +521,8 @@ function AppSession() {
     dispatched: boolean;
   }>());
   const comparison = useMemo(
-    () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
-    [analysisRun, result]
+    () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
+    [analysisRun, currentSolvedResult]
   );
 
   useEffect(() => {
@@ -560,6 +563,7 @@ function AppSession() {
     setRequestEpoch(requestEpochRef.current);
     setDirectDraftCommitToken(directDraftToken);
     currentModel.current = nextModel;
+    setHistoricalRun(null);
     operationRequest.current.sequence += 1;
     operationRequest.current.busy = false;
     directDraftReviews.current.clear();
@@ -766,6 +770,7 @@ function AppSession() {
           ? completeSolveJob(current, output, runRecord)
           : current
       );
+      setHistoricalRun(null);
       setResult(output);
       setSelectedReviewTarget(null);
       setProposal(null);
@@ -810,10 +815,10 @@ function AppSession() {
   async function handleRuleCheckAggregate(aggregate: RuleCheckStatus | null) {
     if (aggregate === ruleCheckAggregate) return;
     setRuleCheckAggregate(aggregate);
-    if (!result || !inputManifest) return;
+    if (!currentSolvedResult || !inputManifest) return;
     try {
       setAnalysisRun(
-        await buildAnalysisRunPreview(result, {
+        await buildAnalysisRunPreview(currentSolvedResult, {
           inputManifest,
           ruleCheckAggregate: aggregate
         })
@@ -1290,7 +1295,7 @@ function AppSession() {
   }
 
   function handleUndoSessionModelEdit() {
-    if (!model || !selection || undoStack.length === 0) return;
+    if (operationRequest.current.busy || !model || !selection || undoStack.length === 0) return;
     const [checkpoint, ...remainingUndo] = undoStack;
     setUndoStack(remainingUndo);
     setRedoStack((current) =>
@@ -1313,7 +1318,7 @@ function AppSession() {
   }
 
   function handleRedoSessionModelEdit() {
-    if (!model || !selection || redoStack.length === 0) return;
+    if (operationRequest.current.busy || !model || !selection || redoStack.length === 0) return;
     const [checkpoint, ...remainingRedo] = redoStack;
     setRedoStack(remainingRedo);
     setUndoStack((current) =>
@@ -1336,6 +1341,7 @@ function AppSession() {
   }
 
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
+    setHistoricalRun(null);
     setResult(null);
     setAnalysisRun(null);
     setInputManifest(null);
@@ -1355,25 +1361,29 @@ function AppSession() {
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
-      const snapshotModelHash = await computeModelHash(model);
+      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
+      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
+      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
       if (!stillCurrent()) return;
-      const envelopeHash = await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
         editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
-        mechanics_result: result,
-        analysis_run: analysisRun,
+        mechanics_result: snapshotResult,
+        analysis_run: snapshotAnalysisRun,
         model_hash: snapshotModelHash
       });
+      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
+        ? historicalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
       const created = await createLocalProject(
         model,
         combinedContext,
         proposal,
         selectedReviewTarget,
-        result,
-        analysisRun,
+        snapshotResult,
+        snapshotAnalysisRun,
         snapshotModelHash,
         envelopeHash
       );
@@ -1474,8 +1484,8 @@ function AppSession() {
         setProjectOperation("open_missing");
         return;
       }
-      const restoredResult = opened.mechanics_result ?? null;
-      const restoredAnalysisRun = opened.analysis_run ?? null;
+      const restoredHistory = await buildHistoricalRunContext(opened);
+      if (!stillCurrent()) return;
       commitModel(opened.model);
       epoch = requestEpochRef.current;
       setSelection(defaultSelection(opened.model));
@@ -1486,8 +1496,9 @@ function AppSession() {
       setBatchOutcomes({});
       setBatchReceipts([]);
       setBatchMessage(null);
-      setResult(restoredResult);
-      setAnalysisRun(restoredAnalysisRun);
+      setHistoricalRun(restoredHistory);
+      setResult(null);
+      setAnalysisRun(null);
       // Persisted analysis-run refs do not include the exact current-session
       // manifest payload needed to recompute its hash. A new solve is required
       // before report-package save can become ready.
@@ -1497,11 +1508,7 @@ function AppSession() {
       setRetainedReviewContext(opened.editor_intents ?? []);
       setEditorIntents([]);
       setSelectedReviewTarget(opened.selected_review_target ?? null);
-      setSolveJob(
-        restoredResult && restoredAnalysisRun
-          ? restoredSolveJob(restoredResult, restoredAnalysisRun)
-          : initialSolveJob()
-      );
+      setSolveJob(initialSolveJob());
       setProjectSummary(opened.summary);
       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
       setModelDocumentMigration(opened.model_document_migration ?? null);
@@ -1547,25 +1554,29 @@ function AppSession() {
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
-      const snapshotModelHash = await computeModelHash(model);
+      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
+      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
+      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
       if (!stillCurrent()) return;
-      const envelopeHash = await computeProjectEnvelopeHash({
+      const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
         editor_intents: combinedContext,
         proposal,
         selected_review_target: selectedReviewTarget,
-        mechanics_result: result,
-        analysis_run: analysisRun,
+        mechanics_result: snapshotResult,
+        analysis_run: snapshotAnalysisRun,
         model_hash: snapshotModelHash
       });
+      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
+        ? historicalRun.envelopeHash : computedEnvelopeHash;
       if (!stillCurrent()) return;
       const saved = await saveLocalProject(
         model,
         combinedContext,
         proposal,
         selectedReviewTarget,
-        result,
-        analysisRun,
+        snapshotResult,
+        snapshotAnalysisRun,
         snapshotModelHash,
         envelopeHash,
         modelDocumentMigration
@@ -1649,7 +1660,7 @@ function AppSession() {
 
   function handleToolkitCommand(capability: ToolkitCapability) {
     if (!selection) return;
-    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model?.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) };
+    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model?.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) };
     if (!capabilityAvailability(capability, context).enabled) return;
     if (capability.history) {
       if (capability.history === "undo") handleUndoSessionModelEdit();
@@ -1673,13 +1684,13 @@ function AppSession() {
   }
 
   async function handleSaveReportPackage() {
-    if (!model || !result || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+    if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
     setReportPackageBusy(true);
     setReportPackageRoute(null);
     try {
       const request = await buildReportPackageRequest({
         model,
-        result,
+        result: currentSolvedResult,
         analysisRun,
         inputManifest,
         projectSummary,
@@ -1893,13 +1904,13 @@ function AppSession() {
         <MenuBar
           activeSection={activeSection}
           auditOpen={auditDrawerOpen}
-          canRedo={redoStack.length > 0}
-          canUndo={undoStack.length > 0}
+          canRedo={redoStack.length > 0 && !operationBusy}
+          canUndo={undoStack.length > 0 && !operationBusy}
           inspectorCollapsed={inspectorCollapsed}
           issuesOpen={issuesDrawerOpen}
           openMenu={openMenu}
           projectBusy={projectBusy}
-          reportPackageReady={Boolean(result && analysisRun && inputManifest) && !running && !reportPackageBusy}
+          reportPackageReady={Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
           running={running}
           treeCollapsed={treeCollapsed}
           armedCreationTool={armedCreationTool}
@@ -1920,7 +1931,7 @@ function AppSession() {
         onRedo={handleRedoSessionModelEdit}
       >
           <ToolkitPalette
-            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
+            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
             onChoose={handleToolkitCommand}
           />
       </WorkspaceToolbar>
@@ -1963,7 +1974,7 @@ function AppSession() {
               onSelect={handleSelectEntity}
               queuedIntents={editorIntents}
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
-              result={result}
+              result={currentSolvedResult}
               selection={selection}
             />
           </div>
@@ -2218,14 +2229,14 @@ function AppSession() {
                 onRun={handleRun}
                 onSolverModeChange={setSolverMode}
               />
-              <RuleCheckPanel model={model} result={result} />
+              <RuleCheckPanel model={model} result={currentSolvedResult} />
               <RuleCheckRunPanel
                 model={model}
-                result={result}
+                result={currentSolvedResult}
                 onAggregateChange={handleRuleCheckAggregate}
                 onR3JourneyEvent={recordR3JourneyEvent}
               />
-              <KnowledgePanel knowledge={knowledge} result={result} />
+              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
             </section>
 
             <section
@@ -2233,18 +2244,18 @@ function AppSession() {
               aria-label="Results section"
               data-testid="workspace-section-results"
             >
-              <ResultsPanel
+              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
                 result={result}
                 knowledge={knowledge}
                 analysisRun={analysisRun}
                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
                 onSelectResult={handleSelectResult}
-              />
-              <ComparisonPanel comparison={comparison} result={result} onSelectResult={handleSelectResult} />
+              />}
+              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
               <DesignWorkspacePanel
                 model={model}
                 knowledge={knowledge}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -2260,7 +2271,7 @@ function AppSession() {
             >
               <RenderedReportPanel
                 model={model}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 projectSummary={projectSummary}
                 packagePrivateIntent={reportPackagePrivateIntent}
@@ -2273,7 +2284,7 @@ function AppSession() {
               <ReportPanel
                 model={model}
                 knowledge={knowledge}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -2283,7 +2294,7 @@ function AppSession() {
                 selectedReviewTarget={selectedReviewTarget}
                 storageCapability={storageCapability}
               />
-              <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
+              <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
             </section>
 
             <section
@@ -2323,21 +2334,21 @@ function AppSession() {
               aria-label="Exports section"
               data-testid="workspace-section-exports"
             >
-              <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
-              <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
-              <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
-              <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
-              <CaepipeExternalHarnessPanel model={model} result={result} analysisRun={analysisRun} />
-              <ExportAdapterSdkPanel model={model} result={result} analysisRun={analysisRun} />
-              <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
-              <LocalFeaHandoffPanel model={model} result={result} analysisRun={analysisRun} />
-              <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
-              <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
-              <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
+              <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <StressNeutralExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <LocalFeaHandoffPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <ExternalProverBoundaryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <HeadlessRunnerPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} solveJob={solveJob} />
               <NativePackagePanel
                 model={model}
                 modelHash={modelHash}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 editorIntents={editorIntents}
                 projectSummary={projectSummary}
@@ -2348,7 +2359,7 @@ function AppSession() {
               <HandoffPanel
                 model={model}
                 knowledge={knowledge}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -2358,7 +2369,7 @@ function AppSession() {
               <ExportReviewPanel
                 model={model}
                 knowledge={knowledge}
-                result={result}
+                result={currentSolvedResult}
                 analysisRun={analysisRun}
                 comparison={comparison}
                 editorIntents={editorIntents}
@@ -2920,6 +2931,7 @@ export function solveProofStatus(
   if (
     !modelHash ||
     !result ||
+    result.status.mechanics !== "MECHANICS_SOLVED" ||
     !proof ||
     solveJob.state !== "completed" ||
     proof.state !== "completed" ||

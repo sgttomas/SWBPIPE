@@ -1,0 +1,14 @@
+[
+  {
+    "external_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-cross-project-assessment-20260913",
+    "repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-CROSS-PROJECT-ASSESSMENT/HANDOFF_STATE_V2.md",
+    "sha256": "8d62bb2e7580d5aa690fdb82953e421eb73382950a04f172fa1fad25c1ed2013",
+    "status": "derivative historical external evidence; no copy or authority substitution"
+  },
+  {
+    "external_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-cross-project-assessment-20260913",
+    "repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-CROSS-PROJECT-ASSESSMENT/PLAN_V1.json",
+    "sha256": "068049d674d2c998d884ada9563638c8d0ac59f9413cf01f8fa7a8be358aa5c7",
+    "status": "derivative historical external evidence; no copy or authority substitution"
+  }
+]

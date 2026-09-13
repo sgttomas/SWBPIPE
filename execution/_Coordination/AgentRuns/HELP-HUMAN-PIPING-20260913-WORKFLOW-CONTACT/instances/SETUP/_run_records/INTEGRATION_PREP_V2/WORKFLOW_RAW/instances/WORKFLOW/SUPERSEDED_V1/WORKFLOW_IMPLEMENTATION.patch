@@ -1,0 +1,1707 @@
+diff --git a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+index edd959ab5..62e51a60f 100644
+--- a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+@@ -1,5 +1,22 @@
+ import { expect, test, type Page } from "@playwright/test";
+ 
++async function currentModelHash(page: Page): Promise<string> {
++  const intent = page.getByTestId("project-validation-export-link-local-private-intent");
++  if (!await intent.isChecked()) {
++    await page.getByTestId("menu-view").click();
++    await page.getByTestId("menu-item-view.section.project").click();
++    await intent.check();
++    await page.getByTestId("workspace-task-model").click();
++  }
++  const link = page.getByTestId("project-validation-export-link");
++  await expect.poll(async () => {
++    const href = await link.getAttribute("href");
++    return href ? JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash?.value ?? "" : "";
++  }).toMatch(/^sha256:[0-9a-f]{64}$/);
++  const href = (await link.getAttribute("href"))!;
++  return JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash.value;
++}
++
+ async function applyQueued(page: Page) {
+   await page.getByTestId("workspace-review").click();
+   const apply = page.locator('[data-testid^="apply-intent-"]').first();
+@@ -37,7 +54,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("viewport-create-node-x").fill("0");
+   await page.getByTestId("viewport-create-node-y").fill("2.4");
+   await page.getByTestId("viewport-create-node-z").fill("0");
+-  await page.getByTestId("viewport-create-node-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("viewport-create-node-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await assertPersistentCompactCanvas(page);
+   await page.getByTestId("queue-explicit-node-intent").click();
+   await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("Single operation");
+@@ -55,7 +72,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("create-material-label").fill("Invented carbon steel");
+   await page.getByTestId("create-material-elastic").fill("200000000000");
+   await page.getByTestId("create-material-shear").fill("77000000000");
+-  await page.getByTestId("create-material-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("create-material-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("queue-create-material-intent").click();
+   await applyQueued(page);
+ 
+@@ -65,7 +82,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("create-section-name").fill("Invented straight pipe");
+   await page.getByTestId("create-section-od").fill("0.168");
+   await page.getByTestId("create-section-wall").fill("0.007");
+-  await page.getByTestId("create-section-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("create-section-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("queue-create-section-intent").click();
+   await applyQueued(page);
+ 
+@@ -106,14 +123,14 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("viewport-route-end-y").fill("2.4");
+   await page.getByTestId("viewport-route-end-z").fill("0");
+   await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
+-  await page.getByTestId("viewport-route-end-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("viewport-route-end-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("viewport-create-pipe-material").selectOption("material:ui-phase-a-invented");
+   await page.getByTestId("viewport-create-pipe-od").fill("0.168");
+   await page.getByTestId("viewport-create-pipe-wall").fill("0.007");
+   await page.getByTestId("viewport-create-pipe-yref-x").fill("0");
+   await page.getByTestId("viewport-create-pipe-yref-y").fill("0");
+   await page.getByTestId("viewport-create-pipe-yref-z").fill("1");
+-  await page.getByTestId("viewport-create-pipe-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("viewport-create-pipe-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("continue-pipe-after-queue").check();
+   await page.getByTestId("queue-explicit-pipe-intent").click();
+   const review = page.getByTestId("viewport-draft-review-preview");
+@@ -161,7 +178,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("create-support-label").fill("Anchor support");
+   await page.getByTestId("create-support-node").selectOption("node:UI-A-100");
+   for (const restraint of ["RX", "RY", "RZ"]) await page.getByTestId(`create-support-restraint-${restraint}`).check();
+-  await page.getByTestId("create-support-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("create-support-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("queue-create-support-intent").click();
+   await applyQueued(page);
+ 
+@@ -170,7 +187,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("load-manager-create-load-label").fill("Invented Phase A force");
+   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
+   await page.getByTestId("load-manager-create-load-status").fill("preview_only");
+-  await page.getByTestId("load-manager-create-load-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("load-manager-create-load-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("queue-create-load-case-intent").click();
+   await applyQueued(page);
+   await page.getByTestId("workspace-task-loads").click();
+@@ -180,16 +197,26 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await page.getByTestId("load-manager-create-primitive-node").selectOption("node:UI-A-110");
+   await page.getByTestId("load-manager-create-primitive-direction").selectOption("global_y");
+   await page.getByTestId("load-manager-create-primitive-magnitude").fill("350");
+-  await page.getByTestId("load-manager-create-primitive-provenance").fill("synthetic_ui_acceptance_input");
++  await page.getByTestId("load-manager-create-primitive-provenance").fill("invented_synthetic_ui_acceptance_input");
+   await page.getByTestId("queue-create-primitive-intent").click();
+   await applyQueued(page);
+ 
++  const baseline350Hash = await currentModelHash(page);
+   await page.getByTestId("workspace-task-solve").click();
+   await page.getByTestId("run-mechanics-preview").click();
+   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
+   await page.getByTestId("issues-drawer-toggle").click();
+   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
++  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
++  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
++  await expect(page.getByTestId("rule-check-run")).toBeDisabled();
++  await page.getByRole("button", { name: "Save local" }).click();
++  await page.getByRole("button", { name: "Open local" }).click();
++  await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
++  await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
++  expect(await currentModelHash(page)).toBe(baseline350Hash);
++  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
+ 
+   await page.getByTestId("tree-row-load:UI-A").click();
+   const inspector = page.getByLabel("Property inspector");
+@@ -197,17 +224,24 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
+   await inspector.getByTestId("editor-intent-value").fill("500");
+   await inspector.getByTestId("apply-editor-intent-inline").click();
+   await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-load:UI-A-primitive_loads.0.magnitude.value");
++  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
++  await expect.poll(() => currentModelHash(page)).not.toBe(baseline350Hash);
++  const edited500Hash = await currentModelHash(page);
+   await page.getByTestId("workspace-review").click();
+   await page.getByTestId("undo-session-model-edit").click();
+   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("350");
++  await expect.poll(() => currentModelHash(page)).toBe(baseline350Hash);
+   await page.getByTestId("redo-session-model-edit").click();
+   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
++  await expect.poll(() => currentModelHash(page)).toBe(edited500Hash);
+   await page.getByRole("button", { name: "Save local" }).click();
+   await page.getByRole("button", { name: "Open local" }).click();
+   await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toBeAttached();
+   await page.getByTestId("tree-row-load:UI-A").click();
+   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
+   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
++  expect(await currentModelHash(page)).toBe(edited500Hash);
++  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+ });
+diff --git a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+index fb0215bd0..a64762249 100644
+--- a/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
++++ b/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs
+@@ -3665,207 +3665,371 @@ fn build_app_menu<R: tauri::Runtime>(
+ }
+ 
+ fn packaged_saved_edited_load_intent() -> Value {
+-    json!({
+-        "operation_id": "op:packaged-smoke-load-L-100-Y-magnitude",
+-        "operation_kind": "modify",
+-        "operation_status": "proposed",
+-        "author_type": "user",
+-        "target": { "object_type": "Load", "ref": "load:L-100" },
+-        "change": {
+-            "change_id": "change:packaged-smoke-load-L-100-Y-magnitude",
+-            "change_kind": "update_load",
+-            "field_label": "load:L-100-Y magnitude",
+-            "field_path": "primitive_loads.1.magnitude.value",
+-            "before": "350",
+-            "after": "425",
+-            "unit": "N",
+-            "dimension": "force",
+-            "source_note": "invented packaged-binary saved edited-load self-test"
+-        },
+-        "validation": {
+-            "schema_validation": "not_run",
+-            "constraint_validation": "not_run",
+-            "unit_validation": "not_run",
+-            "diff_preview_status": "not_generated",
+-            "application_status": "not_applied"
+-        },
+-        "audit_boundary": {
+-            "mutation_route": "structured_operations_only",
+-            "direct_model_mutation_allowed": false,
+-            "requires_user_acceptance": true,
+-            "mutates_accepted_model_state": false
+-        },
+-        "professional_boundary": {
+-            "human_review_required": true,
+-            "software_makes_compliance_claim": false,
+-            "software_makes_certification_claim": false,
+-            "software_makes_sealing_claim": false,
+-            "software_makes_approval_claim": false,
+-            "software_makes_authentication_claim": false
+-        },
+-        "rationale": "prove packaged-binary edit, file-backed persistence, restore, and solve"
+-    })
++    serde_json::from_str(r#"{
++  "operation_id": "op:workflow-human-load",
++  "operation_kind": "modify",
++  "operation_status": "proposed",
++  "author_type": "user",
++  "target": {
++    "object_type": "Load",
++    "ref": "load:WF"
++  },
++  "change": {
++    "change_id": "change:workflow-human-load",
++    "change_kind": "update_load",
++    "field_label": "Tip force",
++    "field_path": "primitive_loads.0.magnitude.value",
++    "before": "350",
++    "after": "500",
++    "unit": "N",
++    "dimension": "force",
++    "source_note": "invented_synthetic_workflow_input"
++  },
++  "validation": {
++    "schema_validation": "not_run",
++    "constraint_validation": "not_run",
++    "unit_validation": "not_run",
++    "diff_preview_status": "not_generated",
++    "application_status": "not_applied"
++  },
++  "audit_boundary": {
++    "mutation_route": "structured_operations_only",
++    "direct_model_mutation_allowed": false,
++    "requires_user_acceptance": true,
++    "mutates_accepted_model_state": false
++  },
++  "professional_boundary": {
++    "human_review_required": true,
++    "software_makes_compliance_claim": false,
++    "software_makes_certification_claim": false,
++    "software_makes_sealing_claim": false,
++    "software_makes_approval_claim": false,
++    "software_makes_authentication_claim": false
++  },
++  "rationale": "Synthetic native workflow lifecycle witness"
++}"#).expect("frozen invented human intent parses")
+ }
+ 
+ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
+-    // The fixture is embedded so the packaged executable does not depend on
+-    // the repository or its current working directory.
+-    let mut model: Value = serde_json::from_str(include_str!(
+-        "../../../../fixtures/product_preview/invented_preview_model.json"
+-    ))
+-    .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
+-    let baseline = solve_preview_mechanics(model.clone())?;
+-    // The edited force acts directly at the active UY stop: displacement is
+-    // constrained, so its signed reaction (not displacement) must absorb the edit.
+-    let stop_reaction = |result: &Value| -> Option<f64> {
+-        result["results"].as_array()?.iter().find(|row| {
+-            row["id"] == json!("result:nonlinear-support:support-NL-140:uy-reaction")
+-                && row["kind"] == json!("nonlinear_support_final_reaction")
+-                && row["entity_ref"] == json!("support:NL-140")
+-                && row["basis_ref"]["ref_id"] == json!("load:L-100")
+-                && row["unit"] == json!("N")
+-        })?["value"]
+-            .as_f64()
+-            .filter(|value| value.is_finite())
+-    };
+-    let baseline_reaction = stop_reaction(&baseline)
+-        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-RESULT-MISSING".to_string())?;
+-    let baseline_load = model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"]
+-        .as_f64()
+-        .filter(|value| value.is_finite())
+-        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-LOAD-MISSING".to_string())?;
+-    if baseline_load != 350.0
+-        || model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"] != json!("N")
++    // Embedded frozen synthetic model: the executable never reads repository
++    // fixtures. Current document version prevents an incidental migration.
++    let model: Value = serde_json::from_str(r#"{
++  "schema_version": "0.2.0",
++  "document_kind": "openpipestress.product_preview.model",
++  "data_boundary": {
++    "public_examples_policy": "invented_or_cleared_data_only",
++    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
++    "private_data_policy": "no_private_project_data",
++    "professional_boundary": "technical_preview_requires_human_engineering_review"
++  },
++  "project": {
++    "id": "project:workflow-cantilever",
++    "name": "Invented workflow cantilever",
++    "description": "Synthetic Euler-Bernoulli lifecycle witness; not an engineering acceptance.",
++    "units": {
++      "length": "m",
++      "force": "N",
++      "angle": "rad",
++      "pressure": "Pa",
++      "temperature": "degC",
++      "stress": "MPa"
++    }
++  },
++  "materials": [
+     {
+-        return Err("PACKAGED-SMOKE-BASELINE-LOAD-MISMATCH".to_string());
++      "id": "material:invented-carbon-steel",
++      "label": "Invented carbon-steel-like material",
++      "elastic_modulus": {
++        "value": 200000000000,
++        "unit": "Pa"
++      },
++      "shear_modulus": {
++        "value": 77000000000,
++        "unit": "Pa"
++      },
++      "thermal_expansion_coefficient": {
++        "value": 1.2e-05,
++        "unit": "1/degC"
++      },
++      "provenance": "invented_example_no_material_standard"
+     }
+-
+-    model["project"]["id"] = json!("project:packaged-edited-load-smoke");
+-    model["project"]["name"] = json!("Packaged Edited Load Smoke");
+-    let applied = apply_model_operation(model, packaged_saved_edited_load_intent(), None)?;
+-    if applied["validation"]["application_status"] != json!("applied_to_session_model") {
+-        return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".to_string());
++  ],
++  "analysis_status": {
++    "mechanics": "ready_for_preview_diagnostics",
++    "rule_check": "not_performed_user_rule_inputs_missing",
++    "professional_acceptance": "not_provided"
++  },
++  "nodes": [
++    {
++      "id": "node:WF-ROOT",
++      "label": "Root",
++      "position": {
++        "x": 0,
++        "y": 2.4,
++        "z": 0
++      },
++      "provenance": "invented_synthetic_workflow_input"
++    },
++    {
++      "id": "node:WF-TIP",
++      "label": "Tip",
++      "position": {
++        "x": 3.2,
++        "y": 2.4,
++        "z": 0
++      },
++      "provenance": "invented_synthetic_workflow_input"
+     }
+-    if applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
+-        return Err("PACKAGED-SMOKE-PROFESSIONAL-BOUNDARY-FAILED".to_string());
++  ],
++  "pipe_segments": [
++    {
++      "id": "pipe:WF",
++      "label": "Cantilever",
++      "from": "node:WF-ROOT",
++      "to": "node:WF-TIP",
++      "section": {
++        "outside_diameter": {
++          "value": 0.168,
++          "unit": "m"
++        },
++        "wall_thickness": {
++          "value": 0.007,
++          "unit": "m"
++        }
++      },
++      "material": "material:invented-carbon-steel",
++      "y_reference": {
++        "x": 0,
++        "y": 0,
++        "z": 1
++      },
++      "provenance": "invented_synthetic_workflow_input"
++    }
++  ],
++  "supports": [
++    {
++      "id": "support:WF-ROOT",
++      "label": "Root anchor",
++      "node": "node:WF-ROOT",
++      "family": "anchor",
++      "restraints": [
++        "UX",
++        "UY",
++        "UZ",
++        "RX",
++        "RY",
++        "RZ"
++      ],
++      "provenance": "invented_synthetic_workflow_input"
++    }
++  ],
++  "components": [],
++  "load_cases": [
++    {
++      "id": "load:WF",
++      "label": "Synthetic tip force",
++      "kind": "primitive_user_load",
++      "status": "preview_only",
++      "primitive_loads": [
++        {
++          "id": "load:WF-FY",
++          "category": "occasional",
++          "target": {
++            "type": "node",
++            "node": "node:WF-TIP"
++          },
++          "direction": "global_y",
++          "magnitude": {
++            "value": 350,
++            "unit": "N"
++          },
++          "dimension": "force",
++          "provenance": "invented_synthetic_workflow_input"
++        }
++      ],
++      "provenance": "invented_synthetic_workflow_input"
++    }
++  ],
++  "combinations": [],
++  "diagnostics": []
++}"#)
++        .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
++    let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
++        &open_pipe_stress_operation_applier::canonical_json(payload)));
++    let baseline_hash = hash(&model);
++    if baseline_hash != "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c" {
++        return Err("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH".into());
++    }
++    let baseline = solve_preview_mechanics(model.clone())?;
++    let human_intent = packaged_saved_edited_load_intent();
++    let human_intent_hash = hash(&human_intent);
++    if human_intent_hash != "sha256:a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401" {
++        return Err("PACKAGED-SMOKE-FROZEN-HUMAN-INTENT-HASH-MISMATCH".into());
++    }
++    let human_review = validate_model_operation(model.clone(), human_intent.clone(), None)?;
++    if human_review["validation"]["schema_validation"] != json!("passed") {
++        return Err("PACKAGED-SMOKE-HUMAN-REVIEW-FAILED".into());
++    }
++    let applied = apply_model_operation(model.clone(), human_intent, None)?;
++    if applied["validation"]["application_status"] != json!("applied_to_session_model")
++        || applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
++        return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".into());
+     }
+     let edited_model = applied["applied_model"].clone();
+-    let edited_value =
+-        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
+-    let edited_unit =
+-        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
+-    if edited_value != Some(425.0) || edited_unit != Some("N") {
+-        return Err("PACKAGED-SMOKE-EDITED-LOAD-MISMATCH".to_string());
++    let edited_hash = hash(&edited_model);
++    if edited_hash != "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb" {
++        return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
+     }
+-
++    let agent_intent: Value = serde_json::from_str(r#"{
++  "operation_id": "op:workflow-agent-load",
++  "operation_kind": "modify",
++  "operation_status": "proposed",
++  "author_type": "agent",
++  "target": {
++    "object_type": "Load",
++    "ref": "load:WF"
++  },
++  "change": {
++    "change_id": "change:workflow-agent-load",
++    "change_kind": "update_load",
++    "field_label": "Tip force",
++    "field_path": "primitive_loads.0.magnitude.value",
++    "before": "350",
++    "after": "500",
++    "unit": "N",
++    "dimension": "force",
++    "source_note": "invented_synthetic_workflow_input"
++  },
++  "validation": {
++    "schema_validation": "not_run",
++    "constraint_validation": "not_run",
++    "unit_validation": "not_run",
++    "diff_preview_status": "not_generated",
++    "application_status": "not_applied"
++  },
++  "audit_boundary": {
++    "mutation_route": "structured_operations_only",
++    "direct_model_mutation_allowed": false,
++    "requires_user_acceptance": true,
++    "mutates_accepted_model_state": false
++  },
++  "professional_boundary": {
++    "human_review_required": true,
++    "software_makes_compliance_claim": false,
++    "software_makes_certification_claim": false,
++    "software_makes_sealing_claim": false,
++    "software_makes_approval_claim": false,
++    "software_makes_authentication_claim": false
++  },
++  "rationale": "Synthetic native workflow lifecycle witness"
++}"#).expect("frozen invented agent intent parses");
++    let agent_intent_hash = hash(&agent_intent);
++    if agent_intent_hash != "sha256:89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336" {
++        return Err("PACKAGED-SMOKE-FROZEN-AGENT-INTENT-HASH-MISMATCH".into());
++    }
++    let agent_review = validate_model_operation(model.clone(), agent_intent.clone(), None)?;
++    let agent_applied = apply_model_operation(model.clone(), agent_intent, None)?;
++    if agent_review["validation"]["schema_validation"] != json!("passed")
++        || hash(&agent_applied["applied_model"]) != edited_hash {
++        return Err("PACKAGED-SMOKE-AGENT-HUMAN-EQUIVALENCE-FAILED".into());
++    }
++    // Native evidence checks exact checkpoint payloads; the UI's history
++    // handlers and synchronous busy gate are covered separately in desktop tests.
++    let undo_model = model.clone();
++    let redo_model = edited_model.clone();
++    if hash(&undo_model) != baseline_hash || hash(&redo_model) != edited_hash {
++        return Err("PACKAGED-SMOKE-CHECKPOINT-HASH-MISMATCH".into());
++    }
++    let attachments = json!({
++        "pipe_from": edited_model["pipe_segments"][0]["from"],
++        "pipe_to": edited_model["pipe_segments"][0]["to"],
++        "material": edited_model["pipe_segments"][0]["material"],
++        "support_node": edited_model["supports"][0]["node"],
++        "load_node": edited_model["load_cases"][0]["primitive_loads"][0]["target"]["node"]
++    });
++    if attachments != json!({"pipe_from":"node:WF-ROOT","pipe_to":"node:WF-TIP","material":"material:invented-carbon-steel","support_node":"node:WF-ROOT","load_node":"node:WF-TIP"}) {
++        return Err("PACKAGED-SMOKE-ATTACHMENTS-CHANGED".into());
++    }
++    let edited_result = solve_preview_mechanics(edited_model.clone())?;
++    let model_hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"project:workflow-cantilever","value":edited_hash,"hash_status":"computed_local_preview"});
+     let store_migration = {
+         let (mut connection, migration) = open_project_store(store_path)?;
+         let (model_to_persist, document_status, ledger) = prepare_model_document_for_persist(
+-            &connection,
+-            "project:packaged-edited-load-smoke",
+-            edited_model,
+-            &Value::Null,
+-            &json!({"value": "sha256:packaged-edited-load-smoke"}),
+-        )?;
+-        upsert_project(
+-            &mut connection,
+-            "project:packaged-edited-load-smoke",
+-            "Packaged Edited Load Smoke",
+-            &model_to_persist,
+-            &json!([]),
+-            &Value::Null,
+-            &Value::Null,
+-            &Value::Null,
+-            &Value::Null,
+-            &json!({"value": "sha256:packaged-edited-load-smoke"}),
+-            &Value::Null,
+-            &ledger,
+-        )?;
+-        json!({
+-            "store_schema_version": migration.store_schema_version,
+-            "document_status": document_status.status,
+-            "persistence_state": document_status.persistence_state
+-        })
++            &connection, "project:workflow-cantilever", edited_model.clone(), &Value::Null, &model_hash)?;
++        upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
++            &model_to_persist, &json!([]), &Value::Null, &Value::Null, &edited_result,
++            &Value::Null, &model_hash, &Value::Null, &ledger)?;
++        json!({"store_schema_version":migration.store_schema_version,"document_status":document_status.status,"persistence_state":document_status.persistence_state})
+     };
+-
+-    // A second connection models application restart and catches any evidence
+-    // that existed only in writer-connection state.
+     let (connection, reopen_migration) = open_project_store(store_path)?;
+-    let restored = load_project(&connection, Some("project:packaged-edited-load-smoke"))?
++    let restored = load_project(&connection, Some("project:workflow-cantilever"))?
+         .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-PROJECT-MISSING".to_string())?;
+     drop(connection);
+-    if restored.project_id != "project:packaged-edited-load-smoke"
+-        || restored.model["project"]["id"] != json!("project:packaged-edited-load-smoke")
+-    {
+-        return Err("PACKAGED-SMOKE-RESTORED-PROJECT-IDENTITY-MISMATCH".to_string());
++    if hash(&restored.model) != edited_hash || restored.mechanics_result != edited_result
++        || restored.model_hash != model_hash || !restored.analysis_run.is_null() {
++        return Err("PACKAGED-SMOKE-RESTORED-EVIDENCE-MISMATCH".into());
+     }
+-    let restored_value =
+-        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
+-    let restored_unit =
+-        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
+-    if restored_value != Some(425.0) || restored_unit != Some("N") {
+-        return Err("PACKAGED-SMOKE-RESTORED-LOAD-MISMATCH".to_string());
++    // Pure unchanged save preserves the existing fields, including deliberately
++    // absent analysis/input-manifest/envelope evidence. No native run builder
++    // exists here, so it would be false to invent that binding.
++    {
++        let (mut connection, _) = open_project_store(store_path)?;
++        upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
++            &restored.model, &restored.editor_intents, &restored.proposal, &restored.selected_review_target,
++            &restored.mechanics_result, &restored.analysis_run, &restored.model_hash,
++            &restored.project_envelope_hash, &restored.model_migration_ledger)?;
++    }
++    let (connection, _) = open_project_store(store_path)?;
++    let resaved = load_project(&connection, Some("project:workflow-cantilever"))?
++        .ok_or_else(|| "PACKAGED-SMOKE-RESAVED-PROJECT-MISSING".to_string())?;
++    drop(connection);
++    if resaved.mechanics_result != edited_result || resaved.model_hash != model_hash
++        || !resaved.analysis_run.is_null() || !resaved.project_envelope_hash.is_null() {
++        return Err("PACKAGED-SMOKE-UNCHANGED-SAVE-EVIDENCE-MISMATCH".into());
+     }
+     let solved = solve_preview_mechanics(restored.model)?;
+-    let result_rows = solved["results"].as_array().map_or(0, Vec::len);
+-    let restored_reaction = stop_reaction(&solved)
+-        .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-RESULT-MISSING".to_string())?;
+-    if solved["status"]["mechanics"] != json!("MECHANICS_SOLVED")
+-        || solved["model_ref"] != json!("project:packaged-edited-load-smoke")
+-        || result_rows == 0
+-    {
+-        return Err("PACKAGED-SMOKE-RESTORED-SOLVE-FAILED".to_string());
+-    }
+-    let reaction_delta = restored_reaction - baseline_reaction;
+-    let expected_reaction_delta = -(restored_value.unwrap() - baseline_load);
+-    // Each published force is rounded to six decimals. Subtraction can carry
+-    // up to one last-place unit of rounding error; this is not a physics tolerance.
+-    if (reaction_delta - expected_reaction_delta).abs() > 1.0e-6 {
+-        return Err("PACKAGED-SMOKE-EDIT-DID-NOT-AFFECT-RESULT".to_string());
+-    }
+-
+-    Ok(json!({
+-        "status": "PASS",
+-        "route": "packaged_binary_saved_edited_load_self_test",
+-        "fixture_class": "invented_public",
+-        "project_id": "project:packaged-edited-load-smoke",
+-        "operation": {
+-            "target": "load:L-100/load:L-100-Y",
+-            "before": 350,
+-            "after": 425,
+-            "unit": "N",
+-            "application_status": "applied_to_session_model",
+-            "professional_approval": false
+-        },
+-        "persistence": {
+-            "storage": "isolated_file_backed_sqlite",
+-            "writer_connection_closed_before_restore": true,
+-            "restored_value": 425,
+-            "restored_unit": "N",
+-            "store_migration": store_migration,
+-            "reopen_store_schema_version": reopen_migration.store_schema_version
+-        },
+-        "solve": {
+-            "mechanics": solved["status"]["mechanics"],
+-            "model_ref": solved["model_ref"],
+-            "result_rows": result_rows,
+-            "edited_result_differs_from_baseline": true,
+-            "edit_witness": {
+-                "result_id": "result:nonlinear-support:support-NL-140:uy-reaction",
+-                "unit": "N",
+-                "baseline": baseline_reaction,
+-                "restored": restored_reaction,
+-                "delta": reaction_delta,
+-                "expected_delta": expected_reaction_delta
+-            }
+-        },
+-        "boundary": {
+-            "network": false,
+-            "telemetry": false,
+-            "private_data": false,
+-            "protected_content": false,
+-            "repository_write": false
++    let value = |result: &Value, id: &str, unit: &str| -> Result<f64, String> {
++        result["results"].as_array().and_then(|rows| rows.iter().find(|row| row["id"] == json!(id) && row["unit"] == json!(unit)))
++            .and_then(|row| row["value"].as_f64()).filter(|number| number.is_finite())
++            .ok_or_else(|| format!("PACKAGED-SMOKE-RESULT-MISSING: {id} {unit}"))
++    };
++    let tolerance = 0.5e-6 + 1.0e-10;
++    let mut witnesses = Vec::new();
++    for (result, force, uy, rz) in [(&baseline, 350.0, 1.663071716046058, 0.0007795648668965897),
++        (&edited_result, 500.0, 2.375816737208654, 0.0011136640955665567),
++        (&solved, 500.0, 2.375816737208654, 0.0011136640955665567)] {
++        if result["status"]["mechanics"] != json!("MECHANICS_SOLVED") || result["model_ref"] != json!("project:workflow-cantilever") {
++            return Err(format!("PACKAGED-SMOKE-SOLVE-FAILED: force={force}; status={}; model_ref={}; diagnostics={}", result["status"], result["model_ref"], result["diagnostics"]));
+         }
++        let quantities = [
++            ("result:disp:node-WF-TIP:uy", "mm", uy),
++            ("result:disp:node-WF-TIP:rz", "rad", rz),
++            ("result:reaction:support-WF-ROOT", "N", force),
++            ("result:force:pipe-WF:shear-z", "N", force),
++            ("result:moment:pipe-WF:bending-y", "N*m", -force * 3.2)
++        ];
++        let mut published = Vec::new();
++        for (id, unit, expected) in quantities {
++            let actual = value(result, id, unit)?;
++            if (actual - expected).abs() > tolerance {
++                return Err(format!("PACKAGED-SMOKE-ANALYTICAL-MISMATCH: {id} {actual} expected {expected} {unit}"));
++            }
++            published.push(json!({"result_id":id,"unit":unit,"actual":actual,"expected":expected}));
++        }
++        witnesses.push(json!({"force_N":force,"published":published}));
++    }
++    if solved["results"] != edited_result["results"] {
++        return Err("PACKAGED-SMOKE-RESOLVE-RESULTS-MISMATCH".into());
++    }
++    Ok(json!({
++        "status":"PASS", "route":"packaged_binary_saved_edited_load_self_test", "fixture_class":"invented_public",
++        "project_id":"project:workflow-cantilever",
++        "operation":{"target":"load:WF/load:WF-FY","before":350,"after":500,"unit":"N","application_status":"applied_to_session_model","professional_approval":false},
++        "hashes":{"baseline":baseline_hash,"edit":edited_hash,"undo_checkpoint":hash(&undo_model),"redo_checkpoint":hash(&redo_model),"equivalent_agent":hash(&agent_applied["applied_model"]),"human_intent":human_intent_hash,"agent_intent":agent_intent_hash},
++        "attachments":attachments,
++        "persistence":{"storage":"isolated_file_backed_sqlite","writer_connection_closed_before_restore":true,"restored_value":500,"restored_unit":"N","store_migration":store_migration,"reopen_store_schema_version":reopen_migration.store_schema_version,"historical_result_preserved":true,"unchanged_save_preserves_evidence":true,"analysis_run":"missing_no_native_builder","input_manifest":"missing_not_invented","project_envelope_hash":"missing_preserved"},
++        "solve":{"mechanics":solved["status"]["mechanics"],"model_ref":solved["model_ref"],"result_rows":solved["results"].as_array().map_or(0, Vec::len),"edited_result_differs_from_baseline":true,"fresh_resolve_matches_saved_result_rows":true,"analytical_witnesses":witnesses,"publication_tolerance_declared_units":tolerance,"reaction_transform":"y_reference global Z: local Z=-global Y and local Y=global Z; end-i fz=+F and my=-FL correspond to global root Fy=-F and Mz=-FL; public support row is resultant only"},
++        "boundary":{"network":false,"telemetry":false,"private_data":false,"protected_content":false,"repository_write":false}
+     }))
+ }
+ 
+@@ -3990,25 +4154,19 @@ mod tests {
+ 
+     #[test]
+     fn packaged_binary_self_test_persists_restores_and_solves_edited_load() {
+-        let evidence = run_packaged_saved_edited_load_self_test()
+-            .expect("packaged-binary saved edited-load self-test passes");
++        let evidence = run_packaged_saved_edited_load_self_test().expect("frozen cantilever file-native lifecycle passes");
+         assert_eq!(evidence["status"], json!("PASS"));
+-        assert_eq!(evidence["operation"]["after"], json!(425));
+-        assert_eq!(evidence["persistence"]["restored_value"], json!(425));
+-        assert_eq!(evidence["persistence"]["restored_unit"], json!("N"));
++        assert_eq!(evidence["operation"]["after"], json!(500));
++        assert_eq!(evidence["persistence"]["restored_value"], json!(500));
++        assert_eq!(evidence["persistence"]["historical_result_preserved"], json!(true));
++        assert_eq!(evidence["persistence"]["unchanged_save_preserves_evidence"], json!(true));
++        assert_eq!(evidence["persistence"]["input_manifest"], json!("missing_not_invented"));
++        assert_eq!(evidence["hashes"]["baseline"], evidence["hashes"]["undo_checkpoint"]);
++        assert_eq!(evidence["hashes"]["edit"], evidence["hashes"]["redo_checkpoint"]);
++        assert_eq!(evidence["hashes"]["edit"], evidence["hashes"]["equivalent_agent"]);
+         assert_eq!(evidence["solve"]["mechanics"], json!("MECHANICS_SOLVED"));
+-        assert_eq!(
+-            evidence["solve"]["model_ref"],
+-            json!("project:packaged-edited-load-smoke")
+-        );
+-        assert!(evidence["solve"]["result_rows"].as_u64().unwrap_or(0) > 0);
+-        assert_eq!(evidence["solve"]["edit_witness"]["unit"], json!("N"));
+-        assert_eq!(
+-            evidence["solve"]["edit_witness"]["expected_delta"],
+-            json!(-75.0)
+-        );
+-        let delta = evidence["solve"]["edit_witness"]["delta"].as_f64().unwrap();
+-        assert!((delta + 75.0).abs() <= 1.0e-6);
++        assert_eq!(evidence["solve"]["fresh_resolve_matches_saved_result_rows"], json!(true));
++        assert_eq!(evidence["solve"]["analytical_witnesses"].as_array().unwrap().len(), 3);
+         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
+     }
+ 
+diff --git a/projects/chirality-piping/apps/desktop/src/App.test.tsx b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+index 77e8e132a..5df10fad8 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.test.tsx
+@@ -9051,7 +9051,7 @@ describe("OpenPipeStress desktop preview", () => {
+         { timeout: 10000 },
+       ),
+     ).toBeInTheDocument();
+-    const results = await screen.findByLabelText("Results");
++    let results = await screen.findByLabelText("Results");
+     fireEvent.change(within(results).getByTestId("result-filter-input"), {
+       target: { value: "torsional-shear" },
+     });
+@@ -9425,18 +9425,15 @@ describe("OpenPipeStress desktop preview", () => {
+       ),
+     );
+ 
+-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+-      "state=completed",
+-    );
+-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+-      "events=1",
+-    );
+-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
+-      "result_rows=830",
+-    );
+-    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
+-      "restored_persisted_run_record_no_new_solve_executed",
+-    );
++    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("state=not_started");
++    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("result_rows=0");
++    const historical = screen.getByTestId("historical-run-context");
++    expect(historical).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
++    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
++    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
++    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
++    results = within(historical).getByTestId("results-panel");
++    fireEvent.change(within(results).getByTestId("result-filter-input"), { target: { value: "torsional-shear" } });
+     expect(
+       within(results).getByTestId(
+         "result-row-result:stress:pipe-P-120:end-j:torsional-shear",
+@@ -9576,65 +9573,12 @@ describe("OpenPipeStress desktop preview", () => {
+       "proposal:physics-diagnostic-review",
+     );
+ 
+-    const openedNativePackage = await screen.findByLabelText(
+-      "Native JSON package",
+-    );
+-    expect(
+-      within(openedNativePackage).getByTestId(
+-        "native-package-persisted-review-context",
+-      ).textContent,
+-    ).toContain("mechanics_results=1");
+-    expect(
+-      within(openedNativePackage).getByTestId(
+-        "native-package-persisted-review-context",
+-      ).textContent,
+-    ).toContain("analysis_runs=1");
+-    expect(
+-      within(openedNativePackage).getByTestId(
+-        "native-package-persisted-review-context",
+-      ).textContent,
+-    ).toContain("run_ref=run:preview-linear-static-001");
+-    const openedNativePackageHref =
+-      within(openedNativePackage)
+-        .getByTestId("native-package-link")
+-        .getAttribute("href") ?? "";
+-    const openedNativePackagePacket = JSON.parse(
+-      decodeURIComponent(openedNativePackageHref.split(",", 2)[1]),
+-    );
+-    expect(openedNativePackagePacket.document_kind).toBe("[REDACTED]");
+-    expect(
+-      openedNativePackagePacket.source_project.storage_summary
+-        .persisted_mechanics_result_count,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      openedNativePackagePacket.source_project.storage_summary
+-        .persisted_analysis_run_ref,
+-    ).toBe("[REDACTED]");
+-    /* The opened local panel above verifies restored raw state. Its downstream
+-       export remains redacted and cannot be used as a private-state mirror.
+-    expect(
+-      openedNativePackagePacket.source_project.storage_summary
+-        .persisted_mechanics_result_count,
+-    ).toBe(1);
+-    expect(
+-      openedNativePackagePacket.source_project.storage_summary
+-        .persisted_analysis_run_count,
+-    ).toBe(1);
+-    expect(
+-      openedNativePackagePacket.source_project.storage_summary
+-        .persisted_analysis_run_ref,
+-    ).toBe("run:preview-linear-static-001");
+-    expect(
+-      openedNativePackagePacket.generation_context
+-        .persisted_mechanics_result_count,
+-    ).toBe(1);
+-    expect(
+-      openedNativePackagePacket.generation_context.persisted_analysis_run_count,
+-    ).toBe(1);
+-    expect(
+-      openedNativePackagePacket.generation_context.persisted_analysis_run_ref,
+-    ).toBe("run:preview-linear-static-001");
+-    */
++    const openedNativePackage = screen.getByLabelText("Native JSON package");
++    expect(within(openedNativePackage).getByTestId("native-package-empty")).toBeInTheDocument();
++    expect(within(openedNativePackage).queryByTestId("native-package-link")).not.toBeInTheDocument();
++    fireEvent.click(screen.getByTestId("menu-file"));
++    expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
++    fireEvent.click(screen.getByTestId("app-menu-backdrop"));
+ 
+     const operationLedger = await screen.findByLabelText(
+       "Operation review ledger",
+@@ -9648,7 +9592,7 @@ describe("OpenPipeStress desktop preview", () => {
+       within(operationLedger).getByTestId("operation-ledger-state-binding")
+         .textContent,
+     ).toContain(
+-      "state:project:invented-loop-01:preview; run:preview-linear-static-001",
++      "not generated; not generated",
+     );
+     expect(
+       within(operationLedger).getByTestId(
+@@ -13711,7 +13655,7 @@ describe("OpenPipeStress desktop preview", () => {
+     ).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+     expect(
+       screen.getByTestId("viewport-deformation-status").textContent,
+-    ).toContain("blocked; mechanics=model incomplete; rows=0");
++    ).toContain("not started; result rows=0");
+ 
+     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
+     await waitFor(() =>
+@@ -16605,3 +16549,170 @@ describe("persistent modeling workspace", () => {
+     expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
+   });
+ });
++
++
++async function workflowStoredEnvelope() {
++  const model = await loadPreviewModel();
++  const envelope = inventedOpenEnvelope(model);
++  const result = structuredClone(await runPreviewMechanics());
++  result.model_ref = envelope.model.project.id;
++  const inputManifest = await buildCurrentSessionInputManifest({
++    model: envelope.model,
++    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
++    active_rule_packs: [], external_assets: []
++  });
++  envelope.mechanics_result = result;
++  envelope.analysis_run = await buildAnalysisRunPreview(result, { inputManifest });
++  // Deliberately inconsistent saved hash stays evidence, never fresh identity.
++  envelope.model_hash = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: envelope.model.project.id, value: `sha256:${"f".repeat(64)}`, hash_status: "computed_local_preview" };
++  return envelope;
++}
++
++describe("workflow current and historical result boundaries", () => {
++  it("opens saved results as readable history and preserves their exact fields on unchanged save", async () => {
++    const envelope = await workflowStoredEnvelope();
++    let saved: Record<string, unknown> | undefined;
++    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
++      if (command === "open_local_project") return Promise.resolve(envelope);
++      if (command === "save_local_project") { saved = args.request; return Promise.resolve(envelope); }
++      return Promise.reject(new Error(`Unexpected command ${command}`));
++    });
++    render(<App />);
++    await screen.findByTestId("desktop-preview-shell");
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    act(() => nativeMenuCommand("file.open-local"));
++    await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent(envelope.mechanics_result!.run_id));
++    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
++    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
++    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
++    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
++    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
++    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
++    act(() => nativeMenuCommand("file.save-report-package"));
++    expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
++    act(() => nativeMenuCommand("file.save-local"));
++    await waitFor(() => expect(saved).toBeDefined());
++    expect(saved!.mechanics_result).toEqual(envelope.mechanics_result);
++    expect(saved!.analysis_run).toEqual(envelope.analysis_run);
++    expect(saved!.model_hash).toEqual(envelope.model_hash);
++    expect(saved!.project_envelope_hash).toEqual(envelope.project_envelope_hash);
++    expect(saved).not.toHaveProperty("input_manifest");
++  });
++
++  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("keeps %s diagnostics while barring solved-only consumers", async (mechanics) => {
++    const model = await loadPreviewModel();
++    const output = structuredClone(await runPreviewMechanics(model));
++    output.status.mechanics = mechanics;
++    output.diagnostics.push({ id: "diagnostic:workflow-outcome", code: "WORKFLOW_OUTCOME_DIAGNOSTIC", severity: "blocking", message: "Synthetic outcome retained" });
++    invokeMock.mockImplementation((command: string) => {
++      if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
++      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result: output, error_message: null });
++      return Promise.reject(new Error(`Unexpected command ${command}`));
++    });
++    render(<App />);
++    await screen.findByTestId("desktop-preview-shell");
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    act(() => nativeMenuCommand("analyze.run"));
++    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent(mechanics));
++    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
++    expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC")).toHaveTextContent("Synthetic outcome retained");
++    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
++    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
++    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
++    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
++    act(() => nativeMenuCommand("file.save-report-package"));
++    expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
++  });
++});
++
++
++describe("synchronous busy history boundary", () => {
++  it.each(["undo", "redo"] as const)("blocks %s through native menu and rendered controls while operation ownership is pending", async (action) => {
++    const { envelope } = await openBatchContext();
++    await requeueFirstContext();
++    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
++    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
++    fireEvent.click(screen.getByTestId("clear-pending-batches"));
++    if (action === "redo") fireEvent.click(screen.getByTestId("undo-session-model-edit"));
++    const historyBefore = screen.getByTestId("session-history-chip").textContent;
++    fireEvent.click(screen.getByTestId("layout-mode-grid"));
++    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
++    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
++    const pending = deferred<unknown>();
++    let pendingModel: PreviewModel | undefined;
++    let saved: Record<string, unknown> | undefined;
++    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
++      if (command === "validate_model_operation") { pendingModel = args.model as PreviewModel; return pending.promise; }
++      if (command === "save_local_project") { saved = (args as { request: Record<string, unknown> }).request; return Promise.resolve(envelope); }
++      return Promise.reject(new Error(`Unexpected command ${command}`));
++    });
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    // The native event arrives in the same React batch before disabled controls
++    // can render. The ref guard owns this interval as well as the settled UI.
++    act(() => {
++      fireEvent.click(screen.getByTestId("validate-intent-editor-intent-1"));
++      nativeMenuCommand(`edit.${action}`);
++    });
++    await waitFor(() => expect(pendingModel).toBeDefined());
++    expect(screen.getByTestId("session-history-chip").textContent).toBe(historyBefore);
++    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
++    expect(screen.getByTestId("workspace-redo")).toBeDisabled();
++    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
++    expect(screen.getByTestId("redo-session-model-edit")).toBeDisabled();
++    act(() => nativeMenuCommand(`edit.${action}`));
++    act(() => nativeMenuCommand("file.save-local"));
++    await waitFor(() => expect(saved).toBeDefined());
++    const { computeModelHash } = await import("./services/hashService");
++    expect(saved!.model_hash).toEqual(await computeModelHash(pendingModel!));
++    expect(saved!.model).toEqual(pendingModel);
++    expect(screen.getByTestId("session-history-chip").textContent).toBe(historyBefore);
++    await act(async () => { pending.reject(new Error("Synthetic stopped pending validation")); });
++    expect(screen.getByTestId(`${action}-session-model-edit`)).toBeEnabled();
++  });
++});
++
++
++describe("historical lifecycle history transitions", () => {
++  it("clears reopened computed evidence on model edit and exact undo/redo transitions", async () => {
++    const envelope = await workflowStoredEnvelope();
++    invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(command)));
++    render(<App />);
++    await screen.findByTestId("desktop-preview-shell");
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    act(() => nativeMenuCommand("file.open-local"));
++    await screen.findByTestId("historical-run-context");
++    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
++    let savedRequest: Record<string, unknown> | undefined;
++    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
++      if (command === "save_local_project") { savedRequest = args.request; return Promise.resolve({ ...envelope, ...args.request }); }
++      return Promise.reject(new Error(command));
++    });
++    const snapshotHash = async () => {
++      savedRequest = undefined;
++      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++      act(() => nativeMenuCommand("file.save-local"));
++      await waitFor(() => expect(savedRequest).toBeDefined());
++      await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
++      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
++      return (await computeModelHash(savedRequest!.model as PreviewModel))!.value;
++    };
++    const { computeModelHash } = await import("./services/hashService");
++    const baselineHash = (await computeModelHash(envelope.model))!.value;
++    expect(await snapshotHash()).toBe(baselineHash);
++    fireEvent.click(screen.getByTestId("layout-mode-grid"));
++    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
++    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
++    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
++    await waitFor(() => expect(screen.getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
++    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
++    const editedHash = await snapshotHash();
++    expect(editedHash).not.toBe(baselineHash);
++    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
++    expect(await snapshotHash()).toBe(baselineHash);
++    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
++    fireEvent.click(screen.getByTestId("redo-session-model-edit"));
++    expect(await snapshotHash()).toBe(editedHash);
++    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
++    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/App.tsx b/projects/chirality-piping/apps/desktop/src/App.tsx
+index 48ca1f5b0..a9bb4021d 100644
+--- a/projects/chirality-piping/apps/desktop/src/App.tsx
++++ b/projects/chirality-piping/apps/desktop/src/App.tsx
+@@ -77,6 +77,7 @@ import { RulePackManagerPanel } from "./features/rule-packs/RulePackManagerPanel
+ import { RunAuditPanel } from "./features/run-audit/RunAuditPanel";
+ import { SecretPrivateLibraryPanel } from "./features/secret-private-library/SecretPrivateLibraryPanel";
+ import { SecurityThreatModelPanel } from "./features/security-threat-model/SecurityThreatModelPanel";
++import { buildHistoricalRunContext, HistoricalRunPanel, type HistoricalRunContext } from "./features/results/HistoricalRunContext";
+ import { SolvePanel } from "./features/solve/SolvePanel";
+ import { StressNeutralExportPanel } from "./features/stress-neutral/StressNeutralExportPanel";
+ import { TelemetryBoundaryPanel } from "./features/telemetry/TelemetryBoundaryPanel";
+@@ -422,6 +423,8 @@ function AppSession() {
+   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
+   const [selection, setSelection] = useState<EntityRef | null>(null);
+   const [result, setResult] = useState<MechanicsResult | null>(null);
++  const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
++  const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
+   const [analysisRun, setAnalysisRun] = useState<AnalysisRunEnvelope | null>(null);
+   const [inputManifest, setInputManifest] =
+     useState<CurrentSessionInputManifestEvidence | null>(null);
+@@ -518,8 +521,8 @@ function AppSession() {
+     dispatched: boolean;
+   }>());
+   const comparison = useMemo(
+-    () => (result && analysisRun ? buildPreviewComparison({ result, analysisRun }) : null),
+-    [analysisRun, result]
++    () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
++    [analysisRun, currentSolvedResult]
+   );
+ 
+   useEffect(() => {
+@@ -560,6 +563,7 @@ function AppSession() {
+     setRequestEpoch(requestEpochRef.current);
+     setDirectDraftCommitToken(directDraftToken);
+     currentModel.current = nextModel;
++    setHistoricalRun(null);
+     operationRequest.current.sequence += 1;
+     operationRequest.current.busy = false;
+     directDraftReviews.current.clear();
+@@ -766,6 +770,7 @@ function AppSession() {
+           ? completeSolveJob(current, output, runRecord)
+           : current
+       );
++      setHistoricalRun(null);
+       setResult(output);
+       setSelectedReviewTarget(null);
+       setProposal(null);
+@@ -810,10 +815,10 @@ function AppSession() {
+   async function handleRuleCheckAggregate(aggregate: RuleCheckStatus | null) {
+     if (aggregate === ruleCheckAggregate) return;
+     setRuleCheckAggregate(aggregate);
+-    if (!result || !inputManifest) return;
++    if (!currentSolvedResult || !inputManifest) return;
+     try {
+       setAnalysisRun(
+-        await buildAnalysisRunPreview(result, {
++        await buildAnalysisRunPreview(currentSolvedResult, {
+           inputManifest,
+           ruleCheckAggregate: aggregate
+         })
+@@ -1290,7 +1295,7 @@ function AppSession() {
+   }
+ 
+   function handleUndoSessionModelEdit() {
+-    if (!model || !selection || undoStack.length === 0) return;
++    if (operationRequest.current.busy || !model || !selection || undoStack.length === 0) return;
+     const [checkpoint, ...remainingUndo] = undoStack;
+     setUndoStack(remainingUndo);
+     setRedoStack((current) =>
+@@ -1313,7 +1318,7 @@ function AppSession() {
+   }
+ 
+   function handleRedoSessionModelEdit() {
+-    if (!model || !selection || redoStack.length === 0) return;
++    if (operationRequest.current.busy || !model || !selection || redoStack.length === 0) return;
+     const [checkpoint, ...remainingRedo] = redoStack;
+     setRedoStack(remainingRedo);
+     setUndoStack((current) =>
+@@ -1336,6 +1341,7 @@ function AppSession() {
+   }
+ 
+   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
++    setHistoricalRun(null);
+     setResult(null);
+     setAnalysisRun(null);
+     setInputManifest(null);
+@@ -1355,25 +1361,29 @@ function AppSession() {
+     setModelHashIntegrity(null);
+     setProjectEnvelopeHashIntegrity(null);
+     try {
+-      const snapshotModelHash = await computeModelHash(model);
++      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
++      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
++      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
+       if (!stillCurrent()) return;
+-      const envelopeHash = await computeProjectEnvelopeHash({
++      const computedEnvelopeHash = await computeProjectEnvelopeHash({
+         model,
+         editor_intents: combinedContext,
+         proposal,
+         selected_review_target: selectedReviewTarget,
+-        mechanics_result: result,
+-        analysis_run: analysisRun,
++        mechanics_result: snapshotResult,
++        analysis_run: snapshotAnalysisRun,
+         model_hash: snapshotModelHash
+       });
++      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
++        ? historicalRun.envelopeHash : computedEnvelopeHash;
+       if (!stillCurrent()) return;
+       const created = await createLocalProject(
+         model,
+         combinedContext,
+         proposal,
+         selectedReviewTarget,
+-        result,
+-        analysisRun,
++        snapshotResult,
++        snapshotAnalysisRun,
+         snapshotModelHash,
+         envelopeHash
+       );
+@@ -1474,8 +1484,8 @@ function AppSession() {
+         setProjectOperation("open_missing");
+         return;
+       }
+-      const restoredResult = opened.mechanics_result ?? null;
+-      const restoredAnalysisRun = opened.analysis_run ?? null;
++      const restoredHistory = await buildHistoricalRunContext(opened);
++      if (!stillCurrent()) return;
+       commitModel(opened.model);
+       epoch = requestEpochRef.current;
+       setSelection(defaultSelection(opened.model));
+@@ -1486,8 +1496,9 @@ function AppSession() {
+       setBatchOutcomes({});
+       setBatchReceipts([]);
+       setBatchMessage(null);
+-      setResult(restoredResult);
+-      setAnalysisRun(restoredAnalysisRun);
++      setHistoricalRun(restoredHistory);
++      setResult(null);
++      setAnalysisRun(null);
+       // Persisted analysis-run refs do not include the exact current-session
+       // manifest payload needed to recompute its hash. A new solve is required
+       // before report-package save can become ready.
+@@ -1497,11 +1508,7 @@ function AppSession() {
+       setRetainedReviewContext(opened.editor_intents ?? []);
+       setEditorIntents([]);
+       setSelectedReviewTarget(opened.selected_review_target ?? null);
+-      setSolveJob(
+-        restoredResult && restoredAnalysisRun
+-          ? restoredSolveJob(restoredResult, restoredAnalysisRun)
+-          : initialSolveJob()
+-      );
++      setSolveJob(initialSolveJob());
+       setProjectSummary(opened.summary);
+       setProjectEnvelopeHash(opened.project_envelope_hash ?? null);
+       setModelDocumentMigration(opened.model_document_migration ?? null);
+@@ -1547,25 +1554,29 @@ function AppSession() {
+     setModelHashIntegrity(null);
+     setProjectEnvelopeHashIntegrity(null);
+     try {
+-      const snapshotModelHash = await computeModelHash(model);
++      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
++      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
++      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
+       if (!stillCurrent()) return;
+-      const envelopeHash = await computeProjectEnvelopeHash({
++      const computedEnvelopeHash = await computeProjectEnvelopeHash({
+         model,
+         editor_intents: combinedContext,
+         proposal,
+         selected_review_target: selectedReviewTarget,
+-        mechanics_result: result,
+-        analysis_run: analysisRun,
++        mechanics_result: snapshotResult,
++        analysis_run: snapshotAnalysisRun,
+         model_hash: snapshotModelHash
+       });
++      const envelopeHash = historicalRun && computedEnvelopeHash?.value === historicalRun.envelopePayloadHash
++        ? historicalRun.envelopeHash : computedEnvelopeHash;
+       if (!stillCurrent()) return;
+       const saved = await saveLocalProject(
+         model,
+         combinedContext,
+         proposal,
+         selectedReviewTarget,
+-        result,
+-        analysisRun,
++        snapshotResult,
++        snapshotAnalysisRun,
+         snapshotModelHash,
+         envelopeHash,
+         modelDocumentMigration
+@@ -1649,7 +1660,7 @@ function AppSession() {
+ 
+   function handleToolkitCommand(capability: ToolkitCapability) {
+     if (!selection) return;
+-    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model?.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) };
++    const context = { selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model?.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) };
+     if (!capabilityAvailability(capability, context).enabled) return;
+     if (capability.history) {
+       if (capability.history === "undo") handleUndoSessionModelEdit();
+@@ -1673,13 +1684,13 @@ function AppSession() {
+   }
+ 
+   async function handleSaveReportPackage() {
+-    if (!model || !result || !analysisRun || !inputManifest || running || reportPackageBusy) return;
++    if (!model || !currentSolvedResult || !analysisRun || !inputManifest || running || reportPackageBusy) return;
+     setReportPackageBusy(true);
+     setReportPackageRoute(null);
+     try {
+       const request = await buildReportPackageRequest({
+         model,
+-        result,
++        result: currentSolvedResult,
+         analysisRun,
+         inputManifest,
+         projectSummary,
+@@ -1893,13 +1904,13 @@ function AppSession() {
+         <MenuBar
+           activeSection={activeSection}
+           auditOpen={auditDrawerOpen}
+-          canRedo={redoStack.length > 0}
+-          canUndo={undoStack.length > 0}
++          canRedo={redoStack.length > 0 && !operationBusy}
++          canUndo={undoStack.length > 0 && !operationBusy}
+           inspectorCollapsed={inspectorCollapsed}
+           issuesOpen={issuesDrawerOpen}
+           openMenu={openMenu}
+           projectBusy={projectBusy}
+-          reportPackageReady={Boolean(result && analysisRun && inputManifest) && !running && !reportPackageBusy}
++          reportPackageReady={Boolean(currentSolvedResult && analysisRun && inputManifest) && !running && !reportPackageBusy}
+           running={running}
+           treeCollapsed={treeCollapsed}
+           armedCreationTool={armedCreationTool}
+@@ -1920,7 +1931,7 @@ function AppSession() {
+         onRedo={handleRedoSessionModelEdit}
+       >
+           <ToolkitPalette
+-            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
++            context={{ selection, canUndo: undoStack.length > 0, canRedo: redoStack.length > 0, busy: operationRequest.current.busy || operationBusy, windConfigured: Boolean(selection.type === "load" && model.load_cases.find((load) => load.id === selection.id)?.equivalent_static?.wind) }}
+             onChoose={handleToolkitCommand}
+           />
+       </WorkspaceToolbar>
+@@ -1963,7 +1974,7 @@ function AppSession() {
+               onSelect={handleSelectEntity}
+               queuedIntents={editorIntents}
+               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
+-              result={result}
++              result={currentSolvedResult}
+               selection={selection}
+             />
+           </div>
+@@ -2218,14 +2229,14 @@ function AppSession() {
+                 onRun={handleRun}
+                 onSolverModeChange={setSolverMode}
+               />
+-              <RuleCheckPanel model={model} result={result} />
++              <RuleCheckPanel model={model} result={currentSolvedResult} />
+               <RuleCheckRunPanel
+                 model={model}
+-                result={result}
++                result={currentSolvedResult}
+                 onAggregateChange={handleRuleCheckAggregate}
+                 onR3JourneyEvent={recordR3JourneyEvent}
+               />
+-              <KnowledgePanel knowledge={knowledge} result={result} />
++              <KnowledgePanel knowledge={knowledge} result={currentSolvedResult} />
+             </section>
+ 
+             <section
+@@ -2233,18 +2244,18 @@ function AppSession() {
+               aria-label="Results section"
+               data-testid="workspace-section-results"
+             >
+-              <ResultsPanel
++              {historicalRun ? <HistoricalRunPanel key={historicalRun.runId} context={historicalRun} /> : <ResultsPanel
+                 result={result}
+                 knowledge={knowledge}
+                 analysisRun={analysisRun}
+                 selectedResultId={selectedReviewTarget?.target_type === "result" ? selectedReviewTarget.id : null}
+                 onSelectResult={handleSelectResult}
+-              />
+-              <ComparisonPanel comparison={comparison} result={result} onSelectResult={handleSelectResult} />
++              />}
++              <ComparisonPanel comparison={comparison} result={currentSolvedResult} onSelectResult={handleSelectResult} />
+               <DesignWorkspacePanel
+                 model={model}
+                 knowledge={knowledge}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 comparison={comparison}
+                 editorIntents={editorIntents}
+@@ -2260,7 +2271,7 @@ function AppSession() {
+             >
+               <RenderedReportPanel
+                 model={model}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 projectSummary={projectSummary}
+                 packagePrivateIntent={reportPackagePrivateIntent}
+@@ -2273,7 +2284,7 @@ function AppSession() {
+               <ReportPanel
+                 model={model}
+                 knowledge={knowledge}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 comparison={comparison}
+                 editorIntents={editorIntents}
+@@ -2283,7 +2294,7 @@ function AppSession() {
+                 selectedReviewTarget={selectedReviewTarget}
+                 storageCapability={storageCapability}
+               />
+-              <ReportLintPanel model={model} result={result} analysisRun={analysisRun} />
++              <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+             </section>
+ 
+             <section
+@@ -2323,21 +2334,21 @@ function AppSession() {
+               aria-label="Exports section"
+               data-testid="workspace-section-exports"
+             >
+-              <ResultExportPanel model={model} result={result} analysisRun={analysisRun} />
+-              <StressNeutralExportPanel model={model} result={result} analysisRun={analysisRun} />
+-              <PcfExportPanel model={model} result={result} analysisRun={analysisRun} />
+-              <CaepipeMbfExportPanel model={model} result={result} analysisRun={analysisRun} />
+-              <CaepipeExternalHarnessPanel model={model} result={result} analysisRun={analysisRun} />
+-              <ExportAdapterSdkPanel model={model} result={result} analysisRun={analysisRun} />
+-              <AdapterFrameworkPanel model={model} result={result} analysisRun={analysisRun} />
+-              <LocalFeaHandoffPanel model={model} result={result} analysisRun={analysisRun} />
+-              <ExternalProverBoundaryPanel model={model} result={result} analysisRun={analysisRun} />
+-              <ReviewGeometryPanel model={model} result={result} analysisRun={analysisRun} />
+-              <HeadlessRunnerPanel model={model} result={result} analysisRun={analysisRun} solveJob={solveJob} />
++              <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <StressNeutralExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <CaepipeMbfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <CaepipeExternalHarnessPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <ExportAdapterSdkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <AdapterFrameworkPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <LocalFeaHandoffPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <ExternalProverBoundaryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <ReviewGeometryPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
++              <HeadlessRunnerPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} solveJob={solveJob} />
+               <NativePackagePanel
+                 model={model}
+                 modelHash={modelHash}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 editorIntents={editorIntents}
+                 projectSummary={projectSummary}
+@@ -2348,7 +2359,7 @@ function AppSession() {
+               <HandoffPanel
+                 model={model}
+                 knowledge={knowledge}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 comparison={comparison}
+                 editorIntents={editorIntents}
+@@ -2358,7 +2369,7 @@ function AppSession() {
+               <ExportReviewPanel
+                 model={model}
+                 knowledge={knowledge}
+-                result={result}
++                result={currentSolvedResult}
+                 analysisRun={analysisRun}
+                 comparison={comparison}
+                 editorIntents={editorIntents}
+@@ -2920,6 +2931,7 @@ export function solveProofStatus(
+   if (
+     !modelHash ||
+     !result ||
++    result.status.mechanics !== "MECHANICS_SOLVED" ||
+     !proof ||
+     solveJob.state !== "completed" ||
+     proof.state !== "completed" ||
+diff --git a/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts b/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
+index 3f33b27bb..136615639 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts
+@@ -1,10 +1,18 @@
+-import { describe, expect, it } from "vitest";
++import { afterEach, describe, expect, it, vi } from "vitest";
++
++const invokeMock = vi.hoisted(() => vi.fn());
++vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
++afterEach(() => {
++  invokeMock.mockReset();
++  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
++});
+ import type { MechanicsResult, PreviewModel } from "../types";
+ import {
+   appliedRuleCheckStatus,
+   buildAnalysisRunPreview,
+   loadPreviewModel,
+   runPreviewMechanics,
++  startPreviewMechanicsJob,
+ } from "./previewService";
+ import {
+   buildCurrentSessionInputManifest,
+@@ -410,3 +418,27 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
+     ).rejects.toThrow("ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH");
+   });
+ });
++
++
++describe("native mechanics failure boundary", () => {
++  it("propagates direct native solve rejection without a bundled result", async () => {
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    const failure = new Error("invented native IPC solve failure");
++    invokeMock.mockRejectedValue(failure);
++    await expect(runPreviewMechanics()).rejects.toBe(failure);
++    expect(invokeMock).toHaveBeenCalledTimes(1);
++  });
++
++  it("propagates native job-start rejection without browser designation", async () => {
++    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
++    const failure = new Error("invented native IPC start failure");
++    invokeMock.mockRejectedValue(failure);
++    await expect(startPreviewMechanicsJob()).rejects.toBe(failure);
++    expect(invokeMock).toHaveBeenCalledTimes(1);
++  });
++
++  it("uses browser job designation only when the host is absent", async () => {
++    await expect(startPreviewMechanicsJob()).resolves.toEqual({ mode: "browser_fixture_no_backend_job" });
++    expect(invokeMock).not.toHaveBeenCalled();
++  });
++});
+diff --git a/projects/chirality-piping/apps/desktop/src/services/previewService.ts b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+index b4e27a38a..b0157cdec 100644
+--- a/projects/chirality-piping/apps/desktop/src/services/previewService.ts
++++ b/projects/chirality-piping/apps/desktop/src/services/previewService.ts
+@@ -23,11 +23,7 @@ async function invokeOrFixture<T>(
+   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
+     return fixture();
+   }
+-  try {
+-    return await invoke<T>(command, args);
+-  } catch {
+-    return fixture();
+-  }
++  return invoke<T>(command, args);
+ }
+ 
+ export async function loadPreviewModel(): Promise<PreviewModel> {
+@@ -88,14 +84,10 @@ export async function startPreviewMechanicsJob(
+   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
+     return { mode: "browser_fixture_no_backend_job" };
+   }
+-  try {
+-    const receipt = await invoke<
++  const receipt = await invoke<
+       Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
+     >("start_preview_mechanics_job_with_solver_mode", model ? { model, solverMode } : { solverMode });
+-    return { mode: "backend_job", ...receipt };
+-  } catch {
+-    return { mode: "browser_fixture_no_backend_job" };
+-  }
++  return { mode: "backend_job", ...receipt };
+ }
+ 
+ export async function pollPreviewMechanicsJob(
+diff --git a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md
+index 23dcdf9bf..627c27365 100644
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md	
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md	
+@@ -1,5 +1,11 @@
+ # DEL-07-07 Memory
+ 
++## 2026-09-13 — approved workflow integration candidate
++
++- Native direct-solve and job-start invocation failures propagate through the existing solve failure path; browser fixture designation requires an absent Tauri host. Existing model/knowledge fixture fallback remains unchanged. Completed blocked/nonconverged diagnostic outputs stay readable while solved-only overlays, checks, comparisons, exports and report readiness require `MECHANICS_SOLVED`.
++- Frozen old-gap IPC/historical tests and focused regression evidence are in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/`; native V2 single selftest passes actual shared-applier, cantilever analytical, file persistence and fresh solve checks. V1 fixture provenance failure is retained; V2 labels invented data explicitly without changing engineering values or validation policy.
++- General producer diagnostic class/remediation/provenance breadth remains open. Final integrated independent review, complete registered checks and fresh packaged GUI quit/reopen witness remain parent-owned. Lifecycle remains `IN_PROGRESS`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
++
+ ## 2026-07-12 - D-41 R5 T5 PDU-008 rich diagnostic display
+ 
+ - Desktop diagnostic records may now carry class, remediation, and provenance; the diagnostic detail and filter surfaces display/use those fields when supplied, in addition to code, severity, source, affected refs, and message.
+diff --git a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md
+index d8a9d3cb5..df7879804 100644
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md	
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md	
+@@ -1,9 +1,10 @@
+ # Status: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
+ 
+ **Current State:** IN_PROGRESS
+-**Last Updated:** 2026-07-12
++**Last Updated:** 2026-09-13
+ 
+ ## Remaining
++- Complete parent-owned integrated review, required registered checks and fresh packaged GUI quit/reopen witness for the bounded 2026-09-13 workflow integration candidate; focused evidence does not close the deliverable. Basis: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/`.
+ - Complete producer-side carriage of diagnostic class, remediation, and provenance where upstream producers still emit the reduced desktop shape; the PDU-008 UI preserves and displays those fields when supplied but does not fabricate them.
+ 
+ ## History
+diff --git a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md
+index 8db36d69f..5e08b564c 100644
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md	
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md	
+@@ -46,6 +46,12 @@ Key boundary choices:
+   assumptions, privacy classification, unmatched rows, and unresolved `TBD`
+   markers are preserved where supplied.
+ 
++## 2026-09-13 — approved workflow integration candidate
++
++- Reopened saved results are transient historical evidence with explicit integrity findings. They remain readable and preserve existing result/analysis/hash fields on an unchanged save, including missing historical manifest evidence; they do not activate current overlays, comparisons, rule checks or report readiness. Model edits and history clear computed context; a fresh solved run establishes the current input basis. No persistence or native wire schema changed.
++- Undo/redo share a synchronous operation-ownership guard, including native menu and rendered history controls. Existing model-history keyboard shortcuts do not exist; no shortcut feature or shortcut-test claim is added. Typed intents, batches and the shared Rust applier remain the mutation route.
++- Evidence and exact frozen fixture/hash/tolerance basis: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/`. Final integrated review, complete registered checks and fresh packaged GUI quit/reopen witness remain parent-owned. Durable accepted-history, broader result compatibility and professional interaction work remain outside this bounded repair. Lifecycle remains `IN_PROGRESS`. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
++
+ ## 2026-05-11 TP-RECON-01 Reconciliation
+ 
+ Reconciled DEL-07-08 history against TP-RECON-01 Wave 3 dispatch evidence. The
+diff --git a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md
+index d8b1a2dd9..65e69a75d 100644
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md	
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md	
+@@ -1,9 +1,10 @@
+ # Status: DEL-07-08 Design-authoring state and comparison workspace
+ 
+ **Current State:** IN_PROGRESS
+-**Last Updated:** 2026-07-12
++**Last Updated:** 2026-09-13
+ 
+ ## Remaining
++- Complete parent-owned integrated review, required registered checks and fresh packaged GUI quit/reopen witness for the bounded 2026-09-13 workflow integration candidate; focused evidence does not close the deliverable. Basis: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/`.
+ 
+ ## History
+ - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx
+new file mode 100644
+index 000000000..937766cc2
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx
+@@ -0,0 +1,60 @@
++import { useState } from "react";
++import type { AnalysisRunEnvelope, LocalProjectEnvelope, MechanicsResult, ModelHashEvidence, ProjectEnvelopeHashEvidence } from "../../types";
++import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
++import { ResultsPanel } from "./ResultsPanel";
++
++// Transient evidence only. Saved run references do not contain the historical
++// input-manifest payload, so reopening cannot establish a current solve basis.
++export type HistoricalRunContext = {
++  designation: "historical_saved_run";
++  mechanicsResult: MechanicsResult | null;
++  analysisRun: AnalysisRunEnvelope | null;
++  modelHash: ModelHashEvidence | null;
++  envelopeHash: ProjectEnvelopeHashEvidence | null;
++  envelopePayloadHash: string | null;
++  findings: string[];
++  runId: string;
++};
++
++export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
++  const mechanicsResult = opened.mechanics_result ?? null;
++  const analysisRun = opened.analysis_run ?? null;
++  if (!mechanicsResult && !analysisRun) return null;
++  const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
++  const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
++  if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
++  if (mechanicsResult && mechanicsResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
++  if (record && record.model_state_ref?.ref !== `state:${opened.model.project.id}:preview`) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
++  if (!mechanicsResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
++  if (mechanicsResult && record && mechanicsResult.run_id !== record.run_id) findings.push("HISTORICAL_RUN_REF_MISMATCH");
++  const modelHash = opened.model_hash ?? null;
++  if (!modelHash) findings.push("HISTORICAL_MODEL_HASH_MISSING");
++  if (!opened.project_envelope_hash) findings.push("HISTORICAL_ENVELOPE_HASH_MISSING");
++  let envelopePayloadHash: string | null = null;
++  try {
++    const recomputedModel = await computeModelHash(opened.model);
++    if (modelHash && (modelHash.value !== recomputedModel?.value || modelHash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_MODEL_HASH_MISMATCH");
++    const recomputedEnvelope = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: opened.editor_intents ?? [], proposal: opened.proposal ?? null, selected_review_target: opened.selected_review_target ?? null, mechanics_result: mechanicsResult, analysis_run: analysisRun, model_hash: modelHash });
++    envelopePayloadHash = recomputedEnvelope?.value ?? null;
++    if (opened.project_envelope_hash && (opened.project_envelope_hash.value !== recomputedEnvelope?.value || opened.project_envelope_hash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_ENVELOPE_HASH_MISMATCH");
++    if (mechanicsResult) {
++      const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === "result_envelope") : null;
++      if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
++      else if ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256Hex(mechanicsResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${mechanicsResult.run_id}`) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
++    }
++  } catch {
++    findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
++  }
++  return { designation: "historical_saved_run", mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: mechanicsResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
++}
++
++export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {
++  const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
++  return <section className="panel" aria-label="Historical saved run" data-testid="historical-run-context">
++    <div className="panel-title">Historical saved run</div>
++    <p>Saved evidence for {context.runId}; mechanics={context.mechanicsResult?.status.mechanics ?? "missing"}. Run a fresh solve to establish current results.</p>
++    <p>Historical results cannot drive current overlays, rule checks, comparisons or report readiness.</p>
++    <ul>{context.findings.map((finding) => <li key={finding}>{finding}</li>)}</ul>
++    <ResultsPanel result={context.mechanicsResult} knowledge={null} analysisRun={null} selectedResultId={selectedResultId} onSelectResult={setSelectedResultId} />
++  </section>;
++}
+diff --git a/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx
+new file mode 100644
+index 000000000..cd36ed799
+--- /dev/null
++++ b/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx
+@@ -0,0 +1,63 @@
++import { describe, expect, it } from "vitest";
++import { buildHistoricalRunContext } from "./HistoricalRunContext";
++import { loadPreviewModel, runPreviewMechanics, buildAnalysisRunPreview } from "../../services/previewService";
++import { computeModelHash, computeProjectEnvelopeHash } from "../../services/hashService";
++import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
++import type { LocalProjectEnvelope } from "../../types";
++
++async function savedEnvelope() {
++  const model = await loadPreviewModel();
++  const mechanics_result = await runPreviewMechanics(model);
++  const inputManifest = await buildCurrentSessionInputManifest({ model, solver: { solver_name: "synthetic", solver_version: "1", solver_build_ref: "synthetic@1", solver_mode: "sparse_interactive", settings: {} }, active_rule_packs: [], external_assets: [] });
++  const analysis_run = await buildAnalysisRunPreview(mechanics_result, { inputManifest });
++  const model_hash = await computeModelHash(model);
++  const payload = { model, mechanics_result, analysis_run, model_hash, editor_intents: [], proposal: null, selected_review_target: null };
++  const project_envelope_hash = await computeProjectEnvelopeHash(payload);
++  return { ...payload, project_envelope_hash } as unknown as LocalProjectEnvelope;
++}
++
++describe("transient HistoricalRunContext integrity", () => {
++  it("preserves saved bytes and reports missing historical manifest without rebinding inputs", async () => {
++    const saved = await savedEnvelope();
++    const before = JSON.stringify(saved);
++    const context = await buildHistoricalRunContext(saved);
++    expect(context!.designation).toBe("historical_saved_run");
++    expect(context!.findings).toContain("HISTORICAL_INPUT_MANIFEST_MISSING");
++    expect(context!.findings).not.toContain("HISTORICAL_RESULT_HASH_MISMATCH");
++    expect(context!.mechanicsResult).toEqual(saved.mechanics_result);
++    expect(context!.analysisRun).toEqual(saved.analysis_run);
++    expect(context).not.toHaveProperty("inputManifest");
++    expect(JSON.stringify(saved)).toBe(before);
++  });
++
++  it("surfaces inconsistent identities and all saved hash findings while retaining history", async () => {
++    const saved = await savedEnvelope();
++    saved.mechanics_result!.model_ref = "project:inconsistent";
++    saved.mechanics_result!.run_id = "run:inconsistent";
++    saved.model_hash!.value = "sha256:inconsistent";
++    saved.project_envelope_hash!.value = "sha256:inconsistent";
++    const context = await buildHistoricalRunContext(saved);
++    expect(context!.findings).toEqual(expect.arrayContaining(["HISTORICAL_MODEL_REF_MISMATCH", "HISTORICAL_RUN_REF_MISMATCH", "HISTORICAL_MODEL_HASH_MISMATCH", "HISTORICAL_ENVELOPE_HASH_MISMATCH", "HISTORICAL_RESULT_HASH_MISMATCH"]));
++    expect(context!.mechanicsResult).toEqual(saved.mechanics_result);
++  });
++
++  it("retains missing original hashes without inventing a manifest", async () => {
++    const saved = await savedEnvelope();
++    saved.model_hash = null;
++    saved.project_envelope_hash = null;
++    saved.analysis_run!.analysis_run.hashes = [];
++    const context = await buildHistoricalRunContext(saved);
++    expect(context!.modelHash).toBeNull();
++    expect(context!.findings).toEqual(expect.arrayContaining(["HISTORICAL_MODEL_HASH_MISSING", "HISTORICAL_ENVELOPE_HASH_MISSING", "HISTORICAL_RESULT_HASH_MISSING"]));
++  });
++  it("keeps valid saved mechanics readable when analysis evidence is malformed", async () => {
++    const saved = await savedEnvelope();
++    saved.analysis_run = { analysis_run: { run_id: "saved-malformed", hashes: "corrupt" } } as unknown as LocalProjectEnvelope["analysis_run"];
++    const before = JSON.stringify(saved.analysis_run);
++    const context = await buildHistoricalRunContext(saved);
++    expect(context!.findings).toContain("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
++    expect(context!.mechanicsResult).toEqual(saved.mechanics_result);
++    expect(JSON.stringify(context!.analysisRun)).toBe(before);
++  });
++
++});

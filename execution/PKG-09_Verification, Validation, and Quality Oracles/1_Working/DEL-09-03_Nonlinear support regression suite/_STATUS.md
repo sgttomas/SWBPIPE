@@ -1,9 +1,10 @@
 # Status: DEL-09-03 Nonlinear support regression suite
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-13
 
 ## Remaining
+- Complete parent-owned fresh integrated review and actual-candidate integration checks for the bounded contact-initialization candidate; focused execution is complete in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/INTEGRATION_PREP_V1/PHYSICS_RAW/RETURN.md`, while technical acceptance and landed closeout remain pending.
 - Obtain owning human dispositions for `PKG09-0903-PKG02-001` and `PKG09-0903-PKG02-002`; both remain `TECHNICALLY_ADDRESSED_PENDING_HUMAN` with `HumanDisposition=TBD`, and provenance/unit evidence does not formally close them (PDU-060).
 
 ## History

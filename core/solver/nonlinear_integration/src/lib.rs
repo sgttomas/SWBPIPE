@@ -363,6 +363,63 @@ impl From<NonlinearSupportError> for NonlinearIntegrationError {
     }
 }
 
+/// Validated potential contact DOFs for bounded contact-only initialization.
+/// Admission includes every seed; recovery separately requires an inactive row.
+pub fn eligible_contact_dofs(
+    node_count: usize,
+    base_restrained_dofs: &[usize],
+    supports: &[NonlinearSupport],
+    states: &[SupportStateRecord],
+) -> Option<Vec<usize>> {
+    if supports.is_empty() || states.len() != supports.len() {
+        return None;
+    }
+    let mut ids = HashSet::new();
+    let mut state_ids = HashSet::new();
+    for state in states {
+        if !state_ids.insert(state.support_id.as_str())
+            || !matches!(
+                state.state,
+                ActiveSetState::Active | ActiveSetState::Inactive
+            )
+        {
+            return None;
+        }
+    }
+    let mut dofs = HashSet::new();
+    for support in supports {
+        if support.support_id.trim().is_empty()
+            || !ids.insert(support.support_id.as_str())
+            || !state_ids.contains(support.support_id.as_str())
+            || support.node_index >= node_count
+            || !matches!(support.dof, FrameDof::Ux | FrameDof::Uy | FrameDof::Uz)
+            || matches!(support.behavior, NonlinearSupportBehavior::Friction)
+            || support.friction_coefficient.is_some()
+        {
+            return None;
+        }
+        match support.behavior {
+            NonlinearSupportBehavior::Gap { .. } => {
+                if !support.gap.is_some_and(|gap| gap.is_finite() && gap >= 0.0) {
+                    return None;
+                }
+            }
+            _ => {
+                if support.gap.is_some() {
+                    return None;
+                }
+            }
+        }
+        let dof = node_dof_index(support.node_index, support.dof);
+        if base_restrained_dofs.contains(&dof) || !dofs.insert(dof) {
+            return None;
+        }
+    }
+    let mut dofs = dofs.into_iter().collect::<Vec<_>>();
+    dofs.sort_unstable();
+    Some(dofs)
+}
+
 pub fn solve_active_set_frame(
     input: &NonlinearFrameSolveInput,
 ) -> Result<NonlinearFrameSolveResult, NonlinearIntegrationError> {
@@ -405,13 +462,21 @@ pub fn solve_active_set_frame_with_mode_and_springs(
     }
 
     let mut current_states = normalized_initial_states(input)?;
+    let recovery_eligible = eligible_contact_dofs(
+        input.node_count,
+        &input.base_restrained_dofs,
+        &input.nonlinear_supports,
+        &current_states,
+    )
+    .is_some();
+    let mut recovered_path = false;
     let mut iterations = Vec::new();
     let mut final_diagnostics = policy_diagnostics(&input.convergence);
     let friction_normals = friction_normal_map(input)?;
     let derived_friction_normals = derived_friction_normal_map(input)?;
 
     for iteration_index in 1..=input.convergence.max_iterations {
-        let boundary = active_boundary(
+        let mut boundary = active_boundary(
             input.node_count,
             &input.base_restrained_dofs,
             &input.nonlinear_supports,
@@ -424,7 +489,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         // depend on whether sliding was seeded or reached by transition.
         let sliding_force_deferred = iterations.is_empty()
             && sliding_friction_support_present(&input.nonlinear_supports, &current_states);
-        let sliding_solve = solve_iteration_with_sliding_friction(
+        let attempted_solve = solve_iteration_with_sliding_friction(
             input,
             &stiffness,
             &boundary,
@@ -433,7 +498,57 @@ pub fn solve_active_set_frame_with_mode_and_springs(
             &friction_normals,
             &derived_friction_normals,
             linear_solve_mode,
-        )?;
+        );
+        let sliding_solve = match attempted_solve {
+            Err(NonlinearIntegrationError::FrameKernel(FrameKernelError::SingularSystem {
+                pivot,
+            })) if iteration_index == 1
+                && recovery_eligible
+                && current_states
+                    .iter()
+                    .any(|state| state.state == ActiveSetState::Inactive) =>
+            {
+                let original_states = current_states
+                    .iter()
+                    .map(|state| format!("{}={}", state.support_id, state.state.as_str()))
+                    .collect::<Vec<_>>()
+                    .join(",");
+                let original_ground_dofs = boundary.dofs.clone();
+                let all_active = current_states
+                    .iter()
+                    .map(|state| SupportStateRecord::new(&state.support_id, ActiveSetState::Active))
+                    .collect::<Vec<_>>();
+                boundary = active_boundary(
+                    input.node_count,
+                    &input.base_restrained_dofs,
+                    &input.nonlinear_supports,
+                    &all_active,
+                )?;
+                let trial = solve_iteration_with_sliding_friction(
+                    input,
+                    &stiffness,
+                    &boundary,
+                    &all_active,
+                    None,
+                    &friction_normals,
+                    &derived_friction_normals,
+                    linear_solve_mode,
+                )?;
+                let recovery_states = all_active
+                    .iter()
+                    .map(|state| format!("{}={}", state.support_id, state.state.as_str()))
+                    .collect::<Vec<_>>()
+                    .join(",");
+                current_states = all_active;
+                recovered_path = true;
+                final_diagnostics.push(SolverDiagnostic::new(
+                    SolverDiagnosticCode::SingularSystem, DiagnosticSeverity::Warning, DiagnosticSource::SolverIteration,
+                    format!("Exact first-iteration singular inactive contact seed recovered by one all-active trial in {} mode; original_singular_pivot={pivot}; original_states=[{original_states}]; original_ground_dofs={original_ground_dofs:?}; recovery_states=[{recovery_states}]; recovery_ground_dofs={:?}; authored signed boundaries, forces and stiffness preserved; successful trial counts as iteration 1; later singularity remains failure and no second recovery is permitted.", linear_solve_mode.as_str(), boundary.dofs),
+                ));
+                trial
+            }
+            result => result?,
+        };
         let trial_states = build_trial_states(
             &input.nonlinear_supports,
             &sliding_solve.linearized.displacements,
@@ -462,6 +577,7 @@ pub fn solve_active_set_frame_with_mode_and_springs(
         )?;
         let blocked = active_set.is_blocked();
         let converged = active_set.converged
+            && (!recovered_path || active_set.changed_supports.is_empty())
             && !blocked
             && !sliding_force_deferred
             && resolved_friction.tangential_branches_admissible
@@ -1978,6 +2094,356 @@ mod tests {
         FrameDof, FrameElement, FrameNode, FrameSection, RX, RY, RZ, UX, UY, UZ,
     };
     use open_pipe_stress_nonlinear_supports::{ActivationSense, GapDirection};
+
+    #[test]
+    fn contact_recovery_warning_preserves_original_singular_seed_provenance() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let mut input = contact_recovery_problem(
+                ActiveSetState::Inactive,
+                ActiveSetState::Inactive,
+                false,
+                4,
+            );
+            input.initial_states.reverse();
+            input.nonlinear_supports.reverse();
+            let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
+            let warning = solved
+                .diagnostics
+                .iter()
+                .find(|d| {
+                    d.severity == DiagnosticSeverity::Warning && d.message.contains("all-active")
+                })
+                .unwrap();
+            assert!(warning.message.contains("original_singular_pivot="));
+            assert!(warning
+                .message
+                .contains("original_states=[root=inactive,tip=inactive]"));
+            assert!(warning
+                .message
+                .contains("recovery_states=[root=active,tip=active]"));
+            assert!(warning
+                .message
+                .contains("original_ground_dofs=[1, 2, 3, 4, 5, 7, 8, 9, 10, 11]"));
+            assert!(warning
+                .message
+                .contains("recovery_ground_dofs=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]"));
+        }
+    }
+
+    // CONTACT_LATER_GUARD_FROZEN_BEGIN
+    #[test]
+    fn contact_recovery_later_changed_boundary_rejects_classifier_tolerance_one() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let mut input = contact_recovery_problem(
+                ActiveSetState::Inactive,
+                ActiveSetState::Inactive,
+                true,
+                2,
+            );
+            input.convergence.residual_tolerance = 1.0;
+            let result = solve_active_set_frame_with_mode(&input, mode).unwrap();
+            assert!(!result.converged);
+            assert_eq!(result.iterations.len(), 2);
+            assert_eq!(
+                result.iterations[0].active_set.changed_supports,
+                vec!["tip".to_string()]
+            );
+            assert_eq!(
+                result.iterations[1].active_set.changed_supports,
+                vec!["root".to_string()]
+            );
+            assert!(result.iterations[1].active_set.converged);
+            assert!(result
+                .diagnostics
+                .iter()
+                .any(|d| d.code == SolverDiagnosticCode::NonConvergence));
+            let mixed = solve_active_set_frame_with_mode(
+                &contact_recovery_problem(
+                    ActiveSetState::Inactive,
+                    ActiveSetState::Active,
+                    false,
+                    4,
+                ),
+                mode,
+            )
+            .unwrap();
+            assert!(mixed.converged);
+            assert!(!mixed
+                .diagnostics
+                .iter()
+                .any(|d| d.message.contains("all-active")));
+        }
+    }
+    // CONTACT_LATER_GUARD_FROZEN_END
+
+    // CONTACT_CLASS_FROZEN_BEGIN
+    #[test]
+    fn contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            for sign in [-1.0, 1.0] {
+                for family in 0..3 {
+                    let sense = if sign > 0.0 {
+                        ActivationSense::NegativeReaction
+                    } else {
+                        ActivationSense::PositiveReaction
+                    };
+                    let contact = match family {
+                        0 => NonlinearSupport::gap(
+                            "root",
+                            0,
+                            FrameDof::Ux,
+                            0.05,
+                            if sign > 0.0 {
+                                GapDirection::PositiveDisplacement
+                            } else {
+                                GapDirection::NegativeDisplacement
+                            },
+                        )
+                        .unwrap(),
+                        1 => NonlinearSupport::one_way("root", 0, FrameDof::Ux, sense),
+                        _ => NonlinearSupport::lift_off("root", 0, FrameDof::Ux, sense),
+                    };
+                    let mut input = two_node_axial_problem(
+                        vec![contact],
+                        vec![SupportStateRecord::new("root", ActiveSetState::Inactive)],
+                        1,
+                    );
+                    input.base_restrained_dofs.retain(|dof| *dof != 0);
+                    input.force[6] = sign * 10.0;
+                    let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                    assert!(solved.converged);
+                    let gap = if family == 0 { sign * 0.05 } else { 0.0 };
+                    assert!((solved.displacements[0] - gap).abs() < 1e-10);
+                    assert!((solved.displacements[6] - (gap + sign * 0.1)).abs() < 1e-10);
+                    assert!((solved.reactions[0] + sign * 10.0).abs() < 1e-10);
+                    input.force[6] = 0.0;
+                    let zero = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                    assert_eq!(
+                        zero.final_states[0].state,
+                        if family == 0 {
+                            ActiveSetState::Active
+                        } else {
+                            ActiveSetState::Inactive
+                        }
+                    );
+                    assert_eq!(zero.converged, family == 0);
+                }
+            }
+        }
+    }
+    // CONTACT_CLASS_FROZEN_END
+
+    // CONTACT_RECOVERY_FROZEN_BEGIN
+    fn contact_recovery_problem(
+        root: ActiveSetState,
+        tip: ActiveSetState,
+        reverse: bool,
+        cap: usize,
+    ) -> NonlinearFrameSolveInput {
+        let supports = vec![
+            NonlinearSupport::gap(
+                "root",
+                0,
+                FrameDof::Ux,
+                0.05,
+                GapDirection::PositiveDisplacement,
+            )
+            .unwrap(),
+            NonlinearSupport::gap(
+                "tip",
+                1,
+                FrameDof::Ux,
+                0.20,
+                GapDirection::PositiveDisplacement,
+            )
+            .unwrap(),
+        ];
+        let mut input = two_node_axial_problem(
+            supports,
+            vec![
+                SupportStateRecord::new("root", root),
+                SupportStateRecord::new("tip", tip),
+            ],
+            cap,
+        );
+        input.base_restrained_dofs.retain(|dof| *dof != 0);
+        if reverse {
+            input.force[6] = -10.0;
+        }
+        input
+    }
+
+    #[test]
+    fn contact_recovery_two_gap_independent_oracle_seeds_order_modes() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            for root in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                for tip in [ActiveSetState::Active, ActiveSetState::Inactive] {
+                    for reverse_order in [false, true] {
+                        let mut input = contact_recovery_problem(root, tip, false, 4);
+                        if reverse_order {
+                            input.nonlinear_supports.reverse();
+                            input.initial_states.reverse();
+                        }
+                        let solved = solve_active_set_frame_with_mode(&input, mode).unwrap();
+                        assert!(solved.converged);
+                        for (actual, expected) in [
+                            (solved.displacements[0], 0.05),
+                            (solved.displacements[6], 0.15),
+                            (solved.reactions[0], -10.0),
+                            (solved.reactions[6], 0.0),
+                        ] {
+                            assert!((actual - expected).abs() < 1e-10);
+                        }
+                        assert_eq!(
+                            solved.final_states,
+                            vec![
+                                SupportStateRecord::new("root", ActiveSetState::Active),
+                                SupportStateRecord::new("tip", ActiveSetState::Inactive)
+                            ]
+                        );
+                        if root == ActiveSetState::Inactive && tip == ActiveSetState::Inactive {
+                            let first = &solved.iterations[0];
+                            assert_eq!(first.iteration, 1);
+                            assert!((first.reactions[0] + 15.0).abs() < 1e-10);
+                            assert!((first.reactions[6] - 5.0).abs() < 1e-10);
+                            assert_eq!(first.active_set.changed_supports, vec!["tip".to_string()]);
+                            assert!(solved.diagnostics.iter().any(|d| d.severity
+                                == DiagnosticSeverity::Warning
+                                && d.message.contains("all-active")
+                                && d.message.contains("first")
+                                && d.message.contains(mode.as_str())));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn contact_recovery_caps_and_later_singularity_are_honest() {
+        for mode in [
+            LinearSolveMode::DenseScrutiny,
+            LinearSolveMode::SparseInteractive,
+        ] {
+            let mut stable = contact_recovery_problem(
+                ActiveSetState::Inactive,
+                ActiveSetState::Inactive,
+                false,
+                1,
+            );
+            stable.nonlinear_supports.pop();
+            stable.initial_states.pop();
+            let solved = solve_active_set_frame_with_mode(&stable, mode).unwrap();
+            assert!(solved.converged);
+            assert_eq!(solved.iterations.len(), 1);
+            let mut changing = contact_recovery_problem(
+                ActiveSetState::Inactive,
+                ActiveSetState::Inactive,
+                false,
+                2,
+            );
+            changing.convergence.residual_tolerance = 1.0;
+            let solved = solve_active_set_frame_with_mode(&changing, mode).unwrap();
+            assert!(solved.converged);
+            assert_eq!(solved.iterations.len(), 2);
+            changing.convergence.max_iterations = 1;
+            let capped = solve_active_set_frame_with_mode(&changing, mode).unwrap();
+            assert!(!capped.converged);
+            assert!(capped
+                .diagnostics
+                .iter()
+                .any(|d| d.code == SolverDiagnosticCode::NonConvergence));
+            let reverse =
+                contact_recovery_problem(ActiveSetState::Inactive, ActiveSetState::Active, true, 4);
+            assert!(matches!(
+                solve_active_set_frame_with_mode(
+                    &contact_recovery_problem(
+                        ActiveSetState::Active,
+                        ActiveSetState::Active,
+                        true,
+                        4
+                    ),
+                    mode
+                ),
+                Err(NonlinearIntegrationError::FrameKernel(
+                    FrameKernelError::SingularSystem { .. }
+                ))
+            ));
+            assert!(matches!(
+                solve_active_set_frame_with_mode(&reverse, mode),
+                Err(NonlinearIntegrationError::FrameKernel(
+                    FrameKernelError::SingularSystem { .. }
+                ))
+            ));
+            let mut reverse_cap = reverse.clone();
+            reverse_cap.convergence.max_iterations = 2;
+            reverse_cap.convergence.residual_tolerance = 0.0;
+            let released = solve_active_set_frame_with_mode(&reverse_cap, mode).unwrap();
+            assert!(!released.converged);
+            assert_eq!(
+                released.iterations[0].active_set.changed_supports,
+                vec!["root".to_string(), "tip".to_string()]
+            );
+            assert_eq!(
+                released.iterations[1].active_set.changed_supports,
+                vec!["root".to_string()]
+            );
+        }
+    }
+
+    #[test]
+    fn contact_recovery_invalid_classes_do_not_rescue_and_springs_survive() {
+        let original =
+            contact_recovery_problem(ActiveSetState::Inactive, ActiveSetState::Inactive, false, 4);
+        for case in 0..7 {
+            let mut input = original.clone();
+            match case {
+                0 => input.nonlinear_supports[0].dof = FrameDof::Rx,
+                1 => input.initial_states[0].state = ActiveSetState::Sticking,
+                2 => input.nonlinear_supports[0].gap = Some(f64::NAN),
+                3 => {
+                    input.nonlinear_supports[1].node_index = 0;
+                }
+                4 => {
+                    input.base_restrained_dofs.push(0);
+                    input
+                        .base_restrained_dofs
+                        .retain(|dof| *dof != 1 && *dof != 7);
+                }
+                5 => input.nonlinear_supports[0].node_index = 2,
+                _ => input.nonlinear_supports[0].behavior = NonlinearSupportBehavior::Friction,
+            }
+            assert!(
+                solve_active_set_frame(&input).is_err(),
+                "invalid eligibility case {case}"
+            );
+        }
+        let mut spring = original;
+        spring.nonlinear_supports.clear();
+        spring.initial_states.clear();
+        let solved = solve_active_set_frame_with_mode_and_springs(
+            &spring,
+            LinearSolveMode::SparseInteractive,
+            &[(0, 200.0)],
+        )
+        .unwrap();
+        assert!(solved.converged);
+        assert!((solved.displacements[0] - 0.05).abs() < 1e-10);
+        assert!((solved.displacements[6] - 0.15).abs() < 1e-10);
+    }
+    // CONTACT_RECOVERY_FROZEN_END
 
     fn two_node_axial_problem(
         nonlinear_supports: Vec<NonlinearSupport>,

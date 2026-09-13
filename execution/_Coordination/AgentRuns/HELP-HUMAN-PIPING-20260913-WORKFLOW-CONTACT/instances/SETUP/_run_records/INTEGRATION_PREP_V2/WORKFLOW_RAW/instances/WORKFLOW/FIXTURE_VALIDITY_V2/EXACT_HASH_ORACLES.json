@@ -1,0 +1,13 @@
+{
+  "method": "Independent ASCII fixture subset sorted-key ECMAScript JSON; Rust canonical crosscheck required",
+  "baseline_model_canonical_sha256": "f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c",
+  "edited_model_canonical_sha256": "6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+  "human_intent_canonical_sha256": "a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401",
+  "agent_intent_canonical_sha256": "89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336",
+  "exact_history_expected": {
+    "undo": "f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c",
+    "redo": "6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb"
+  },
+  "equivalent_intents_model_hash_expected": "6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb",
+  "numerical_oracle_basis": "FROZEN_ORACLES.json unchanged"
+}

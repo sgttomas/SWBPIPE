@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "derivative": true,
+  "basis": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "parent": "/root HELP_HUMAN",
+  "owner_direction": "APPROVED_PLAN.md",
+  "anchors": {
+    "REPO_ROOT": "git rev-parse --show-toplevel",
+    "WORKING_ROOT": "{REPO_ROOT}/projects/chirality-piping"
+  },
+  "active_cap": 6,
+  "workstreams": [
+    "PHYSICS",
+    "WORKFLOW"
+  ],
+  "acceptance": [
+    "independent analytical expectations frozen before source changes",
+    "focused Rust/desktop/browser/distribution tests",
+    "file-backed native and fresh GUI quit/reopen",
+    "fresh read-only 100% integrated diff review PASS",
+    "complete registered DEC025 sweep",
+    "full practitioner harness",
+    "self-check",
+    "receipt validation",
+    "one scoped PR with actual-candidate review and CI before merge"
+  ],
+  "subsequent_deferred": [
+    "whole-result schema",
+    "pressure",
+    "objective connector mechanics",
+    "numerical robustness",
+    "end-to-end sparse execution",
+    "professional 3D interface",
+    "CAEPIPE",
+    "harness integration"
+  ]
+}

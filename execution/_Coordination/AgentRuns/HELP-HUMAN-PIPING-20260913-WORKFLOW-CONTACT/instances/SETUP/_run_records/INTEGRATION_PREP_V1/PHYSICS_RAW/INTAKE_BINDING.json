@@ -1,0 +1,37 @@
+{
+  "scope": "approved bounded integration; not generic DAG selection",
+  "dag": "DAG-010 approved authority",
+  "applicable_invariants": [
+    "OPS-K-DATA-2",
+    "OPS-K-MECH-1",
+    "OPS-K-MECH-2",
+    "OPS-K-UNIT-1",
+    "OPS-K-SOLVER-1",
+    "OPS-K-SOLVER-2",
+    "OPS-K-REPORT-1",
+    "OPS-K-IP-1",
+    "OPS-K-AGENT-2",
+    "OPS-K-AGENT-3",
+    "OPS-K-AGENT-4"
+  ],
+  "origins": {
+    "projects/chirality-piping/docs/CONTRACT.md": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+    "projects/chirality-piping/software-workflow.json": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7",
+    "projects/chirality-piping/execution/_DAG/_LATEST.md": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+    "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd",
+    "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+    "projects/chirality-piping/docs/_Registers/Deliverables.csv": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_CONTEXT.md": "4ac6734191fcaa71a328397d514e906a9ed24834670ab8245aa4edd4003be8e2",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "ebbdb2b6a0797feb22ef84f209ac0ccb758a9eb0a6965c2e741e82f43c219ef7",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_DEPENDENCIES.md": "cbbc83e7fce4ced88394de07b323a5974d89a5661c9c6f835c9d5ec9990d8980",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_REFERENCES.md": "652597638ccb9605665392e37547b4a6d5f25e47b646580a94b6bdb65c3fb0b5",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/ScopeOfWork.md": "23488618ae7f3f3b7249501181ff8ff2febac4bdaab9ea5221237cce5c265083",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "446d1470832c4fab006a59bba294084fcdc86fc42b248bb4fac12b39ddf10ff3",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_CONTEXT.md": "32e89adf16efa57982f054fbf5b96a6b1548ef7e04dd3600b3d8a0cd000a16f3",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "7dad038c7f42942195a416202319d9a4ce8bffb377eac645e01d70c8bedcdfa6",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_DEPENDENCIES.md": "86165304c4f34acbbd00e0f981d56d921bc9e19c1b45e402b257accadbb34dc0",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_REFERENCES.md": "6709ef059a4709e42cd903a6b48a9545462688da37fd10edb9f937acff70ab6b",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/ScopeOfWork.md": "933109de0997f26be530e34ba4456f3ef5fb6601962d73cebcc24e2ee7f9d147",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "24fc34ec5d3e054818a31126df43c56bbd82f2b193cbd1f6d59e06e0908fc285"
+  }
+}

@@ -1,0 +1,11 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.55s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_product_physics-6ba20019230ed2dc)
+
+running 2 tests
+test tests::contact_recovery_product_insufficient_or_invalid_potential_restraint_stays_blocked ... ok
+test tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 145 filtered out; finished in 0.01s
+

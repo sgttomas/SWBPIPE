@@ -9051,7 +9051,7 @@ describe("OpenPipeStress desktop preview", () => {
         { timeout: 10000 },
       ),
     ).toBeInTheDocument();
-    const results = await screen.findByLabelText("Results");
+    let results = await screen.findByLabelText("Results");
     fireEvent.change(within(results).getByTestId("result-filter-input"), {
       target: { value: "torsional-shear" },
     });
@@ -9425,18 +9425,15 @@ describe("OpenPipeStress desktop preview", () => {
       ),
     );
 
-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
-      "state=completed",
-    );
-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
-      "events=1",
-    );
-    expect(screen.getByTestId("solve-job-summary").textContent).toContain(
-      "result_rows=830",
-    );
-    expect(screen.getByTestId("solve-job-progress").textContent).toContain(
-      "restored_persisted_run_record_no_new_solve_executed",
-    );
+    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("state=not_started");
+    expect(screen.getByTestId("solve-job-summary")).toHaveTextContent("result_rows=0");
+    const historical = screen.getByTestId("historical-run-context");
+    expect(historical).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+    results = within(historical).getByTestId("results-panel");
+    fireEvent.change(within(results).getByTestId("result-filter-input"), { target: { value: "torsional-shear" } });
     expect(
       within(results).getByTestId(
         "result-row-result:stress:pipe-P-120:end-j:torsional-shear",
@@ -9576,65 +9573,12 @@ describe("OpenPipeStress desktop preview", () => {
       "proposal:physics-diagnostic-review",
     );
 
-    const openedNativePackage = await screen.findByLabelText(
-      "Native JSON package",
-    );
-    expect(
-      within(openedNativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("mechanics_results=1");
-    expect(
-      within(openedNativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("analysis_runs=1");
-    expect(
-      within(openedNativePackage).getByTestId(
-        "native-package-persisted-review-context",
-      ).textContent,
-    ).toContain("run_ref=run:preview-linear-static-001");
-    const openedNativePackageHref =
-      within(openedNativePackage)
-        .getByTestId("native-package-link")
-        .getAttribute("href") ?? "";
-    const openedNativePackagePacket = JSON.parse(
-      decodeURIComponent(openedNativePackageHref.split(",", 2)[1]),
-    );
-    expect(openedNativePackagePacket.document_kind).toBe("[REDACTED]");
-    expect(
-      openedNativePackagePacket.source_project.storage_summary
-        .persisted_mechanics_result_count,
-    ).toBe("[REDACTED]");
-    expect(
-      openedNativePackagePacket.source_project.storage_summary
-        .persisted_analysis_run_ref,
-    ).toBe("[REDACTED]");
-    /* The opened local panel above verifies restored raw state. Its downstream
-       export remains redacted and cannot be used as a private-state mirror.
-    expect(
-      openedNativePackagePacket.source_project.storage_summary
-        .persisted_mechanics_result_count,
-    ).toBe(1);
-    expect(
-      openedNativePackagePacket.source_project.storage_summary
-        .persisted_analysis_run_count,
-    ).toBe(1);
-    expect(
-      openedNativePackagePacket.source_project.storage_summary
-        .persisted_analysis_run_ref,
-    ).toBe("run:preview-linear-static-001");
-    expect(
-      openedNativePackagePacket.generation_context
-        .persisted_mechanics_result_count,
-    ).toBe(1);
-    expect(
-      openedNativePackagePacket.generation_context.persisted_analysis_run_count,
-    ).toBe(1);
-    expect(
-      openedNativePackagePacket.generation_context.persisted_analysis_run_ref,
-    ).toBe("run:preview-linear-static-001");
-    */
+    const openedNativePackage = screen.getByLabelText("Native JSON package");
+    expect(within(openedNativePackage).getByTestId("native-package-empty")).toBeInTheDocument();
+    expect(within(openedNativePackage).queryByTestId("native-package-link")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("menu-file"));
+    expect(screen.getByTestId("menu-item-file.save-report-package")).toBeDisabled();
+    fireEvent.click(screen.getByTestId("app-menu-backdrop"));
 
     const operationLedger = await screen.findByLabelText(
       "Operation review ledger",
@@ -9648,7 +9592,7 @@ describe("OpenPipeStress desktop preview", () => {
       within(operationLedger).getByTestId("operation-ledger-state-binding")
         .textContent,
     ).toContain(
-      "state:project:invented-loop-01:preview; run:preview-linear-static-001",
+      "not generated; not generated",
     );
     expect(
       within(operationLedger).getByTestId(
@@ -13711,7 +13655,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
     expect(
       screen.getByTestId("viewport-deformation-status").textContent,
-    ).toContain("blocked; mechanics=model incomplete; rows=0");
+    ).toContain("not started; result rows=0");
 
     fireEvent.click(screen.getByRole("button", { name: /Save local/i }));
     await waitFor(() =>
@@ -16603,5 +16547,172 @@ describe("persistent modeling workspace", () => {
     expect(screen.getByTestId("workspace-dock")).toHaveClass("collapsed");
     expect(screen.getByTestId("workspace-select")).toHaveFocus();
     expect(screen.getByTestId("viewport-canvas")).toBe(viewport);
+  });
+});
+
+
+async function workflowStoredEnvelope() {
+  const model = await loadPreviewModel();
+  const envelope = inventedOpenEnvelope(model);
+  const result = structuredClone(await runPreviewMechanics());
+  result.model_ref = envelope.model.project.id;
+  const inputManifest = await buildCurrentSessionInputManifest({
+    model: envelope.model,
+    solver: { solver_name: "open_pipe_stress_product_physics", solver_version: "0.1.0", solver_build_ref: "open_pipe_stress_product_physics@0.1.0", solver_mode: "sparse_interactive", settings: {} },
+    active_rule_packs: [], external_assets: []
+  });
+  envelope.mechanics_result = result;
+  envelope.analysis_run = await buildAnalysisRunPreview(result, { inputManifest });
+  // Deliberately inconsistent saved hash stays evidence, never fresh identity.
+  envelope.model_hash = { algorithm: "sha256", canonicalization: "rfc8785_jcs", payload_scope: "model_payload", payload_ref: envelope.model.project.id, value: `sha256:${"f".repeat(64)}`, hash_status: "computed_local_preview" };
+  return envelope;
+}
+
+describe("workflow current and historical result boundaries", () => {
+  it("opens saved results as readable history and preserves their exact fields on unchanged save", async () => {
+    const envelope = await workflowStoredEnvelope();
+    let saved: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+      if (command === "open_local_project") return Promise.resolve(envelope);
+      if (command === "save_local_project") { saved = args.request; return Promise.resolve(envelope); }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent(envelope.mechanics_result!.run_id));
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_INPUT_MANIFEST_MISSING");
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    act(() => nativeMenuCommand("file.save-report-package"));
+    expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saved).toBeDefined());
+    expect(saved!.mechanics_result).toEqual(envelope.mechanics_result);
+    expect(saved!.analysis_run).toEqual(envelope.analysis_run);
+    expect(saved!.model_hash).toEqual(envelope.model_hash);
+    expect(saved!.project_envelope_hash).toEqual(envelope.project_envelope_hash);
+    expect(saved).not.toHaveProperty("input_manifest");
+  });
+
+  it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("keeps %s diagnostics while barring solved-only consumers", async (mechanics) => {
+    const model = await loadPreviewModel();
+    const output = structuredClone(await runPreviewMechanics(model));
+    output.status.mechanics = mechanics;
+    output.diagnostics.push({ id: "diagnostic:workflow-outcome", code: "WORKFLOW_OUTCOME_DIAGNOSTIC", severity: "blocking", message: "Synthetic outcome retained" });
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "start_preview_mechanics_job_with_solver_mode") return Promise.resolve({ job_id: "workflow-outcome", backend_cancellation_token: "workflow-outcome-token", state: "queued", cancellation_scope: "synthetic" });
+      if (command === "poll_preview_mechanics_job") return Promise.resolve({ job_id: "workflow-outcome", state: "completed", cancellation_requested: false, cancellation_status: "not_requested", cancellation_scope: "synthetic", result: output, error_message: null });
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("analyze.run"));
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent(mechanics));
+    fireEvent.click(screen.getByTestId("issues-drawer-toggle"));
+    expect(screen.getByTestId("diagnostic-WORKFLOW_OUTCOME_DIAGNOSTIC")).toHaveTextContent("Synthetic outcome retained");
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("rule-check-run")).toBeDisabled();
+    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
+    act(() => nativeMenuCommand("file.save-report-package"));
+    expect(invokeMock.mock.calls.some(([command]) => command === "save_report_package")).toBe(false);
+  });
+});
+
+
+describe("synchronous busy history boundary", () => {
+  it.each(["undo", "redo"] as const)("blocks %s through native menu and rendered controls while operation ownership is pending", async (action) => {
+    const { envelope } = await openBatchContext();
+    await requeueFirstContext();
+    fireEvent.click(screen.getByTestId("apply-batch-operation-batch-1"));
+    await waitFor(() => expect(screen.getByTestId("batch-review-summary")).toHaveTextContent("1 batches applied"));
+    fireEvent.click(screen.getByTestId("clear-pending-batches"));
+    if (action === "redo") fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    const historyBefore = screen.getByTestId("session-history-chip").textContent;
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    const pending = deferred<unknown>();
+    let pendingModel: PreviewModel | undefined;
+    let saved: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
+      if (command === "validate_model_operation") { pendingModel = args.model as PreviewModel; return pending.promise; }
+      if (command === "save_local_project") { saved = (args as { request: Record<string, unknown> }).request; return Promise.resolve(envelope); }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    // The native event arrives in the same React batch before disabled controls
+    // can render. The ref guard owns this interval as well as the settled UI.
+    act(() => {
+      fireEvent.click(screen.getByTestId("validate-intent-editor-intent-1"));
+      nativeMenuCommand(`edit.${action}`);
+    });
+    await waitFor(() => expect(pendingModel).toBeDefined());
+    expect(screen.getByTestId("session-history-chip").textContent).toBe(historyBefore);
+    expect(screen.getByTestId("workspace-undo")).toBeDisabled();
+    expect(screen.getByTestId("workspace-redo")).toBeDisabled();
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+    expect(screen.getByTestId("redo-session-model-edit")).toBeDisabled();
+    act(() => nativeMenuCommand(`edit.${action}`));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saved).toBeDefined());
+    const { computeModelHash } = await import("./services/hashService");
+    expect(saved!.model_hash).toEqual(await computeModelHash(pendingModel!));
+    expect(saved!.model).toEqual(pendingModel);
+    expect(screen.getByTestId("session-history-chip").textContent).toBe(historyBefore);
+    await act(async () => { pending.reject(new Error("Synthetic stopped pending validation")); });
+    expect(screen.getByTestId(`${action}-session-model-edit`)).toBeEnabled();
+  });
+});
+
+
+describe("historical lifecycle history transitions", () => {
+  it("clears reopened computed evidence on model edit and exact undo/redo transitions", async () => {
+    const envelope = await workflowStoredEnvelope();
+    invokeMock.mockImplementation((command: string) => command === "open_local_project" ? Promise.resolve(envelope) : Promise.reject(new Error(command)));
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await screen.findByTestId("historical-run-context");
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    let savedRequest: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+      if (command === "save_local_project") { savedRequest = args.request; return Promise.resolve({ ...envelope, ...args.request }); }
+      return Promise.reject(new Error(command));
+    });
+    const snapshotHash = async () => {
+      savedRequest = undefined;
+      (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+      act(() => nativeMenuCommand("file.save-local"));
+      await waitFor(() => expect(savedRequest).toBeDefined());
+      await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+      delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+      return (await computeModelHash(savedRequest!.model as PreviewModel))!.value;
+    };
+    const { computeModelHash } = await import("./services/hashService");
+    const baselineHash = (await computeModelHash(envelope.model))!.value;
+    expect(await snapshotHash()).toBe(baselineHash);
+    fireEvent.click(screen.getByTestId("layout-mode-grid"));
+    fireEvent.change(screen.getByTestId("entity-grid-input-node:N-100-y"), { target: { value: "0.5" } });
+    fireEvent.click(screen.getByTestId("queue-entity-grid-intents"));
+    fireEvent.click(screen.getByTestId("apply-intent-editor-intent-1"));
+    await waitFor(() => expect(screen.getByTestId("session-history-chip")).toHaveTextContent("1 undo / 0 redo"));
+    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+    const editedHash = await snapshotHash();
+    expect(editedHash).not.toBe(baselineHash);
+    fireEvent.click(screen.getByTestId("undo-session-model-edit"));
+    expect(await snapshotHash()).toBe(baselineHash);
+    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("redo-session-model-edit"));
+    expect(await snapshotHash()).toBe(editedHash);
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
   });
 });

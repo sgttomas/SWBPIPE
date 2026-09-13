@@ -1,0 +1,34 @@
+{
+  "diff_check": {
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "native_changed_hunks": [
+    "@@ -3668,40 +3668,43 @@ fn packaged_saved_edited_load_intent() -> Value {",
+    "@@ -3711,28 +3714,25 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3740 +3740,15 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3742,6 +3756,26 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3749,2 +3783,94 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3753,6 +3879,3 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3760 +3883,72 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3764,25 +3958,5 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3790,3 +3963,0 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3794 +3965 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3797,4 +3968,3 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3802,6 +3972,17 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3810,58 +3991,12 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3868,0 +4004,29 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3993,2 +4157 @@ mod tests {",
+    "@@ -3996,3 +4159,8 @@ mod tests {",
+    "@@ -4000,12 +4168,2 @@ mod tests {"
+  ],
+  "native_section_verdict": "all touched base lines within packaged fixture/intents/selftest function or its existing single unit selftest; product applier/job/native wire logic untouched",
+  "native_current_sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+  "nested_project_AGENTS": "only projects/chirality-piping/AGENTS.md exists"
+}

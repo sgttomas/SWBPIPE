@@ -1,0 +1,54 @@
+{
+  "fixture": {
+    "length_m": 3.2,
+    "root_m": [
+      0,
+      2.4,
+      0
+    ],
+    "tip_m": [
+      3.2,
+      2.4,
+      0
+    ],
+    "OD_m": 0.168,
+    "wall_m": 0.007,
+    "E_Pa": 200000000000.0,
+    "G_Pa": 77000000000.0,
+    "force_direction": "global_y",
+    "loads_N": [
+      350,
+      500
+    ],
+    "root": "anchor 6 DOF",
+    "routing": "current XZ plane Y2.4; X axis"
+  },
+  "independent_equations": "Euler-Bernoulli: I=pi(D^4-d^4)/64; uy=F L^3/(3 E I); rz=F L^2/(2 E I); root Fy=-F, Mz=-F L",
+  "I_m4": 1.1493591335983794e-05,
+  "publication_absolute_tolerance_declared_units": 5.001e-07,
+  "expected": {
+    "350": {
+      "tip_uy_mm": 1.663071716046058,
+      "tip_rz_rad": 0.0007795648668965897,
+      "root_fy_N": -350,
+      "root_mz_Nm": -1120.0
+    },
+    "500": {
+      "tip_uy_mm": 2.375816737208654,
+      "tip_rz_rad": 0.0011136640955665567,
+      "root_fy_N": -500,
+      "root_mz_Nm": -1600.0
+    }
+  },
+  "hash_policy": "exact canonical RFC8785 model hashes at baseline350/edit500/undo350/redo500; equivalent synthetic-agent intent produces identical model payload to human edit; pending exact frozen JSON",
+  "failure_oracles": [
+    "native host start IPC rejection remains failure; no fixture solve",
+    "native direct solve IPC rejection remains failure; no fixture result",
+    "historical reopen has readable data and integrity findings but no current overlays/rules/comparison/report/readiness",
+    "unchanged open/save preserves original result/analysis-run/hash field bytes, including missing manifest",
+    "edit/undo/redo clear all computed historical/current context",
+    "sync busy blocks undo/redo menu/shortcut/panels without history/hash mutation",
+    "duplicate/stale/batch/cancel/late responses retain existing guards",
+    "blocked and nonconverged diagnostics distinct from solved mechanics"
+  ]
+}

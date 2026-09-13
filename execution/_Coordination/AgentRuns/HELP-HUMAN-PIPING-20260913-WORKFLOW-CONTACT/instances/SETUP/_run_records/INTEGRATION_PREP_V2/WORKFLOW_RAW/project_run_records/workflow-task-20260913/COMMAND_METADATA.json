@@ -1,0 +1,147 @@
+{
+  "records": [
+    {
+      "command": "npm ci",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "tool execution output; lane-local ignored node_modules; no symlink"
+    },
+    {
+      "command": "npm run build:wasm:desktop",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/wasm-build.log",
+      "parent_lease": true,
+      "log_sha256": "db09639c9623b5bcefda9d53cdaeb90597416764dd4c0fe0ab872f98c03c4645"
+    },
+    {
+      "command": "npm run test:desktop -- --run src/services/previewService.test.ts src/App.test.tsx -t 'native mechanics failure boundary|workflow current and historical result boundaries'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 130,
+      "log": "_run_records/workflow-task-20260913/pre-edit-gap.log",
+      "status": "superseded npm argument-forwarding setup error, interrupted; not defect evidence",
+      "log_sha256": "f40f5564a8f88bb28f6e78479fd228b687cfbee0888c6addf945e4d58e05a076"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/services/previewService.test.ts src/App.test.tsx -t 'native mechanics failure boundary|workflow current and historical result boundaries'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-task-20260913/pre-edit-focused-gap.log",
+      "status": "3 substantive baseline failures (2 IPC + historical),2 diagnostic query setup failures,1 pass179skips",
+      "log_sha256": "77e86f51089d7f6891c0c166a045afac44a8003f6a80b27070ed1bd4679df9d3"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri/target cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --lib packaged_binary_self_test_persists_restores_and_solves_edited_load -- --nocapture",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 101,
+      "log": "_run_records/workflow-task-20260913/native-selftest.log",
+      "status": "V1 fixture invalid provenance; independent manager diagnosis and approved provenance-only V2 re-freeze; numerical expectations unchanged",
+      "parent_lease": true,
+      "log_sha256": "4c213600deea4fc6a82b96a9b13ed93378ec0a863de9d7e4f2dc67582649e885"
+    },
+    {
+      "command": "CARGO_TARGET_DIR=/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri/target cargo test --locked --offline --manifest-path apps/desktop/src-tauri/Cargo.toml --lib packaged_binary_self_test_persists_restores_and_solves_edited_load -- --nocapture",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/native-selftest-v2.log",
+      "status": "PASS1,79filtered; frozen V2 Rust canonical model/intent crosschecks + actual apply + analytical/file-persistence/resolve assertions",
+      "parent_lease": true,
+      "log_sha256": "fd00ebc537af8f9a0f5a9598032f1ea68bda576a60e7d644cc0e9b8ba2a51c0e"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/services/previewService.test.ts src/features/results/HistoricalRunContext.test.tsx src/App.test.tsx -t 'native mechanics failure boundary|workflow current and historical result boundaries|transient HistoricalRunContext integrity|synchronous busy history boundary'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/focused-complete.log",
+      "status": "PASS12; older source-time check",
+      "log_sha256": "778bb46b72b2ab82c72be30f4c363428cd2f99ec43a437ca1647a73651a91f1b"
+    },
+    {
+      "command": "npm run test:desktop",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-task-20260913/desktop-unit-full.log",
+      "status": "835PASS2FAIL; superseded pre-final source/test timing with obsolete current historical/blocked overlay assertions",
+      "log_sha256": "6e210757496e53afcfd339d758a73373f3b4d8df7094d123569b527729a42ba8"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'historical lifecycle history transitions'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/lifecycle-history-final.log",
+      "status": "PASS1 real edit/undo/redo + native-save snapshot hashes",
+      "log_sha256": "45305f3e89fce80dfb68d02cc2f58cf0134fae7953f74baca6e48b4a1a1e4db1"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/App.test.tsx -t 'round trips review-only proposal operations'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/historical-proposal-regression.log",
+      "status": "PASS1",
+      "log_sha256": "89577a5607ab2dc89e9e6e24293e0d3dc59a961d3d0e7a737aaf8f123aec4c1d"
+    },
+    {
+      "command": "lsof -nP -iTCP:5174 -iTCP:5175 -sTCP:LISTEN",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "exit_code": 1,
+      "status": "both ports unoccupied before and after browser witness"
+    },
+    {
+      "command": "PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/linear-authoring.spec.ts",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/source-lifecycle-playwright.log",
+      "status": "PASS2 projects one worker; actual UI author/load/edit/history/save/reopen; browser physics intentionally blocked",
+      "parent_lease": true,
+      "log_sha256": "c4b1b1700d108bc701a5e7a3dc07e6a43768657526a16e86a12e7a169b1f56af"
+    },
+    {
+      "command": "npm run build:desktop",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/desktop-build-final.log",
+      "status": "final source tsc-b + vite PASS; no WASM/native rebuild; V1 before authorized two-file loader correction, preserved immutable snapshot",
+      "log_sha256": "693557b705dec254a55a4dfa66605e8600ac6431d3b031634750d9075eeb3101"
+    },
+    {
+      "command": "npm run test:desktop",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/desktop-unit-final.log",
+      "status": "PASS48 files / 838 tests; final frozen source and assertions; duration267.44s; V1 before authorized two-file loader correction, preserved immutable snapshot",
+      "log_sha256": "46620591022b62b23751d377b045fdacce5f11a61de78640776ce537549e86a8"
+    },
+    {
+      "command": "git diff --check",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/services/previewService.test.ts -t 'native loader fallback compatibility'",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 1,
+      "log": "_run_records/workflow-task-20260913/loader-compatibility-preedit.log",
+      "status": "frozen V2 tests expose two loader compatibility failures with V1 production helper",
+      "log_sha256": "90da0c8a00e6701cf728606c147506d396b01cbcd0c7e2b0829c99c0d4e5a54a"
+    },
+    {
+      "command": "npm test --workspace apps/desktop -- src/services/previewService.test.ts",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/loader-compatibility-final.log",
+      "status": "final V2 PASS21 service tests, including unchanged native loader fixture fallbacks and strict mechanics IPC",
+      "log_sha256": "8ce7e35b88a112eb83641b8cb35bfc80edc38695c8620792b3e5cf2d568a8070"
+    },
+    {
+      "command": "npm run build:desktop",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit_code": 0,
+      "log": "_run_records/workflow-task-20260913/desktop-build-v2.log",
+      "status": "final V2 tsc-b + vite PASS; no WASM/native rebuild",
+      "log_sha256": "4ff6ed926d042e77472975898b433588ffa7df1c917329f3467e565e3e0c5f59"
+    }
+  ],
+  "note": "V1 full unit/browser/native evidence preserved; V2 changes only loader compatibility and two regression tests. Affected service tests and desktop build pass after V2. No broad V2 rerun assigned; parent integration remains open. Actual absolute commands/cwd reside only _run_records.",
+  "candidate_version": 2
+}

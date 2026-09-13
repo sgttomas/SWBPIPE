@@ -1,0 +1,19 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.43s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_nonlinear_integration-01a54563299997ea)
+
+running 1 test
+
+thread 'tests::contact_recovery_caps_and_later_singularity_are_honest' (53669523) panicked at src/lib.rs:2025:71:
+called `Result::unwrap()` on an `Err` value: FrameKernel(SingularSystem { pivot: 1 })
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... FAILED
+
+failures:
+
+failures:
+    tests::contact_recovery_caps_and_later_singularity_are_honest
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 40 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

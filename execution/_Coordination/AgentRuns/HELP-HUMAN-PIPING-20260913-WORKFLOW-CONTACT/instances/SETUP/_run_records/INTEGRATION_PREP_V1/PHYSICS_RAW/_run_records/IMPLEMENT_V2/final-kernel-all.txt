@@ -1,0 +1,58 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_nonlinear_integration-01a54563299997ea)
+
+running 44 tests
+test component_identity_tests::component_identity_accessors_are_crate_constant_derived ... ok
+test tests::base_fixture_dofs_match_six_dof_order ... ok
+test tests::audit_literal_zero_iteration_cap_returns_error ... ok
+test tests::audit_duplicate_support_ids_return_error ... ok
+test computed_finite_audit_tests::finite_solution_with_overflowing_reaction_or_work_is_rejected ... ok
+test tests::direct_reduced_profile_entries_follow_free_dof_map ... ok
+test tests::dense_scrutiny_mode_keeps_sparse_parity_evidence ... ok
+test tests::exact_derived_normal_branch_domains_include_closed_zero_and_irrelevant_rows ... ok
+test tests::curved_bend_slot_matches_linear_arc_path_when_support_stays_released ... ok
+test tests::duplicate_explicit_and_derived_friction_normal_source_is_invalid ... ok
+test tests::friction_support_derives_normal_from_named_support_reaction ... ok
+test tests::friction_support_slides_then_converges_through_released_frame_loop ... ok
+test tests::gap_support_prescribes_clearance_then_converges ... ok
+test tests::contact_recovery_warning_preserves_original_singular_seed_provenance ... ok
+test tests::mixed_row_tangential_invalidity_is_aggregated_and_blocks_convergence ... ok
+test tests::initial_state_is_required_for_every_nonlinear_support ... ok
+test tests::iteration_cap_returns_nonconvergence_failure_diagnostic ... ok
+test tests::contact_recovery_invalid_classes_do_not_rescue_and_springs_survive ... ok
+test tests::one_way_support_deactivates_then_converges_through_frame_loop ... ok
+test tests::one_way_support_remains_active_when_reaction_matches_sense ... ok
+test tests::sliding_branch_resolution_uses_current_force_and_motion_evidence ... ok
+test tests::contact_recovery_later_changed_boundary_rejects_classifier_tolerance_one ... ok
+test tests::sliding_seed_at_single_iteration_cap_emits_nonconvergence_diagnostic ... ok
+test tests::both_nonzero_assumed_branches_accept_exact_zero_current_normal ... ok
+test tests::sticking_friction_converged_at_single_iteration_cap_has_no_false_positive ... ok
+test tests::sliding_friction_support_applies_bounded_force_independent_of_seed ... ok
+test tests::current_normal_affine_fixture_matches_both_signed_oracles_seeds_and_modes ... ok
+test tests::derived_normal_sign_flips_retry_before_convergence_and_fail_honestly_at_cap ... ok
+test tests::mixed_sub_and_super_limit_rows_update_together_independent_of_order ... ok
+test tests::noncompressive_explicit_normal_is_inactive_and_force_free ... ok
+test tests::tbd_policy_emits_visible_tolerance_policy_diagnostic_without_defaults ... ok
+test tests::scalar_friction_final_state_is_seed_mode_and_load_sign_independent ... ok
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... ok
+test tests::scalar_super_limit_slide_retains_two_iteration_result ... ok
+test tests::zero_coefficient_derived_normal_row_applies_no_force ... ok
+test tests::sub_limit_sliding_seed_resticks_on_iteration_two_and_cap_is_honest ... ok
+test tests::zero_limit_is_released_without_an_applied_force_record ... ok
+test tests::audit_gap_equilibrium_both_signs_seeds_and_modes ... ok
+test tests::contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions ... ok
+test tests::active_signed_zero_branch_rejects_cross_coupled_nonzero_current_normal ... ok
+test tests::two_coupled_derived_normal_rows_are_order_independent ... ok
+test tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes ... ok
+test tests::audit_coupled_exact_contacts_converge_from_all_seeds ... ok
+test tests::scalar_friction_exact_boundary_has_no_hidden_tolerance ... ok
+
+test result: ok. 44 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_nonlinear_integration
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

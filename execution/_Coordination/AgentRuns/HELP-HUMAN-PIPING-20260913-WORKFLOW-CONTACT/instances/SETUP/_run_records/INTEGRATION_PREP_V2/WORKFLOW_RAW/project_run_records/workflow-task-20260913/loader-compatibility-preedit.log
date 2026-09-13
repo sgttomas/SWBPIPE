@@ -1,0 +1,56 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/services/previewService.test.ts -t native loader fallback compatibility
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/services/previewService.test.ts (21 tests | 2 failed | 19 skipped) 11ms
+     × retains the model fixture after native model loader rejection 8ms
+     × retains the knowledge fixture after native knowledge loader rejection 2ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/services/previewService.test.ts > native loader fallback compatibility > retains the model fixture after native model loader rejection
+AssertionError: promise rejected "Error: invented native model loader failu…" instead of resolving
+ ❯ src/services/previewService.test.ts:429:36
+    427|     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__…
+    428|     invokeMock.mockRejectedValue(new Error("invented native model load…
+    429|     await expect(loadPreviewModel()).resolves.toEqual(fixture);
+       |                                    ^
+    430|     expect(invokeMock).toHaveBeenCalledExactlyOnceWith("load_preview_m…
+    431|   });
+
+Caused by: Error: invented native model loader failure
+ ❯ src/services/previewService.test.ts:428:34
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/services/previewService.test.ts > native loader fallback compatibility > retains the knowledge fixture after native knowledge loader rejection
+AssertionError: promise rejected "Error: invented native knowledge loader f…" instead of resolving
+ ❯ src/services/previewService.test.ts:437:39
+    435|     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__…
+    436|     invokeMock.mockRejectedValue(new Error("invented native knowledge …
+    437|     await expect(loadDesignKnowledge()).resolves.toEqual(fixture);
+       |                                       ^
+    438|     expect(invokeMock).toHaveBeenCalledExactlyOnceWith("load_design_kn…
+    439|   });
+
+Caused by: Error: invented native knowledge loader failure
+ ❯ src/services/previewService.test.ts:436:34
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 19 skipped (21)
+   Start at  14:35:06
+   Duration  538ms (transform 73ms, setup 88ms, import 43ms, tests 11ms, environment 303ms)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/services/previewService.test.ts -t 'native loader fallback compatibility'

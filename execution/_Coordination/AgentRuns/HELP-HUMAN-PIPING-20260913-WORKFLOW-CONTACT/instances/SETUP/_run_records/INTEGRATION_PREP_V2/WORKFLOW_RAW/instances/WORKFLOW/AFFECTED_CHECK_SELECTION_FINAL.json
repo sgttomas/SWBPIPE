@@ -1,0 +1,73 @@
+{
+  "command": [
+    "python3",
+    "tools/software_workflow/select_affected_checks.py",
+    "projects/chirality-piping/software-workflow.json",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/services/previewService.ts",
+    "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+    "apps/desktop/src/services/previewService.test.ts",
+    "apps/desktop/src/App.test.tsx",
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/e2e/linear-authoring.spec.ts",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+    "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md"
+  ],
+  "exit_code": 0,
+  "report": {
+    "checks": [
+      "desktop-build",
+      "desktop-test",
+      "harness-pytest",
+      "harness-self-check"
+    ],
+    "paths": [
+      "apps/desktop/src/App.tsx",
+      "apps/desktop/src/services/previewService.ts",
+      "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "apps/desktop/src/services/previewService.test.ts",
+      "apps/desktop/src/App.test.tsx",
+      "apps/desktop/src-tauri/src/lib.rs",
+      "apps/desktop/e2e/linear-authoring.spec.ts",
+      "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+      "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md"
+    ],
+    "reasons": {
+      "desktop-build": [
+        "apps/desktop/e2e/linear-authoring.spec.ts",
+        "apps/desktop/src-tauri/src/lib.rs",
+        "apps/desktop/src/App.test.tsx",
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+        "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+        "apps/desktop/src/services/previewService.test.ts",
+        "apps/desktop/src/services/previewService.ts"
+      ],
+      "desktop-test": [
+        "apps/desktop/e2e/linear-authoring.spec.ts",
+        "apps/desktop/src-tauri/src/lib.rs",
+        "apps/desktop/src/App.test.tsx",
+        "apps/desktop/src/App.tsx",
+        "apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+        "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+        "apps/desktop/src/services/previewService.test.ts",
+        "apps/desktop/src/services/previewService.ts"
+      ],
+      "harness-pytest": [
+        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+        "execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md"
+      ]
+    },
+    "schema": "chirality-affected-checks/v1"
+  },
+  "stderr": "",
+  "execution_scope": "selection only; complete global/integration gates parent-owned"
+}

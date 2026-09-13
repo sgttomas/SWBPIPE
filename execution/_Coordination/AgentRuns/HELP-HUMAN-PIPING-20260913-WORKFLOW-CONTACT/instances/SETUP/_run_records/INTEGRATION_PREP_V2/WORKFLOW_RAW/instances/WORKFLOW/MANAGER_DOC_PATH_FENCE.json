@@ -1,0 +1,22 @@
+{
+  "writer": "WORKING_ITEMS manager",
+  "scope": "narrow authorized MEMORY/Remaining state; lifecycle headers unchanged",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+      "pre_sha256": "d506c29e733fecf3994f616a2c1ab6e9deab77d67301d69e140e7bc697b0c854"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "pre_sha256": "755e944ec0fa816ab999134276da23bd7ab695eb39610f7a7c5843db3b2537e5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "pre_sha256": "307acc7b16b8cb1b2e7b5de2a4768fc44b4287a9bd578f24a45bf67115008bc1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "pre_sha256": "b5e7bca7e32b349f45380f549cb30f3cce3b439401cb0de277e010dd44a7b50d"
+    }
+  ]
+}

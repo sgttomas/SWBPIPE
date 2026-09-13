@@ -1,10 +1,19 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
+afterEach(() => {
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
 import type { MechanicsResult, PreviewModel } from "../types";
 import {
   appliedRuleCheckStatus,
   buildAnalysisRunPreview,
+  loadDesignKnowledge,
   loadPreviewModel,
   runPreviewMechanics,
+  startPreviewMechanicsJob,
 } from "./previewService";
 import {
   buildCurrentSessionInputManifest,
@@ -408,5 +417,47 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
         inputManifest: await manifestFor(result),
       }),
     ).rejects.toThrow("ANALYSIS-RUN-RESULT-DIMENSION-MISMATCH");
+  });
+});
+
+
+describe("native loader fallback compatibility", () => {
+  it("retains the model fixture after native model loader rejection", async () => {
+    const fixture = await loadPreviewModel();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue(new Error("invented native model loader failure"));
+    await expect(loadPreviewModel()).resolves.toEqual(fixture);
+    expect(invokeMock).toHaveBeenCalledExactlyOnceWith("load_preview_model", undefined);
+  });
+
+  it("retains the knowledge fixture after native knowledge loader rejection", async () => {
+    const fixture = await loadDesignKnowledge();
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    invokeMock.mockRejectedValue(new Error("invented native knowledge loader failure"));
+    await expect(loadDesignKnowledge()).resolves.toEqual(fixture);
+    expect(invokeMock).toHaveBeenCalledExactlyOnceWith("load_design_knowledge", undefined);
+  });
+});
+
+describe("native mechanics failure boundary", () => {
+  it("propagates direct native solve rejection without a bundled result", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const failure = new Error("invented native IPC solve failure");
+    invokeMock.mockRejectedValue(failure);
+    await expect(runPreviewMechanics()).rejects.toBe(failure);
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("propagates native job-start rejection without browser designation", async () => {
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const failure = new Error("invented native IPC start failure");
+    invokeMock.mockRejectedValue(failure);
+    await expect(startPreviewMechanicsJob()).rejects.toBe(failure);
+    expect(invokeMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses browser job designation only when the host is absent", async () => {
+    await expect(startPreviewMechanicsJob()).resolves.toEqual({ mode: "browser_fixture_no_backend_job" });
+    expect(invokeMock).not.toHaveBeenCalled();
   });
 });

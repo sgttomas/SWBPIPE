@@ -42,11 +42,13 @@ export async function runPreviewMechanics(
   model?: PreviewModel | null,
   solverMode: PreviewSolverMode = "sparse_interactive",
 ): Promise<MechanicsResult> {
-  const result = await invokeOrFixture(
-    "run_preview_mechanics_with_solver_mode",
-    () => runBrowserPreviewMechanics(model),
-    model ? { model, solverMode } : { solverMode },
-  );
+  const result =
+    typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)
+      ? await runBrowserPreviewMechanics(model)
+      : await invoke<MechanicsResult>(
+          "run_preview_mechanics_with_solver_mode",
+          model ? { model, solverMode } : { solverMode },
+        );
   return bindSourceResultDimensions(result);
 }
 
@@ -88,14 +90,10 @@ export async function startPreviewMechanicsJob(
   if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
     return { mode: "browser_fixture_no_backend_job" };
   }
-  try {
-    const receipt = await invoke<
+  const receipt = await invoke<
       Omit<Extract<SolveJobStartReceipt, { mode: "backend_job" }>, "mode">
     >("start_preview_mechanics_job_with_solver_mode", model ? { model, solverMode } : { solverMode });
-    return { mode: "backend_job", ...receipt };
-  } catch {
-    return { mode: "browser_fixture_no_backend_job" };
-  }
+  return { mode: "backend_job", ...receipt };
 }
 
 export async function pollPreviewMechanicsJob(

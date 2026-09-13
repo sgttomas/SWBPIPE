@@ -1,0 +1,30 @@
+{
+  "basis": "Independent hollow circular section Euler-Bernoulli calculation, frozen before build/GUI",
+  "I_m4": 1.1493591335983794e-05,
+  "formulae": {
+    "I": "pi*(OD^4-(OD-2*t)^4)/64",
+    "tip_Uy_m": "F*L^3/(3*E*I)",
+    "tip_Rz_rad": "F*L^2/(2*E*I)",
+    "root_Ry_N": "-F",
+    "root_Mz_Nm": "-F*L"
+  },
+  "350N": {
+    "tip_Uy_mm": 1.663071716046058,
+    "tip_Rz_rad": 0.0007795648668965897,
+    "root_Ry_N": -350,
+    "root_Mz_Nm": -1120
+  },
+  "500N": {
+    "tip_Uy_mm": 2.375816737208654,
+    "tip_Rz_rad": 0.0011136640955665567,
+    "root_Ry_N": -500,
+    "root_Mz_Nm": -1600
+  },
+  "allowance_declared_units": 5.001e-07,
+  "hash_allowance": "exact equality",
+  "embedded_V2_hashes": {
+    "baseline": "f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c",
+    "edited": "6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb"
+  },
+  "GUI_hashes": "freeze observed authored350 and edited500 canonical model hashes before history; do not compare metadata-distinct GUI model with embedded fixture"
+}

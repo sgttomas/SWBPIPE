@@ -1,0 +1,12 @@
+{
+  "timestamp": "2026-09-13T20:08:24.775199+00:00",
+  "model": "parent configured gpt-5.6-sol/medium; runtime not independently proven",
+  "parent": "/root",
+  "source": "/Users/ryan/.codex/worktrees/8728/chirality-cross-project-assessment-20260913",
+  "lanes": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+    "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913"
+  ],
+  "basis": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0"
+}

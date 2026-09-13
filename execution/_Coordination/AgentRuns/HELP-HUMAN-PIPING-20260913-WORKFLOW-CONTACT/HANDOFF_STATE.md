@@ -1,0 +1,3 @@
+# Initial handoff state
+
+Accepted upstream code basis origin/main@b2c133d7aef38034d10fed2b9b7ef64f517f2ba0; approved DAG010 and committed-selected WORKPLAN_2026-07-18b. Latest applicable Receipt138; R5 target stage. This scaffold is a derivative execution package, not decomposition truth. Setup complete; source implementation, fresh integrated review, complete sweep/native witnesses and Git closeout pending. No tranche or project closure claimed. Prior handoffs, assessments, accepted repairs and all older lanes preserved. Parent records exact in-session user direction in APPROVED_PLAN/OWNER_DIRECTION before launch. Required downstream evidence remains pending.

@@ -3665,207 +3665,371 @@ fn build_app_menu<R: tauri::Runtime>(
 }
 
 fn packaged_saved_edited_load_intent() -> Value {
-    json!({
-        "operation_id": "op:packaged-smoke-load-L-100-Y-magnitude",
-        "operation_kind": "modify",
-        "operation_status": "proposed",
-        "author_type": "user",
-        "target": { "object_type": "Load", "ref": "load:L-100" },
-        "change": {
-            "change_id": "change:packaged-smoke-load-L-100-Y-magnitude",
-            "change_kind": "update_load",
-            "field_label": "load:L-100-Y magnitude",
-            "field_path": "primitive_loads.1.magnitude.value",
-            "before": "350",
-            "after": "425",
-            "unit": "N",
-            "dimension": "force",
-            "source_note": "invented packaged-binary saved edited-load self-test"
-        },
-        "validation": {
-            "schema_validation": "not_run",
-            "constraint_validation": "not_run",
-            "unit_validation": "not_run",
-            "diff_preview_status": "not_generated",
-            "application_status": "not_applied"
-        },
-        "audit_boundary": {
-            "mutation_route": "structured_operations_only",
-            "direct_model_mutation_allowed": false,
-            "requires_user_acceptance": true,
-            "mutates_accepted_model_state": false
-        },
-        "professional_boundary": {
-            "human_review_required": true,
-            "software_makes_compliance_claim": false,
-            "software_makes_certification_claim": false,
-            "software_makes_sealing_claim": false,
-            "software_makes_approval_claim": false,
-            "software_makes_authentication_claim": false
-        },
-        "rationale": "prove packaged-binary edit, file-backed persistence, restore, and solve"
-    })
+    serde_json::from_str(r#"{
+  "operation_id": "op:workflow-human-load",
+  "operation_kind": "modify",
+  "operation_status": "proposed",
+  "author_type": "user",
+  "target": {
+    "object_type": "Load",
+    "ref": "load:WF"
+  },
+  "change": {
+    "change_id": "change:workflow-human-load",
+    "change_kind": "update_load",
+    "field_label": "Tip force",
+    "field_path": "primitive_loads.0.magnitude.value",
+    "before": "350",
+    "after": "500",
+    "unit": "N",
+    "dimension": "force",
+    "source_note": "invented_synthetic_workflow_input"
+  },
+  "validation": {
+    "schema_validation": "not_run",
+    "constraint_validation": "not_run",
+    "unit_validation": "not_run",
+    "diff_preview_status": "not_generated",
+    "application_status": "not_applied"
+  },
+  "audit_boundary": {
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "rationale": "Synthetic native workflow lifecycle witness"
+}"#).expect("frozen invented human intent parses")
 }
 
 fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, String> {
-    // The fixture is embedded so the packaged executable does not depend on
-    // the repository or its current working directory.
-    let mut model: Value = serde_json::from_str(include_str!(
-        "../../../../fixtures/product_preview/invented_preview_model.json"
-    ))
-    .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
-    let baseline = solve_preview_mechanics(model.clone())?;
-    // The edited force acts directly at the active UY stop: displacement is
-    // constrained, so its signed reaction (not displacement) must absorb the edit.
-    let stop_reaction = |result: &Value| -> Option<f64> {
-        result["results"].as_array()?.iter().find(|row| {
-            row["id"] == json!("result:nonlinear-support:support-NL-140:uy-reaction")
-                && row["kind"] == json!("nonlinear_support_final_reaction")
-                && row["entity_ref"] == json!("support:NL-140")
-                && row["basis_ref"]["ref_id"] == json!("load:L-100")
-                && row["unit"] == json!("N")
-        })?["value"]
-            .as_f64()
-            .filter(|value| value.is_finite())
-    };
-    let baseline_reaction = stop_reaction(&baseline)
-        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-RESULT-MISSING".to_string())?;
-    let baseline_load = model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"]
-        .as_f64()
-        .filter(|value| value.is_finite())
-        .ok_or_else(|| "PACKAGED-SMOKE-BASELINE-LOAD-MISSING".to_string())?;
-    if baseline_load != 350.0
-        || model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"] != json!("N")
+    // Embedded frozen synthetic model: the executable never reads repository
+    // fixtures. Current document version prevents an incidental migration.
+    let model: Value = serde_json::from_str(r#"{
+  "schema_version": "0.2.0",
+  "document_kind": "openpipestress.product_preview.model",
+  "data_boundary": {
+    "public_examples_policy": "invented_or_cleared_data_only",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review"
+  },
+  "project": {
+    "id": "project:workflow-cantilever",
+    "name": "Invented workflow cantilever",
+    "description": "Synthetic Euler-Bernoulli lifecycle witness; not an engineering acceptance.",
+    "units": {
+      "length": "m",
+      "force": "N",
+      "angle": "rad",
+      "pressure": "Pa",
+      "temperature": "degC",
+      "stress": "MPa"
+    }
+  },
+  "materials": [
     {
-        return Err("PACKAGED-SMOKE-BASELINE-LOAD-MISMATCH".to_string());
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "elastic_modulus": {
+        "value": 200000000000,
+        "unit": "Pa"
+      },
+      "shear_modulus": {
+        "value": 77000000000,
+        "unit": "Pa"
+      },
+      "thermal_expansion_coefficient": {
+        "value": 1.2e-05,
+        "unit": "1/degC"
+      },
+      "provenance": "invented_example_no_material_standard"
     }
-
-    model["project"]["id"] = json!("project:packaged-edited-load-smoke");
-    model["project"]["name"] = json!("Packaged Edited Load Smoke");
-    let applied = apply_model_operation(model, packaged_saved_edited_load_intent(), None)?;
-    if applied["validation"]["application_status"] != json!("applied_to_session_model") {
-        return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".to_string());
+  ],
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "rule_check": "not_performed_user_rule_inputs_missing",
+    "professional_acceptance": "not_provided"
+  },
+  "nodes": [
+    {
+      "id": "node:WF-ROOT",
+      "label": "Root",
+      "position": {
+        "x": 0,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "invented_synthetic_workflow_input"
+    },
+    {
+      "id": "node:WF-TIP",
+      "label": "Tip",
+      "position": {
+        "x": 3.2,
+        "y": 2.4,
+        "z": 0
+      },
+      "provenance": "invented_synthetic_workflow_input"
     }
-    if applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
-        return Err("PACKAGED-SMOKE-PROFESSIONAL-BOUNDARY-FAILED".to_string());
+  ],
+  "pipe_segments": [
+    {
+      "id": "pipe:WF",
+      "label": "Cantilever",
+      "from": "node:WF-ROOT",
+      "to": "node:WF-TIP",
+      "section": {
+        "outside_diameter": {
+          "value": 0.168,
+          "unit": "m"
+        },
+        "wall_thickness": {
+          "value": 0.007,
+          "unit": "m"
+        }
+      },
+      "material": "material:invented-carbon-steel",
+      "y_reference": {
+        "x": 0,
+        "y": 0,
+        "z": 1
+      },
+      "provenance": "invented_synthetic_workflow_input"
+    }
+  ],
+  "supports": [
+    {
+      "id": "support:WF-ROOT",
+      "label": "Root anchor",
+      "node": "node:WF-ROOT",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_synthetic_workflow_input"
+    }
+  ],
+  "components": [],
+  "load_cases": [
+    {
+      "id": "load:WF",
+      "label": "Synthetic tip force",
+      "kind": "primitive_user_load",
+      "status": "preview_only",
+      "primitive_loads": [
+        {
+          "id": "load:WF-FY",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:WF-TIP"
+          },
+          "direction": "global_y",
+          "magnitude": {
+            "value": 350,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_synthetic_workflow_input"
+        }
+      ],
+      "provenance": "invented_synthetic_workflow_input"
+    }
+  ],
+  "combinations": [],
+  "diagnostics": []
+}"#)
+        .map_err(|error| format!("PACKAGED-SMOKE-FIXTURE-INVALID: {error}"))?;
+    let hash = |payload: &Value| format!("sha256:{}", open_pipe_stress_operation_applier::sha256_hex(
+        &open_pipe_stress_operation_applier::canonical_json(payload)));
+    let baseline_hash = hash(&model);
+    if baseline_hash != "sha256:f9721ded0aeee2e5d97c3d76d732ae62fbaa9e6320b840b5c673410c9d77c92c" {
+        return Err("PACKAGED-SMOKE-FROZEN-BASELINE-HASH-MISMATCH".into());
+    }
+    let baseline = solve_preview_mechanics(model.clone())?;
+    let human_intent = packaged_saved_edited_load_intent();
+    let human_intent_hash = hash(&human_intent);
+    if human_intent_hash != "sha256:a4d7c3d16898d85ba83596dc8e85347aa966146fde78b79b9097cdb14a0c8401" {
+        return Err("PACKAGED-SMOKE-FROZEN-HUMAN-INTENT-HASH-MISMATCH".into());
+    }
+    let human_review = validate_model_operation(model.clone(), human_intent.clone(), None)?;
+    if human_review["validation"]["schema_validation"] != json!("passed") {
+        return Err("PACKAGED-SMOKE-HUMAN-REVIEW-FAILED".into());
+    }
+    let applied = apply_model_operation(model.clone(), human_intent, None)?;
+    if applied["validation"]["application_status"] != json!("applied_to_session_model")
+        || applied["acceptance"]["acceptance_is_professional_approval"] != json!(false) {
+        return Err("PACKAGED-SMOKE-OPERATION-NOT-APPLIED".into());
     }
     let edited_model = applied["applied_model"].clone();
-    let edited_value =
-        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
-    let edited_unit =
-        edited_model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
-    if edited_value != Some(425.0) || edited_unit != Some("N") {
-        return Err("PACKAGED-SMOKE-EDITED-LOAD-MISMATCH".to_string());
+    let edited_hash = hash(&edited_model);
+    if edited_hash != "sha256:6729455ab1e526f0107a1a3d57d2dff257634ee1cbf41b99ee783526a1eaacdb" {
+        return Err(format!("PACKAGED-SMOKE-FROZEN-EDIT-HASH-MISMATCH: {edited_hash}"));
     }
-
+    let agent_intent: Value = serde_json::from_str(r#"{
+  "operation_id": "op:workflow-agent-load",
+  "operation_kind": "modify",
+  "operation_status": "proposed",
+  "author_type": "agent",
+  "target": {
+    "object_type": "Load",
+    "ref": "load:WF"
+  },
+  "change": {
+    "change_id": "change:workflow-agent-load",
+    "change_kind": "update_load",
+    "field_label": "Tip force",
+    "field_path": "primitive_loads.0.magnitude.value",
+    "before": "350",
+    "after": "500",
+    "unit": "N",
+    "dimension": "force",
+    "source_note": "invented_synthetic_workflow_input"
+  },
+  "validation": {
+    "schema_validation": "not_run",
+    "constraint_validation": "not_run",
+    "unit_validation": "not_run",
+    "diff_preview_status": "not_generated",
+    "application_status": "not_applied"
+  },
+  "audit_boundary": {
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "rationale": "Synthetic native workflow lifecycle witness"
+}"#).expect("frozen invented agent intent parses");
+    let agent_intent_hash = hash(&agent_intent);
+    if agent_intent_hash != "sha256:89e98532e3854148803b53dec91c43db0e628305b86d379bec743612557c0336" {
+        return Err("PACKAGED-SMOKE-FROZEN-AGENT-INTENT-HASH-MISMATCH".into());
+    }
+    let agent_review = validate_model_operation(model.clone(), agent_intent.clone(), None)?;
+    let agent_applied = apply_model_operation(model.clone(), agent_intent, None)?;
+    if agent_review["validation"]["schema_validation"] != json!("passed")
+        || hash(&agent_applied["applied_model"]) != edited_hash {
+        return Err("PACKAGED-SMOKE-AGENT-HUMAN-EQUIVALENCE-FAILED".into());
+    }
+    // Native evidence checks exact checkpoint payloads; the UI's history
+    // handlers and synchronous busy gate are covered separately in desktop tests.
+    let undo_model = model.clone();
+    let redo_model = edited_model.clone();
+    if hash(&undo_model) != baseline_hash || hash(&redo_model) != edited_hash {
+        return Err("PACKAGED-SMOKE-CHECKPOINT-HASH-MISMATCH".into());
+    }
+    let attachments = json!({
+        "pipe_from": edited_model["pipe_segments"][0]["from"],
+        "pipe_to": edited_model["pipe_segments"][0]["to"],
+        "material": edited_model["pipe_segments"][0]["material"],
+        "support_node": edited_model["supports"][0]["node"],
+        "load_node": edited_model["load_cases"][0]["primitive_loads"][0]["target"]["node"]
+    });
+    if attachments != json!({"pipe_from":"node:WF-ROOT","pipe_to":"node:WF-TIP","material":"material:invented-carbon-steel","support_node":"node:WF-ROOT","load_node":"node:WF-TIP"}) {
+        return Err("PACKAGED-SMOKE-ATTACHMENTS-CHANGED".into());
+    }
+    let edited_result = solve_preview_mechanics(edited_model.clone())?;
+    let model_hash = json!({"algorithm":"sha256","canonicalization":"rfc8785_jcs","payload_scope":"model_payload","payload_ref":"project:workflow-cantilever","value":edited_hash,"hash_status":"computed_local_preview"});
     let store_migration = {
         let (mut connection, migration) = open_project_store(store_path)?;
         let (model_to_persist, document_status, ledger) = prepare_model_document_for_persist(
-            &connection,
-            "project:packaged-edited-load-smoke",
-            edited_model,
-            &Value::Null,
-            &json!({"value": "sha256:packaged-edited-load-smoke"}),
-        )?;
-        upsert_project(
-            &mut connection,
-            "project:packaged-edited-load-smoke",
-            "Packaged Edited Load Smoke",
-            &model_to_persist,
-            &json!([]),
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &Value::Null,
-            &json!({"value": "sha256:packaged-edited-load-smoke"}),
-            &Value::Null,
-            &ledger,
-        )?;
-        json!({
-            "store_schema_version": migration.store_schema_version,
-            "document_status": document_status.status,
-            "persistence_state": document_status.persistence_state
-        })
+            &connection, "project:workflow-cantilever", edited_model.clone(), &Value::Null, &model_hash)?;
+        upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
+            &model_to_persist, &json!([]), &Value::Null, &Value::Null, &edited_result,
+            &Value::Null, &model_hash, &Value::Null, &ledger)?;
+        json!({"store_schema_version":migration.store_schema_version,"document_status":document_status.status,"persistence_state":document_status.persistence_state})
     };
-
-    // A second connection models application restart and catches any evidence
-    // that existed only in writer-connection state.
     let (connection, reopen_migration) = open_project_store(store_path)?;
-    let restored = load_project(&connection, Some("project:packaged-edited-load-smoke"))?
+    let restored = load_project(&connection, Some("project:workflow-cantilever"))?
         .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-PROJECT-MISSING".to_string())?;
     drop(connection);
-    if restored.project_id != "project:packaged-edited-load-smoke"
-        || restored.model["project"]["id"] != json!("project:packaged-edited-load-smoke")
-    {
-        return Err("PACKAGED-SMOKE-RESTORED-PROJECT-IDENTITY-MISMATCH".to_string());
+    if hash(&restored.model) != edited_hash || restored.mechanics_result != edited_result
+        || restored.model_hash != model_hash || !restored.analysis_run.is_null() {
+        return Err("PACKAGED-SMOKE-RESTORED-EVIDENCE-MISMATCH".into());
     }
-    let restored_value =
-        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["value"].as_f64();
-    let restored_unit =
-        restored.model["load_cases"][0]["primitive_loads"][1]["magnitude"]["unit"].as_str();
-    if restored_value != Some(425.0) || restored_unit != Some("N") {
-        return Err("PACKAGED-SMOKE-RESTORED-LOAD-MISMATCH".to_string());
+    // Pure unchanged save preserves the existing fields, including deliberately
+    // absent analysis/input-manifest/envelope evidence. No native run builder
+    // exists here, so it would be false to invent that binding.
+    {
+        let (mut connection, _) = open_project_store(store_path)?;
+        upsert_project(&mut connection, "project:workflow-cantilever", "Invented workflow cantilever",
+            &restored.model, &restored.editor_intents, &restored.proposal, &restored.selected_review_target,
+            &restored.mechanics_result, &restored.analysis_run, &restored.model_hash,
+            &restored.project_envelope_hash, &restored.model_migration_ledger)?;
+    }
+    let (connection, _) = open_project_store(store_path)?;
+    let resaved = load_project(&connection, Some("project:workflow-cantilever"))?
+        .ok_or_else(|| "PACKAGED-SMOKE-RESAVED-PROJECT-MISSING".to_string())?;
+    drop(connection);
+    if resaved.mechanics_result != edited_result || resaved.model_hash != model_hash
+        || !resaved.analysis_run.is_null() || !resaved.project_envelope_hash.is_null() {
+        return Err("PACKAGED-SMOKE-UNCHANGED-SAVE-EVIDENCE-MISMATCH".into());
     }
     let solved = solve_preview_mechanics(restored.model)?;
-    let result_rows = solved["results"].as_array().map_or(0, Vec::len);
-    let restored_reaction = stop_reaction(&solved)
-        .ok_or_else(|| "PACKAGED-SMOKE-RESTORED-RESULT-MISSING".to_string())?;
-    if solved["status"]["mechanics"] != json!("MECHANICS_SOLVED")
-        || solved["model_ref"] != json!("project:packaged-edited-load-smoke")
-        || result_rows == 0
-    {
-        return Err("PACKAGED-SMOKE-RESTORED-SOLVE-FAILED".to_string());
-    }
-    let reaction_delta = restored_reaction - baseline_reaction;
-    let expected_reaction_delta = -(restored_value.unwrap() - baseline_load);
-    // Each published force is rounded to six decimals. Subtraction can carry
-    // up to one last-place unit of rounding error; this is not a physics tolerance.
-    if (reaction_delta - expected_reaction_delta).abs() > 1.0e-6 {
-        return Err("PACKAGED-SMOKE-EDIT-DID-NOT-AFFECT-RESULT".to_string());
-    }
-
-    Ok(json!({
-        "status": "PASS",
-        "route": "packaged_binary_saved_edited_load_self_test",
-        "fixture_class": "invented_public",
-        "project_id": "project:packaged-edited-load-smoke",
-        "operation": {
-            "target": "load:L-100/load:L-100-Y",
-            "before": 350,
-            "after": 425,
-            "unit": "N",
-            "application_status": "applied_to_session_model",
-            "professional_approval": false
-        },
-        "persistence": {
-            "storage": "isolated_file_backed_sqlite",
-            "writer_connection_closed_before_restore": true,
-            "restored_value": 425,
-            "restored_unit": "N",
-            "store_migration": store_migration,
-            "reopen_store_schema_version": reopen_migration.store_schema_version
-        },
-        "solve": {
-            "mechanics": solved["status"]["mechanics"],
-            "model_ref": solved["model_ref"],
-            "result_rows": result_rows,
-            "edited_result_differs_from_baseline": true,
-            "edit_witness": {
-                "result_id": "result:nonlinear-support:support-NL-140:uy-reaction",
-                "unit": "N",
-                "baseline": baseline_reaction,
-                "restored": restored_reaction,
-                "delta": reaction_delta,
-                "expected_delta": expected_reaction_delta
-            }
-        },
-        "boundary": {
-            "network": false,
-            "telemetry": false,
-            "private_data": false,
-            "protected_content": false,
-            "repository_write": false
+    let value = |result: &Value, id: &str, unit: &str| -> Result<f64, String> {
+        result["results"].as_array().and_then(|rows| rows.iter().find(|row| row["id"] == json!(id) && row["unit"] == json!(unit)))
+            .and_then(|row| row["value"].as_f64()).filter(|number| number.is_finite())
+            .ok_or_else(|| format!("PACKAGED-SMOKE-RESULT-MISSING: {id} {unit}"))
+    };
+    let tolerance = 0.5e-6 + 1.0e-10;
+    let mut witnesses = Vec::new();
+    for (result, force, uy, rz) in [(&baseline, 350.0, 1.663071716046058, 0.0007795648668965897),
+        (&edited_result, 500.0, 2.375816737208654, 0.0011136640955665567),
+        (&solved, 500.0, 2.375816737208654, 0.0011136640955665567)] {
+        if result["status"]["mechanics"] != json!("MECHANICS_SOLVED") || result["model_ref"] != json!("project:workflow-cantilever") {
+            return Err(format!("PACKAGED-SMOKE-SOLVE-FAILED: force={force}; status={}; model_ref={}; diagnostics={}", result["status"], result["model_ref"], result["diagnostics"]));
         }
+        let quantities = [
+            ("result:disp:node-WF-TIP:uy", "mm", uy),
+            ("result:disp:node-WF-TIP:rz", "rad", rz),
+            ("result:reaction:support-WF-ROOT", "N", force),
+            ("result:force:pipe-WF:shear-z", "N", force),
+            ("result:moment:pipe-WF:bending-y", "N*m", -force * 3.2)
+        ];
+        let mut published = Vec::new();
+        for (id, unit, expected) in quantities {
+            let actual = value(result, id, unit)?;
+            if (actual - expected).abs() > tolerance {
+                return Err(format!("PACKAGED-SMOKE-ANALYTICAL-MISMATCH: {id} {actual} expected {expected} {unit}"));
+            }
+            published.push(json!({"result_id":id,"unit":unit,"actual":actual,"expected":expected}));
+        }
+        witnesses.push(json!({"force_N":force,"published":published}));
+    }
+    if solved["results"] != edited_result["results"] {
+        return Err("PACKAGED-SMOKE-RESOLVE-RESULTS-MISMATCH".into());
+    }
+    Ok(json!({
+        "status":"PASS", "route":"packaged_binary_saved_edited_load_self_test", "fixture_class":"invented_public",
+        "project_id":"project:workflow-cantilever",
+        "operation":{"target":"load:WF/load:WF-FY","before":350,"after":500,"unit":"N","application_status":"applied_to_session_model","professional_approval":false},
+        "hashes":{"baseline":baseline_hash,"edit":edited_hash,"undo_checkpoint":hash(&undo_model),"redo_checkpoint":hash(&redo_model),"equivalent_agent":hash(&agent_applied["applied_model"]),"human_intent":human_intent_hash,"agent_intent":agent_intent_hash},
+        "attachments":attachments,
+        "persistence":{"storage":"isolated_file_backed_sqlite","writer_connection_closed_before_restore":true,"restored_value":500,"restored_unit":"N","store_migration":store_migration,"reopen_store_schema_version":reopen_migration.store_schema_version,"historical_result_preserved":true,"unchanged_save_preserves_evidence":true,"analysis_run":"missing_no_native_builder","input_manifest":"missing_not_invented","project_envelope_hash":"missing_preserved"},
+        "solve":{"mechanics":solved["status"]["mechanics"],"model_ref":solved["model_ref"],"result_rows":solved["results"].as_array().map_or(0, Vec::len),"edited_result_differs_from_baseline":true,"fresh_resolve_matches_saved_result_rows":true,"analytical_witnesses":witnesses,"publication_tolerance_declared_units":tolerance,"reaction_transform":"y_reference global Z: local Z=-global Y and local Y=global Z; end-i fz=+F and my=-FL correspond to global root Fy=-F and Mz=-FL; public support row is resultant only"},
+        "boundary":{"network":false,"telemetry":false,"private_data":false,"protected_content":false,"repository_write":false}
     }))
 }
 
@@ -3990,25 +4154,19 @@ mod tests {
 
     #[test]
     fn packaged_binary_self_test_persists_restores_and_solves_edited_load() {
-        let evidence = run_packaged_saved_edited_load_self_test()
-            .expect("packaged-binary saved edited-load self-test passes");
+        let evidence = run_packaged_saved_edited_load_self_test().expect("frozen cantilever file-native lifecycle passes");
         assert_eq!(evidence["status"], json!("PASS"));
-        assert_eq!(evidence["operation"]["after"], json!(425));
-        assert_eq!(evidence["persistence"]["restored_value"], json!(425));
-        assert_eq!(evidence["persistence"]["restored_unit"], json!("N"));
+        assert_eq!(evidence["operation"]["after"], json!(500));
+        assert_eq!(evidence["persistence"]["restored_value"], json!(500));
+        assert_eq!(evidence["persistence"]["historical_result_preserved"], json!(true));
+        assert_eq!(evidence["persistence"]["unchanged_save_preserves_evidence"], json!(true));
+        assert_eq!(evidence["persistence"]["input_manifest"], json!("missing_not_invented"));
+        assert_eq!(evidence["hashes"]["baseline"], evidence["hashes"]["undo_checkpoint"]);
+        assert_eq!(evidence["hashes"]["edit"], evidence["hashes"]["redo_checkpoint"]);
+        assert_eq!(evidence["hashes"]["edit"], evidence["hashes"]["equivalent_agent"]);
         assert_eq!(evidence["solve"]["mechanics"], json!("MECHANICS_SOLVED"));
-        assert_eq!(
-            evidence["solve"]["model_ref"],
-            json!("project:packaged-edited-load-smoke")
-        );
-        assert!(evidence["solve"]["result_rows"].as_u64().unwrap_or(0) > 0);
-        assert_eq!(evidence["solve"]["edit_witness"]["unit"], json!("N"));
-        assert_eq!(
-            evidence["solve"]["edit_witness"]["expected_delta"],
-            json!(-75.0)
-        );
-        let delta = evidence["solve"]["edit_witness"]["delta"].as_f64().unwrap();
-        assert!((delta + 75.0).abs() <= 1.0e-6);
+        assert_eq!(evidence["solve"]["fresh_resolve_matches_saved_result_rows"], json!(true));
+        assert_eq!(evidence["solve"]["analytical_witnesses"].as_array().unwrap().len(), 3);
         assert_eq!(evidence["boundary"]["repository_write"], json!(false));
     }
 

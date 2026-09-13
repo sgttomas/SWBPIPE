@@ -1,0 +1,15 @@
+{
+  "before_mutation": true,
+  "paths": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md"
+  ],
+  "preimage_sha256": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "446d1470832c4fab006a59bba294084fcdc86fc42b248bb4fac12b39ddf10ff3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "ebbdb2b6a0797feb22ef84f209ac0ccb758a9eb0a6965c2e741e82f43c219ef7",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "24fc34ec5d3e054818a31126df43c56bbd82f2b193cbd1f6d59e06e0908fc285",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "7dad038c7f42942195a416202319d9a4ce8bffb377eac645e01d70c8bedcdfa6"
+  }
+}

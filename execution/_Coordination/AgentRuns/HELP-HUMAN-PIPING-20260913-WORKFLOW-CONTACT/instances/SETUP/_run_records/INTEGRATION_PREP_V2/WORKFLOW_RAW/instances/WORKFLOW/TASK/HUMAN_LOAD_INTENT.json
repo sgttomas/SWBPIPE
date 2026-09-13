@@ -1,0 +1,43 @@
+{
+  "operation_id": "op:workflow-human-load",
+  "operation_kind": "modify",
+  "operation_status": "proposed",
+  "author_type": "user",
+  "target": {
+    "object_type": "Load",
+    "ref": "load:WF"
+  },
+  "change": {
+    "change_id": "change:workflow-human-load",
+    "change_kind": "update_load",
+    "field_label": "Tip force",
+    "field_path": "primitive_loads.0.magnitude.value",
+    "before": "350",
+    "after": "500",
+    "unit": "N",
+    "dimension": "force",
+    "source_note": "synthetic_workflow_input"
+  },
+  "validation": {
+    "schema_validation": "not_run",
+    "constraint_validation": "not_run",
+    "unit_validation": "not_run",
+    "diff_preview_status": "not_generated",
+    "application_status": "not_applied"
+  },
+  "audit_boundary": {
+    "mutation_route": "structured_operations_only",
+    "direct_model_mutation_allowed": false,
+    "requires_user_acceptance": true,
+    "mutates_accepted_model_state": false
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "rationale": "Synthetic native workflow lifecycle witness"
+}

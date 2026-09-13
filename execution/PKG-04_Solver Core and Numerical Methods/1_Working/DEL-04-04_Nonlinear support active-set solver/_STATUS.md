@@ -1,9 +1,10 @@
 # Status: DEL-04-04 Nonlinear support active-set solver
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-09
+**Last Updated:** 2026-09-13
 
 ## Remaining
+- Complete parent-owned fresh integrated review and actual-candidate integration checks for the bounded contact-initialization candidate; focused execution is complete in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/INTEGRATION_PREP_V1/PHYSICS_RAW/RETURN.md`, while technical acceptance and landed closeout remain pending.
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Define and validate any path/load-step friction-history model beyond the implemented static, path-independent final Coulomb admissibility check (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Complete remaining contact/model qualification beyond exact-touch, contact-loss, and the bounded current-normal friction fixtures, including retained-spring mixed-friction numerical adequacy.

@@ -1,0 +1,230 @@
+{
+  "schema": "bounded-check-evidence-v1",
+  "checks": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-diff-check.txt"
+    },
+    {
+      "command": [
+        "git",
+        "status",
+        "--short"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-status.txt"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement",
+        "contact_recovery_caps",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 101,
+      "test_count": null,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/baseline-kernel.txt",
+      "raw_sha256": "8d0cd0d7d4cb42d86a5e56df5e69e75508b8949ebc7b16e31c9b5e60b9a9f298"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement",
+        "contact_recovery_product",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 101,
+      "test_count": null,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/baseline-product.txt",
+      "raw_sha256": "cc92dd5f56014f169f730a883de7bd42668581e5b63c9bd7be35e81627ba4e37"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement",
+        "contact_recovery",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 4,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/repaired-kernel-focused.txt",
+      "raw_sha256": "0595e139452ed64f926b7356eafea0f891534e34652d8837e2f0efb8931e1b79"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement",
+        "contact_recovery",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 2,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/repaired-product-focused.txt",
+      "raw_sha256": "4e054a7d56e4e7e14cc77319baf62bcd28ffb35e5ce93279860238f623087e87"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 42,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-kernel-all.txt",
+      "raw_sha256": "98e3ee31db152b05aa03d7e95de4573a86fbf1030b88239d6daf421e1c1851ea"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 147,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-product-all.txt",
+      "raw_sha256": "8a2bed7f277538a375e6cc8ffa7ea14ac9ba8c70e881be97575534532748f615"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 43,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-kernel-all-v2.txt",
+      "raw_sha256": "e3761b640e5dfa535356af7ce53f4e68e85e681e18d9ab8f04685138dd8f5817"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "test_count": 147,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-product-all-v2.txt",
+      "raw_sha256": "109f76375c96a8f98409f2f3446a8ec65993eb3b63fa1da4feccfbe726fb3e5a"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "projects/chirality-piping/core/solver/nonlinear_integration/Cargo.toml",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-kernel-fmt.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-product-fmt.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "cargo",
+        "test",
+        "--offline",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-contact-physics-implement"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-product-all-v4.txt",
+      "raw_sha256": "684aaac014e5306003e3cab2a40664df7b48670917ae5a839f4273f99d3d4ac4"
+    },
+    {
+      "command": [
+        "cargo",
+        "fmt",
+        "--manifest-path",
+        "projects/chirality-piping/core/product_physics/Cargo.toml",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-product-fmt-v4.txt",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913",
+      "exit_code": 0,
+      "raw_output": "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/PHYSICS/_run_records/IMPLEMENT/final-diff-check-v4.txt"
+    }
+  ],
+  "retention_note": "Initial kernel mixed-seed oracle assertion baseline was overwritten by decisive both-Inactive exact-singular baseline; initial product compile typo log overwritten by actual preflight-failure baseline. Initial repaired-focused two incorrect-test failures overwritten by corrected successful focused logs. Tool transcript retains attempts; raw files do not claim to preserve overwritten outputs. Expectations corrected analytically, not implementation repair cycles. All final v2 logs uniquely retained."
+}

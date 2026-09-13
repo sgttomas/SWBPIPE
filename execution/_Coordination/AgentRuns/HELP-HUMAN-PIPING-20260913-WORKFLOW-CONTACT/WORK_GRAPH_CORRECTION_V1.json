@@ -1,0 +1,14 @@
+{
+  "derivative": true,
+  "preserves": "WORK_GRAPH_V1.json",
+  "correction": "CHANGE node is a TASK under the change workflow, using chirality-change skill; no retired CHANGE agent instance is dispatched",
+  "node_override": {
+    "id": "CHANGE",
+    "role": "TASK",
+    "workflow": "change workflow",
+    "skill": "chirality-change",
+    "model": "gpt-5.6-sol",
+    "effort": "medium",
+    "status": "draft_not_released"
+  }
+}

@@ -1,0 +1,17 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  48 passed (48)
+      Tests  838 passed (838)
+   Start at  14:29:07
+   Duration  267.44s (transform 15.46s, setup 6.88s, import 22.88s, tests 346.44s, environment 30.16s)
+

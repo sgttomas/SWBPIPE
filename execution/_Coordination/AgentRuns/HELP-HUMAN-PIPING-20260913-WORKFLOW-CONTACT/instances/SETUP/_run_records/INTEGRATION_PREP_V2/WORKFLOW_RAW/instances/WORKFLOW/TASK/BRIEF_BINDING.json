@@ -1,0 +1,23 @@
+{
+  "role": "TASK Type2",
+  "delegation": "delegated-harness-native, instruction-asserted",
+  "configured_model": "gpt-5.6-sol/high; no runtime-model attestation",
+  "upstream_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/briefs/WORKFLOW.md",
+    "sha256": "fd3834bfb1b77762d255da6f9f5b2e1a071a0bddafc6164fff33267523ba4b5c"
+  },
+  "manager_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK_BRIEF.md",
+    "sha256": "e1937131af5136bbb2a26a83950ca4ea62cb721f0c120d66a892cf33ce31099b"
+  },
+  "source_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SOURCE_PATH_FENCE.json",
+    "sha256": "43bf2e0126b1a778a17267da7b287dbf108d534c5c66045cf0239bc57b09f92d"
+  },
+  "frozen_numerical_oracles": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FROZEN_ORACLES.json",
+    "sha256": "26e19ee809cf6ff0c52e51bd19d95d29006a2c9957424b03288698c87dbf3326"
+  },
+  "v2_fixture": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2",
+  "state": "LOCAL_VERIFIED_PENDING_PARENT"
+}

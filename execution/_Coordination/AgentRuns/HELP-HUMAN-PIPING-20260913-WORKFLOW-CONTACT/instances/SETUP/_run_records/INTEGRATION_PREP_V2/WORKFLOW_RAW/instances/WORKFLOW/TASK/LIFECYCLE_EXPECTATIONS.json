@@ -1,0 +1,35 @@
+{
+  "beam_law": "Euler-Bernoulli",
+  "second_moment_m4": 1.1493591335983794e-05,
+  "publication_tolerance": 5.001e-07,
+  "expectations": [
+    {
+      "force_N": 350,
+      "tip_uy_mm": 1.663071716046058,
+      "tip_rz_rad": 0.0007795648668965897,
+      "root_ry_N": -350,
+      "root_mz_Nm": -1120.0,
+      "root_reaction_resultant_N": 350,
+      "root_local_fz_N": 350,
+      "root_local_my_Nm": -1120.0
+    },
+    {
+      "force_N": 500,
+      "tip_uy_mm": 2.375816737208654,
+      "tip_rz_rad": 0.0011136640955665567,
+      "root_ry_N": -500,
+      "root_mz_Nm": -1600.0,
+      "root_reaction_resultant_N": 500,
+      "root_local_fz_N": 500,
+      "root_local_my_Nm": -1600.0
+    }
+  ],
+  "hash_equality": "exact; equivalent agent and human edits; undo/redo snapshots",
+  "attachments": [
+    "pipe endpoints",
+    "pipe material",
+    "support node",
+    "tip load node"
+  ],
+  "historical_manifest": "missing; never invented"
+}

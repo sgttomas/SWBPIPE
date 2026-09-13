@@ -1,0 +1,35 @@
+{
+  "base": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "status": "pre-final-review source checkpoint ready",
+  "code_paths": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57",
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78"
+  },
+  "doc_paths": {
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "83824e2eba65395a1888535c0d0135397f2a63893b50709437ebc42d12364afa",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "13f9416a42949ff33831176cbd66f194c93e626b4d7d8cfeb7fb63814d677d18",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md": "844e1e7e418988420b3fa724811c52d63dbd0a6b372f7463feb8d259e40da13b",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md": "8e1b120fe9c036e8c70c1898adfc09d8d9727961af4e10a549da7e58acdb2cc1",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md": "a8e527d01b9f423c96ec0e0735267b59c3627bd5fb28edafc0382578e3ee83b2",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md": "c760f9f3b56f263497989c50764dc5d3383209cd82cb512204ef6f253fbbef26",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "e2329299562ec8fb2374e54061739c69e1c8d2514bf9db6fbf28575b6eba9d70",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "ff8462e33bd68986209ebd2236f07f7ffafd6dc2fc94cbfaac7edae920932c05"
+  },
+  "source_frozen": true,
+  "gates_pending": [
+    "fresh packaged native GUI witness",
+    "any required repair and refreeze",
+    "fresh100%integrated review",
+    "complete clean DEC025 sweep",
+    "full practitioner/self-check/receipt checks",
+    "actual candidate CI/PR/merge"
+  ]
+}

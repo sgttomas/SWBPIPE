@@ -1,5 +1,22 @@
 import { expect, test, type Page } from "@playwright/test";
 
+async function currentModelHash(page: Page): Promise<string> {
+  const intent = page.getByTestId("project-validation-export-link-local-private-intent");
+  if (!await intent.isChecked()) {
+    await page.getByTestId("menu-view").click();
+    await page.getByTestId("menu-item-view.section.project").click();
+    await intent.check();
+    await page.getByTestId("workspace-task-model").click();
+  }
+  const link = page.getByTestId("project-validation-export-link");
+  await expect.poll(async () => {
+    const href = await link.getAttribute("href");
+    return href ? JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash?.value ?? "" : "";
+  }).toMatch(/^sha256:[0-9a-f]{64}$/);
+  const href = (await link.getAttribute("href"))!;
+  return JSON.parse(decodeURIComponent(href.split(",").slice(1).join(","))).model_hash.value;
+}
+
 async function applyQueued(page: Page) {
   await page.getByTestId("workspace-review").click();
   const apply = page.locator('[data-testid^="apply-intent-"]').first();
@@ -37,7 +54,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("viewport-create-node-x").fill("0");
   await page.getByTestId("viewport-create-node-y").fill("2.4");
   await page.getByTestId("viewport-create-node-z").fill("0");
-  await page.getByTestId("viewport-create-node-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("viewport-create-node-provenance").fill("invented_synthetic_ui_acceptance_input");
   await assertPersistentCompactCanvas(page);
   await page.getByTestId("queue-explicit-node-intent").click();
   await expect(page.getByTestId("viewport-draft-review-preview")).toContainText("Single operation");
@@ -55,7 +72,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("create-material-label").fill("Invented carbon steel");
   await page.getByTestId("create-material-elastic").fill("200000000000");
   await page.getByTestId("create-material-shear").fill("77000000000");
-  await page.getByTestId("create-material-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("create-material-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-material-intent").click();
   await applyQueued(page);
 
@@ -65,7 +82,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("create-section-name").fill("Invented straight pipe");
   await page.getByTestId("create-section-od").fill("0.168");
   await page.getByTestId("create-section-wall").fill("0.007");
-  await page.getByTestId("create-section-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("create-section-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-section-intent").click();
   await applyQueued(page);
 
@@ -106,14 +123,14 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("viewport-route-end-y").fill("2.4");
   await page.getByTestId("viewport-route-end-z").fill("0");
   await expect(page.getByTestId("viewport-route-ghost-status")).toContainText("No route ghost is visible");
-  await page.getByTestId("viewport-route-end-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("viewport-route-end-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("viewport-create-pipe-material").selectOption("material:ui-phase-a-invented");
   await page.getByTestId("viewport-create-pipe-od").fill("0.168");
   await page.getByTestId("viewport-create-pipe-wall").fill("0.007");
   await page.getByTestId("viewport-create-pipe-yref-x").fill("0");
   await page.getByTestId("viewport-create-pipe-yref-y").fill("0");
   await page.getByTestId("viewport-create-pipe-yref-z").fill("1");
-  await page.getByTestId("viewport-create-pipe-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("viewport-create-pipe-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("continue-pipe-after-queue").check();
   await page.getByTestId("queue-explicit-pipe-intent").click();
   const review = page.getByTestId("viewport-draft-review-preview");
@@ -161,7 +178,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("create-support-label").fill("Anchor support");
   await page.getByTestId("create-support-node").selectOption("node:UI-A-100");
   for (const restraint of ["RX", "RY", "RZ"]) await page.getByTestId(`create-support-restraint-${restraint}`).check();
-  await page.getByTestId("create-support-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("create-support-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-support-intent").click();
   await applyQueued(page);
 
@@ -170,7 +187,7 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("load-manager-create-load-label").fill("Invented Phase A force");
   await page.getByTestId("load-manager-create-load-kind").fill("primitive_user_load");
   await page.getByTestId("load-manager-create-load-status").fill("preview_only");
-  await page.getByTestId("load-manager-create-load-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-load-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-load-case-intent").click();
   await applyQueued(page);
   await page.getByTestId("workspace-task-loads").click();
@@ -180,16 +197,26 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await page.getByTestId("load-manager-create-primitive-node").selectOption("node:UI-A-110");
   await page.getByTestId("load-manager-create-primitive-direction").selectOption("global_y");
   await page.getByTestId("load-manager-create-primitive-magnitude").fill("350");
-  await page.getByTestId("load-manager-create-primitive-provenance").fill("synthetic_ui_acceptance_input");
+  await page.getByTestId("load-manager-create-primitive-provenance").fill("invented_synthetic_ui_acceptance_input");
   await page.getByTestId("queue-create-primitive-intent").click();
   await applyQueued(page);
 
+  const baseline350Hash = await currentModelHash(page);
   await page.getByTestId("workspace-task-solve").click();
   await page.getByTestId("run-mechanics-preview").click();
   await expect(page.getByTestId("solve-job-summary")).toContainText("state=completed");
   await page.getByTestId("issues-drawer-toggle").click();
   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
+  await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
+  await expect(page.getByTestId("rule-check-run")).toBeDisabled();
+  await page.getByRole("button", { name: "Save local" }).click();
+  await page.getByRole("button", { name: "Open local" }).click();
+  await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
+  await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
+  expect(await currentModelHash(page)).toBe(baseline350Hash);
+  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
 
   await page.getByTestId("tree-row-load:UI-A").click();
   const inspector = page.getByLabel("Property inspector");
@@ -197,17 +224,24 @@ test("compact blank-to-straight authoring keeps the canvas and exact Add/Apply r
   await inspector.getByTestId("editor-intent-value").fill("500");
   await inspector.getByTestId("apply-editor-intent-inline").click();
   await expect(page.getByTestId("operation-apply-message")).toContainText("Applied op:editor-intent-load:UI-A-primitive_loads.0.magnitude.value");
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
+  await expect.poll(() => currentModelHash(page)).not.toBe(baseline350Hash);
+  const edited500Hash = await currentModelHash(page);
   await page.getByTestId("workspace-review").click();
   await page.getByTestId("undo-session-model-edit").click();
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("350");
+  await expect.poll(() => currentModelHash(page)).toBe(baseline350Hash);
   await page.getByTestId("redo-session-model-edit").click();
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
+  await expect.poll(() => currentModelHash(page)).toBe(edited500Hash);
   await page.getByRole("button", { name: "Save local" }).click();
   await page.getByRole("button", { name: "Open local" }).click();
   await expect(page.getByTestId("tree-row-pipe:UI-A-100")).toBeAttached();
   await page.getByTestId("tree-row-load:UI-A").click();
   await inspector.getByTestId("editor-intent-field").selectOption("primitive_loads.0.magnitude.value");
   await expect(inspector.getByTestId("editor-intent-value")).toHaveValue("500");
+  expect(await currentModelHash(page)).toBe(edited500Hash);
+  await expect(page.getByTestId("historical-run-context")).toHaveCount(0);
 });

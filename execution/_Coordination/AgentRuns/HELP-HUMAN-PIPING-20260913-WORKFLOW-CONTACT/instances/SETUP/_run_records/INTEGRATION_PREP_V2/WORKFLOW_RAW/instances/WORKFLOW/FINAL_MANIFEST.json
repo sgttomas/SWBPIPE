@@ -1,0 +1,538 @@
+{
+  "schema": "chirality-workflow-implementation-handoff/v2",
+  "freeze_utc": "2026-09-13T20:37:41.964814+00:00",
+  "status": "LOCAL_VERIFIED_PENDING_PARENT",
+  "base_commit": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "branch": "codex/piping-workflow-integrity-20260913",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+      "post_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+      "post_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": null,
+      "post_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": null,
+      "post_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "pre_sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+      "post_sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b",
+      "post_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "pre_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "post_sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c",
+      "post_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "deliverable_doc_paths": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+      "pre_sha256": "d506c29e733fecf3994f616a2c1ab6e9deab77d67301d69e140e7bc697b0c854",
+      "post_sha256": "17b7db88f619a7ce7b35331939621c0fc071a037dfd19b0a3a041c918322e746"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "pre_sha256": "755e944ec0fa816ab999134276da23bd7ab695eb39610f7a7c5843db3b2537e5",
+      "post_sha256": "c4d01da0aefece86d22238e5b7f96a9f73e2d20252f7d38636e12509a831306d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "pre_sha256": "307acc7b16b8cb1b2e7b5de2a4768fc44b4287a9bd578f24a45bf67115008bc1",
+      "post_sha256": "ef602e887bddde8a70ff6908251a3251a015cf8be8d7031769472bbd8476ec60"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+      "pre_sha256": "b5e7bca7e32b349f45380f549cb30f3cce3b439401cb0de277e010dd44a7b50d",
+      "post_sha256": "a60c2c74fdd4b3940eb079c01dfda44d67cdd8452156ea0694c5cb2c899cbfa5"
+    }
+  ],
+  "bindings": {
+    "source_manifest": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SOURCE_MANIFEST_FINAL.json",
+      "sha256": "db28121a813e0a7c192a0463b426f5ab1366e4dc9f4a5222a206e80647e00655"
+    },
+    "checks": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/CHECKS_FINAL.json",
+      "sha256": "60376067b115552e6ac0fc83948d2bf517516376301cc5b309b74e487d921951"
+    },
+    "task_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/RETURN.md",
+      "sha256": "4dceeb22d0c995616e8588757f11708285ca11dbb8b7a7075663454656b16a78"
+    },
+    "task_handoff": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/HANDOFF_STATE.json",
+      "sha256": "1e45511a889980eaeab7d20a9989d3c502c874ddd05ab47aa546dbaf34316515"
+    },
+    "task_brief_binding": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/BRIEF_BINDING.json",
+      "sha256": "2809d6510180db586c6ec021245c7fc3dd575f4890cb5b80ce601896be263c35"
+    },
+    "manager_handoff": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/HANDOFF_STATE.json",
+      "sha256": "cf9d71827e55c91fa1a158f2a219c444492bd0b6bf4d020e71f2071b817399ef"
+    },
+    "manager_return": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/MANAGER_RETURN.md",
+      "sha256": "a60647865678805e799ee23dd0e3d9653c91368bed17542b1a64bf7a8a378984"
+    },
+    "doc_packet": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/DELIVERABLE_DOC_PACKET.json",
+      "sha256": "95396ac137a52eeef176bd701ad47f0f27e68e95efbe4debcb395794be58b21e"
+    },
+    "patch": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/WORKFLOW_IMPLEMENTATION.patch",
+      "sha256": "222b6120f2a62dcc1b28827b5a6717f8b1340cff7f07bb0269f9ce7bdf7c6047"
+    },
+    "patch_check": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/PATCH_CHECK.json",
+      "sha256": "988e2ddc0593ea47af1ab003b05e3874320b4782439dc894bbd56814213d6694"
+    },
+    "scope_check": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FINAL_SCOPE_CHECK.json",
+      "sha256": "158b5516351471fdfdf54f0602bb1721a5eb68dcd2127ca7aec7b1fcfaedda92"
+    },
+    "numeric_oracles": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FROZEN_ORACLES.json",
+      "sha256": "26e19ee809cf6ff0c52e51bd19d95d29006a2c9957424b03288698c87dbf3326"
+    },
+    "fixture_hash_oracles_v2": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/EXACT_HASH_ORACLES.json",
+      "sha256": "34a88548926c914d9943f3ebc9b601299d40d2fc15b22ea209bc3007748b0c1f"
+    },
+    "superseded_v1_manager": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SUPERSEDED_V1/MANAGER_V1_FREEZE.json",
+      "sha256": "3d259f33c0c3fbc0823d822ca6d07b42bdde24c845c711a7c670a535b6e33e2d"
+    }
+  },
+  "raw_import_scope": {
+    "product_paths": [
+      "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+      "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md"
+    ],
+    "coordination_prefix": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/",
+    "host_records_prefix": "projects/chirality-piping/_run_records/workflow-task-20260913/",
+    "excluded": "node_modules, target, dist, generated WASM and default test-results; no older-lane writable symlinks"
+  },
+  "evidence_attribution": "V1 full838/source-browser/native source-time passes retained. Authorized V2 loader-only correction has final21-service/build passes; parent final integrated complete checks remain required.",
+  "claim_boundaries": [
+    "Malformed optional analysis evidence guarded; whole historical MechanicsResult schema compatibility deferred",
+    "Model history shortcuts absent; no new shortcut feature/test claimed",
+    "No native analysis/input manifest fabricated; actual GUI quit/reopen remains parent-owned",
+    "No lifecycle closure or release/professional approval"
+  ],
+  "packet_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/AFFECTED_CHECK_SELECTION.json",
+      "sha256": "76a55ed708a32b0d3e078023e15b61a28e6b19612ba067f9ee0cb6044c7d6515",
+      "bytes": 2250
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/AFFECTED_CHECK_SELECTION_FINAL.json",
+      "sha256": "2e0cb2ef28587330ba888065a8408271a1dd4027c851ff42f889276d8ccc321b",
+      "bytes": 4215
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/DELIVERABLE_DOC_PACKET.json",
+      "sha256": "95396ac137a52eeef176bd701ad47f0f27e68e95efbe4debcb395794be58b21e",
+      "bytes": 1711
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/EXACT_HASH_ORACLES.json",
+      "sha256": "1a739acdc1a0b307aa0d3d3ed579d16119292dc080a45caaf13bb28d7f307f7a",
+      "bytes": 1006
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FINAL_SCOPE_CHECK.json",
+      "sha256": "158b5516351471fdfdf54f0602bb1721a5eb68dcd2127ca7aec7b1fcfaedda92",
+      "bytes": 393
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/AGENT_LOAD_INTENT.json",
+      "sha256": "62cffad028f20fc92b48693ba54283c25797f704f4617a2269b044c91d6aa186",
+      "bytes": 1312
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/EXACT_HASH_ORACLES.json",
+      "sha256": "34a88548926c914d9943f3ebc9b601299d40d2fc15b22ea209bc3007748b0c1f",
+      "bytes": 895
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/HUMAN_LOAD_INTENT.json",
+      "sha256": "754458e10581a4de1795f21714736ac2d982bcf8230de78258821e69e7a8b97f",
+      "bytes": 1311
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/LIFECYCLE_MODEL.json",
+      "sha256": "d7514b048916325e010dc37c423ff9c1ca8acfffb65c392bf558e8be2cca65d6",
+      "bytes": 3398
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FIXTURE_VALIDITY_V2/VALIDITY_CHANGE.md",
+      "sha256": "9cac52feef886ada5793c1dac111c2400e0b0deae48b52dd976c6a80a1345519",
+      "bytes": 959
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/FROZEN_ORACLES.json",
+      "sha256": "26e19ee809cf6ff0c52e51bd19d95d29006a2c9957424b03288698c87dbf3326",
+      "bytes": 1860
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/HANDOFF_STATE.json",
+      "sha256": "cf9d71827e55c91fa1a158f2a219c444492bd0b6bf4d020e71f2071b817399ef",
+      "bytes": 4182
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/INTAKE_SELECTION.md",
+      "sha256": "1f61b858ce3072012e2d4d6f337c43a544f66bda3bfedd97b7f957f660eb4ed9",
+      "bytes": 1034
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/MANAGER_DOC_PATH_FENCE.json",
+      "sha256": "d0d8ac6c012f9370e85368b3375ee10cef076c7c67c1571b57d448932e1651e6",
+      "bytes": 1319
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/MANAGER_RETURN.md",
+      "sha256": "a60647865678805e799ee23dd0e3d9653c91368bed17542b1a64bf7a8a378984",
+      "bytes": 3253
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/MANAGER_SCOPE_CHECK.json",
+      "sha256": "0a9a59002b8c7f4571bf0e31021599c1fe3da45d288ae89357f96226b1b5f090",
+      "bytes": 10612
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/MANAGER_STATIC_CHECKS.json",
+      "sha256": "1897363d3949b0c99d1b40332fa7638298e22eb17acb80033c6fef4083a6d7c1",
+      "bytes": 2179
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/NATIVE_V1_FAILURE_EVIDENCE.json",
+      "sha256": "812bc7c55efe3572ae059fe393684bfc75bec4f249dae33813e3feee9a76627c",
+      "bytes": 1122
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/PATCH_CHECK.json",
+      "sha256": "988e2ddc0593ea47af1ab003b05e3874320b4782439dc894bbd56814213d6694",
+      "bytes": 484
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/PREEDIT_CHECK_EVIDENCE.json",
+      "sha256": "23f93b486106d250b4535a70d229b2f88a08f18f85dc8b2f95d82c35c5a39213",
+      "bytes": 2087
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/PREIMPLEMENTATION_TEST_FREEZE.json",
+      "sha256": "40a55bd61bc7a3b4a3c64a0bda5985d7ae9ec4009fdb301e4b4f06520bd55023",
+      "bytes": 699
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SOURCE_PATH_FENCE.json",
+      "sha256": "43bf2e0126b1a778a17267da7b287dbf108d534c5c66045cf0239bc57b09f92d",
+      "bytes": 2102
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SUPERSEDED_V1/MANAGER_V1_FREEZE.json",
+      "sha256": "3d259f33c0c3fbc0823d822ca6d07b42bdde24c845c711a7c670a535b6e33e2d",
+      "bytes": 5162
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SUPERSEDED_V1/WORKFLOW_IMPLEMENTATION.patch",
+      "sha256": "408b2511aa04458869b01081cdd7179fa16394898b009d88a679acde56ae2304",
+      "bytes": 96272
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/SUPPLIED_CONTEXT_HASHES.json",
+      "sha256": "aacd0be9e3262a875564daf21f107a323e82bcacdd32b953d3360bc4e30add15",
+      "bytes": 17225
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/AGENT_LOAD_INTENT.json",
+      "sha256": "42f059f1e01c927d7603f8b2690fde0f95efd5e5821309bcdbfd1defb6556adb",
+      "bytes": 1303
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/BRIEF_BINDING.json",
+      "sha256": "2809d6510180db586c6ec021245c7fc3dd575f4890cb5b80ce601896be263c35",
+      "bytes": 1419
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/CHECKS_FINAL.json",
+      "sha256": "60376067b115552e6ac0fc83948d2bf517516376301cc5b309b74e487d921951",
+      "bytes": 8261
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/CONTEXT_READS.json",
+      "sha256": "bc313b5685722dbcdc2b14658980afed0edbe7295f65f2a6ab96f2f39cbeb4a7",
+      "bytes": 6671
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/HANDOFF_STATE.json",
+      "sha256": "1e45511a889980eaeab7d20a9989d3c502c874ddd05ab47aa546dbaf34316515",
+      "bytes": 5707
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/HUMAN_LOAD_INTENT.json",
+      "sha256": "0c98c9527f6c643c33a4d0b762c2f090eb52c7e8408d0e268e13e680ec300c4f",
+      "bytes": 1302
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/LIFECYCLE_EXPECTATIONS.json",
+      "sha256": "4f4e783c03c52baed99710917af4c2b456a4815e3c2900ba1680a1a1f4516dcb",
+      "bytes": 934
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/LIFECYCLE_MODEL.json",
+      "sha256": "519119c01291d66953f863151fbc43ea35a97842d02cd7b597a383059565e07b",
+      "bytes": 3344
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/LOADER_COMPATIBILITY_PREEDIT.json",
+      "sha256": "d94848234d4c119ba768350bedcad7d145f2cfe63e69ccc2a56b4edb9e4b3b53",
+      "bytes": 474
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/RETURN.md",
+      "sha256": "4dceeb22d0c995616e8588757f11708285ca11dbb8b7a7075663454656b16a78",
+      "bytes": 8641
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SOURCE_MANIFEST_FINAL.json",
+      "sha256": "db28121a813e0a7c192a0463b426f5ab1366e4dc9f4a5222a206e80647e00655",
+      "bytes": 5360
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/CHECKS_FINAL.json",
+      "sha256": "78bff7101766b3d9a962bfe593f620da7a89d77c240e9a1c5075383b9c3d01a5",
+      "bytes": 6669
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/CONTEXT_READS.json",
+      "sha256": "bc313b5685722dbcdc2b14658980afed0edbe7295f65f2a6ab96f2f39cbeb4a7",
+      "bytes": 6671
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/RETURN.md",
+      "sha256": "172719035cb263bb98da579209d473cd682e9e58b412220f4d1b186fb8c88ade",
+      "bytes": 1660
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/SOURCE_MANIFEST_FINAL.json",
+      "sha256": "d16f010d49d08428172f44aac2519699772c7d4baead38c6fc397a04d2ac4b3e",
+      "bytes": 4591
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "bytes": 16367
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa",
+      "bytes": 708998
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389",
+      "bytes": 142952
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341",
+      "bytes": 3979
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6",
+      "bytes": 4994
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "ab49338939e85e66a3c96b14c8930e770190b67e9c4280f26833c9fe6cacf08a",
+      "bytes": 16090
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "b165cd1dfe499403c72ae3089fd0cbc0660c485c814edcc589d191fec190e603",
+      "bytes": 29713
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1/sources/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "bytes": 273741
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK_BRIEF.md",
+      "sha256": "e1937131af5136bbb2a26a83950ca4ea62cb721f0c120d66a892cf33ce31099b",
+      "bytes": 2749
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/WORKFLOW_IMPLEMENTATION.patch",
+      "sha256": "222b6120f2a62dcc1b28827b5a6717f8b1340cff7f07bb0269f9ce7bdf7c6047",
+      "bytes": 97669
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/WORK_GRAPH.md",
+      "sha256": "eb6d132dbbd4afda74175044ceff3bf36b329f116f867c0b6ac5b46c25de27b5",
+      "bytes": 365
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/COMMAND_METADATA.json",
+      "sha256": "25ee71f2e7d5ecd41f1b8df6515b3516a1628f5c92e7e17d60ab3897bfca66d7",
+      "bytes": 9677
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-build-final.log",
+      "sha256": "693557b705dec254a55a4dfa66605e8600ac6431d3b031634750d9075eeb3101",
+      "bytes": 1730
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-build-v2.log",
+      "sha256": "4ff6ed926d042e77472975898b433588ffa7df1c917329f3467e565e3e0c5f59",
+      "bytes": 1730
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-build.log",
+      "sha256": "5ff1cf50a3fded222989b5136551a69414c7372bd852a08c1dd8bf4c317ceacb",
+      "bytes": 1730
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-unit-final.log",
+      "sha256": "46620591022b62b23751d377b045fdacce5f11a61de78640776ce537549e86a8",
+      "bytes": 448
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/desktop-unit-full.log",
+      "sha256": "6e210757496e53afcfd339d758a73373f3b4d8df7094d123569b527729a42ba8",
+      "bytes": 2840
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/focused-complete.log",
+      "sha256": "778bb46b72b2ab82c72be30f4c363428cd2f99ec43a437ca1647a73651a91f1b",
+      "bytes": 634
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/focused-lifecycle-final.log",
+      "sha256": "44d1b8c147682a6d6098f6e1a9ab5222d84fe134d3eb3864faaa5741289942e7",
+      "bytes": 9772
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/focused-repair-1.log",
+      "sha256": "82a50f439d4b52e87e5c84839471a7f8fb0986360a12440838cda36c84113e7f",
+      "bytes": 9899
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/focused-repair-2.log",
+      "sha256": "3cfb724031319c002f79da5d6db5fb9aa69aa9afcf6156642313f8fb9ffad1f2",
+      "bytes": 10775
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/focused-repair-final.log",
+      "sha256": "15efc5f2adc1301e13cd5e302a16577aa261181d3f7915563ca889d8be3f3f9a",
+      "bytes": 634
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/historical-proposal-regression.log",
+      "sha256": "89577a5607ab2dc89e9e6e24293e0d3dc59a961d3d0e7a737aaf8f123aec4c1d",
+      "bytes": 432
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/intentional-semantics-regressions.log",
+      "sha256": "baa1643ccced56f2bd1ac555f909e7b23156630fccff20ac3aa69eb65c0814e9",
+      "bytes": 2120
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/lifecycle-history-final.log",
+      "sha256": "45305f3e89fce80dfb68d02cc2f58cf0134fae7953f74baca6e48b4a1a1e4db1",
+      "bytes": 427
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/loader-compatibility-final.log",
+      "sha256": "8ce7e35b88a112eb83641b8cb35bfc80edc38695c8620792b3e5cf2d568a8070",
+      "bytes": 386
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/loader-compatibility-preedit.log",
+      "sha256": "90da0c8a00e6701cf728606c147506d396b01cbcd0c7e2b0829c99c0d4e5a54a",
+      "bytes": 2997
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/native-selftest-v2.log",
+      "sha256": "fd00ebc537af8f9a0f5a9598032f1ea68bda576a60e7d644cc0e9b8ba2a51c0e",
+      "bytes": 559
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/native-selftest.log",
+      "sha256": "4c213600deea4fc6a82b96a9b13ed93378ec0a863de9d7e4f2dc67582649e885",
+      "bytes": 14221
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/playwright-last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903",
+      "bytes": 45
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/pre-edit-focused-gap.log",
+      "sha256": "77e86f51089d7f6891c0c166a045afac44a8003f6a80b27070ed1bd4679df9d3",
+      "bytes": 723612
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/pre-edit-gap.log",
+      "sha256": "f40f5564a8f88bb28f6e78479fd228b687cfbee0888c6addf945e4d58e05a076",
+      "bytes": 1202
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/source-lifecycle-playwright.log",
+      "sha256": "c4b1b1700d108bc701a5e7a3dc07e6a43768657526a16e86a12e7a169b1f56af",
+      "bytes": 1231
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/tsc-final.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/tsc.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/wasm-build.log",
+      "sha256": "db09639c9623b5bcefda9d53cdaeb90597416764dd4c0fe0ab872f98c03c4645",
+      "bytes": 860
+    }
+  ],
+  "manifest_self_hash": "Not recursively embedded; delivered separately by manager."
+}

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "parent": "/root HELP_HUMAN",
+  "class": "delegated-harness-native",
+  "enforcement": "role/non-delegation instruction-asserted; configured model/effort parent supplied, runtime identity not independently proven",
+  "dispatches": [
+    {
+      "task": "/root/contact_implementation_manager",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "brief": "briefs/PHYSICS.md",
+      "status": "dispatched"
+    },
+    {
+      "task": "/root/workflow_implementation_manager",
+      "role": "WORKING_ITEMS",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "brief": "briefs/WORKFLOW.md",
+      "status": "dispatched"
+    }
+  ]
+}

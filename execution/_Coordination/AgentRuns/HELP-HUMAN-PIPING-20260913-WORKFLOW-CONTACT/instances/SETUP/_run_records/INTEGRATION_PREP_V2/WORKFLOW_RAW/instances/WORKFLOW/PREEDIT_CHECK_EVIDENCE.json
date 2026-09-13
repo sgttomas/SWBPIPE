@@ -1,0 +1,57 @@
+{
+  "stage": "pre-product-edits",
+  "wasm": {
+    "command": "npm run build:wasm:desktop",
+    "cwd": "projects/chirality-piping",
+    "exit_code": 0,
+    "lease": "parent granted and released"
+  },
+  "baseline": {
+    "exit_code": 1,
+    "expected_failures": 3,
+    "passes": 1,
+    "skipped": 179,
+    "gaps": [
+      "native direct solve failure fallback",
+      "native job-start failure fallback",
+      "historical reopen current-state leak"
+    ],
+    "observed_effective_command": [
+      "vitest",
+      "run",
+      "src/services/previewService.test.ts",
+      "src/App.test.tsx",
+      "-t",
+      "native mechanics failure boundary|workflow current and historical result boundaries"
+    ],
+    "cwd": "projects/chirality-piping",
+    "exact_launcher_command": [
+      "npm",
+      "test",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "src/services/previewService.test.ts",
+      "src/App.test.tsx",
+      "-t",
+      "native mechanics failure boundary|workflow current and historical result boundaries"
+    ],
+    "test_setup_failures": 2,
+    "not_demonstrated_by_baseline": "Blocked/nonconverged test assertions first failed due closed issues drawer; busy-history verified by pre-edit ref inspection/frozen oracle, focused regression added after App mutation."
+  },
+  "superseded_command": "Initial npm run test:desktop argument forwarding consumed --run/-t. Exact focused command superseded that invocation; no baseline conclusion drawn from initial run.",
+  "logs": [
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/wasm-build.log",
+      "sha256": "db09639c9623b5bcefda9d53cdaeb90597416764dd4c0fe0ab872f98c03c4645"
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/pre-edit-focused-gap.log",
+      "sha256": "77e86f51089d7f6891c0c166a045afac44a8003f6a80b27070ed1bd4679df9d3"
+    },
+    {
+      "path": "projects/chirality-piping/_run_records/workflow-task-20260913/pre-edit-gap.log",
+      "sha256": "f40f5564a8f88bb28f6e78479fd228b687cfbee0888c6addf945e4d58e05a076"
+    }
+  ]
+}

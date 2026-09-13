@@ -1,0 +1,10 @@
+{
+  "utc": "2026-09-13T20:37:41.956097+00:00",
+  "product_source_count": 8,
+  "deliverable_doc_count": 4,
+  "allowed_tracked_or_untracked_deltas_only": true,
+  "unexpected_paths": [],
+  "git_diff_check_exit_code": 0,
+  "final_source_and_doc_hashes_verified": true,
+  "active_reference_portability": "All manifest references repository-relative; host commands/output only lane _run_records."
+}

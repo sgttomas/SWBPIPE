@@ -1,0 +1,90 @@
+{
+  "freeze_utc": "2026-09-13T20:36:02.768900+00:00",
+  "source_scope_valid": true,
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+      "post_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+      "post_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": null,
+      "post_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": null,
+      "post_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "pre_sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+      "post_sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b",
+      "post_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "pre_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "post_sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c",
+      "post_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "native_diff_hunks": [
+    "@@ -3668,40 +3668,43 @@ fn packaged_saved_edited_load_intent() -> Value {",
+    "@@ -3711,28 +3714,25 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3740 +3740,15 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3742,6 +3756,26 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3749,2 +3783,94 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3753,6 +3879,3 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3760 +3883,72 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3764,25 +3958,5 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3790,3 +3963,0 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3794 +3965 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3797,4 +3968,3 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3802,6 +3972,17 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3810,58 +3991,12 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3868,0 +4004,29 @@ fn packaged_saved_edited_load_self_test_at(store_path: &Path) -> Result<Value, S",
+    "@@ -3993,2 +4157 @@ mod tests {",
+    "@@ -3996,3 +4159,8 @@ mod tests {",
+    "@@ -4000,12 +4168,2 @@ mod tests {"
+  ],
+  "source_exclusions": "no core/Runtime/wire/schema/migration/physics/tool source mutations",
+  "actual_changed_source": [
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts"
+  ],
+  "candidate_version": 2,
+  "v2_delta": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "v1_sha256": "b165cd1dfe499403c72ae3089fd0cbc0660c485c814edcc589d191fec190e603",
+      "v2_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "v1_sha256": "ab49338939e85e66a3c96b14c8930e770190b67e9c4280f26833c9fe6cacf08a",
+      "v2_sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    }
+  ],
+  "v1_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1"
+}

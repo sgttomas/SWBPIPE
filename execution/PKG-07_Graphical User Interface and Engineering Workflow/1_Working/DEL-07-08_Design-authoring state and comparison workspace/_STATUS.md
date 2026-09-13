@@ -1,9 +1,10 @@
 # Status: DEL-07-08 Design-authoring state and comparison workspace
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-13
 
 ## Remaining
+- Complete parent-owned integrated review, required registered checks and fresh packaged GUI quit/reopen witness for the bounded 2026-09-13 workflow integration candidate; focused evidence does not close the deliverable. Basis: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/WORKFLOW_PORTABLE_BINDING_V1.json`.
 
 ## History
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.

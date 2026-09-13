@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t round trips review-only proposal operations
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 168 skipped (169)
+   Start at  14:28:37
+   Duration  15.81s (transform 1.15s, setup 69ms, import 1.37s, tests 14.09s, environment 195ms)
+

@@ -1,0 +1,13 @@
+# TASK sealed bounded implementation brief
+
+ApplyEdits: true. Role TASK Type2. Workflow: bundled:software-bounded-implementation (`workflows/software-bounded-implementation/WORKFLOW.md`).
+
+Authority: explicit user implementation direction preserved by parent APPROVED_PLAN/OWNER_DIRECTION; upstream sealed WORKFLOW.md SHA fd3834bfb1b77762d255da6f9f5b2e1a071a0bddafc6164fff33267523ba4b5c. Base b2c133d7aef38034d10fed2b9b7ef64f517f2ba0. Derive REPO_ROOT by git rev-parse; WORKING_ROOT={REPO_ROOT}/projects/chirality-piping. Anchor PKG07 bounded integration DEL07-05/07/08/09; consuming PKG14 DEL14-02 and PKG16 DEL16-02/03 contracts. SOW023/055/076/077/069/070 and OBJ006/007/015/016. Applicable OPS-K-DATA-2, AUTH-2, MECH-2, UNIT-1, SOLVER-2, REPORT-1, AGENT-2/3.
+
+Objective and acceptance: all upstream workflow repair criteria, precise path fence in SOURCE_PATH_FENCE.json and FROZEN_ORACLES.json apply. One product writer. No source mutation until evidence fixture and intent payloads frozen, independent hashes confirmed by manager. Tests may be written/frozen first to expose old gaps. Exact history/intent hashes and analytical expectations must not change to fit implementation.
+
+Declared reads: actual Root/project AGENTS, TASK and selected workflow/profile; scoped deliverable intake and active dependency contracts; App/types/project/hash/preview/input-manifest/operation services and existing tests; native lib.rs existing packaged selftest, persistence and shared model applier as read-only outside precise fixture/selftest write sections; beam kernel read-only to identify existing law. Allowed writes: exactly eight source paths in SOURCE_PATH_FENCE.json plus your TASK evidence subtree. No new persistence/native wire schema or physics writes. No Runtime/harness/daemon/CAEPIPE/UI-design work. Preserve shared Rust applier, route atomicity and attachment/stale/late/cancel guards.
+
+Tools: file tools, shell, scoped npm Vitest/tsc and path/hash checks. npm ci permitted only ignored lane-local dependencies. WASM/native builds, source/dist Playwright, global sweeps REQUIRE parent lease; do not run them autonomously. No Git mutation, commits/push/PR. Logs/host metadata only project _run_records. Exact commands/results and source/test hashes required in return; identify broader checks parent owes. Configured sol/high, attribution instruction-asserted, no runtime-model attestation. Two failed repair cycles without new evidence requires fresh parent diagnosis.
+
+Outputs: frozen fixture/intent hashes, focused old-gap and regression tests, normalized exact logs, change/path/hash manifest, narrow behavioral summary, unresolved dependencies. No lifecycle closure. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

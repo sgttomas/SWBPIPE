@@ -1,0 +1,17 @@
+{
+  "test_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "94a39f29387b7d6b624321ce5ec7ee2d3d18f6caeac10a99ecfd092d21ecd50d"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "ab49338939e85e66a3c96b14c8930e770190b67e9c4280f26833c9fe6cacf08a"
+    }
+  ],
+  "source_unchanged_from_base": {
+    "apps/desktop/src/App.tsx": true,
+    "apps/desktop/src/services/previewService.ts": true
+  },
+  "status": "preimplementation expectations frozen and native IPC/historical/diagnostic gap tests executing; later tests may add busy/native fixture witnesses only per sealed oracle"
+}

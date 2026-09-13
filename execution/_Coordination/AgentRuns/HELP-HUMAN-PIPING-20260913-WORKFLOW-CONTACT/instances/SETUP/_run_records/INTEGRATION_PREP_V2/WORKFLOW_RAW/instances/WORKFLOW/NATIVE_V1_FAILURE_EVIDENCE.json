@@ -1,0 +1,28 @@
+{
+  "command": [
+    "cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "--lib",
+    "packaged_binary_self_test_persists_restores_and_solves_edited_load",
+    "--",
+    "--nocapture"
+  ],
+  "cwd": "projects/chirality-piping",
+  "CARGO_TARGET_DIR": "lane-local apps/desktop/src-tauri/target",
+  "exit_code": 101,
+  "selected_tests": 1,
+  "passed": 0,
+  "failed": 1,
+  "filtered": 79,
+  "failure": "PACKAGED-SMOKE-SOLVE-FAILED",
+  "diagnosis_source": "core/product_physics/src/validation.rs1320-1344",
+  "diagnosis": "V1 fixture provenance lacks accepted invented/cleared token",
+  "log": "projects/chirality-piping/_run_records/workflow-task-20260913/native-selftest.log",
+  "log_sha256": "4c213600deea4fc6a82b96a9b13ed93378ec0a863de9d7e4f2dc67582649e885",
+  "new_evidence": "V2 fixture provenance validity, unchanged numerical/physics policy; parent authorizes hash re-freeze and renewed same native lease",
+  "calibration": "initial test reached analytical loop after frozen hashes/applier/file checks; no executed App history/GUI witness claimed"
+}

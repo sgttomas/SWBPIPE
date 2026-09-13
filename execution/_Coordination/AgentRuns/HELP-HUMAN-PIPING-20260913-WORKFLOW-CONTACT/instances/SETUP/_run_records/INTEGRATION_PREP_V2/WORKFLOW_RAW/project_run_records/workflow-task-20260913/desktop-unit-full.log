@@ -1,0 +1,62 @@
+
+> openpipestress-workspace@0.1.0 test:desktop
+> npm test --workspace apps/desktop
+
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/App.test.tsx (168 tests | 2 failed) 249755ms
+     × round trips review-only proposal operations through local save and open 10639ms
+     × applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model 2419ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > round trips review-only proposal operations through local save and open
+AssertionError: expected 'state=not_started; events=1; result_r…' to contain 'state=completed'
+
+Expected: "state=completed"
+Received: "state=not_started; events=1; result_rows=0; cancellation_requested=false"
+
+ ❯ src/App.test.tsx:9428:65
+    9426|     );
+    9427|
+    9428|     expect(screen.getByTestId("solve-job-summary").textContent).toCont…
+       |                                                                 ^
+    9429|       "state=completed",
+    9430|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model
+AssertionError: expected 'Deformation · unavailablenot started;…' to contain 'blocked; mechanics=model incomplete; …'
+
+Expected: "blocked; mechanics=model incomplete; rows=0"
+Received: "Deformation · unavailablenot started; result rows=0scale=not_generated; professional_claim=false"
+
+ ❯ src/App.test.tsx:13714:7
+    13712|     expect(
+    13713|       screen.getByTestId("viewport-deformation-status").textContent,
+    13714|     ).toContain("blocked; mechanics=model incomplete; rows=0");
+       |       ^
+    13715|
+    13716|     fireEvent.click(screen.getByRole("button", { name: /Save local/i }…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 47 passed (48)
+      Tests  2 failed | 835 passed (837)
+   Start at  14:22:28
+   Duration  254.02s (transform 12.86s, setup 6.67s, import 18.73s, tests 328.52s, environment 27.47s)
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run

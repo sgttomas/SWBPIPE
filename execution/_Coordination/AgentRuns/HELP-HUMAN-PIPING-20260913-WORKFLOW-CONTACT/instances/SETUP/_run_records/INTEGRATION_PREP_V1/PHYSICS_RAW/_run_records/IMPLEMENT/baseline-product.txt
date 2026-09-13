@@ -1,0 +1,22 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.28s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_product_physics-6ba20019230ed2dc)
+
+running 1 test
+
+thread 'tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution' (53667484) panicked at src/lib.rs:11567:17:
+assertion `left == right` failed: [Diagnostic { id: "diagnostic:physics:under-restrained", code: "SOLVER_SYSTEM_BLOCKED", severity: "blocking", message: "fewer than six independent ground DOFs including positive springs; restrained global DOF classes: UY,UZ,RX,RY,RZ; missing global rigid-body DOF classes: UX; support contributions: support:S-100@node:N-100=RX,RY,RZ,UY,UZ;support:NL-GAP-110@node:N-100=none", source: Some("core/product_physics"), affected_refs: ["supports"] }]
+  left: "MODEL_INCOMPLETE"
+ right: "MECHANICS_SOLVED"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution ... FAILED
+
+failures:
+
+failures:
+    tests::contact_recovery_product_crosses_preflight_and_absent_linear_solution
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 145 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`

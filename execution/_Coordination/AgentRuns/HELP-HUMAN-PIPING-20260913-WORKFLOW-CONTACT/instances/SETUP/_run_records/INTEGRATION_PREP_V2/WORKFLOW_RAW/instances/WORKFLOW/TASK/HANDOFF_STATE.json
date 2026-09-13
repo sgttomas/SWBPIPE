@@ -1,0 +1,102 @@
+{
+  "state": "LOCAL_VERIFIED_PENDING_PARENT",
+  "candidate_version": 2,
+  "frozen_utc": "2026-09-13T20:36:48.118756+00:00",
+  "upstream_accepted_by_manager": [
+    "sealed TASK_BRIEF.md",
+    "FROZEN_ORACLES.json",
+    "independently hash-approved fixture/intents; provenance-only FIXTURE_VALIDITY_V2",
+    "parent-authorized loader-only candidate V2 correction"
+  ],
+  "derivative_package_status": "TASK source/evidence return; not authoritative decomposition or lifecycle closure",
+  "closure_verdict": "local bounded implementation verified; parent acceptance and integration outstanding",
+  "records": {
+    "BRIEF_BINDING.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/BRIEF_BINDING.json",
+      "sha256": "2809d6510180db586c6ec021245c7fc3dd575f4890cb5b80ce601896be263c35"
+    },
+    "CHECKS_FINAL.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/CHECKS_FINAL.json",
+      "sha256": "60376067b115552e6ac0fc83948d2bf517516376301cc5b309b74e487d921951"
+    },
+    "SOURCE_MANIFEST_FINAL.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SOURCE_MANIFEST_FINAL.json",
+      "sha256": "db28121a813e0a7c192a0463b426f5ab1366e4dc9f4a5222a206e80647e00655"
+    },
+    "RETURN.md": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/RETURN.md",
+      "sha256": "4dceeb22d0c995616e8588757f11708285ca11dbb8b7a7075663454656b16a78"
+    },
+    "LOADER_COMPATIBILITY_PREEDIT.json": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/LOADER_COMPATIBILITY_PREEDIT.json",
+      "sha256": "d94848234d4c119ba768350bedcad7d145f2cfe63e69ccc2a56b4edb9e4b3b53"
+    }
+  },
+  "source_hashes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9",
+      "post_sha256": "1090c171ff1fbf54d56d340d5e71bada491bf14d0c2a07ba8bb500d080808389"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e",
+      "post_sha256": "9cab9e97b300cf3fd10dd1797476a886f6550364464e93c45bd273f749fa9a57"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": null,
+      "post_sha256": "aef33888776012e8138e3c8e0d4540b9034c66181d00051266c91456ac2f5cc6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": null,
+      "post_sha256": "849f316081f63d5b7d8cb32c9651ebd424120be6386144ee7ac4c8fbc5a1b341"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "pre_sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f",
+      "post_sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b",
+      "post_sha256": "6f26a7fd23528acea8d4a65c17cfff1a31ae92816e4bc28afa6e190d3c3dbcaa"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "pre_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81",
+      "post_sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c",
+      "post_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "v1_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/TASK/SUPERSEDED_CANDIDATE_V1",
+  "checks": {
+    "full_desktop_unit_v1": "48 files / 838 passed; exit0; before loader-only V2",
+    "final_v2_service_unit": "21 passed; exit0",
+    "final_v2_desktop_build": "tsc-b + Vite passed; exit0",
+    "source_lifecycle_playwright": "2 configured projects passed; exit0; V1 unaffected by V2 native-only loader correction",
+    "native_selftest": "1passed/79filtered; frozen provenance V2; exit0; no packaged GUI binary witness",
+    "diff_check": "PASS"
+  },
+  "rerun_requirements": [
+    "parent integration/global distribution checks after combining accepted physics/workflow candidates",
+    "independent final100percent source/test review with V2 loader correction",
+    "actual native GUI fresh solve/quit-reopen/UI history witness"
+  ],
+  "remaining_blockers": [
+    "parent acceptance, four-doc binding and integration gates outstanding; no child implementation blocker"
+  ],
+  "deferred": [
+    "generic malformed historical MechanicsResult schema compatibility",
+    "model-history shortcut feature currently absent",
+    "native checkpoint clones do not prove actual native UI undo/redo",
+    "native saved analysis/input manifest absent because no native analysis builder"
+  ],
+  "lease_status": "all granted lane leases released; no distribution/native/GUI action assigned",
+  "claim_fence": "F-PIP-2 / DEC-081; no professional acceptance or lifecycle closure"
+}

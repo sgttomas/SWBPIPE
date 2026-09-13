@@ -1,0 +1,3 @@
+# Candidate checkpoint handoff
+
+Physics and workflow V2 integrated:10 product/test files and8 deliverable docs; exact manager source hashes match. Integration-only candidate evidence reference corrections bound transparently; complete raw manager packets preserved under SETUP run_records with portable wrappers. Source frozen for identifiable pre-final-review checkpoint. Native TASK preparation is frozen and owns only instances/NATIVE_VERIFY; parent exclusive build/GUI lease required. Fresh native GUI witness and any resulting repair precede final100%integrated review, then complete clean DEC025/publication gates. No final review/sweep/CI, lifecycle issuance or whole-project closure claimed. NEXT_WORK is preparation only; deferred UI/harness/CAEPIPE unchanged.

@@ -1,0 +1,12 @@
+{
+  "parent": "/root HELP_HUMAN",
+  "task": "/root/native_workflow_verify",
+  "role": "TASK",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "write_scope": "instances/NATIVE_VERIFY only",
+  "status": "read-only preparation dispatched; no build/GUI lease",
+  "enforcement": "instruction-asserted role/no-delegation; parent configured model attribution",
+  "source_binding": "pending exact candidate checkpoint SHA",
+  "supersedes_native_prerequisite": "no full-review prerequisite; native witness precedes final integrated review"
+}

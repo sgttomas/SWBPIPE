@@ -1,0 +1,1 @@
+No preliminary linear_solver_mode_basis, sparse_live_path_dense_parity_relative_delta or result:sparse-live:dense-parity-relative-delta when preliminary solve has no solution. Existing test wildcard dense_sparse was not sensitive to actual parity spelling.

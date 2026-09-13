@@ -1,0 +1,18 @@
+{
+  "status": "SUCCESS",
+  "source_bindings": {
+    "projects/chirality-piping/core/product_physics/src/lib.rs": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/MEMORY.md": "a00bb9836ad1a8fc06d652ca20bb5479efceeb9da1251bd09335e8097397d46b",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-04_Nonlinear support active-set solver/_STATUS.md": "5606d6bde0c5966e18370d19847be9535b23b3dc3e139532533f7aae07443e3d",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/MEMORY.md": "cb9fc61da481ed70fed30a4e2284df28dc9087d01140139de630ae3f9d1274df",
+    "projects/chirality-piping/execution/PKG-09_Verification, Validation, and Quality Oracles/1_Working/DEL-09-03_Nonlinear support regression suite/_STATUS.md": "18e1c909810f82ea72801b09655b024e4863249ff17a9de12012e27cee6c190f"
+  },
+  "patch": "f3b015a84376e96e1ec77ca5c00d1464f2c34d7a65e7f17fbb2f10bf3aef57a2",
+  "raw_file_count": 72,
+  "workflow": "pending release",
+  "native_ready": false,
+  "source_repairs": false,
+  "builds": false,
+  "git_publication": false
+}

@@ -1,0 +1,48 @@
+{
+  "base": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "branch": "codex/piping-workflow-integrity-20260913",
+  "writer": "TASK workflow_task",
+  "source_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "pre_sha256": "a9217c959bfc2979e21cde5d5baf865f75258f03b902ecdd2c0fd545e5bfbde9"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "pre_sha256": "ab4cb9482a56436085ccb79b40f269768d12bb5beca82dc45c4a22bb4fd86a6e"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "pre_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "pre_sha256": null
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "pre_sha256": "02a773947223e27b4c01d3c7e208a2806e6b532a791423d025293dac03675c2f"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "pre_sha256": "54fce6bcec3fd82bda27d5e022a4cfb14a4c7a1e457cdc89e1feedf3930e7b9b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "pre_sha256": "d9f8cfc11a5763a22da42eb2c2fbb43cb299f6205d1d481c6b3a8cb55cc9de81"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "3508ec3ae9e926a0ffc13120ce1ec0a535e8d71acbbdfa8fe250619e3014785c"
+    }
+  ],
+  "native_scope": "existing packaged_saved_edited_load fixture/helper/selftest sections only",
+  "fixture": "embedded invented model, frozen evidence before source mutation",
+  "parent": "/root",
+  "manager": "/root/workflow_implementation_manager",
+  "child": "/root/workflow_implementation_manager/workflow_task",
+  "mechanism": "delegated-harness-native",
+  "enforcement": "instruction-asserted; actual unrestricted host filesystem; no claim of mechanical scope or runtime model attestation",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high"
+}

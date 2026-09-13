@@ -1,9 +1,10 @@
 # Status: DEL-07-07 Solve execution UX: progress, cancellation, and diagnostics
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-13
 
 ## Remaining
+- Complete parent-owned integrated review, required registered checks and fresh packaged GUI quit/reopen witness for the bounded 2026-09-13 workflow integration candidate; focused evidence does not close the deliverable. Basis: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/WORKFLOW_PORTABLE_BINDING_V1.json`.
 - Complete producer-side carriage of diagnostic class, remediation, and provenance where upstream producers still emit the reduced desktop shape; the PDU-008 UI preserves and displays those fields when supplied but does not fabricate them.
 
 ## History

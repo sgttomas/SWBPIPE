@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "source_hashes": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": "beb6b88d8397cf6e2cd2285571120fd926b3e20a5f80153cf0a5a6a251f48981",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics/src/lib.rs": "99e96aac1245bfb7276b95c575c89b2185e757e657c605b9e38eb5374086d108"
+  },
+  "patch_sha256": "59992a8fd04fd6948e9cdda0a8cc80de82f1e238a9aa38d84adf7b6f857071b7",
+  "issues": [],
+  "manager_check": "contract fan-in and bytes/evidence binding; does not replace parent-owned fresh independent integrated review"
+}

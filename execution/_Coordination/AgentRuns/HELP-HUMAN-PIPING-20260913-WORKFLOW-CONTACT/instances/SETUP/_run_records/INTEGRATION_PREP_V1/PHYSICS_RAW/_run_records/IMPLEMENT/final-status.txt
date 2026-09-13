@@ -1,0 +1,3 @@
+ M projects/chirality-piping/core/product_physics/src/lib.rs
+ M projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/

@@ -23,9 +23,9 @@ use open_pipe_stress_load_case_algebra::{
     CombinationTerm, FindingCode, RangeMode,
 };
 use open_pipe_stress_nonlinear_integration::{
-    solve_active_set_frame_with_mode_and_springs, ConvergenceControl, ConvergencePolicyStatus,
-    CurvedBendStiffnessElement, DerivedFrictionNormalReaction, FrictionNormalReaction,
-    LinearSolveMode, NonlinearFrameSolveInput, NonlinearFrameSolveResult,
+    eligible_contact_dofs, solve_active_set_frame_with_mode_and_springs, ConvergenceControl,
+    ConvergencePolicyStatus, CurvedBendStiffnessElement, DerivedFrictionNormalReaction,
+    FrictionNormalReaction, LinearSolveMode, NonlinearFrameSolveInput, NonlinearFrameSolveResult,
     NonlinearIntegrationError, NonlinearResidualObservation,
 };
 use open_pipe_stress_nonlinear_supports::{
@@ -877,7 +877,16 @@ pub fn run_linear_static_preview_with_mode(
     append_constant_effort_consumption_diagnostics(&model, &mut diagnostics);
 
     let boundary = prepare_boundary(built.nodes.len(), &built.supports);
-    if boundary.restrained_dofs.is_empty() && boundary.springs.is_empty() {
+    let potential_contact_dofs = eligible_contact_dofs(
+        built.nodes.len(),
+        &boundary.restrained_dofs,
+        &built.nonlinear_supports,
+        &built.nonlinear_initial_states,
+    );
+    if boundary.restrained_dofs.is_empty()
+        && boundary.springs.is_empty()
+        && potential_contact_dofs.is_none()
+    {
         diagnostics.push(diag(
             "diagnostic:physics:no-restraints",
             "SUPPORT_INPUT_MISSING",
@@ -901,6 +910,7 @@ pub fn run_linear_static_preview_with_mode(
                 .filter(|spring| spring.stiffness.value > 0.0)
                 .map(|spring| spring.node_dof.global_index()),
         )
+        .chain(potential_contact_dofs.iter().flatten().copied())
         .collect::<HashSet<_>>();
     if !ground_dofs.is_empty() && ground_dofs.len() < DOF_PER_NODE {
         let (restrained, missing) = support_restraint_summary(&boundary.restrained_dofs);
@@ -1295,7 +1305,9 @@ fn solve_load_case(
             .chain(force.iter().copied()),
     )?;
     let reduced = reduce_system(stiffness, &force, restrained_dofs)?;
-    let linear_solve = solve_preview_reduced_system(
+    // Preliminary linear evidence belongs only to an actual successful solve.
+    let mut preliminary_diagnostics = Vec::new();
+    let attempted_linear = solve_preview_reduced_system(
         solver_mode,
         &reduced.stiffness,
         &reduced.force,
@@ -1304,29 +1316,50 @@ fn solve_load_case(
         &force,
         restrained_dofs,
         load_case,
-        diagnostics,
-    )?;
-    let reduced_displacements = linear_solve.solution.clone();
+        &mut preliminary_diagnostics,
+    );
+    let linear_solve = match attempted_linear {
+        Ok(solve) => {
+            diagnostics.extend(preliminary_diagnostics);
+            Some(solve)
+        }
+        Err(FrameKernelError::SingularSystem { .. })
+            if eligible_contact_dofs(
+                built.nodes.len(),
+                restrained_dofs,
+                &built.nonlinear_supports,
+                &built.nonlinear_initial_states,
+            )
+            .is_some() =>
+        {
+            None
+        }
+        // The staged solver diagnostics currently contain only the warning
+        // advertising a completed dense fallback. A failed attempt has no
+        // solution basis to advertise; propagate its actual error alone.
+        Err(error) => return Err(error),
+    };
 
     let mut displacements = vec![0.0; built.nodes.len() * DOF_PER_NODE];
-    for (index, dof) in reduced.free_dofs.iter().enumerate() {
-        displacements[*dof] = reduced_displacements[index];
-    }
-
     let mut results = Vec::new();
-    append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, &linear_solve);
     append_modulus_basis_record(&mut results, load_case, modulus_basis_record);
-    if solver_mode == PreviewSolverMode::DenseScrutiny {
-        append_sparse_live_path_evidence(
-            &mut results,
-            diagnostics,
-            &load_case.id,
-            built,
-            spring_entries,
-            &force,
-            restrained_dofs,
-            &reduced_displacements,
-        );
+    if let Some(linear_solve) = &linear_solve {
+        for (index, dof) in reduced.free_dofs.iter().enumerate() {
+            displacements[*dof] = linear_solve.solution[index];
+        }
+        append_linear_solver_mode_evidence(&mut results, &load_case.id, solver_mode, linear_solve);
+        if solver_mode == PreviewSolverMode::DenseScrutiny {
+            append_sparse_live_path_evidence(
+                &mut results,
+                diagnostics,
+                &load_case.id,
+                built,
+                spring_entries,
+                &force,
+                restrained_dofs,
+                &linear_solve.solution,
+            );
+        }
     }
     let selected_nonlinear = append_nonlinear_support_loop_results(
         &mut results,
@@ -11554,6 +11587,171 @@ mod tests {
         assert!(!diagnostic_codes.contains("NONLINEAR_SUPPORT_LOOP_BLOCKED"));
     }
 
+    // CONTACT_REPAIR_V2_EXPECTATIONS_BEGIN
+    #[test]
+    fn contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback() {
+        let mut input = gap_closure_preview_request();
+        input.model.supports[0].restraints.retain(|dof| dof != "UX");
+        input.model.supports[1].nonlinear = None;
+        input.model.supports[1].family = Some("guide".into());
+        input.model.supports[1].restraints = vec!["UY".into()];
+        let result =
+            run_linear_static_preview_with_mode(input, PreviewSolverMode::SparseInteractive);
+        assert_ne!(result.status.mechanics, "MECHANICS_SOLVED");
+        assert!(result
+            .diagnostics
+            .iter()
+            .any(|d| d.severity == "blocking" && d.message.contains("singular")));
+        assert!(
+            !result
+                .diagnostics
+                .iter()
+                .any(|d| d.code == "SPARSE_INTERACTIVE_DENSE_FALLBACK"),
+            "{:?}",
+            result.diagnostics
+        );
+        assert!(result.results.is_empty());
+    }
+
+    #[test]
+    fn contact_recovery_product_selected_tip_matches_axial_oracle_and_reverse_blocks() {
+        // Existing invented fixture: L=1 m, E=200e9 Pa, OD=.168 m,
+        // wall=.007 m, A=pi/4*(OD^2-ID^2), F=100000 N, g=.05 mm.
+        // Selected tip ux=(g+F*L/(E*A))*1000 mm; no output-derived expectation.
+        let area = std::f64::consts::PI / 4.0 * (0.168_f64.powi(2) - 0.154_f64.powi(2));
+        let expected_tip_mm = 0.05 + 100000.0 / (200e9 * area) * 1000.0;
+        for mode in [
+            PreviewSolverMode::DenseScrutiny,
+            PreviewSolverMode::SparseInteractive,
+        ] {
+            for seed in ["active", "inactive"] {
+                let mut input = gap_closure_preview_request();
+                input.model.supports[0].restraints.retain(|dof| dof != "UX");
+                input.model.supports[1].node = "node:N-100".into();
+                input.model.supports[1]
+                    .nonlinear
+                    .as_mut()
+                    .unwrap()
+                    .initial_state = Some(seed.into());
+                let solved = run_linear_static_preview_with_mode(input.clone(), mode);
+                assert_eq!(solved.status.mechanics, "MECHANICS_SOLVED");
+                assert!(
+                    (result_value(&solved, "result:disp:node-N-110:ux") - expected_tip_mm).abs()
+                        <= 0.5e-6 + 1e-10
+                );
+                assert!(
+                    (result_value(&solved, "result:disp:node-N-100:ux") - 0.05).abs()
+                        <= 0.5e-6 + 1e-10
+                );
+                input.model.load_cases[0].primitive_loads[0].magnitude.value = -100000.0;
+                let reversed = run_linear_static_preview_with_mode(input, mode);
+                assert_ne!(reversed.status.mechanics, "MECHANICS_SOLVED");
+                assert!(reversed.results.is_empty());
+                assert!(reversed
+                    .diagnostics
+                    .iter()
+                    .any(|d| d.severity == "blocking" && d.message.contains("singular")));
+            }
+        }
+    }
+    // CONTACT_REPAIR_V2_EXPECTATIONS_END
+
+    // CONTACT_CLASS_FROZEN_BEGIN
+    #[test]
+    fn contact_recovery_product_insufficient_or_invalid_potential_restraint_stays_blocked() {
+        for case in 0..5 {
+            let mut input = gap_closure_preview_request();
+            input.model.supports[0].restraints.retain(|dof| dof != "UX");
+            input.model.supports[1].node = "node:N-100".to_string();
+            match case {
+                0 => input.model.supports[0].restraints.retain(|dof| dof != "UY"),
+                1 => input.model.supports[1].nonlinear.as_mut().unwrap().dof = "RX".to_string(),
+                2 => {
+                    input.model.supports[1]
+                        .nonlinear
+                        .as_mut()
+                        .unwrap()
+                        .initial_state = Some("sticking".to_string())
+                }
+                3 => {
+                    input.model.supports[1]
+                        .nonlinear
+                        .as_mut()
+                        .unwrap()
+                        .gap
+                        .as_mut()
+                        .unwrap()
+                        .value = -1.0
+                }
+                _ => input.model.supports[1].nonlinear.as_mut().unwrap().dof = "UY".to_string(),
+            }
+            let result = run_linear_static_preview(input);
+            assert_ne!(result.status.mechanics, "MECHANICS_SOLVED");
+            assert!(result.results.is_empty());
+            assert!(result.diagnostics.iter().any(|d| d.severity == "blocking"));
+        }
+    }
+    // CONTACT_CLASS_FROZEN_END
+
+    // CONTACT_RECOVERY_FROZEN_BEGIN
+    #[test]
+    fn contact_recovery_product_crosses_preflight_and_absent_linear_solution() {
+        for mode in [
+            PreviewSolverMode::DenseScrutiny,
+            PreviewSolverMode::SparseInteractive,
+        ] {
+            for seed in ["active", "inactive"] {
+                let mut input = gap_closure_preview_request();
+                input.model.supports[0].restraints.retain(|dof| dof != "UX");
+                input.model.supports[1].node = "node:N-100".to_string();
+                input.model.supports[1]
+                    .nonlinear
+                    .as_mut()
+                    .unwrap()
+                    .initial_state = Some(seed.to_string());
+                let result = run_linear_static_preview_with_mode(input, mode);
+                assert_eq!(
+                    result.status.mechanics, "MECHANICS_SOLVED",
+                    "{:?}",
+                    result.diagnostics
+                );
+                assert!(
+                    (result_value(
+                        &result,
+                        "result:nonlinear-support:support-NL-GAP-110:ux-displacement"
+                    ) - 0.05)
+                        .abs()
+                        <= 0.5e-6 + 1e-10
+                );
+                assert!(
+                    (result_value(
+                        &result,
+                        "result:nonlinear-support:support-NL-GAP-110:ux-reaction"
+                    ) + 100000.0)
+                        .abs()
+                        <= 0.5e-6 + 1e-10
+                );
+                assert!(result
+                    .results
+                    .iter()
+                    .all(|r| r.kind != "linear_solver_mode_basis"
+                        && r.kind != "sparse_live_path_dense_parity_relative_delta"
+                        && r.id != "result:sparse-live:dense-parity-relative-delta"));
+                assert!(!result
+                    .diagnostics
+                    .iter()
+                    .any(|d| d.code == "SPARSE_INTERACTIVE_DENSE_FALLBACK"));
+                if seed == "inactive" {
+                    assert!(result
+                        .diagnostics
+                        .iter()
+                        .any(|d| d.severity == "warning" && d.message.contains("all-active")));
+                }
+            }
+        }
+    }
+    // CONTACT_RECOVERY_FROZEN_END
+
     fn gap_closure_preview_request() -> LinearStaticPreviewRequest {
         two_node_nonlinear_preview_request(
             "support:NL-GAP-110",
@@ -11821,8 +12019,7 @@ mod tests {
                         metadata.component == "shear_force_y"
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "end_i"
-                            && metadata.basis
-                                == "recovered_from_local_element_stiffness"
+                            && metadata.basis == "recovered_from_local_element_stiffness"
                     })
                     .unwrap_or(false)
         }));
@@ -11852,8 +12049,7 @@ mod tests {
                         metadata.component == "shear_force_z"
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "quarter_1"
-                            && metadata.basis
-                                == "recovered_from_local_element_stiffness"
+                            && metadata.basis == "recovered_from_local_element_stiffness"
                     })
                     .unwrap_or(false)
         }));
@@ -12146,8 +12342,7 @@ mod tests {
                         metadata.component == "torsional_shear_stress"
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "midspan"
-                            && metadata.basis
-                                == "recovered_from_open_mechanics_stress_components"
+                            && metadata.basis == "recovered_from_open_mechanics_stress_components"
                     })
                     .unwrap_or(false)
         }));
@@ -12162,8 +12357,7 @@ mod tests {
                         metadata.component == "torsional_shear_stress"
                             && metadata.coordinate_system == "element_local"
                             && metadata.location == "quarter_1"
-                            && metadata.basis
-                                == "recovered_from_open_mechanics_stress_components"
+                            && metadata.basis == "recovered_from_open_mechanics_stress_components"
                     })
                     .unwrap_or(false)
         }));
@@ -15784,7 +15978,10 @@ mod tests {
                     result_value(&result, "result:moment:pipe-P-100:midspan:bending-z"),
                     50.0,
                 );
-                for id in ["result:force:pipe-P-100:shear-y:end-j", "result:moment:pipe-P-100:bending-z:end-j"] {
+                for id in [
+                    "result:force:pipe-P-100:shear-y:end-j",
+                    "result:moment:pipe-P-100:bending-z:end-j",
+                ] {
                     p5_close(result_value(&result, id), 0.0);
                 }
                 // Rigid rotation: local X -> global Y, local Y -> global Z.
@@ -16090,25 +16287,49 @@ mod tests {
 
     #[test]
     fn p5_disjoint_spans_superpose_signed_member_fields() {
-        for mode in [PreviewSolverMode::DenseScrutiny, PreviewSolverMode::SparseInteractive] {
+        for mode in [
+            PreviewSolverMode::DenseScrutiny,
+            PreviewSolverMode::SparseInteractive,
+        ] {
             let mut separate = p5_uniform_request(Some((0.0, 0.25)));
-            let mut second = p5_uniform_request(Some((0.75, 1.0))).model.load_cases.remove(0);
+            let mut second = p5_uniform_request(Some((0.75, 1.0)))
+                .model
+                .load_cases
+                .remove(0);
             second.id = "load:second-span".into();
             let mut combination = request().model.combinations[0].clone();
             combination.id = "combination:spans".into();
             combination.terms = vec![
-                PreviewCombinationTerm { load_case: separate.model.load_cases[0].id.clone(), factor: 1.0 },
-                PreviewCombinationTerm { load_case: second.id.clone(), factor: 1.0 },
+                PreviewCombinationTerm {
+                    load_case: separate.model.load_cases[0].id.clone(),
+                    factor: 1.0,
+                },
+                PreviewCombinationTerm {
+                    load_case: second.id.clone(),
+                    factor: 1.0,
+                },
             ];
             separate.model.load_cases.push(second);
             separate.model.combinations = vec![combination];
             let summed = run_linear_static_preview_with_mode(separate, mode);
             let mut union = p5_uniform_request(Some((0.0, 0.25)));
-            union.model.load_cases[0].equivalent_static.as_mut().unwrap().wind.as_mut().unwrap().exposed_spans.push(exposed_span_input("pipe:P-100", 0.75, 1.0));
+            union.model.load_cases[0]
+                .equivalent_static
+                .as_mut()
+                .unwrap()
+                .wind
+                .as_mut()
+                .unwrap()
+                .exposed_spans
+                .push(exposed_span_input("pipe:P-100", 0.75, 1.0));
             let union = run_linear_static_preview_with_mode(union, mode);
             assert_eq!(summed.status.mechanics, "MECHANICS_SOLVED");
             assert_eq!(union.status.mechanics, "MECHANICS_SOLVED");
-            for row in union.results.iter().filter(|row| row.id.starts_with("result:force:") || row.id.starts_with("result:moment:") || row.id.starts_with("result:disp:")) {
+            for row in union.results.iter().filter(|row| {
+                row.id.starts_with("result:force:")
+                    || row.id.starts_with("result:moment:")
+                    || row.id.starts_with("result:disp:")
+            }) {
                 let combined = qualified_combination_result_id("combination:spans", &row.id);
                 p5_close(result_value(&summed, &combined), row.value);
             }

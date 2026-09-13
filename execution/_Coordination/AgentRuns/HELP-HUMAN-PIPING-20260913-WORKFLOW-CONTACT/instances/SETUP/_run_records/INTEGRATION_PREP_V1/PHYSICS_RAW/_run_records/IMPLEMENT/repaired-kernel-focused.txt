@@ -1,0 +1,12 @@
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_nonlinear_integration-01a54563299997ea)
+
+running 4 tests
+test tests::contact_recovery_invalid_classes_do_not_rescue_and_springs_survive ... ok
+test tests::contact_recovery_caps_and_later_singularity_are_honest ... ok
+test tests::contact_recovery_two_gap_independent_oracle_seeds_order_modes ... ok
+test tests::contact_recovery_signed_gap_one_way_lift_off_and_zero_conventions ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 38 filtered out; finished in 0.00s
+

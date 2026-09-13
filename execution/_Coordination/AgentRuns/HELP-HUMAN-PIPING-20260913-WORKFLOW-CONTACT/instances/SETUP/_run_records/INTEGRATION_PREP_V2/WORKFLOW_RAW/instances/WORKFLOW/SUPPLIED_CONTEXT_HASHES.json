@@ -1,0 +1,286 @@
+[
+  {
+    "path": "AGENTS.md",
+    "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352"
+  },
+  {
+    "path": "agents/AGENT_WORKING_ITEMS.md",
+    "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+  },
+  {
+    "path": "agents/AGENT_TASK.md",
+    "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+  },
+  {
+    "path": "workflows/software-bounded-implementation/WORKFLOW.md",
+    "sha256": "2ea0ddf4f53241fa94274e709b8042ad9de4d8beb9c82cd1ed1dcd0c6f8f0f7b"
+  },
+  {
+    "path": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+    "sha256": "9cc54bfb649168801c2ea060acb242145f48a0e08ac893e6ca38824439f7c5b3"
+  },
+  {
+    "path": "projects/chirality-piping/AGENTS.md",
+    "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+  },
+  {
+    "path": "projects/chirality-piping/software-workflow.json",
+    "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+  },
+  {
+    "path": "projects/chirality-piping/loop/LOOP_INIT.md",
+    "sha256": "a1ad58ec66928331f25ab36b6829c431fefc6421aa1ec8ccf6ff1ac1ee23989e"
+  },
+  {
+    "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+  },
+  {
+    "path": "projects/chirality-piping/docs/CONTRACT.md",
+    "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+  },
+  {
+    "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+    "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+    "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+  },
+  {
+    "path": "projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md",
+    "sha256": "54a5adcbe97735ccc92362080a4ff9324bab879f700599c50d864c8b8dc80bbd"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+    "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+    "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+    "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_REFERENCES.md",
+    "sha256": "92c528e4f69c1523d61e70b21edd69e3c32b62333adad69eb7be0463ffd0f6ed"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+    "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md",
+    "sha256": "755e944ec0fa816ab999134276da23bd7ab695eb39610f7a7c5843db3b2537e5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md",
+    "sha256": "d506c29e733fecf3994f616a2c1ab6e9deab77d67301d69e140e7bc697b0c854"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_CONTEXT.md",
+    "sha256": "98905789a8df97324b033217015c0fc1d78e8bcdca9cda26eab9bd0f2d8756c9"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_REFERENCES.md",
+    "sha256": "550487c1e58d5ead2e31d0ed4d9c803868d040a9dbaaa9fbf6222ca3c653a8bc"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/Dependencies.csv",
+    "sha256": "f28b941100992d1687448e3ad694be4b741efbe839df0a64809b77c61905114e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md",
+    "sha256": "b5e7bca7e32b349f45380f549cb30f3cce3b439401cb0de277e010dd44a7b50d"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md",
+    "sha256": "307acc7b16b8cb1b2e7b5de2a4768fc44b4287a9bd578f24a45bf67115008bc1"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_CONTEXT.md",
+    "sha256": "4bf9bede3e5467fb6b03fe8eb42b3d0e9c6191fbca44469620cd436e741346d5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_REFERENCES.md",
+    "sha256": "a9fc7cb1d903de708477eb1c02b7c0dc117c2c17ae386c7bc2aa581a64d2ca52"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/Dependencies.csv",
+    "sha256": "5cd659fe82bd40224fdd3345b18ced909a2f29a27c3691949cde5b7a1732399c"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+    "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+    "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_REFERENCES.md",
+    "sha256": "8192dd1061cc0b64fa264bac445e7c996b117aff81bf54634055bc076b4b9e9b"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+    "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+    "sha256": "a303d95ca05250a25681302e83c34de3d03ffc315b329cdfa3744d33ec1ef0ba"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+    "sha256": "a443149d225010599250821db7d6a090ffa2a52c14a397bac6563f486a05ffbf"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_CONTEXT.md",
+    "sha256": "7fc80d884877e6ffad0be1c248d38940c1d22eb965870097a3000cc8b7bdcd96"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_REFERENCES.md",
+    "sha256": "1cbe28b9a018b6efae5921ca1d5ef1a352b45410f74622aa1804d1dd655bdfef"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/Dependencies.csv",
+    "sha256": "b30266d95aa573c2172b5342f1db6ad5a58270777e9502b8b7702ec63752c260"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+    "sha256": "40fde135a21a9adc07c56694b617e7151d2d215a1a36ff6f7915bf3d1111bd29"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+    "sha256": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+    "sha256": "8671b445ce7f168ae6d0197a41971cf889a9b0fa076190d78dbd9e249bb9b469"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_REFERENCES.md",
+    "sha256": "d818e69e3db09591f16d4c587364f044277bd3c299e2e4815063d49e33debad5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+    "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+    "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+    "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+    "sha256": "dfb94b10c777df62fd41a33053b11b4a33a4a695dc4f5de0e2d34a887b6b1361"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_REFERENCES.md",
+    "sha256": "c43b73e94366b7f529d4d870fe2c04721a6cf6ad7882374275ec5f9528c587f6"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+    "sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/ScopeOfWork.md",
+    "sha256": "af413bb0a7429968f8943d152100092fa16541dc4236534229ba4b669ddba9dd"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_DEPENDENCIES.md",
+    "sha256": "f8ac68f5d9f1e119568d12b1fab8fa6acdd29d8e61eea0304bd158094ab11e11"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_REVIEW.md",
+    "sha256": "e4c33c66666bb506a7fb3061f214f07dd238ef8ba82a871d0021e44227db9301"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/ScopeOfWork.md",
+    "sha256": "f19149afe287b28c3716ef647d414f9cad66fe86dde2bdccd812129ecbff6940"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_DEPENDENCIES.md",
+    "sha256": "80fda7ac38273a74760cc64f254c83266f4c596d7995c06b4277de2821bf4de9"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_REVIEW.md",
+    "sha256": "a1a5af9340b146bbe1dd9fc66c3a30277e305b956a142fe7569db9eeaee2752e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/ScopeOfWork.md",
+    "sha256": "ed7f09455774a79cc32a476551126c308772d0766fc94944c52d61e725848138"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_DEPENDENCIES.md",
+    "sha256": "bd4c05544afba6bebeef652bfb3c41e758b914f022aada18358b44a3d6369500"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_REVIEW.md",
+    "sha256": "d2334d84580c67fe2f03b96d846b1760c6c1852e8505ab2e18ac5708cbf8cbfb"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_DEPENDENCIES.md",
+    "sha256": "dd5cc229d607ee2acbd2615a201b05fb0ea6b54a757878f3caf00a425c79bb85"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/ScopeOfWork.md",
+    "sha256": "dd0229328bb017fb13260802f9ab2b5203d29025128050b8e007695c59b28bd7"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_DEPENDENCIES.md",
+    "sha256": "c860a315a8f8c248153d985f5cb2216797d9b72b19750dbd57417eed549c6a8e"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_REVIEW.md",
+    "sha256": "15c1195ea530a18aeee5b1a1e315f216064ac2b1203035d91239367900538631"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/ScopeOfWork.md",
+    "sha256": "18de954191934d4fe7cfb1d4d9b58c322c478bab4161a7e103553609f7afafd5"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_DEPENDENCIES.md",
+    "sha256": "08836c3eec66b6dae4c5e8594e137b3e9a86dde035d3434379bf0d45f0554b05"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_REVIEW.md",
+    "sha256": "c22274a933e4a040b1520004d286d71a696af6bc6d3953774bfae0e54c3a7d23"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/ScopeOfWork.md",
+    "sha256": "8d18e255ac56e0f713ac5dda24e9e74a4ac7f03fa59e1f5653345df49deff4cd"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_DEPENDENCIES.md",
+    "sha256": "d000578237e3935a433bc881721c1c0fc8c1fff1f058279a898bf2ca86df222a"
+  },
+  {
+    "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_REVIEW.md",
+    "sha256": "4d0a3216251d948dc37413416b8a21c2afba31a336a32e5c6c657abad7206dee"
+  },
+  {
+    "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+    "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+    "consultation": "read-only fixture law/provenance/hash diagnosis; source edits excluded"
+  },
+  {
+    "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+    "sha256": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897",
+    "consultation": "read-only fixture law/provenance/hash diagnosis; source edits excluded"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+    "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+    "consultation": "read-only fixture law/provenance/hash diagnosis; source edits excluded"
+  },
+  {
+    "path": "projects/chirality-piping/core/solver/straight_pipe/src/lib.rs",
+    "sha256": "22c7231bf3c53c67bfcb8de702dda318f8731d784d37b8373362089bbcc57c09",
+    "consultation": "read-only fixture law/provenance/hash diagnosis; source edits excluded"
+  }
+]

@@ -1,0 +1,32 @@
+{
+  "parent": "/root",
+  "manager": "/root/contact_implementation_manager",
+  "role": "WORKING_ITEMS Type1",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "runtime_attestation": "Not independently proven; host-configured identity only",
+  "mechanism": "delegated-harness-native; boundaries instruction-asserted",
+  "basis": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "scope": "Explicit approved bounded PKG04/PKG09 integration anchored DEL-04-04; product caller accommodations",
+  "source_write_paths": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/solver/nonlinear_integration/README.md",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics/src/lib.rs"
+  ],
+  "tests": "inline focused test modules in the two selected src/lib.rs; no external fixture mutation selected",
+  "oracle_sha256": "c17189221f345c4f749e5b674aa02d554024ebea7329925f23e0713886102028",
+  "read_origins": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/AGENTS.md": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/agents/AGENT_TASK.md": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/AGENTS.md": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/docs/SOFTWARE_WORKFLOW_PROFILE.md": "9cc54bfb649168801c2ea060acb242145f48a0e08ac893e6ca38824439f7c5b3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/workflows/software-bounded-implementation/WORKFLOW.md": "2ea0ddf4f53241fa94274e709b8042ad9de4d8beb9c82cd1ed1dcd0c6f8f0f7b"
+  },
+  "work_graph": [
+    "manager freezes oracle/scope",
+    "TASK writes source and tests; proves baseline failure before edits",
+    "manager fan-in and frozen return",
+    "parent fresh complete integrated review and serialized sweep/Git"
+  ]
+}

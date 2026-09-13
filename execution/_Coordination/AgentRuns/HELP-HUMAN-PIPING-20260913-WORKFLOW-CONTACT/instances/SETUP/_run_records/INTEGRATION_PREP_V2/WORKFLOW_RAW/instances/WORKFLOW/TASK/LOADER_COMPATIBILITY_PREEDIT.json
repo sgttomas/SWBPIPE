@@ -1,0 +1,13 @@
+{
+  "phase": "frozen added loader compatibility tests before production correction",
+  "paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "b165cd1dfe499403c72ae3089fd0cbc0660c485c814edcc589d191fec190e603"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444"
+    }
+  ]
+}

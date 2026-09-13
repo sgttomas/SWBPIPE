@@ -326,3 +326,10 @@ friction model. External industry-solver validation was not run. Contact/model
 limits, numerical and threshold promotion, output/export closure, and
 formal/lifecycle acceptance remain open; state remains
 `IN_PROGRESS`.
+
+
+## 2026-09-13 — Bounded contact-initialization technical candidate
+
+- The explicitly approved integration anchored DEL-04-04 with localized product caller and DEL-09-03 verification now admits validated potential translational contacts, allows one exact first-singular all-active initialization trial, preserves signed boundaries and ordinary classifier behavior, and requires exact state stability throughout recovered-path acceptance. Later singularity remains failure. Failed preliminary solves publish no success-shaped linear fallback/parity evidence.
+- Independent analytical tests were frozen before behavioral edits. Baseline exact singular/preflight failures and the V1 failed-both-solvers diagnostic defect are retained; mixed-seed analytical corrections preserve original/erratum bytes. Product selected tip displacement is checked against g+FL/(EA), with reversed-load blocking; focused final tests pass 44 nonlinear-integration and 149 product cases with fmt/diff checks.
+- Source/evidence freeze and manager fan-in: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/PHYSICS_PORTABLE_BINDING_V1.json` and `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/INTEGRATION_PREP_V1/PHYSICS_RAW/children/IMPLEMENT_V2/RETURN.md`. This derivative package consumes copied approved direction and frozen analytical oracles; it is not decomposition authority. Parent fresh integrated review, full registered/native gates, acceptance and landed Git closeout remain pending. No lifecycle or human finding disposition changed. Existing formal/dimensional, history, broader contact/threshold and vocabulary holds remain. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).

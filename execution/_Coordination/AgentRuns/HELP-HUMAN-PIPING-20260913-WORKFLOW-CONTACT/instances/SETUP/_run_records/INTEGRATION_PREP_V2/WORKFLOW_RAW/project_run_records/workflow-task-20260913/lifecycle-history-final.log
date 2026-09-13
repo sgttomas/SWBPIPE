@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/App.test.tsx -t historical lifecycle history transitions
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 168 skipped (169)
+   Start at  14:26:32
+   Duration  4.83s (transform 1.10s, setup 64ms, import 1.31s, tests 3.16s, environment 196ms)
+

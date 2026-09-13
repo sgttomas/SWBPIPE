@@ -1,0 +1,22 @@
+{
+  "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/MEMORY.md": {
+    "before_sha256": "17b7db88f619a7ce7b35331939621c0fc071a037dfd19b0a3a041c918322e746",
+    "after_sha256": "844e1e7e418988420b3fa724811c52d63dbd0a6b372f7463feb8d259e40da13b",
+    "scope": "new candidate evidence pointers only; awaiting raw packet binding"
+  },
+  "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-07_Solve execution UX- progress, cancellation, and diagnostics/_STATUS.md": {
+    "before_sha256": "c4d01da0aefece86d22238e5b7f96a9f73e2d20252f7d38636e12509a831306d",
+    "after_sha256": "8e1b120fe9c036e8c70c1898adfc09d8d9727961af4e10a549da7e58acdb2cc1",
+    "scope": "new candidate evidence pointers only; awaiting raw packet binding"
+  },
+  "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/MEMORY.md": {
+    "before_sha256": "ef602e887bddde8a70ff6908251a3251a015cf8be8d7031769472bbd8476ec60",
+    "after_sha256": "a8e527d01b9f423c96ec0e0735267b59c3627bd5fb28edafc0382578e3ee83b2",
+    "scope": "new candidate evidence pointers only; awaiting raw packet binding"
+  },
+  "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-08_Design-authoring state and comparison workspace/_STATUS.md": {
+    "before_sha256": "a60c2c74fdd4b3940eb079c01dfda44d67cdd8452156ea0694c5cb2c899cbfa5",
+    "after_sha256": "c760f9f3b56f263497989c50764dc5d3383209cd82cb512204ef6f253fbbef26",
+    "scope": "new candidate evidence pointers only; awaiting raw packet binding"
+  }
+}

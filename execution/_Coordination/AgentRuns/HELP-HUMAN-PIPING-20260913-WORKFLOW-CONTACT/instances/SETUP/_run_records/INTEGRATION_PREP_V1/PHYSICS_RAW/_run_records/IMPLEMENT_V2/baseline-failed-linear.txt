@@ -1,0 +1,19 @@
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-contact-repair-20260913/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.91s
+     Running unittests src/lib.rs (/tmp/chirality-contact-physics-implement/debug/deps/open_pipe_stress_product_physics-6ba20019230ed2dc)
+
+running 1 test
+
+thread 'tests::contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback' (53689921) panicked at src/lib.rs:11601:9:
+[Diagnostic { id: "diagnostic:sparse-interactive:load-L-GAP:dense-fallback", code: "SPARSE_INTERACTIVE_DENSE_FALLBACK", severity: "warning", message: "DEC-053 sparse interactive solve could not complete for load case load:L-GAP; dense fallback was used and the result basis is explicit: singular pivot at ordered index 5 (original index 0)", source: Some("core/product_physics"), affected_refs: ["load:L-GAP", "DEC-053"] }, Diagnostic { id: "diagnostic:physics:solver", code: "SOLVER_SYSTEM_BLOCKED", severity: "blocking", message: "singular system at pivot 1", source: Some("core/product_physics"), affected_refs: ["model"] }]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+test tests::contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback ... FAILED
+
+failures:
+
+failures:
+    tests::contact_recovery_failed_sparse_and_dense_attempt_emits_no_success_fallback
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 148 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--lib`
