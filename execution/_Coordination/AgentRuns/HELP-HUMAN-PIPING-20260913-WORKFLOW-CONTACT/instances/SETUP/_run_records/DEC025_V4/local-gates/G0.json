@@ -1,0 +1,1 @@
+{"label": "G0", "command": ["/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python", "tools/validation/validate_root_materialization_fence.py"], "exit_code": 0}

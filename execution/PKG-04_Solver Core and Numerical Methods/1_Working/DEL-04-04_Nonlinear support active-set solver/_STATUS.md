@@ -4,7 +4,6 @@
 **Last Updated:** 2026-09-13
 
 ## Remaining
-- Complete parent-owned fresh integrated review and actual-candidate integration checks for the bounded contact-initialization candidate; focused execution is complete in `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/INTEGRATION_PREP_V1/PHYSICS_RAW/RETURN.md`, while technical acceptance and landed closeout remain pending.
 - Obtain the owning formal REVIEW disposition and accepted dimensional/conversion basis before PDU-035 closure; metadata binding is technically addressed but must not be promoted to engineering validation.
 - Define and validate any path/load-step friction-history model beyond the implemented static, path-independent final Coulomb admissibility check (gated: new D-XX ruling per mechanics plan §4) (source: mechanics plan §4 / Receipt 6 / TP-PMM-P2-FRICTION-001 §Boundaries)
 - Complete remaining contact/model qualification beyond exact-touch, contact-loss, and the bounded current-normal friction fixtures, including retained-spring mixed-friction numerical adequacy.
@@ -33,3 +32,5 @@
 - 2026-09-05 - P4 physics audit repair checkpoint accepted for R02/R04/R06 finite active-set boundary and exact contact. Fresh independent kernel/product reviews passed; final P5/fixture/P9/clean registered/native gates remain open. See dated MEMORY entry and HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P4. IN_PROGRESS and existing Remaining/Owner holds preserved.
 - 2026-09-08 - The Owner-approved bounded current-normal friction repair reached technical integration after RF backcheck and final RI `PASS`; the completed repair item was removed from Remaining. State remains IN_PROGRESS, and the surviving formal-review/dimensional, direction/history, and broader-threshold holds are unchanged.
 - 2026-09-09 - The bounded static Coulomb repair replaced unconditional sliding persistence with final current-contact, current-normal-branch, force, and motion admissibility. Focused solver/product tests and the fresh independent ten-path source review passed with zero actionable findings; the later bounded native witness also returned `PASS` for its candidate source cut. External solver validation was not run. History/model, contact, numerical/threshold, export, formal-review, and lifecycle holds remain open; state remains IN_PROGRESS.
+
+- 2026-09-13 — Bounded workflow/contact technical implementation and required local verification accepted by HELP_HUMAN; see `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/FINAL_TECHNICAL_ACCEPTANCE_V1.json`. Git publication remains pending in the run handoff; lifecycle stays `IN_PROGRESS`.

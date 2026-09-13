@@ -1,0 +1,1 @@
+{"label": "workflow_contract", "command": ["/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python", "tools/validation/validate_workflow_metadata.py", "--json"], "exit_code": 0}

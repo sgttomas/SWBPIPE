@@ -1,0 +1,7 @@
+{
+  "ignored_assets": [],
+  "physical_count_before_auditrecord": 714,
+  "untracked_authorized_count": 53,
+  "all_physical_accounted_for": true,
+  "requirement": "verifyall stagedfiles/committedblobs beforehandoff; no cacheimport"
+}

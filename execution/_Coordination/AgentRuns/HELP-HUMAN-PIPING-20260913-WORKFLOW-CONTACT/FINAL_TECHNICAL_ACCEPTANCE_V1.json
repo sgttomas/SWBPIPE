@@ -1,0 +1,35 @@
+{
+  "status": "BOUNDED_TECHNICAL_ACCEPTANCE",
+  "parent": "/root HELP_HUMAN",
+  "owner_direction": "APPROVED_PLAN.md and OWNER_DIRECTION.md are chat evidence of explicit implementation direction; no invented ruling",
+  "accepted_upstream_code": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "clean_tested_source": "41202b36a5f8405a1665f1fb466664f85b8532d3",
+  "metadata_container": "later scoped commit; distinct from clean swept source; no product changes",
+  "source_binding": "INTEGRATED_CANDIDATE_BINDING_V5.json",
+  "source_binding_sha256": "122604a385247d7ec3f35ddb7fa2f8ed1135c55e5146d095145d91770aba9e4e",
+  "native_witnesses": [
+    "instances/NATIVE_VERIFY/FINAL_V2/FINAL_EVIDENCE_MANIFEST.json",
+    "instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/FINAL_EVIDENCE_MANIFEST.json"
+  ],
+  "native_reuse": "runtime inputs byte-equal to d511; subsequent catalog and browser assertion edits are test-only; no new native execution claimed",
+  "review_pointer": "instances/FINAL_REVIEW/CURRENT_REVIEW.json",
+  "review_pointer_sha256": "67d9e09487f35ef83d1d42158dde8a1ef245eff98af99f2730f54e8c4695bad4",
+  "review_chain": "full initial review, native/source repairs, final cumulative evidence review and test-only backchecks preserved in FINAL_REVIEW raw records; latestPASS fe0c7742; RV-V3-001/RV-V5-001 CLOSED after committed trace checks",
+  "sweep": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T231629Z_41202b36a5f8.json",
+  "sweep_sha256": "7d7aa823c6efa3aa84b70dfef7baabcedd97bd1271c8eed2d2cb69de5292059f",
+  "local_gate_record": "instances/SETUP/_run_records/DEC025_V4/RETURN.json",
+  "local_gate_sha256": "c9dd352a158e1e237ecc27a095946092e9cee046f35b2227220d6eccc99cc838",
+  "failures_preserved": [
+    "instances/SETUP/_run_records/DEC025_V1",
+    "instances/SETUP/_run_records/DEC025_V2",
+    "instances/SETUP/_run_records/DEC025_V3",
+    "original failed physics/native/browser attempts and qualified setup limitations remain in immutable raw packets"
+  ],
+  "archive_corrections": [
+    "instances/SETUP/_run_records/TRACE_ARCHIVE_PACKAGING_CORRECTION_V1.json",
+    "instances/SETUP/_run_records/ALL_FAILED_SWEEP_TRACE_PACKAGING_CORRECTION_V1.json"
+  ],
+  "formal_basis_unchanged": "DAG010/decomposition0.12/SCA009/R5; lifecycleIN_PROGRESS; remaining human/formal/engineering scope unchanged",
+  "publication": "PR/actual-headCI/mergePENDING; not lifecycleissuance/release/wholeprojectclosure",
+  "future_work": "NEXT_WORK.md five proposals prepared only; UIredesign/CAEPIPE/connectedharness deferred"
+}

@@ -1,0 +1,1 @@
+{"label": "routed_tools", "command": ["/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python", "tools/run_affected_tests.py", "--base", "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0"], "exit_code": 0}

@@ -1,0 +1,131 @@
+{
+  "status": "PASS",
+  "candidate": "41202b36a5f8405a1665f1fb466664f85b8532d3",
+  "clean_sweep_start": true,
+  "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T231629Z_41202b36a5f8.json",
+  "summary_sha256": "7d7aa823c6efa3aa84b70dfef7baabcedd97bd1271c8eed2d2cb69de5292059f",
+  "registered_sweep": "all5surfaces/allcommands exit0;38Rustmanifests1012Python848desktop30source3distinctdist/prodbuildPASS",
+  "duration_seconds": 594.251,
+  "local_gates": [
+    {
+      "label": "practitioner",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "-m",
+        "pytest",
+        "tools/practitioner_harness",
+        "-q"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "self_check",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "receipt",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "agent_contract",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_agent_instructions.py",
+        "--json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "workflow_contract",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_workflow_metadata.py",
+        "--json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "conflict",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_conflict_markers.py",
+        "--base",
+        "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+        "--head",
+        "HEAD"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "routed_tools",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/run_affected_tests.py",
+        "--base",
+        "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "G0",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_root_materialization_fence.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "G1",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_root_harness_adapter.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "G2",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_root_surface_ownership.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "G3",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_root_work_graph_dispatch.py"
+      ],
+      "exit_code": 0
+    },
+    {
+      "label": "G4",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_instruction_tranche_manifest.py",
+        "--base",
+        "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+        "--head",
+        "HEAD",
+        "--added-manifests-only"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "practitioner": "379PASS",
+  "self_check": "0BLOCK4REVIEW112WARN14INFO1NA; no baseline delta/suppression",
+  "source13_hashes_equal": true,
+  "lease": "released; runner/browser/build processes ended",
+  "publication": "pendingparentmetadata/receipt/backcheck/CI/PR/merge"
+}
