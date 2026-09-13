@@ -1,0 +1,15 @@
+{
+  "parent": "/root",
+  "task": "/root/final_integrated_review",
+  "role": "TASK",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "mechanism": "nativecollaboration; instructionasserted role/nondelegation",
+  "candidate": "0149c0da53a015c7492dbd61a31d7cb39831c0b4",
+  "base": "b2c133d7aef38034d10fed2b9b7ef64f517f2ba0",
+  "writes": false,
+  "children": false,
+  "return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/FINAL_REVIEW/_run_records/CATALOG_TEST_BACKCHECK_V1/RETURN.md",
+  "return_sha256": "739a5ef68ef6becdc4afdc88784f9c5397a82bddd3003707750418ac3d5f9944",
+  "parent_acceptance": "PASS test/evidence backcheck; fullcleanDEC025V3released; RV-V3-001 remainsCLOSED"
+}
