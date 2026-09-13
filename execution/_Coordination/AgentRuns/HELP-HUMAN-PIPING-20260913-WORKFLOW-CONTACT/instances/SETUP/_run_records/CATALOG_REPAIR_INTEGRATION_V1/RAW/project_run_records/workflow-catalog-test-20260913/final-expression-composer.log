@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  1 passed (1)
+      Tests  21 passed (21)
+   Start at  16:36:16
+   Duration  807ms (transform 120ms, setup 87ms, import 126ms, tests 215ms, environment 285ms)
+

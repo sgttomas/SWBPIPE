@@ -1,0 +1,53 @@
+{
+  "state": "IMPLEMENTATION_AUTHORIZED_TEST_ONLY",
+  "utc": "2026-09-13T22:34:21.180433+00:00",
+  "accepted_plan": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/PREPARATION_MANIFEST.json",
+    "sha256": "5f673cb6a397eb33a767b4bdc673665cbd4b799f19d74b33c0f37ea9e55aa209"
+  },
+  "frozen_expectations": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/FROZEN_EXPECTATIONS.json",
+    "sha256": "a7694c8d2e9c79f85719c4465783368bd1cf191671df726b294a28b0c76e1e7f"
+  },
+  "accepted_failure": [
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V2/sweep.stderr.txt",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/sweep.stderr.txt",
+      "sha256": "48109a550e94b128cf00b717a36533677a1cfc82e67b9cbe72710f869fcb8f55"
+    },
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V2/RETURN.json",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/RETURN.json",
+      "sha256": "2e42f9ae600f3062858380bee61a3e24cf7225bd2bb4021193e4558e53140bc6"
+    },
+    {
+      "origin_path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T222649Z_c4532eaca49e.json",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/SWEEP_20260913T222649Z_c4532eaca49e.json",
+      "sha256": "c01914d535f10dcefa8914f1b061aefb341e973214b70a79223ea49ba54b8bac"
+    }
+  ],
+  "exact_failure": "ExpressionComposer.test.tsx496:80 expected Pa stress match; loaded tauri catalog retained both legacy mismatches after captured-node change events. Wrong catalog semantics not evidenced.",
+  "source_write_fence": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+      "pre_sha256": "989494225af3f43961e24a7b44b53ff7b137c9d300cc76a621c4ef32eb31e9a7"
+    }
+  ],
+  "sole_writer": "TASK /root/workflow_implementation_manager/workflow_task parent configured Sol/high no descendants",
+  "workflow": {
+    "path": "workflows/software-bounded-implementation/WORKFLOW.md",
+    "sha256": "2ea0ddf4f53241fa94274e709b8042ad9de4d8beb9c82cd1ed1dcd0c6f8f0f7b",
+    "ApplyEdits": true
+  },
+  "lease": "exclusive focused Vitest/TypeScript test-only lease granted by parent; prior runner children ended",
+  "objective": "deterministically prove captured loading INPUT detachment and original expected Pa failure before maintained fix; then repair async readiness with live loaded SELECT queries preserving exact legacy and accepted-unit contract",
+  "temporary_instrumentation": "only fenced test file if needed; freeze private full harness witness and patch/log before maintained repair; distinguish from final maintained source; no product instrumentation",
+  "checks": [
+    "original catalog case instrumented deterministic failing witness",
+    "entire existing21-test ExpressionComposer.test.tsx file including strengthened deferred delivery case",
+    "TypeScript noEmit"
+  ],
+  "exclusions": "all product source/catalog fixture/units policy/physics/persistence/API/fallback; no browser/native/WASM/build/fullDEC025/integration/cache/Git/lifecycle mutation",
+  "outputs": "one-file incremental patch/source_manifest/checks/return/handoff with original failed evidence and private witness; explicit test lease release",
+  "parent_gates": "test-only native runtime inputs unchanged, parent reuse exact native evidence with equality; fresh independent test/evidence review then complete clean candidate DEC025 from start"
+}

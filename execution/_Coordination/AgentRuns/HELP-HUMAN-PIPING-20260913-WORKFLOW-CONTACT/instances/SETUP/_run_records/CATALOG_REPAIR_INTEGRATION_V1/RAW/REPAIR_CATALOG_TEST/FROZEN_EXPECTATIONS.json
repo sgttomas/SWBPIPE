@@ -1,0 +1,71 @@
+{
+  "state": "FROZEN_READ_ONLY_EXPECTATIONS_NOT_EXECUTED",
+  "sealed_preparation_sha256": "5930eaffe97749eb0ac7ac6fec7ab89a33a4b06994dd4ceef8cbd3f85e4689e0",
+  "future_test_path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+  "pre_sha256": "989494225af3f43961e24a7b44b53ff7b137c9d300cc76a621c4ef32eb31e9a7",
+  "failure_calibration": "Exact parent stack pending; request-start readiness can cause early mismatch-label failure or later detached-input event/update failure. Neither has been reproduced in this preparation.",
+  "catalog": "Reuse exact existing catalogFixture; Pa remains pressure and existing service stress equivalence remains unchanged.",
+  "loading": {
+    "request": "Native get_unit_catalog invoked but deferred promise unresolved",
+    "controls": "Fresh argument/result test-id nodes are connected INPUT elements, not SELECT elements",
+    "values": [
+      "legacy_temperature_unit",
+      "legacy_stress_unit"
+    ],
+    "policy": [
+      "catalog_loading_unit_dimension_declared(unit=legacy_temperature_unit;dimension=temperature)",
+      "catalog_loading_unit_dimension_declared(unit=legacy_stress_unit;dimension=stress)"
+    ],
+    "preservation": "Original legacy table id, temperature/stress dimensions, both original unit refs, rows and argument subtree remain equal before catalog resolution"
+  },
+  "loaded": {
+    "transition": "Explicitly resolve deferred catalog in React act; wait for freshly queried connected SELECT nodes; old loading INPUT nodes are disconnected",
+    "values": [
+      "legacy_temperature_unit",
+      "legacy_stress_unit"
+    ],
+    "options": [
+      "legacy_temperature_unit, catalog mismatch",
+      "legacy_stress_unit, catalog mismatch"
+    ],
+    "policy": [
+      "expression.table.argument=dec018_catalog_dimension_mismatch(unit=legacy_temperature_unit;dimension=temperature)",
+      "expression.table.result=dec018_catalog_dimension_mismatch(unit=legacy_stress_unit;dimension=stress)"
+    ],
+    "preservation": "Catalog completion alone leaves original table and argument subtree equal; legacy options and accepted degC/Pa choices are present"
+  },
+  "edits": {
+    "targets": "Use real current connected argument SELECT for degC; re-query and verify real current connected result SELECT for Pa",
+    "policy": [
+      "expression.table.argument=dec018_catalog_dimension_match(unit=degC;dimension=temperature)",
+      "expression.table.result=dec018_catalog_dimension_match(unit=Pa;dimension=stress)"
+    ],
+    "table": {
+      "table_id": "legacy_table",
+      "argument_dimension": "temperature",
+      "argument_unit_ref": "degC",
+      "result_dimension": "stress",
+      "result_unit_ref": "Pa",
+      "rows": [
+        {
+          "argument": 0,
+          "result": 0
+        },
+        {
+          "argument": 1,
+          "result": 0
+        }
+      ]
+    },
+    "preservation": "Original argument variable_ref subtree remains unchanged; no conversion or dimension rewrite"
+  },
+  "exclusions": [
+    "Source edits until explicit authorization",
+    "All execution until parent lease",
+    "Product/service/catalog fixture changes",
+    "Sleeps or timeout inflation",
+    "Assertion weakening",
+    "Previous frozen packets or integration writes",
+    "Lifecycle closure"
+  ]
+}

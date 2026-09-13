@@ -1,0 +1,13 @@
+{
+  "status": "FAILED",
+  "checkpoint": "c4532eaca49ec6715d21037e24565798c1a477c9",
+  "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T222649Z_c4532eaca49e.json",
+  "exit_code": 1,
+  "source12_hashes_equal": true,
+  "cargo": "38manifestsPASS",
+  "python": "1012PASS",
+  "desktop": "847PASS1FAIL/48files",
+  "failure": "ExpressionComposer.test.tsx496:80 expectedPa stressmatch butlegacy_stress_unit remained",
+  "dependentgates": "not_run due failure",
+  "lease": "released; runner/children ended"
+}

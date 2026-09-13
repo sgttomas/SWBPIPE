@@ -1,0 +1,100 @@
+{
+  "state": "FOCUSED_CHECKS_COMPLETE_LEASE_RELEASED",
+  "execution_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/EXECUTION_BRIEF.json",
+    "sha256": "9d1c701ba3ea4474d533fb994130d48054e165d45bc7e3ab01e2dd142a34536f"
+  },
+  "accepted_failure_summary": {
+    "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/SWEEP_20260913T222649Z_c4532eaca49e.json",
+    "sha256": "c01914d535f10dcefa8914f1b061aefb341e973214b70a79223ea49ba54b8bac"
+  },
+  "accepted_stderr": {
+    "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/sweep.stderr.txt",
+    "sha256": "48109a550e94b128cf00b717a36533677a1cfc82e67b9cbe72710f869fcb8f55"
+  },
+  "source_manifest": {
+    "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/SOURCE_MANIFEST.json",
+    "sha256": "d4dd29b48990b9e64165ed4fbeafd7a77312a13d0a597bbf250a0245c547da34"
+  },
+  "unique_source_anchor": "  it(\"uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values\", async () => {",
+  "checks": [
+    {
+      "kind": "INITIAL_INSTRUMENTATION_SELECTION_SETUP_ONLY_NOT_DEFECT_PROOF",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "command": "../../node_modules/.bin/vitest run src/features/rule-packs/ExpressionComposer.test.tsx -t 'uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values' > ../../_run_records/workflow-catalog-test-20260913/deterministic-old-gap.log 2>&1",
+      "exit": 0,
+      "result": "1 pass/20 skips; broad source-anchor selected earlier literal case and left targeted table case unchanged",
+      "source": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/TEMPORARY_WITNESS_SOURCE.txt",
+        "sha256": "5dee9e841ce4181581d09c6318a955ffd60c559a56186e6e51905facd537b6b8"
+      },
+      "patch": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/TEMPORARY_WITNESS.patch",
+        "sha256": "7622b7e60d5c6e82d5bd8b4200b8b940f7b93c9eac87db44b04172c35d46ce27"
+      },
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/deterministic-old-gap.log",
+        "sha256": "664195ce006c8647b4befdb60fa26a391152f0fe2274477bed52cc5f9248685a"
+      }
+    },
+    {
+      "kind": "DECISIVE_DETERMINISTIC_OLD_GAP_TEMPORARY_HARNESS",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "command": "../../node_modules/.bin/vitest run src/features/rule-packs/ExpressionComposer.test.tsx -t 'uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values' > ../../_run_records/workflow-catalog-test-20260913/deterministic-old-gap-v2.log 2>&1",
+      "exit": 1,
+      "result": "1 fail/20 skips; captured connected INPUT nodes detached after catalog delivery; fresh connected SELECT nodes present; original Pa match expected, both legacy mismatches received after old-node events",
+      "source": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/TEMPORARY_WITNESS_V2_SOURCE.txt",
+        "sha256": "d5f7c8d7e81b0ac612859b026913228dada1f29219aae4ef22b39d4302c9e0c5"
+      },
+      "patch": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/TEMPORARY_WITNESS_V2.patch",
+        "sha256": "b3fb5131f255d4c6b79cc2e92eb1855fbf2e1175cd1ab4fa7a2917bced19ac9e"
+      },
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/deterministic-old-gap-v2.log",
+        "sha256": "9ce83a36635f74dfc8d86d845b1b903ac42b86eec2f179c3a9f499082230d30e"
+      }
+    },
+    {
+      "kind": "FINAL_MAINTAINED_ENTIRE_EXISTING_FILE",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "command": "../../node_modules/.bin/vitest run src/features/rule-packs/ExpressionComposer.test.tsx > ../../_run_records/workflow-catalog-test-20260913/final-expression-composer.log 2>&1",
+      "exit": 0,
+      "result": "21 pass/0 fail/0 skips",
+      "source_sha256": "d5c22002ecd12572cba1662d63f6c59f859cb2f98f185de68ef2cab9af49c954",
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/final-expression-composer.log",
+        "sha256": "3917904fb79e7aa09479e0d8df4fc2794ddd50cfdfbca1e2760ac4522b0da5ae"
+      }
+    },
+    {
+      "kind": "FINAL_TYPESCRIPT",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "command": "../../node_modules/.bin/tsc --noEmit --project tsconfig.json > ../../_run_records/workflow-catalog-test-20260913/final-typescript.log 2>&1",
+      "exit": 0,
+      "result": "No diagnostics",
+      "source_sha256": "d5c22002ecd12572cba1662d63f6c59f859cb2f98f185de68ef2cab9af49c954",
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/final-typescript.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "static_checks": [
+    "Unique exact full-title source anchor",
+    "Only exact case and necessary act import differ",
+    "Other catalog cases and fixture bytes identical",
+    "Incremental patch exact diff against sealed preimage",
+    "Seven bound runtime input hashes unchanged"
+  ],
+  "not_run": [
+    "Browser",
+    "Native",
+    "WASM",
+    "Build",
+    "Full desktop suite",
+    "Complete DEC025"
+  ],
+  "lease": "Explicitly released to manager after both execution commands completed"
+}

@@ -1,0 +1,19 @@
+--- a/projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx
++++ b/projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx
+@@ -1,5 +1,5 @@
+ import { useState } from "react";
+-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+ import { afterEach, describe, expect, it, vi } from "vitest";
+ 
+ const invokeMock = vi.hoisted(() => vi.fn());
+@@ -332,7 +332,8 @@
+ 
+   it("uses the DEC-018 catalog for literal unit refs in desktop mode", async () => {
+     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+-    invokeMock.mockResolvedValue(catalogFixture);
++    let resolveCatalog!: (catalog: UnitCatalog) => void;
++    invokeMock.mockReturnValue(new Promise<UnitCatalog>((resolve) => { resolveCatalog = resolve; }));
+     render(<Harness initial={buildDraftRulePackDocument()} />);
+ 
+     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));

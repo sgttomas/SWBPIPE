@@ -1,0 +1,7 @@
+{
+  "parent": "/root",
+  "acceptance": "bounded technical test repair accepted; managerreviewPASS21testsTypeScriptPASS",
+  "witness": "deterministic old-control-capture failure retained; earlierwrong-title setup explicitlyqualified",
+  "pending": "independentbackcheck and completecleanDEC025V3",
+  "manifest_sha256": "d508c1bb361bf9207af1ba1331b9c823613ad9a6df9e0211bf84edf077897087"
+}

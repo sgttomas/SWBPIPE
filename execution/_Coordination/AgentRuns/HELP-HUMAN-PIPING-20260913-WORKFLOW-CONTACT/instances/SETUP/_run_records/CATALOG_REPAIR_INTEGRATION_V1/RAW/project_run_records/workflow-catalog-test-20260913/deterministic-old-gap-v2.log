@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/rule-packs/ExpressionComposer.test.tsx (21 tests | 1 failed | 20 skipped) 51ms
+     × uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values 49ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/rule-packs/ExpressionComposer.test.tsx > ExpressionComposer component > uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values
+AssertionError: expected 'unit_policy=stored_unit_refs_preserve…' to contain 'expression.table.result=dec018_catalo…'
+
+Expected: "expression.table.result=dec018_catalog_dimension_match(unit=Pa;dimension=stress)"
+Received: "unit_policy=stored_unit_refs_preserved; catalog_route=tauri_dec018_catalog; conversion=false; expression_refs=expression.table.argument=dec018_catalog_dimension_mismatch(unit=legacy_temperature_unit;dimension=temperature),expression.table.result=dec018_catalog_dimension_mismatch(unit=legacy_stress_unit;dimension=stress)"
+
+ ❯ src/features/rule-packs/ExpressionComposer.test.tsx:510:80
+    508|     fireEvent.change(argumentUnit, { target: { value: "degC" } });
+    509|     fireEvent.change(resultUnit, { target: { value: "Pa" } });
+    510|     expect(screen.getByTestId("rule-pack-expression-unit-policy").text…
+       |                                                                                ^
+    511|       "expression.table.result=dec018_catalog_dimension_match(unit=Pa;…
+    512|     );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 20 skipped (21)
+   Start at  16:35:33
+   Duration  506ms (transform 97ms, setup 68ms, import 101ms, tests 51ms, environment 197ms)
+

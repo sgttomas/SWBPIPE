@@ -1,0 +1,43 @@
+{
+  "state": "READ_ONLY_PREPARATION_FROZEN_EXACT_STACK_PENDING",
+  "freeze_utc": "2026-09-13T22:32:39.839965+00:00",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/FROZEN_EXPECTATIONS.json",
+      "sha256": "a7694c8d2e9c79f85719c4465783368bd1cf191671df726b294a28b0c76e1e7f",
+      "bytes": 3303
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/MANAGER_STATIC_DIAGNOSIS.md",
+      "sha256": "14581b3ebddb2228cb5c9f1104c880b4793d6f8ed015351aea690a4e7ec0e48d",
+      "bytes": 2656
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/PARENT_STATIC_ADOPTION.json",
+      "sha256": "856003d51d4feb7028461225d7d454c51663a4fdc87a635667fa5c84344b9eb5",
+      "bytes": 1134
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/SEALED_PREPARATION.json",
+      "sha256": "5930eaffe97749eb0ac7ac6fec7ab89a33a4b06994dd4ceef8cbd3f85e4689e0",
+      "bytes": 2896
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/STATIC_DIAGNOSIS.md",
+      "sha256": "f103ec89a8276c26677b8e93cdd2e02ec76d8fcf268d148e6e8d87677f118e6a",
+      "bytes": 3021
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/pre_sources/projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+      "sha256": "989494225af3f43961e24a7b44b53ff7b137c9d300cc76a621c4ef32eb31e9a7",
+      "bytes": 26101
+    }
+  ],
+  "future_test_path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+  "pre_sha256": "989494225af3f43961e24a7b44b53ff7b137c9d300cc76a621c4ef32eb31e9a7",
+  "ApplyEdits": false,
+  "checks_executed": [],
+  "lease": "Parent SETUP DEC025_V2 exclusively; untouched",
+  "handoff": "Static race hypothesis and deterministic loading/loaded/live-select/legacy/edit contract frozen; exact immutable stack and later parent one-file edit/check authorization remain pending. No source mutation or lifecycle closure.",
+  "execution": "sole resumed TASK parent-supplied Sol/high, no descendants; manager read-only fan-in"
+}

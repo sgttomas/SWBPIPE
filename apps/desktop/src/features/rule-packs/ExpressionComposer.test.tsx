@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const invokeMock = vi.hoisted(() => vi.fn());
@@ -459,7 +459,10 @@ describe("ExpressionComposer component", () => {
 
   it("uses the DEC-018 catalog for table unit refs and preserves out-of-catalog values", async () => {
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
-    invokeMock.mockResolvedValue(catalogFixture);
+    let resolveCatalog!: (catalog: UnitCatalog) => void;
+    invokeMock.mockReturnValue(new Promise<UnitCatalog>((resolve) => {
+      resolveCatalog = resolve;
+    }));
     const document = setFormulaExpression(buildDraftRulePackDocument(), "user_formula_1", {
       node: "interpolate",
       table: {
@@ -478,10 +481,37 @@ describe("ExpressionComposer component", () => {
     render(<Harness initial={document} />);
 
     await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("get_unit_catalog"));
-    const argumentUnit = screen.getByTestId("rule-pack-table-argument-unit") as HTMLSelectElement;
-    const resultUnit = screen.getByTestId("rule-pack-table-result-unit") as HTMLSelectElement;
-    await waitFor(() => expect(argumentUnit.value).toBe("legacy_temperature_unit"));
-    await waitFor(() => expect(resultUnit.value).toBe("legacy_stress_unit"));
+    const loadingArgumentUnit = screen.getByTestId("rule-pack-table-argument-unit");
+    const loadingResultUnit = screen.getByTestId("rule-pack-table-result-unit");
+    expect(loadingArgumentUnit.tagName).toBe("INPUT");
+    expect(loadingResultUnit.tagName).toBe("INPUT");
+    expect(loadingArgumentUnit.isConnected).toBe(true);
+    expect(loadingResultUnit.isConnected).toBe(true);
+    expect(loadingArgumentUnit).toHaveProperty("value", "legacy_temperature_unit");
+    expect(loadingResultUnit).toHaveProperty("value", "legacy_stress_unit");
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.argument=catalog_loading_unit_dimension_declared(unit=legacy_temperature_unit;dimension=temperature)"
+    );
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.result=catalog_loading_unit_dimension_declared(unit=legacy_stress_unit;dimension=stress)"
+    );
+    const originalExpression = expressionOf(document);
+    expect(harnessExpression()).toEqual(originalExpression);
+
+    await act(async () => { resolveCatalog(catalogFixture); });
+    const currentUnitSelect = (testId: string): HTMLSelectElement => {
+      const control = screen.getByTestId(testId);
+      expect(control.tagName).toBe("SELECT");
+      expect(control.isConnected).toBe(true);
+      return control as HTMLSelectElement;
+    };
+    await waitFor(() => {
+      expect(currentUnitSelect("rule-pack-table-argument-unit").value).toBe("legacy_temperature_unit");
+      expect(currentUnitSelect("rule-pack-table-result-unit").value).toBe("legacy_stress_unit");
+    });
+    expect(loadingArgumentUnit.isConnected).toBe(false);
+    expect(loadingResultUnit.isConnected).toBe(false);
+    expect(harnessExpression()).toEqual(originalExpression);
     expect(screen.getByText("legacy_temperature_unit, catalog mismatch")).toBeTruthy();
     expect(screen.getByText("legacy_stress_unit, catalog mismatch")).toBeTruthy();
     expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
@@ -491,8 +521,13 @@ describe("ExpressionComposer component", () => {
       "expression.table.result=dec018_catalog_dimension_mismatch(unit=legacy_stress_unit;dimension=stress)"
     );
 
-    fireEvent.change(argumentUnit, { target: { value: "degC" } });
-    fireEvent.change(resultUnit, { target: { value: "Pa" } });
+    fireEvent.change(currentUnitSelect("rule-pack-table-argument-unit"), { target: { value: "degC" } });
+    fireEvent.change(currentUnitSelect("rule-pack-table-result-unit"), { target: { value: "Pa" } });
+    expect(currentUnitSelect("rule-pack-table-argument-unit").value).toBe("degC");
+    expect(currentUnitSelect("rule-pack-table-result-unit").value).toBe("Pa");
+    expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
+      "expression.table.argument=dec018_catalog_dimension_match(unit=degC;dimension=temperature)"
+    );
     expect(screen.getByTestId("rule-pack-expression-unit-policy").textContent).toContain(
       "expression.table.result=dec018_catalog_dimension_match(unit=Pa;dimension=stress)"
     );
@@ -503,6 +538,12 @@ describe("ExpressionComposer component", () => {
       result_dimension: "stress",
       result_unit_ref: "Pa"
     });
+    expect(table).toEqual({
+      ...(originalExpression.table as Record<string, unknown>),
+      argument_unit_ref: "degC",
+      result_unit_ref: "Pa"
+    });
+    expect(harnessExpression().argument).toEqual(originalExpression.argument);
   });
 
   it("adds and removes table rows and blocks dropping the last one", () => {

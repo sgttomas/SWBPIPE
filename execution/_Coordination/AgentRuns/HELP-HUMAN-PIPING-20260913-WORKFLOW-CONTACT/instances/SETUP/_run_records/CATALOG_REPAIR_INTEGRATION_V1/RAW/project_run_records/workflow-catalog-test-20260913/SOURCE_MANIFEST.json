@@ -1,0 +1,50 @@
+{
+  "state": "FINAL_ONE_FILE_TEST_ONLY_SOURCE_FROZEN",
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.test.tsx",
+      "pre_sha256": "989494225af3f43961e24a7b44b53ff7b137c9d300cc76a621c4ef32eb31e9a7",
+      "post_sha256": "d5c22002ecd12572cba1662d63f6c59f859cb2f98f185de68ef2cab9af49c954"
+    }
+  ],
+  "patch": {
+    "path": "projects/chirality-piping/_run_records/workflow-catalog-test-20260913/SOURCE_TEST_DELTA.patch",
+    "sha256": "db1e916de9d6ea7826c72204f14fd9b8ef16eae2ea0245184f1e3ed662ed7302"
+  },
+  "scope_verified": "Exact unique full-title case and act import only; all other cases and catalogFixture bytes identical to sealed preimage",
+  "runtime_prebinding": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_CATALOG_TEST/RUNTIME_PREBINDING.json",
+    "sha256": "df4882cb9f56033c1493418e8ad8298286b37ab07c62d94d1634d0ac4ebe450a"
+  },
+  "runtime_files_verified_unchanged": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+      "sha256": "34745bdbbfd5ec21a711624df91b3f30df69dc2e8d888fced7bdd9adfb9741de"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.ts",
+      "sha256": "0ef7dfe55e078d0cca10a954fd2cef67feb00d16b34e4942c2da07b8a78382b8"
+    }
+  ],
+  "calibration": "Seven workflow-local runtime inputs only; parent separately binds full integrated/native bundle equality"
+}
