@@ -1,0 +1,31 @@
+{
+  "state": "HANDOFF_TO_WORKING_ITEMS",
+  "accepted_upstream": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/EXECUTION_BRIEF.json",
+      "sha256": "d8f017ad85c317bc82d667b7d9b83a0849769b3d5c1e12dce4a08411777afd5c"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/PREPARATION_MANIFEST.json",
+      "sha256": "1eea6c85f809423581a37a2539edb87a7ebef5bc133808d9ff921d5fe9881367"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/ASSERTION_CONTEXT_MATRIX.json",
+      "sha256": "556599844f77c7652983bb06fc72339b07a656074eb6408f9a53358947645c61"
+    }
+  ],
+  "return": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/TASK_RETURN.json",
+    "sha256": "abb7dd0c8297f1842f8ccfeb493b01f4ff454217b3fb87398974a1a637b3040f"
+  },
+  "derivative_status": "Incremental patch/evidence derived from sealed source preimage and accepted failure; not authority or substitute for full DEC025/native equality",
+  "lease": "Final child allocation released; all runners/monitor/server processes ended; manager owns rootlease forwarding",
+  "closure_verdict": "One-file assertion repair ready; lifecycleclosure not asserted",
+  "rerun_requirements": [
+    "Parent new complete clean candidate DEC025 after integration and independent review"
+  ],
+  "remaining_blockers": [
+    "Parent verification/fan-in pending"
+  ],
+  "freeze": "END_FREEZE; no further source/check/metadata writes by TASK"
+}

@@ -1,0 +1,60 @@
+{
+  "state": "AUTHORIZED_ONE_FILE_TEST_ONLY_EXECUTION",
+  "utc": "2026-09-13T22:57:00.245413+00:00",
+  "accepted_preparation": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/PREPARATION_MANIFEST.json",
+    "sha256": "1eea6c85f809423581a37a2539edb87a7ebef5bc133808d9ff921d5fe9881367"
+  },
+  "frozen_expectations": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/FROZEN_EXPECTATIONS.json",
+    "sha256": "704c4e8776e376c7747173171a6277fbcbf09b05d93a51cca9134fa9db386715"
+  },
+  "full_root_inventory": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/ASSERTION_CONTEXT_MATRIX.json",
+    "sha256": "556599844f77c7652983bb06fc72339b07a656074eb6408f9a53358947645c61"
+  },
+  "accepted_actual_failure": [
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/sweep.stdout.txt",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/sweep.stdout.txt",
+      "sha256": "7e87fd5a31a16a3e2447309ee10c38d3c83f5a647b7e18762f3bdfc8bb996c66"
+    },
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/sweep.stderr.txt",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/sweep.stderr.txt",
+      "sha256": "15ec7bd1c7045d01a8a78d5ca11ed091a6a0b33f321aa46f497dcb1855217d4b"
+    },
+    {
+      "origin_path": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T224452Z_58bfd9a47a81.json",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SWEEP_20260913T224452Z_58bfd9a47a81.json",
+      "sha256": "0f3928d678e3b8b459cf7281606aecc0024456498077e61123c2434ca00b4e72"
+    },
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/source-browser-test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-compact/error-context.md",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/BASELINE_SOURCE_CONTEXTS/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-compact/error-context.md",
+      "sha256": "e15be12929c5aafa4f5acbe0e158d2039a9de6cfda006a72701d810ae5a3264f"
+    },
+    {
+      "origin_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/DEC025_V3/source-browser-test-results/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md",
+      "copy_path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/BASELINE_SOURCE_CONTEXTS/linear-authoring-compact-b-3c446--and-exact-Add-Apply-review-chromium-desktop/error-context.md",
+      "sha256": "e15be12929c5aafa4f5acbe0e158d2039a9de6cfda006a72701d810ae5a3264f"
+    }
+  ],
+  "candidate": "58bfd9a47a811090f2bffb012cb2c6a33c3b9fc4",
+  "failure": "source28pass2fail ONLYlinear212 expectedresultrows0 vsactualblockedmodelincomplete0rows, desktop/compact; Rust38/Python1012/desktop848PASS; source13unchanged; dist/build not_run afterfailure",
+  "source_write_fence": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "sole_writer": "TASK workflow_task Sol/high supplied; no descendants",
+  "ApplyEdits": true,
+  "lease": "Parent explicitly RELEASED priorrunnerallchildren; exclusive workflow WASM/productionbuild/sourcebrowser/dist lease now granted",
+  "checks": [
+    "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:desktop ALL30source bothprojects",
+    "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:dist:desktop registeredWASM+tsc/Vite/preflight/build+all3dist specs"
+  ],
+  "exclusions": "runtime/helper/units/fixture/physics/config/sleep/timeout weakening; no nativeGUI/build/fullDEC/Git/lifecycle/integration writes",
+  "expected_return": "exactonefilepre/post/patch/fullsource; allresults/source/evidencehashes; independentmanagerfan-in; explicitlease release; parentnativeequalityreuse/review/fullcleanDEC025"
+}

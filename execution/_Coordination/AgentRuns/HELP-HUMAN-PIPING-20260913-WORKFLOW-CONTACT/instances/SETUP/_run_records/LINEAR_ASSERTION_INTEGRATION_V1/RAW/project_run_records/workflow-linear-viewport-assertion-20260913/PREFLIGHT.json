@@ -1,0 +1,52 @@
+{
+  "checks": [
+    {
+      "command": [
+        "rustup",
+        "target",
+        "list",
+        "--installed"
+      ],
+      "exit": 0,
+      "stdout": "aarch64-apple-darwin\nwasm32-unknown-unknown\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "wasm-bindgen",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "wasm-bindgen 0.2.123\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "lsof",
+        "-nP",
+        "-iTCP:5174",
+        "-sTCP:LISTEN"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "lsof",
+        "-nP",
+        "-iTCP:5175",
+        "-sTCP:LISTEN"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "tools_and_local_node_bins": "present",
+  "cargo_target_override": "unset; script discovers lane crate target through metadata",
+  "source_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+  "browser_config": "existing macChrome fallback; chosen browser availability is also exercised by registered runner",
+  "registered_script_preflight": "Each implicit WASM build performs offline cargo/tool/target/bindgen validation; distribution Vite guard validates public/dist assets",
+  "host_lease": "Parent exclusive grant active"
+}

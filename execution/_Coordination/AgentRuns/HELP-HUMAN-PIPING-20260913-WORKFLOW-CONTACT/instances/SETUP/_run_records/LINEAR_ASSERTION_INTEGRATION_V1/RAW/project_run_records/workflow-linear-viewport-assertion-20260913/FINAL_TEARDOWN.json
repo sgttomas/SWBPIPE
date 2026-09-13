@@ -1,0 +1,18 @@
+{
+  "ports": [
+    {
+      "port": 5174,
+      "exit": 1,
+      "stdout": ""
+    },
+    {
+      "port": 5175,
+      "exit": 1,
+      "stdout": ""
+    }
+  ],
+  "repeat_runner_exit": 0,
+  "identity_monitor_exit": 0,
+  "default_test_results_remaining": false,
+  "lease": "Child allocation released after final repeat; manager retains/owns forwarding parent lease release"
+}

@@ -1,0 +1,55 @@
+{
+  "state": "READ_ONLY_PREPARATION_FROZEN_FINAL_FAILURE_PENDING",
+  "freeze_utc": "2026-09-13T22:55:48.578340+00:00",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/CHECK_SELECTION.json",
+      "sha256": "98c2e44286bbfafa0f59ee7b9afb22e78df26992d479094cf38fd1723fd47a90",
+      "bytes": 2922
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/FROZEN_EXPECTATIONS.json",
+      "sha256": "704c4e8776e376c7747173171a6277fbcbf09b05d93a51cca9134fa9db386715",
+      "bytes": 3376
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/MANAGER_STATIC_DIAGNOSIS.md",
+      "sha256": "f2527b5fe90cf229fe72886bfb2d5968431caa65088c97f88ee2ba3acc3653ce",
+      "bytes": 3123
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/RELATED_E2E_ASSERTIONS.json",
+      "sha256": "3939d9145d180f20f26ed0971678bb1aaa17cfd7c381b6dc07448fd779074abd",
+      "bytes": 21463
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/SEALED_PREPARATION.json",
+      "sha256": "b2526acaf82b38ca9d400453605aa4cd7253d7072989f472592e1eda44424616",
+      "bytes": 4036
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/STATIC_DIAGNOSIS.md",
+      "sha256": "d73b66bc53cb30a7c386952ce4dfdd55620284c786762484a34d80a67ee50021",
+      "bytes": 3435
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/pre_sources/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "bytes": 16367
+    }
+  ],
+  "ApplyEdits": false,
+  "future_write_fence": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    }
+  ],
+  "check_selection": "Complete registered30source-browser bothprojects then all3dist specs with implicit WASM/production build preflight after explicitparentlease; no filtered/temporaryconfig substitute",
+  "checks_executed": [],
+  "source_changes": [],
+  "lease": "Parent SETUP fullDEC025V3/sourcebrowser untouched",
+  "accepted_upstream": "Parent observation on clean58bfd9a47a811090f2bffb012cb2c6a33c3b9fc4, Rust/Python/all848desktop PASS; exact final sourcebrowser failure/context pending",
+  "handoff": "Freeze actual final stack/context before later parent onefile test-only implementation/check release; native runtime equality keeps witness valid, no nativebuildGUI; parent fresh review/fullcleanDEC025 required",
+  "closure": "Preparation only; no runtime policy/lifecycle/Git change"
+}

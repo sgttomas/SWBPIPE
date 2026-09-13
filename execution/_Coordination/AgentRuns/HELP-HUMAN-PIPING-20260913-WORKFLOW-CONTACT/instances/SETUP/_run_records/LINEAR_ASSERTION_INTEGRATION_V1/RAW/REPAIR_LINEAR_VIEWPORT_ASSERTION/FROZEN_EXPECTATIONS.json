@@ -1,0 +1,88 @@
+{
+  "state": "FROZEN_PREPARATION_ONLY_NOT_EXECUTED",
+  "sealed_preparation_sha256": "b2526acaf82b38ca9d400453605aa4cd7253d7072989f472592e1eda44424616",
+  "future_source_path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+  "pre_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+  "accepted_failure_state": "Parent observation only; exact final immutable stack/context pending",
+  "current_failed_after_browser_solve": {
+    "original_line": 212,
+    "summary_test_id": "viewport-deformation-summary",
+    "exact_summary": "blocked; mechanics=model incomplete; rows=0",
+    "exact_boundary": "scale=not_generated; professional_claim=false",
+    "preserve": [
+      "MODEL_INCOMPLETE status",
+      "Completed transport job",
+      "BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL diagnostic",
+      "Disabled rule-check run",
+      "No numerical current overlay"
+    ]
+  },
+  "historical_reopen": {
+    "original_line": 219,
+    "exact_current_summary": "not started; result rows=0",
+    "exact_boundary": "scale=not_generated; professional_claim=false",
+    "preserve": [
+      "Readable historical MODEL_INCOMPLETE",
+      "HISTORICAL_INPUT_MANIFEST_MISSING",
+      "Baseline model hash equality",
+      "Current result/analysis/input manifest null",
+      "Current rules/comparison/report barred"
+    ]
+  },
+  "edit_history_reset": "Existing edit/undo/redo/reset clears current computed and historical context; exact baseline/edit/undo/redo hashes and existing authoring assertions retained",
+  "all_related_e2e_inventory": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/RELATED_E2E_ASSERTIONS.json",
+    "sha256": "3939d9145d180f20f26ed0971678bb1aaa17cfd7c381b6dc07448fd779074abd",
+    "files": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+        "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+        "hit_lines": [
+          242,
+          245,
+          284,
+          285,
+          286,
+          288
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+        "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+        "hit_lines": [
+          212,
+          219
+        ]
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+        "sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711",
+        "hit_lines": [
+          357,
+          358,
+          359,
+          590,
+          591,
+          592,
+          598,
+          601
+        ]
+      }
+    ]
+  },
+  "unchanged_related_states": [
+    "GUI reset not started; result rows=0",
+    "GUI failed edited solve blocked; mechanics=model incomplete; rows=0",
+    "R2 pre-solve not started; result rows=0",
+    "R2 solved available; nodes=5; max=4.927112 mm",
+    "R2 solved normalized display scale/global_cartesian_displacement_components"
+  ],
+  "exclusions": [
+    "Runtime changes",
+    "Fixture/unit/physics changes",
+    "New selectors or product disclosure design",
+    "Assertion weakening/timeouts/sleeps",
+    "Previous frozen packets",
+    "All execution until parent lease"
+  ]
+}

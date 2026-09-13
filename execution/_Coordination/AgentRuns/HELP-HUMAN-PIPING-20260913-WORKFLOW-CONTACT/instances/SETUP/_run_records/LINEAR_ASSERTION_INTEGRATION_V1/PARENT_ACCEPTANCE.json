@@ -1,0 +1,8 @@
+{
+  "parent": "/root",
+  "release": "bounded exact one-file testrepair integration/evidencecheckpoint; no executionlease",
+  "manifest_sha256": "b336573fb7f0373c92e7940bbec4a70fb20c76d954aa99936e44d66790d4e4d1",
+  "entries_verified": 37,
+  "earlier_failures": "DEC025V1/V2/V3 retained",
+  "pending": "fresh independenttest/evidencebackcheck thencompleteDEC025V4"
+}

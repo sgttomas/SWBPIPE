@@ -1,0 +1,75 @@
+{
+  "state": "READ_ONLY_PREPARATION_APPLY_EDITS_FALSE",
+  "utc": "2026-09-13T22:54:20.106712+00:00",
+  "parent_candidate": "58bfd9a47a811090f2bffb012cb2c6a33c3b9fc4",
+  "manager": "WORKING_ITEMS /root/workflow_implementation_manager",
+  "sole_task": "/root/workflow_implementation_manager/workflow_task configured Sol/high no descendants",
+  "future_write_fence": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "permission": "not yet authorized"
+    }
+  ],
+  "reads": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352"
+    },
+    {
+      "path": "agents/AGENT_WORKING_ITEMS.md",
+      "sha256": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb"
+    },
+    {
+      "path": "projects/chirality-piping/package.json",
+      "sha256": "7e719791e3ffdc7b57eddb2bb32d682705bf945af5b7207ffc699a2a45648656"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/package.json",
+      "sha256": "6dd5540cb4af6170e96ce433bab3630e8606ef6a8abc90b8601403c7542ba776"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/playwright.dist.config.ts",
+      "sha256": "d53c01817b11718850b2b2b52e0132825931741998d4214a0d0c7e533c2b5756"
+    },
+    {
+      "path": "projects/chirality-piping/software-workflow.json",
+      "sha256": "3a6fd86bd362eed5e1fbcda05dcde961fca8ad46cb14375ce3dd79c3872e09b7"
+    },
+    {
+      "path": "workflows/software-bounded-implementation/WORKFLOW.md",
+      "sha256": "2ea0ddf4f53241fa94274e709b8042ad9de4d8beb9c82cd1ed1dcd0c6f8f0f7b"
+    }
+  ],
+  "coordination_writes": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION",
+  "lease": "Parent SETUP owns complete DEC025V3/sourcebrowser; no tests/build/browser/native/source edit",
+  "actual_observation": "Parent reports linear line212 old result rows=0 assertion misses correct blocked; mechanics=model incomplete; rows=0; exact final stack/context freeze pending. No runtime defect evidenced.",
+  "frozen_semantics": {
+    "current_completed_failed": "exact blocked; mechanics=model incomplete; rows=0, scale=not_generated; professional_claim=false",
+    "Historical_reopened": "exact not started; result rows=0, no current computed data; readable Historical MODEL_INCOMPLETE record retained",
+    "edit_reset_history": "existing computed context clearing means not_started, never restored current solve; hash/history/authoring checks preserved",
+    "solved_fixture": "existing available overlay/normalized/vector boundary assertions remain untouched"
+  },
+  "check_selection": "After parent explicitlease: entire registered30sourcebrowser cases acrossbothprojects with CI/no-reuse/oneworker/freshfreeports; registeredtest:e2e:dist:desktop preflightbuild+distribution suite; no temporaryconfig/selection filter",
+  "exclusions": "runtime/unitpolicy/physics/catalogfixture/native/GUI/Git/lifecycle/previouspacket mutation; no current implementation/execution"
+}

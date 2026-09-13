@@ -1,0 +1,98 @@
+{
+  "state": "REGISTERED_CHECKS_PASS_CHILD_ALLOCATION_RELEASED",
+  "execution_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/EXECUTION_BRIEF.json",
+    "sha256": "d8f017ad85c317bc82d667b7d9b83a0849769b3d5c1e12dce4a08411777afd5c"
+  },
+  "source_manifest": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_MANIFEST.json",
+    "sha256": "eb2b9acf6744812aebe4ae31483197ca9f2522f408f9bc46e4432193709488f6"
+  },
+  "accepted_baseline": {
+    "summary": {
+      "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SWEEP_20260913T224452Z_58bfd9a47a81.json",
+      "sha256": "0f3928d678e3b8b459cf7281606aecc0024456498077e61123c2434ca00b4e72"
+    },
+    "stdout": {
+      "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/sweep.stdout.txt",
+      "sha256": "7e87fd5a31a16a3e2447309ee10c38d3c83f5a647b7e18762f3bdfc8bb996c66"
+    },
+    "stderr": {
+      "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/sweep.stderr.txt",
+      "sha256": "15ec7bd1c7045d01a8a78d5ca11ed091a6a0b33f321aa46f497dcb1855217d4b"
+    },
+    "result": "Rust38/Python1012/desktop848pass; source28pass2fail same stale linear212 assertion; dist/finalbuildnot_run; no runtime defect evidenced"
+  },
+  "runs": [
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:desktop > _run_records/workflow-linear-viewport-assertion-20260913/source-browser.log 2>&1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit": 0,
+      "result": "ALL30SOURCEPASS (4.5m), bothprojects; implicit operation/self-weight WASM builds pass",
+      "source_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/source-browser.log",
+        "sha256": "1c3e84dbe3cc08312b9b43bf86d14d694af62b5d7fc235b980bbf304996ea41b"
+      },
+      "active_server_identity": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_SERVER_IDENTITY.json",
+        "sha256": "16a7b0660b1afc169b511fda5374636526a236f027892b9ff06476544e80eb14"
+      },
+      "teardown": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_TEARDOWN.json",
+        "sha256": "86f3103c21a116e65e494d81de96620e59d6f9917950dc211d7cf22193e0742b"
+      },
+      "artifacts": "SOURCE_BROWSER_TEST_RESULTS moved intact from default apps/desktop/test-results after complete teardown; default directory absent"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:dist:desktop -- -- --output /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/DIST_BROWSER_TEST_RESULTS > _run_records/workflow-linear-viewport-assertion-20260913/dist-browser.log 2>&1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit": 0,
+      "result": "ALL3DISTPASS (10s); implicit WASM+tsc/Vite productionbuild pass",
+      "source_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/dist-browser.log",
+        "sha256": "7b53b141fcb061d837d52cf60fd3eed61f45ace2f67cbd8f0c0c444202fb86da"
+      },
+      "teardown": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/DIST_TEARDOWN.json",
+        "sha256": "ce46d6acb8dd4b22bb87df2c7181790f6d5867f1dd486dbe019a7177752f2c78"
+      },
+      "capture_gap": "First run logged serverPID60252 but finished before active-CWDprobe; preserved honestly; no product failure"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:dist:desktop -- -- --output /Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/DIST_REPEAT_BROWSER_TEST_RESULTS > _run_records/workflow-linear-viewport-assertion-20260913/dist-browser-repeat.log 2>&1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping",
+      "exit": 0,
+      "result": "ALL3DISTPASS (10s); identical implicit WASM+tsc/Vite productionbuild pass",
+      "source_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+      "log": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/dist-browser-repeat.log",
+        "sha256": "379cdc95774dd8a0c2c3c9228844657c9e2fe3ea1510d7c0a58361471c81b88e"
+      },
+      "active_server_identity": {
+        "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/DIST_REPEAT_SERVER_IDENTITY.json",
+        "sha256": "ceff11cbc92c75944a137bef2e87fd0e5f505183e0f6c9851f381dc1c94ed3c0"
+      },
+      "reason": "One explicit manager-authorized identical registered repeat solely to close unresolved active fresh-server PID/CWDcapture; parent lease remained manager-owned, child allocation renewed; no source/config/selection change; no thirdrepeat",
+      "monitor": "Read-only lsof/CWDpoll every200ms started before script; capturedPID61106 and lane desktopCWD, then exited0"
+    }
+  ],
+  "preflight": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/PREFLIGHT.json",
+    "sha256": "3d8ab6e46869245e41359d33c7d24a6890b5c4be54e899c362ec2b53e0a70956"
+  },
+  "final_teardown": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/FINAL_TEARDOWN.json",
+    "sha256": "f585649633dcb731e3d86a5d4d45e8bef8ba5e6cf26b6990bbebb9c0d3963b2a"
+  },
+  "warnings": "All NO_COLOR/FORCE_COLOR and Vite chunksize warnings preserved in original logs; no guard/config change",
+  "no_extra_runs": [
+    "No unit/fullsuite/TypeScript-only reruns",
+    "No separate final productionbuild repeat",
+    "No nativeGUI/nativebuild",
+    "No complete DEC025",
+    "No Git action"
+  ],
+  "selection": "Exact registered scripts; dist nestednpm forwarding logs prove --config playwright.dist.config.ts plus artifact-only --output and all3cases; no filters/tempconfigs"
+}

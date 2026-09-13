@@ -1,0 +1,16 @@
+{
+  "HEAD": "58bfd9a47a811090f2bffb012cb2c6a33c3b9fc4",
+  "clean": true,
+  "command": [
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "tools/release/run_evidence_sweep.py",
+    "--execute",
+    "--require-capability",
+    "host"
+  ],
+  "env": {
+    "PLAYWRIGHT_WORKERS": "1",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/target/workflow-contact-dec025"
+  }
+}

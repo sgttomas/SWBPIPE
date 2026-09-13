@@ -1,0 +1,85 @@
+{
+  "state": "FINAL_ONE_FILE_TEST_ONLY_FROZEN",
+  "source": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "pre_sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "post_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4"
+    }
+  ],
+  "source_pre": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_PRE.txt",
+    "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783"
+  },
+  "source_post": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_POST.txt",
+    "sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4"
+  },
+  "incremental_patch": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_TEST_DELTA.patch",
+    "sha256": "d74f9e714fba64ed22ca03b624a1714243468f1d6bea6a9ddc4959b3bb479c77"
+  },
+  "exact_delta": "Only two original substring assertions replaced by two exact existing summary-testid assertions and two exact boundary assertions; all other bytes preserved",
+  "other_registered_e2e_files_verified_unchanged": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "9756610e047201bc5b68165c23eea1076d4b7f478362e7377a6cfe9c5b7f9217"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "sha256": "94b3477e83d958d0763f0d7ffed3101bc80a9d93dda05e2b0bd5d54a7a9fa4ec"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/workspace-layout.spec.ts",
+      "sha256": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2"
+    }
+  ],
+  "seven_workflow_local_runtime_inputs_verified_unchanged": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx",
+      "sha256": "a565716b9d15b4d9c668885a87ae0b7f80e5a1a9db7f7c72ded44791e02dc515"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/rule-packs/ExpressionComposer.tsx",
+      "sha256": "34745bdbbfd5ec21a711624df91b3f30df69dc2e8d888fced7bdd9adfb9741de"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/unitCatalogService.ts",
+      "sha256": "0ef7dfe55e078d0cca10a954fd2cef67feb00d16b34e4942c2da07b8a78382b8"
+    }
+  ],
+  "scope_calibration": "Seven local product bindings only; full integrated/native equality remains parent-owned",
+  "assertion_matrix": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/WORKFLOW/REPAIR_LINEAR_VIEWPORT_ASSERTION/ASSERTION_CONTEXT_MATRIX.json",
+    "sha256": "556599844f77c7652983bb06fc72339b07a656074eb6408f9a53358947645c61"
+  },
+  "matrix_review": "All4source/3dist registered files and actual24relevantAppcontexts read; currentfailed/Historical-cleared/solved classifications retained"
+}

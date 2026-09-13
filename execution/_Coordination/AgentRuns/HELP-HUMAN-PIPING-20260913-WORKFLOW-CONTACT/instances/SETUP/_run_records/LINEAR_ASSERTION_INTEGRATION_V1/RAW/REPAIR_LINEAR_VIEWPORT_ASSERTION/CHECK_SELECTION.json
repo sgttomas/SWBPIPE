@@ -1,0 +1,34 @@
+{
+  "state": "PROPOSED_ONLY_REQUIRES_EXPLICIT_PARENT_LEASE",
+  "cwd": "projects/chirality-piping",
+  "registered_sequence": [
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:desktop",
+      "expands": "npm run build:wasm && playwright test in apps/desktop",
+      "selection": "Entire source suite, both chromium-desktop and chromium-compact, source ignores *-dist.spec.ts; expected30 cases reported by parent, not discovered/executed here"
+    },
+    {
+      "command": "CI=1 PLAYWRIGHT_WORKERS=1 npm run test:e2e:dist:desktop",
+      "expands": "npm run build:wasm && npm run build && playwright test --config playwright.dist.config.ts",
+      "selection": "All three registered dist specs: wasm-engine-dist, report-package-dist, toolkit-batch-dist; one chromium-desktop-dist project"
+    },
+    {
+      "command": "npm run build:desktop",
+      "purpose": "Registered DEC025 final production-build surface after host browser surface; parent owns whether child lease also includes this final build"
+    }
+  ],
+  "registered_surface_selection": "tools/release/run_evidence_sweep.py build_sweep_plan host surface contains BOTH source and dist commands. An explicit --only-capability host run is partial and cannot substitute for a complete clean five-surface DEC025. No CI-binding substitution or filters proposed.",
+  "future_preflight": [
+    "Prior runner fully terminated and explicit exclusive lease covers WASM/browser and tsc/Vite builds",
+    "Ports5174/5175 free; CI=1 disables reuse; verify server process cwd is this lane; one worker; normal configured timeouts unchanged",
+    "Local package-lock-provisioned node_modules bins playwright/tsc/vite/vitest; no cache symlinks",
+    "cargo/node/npm/rustup/wasm-bindgen present; wasm32-unknown-unknown installed; wasm-bindgen exactly0.2.123; offline Cargo sources/cache ready",
+    "Registered preflight checks local Playwright Chromium existence; browser config may select explicit executable path or macChrome, so both preflight and actual chosen-browser availability must be satisfied",
+    "WASM build discovers target via Cargo metadata, preserves CARGO_NET_OFFLINE=true and atomically emits public/wasm-engine glue+wasm; parent lease/target containment must cover this implicit build",
+    "Vite production guard requires both public and copied dist WASM assets; dist uses fresh built bundle on5175 strictPort",
+    "All failure logs/output artifacts go under newly dedicated host _run_records after permission; preserve earlier runner evidence; no integration/previouspacket writes"
+  ],
+  "prerequisite_status": "Static requirements inspected only; no probes, provisioning, builds, test discovery or execution performed",
+  "native": "No native build/GUI; parent binds accepted runtime equality and native-evidence reuse",
+  "remaining": "Parent integration/review plus complete clean DEC025 acceptance remain outside this preparation"
+}

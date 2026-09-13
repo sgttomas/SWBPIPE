@@ -1,0 +1,11 @@
+{
+  "port": 5175,
+  "pid": "61106",
+  "listener": "COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nnode    61106 ryan   16u  IPv4 0x3c0522368b97d19a      0t0  TCP 127.0.0.1:5175 (LISTEN)\n",
+  "cwd": "p61106\nfcwd\nn/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop\n",
+  "CI": "1",
+  "PLAYWRIGHT_WORKERS": "1",
+  "poll_interval_seconds": 0.2,
+  "fresh_preflight": "No listener before repeat launch",
+  "reason": "One manager-authorized identical registered dist repeat solely to close missing active server identity"
+}

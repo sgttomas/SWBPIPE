@@ -1,0 +1,179 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_viewport_editor-7c1250652a58cb8b)
+   Doc-tests open_pipe_stress_viewport_editor
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_library_import_document-971432d65e15a783)
+     Running tests/provenance_parity.rs (target/workflow-contact-dec025/debug/deps/provenance_parity-61d57708c31a4cf8)
+   Doc-tests open_pipe_stress_library_import_document
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_load_case_algebra-4ee13ebac6e18fc2)
+   Doc-tests open_pipe_stress_load_case_algebra
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_primitive_loads-9d092418770235ac)
+   Doc-tests open_pipe_stress_primitive_loads
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_self_weight_wasm-a0d9f9078bcd3bf3)
+   Doc-tests open_pipe_stress_self_weight_wasm
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_stress_recovery-ca51ff69bb2d1979)
+   Doc-tests open_pipe_stress_stress_recovery
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_user_loads-29b57c1bd5aeb1c9)
+   Doc-tests open_pipe_stress_user_loads
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_operation_applier-049bd0f21fe49071)
+     Running tests/canonical_hash_parity.rs (target/workflow-contact-dec025/debug/deps/canonical_hash_parity-eaa609fc6412345b)
+     Running tests/contract_corpus.rs (target/workflow-contact-dec025/debug/deps/contract_corpus-c3aa548b83073461)
+     Running tests/support_authoring_conflicts.rs (target/workflow-contact-dec025/debug/deps/support_authoring_conflicts-cebac31a1ebe0aa9)
+   Doc-tests open_pipe_stress_operation_applier
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_product_physics-6f9d5d2fe8932aa3)
+   Doc-tests open_pipe_stress_product_physics
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_audit_manifest-052cdfa51fc1d2bf)
+   Doc-tests open_pipe_stress_audit_manifest
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_pdf_emitter-95537044cebbdfd7)
+     Running tests/emit.rs (target/workflow-contact-dec025/debug/deps/emit-7ed4f1d1bbea1bb3)
+   Doc-tests open_pipe_stress_pdf_emitter
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_protected_content_linter-bd484528d3aef39f)
+     Running unittests src/bin/protected_content_lint_cli.rs (target/workflow-contact-dec025/debug/deps/protected_content_lint_cli-2d7901eca0927c53)
+   Doc-tests open_pipe_stress_protected_content_linter
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_report_generator-b251d2ae4b34c368)
+   Doc-tests open_pipe_stress_report_generator
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_report_package-024c58fb4cd6e28f)
+     Running tests/container.rs (target/workflow-contact-dec025/debug/deps/container-7522a213dd1de92a)
+   Doc-tests open_pipe_stress_report_package
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_report_renderer-a4ab4bf007e7ed31)
+     Running tests/render.rs (target/workflow-contact-dec025/debug/deps/render-58ec92b90a5356b1)
+   Doc-tests open_pipe_stress_report_renderer
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_report_sections-6f7d32bcbd75f619)
+   Doc-tests open_pipe_stress_report_sections
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_result_export-3fa51015009a547d)
+   Doc-tests open_pipe_stress_result_export
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_completeness_checker-f405177abbefa97f)
+   Doc-tests open_pipe_stress_completeness_checker
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_expression_evaluator-f6b33d657c3dcb14)
+     Running tests/conformance_corpus.rs (target/workflow-contact-dec025/debug/deps/conformance_corpus-b3042cd24b9d8e03)
+   Doc-tests open_pipe_stress_expression_evaluator
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_rule_check_runner-e17bd31fb8f813c4)
+     Running tests/acceptability_relation_run.rs (target/workflow-contact-dec025/debug/deps/acceptability_relation_run-d639e8d5c837540c)
+     Running tests/invented_demo_run.rs (target/workflow-contact-dec025/debug/deps/invented_demo_run-572e49fd0b098cdf)
+   Doc-tests open_pipe_stress_rule_check_runner
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_rule_pack_document-07e1c0817eba2935)
+     Running tests/corpus_parity.rs (target/workflow-contact-dec025/debug/deps/corpus_parity-f904345d62210b3c)
+     Running tests/invented_demo_document.rs (target/workflow-contact-dec025/debug/deps/invented_demo_document-ff825ad4f1803cdf)
+   Doc-tests open_pipe_stress_rule_pack_document
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_rule_pack_lifecycle-c9f94b9c9b2f8ccd)
+   Doc-tests open_pipe_stress_rule_pack_lifecycle
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_headless_runner-a98f80fea308469e)
+     Running unittests src/bin/headless_preview_runner.rs (target/workflow-contact-dec025/debug/deps/headless_preview_runner-042c639126cc1c94)
+     Running unittests src/bin/openpipestress-runner.rs (target/workflow-contact-dec025/debug/deps/openpipestress_runner-5c88d4901e906c03)
+   Doc-tests open_pipe_stress_headless_runner
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_canonical_json-560f760bec692761)
+   Doc-tests open_pipe_stress_canonical_json
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_curved_bend-7b4efb7adea0495c)
+   Doc-tests open_pipe_stress_curved_bend
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_solver_diagnostics-24211116ad57b487)
+   Doc-tests open_pipe_stress_solver_diagnostics
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+   Doc-tests open_pipe_stress_frame_kernel
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_linear_supports-457f4f663fc8ad1f)
+   Doc-tests open_pipe_stress_linear_supports
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_nonlinear_integration-06753f4c854c9348)
+   Doc-tests open_pipe_stress_nonlinear_integration
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_nonlinear_supports-7258f8fe8b5bca4f)
+   Doc-tests open_pipe_stress_nonlinear_supports
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_solver_performance_harness-8a5f6aed4fe80be5)
+   Doc-tests open_pipe_stress_solver_performance_harness
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_sparse_direct-b2ae315574c6231c)
+   Doc-tests open_pipe_stress_sparse_direct
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_straight_pipe-5d0e7e44ee453d54)
+   Doc-tests open_pipe_stress_straight_pipe
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_units-54ad2436ab8ad22c)
+   Doc-tests open_pipe_stress_units
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_mechanics_benchmarks-31ed2a33029722ed)
+   Doc-tests open_pipe_stress_mechanics_benchmarks
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_nonlinear_benchmarks-eb87cb7bea726215)
+   Doc-tests open_pipe_stress_nonlinear_benchmarks
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_physics_audit_regression-17b883a2d2eb85c2)
+   Doc-tests open_pipe_stress_physics_audit_regression
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (target/workflow-contact-dec025/debug/deps/open_pipe_stress_stress_benchmarks-4737b5db26b541a6)
+   Doc-tests open_pipe_stress_stress_benchmarks
+[2m[WebServer] [22m(node:57353) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57355) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57450) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57612) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:57694) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+npm error Lifecycle script `test:e2e` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c npm run build:wasm && playwright test
+[evidence-sweep] FAILED at surface desktop_playwright_e2e; remaining surfaces recorded as not_run

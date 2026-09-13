@@ -1,0 +1,21 @@
+--- a/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
++++ b/projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts
+@@ -209,14 +209,16 @@
+   await expect(page.getByTestId("diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL")).toContainText("BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL");
+   await page.getByTestId("issues-home").getByRole("button", { name: /Close/i }).click();
+   await expect(page.getByTestId("status-pill-mechanics")).toContainText("MODEL_INCOMPLETE");
+-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
++  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("blocked; mechanics=model incomplete; rows=0");
++  await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
+   await expect(page.getByTestId("rule-check-run")).toBeDisabled();
+   await page.getByRole("button", { name: "Save local" }).click();
+   await page.getByRole("button", { name: "Open local" }).click();
+   await expect(page.getByTestId("historical-run-context")).toContainText("HISTORICAL_INPUT_MANIFEST_MISSING");
+   await expect(page.getByTestId("historical-run-context")).toContainText("MODEL_INCOMPLETE");
+   expect(await currentModelHash(page)).toBe(baseline350Hash);
+-  await expect(page.getByTestId("viewport-deformation-status")).toContainText("result rows=0");
++  await expect(page.getByTestId("viewport-deformation-summary")).toHaveText("not started; result rows=0");
++  await expect(page.getByTestId("viewport-deformation-boundary")).toHaveText("scale=not_generated; professional_claim=false");
+ 
+   await page.getByTestId("tree-row-load:UI-A").click();
+   const inspector = page.getByLabel("Property inspector");

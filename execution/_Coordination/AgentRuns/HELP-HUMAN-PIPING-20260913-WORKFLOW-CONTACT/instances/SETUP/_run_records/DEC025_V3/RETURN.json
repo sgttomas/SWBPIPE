@@ -1,0 +1,13 @@
+{
+  "status": "FAILED",
+  "checkpoint": "58bfd9a47a811090f2bffb012cb2c6a33c3b9fc4",
+  "summary": "projects/chirality-piping/validation/evidence/sweeps/SWEEP_20260913T224452Z_58bfd9a47a81.json",
+  "exit_code": 1,
+  "source13_hashes_equal": true,
+  "cargo": "38manifestsPASS",
+  "python": "1012PASS",
+  "desktop": "848PASS/48files",
+  "browser": "28PASS2FAIL same staleblockedrowwording assertion acrossdesktopcompact",
+  "dependentgates": "not_run due failure",
+  "lease": "released; runner/children ended"
+}

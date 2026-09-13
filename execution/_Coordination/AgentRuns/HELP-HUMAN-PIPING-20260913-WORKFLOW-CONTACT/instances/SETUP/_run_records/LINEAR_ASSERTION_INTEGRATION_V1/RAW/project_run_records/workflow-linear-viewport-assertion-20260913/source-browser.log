@@ -1,0 +1,63 @@
+
+> openpipestress-workspace@0.1.0 test:e2e:desktop
+> npm run test:e2e --workspace apps/desktop
+
+
+> @openpipestress/desktop@0.1.0 test:e2e
+> npm run build:wasm && playwright test
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-58517
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-58517
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[WebServer] (node:59043) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 30 tests using 1 worker
+
+(node:59058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59058) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.3s)
+  ✓   2 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:322:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home (9.8s)
+  ✓   3 [chromium-desktop] › e2e/gui-workflow-validation.spec.ts:322:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer (9.7s)
+  ✓   4 [chromium-desktop] › e2e/linear-authoring.spec.ts:43:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (14.6s)
+  ✓   5 [chromium-desktop] › e2e/r2-smoke.spec.ts:170:1 › guided workbench shell keeps journey steps, details, and compact status reachable (3.6s)
+  ✓   6 [chromium-desktop] › e2e/r2-smoke.spec.ts:239:1 › DEC-077 solve temperature queues an explicit unit-bearing operation (1.7s)
+  ✓   7 [chromium-desktop] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (29.5s)
+  ✓   8 [chromium-desktop] › e2e/r2-smoke.spec.ts:827:1 › viewport gesture placeholders record unit validation (3.0s)
+  ✓   9 [chromium-desktop] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (15.1s)
+  ✓  10 [chromium-desktop] › e2e/r2-smoke.spec.ts:1077:1 › diagnostic detail exposes linked result unit context (8.0s)
+  ✓  11 [chromium-desktop] › e2e/r2-smoke.spec.ts:1100:1 › rule-pack manager drafts privately and reports the desktop-only backend seam (3.4s)
+  ✓  12 [chromium-desktop] › e2e/r2-smoke.spec.ts:1323:1 › library manager loads an invented private sample and reports the desktop-only backend seam (2.9s)
+  ✓  13 [chromium-desktop] › e2e/r2-smoke.spec.ts:1487:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam (2.1s)
+  ✓  14 [chromium-desktop] › e2e/r2-smoke.spec.ts:1614:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (8.5s)
+  ✓  15 [chromium-desktop] › e2e/workspace-layout.spec.ts:24:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation (2.7s)
+(node:59281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:59281) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  16 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:100:1 › DEL-09-04 invented fixture exposes warnings, boundaries, and honest solve/result transitions (18.1s)
+  ✓  17 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:322:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: issues-home (9.9s)
+  ✓  18 [chromium-compact] › e2e/gui-workflow-validation.spec.ts:322:3 › shared drawer menu overlap preserves ordinary Close and active menu priority: audit-boundary-drawer (10.0s)
+  ✓  19 [chromium-compact] › e2e/linear-authoring.spec.ts:43:1 › compact blank-to-straight authoring keeps the canvas and exact Add/Apply review (14.6s)
+  ✓  20 [chromium-compact] › e2e/r2-smoke.spec.ts:170:1 › guided workbench shell keeps journey steps, details, and compact status reachable (3.7s)
+  ✓  21 [chromium-compact] › e2e/r2-smoke.spec.ts:239:1 › DEC-077 solve temperature queues an explicit unit-bearing operation (1.7s)
+  ✓  22 [chromium-compact] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (30.0s)
+  ✓  23 [chromium-compact] › e2e/r2-smoke.spec.ts:827:1 › viewport gesture placeholders record unit validation (3.0s)
+  ✓  24 [chromium-compact] › e2e/r2-smoke.spec.ts:860:1 › R2 from-blank GUI journey authors the A12 rehearsal script (14.9s)
+  ✓  25 [chromium-compact] › e2e/r2-smoke.spec.ts:1077:1 › diagnostic detail exposes linked result unit context (8.0s)
+  ✓  26 [chromium-compact] › e2e/r2-smoke.spec.ts:1100:1 › rule-pack manager drafts privately and reports the desktop-only backend seam (3.4s)
+  ✓  27 [chromium-compact] › e2e/r2-smoke.spec.ts:1323:1 › library manager loads an invented private sample and reports the desktop-only backend seam (2.9s)
+  ✓  28 [chromium-compact] › e2e/r2-smoke.spec.ts:1487:1 › run-rule-checks panel loads the demo pack, derives bindings, and reports the desktop-only run seam (2.0s)
+  ✓  29 [chromium-compact] › e2e/r2-smoke.spec.ts:1614:1 › R3 guided flow routes private library, rule-pack, solve, binding, and blocked check steps (8.2s)
+  ✓  30 [chromium-compact] › e2e/workspace-layout.spec.ts:24:1 › workspace preserves the visible model during discovery, routing, property editing and analysis navigation (2.8s)
+
+  30 passed (4.5m)

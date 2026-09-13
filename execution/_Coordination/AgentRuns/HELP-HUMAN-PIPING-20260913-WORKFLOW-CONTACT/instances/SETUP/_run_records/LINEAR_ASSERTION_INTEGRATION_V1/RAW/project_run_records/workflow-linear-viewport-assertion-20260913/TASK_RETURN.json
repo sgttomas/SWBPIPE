@@ -1,0 +1,24 @@
+{
+  "state": "ONE_FILE_TEST_REPAIR_READY_FOR_PARENT_INTEGRATION",
+  "source_manifest": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/SOURCE_MANIFEST.json",
+    "sha256": "eb2b9acf6744812aebe4ae31483197ca9f2522f408f9bc46e4432193709488f6"
+  },
+  "checks": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/CHECKS.json",
+    "sha256": "a75ab83b3d6a9a6c9ae4b8f2f07f60fd6f757fe8b232714db3a81769ea929b33"
+  },
+  "code_review": {
+    "path": "projects/chirality-piping/_run_records/workflow-linear-viewport-assertion-20260913/CODE_REVIEW.md",
+    "sha256": "8db7b165d8aa1314510bd593f33859e658cc24c6c59f368e8144d13de08d3016"
+  },
+  "result": "Stale linear current/historical viewport assertions corrected to exact existing semantics; source30/distribution3PASS with registered implicit WASM+productionbuild; one justified identical dist repeat3PASS closes active server identity",
+  "source_sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+  "lease": "Final child allocation RELEASED after all commands/monitor ended; parent manager owns forwarding lease release",
+  "remaining": [
+    "Parent independent review acceptance/fan-in",
+    "Parent full integrated/native equality and exact existing native evidence reuse",
+    "Parent integration and new complete clean DEC025 from start"
+  ],
+  "closure": "Bounded TASK test repair complete; no project/deliverable lifecycle closure"
+}

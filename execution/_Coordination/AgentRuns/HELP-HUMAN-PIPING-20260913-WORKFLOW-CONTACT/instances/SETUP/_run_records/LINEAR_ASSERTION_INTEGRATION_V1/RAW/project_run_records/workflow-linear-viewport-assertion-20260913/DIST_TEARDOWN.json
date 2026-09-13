@@ -1,0 +1,18 @@
+{
+  "listeners": [
+    {
+      "port": 5174,
+      "exit": 1,
+      "stdout": ""
+    },
+    {
+      "port": 5175,
+      "exit": 1,
+      "stdout": ""
+    }
+  ],
+  "dist_script_exit": 0,
+  "dist_results": "3 pass",
+  "logged_server_pid": 60252,
+  "actual_active_cwd_capture": "Unavailable: all3tests finished10s before first live probe; no active listener at probe. No active-CWD claim. Registered nested npm workspace and launched command cwd provide spawn basis only."
+}

@@ -1,0 +1,9 @@
+{
+  "port": 5174,
+  "pid": "59043",
+  "listener": "COMMAND   PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME\nnode    59043 ryan   13u  IPv4 0xccece28e8c84c320      0t0  TCP 127.0.0.1:5174 (LISTEN)\n",
+  "cwd": "p59043\nfcwd\nn/Users/ryan/.codex/worktrees/8728/chirality-workflow-integrity-20260913/projects/chirality-piping/apps/desktop\n",
+  "CI": "1",
+  "PLAYWRIGHT_WORKERS": "1",
+  "fresh_preflight": "No pre-existing listener before launch"
+}

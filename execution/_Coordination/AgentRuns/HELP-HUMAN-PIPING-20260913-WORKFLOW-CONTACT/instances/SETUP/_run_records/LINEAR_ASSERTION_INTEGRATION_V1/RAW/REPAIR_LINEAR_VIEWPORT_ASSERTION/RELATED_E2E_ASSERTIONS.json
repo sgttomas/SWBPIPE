@@ -1,0 +1,616 @@
+{
+  "state": "READ_ONLY_ALL_EXISTING_E2E_MATCHES",
+  "query": "viewport-deformation-*|not started; result rows=0|blocked; mechanics=",
+  "files": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+      "hits": [
+        {
+          "line": 242,
+          "context": [
+            {
+              "line": 239,
+              "text": "  await expect(page.getByTestId(\"workspace-section-solve\")).toBeVisible();"
+            },
+            {
+              "line": 240,
+              "text": "  await expect(page.getByTestId(\"readiness-mechanics\")).toBeVisible();"
+            },
+            {
+              "line": 241,
+              "text": "  await expect(page.getByTestId(\"readiness-mechanics\")).toContainText(\"preview run not started\");"
+            },
+            {
+              "line": 242,
+              "text": "  const resetViewportStatus = page.getByTestId(\"viewport-deformation-status\");"
+            },
+            {
+              "line": 243,
+              "text": "  await expect(resetViewportStatus).toBeVisible();"
+            },
+            {
+              "line": 244,
+              "text": "  await setDisclosure(resetViewportStatus);"
+            },
+            {
+              "line": 245,
+              "text": "  await expect(resetViewportStatus).toContainText(\"not started; result rows=0\");"
+            },
+            {
+              "line": 246,
+              "text": "  await setDisclosure(resetViewportStatus, false);"
+            }
+          ]
+        },
+        {
+          "line": 245,
+          "context": [
+            {
+              "line": 242,
+              "text": "  const resetViewportStatus = page.getByTestId(\"viewport-deformation-status\");"
+            },
+            {
+              "line": 243,
+              "text": "  await expect(resetViewportStatus).toBeVisible();"
+            },
+            {
+              "line": 244,
+              "text": "  await setDisclosure(resetViewportStatus);"
+            },
+            {
+              "line": 245,
+              "text": "  await expect(resetViewportStatus).toContainText(\"not started; result rows=0\");"
+            },
+            {
+              "line": 246,
+              "text": "  await setDisclosure(resetViewportStatus, false);"
+            },
+            {
+              "line": 247,
+              "text": "  await openWorkspaceSection(page, \"results\");"
+            },
+            {
+              "line": 248,
+              "text": "  await expect(page.getByTestId(\"results-panel\")).toContainText("
+            },
+            {
+              "line": 249,
+              "text": "    \"Run the bounded preview mechanics path to populate result summaries.\""
+            }
+          ]
+        },
+        {
+          "line": 284,
+          "context": [
+            {
+              "line": 281,
+              "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"state=completed\");"
+            },
+            {
+              "line": 282,
+              "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"result_rows=0\");"
+            },
+            {
+              "line": 283,
+              "text": "  await expectRecordedStatus(page, \"status-pill-mechanics\", \"MODEL_INCOMPLETE\");"
+            },
+            {
+              "line": 284,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 285,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText("
+            },
+            {
+              "line": 286,
+              "text": "    \"blocked; mechanics=model incomplete; rows=0\""
+            },
+            {
+              "line": 287,
+              "text": "  );"
+            },
+            {
+              "line": 288,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            }
+          ]
+        },
+        {
+          "line": 285,
+          "context": [
+            {
+              "line": 282,
+              "text": "  await expect(page.getByTestId(\"solve-job-summary\")).toContainText(\"result_rows=0\");"
+            },
+            {
+              "line": 283,
+              "text": "  await expectRecordedStatus(page, \"status-pill-mechanics\", \"MODEL_INCOMPLETE\");"
+            },
+            {
+              "line": 284,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 285,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText("
+            },
+            {
+              "line": 286,
+              "text": "    \"blocked; mechanics=model incomplete; rows=0\""
+            },
+            {
+              "line": 287,
+              "text": "  );"
+            },
+            {
+              "line": 288,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 289,
+              "text": "  await page.getByTestId(\"issues-drawer-toggle\").click();"
+            }
+          ]
+        },
+        {
+          "line": 286,
+          "context": [
+            {
+              "line": 283,
+              "text": "  await expectRecordedStatus(page, \"status-pill-mechanics\", \"MODEL_INCOMPLETE\");"
+            },
+            {
+              "line": 284,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 285,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText("
+            },
+            {
+              "line": 286,
+              "text": "    \"blocked; mechanics=model incomplete; rows=0\""
+            },
+            {
+              "line": 287,
+              "text": "  );"
+            },
+            {
+              "line": 288,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 289,
+              "text": "  await page.getByTestId(\"issues-drawer-toggle\").click();"
+            },
+            {
+              "line": 290,
+              "text": "  await expect(page.getByTestId(\"diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL\")).toBeVisible();"
+            }
+          ]
+        },
+        {
+          "line": 288,
+          "context": [
+            {
+              "line": 285,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText("
+            },
+            {
+              "line": 286,
+              "text": "    \"blocked; mechanics=model incomplete; rows=0\""
+            },
+            {
+              "line": 287,
+              "text": "  );"
+            },
+            {
+              "line": 288,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 289,
+              "text": "  await page.getByTestId(\"issues-drawer-toggle\").click();"
+            },
+            {
+              "line": 290,
+              "text": "  await expect(page.getByTestId(\"diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL\")).toBeVisible();"
+            },
+            {
+              "line": 291,
+              "text": "  const blockedIssues = page.getByTestId(\"issues-home\");"
+            },
+            {
+              "line": 292,
+              "text": "  await expect(blockedIssues.getByTestId(\"missing-data-summary\")).toContainText(\"solve_blocked=true\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "0b0bfa71211e7ef08bbd73fb1bdd1bd5e78771262b1ad57c3d7ea792c17a5783",
+      "hits": [
+        {
+          "line": 212,
+          "context": [
+            {
+              "line": 209,
+              "text": "  await expect(page.getByTestId(\"diagnostic-BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL\")).toContainText(\"BROWSER_SOLVE_BACKEND_REQUIRED_FOR_EDITED_MODEL\");"
+            },
+            {
+              "line": 210,
+              "text": "  await page.getByTestId(\"issues-home\").getByRole(\"button\", { name: /Close/i }).click();"
+            },
+            {
+              "line": 211,
+              "text": "  await expect(page.getByTestId(\"status-pill-mechanics\")).toContainText(\"MODEL_INCOMPLETE\");"
+            },
+            {
+              "line": 212,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"result rows=0\");"
+            },
+            {
+              "line": 213,
+              "text": "  await expect(page.getByTestId(\"rule-check-run\")).toBeDisabled();"
+            },
+            {
+              "line": 214,
+              "text": "  await page.getByRole(\"button\", { name: \"Save local\" }).click();"
+            },
+            {
+              "line": 215,
+              "text": "  await page.getByRole(\"button\", { name: \"Open local\" }).click();"
+            },
+            {
+              "line": 216,
+              "text": "  await expect(page.getByTestId(\"historical-run-context\")).toContainText(\"HISTORICAL_INPUT_MANIFEST_MISSING\");"
+            }
+          ]
+        },
+        {
+          "line": 219,
+          "context": [
+            {
+              "line": 216,
+              "text": "  await expect(page.getByTestId(\"historical-run-context\")).toContainText(\"HISTORICAL_INPUT_MANIFEST_MISSING\");"
+            },
+            {
+              "line": 217,
+              "text": "  await expect(page.getByTestId(\"historical-run-context\")).toContainText(\"MODEL_INCOMPLETE\");"
+            },
+            {
+              "line": 218,
+              "text": "  expect(await currentModelHash(page)).toBe(baseline350Hash);"
+            },
+            {
+              "line": 219,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"result rows=0\");"
+            },
+            {
+              "line": 220,
+              "text": ""
+            },
+            {
+              "line": 221,
+              "text": "  await page.getByTestId(\"tree-row-load:UI-A\").click();"
+            },
+            {
+              "line": 222,
+              "text": "  const inspector = page.getByLabel(\"Property inspector\");"
+            },
+            {
+              "line": 223,
+              "text": "  await inspector.getByTestId(\"editor-intent-field\").selectOption(\"primitive_loads.0.magnitude.value\");"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711",
+      "hits": [
+        {
+          "line": 357,
+          "context": [
+            {
+              "line": 354,
+              "text": "    \"model_metadata_unit_dimension_declared_catalog_unavailable_browser_preview\""
+            },
+            {
+              "line": 355,
+              "text": "  );"
+            },
+            {
+              "line": 356,
+              "text": "  await expect(editorIntentPanel.getByTestId(\"queue-editor-intent\")).toBeEnabled();"
+            },
+            {
+              "line": 357,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 358,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"not started; result rows=0\");"
+            },
+            {
+              "line": 359,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 360,
+              "text": "  await page.getByTestId(\"audit-drawer-toggle\").click();"
+            },
+            {
+              "line": 361,
+              "text": "  await expect(page.getByTestId(\"local-project-status\")).toContainText(\"network=false\");"
+            }
+          ]
+        },
+        {
+          "line": 358,
+          "context": [
+            {
+              "line": 355,
+              "text": "  );"
+            },
+            {
+              "line": 356,
+              "text": "  await expect(editorIntentPanel.getByTestId(\"queue-editor-intent\")).toBeEnabled();"
+            },
+            {
+              "line": 357,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 358,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"not started; result rows=0\");"
+            },
+            {
+              "line": 359,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 360,
+              "text": "  await page.getByTestId(\"audit-drawer-toggle\").click();"
+            },
+            {
+              "line": 361,
+              "text": "  await expect(page.getByTestId(\"local-project-status\")).toContainText(\"network=false\");"
+            },
+            {
+              "line": 362,
+              "text": "  await expect(page.getByTestId(\"local-project-status\")).toContainText(\"telemetry=false\");"
+            }
+          ]
+        },
+        {
+          "line": 359,
+          "context": [
+            {
+              "line": 356,
+              "text": "  await expect(editorIntentPanel.getByTestId(\"queue-editor-intent\")).toBeEnabled();"
+            },
+            {
+              "line": 357,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 358,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"not started; result rows=0\");"
+            },
+            {
+              "line": 359,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 360,
+              "text": "  await page.getByTestId(\"audit-drawer-toggle\").click();"
+            },
+            {
+              "line": 361,
+              "text": "  await expect(page.getByTestId(\"local-project-status\")).toContainText(\"network=false\");"
+            },
+            {
+              "line": 362,
+              "text": "  await expect(page.getByTestId(\"local-project-status\")).toContainText(\"telemetry=false\");"
+            },
+            {
+              "line": 363,
+              "text": "  await page.getByTestId(\"audit-boundary-drawer\").getByRole(\"button\", { name: /Close/i }).click();"
+            }
+          ]
+        },
+        {
+          "line": 590,
+          "context": [
+            {
+              "line": 587,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"N*m/rad,N/m\");"
+            },
+            {
+              "line": 588,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"rows=830\");"
+            },
+            {
+              "line": 589,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"conversion=false\");"
+            },
+            {
+              "line": 590,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 591,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"available; nodes=5; max=4.927112 mm\");"
+            },
+            {
+              "line": 592,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-boundary\")).toContainText("
+            },
+            {
+              "line": 593,
+              "text": "    \"scale=normalized_display_offset_not_physical_length\""
+            },
+            {
+              "line": 594,
+              "text": "  );"
+            }
+          ]
+        },
+        {
+          "line": 591,
+          "context": [
+            {
+              "line": 588,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"rows=830\");"
+            },
+            {
+              "line": 589,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"conversion=false\");"
+            },
+            {
+              "line": 590,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 591,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"available; nodes=5; max=4.927112 mm\");"
+            },
+            {
+              "line": 592,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-boundary\")).toContainText("
+            },
+            {
+              "line": 593,
+              "text": "    \"scale=normalized_display_offset_not_physical_length\""
+            },
+            {
+              "line": 594,
+              "text": "  );"
+            },
+            {
+              "line": 595,
+              "text": "  // TP-APP-R2-DEFORMEDDIR-001: the canned preview fixture now carries signed"
+            }
+          ]
+        },
+        {
+          "line": 592,
+          "context": [
+            {
+              "line": 589,
+              "text": "  await expect(page.getByTestId(\"solve-job-unit-policy\")).toContainText(\"conversion=false\");"
+            },
+            {
+              "line": 590,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"));"
+            },
+            {
+              "line": 591,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-status\")).toContainText(\"available; nodes=5; max=4.927112 mm\");"
+            },
+            {
+              "line": 592,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-boundary\")).toContainText("
+            },
+            {
+              "line": 593,
+              "text": "    \"scale=normalized_display_offset_not_physical_length\""
+            },
+            {
+              "line": 594,
+              "text": "  );"
+            },
+            {
+              "line": 595,
+              "text": "  // TP-APP-R2-DEFORMEDDIR-001: the canned preview fixture now carries signed"
+            },
+            {
+              "line": 596,
+              "text": "  // global ux/uy/uz rows, so the overlay must disclose true directional"
+            }
+          ]
+        },
+        {
+          "line": 598,
+          "context": [
+            {
+              "line": 595,
+              "text": "  // TP-APP-R2-DEFORMEDDIR-001: the canned preview fixture now carries signed"
+            },
+            {
+              "line": 596,
+              "text": "  // global ux/uy/uz rows, so the overlay must disclose true directional"
+            },
+            {
+              "line": 597,
+              "text": "  // rendering instead of vector_direction=TBD."
+            },
+            {
+              "line": 598,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-boundary\")).toContainText("
+            },
+            {
+              "line": 599,
+              "text": "    \"vector_direction=global_cartesian_displacement_components\""
+            },
+            {
+              "line": 600,
+              "text": "  );"
+            },
+            {
+              "line": 601,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 602,
+              "text": ""
+            }
+          ]
+        },
+        {
+          "line": 601,
+          "context": [
+            {
+              "line": 598,
+              "text": "  await expect(page.getByTestId(\"viewport-deformation-boundary\")).toContainText("
+            },
+            {
+              "line": 599,
+              "text": "    \"vector_direction=global_cartesian_displacement_components\""
+            },
+            {
+              "line": 600,
+              "text": "  );"
+            },
+            {
+              "line": 601,
+              "text": "  await setDisclosure(page.getByTestId(\"viewport-deformation-status\"), false);"
+            },
+            {
+              "line": 602,
+              "text": ""
+            },
+            {
+              "line": 603,
+              "text": "  await page.getByTestId(\"audit-drawer-toggle\").click();"
+            },
+            {
+              "line": 604,
+              "text": "  const auditDrawer = page.getByTestId(\"audit-boundary-drawer\");"
+            },
+            {
+              "line": 605,
+              "text": "  await expect(auditDrawer).toBeVisible();"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
