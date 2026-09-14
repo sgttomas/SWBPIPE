@@ -1,0 +1,122 @@
+{
+  "verdict": "PASS_NATIVE_ASYNC_SAVE_V3",
+  "executor": "/root/native_results_witness",
+  "parent": "/root HELP_HUMAN",
+  "role": "TASK Type2, delegated-harness-native, instruction-asserted no-delegation",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V3",
+  "source_commit": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+  "source_count": 47,
+  "source_binding": "SOURCE_RUNTIME_BINDING_V3.json",
+  "final_source_build_equality": "FINAL_SOURCE47_BUILD_EQUALITY_V3.json",
+  "build": "Fresh isolated offline unsigned app build exit0; exact frozen overlay; binary SHA756d869eec10e9146a94bd37e113cd7e576da3715c7fb2da467378776e1e4d70",
+  "selftest": "Fresh packaged file-backed saved-edited-load selftest exit0",
+  "actual_outputs": [
+    {
+      "status": "PASS_ACTUAL_FINDER_CAPTURED_NATIVE350_BYTES",
+      "original_delivered_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "original_inode": 95323515,
+      "original_observed_size": 308754,
+      "finder_ui_route": "exact full-file GoTo path selected -> Copy -> exact authorized tmp folder -> Paste, no unrelated opening",
+      "captured_path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "own_exact_copy": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/actual-native-file350-v3.json",
+      "byte_count": 308754,
+      "sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "stable_double_read_equal": true,
+      "prior_v2_decoded_native_href_sha_equal": true,
+      "fresh_native_href_captured": false,
+      "original_downloads_bytes_directly_read": false,
+      "proof_limit": "Finder copy/observed selection ties bytes to real delivered file; original Downloads reader opens failed; no direct original/copy byte comparison"
+    },
+    {
+      "status": "PASS_ACTUAL_NATIVE_REPEAT350_COLLISION_AND_FIRST_PRESERVATION",
+      "actual_repeat_name": "openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+      "actual_repeat_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+      "byte_count": 308754,
+      "repeat_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "first_sha256_after_repeat": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "exact_real_copies_equal_original_before_and_after": true,
+      "original_file_metadata_exact_unchanged": true,
+      "receipt_observed": "Saved openpipestress-preview-results-run-preview-linear-static-001 (1).json (308754 bytes).",
+      "fresh_original_after_repeat_copy": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-repeat/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "repeat_copy": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-repeat/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+      "direct_downloads_read": false,
+      "calibration": "Finder exact-file copies; original/copy byte read equality unavailable directly; independent earlier payload hash equality and original recopy equality",
+      "repeat_payload_not_duplicated_in_publication": true
+    },
+    {
+      "status": "PASS_ACTUAL_FINDER_CAPTURED_NATIVE500_BYTES",
+      "actual_original_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+      "actual_name": "openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+      "actual_metadata": {
+        "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+        "exists": true,
+        "regular": true,
+        "symlink": false,
+        "size": 308766,
+        "mtime_ns": 1789369553493349923,
+        "ctime_ns": 1789369555205208621,
+        "inode": 95325097
+      },
+      "byte_count": 308766,
+      "sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+      "observed_ui_status": "Saved openpipestress-preview-results-run-preview-linear-static-001 (2).json (308766 bytes).",
+      "finder_copy_path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+      "stable_double_read_equal": true,
+      "exact_bytes_equal_v1_observed_native500_payload": true,
+      "paired_model_carrier_bytes_exact_equal_v1": true,
+      "fresh_native_href_captured": false,
+      "direct_downloads_read": false,
+      "first_two_original_file_metadata_unchanged": true,
+      "source_pair": "gui-solved500-v3.json"
+    }
+  ],
+  "acceptance": {
+    "delivery": "Three real native button files observed/copied/read; base, (1), (2) suffix distinct; earlier350 files unchanged after500.",
+    "schema": "Exact0.2.0 current strict dispatcher/version schema bothactualfilesPASS; legacy0.1 rejects current as expected, no new canonicalencoding claimed.",
+    "source_rows": "Both actual files67 exact source rows;66 physical quantities/units/metadata/digests;1 solver-mode disclosure; no ratio reinterpretation. Independent source/hash/unit/semantic checkersPASS.",
+    "numerical": "Independent350/500 beam-tip translation/rotation/resultant/shear/bending values PASS declared tolerances.",
+    "normal_lifecycle": "PID60786 supported CUA normalquit absent; samebundle OpenLocal Historical50067rows, expected missingmanifest/exclusions, noHASHMISMATCH; Current export withheld. UnchangedSave12fields excepttimestamp byte-exact. Fresh native500backendjob Current67 generation6/model+manifest/rawfields exact; finalPID62041 normalquit absent. No signals usedV3.",
+    "history": "V1 actual synthetic authoring/review/HumanUndoRedo/offline importedagent-intent history reused as prior source43 evidence, not freshly executedV3 and not connected-provider attestation. V3 freshactual500 queuedreview/apply and lifecycle exercised affected shell."
+  },
+  "key_evidence": [
+    "ACTUAL_FILES_FROZEN_SEMANTICS_AND_NUMERICS_V3.json",
+    "COMPOSITIONAL_EXACT_TEXT_QUALIFICATION_V3.json",
+    "ACTUAL_PRIOR_FILES_PRESERVATION_AFTER500_V3.json",
+    "UNCHANGED_SAVE500_EQUALITY_V3.json",
+    "FINAL_FRESHSOLVE500_EQUALITY_V3.json",
+    "NORMAL_QUIT500_ABSENCE_V3.json",
+    "FINAL_NORMAL_QUIT_ABSENCE_V3.json",
+    "FAILURES_AND_METHOD_LIMITS_V3.json",
+    "FINDER_PUBLICATION_OMISSION_LOCATOR_V3.json"
+  ],
+  "proof_limits": [
+    "No fresh native href captured; source+focused review/tests+actual delivered bytes and independently checked current model/carrier compose the exact-text qualification. It is not an instrumented simultaneous producer-string/href/direct-original file comparison.",
+    "Actual original Downloads direct opens failed; original identity/receipt/metadata/observed Finder selection and real copy bind captured bytes; no direct original-to-copy byte read comparison.",
+    "Original solver-producer attestation bytes unavailable; derivative checksums are independently recomputed but never claimed to be original producer checksums.",
+    "Native UI shows filename and byte count only; resolved Downloads path independently bound by Foundation resolver and observed exact Finder file selection.",
+    "durability=not_guaranteed; path_containment=best_effort_non_adversarial; replaced_existing=false source-qualified."
+  ],
+  "runtime_release": {
+    "owned_native_pids": [
+      60786,
+      62041
+    ],
+    "all_native_absent": true,
+    "original_python_reader_session10617": "exit130 closed",
+    "node_reader_wrapper_session51877": "timeout subprocess killed/waited; wrapper closed; PIDnotretained",
+    "no_active_owned_readers_or_builds": true,
+    "explicit_lease_release": true,
+    "signals_used_V3": false
+  },
+  "handoff": {
+    "upstream": "Reviewed source47 release/source acceptance exact; technical native acceptance nowPASS",
+    "derivative_package": true,
+    "authority_substitution": false,
+    "remaining_gate": "Root must complete required full final-source DEC025 sweep on exact47source with explicit assetbinding/reuse; no gate waived.",
+    "remaining_native_blockers": [],
+    "rerun": "No additional native repeat needed absent new source change/new failure; whole-suite remains root responsibility."
+  },
+  "sealed_utc": "2026-09-14T07:13:53.198699+00:00"
+}

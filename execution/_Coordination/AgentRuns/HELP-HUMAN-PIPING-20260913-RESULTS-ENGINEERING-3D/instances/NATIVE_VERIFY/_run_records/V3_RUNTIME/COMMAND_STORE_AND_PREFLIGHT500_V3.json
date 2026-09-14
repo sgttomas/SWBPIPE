@@ -1,0 +1,18 @@
+{
+  "capture_argv": [
+    "python3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/capture_stable_store.py",
+    "--output",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/gui-solved500-v3.sqlite3"
+  ],
+  "capture_exit": 0,
+  "probe_argv": [
+    "python3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/probe_downloads_v3.py",
+    "--output",
+    "DOWNLOAD_PREFLIGHT500_V3.json"
+  ],
+  "probe_exit": 0,
+  "prior_failure": "first capture helper path erroneously appended -20260913 to RUN name, exit2; no output/write occurred; corrected exact declared helper",
+  "unix": 1789369544.462454
+}

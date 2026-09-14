@@ -1,0 +1,6 @@
+The following is a diff from the previous accessibility tree for Window: "native-delivery-capture-v3" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~1089 standard window native-delivery-capture-v3, ID: FinderWindow, Secondary Actions: Raise
++			1128 outline Description: list view, ID: ListView
++			1145 text Value: 0 items, 1.36 TB available, ID: statusBarText
++	1163 text native-delivery-capture-v3
+The focused UI element is 1128 outline Description: list view, ID: ListView

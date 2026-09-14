@@ -1,0 +1,13 @@
+The following is a diff from the previous accessibility tree for Window: "after-repeat" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++				1174 row (selectable)
++					1175 cell
++						1176 image
++						1177 text field (settable) Value: openpipestress-preview-results-run-preview-linear-static-001.json, Secondary Actions: Open Finder item, URL: file:///private/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-repeat/openpipestress-preview-results-run-preview-linear-static-001.json
++					1178 cell
++						1179 text Today at 12:53 AM
++					1180 cell
++						1181 text 309 KB
++					1182 cell
++						1183 text JSON Document
+~			1155 text Value: 2 items, 1.36 TB available, ID: statusBarText
+The focused UI element is 1128 outline Description: list view, ID: ListView

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "exact_fields_except_timestamp": {
+    "project_id": true,
+    "project_name": true,
+    "model_json": true,
+    "created_at_unix": true,
+    "editor_intents_json": true,
+    "proposal_json": true,
+    "selected_review_target_json": true,
+    "mechanics_result_json": true,
+    "analysis_run_json": true,
+    "model_hash_json": true,
+    "project_envelope_hash_json": true,
+    "model_migration_ledger_json": true
+  },
+  "fresh_backend_job": "backend-solve-job-1",
+  "new_process_generation": 6,
+  "manifest": "90fb977d55a1b14b8be965fd6f459e3612baeb86b0d277a7c53727ab889c67cf"
+}

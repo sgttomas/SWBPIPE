@@ -1,0 +1,13 @@
+The following is a diff from the previous accessibility tree for Window: "native-delivery-capture-v3" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++				1164 row (selectable)
++					1165 cell
++						1166 image
++						1167 text field (settable) Value: openpipestress-preview-results-run-preview-linear-static-001.json, Secondary Actions: Open Finder item, URL: file:///private/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/openpipestress-preview-results-run-preview-linear-static-001.json
++					1168 cell
++						1169 text Today at 12:53 AM
++					1170 cell
++						1171 text 309 KB
++					1172 cell
++						1173 text JSON Document
+~			1145 text Value: 1 item, 1.36 TB available, ID: statusBarText
+The focused UI element is 1128 outline Description: list view, ID: ListView

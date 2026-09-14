@@ -1,0 +1,9 @@
+{
+  "historical_publication_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/finder-capture-destination-v3.ax.txt",
+  "retained_immutable_local_path": "/tmp/chirality-results-engineering-3d-20260913/native-private-evidence-v3/finder-capture-destination-v3.ax.txt",
+  "sha256": "126d497b5327c8e01d823cb6e93b8d32905a88647e3947bfefc6c1df64edfedc",
+  "bytes": 3768,
+  "publication_omission_reason": "Raw Finder destination AX snapshot includes incidental unrelated mounted-volume/sidebar names. No unrelated file was opened/read. Immutable raw moved outside publication; safe own-folder derivative excerpt published.",
+  "derivative_excerpt": "finder-capture-destination-v3.scoped-excerpt.txt",
+  "scope_check": "All other persisted Finder snapshots/excerpts contain only actual synthetic targets, own capture folders, standard selected-row metadata and generic status, no unrelated personal filenames/content."
+}

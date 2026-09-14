@@ -1,0 +1,43 @@
+{
+  "utc": "2026-09-14T07:03:21.203751+00:00",
+  "derivative_package": true,
+  "executor": "/root/native_file_read_diagnosis",
+  "parent": "/root",
+  "verdict": "DIAGNOSIS_COMPLETE_HOST_CAUSE_UNPROVEN_REAL350_FINDER_CAPTURE_PASS",
+  "accepted_source": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+  "brief_sha256": "9f39a0782d015950151cee30d42a26cb32dd2c85c798a777f7d915e51949b1b8",
+  "no_source_effects": true,
+  "no_content_read_attempts": true,
+  "no_sampler_executed": true,
+  "proposal_syntax": "parsed statically; no execution",
+  "upstream_manifest": "CONTEXT_AND_EVIDENCE_V1.json contains exact upstream origins/hashes",
+  "next": "Witness continues root-accepted Finder capture for repeat350/500 and remaining native obligations. Do not execute optional metadata sampler.",
+  "blockers": [
+    "Underlying original-open/extended-metadata wait unlocated; not blocking the root-accepted Finder observation route",
+    "Direct original/copy byte comparison remains unavailable and must remain explicitly distinguished",
+    "Remaining native repeat350/500 content and lifecycle obligations owned by witness"
+  ],
+  "files": [
+    {
+      "path": "DIAGNOSIS_V1.md",
+      "sha256": "9cd996f3f1fe3a00c4c722f9ce6dfb63fbfe967d1155a25c67ec3397d69fc62e",
+      "bytes": 6794
+    },
+    {
+      "path": "_run_records/CONTEXT_AND_EVIDENCE_V1.json",
+      "sha256": "866fe4a68dfe006b78bb820a3d5399ce5fe5af7a55d02c6b9eb4938cc24449af",
+      "bytes": 13939
+    },
+    {
+      "path": "_run_records/METADATA_PROBES_V1.json",
+      "sha256": "6aae1349b219e4a1ccda499b815e5b1a0b0692d2b24d9c6cc977edc32ddbee3d",
+      "bytes": 2140
+    },
+    {
+      "path": "_run_records/PROPOSED_METADATA_WAIT_PROBE_V1.py",
+      "sha256": "a73e05eebfdc5954b6742b8560d51124f92c34e9fe9b7851609ff1b4a998b882",
+      "bytes": 2187
+    }
+  ],
+  "actual350_proof_sha256": "d0debd407d74f7a7ef76ce6a45d1381f0878aa12d7573276d96bc5375d306fe6"
+}

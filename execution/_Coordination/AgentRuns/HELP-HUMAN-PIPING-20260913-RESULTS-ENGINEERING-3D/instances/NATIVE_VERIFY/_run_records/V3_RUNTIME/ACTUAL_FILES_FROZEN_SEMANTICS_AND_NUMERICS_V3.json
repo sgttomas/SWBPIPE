@@ -1,0 +1,1370 @@
+{
+  "status": "PASS_ALL67_PER_ACTUAL_FILE_FROZEN_EXPECTATIONS_AND_ANALYTICS",
+  "frozen_contract_sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+  "actual_files": [
+    {
+      "force_N": 350,
+      "file_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "checks": [
+        {
+          "id": "result:solver-mode:linear-solve-basis",
+          "kind": "linear_solver_mode_basis",
+          "unit": "mode_code",
+          "expected_dimension": "dimensionless",
+          "family": null,
+          "disposition": "disclosed",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT",
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP",
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:ux",
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:uy",
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:uz",
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:rx",
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:ry",
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:rz",
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:ux",
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:uy",
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:uz",
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:rx",
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:ry",
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:rz",
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:reaction:support-WF-ROOT",
+          "kind": "reaction_resultant",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "reaction",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:axial:end-j",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-y:end-j",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-z:end-j",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:torsion:end-j",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-y:end-j",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-z:end-j",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF",
+          "kind": "open_formula_stress_summary",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        }
+      ],
+      "count": 67
+    },
+    {
+      "force_N": 500,
+      "file_sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+      "checks": [
+        {
+          "id": "result:solver-mode:linear-solve-basis",
+          "kind": "linear_solver_mode_basis",
+          "unit": "mode_code",
+          "expected_dimension": "dimensionless",
+          "family": null,
+          "disposition": "disclosed",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT",
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP",
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:ux",
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:uy",
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:uz",
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:rx",
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:ry",
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-ROOT:rz",
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:ux",
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:uy",
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:uz",
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "expected_dimension": "length",
+          "family": "displacement",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:rx",
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:ry",
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:disp:node-WF-TIP:rz",
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "expected_dimension": "angle",
+          "family": "rotation",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:reaction:support-WF-ROOT",
+          "kind": "reaction_resultant",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "reaction",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:axial:end-j",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-y:end-j",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:shear-z:end-j",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:torsion:end-j",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-y:end-j",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:bending-z:end-j",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-1:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-1:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:midspan:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:midspan:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:axial",
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:shear-y",
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:force:pipe-WF:quarter-3:shear-z",
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "expected_dimension": "force",
+          "family": "force",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:torsion",
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:bending-y",
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:moment:pipe-WF:quarter-3:bending-z",
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "expected_dimension": "moment",
+          "family": "moment",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-i:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:end-j:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-1:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:midspan:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:axial-normal",
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:bending-normal-y",
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:bending-normal-z",
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF:quarter-3:torsional-shear",
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        },
+        {
+          "id": "result:stress:pipe-WF",
+          "kind": "open_formula_stress_summary",
+          "unit": "MPa",
+          "expected_dimension": "stress",
+          "family": "stress",
+          "disposition": "exported_quantity",
+          "frozen_source_metadata_equal": true,
+          "source_value_exact": true
+        }
+      ],
+      "count": 67
+    }
+  ],
+  "analytical_proofs": [
+    "analytical-350-v3.stdout.json",
+    "analytical-500-v3.stdout.json"
+  ],
+  "analytical_argv": "python3 NATIVE_VERIFY/assert_analytical_rows.py --snapshot paired gui-solved<force>-v3.json --force350/500, exact separate force arguments",
+  "generic_example_end_i_not_used": true,
+  "raw_original_dimension_declarations_absent": true,
+  "semantic_dimensions_independent_qualification_not_original_attestation": true,
+  "solver_disclosure_not_ratio": true,
+  "checker_failure_preserved": "SEMANTIC_CHECKER_LITERAL_FAILURE_V3.json"
+}

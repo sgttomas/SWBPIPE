@@ -1,0 +1,39 @@
+{
+  "preserved_prior_attempts": "V1 and V2 native anchor failures, samples, recovery, partial returns and checker corrections remain immutable. V3 is a new source-bound async-save attempt.",
+  "V3_failures_and_corrections": [
+    {
+      "event": "Python original350 Downloads open stalled; user interruption exit130",
+      "evidence": "ACTUAL_FILE_CAPTURE_OPEN_FAILURE_V3.json; python-actual350-capture-interrupt.trace.txt",
+      "resolution": "No third blind shell open; authorized Finder exact-file real-copy method PASS."
+    },
+    {
+      "event": "PinnedNode24 original350 exact read timed out8seconds",
+      "evidence": "COMMAND_NODE_ACTUAL350_CAPTURE_V3.json; ACTUAL_CAPTURE_READER_CLEANUP_V3.json",
+      "resolution": "Owned subprocess timeout killed/waited; PID not retained; no repeated direct read."
+    },
+    {
+      "event": "Finder path-field anchored regex did not match AX diff plus prefix (Cannot read properties of null)",
+      "resolution": "Only GoTo opened; Escape; derive fresh observed field using unanchored numeric regex. Subsequent exact selection/copies PASS. Original tool output retained in task history; no retrospective complete raw command transcript invented."
+    },
+    {
+      "event": "Repeat350 focus recovery toggled intentoff; space did not restore; Tab reached separate PackageJSON",
+      "resolution": "Observed screenshot intentoff; canonical checkbox clickedon, Tab actual native button, no wrong PackageJSON activation. Actual repeated350 savedunchanged bytes."
+    },
+    {
+      "event": "Initial500 pairedstore capture command used nonexistent RUN ending -20260913; exit2",
+      "evidence": "COMMAND_STORE_AND_PREFLIGHT500_V3.json",
+      "resolution": "Corrected exact declared RUN helper path; paired capturePASS."
+    },
+    {
+      "event": "Ad-hoc semantic checker invented discrete_disclosure literal, assertion1",
+      "evidence": "SEMANTIC_CHECKER_LITERAL_FAILURE_V3.json",
+      "resolution": "Frozen solver_mode/disclosed contract unchanged; compare frozen per-row policy all67rows bothactualfilesPASS."
+    },
+    {
+      "event": "Static exact-text source search initially used wrong frontendfeaturepaths; rgexit2",
+      "resolution": "rg --files resolved actual result-export/redaction-controls paths; readonly source review completed."
+    }
+  ],
+  "AX_limit": "Native AX omits canonical controls under large export pre content; screenshot-coordinate and observed Tab focus used. Actual button UI remains responsive; no product runtime failure in V3.",
+  "privacy_publication": "FINDER_PUBLICATION_OMISSION_LOCATOR_V3.json retains exact immutable original destination raw AX locally outside publication; unrelated sidebar/mounted-volume names omitted from publication without rewriting raw."
+}

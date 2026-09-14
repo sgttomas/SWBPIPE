@@ -1,0 +1,11 @@
+{
+  "status": "PASS_CAPTURED_NATIVE_SOURCE_BINDING_ONLY_SCHEMA_CHECK_SEPARATE",
+  "capture_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "actual_decoded_utf8_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "native_received_rows": 67,
+  "numerical": 66,
+  "disclosed": 1,
+  "original_producer_unavailable": true,
+  "engine_glue_sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+  "engine_wasm_sha256": "e409c312d7e56ab7e5e108a47349591bf070d7df0bfb434396c0c8d80a233712"
+}

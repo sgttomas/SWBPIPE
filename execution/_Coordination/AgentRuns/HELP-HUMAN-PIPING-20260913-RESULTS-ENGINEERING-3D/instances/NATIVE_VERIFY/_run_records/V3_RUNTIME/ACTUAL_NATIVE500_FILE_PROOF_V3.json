@@ -1,0 +1,26 @@
+{
+  "status": "PASS_ACTUAL_FINDER_CAPTURED_NATIVE500_BYTES",
+  "actual_original_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+  "actual_name": "openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+  "actual_metadata": {
+    "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+    "exists": true,
+    "regular": true,
+    "symlink": false,
+    "size": 308766,
+    "mtime_ns": 1789369553493349923,
+    "ctime_ns": 1789369555205208621,
+    "inode": 95325097
+  },
+  "byte_count": 308766,
+  "sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+  "observed_ui_status": "Saved openpipestress-preview-results-run-preview-linear-static-001 (2).json (308766 bytes).",
+  "finder_copy_path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+  "stable_double_read_equal": true,
+  "exact_bytes_equal_v1_observed_native500_payload": true,
+  "paired_model_carrier_bytes_exact_equal_v1": true,
+  "fresh_native_href_captured": false,
+  "direct_downloads_read": false,
+  "first_two_original_file_metadata_unchanged": true,
+  "source_pair": "gui-solved500-v3.json"
+}

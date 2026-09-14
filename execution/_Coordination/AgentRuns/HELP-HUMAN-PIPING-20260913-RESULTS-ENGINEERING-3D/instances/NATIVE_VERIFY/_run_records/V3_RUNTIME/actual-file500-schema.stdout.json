@@ -1,0 +1,26 @@
+{
+  "status": "PASS_ACTUAL_FILE_STRICT_VERSIONED_SCHEMA",
+  "actual_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/actual-native-file500-v3.json",
+  "actual_schema_version": "0.2.0",
+  "file_sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+  "schemas": [
+    {
+      "schema": "results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "errors": 0,
+      "expected_valid": true
+    },
+    {
+      "schema": "results.v0.2.schema.yaml",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "errors": 0,
+      "expected_valid": true
+    },
+    {
+      "schema": "results.v0.1.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "errors": 414,
+      "expected_valid": false
+    }
+  ]
+}

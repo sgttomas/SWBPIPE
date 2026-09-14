@@ -1,0 +1,27 @@
+{
+  "status": "ACTUAL_FILE_METADATA_PASS_BYTE_CAPTURE_BLOCKED",
+  "command_exit": 130,
+  "interrupted_owned_capture": true,
+  "failure": "Python pathlib.read_bytes stalls at io.open/os.open for exact newly observed350 file; KeyboardInterrupt traceback retained in tool output",
+  "actual_observed_metadata": [
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "exists": true,
+      "regular": true,
+      "symlink": false,
+      "size": 308754,
+      "mtime_ns": 1789368806195682272,
+      "ctime_ns": 1789368807552898546,
+      "inode": 95323515
+    }
+  ],
+  "actual_ui_saved_status": {
+    "file_name": "openpipestress-preview-results-run-preview-linear-static-001.json",
+    "byte_count": 308754
+  },
+  "actual_byte_read_complete": false,
+  "unrelated_file_access": false,
+  "native_app_failure": false,
+  "no_repeat_click": true,
+  "utc_unix": 1789368870.544485
+}

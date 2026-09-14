@@ -1,0 +1,4 @@
+The following is a diff from the previous accessibility tree for Window: "after-repeat" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++				1164 row (selectable)
+~			1145 text Value: 1 item, 1.36 TB available, ID: statusBarText
+The focused UI element is 1128 outline Description: list view, ID: ListView

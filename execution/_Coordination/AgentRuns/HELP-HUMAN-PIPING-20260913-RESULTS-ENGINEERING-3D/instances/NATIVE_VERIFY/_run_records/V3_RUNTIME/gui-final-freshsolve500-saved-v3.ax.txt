@@ -1,0 +1,709 @@
+Window: "SWBPIPE Results Engineering 3D Witness 20260913", App: SWBPIPE Results Engineering 3D Witness 20260913.
+0 standard window SWBPIPE Results Engineering 3D Witness 20260913, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: off
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button (disabled) Undo model edit
+					31 button (disabled) Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: off
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 7  of  7  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: on
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+						54 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+						55 heading Pipes, Value: 3
+							56 text Pipes
+						57 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+						58 heading Supports, Value: 3
+							59 text Supports
+						60 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: off
+						61 heading Load Cases, Value: 3
+							62 text Load Cases
+						63 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: off
+					64 text 3D Centerline
+					65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						66 summary Deformation · normalized, Value: off
+							67 text Deformation · normalized
+					68 container Viewport display toggles
+						69 toggle button Labels, Help: Show or hide entity labels, Value: on
+						70 toggle button Loads, Help: Show or hide load arrows, Value: on
+						71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					72 text Selected:  project:blank-local-20260914t051915z
+					73 container
+						74 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						75 container Viewport entity selection
+							76 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+							77 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+							78 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+							79 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: off
+						80 container Orientation gizmo
+						81 container View controls
+							82 toggle button Front, Value: off
+							83 toggle button Top, Value: off
+							84 toggle button Iso, Value: on
+						85 text 1 m
+					86 container Command and selection bar
+						87 container Object creation tools
+							88 toggle button Node, Help: Arm node creation, Value: off
+							89 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							90 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							91 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							92 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						93 text Select
+						94 summary Selection & navigation, Value: off
+							95 text Selection & navigation
+					96 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					97 container Property inspector
+						98 heading project:blank-local-20260914t051915z, Value: 2
+							99 text project:blank-local-20260914t051915z
+						100 summary All properties, Value: off
+							101 text All properties
+						102 container Editor operation intent
+							103 text Select a model entity to edit its properties.
+						104 summary Sources and units, Value: off
+							105 text Sources and units
+						106 summary New support configuration, Value: off
+							107 text New support configuration
+						108 summary New section, Value: off
+							109 text New section
+						110 summary New material, Value: off
+							111 text New material
+						112 summary New support, Value: off
+							113 text New support
+						114 summary New component, Value: off
+							115 text New component
+				116 container Workspace sections
+					117 container
+						118 heading Exports, Value: 2
+							119 text Exports
+						120 button Close
+					121 container Exports section
+						122 container Result export audit
+							123 text RESULT EXPORT
+							124 container
+								125 checkbox Include known private values in this local export, Value: 0
+								126 text Include known private values in this local export
+							127 text decisions= 6682 ; findings= 6682 ; blocked= true LOCAL_PRIVATE_INTENT_REQUIRED
+							128 container result-export-link redaction decisions
+								129 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; classificatio
+							130 container result-export-link redaction findings
+								131 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; class=PROVENANCE_
+							132 button (disabled) Local result JSON
+							133 text available; rows= 66 ; sets= 1 ; diagnostics= 2 Format
+							134 text schema_first_json_result_envelope; additional_formats=TBD
+							135 text State binding
+							136 text project:blank-local-20260914t051915z; run:preview-linear-static-001
+							137 text Units
+							138 text 5 explicit units; dimensions=angle, force, length, moment, stress
+							139 text Unit witnesses
+							140 text count=66; conversion=false
+							141 text Reproducibility
+							142 text deterministic_ordering=true; run_hashes=2
+							143 text Boundary
+							144 text human review remains required; acceptance stays with the responsible engineer
+							145 text Result export is a local technical-preview JSON envelope; stress-neutral CSV/JSON preview is available after a mechanics run, while public transport and local FEA package formats remain TBD.
+						146 container Stress-neutral CSV JSON export
+							147 text STRESS-NEUTRAL CSV/JSON decisions= 1362 ; findings= 1354 ; blocked= false
+							148 container stress-neutral-export-link redaction decisions
+								149 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							150 container stress-neutral-export-link redaction findings
+								151 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENA
+							152 link Package JSON
+								153 text Package JSON
+							154 text decisions= 1 ; findings= 1 ; blocked= true
+							155 container stress-neutral-csv-link redaction decisions
+								156 text path=$; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							157 container stress-neutral-csv-link redaction findings
+								158 text path=$; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							159 text CSV
+							160 text available; rows= 67 ; csv_columns= 11 ; diagnostics= 3 Format
+							161 text stress_neutral_csv_json; profile=ops.stress_neutral.v1; schema=desktop_preview_shape_aligned_not_runtime_json_schema_validated
+							162 text State binding
+							163 text project:blank-local-20260914t051915z; run:preview-linear-static-001; result-envelope:run:preview-linear-static-001
+							164 text Units
+							165 text 6 explicit units; dimensions=angle, dimensionless, force, length, moment, stress; source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false
+							166 text Unit witnesses
+							167 text count=0; policy=preserve_source_result_units; conversion=false
+							168 text Package
+							169 text members=9; stable_ids=67; loss_entries=3; validation=blocked; package_hash=computed_local_preview_sha256
+							170 text Boundary
+							171 text vendor_format=false; solver_validation=false; code_compliance=false; professional_reliance=false
+							172 text Stress-neutral export is a local review package only; it is not a vendor format or solver input deck. Validation occurs in the user's accepted professional tools; this package is screening and handoff evidence.
+						173 container Conservative PCF export
+							174 text CONSERVATIVE PCF EXPORT decisions= 708 ; findings= 427 ; blocked= false
+							175 container pcf-export-link redaction decisions
+								176 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							177 container pcf-export-link redaction findings
+								178 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; class=PROVENAN
+							179 link Package JSON
+								180 text Package JSON
+							181 text decisions= 1 ; findings= 1 ; blocked= true
+							182 container pcf-text-link redaction decisions
+								183 text path=$; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							184 container pcf-text-link redaction findings
+								185 text path=$; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							186 text PCF text
+							187 text available; segments= 1 ; nodes= 2 ; validation= blocked_missing_explicit_pcf_target_fields ; losses= 6 Profile
+							188 text pcf; profile=ops.pcf.conservative_subset; target_version=TBD
+							189 text State binding
+							190 text project:blank-local-20260914t051915z; state:project:blank-local-20260914t051915z:preview; run:preview-linear-static-001
+							191 text Coverage
+							192 text emitted=pipe_segments; omitted=supports; approximated=components; tbd=nominal_size,target_profile
+							193 text Units
+							194 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=bolt_diameter=MM,bolt_length=MM,bore=MM,coordinates=MM,weight=KG; results=MPa,N,N*m,mm,mode_code,rad; conversion=true
+							195 text Conversion witnesses
+							196 text count=8; scope=node.coordinates,pipe_segments.outside_diameter,pipe_segments.wall_thickness; target_length=MM
+							197 text Package
+							198 text members=8; stable_ids=1; diagnostics=3; pcf_lines=18; package_hash=computed_local_preview_sha256
+							199 text Boundary
+							200 text target_compatibility=false; solver_validation=false; code_compliance=false; professional_reliance=false
+							201 text PCF export is a conservative local review package only; unresolved target profile, nominal size, support, component, and translator-default behavior remain visible in diagnostics and loss reporting.
+						202 container CAEPIPE MBF export
+							203 text CAEPIPE MBF EXPORT decisions= 695 ; findings= 421 ; blocked= false
+							204 container caepipe-mbf-export-link redaction decisions
+								205 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							206 container caepipe-mbf-export-link redaction findings
+								207 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; class=PROVENAN
+							208 link Package JSON
+								209 text Package JSON
+							210 text decisions= 1 ; findings= 1 ; blocked= true
+							211 container caepipe-mbf-text-link redaction decisions
+								212 text path=$; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							213 container caepipe-mbf-text-link redaction findings
+								214 text path=$; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+							215 text MBF text
+							216 text available; nodes= 2 ; pipes= 1 ; supports= 1 ; validation= boundary_checked ; losses= 6 Profile
+							217 text caepipe_mbf; profile=ops.caepipe_mbf.smoke_tbd; target_version=TBD-17-01-001; subset=TBD-17-01-002
+							218 text State binding
+							219 text project:blank-local-20260914t051915z; state:project:blank-local-20260914t051915z:preview; run:preview-linear-static-001
+							220 text Coverage
+							221 text emitted=nodes,pipes,supports,load_cases; omitted=components; unsupported=boundary_conditions; tbd=target_version,record_subset,direct_stable_id
+							222 text Units
+							223 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=force=N,length=mm,temperature=C; results=MPa,N,N*m,mm,mode_code,rad; conversion=true
+							224 text Conversion witnesses
+							225 text count=6; scope=node.coordinates; target_length=mm
+							226 text Package
+							227 text members=8; stable_ids=5; diagnostics=0; mbf_lines=16; package_hash=computed_local_preview_sha256
+							228 text Boundary
+							229 text caepipe_compatibility=false; external_tool_invoked=false; solver_validation=false; code_compliance=false; professional_reliance=false
+							230 text CAEPIPE MBF export is a local invented smoke-subset package only; target version, record subset, direct stable-ID carrying, external execution, and target result interpretation remain governed TBDs.
+						231 container CAEPIPE external harness
+							232 text CAEPIPE EXTERNAL HARNESS
+							233 container
+								234 checkbox Include known private values in this local export, Value: 0
+								235 text Include known private values in this local export
+							236 text decisions= 446 ; findings= 438 ; blocked= true
+							237 container caepipe-external-export-link redaction decisions
+								238 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							239 container caepipe-external-export-link redaction findings
+								240 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENA
+							241 text Harness JSON
+							242 container
+								243 checkbox Include known private values in this local export, Value: 0
+								244 text Include known private values in this local export
+							245 text decisions= 1 ; findings= 1 ; blocked= true
+							246 container caepipe-external-csv-link redaction decisions
+								247 text path=$; classification=private_project_data; action=block_export; reason=LOCAL_PRIVATE_INTENT_REQUIRED
+							248 container caepipe-external-csv-link redaction findings
+								249 text path=$; class=PRIVATE_DATA_WARNING; severity=BLOCKING; reason=LOCAL_PRIVATE_INTENT_REQUIRED
+							250 text Parser CSV
+							251 text available; status= parser_only_evidence ; rows= 3 ; sections= 2 ; external_invoked= false ; diagnostics= 0 Harness
+							252 text config=absent; invocation=TBD-17-05-invocation-profile; mode=parser_only_not_invoked
+							253 text State binding
+							254 text caepipe-mbf:desktop-preview-del-17-04:project-blank-local-20260914t051915z; state:project:blank-local-20260914t051915z:preview; run:preview-linear-static-001
+							255 text Parser
+							256 text status=parsed_parser_only_fixture; coverage=2; correlation=canonical_id_map
+							257 text Units
+							258 text unit-system:dec-018-si-dual-display; source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=element_forces=N,node_displacements=m; results=MPa,N,N*m,mm,mode_code,rad; conversion=false
+							259 text Unit witnesses
+							260 text count=3; policy=preserve_parser_row_units; conversion=false
+							261 text Run directory
+							262 text working=apps/desktop/browser-preview; expected_csv=openpipestress-preview-caepipe-external-results.csv; discovery=fixture_generated_browser_preview
+							263 text Boundary
+							264 text bundled=false; license_bypass=false; compatibility=false; solver_validation=false; code_compliance=false; professional_reliance=false
+							265 text CAEPIPE external harness output is parser-only browser preview evidence; executable path, license responsibility, environment responsibility, invocation profile, live execution, and target compatibility remain user-owned or TBD.
+						266 container Export adapter SDK
+							267 text EXPORT ADAPTER SDK decisions= 350 ; findings= 342 ; blocked= false
+							268 container export-adapter-sdk-export-link redaction decisions
+								269 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							270 container export-adapter-sdk-export-link redaction findings
+								271 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENA
+							272 link Registry JSON
+								273 text Registry JSON
+							274 text available; targets= 5 ; capabilities= 4 ; validation= boundary_checked ; diagnostics= 0 SDK contract
+							275 text contract_level_preview; runtime=TBD; transport=TBD
+							276 text Target registry
+							277 text preview_targets=5; admitted_support_claims=0; template=intake_template_only
+							278 text Validation
+							279 text source_basis=true; stable_ids=true; loss_report=true; schema=desktop_preview_shape_aligned_not_runtime_json_schema_validated; package_hash=computed_local_preview_sha256
+							280 text Units
+							281 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false; witnesses=5; policy=record_unit_policy_for_candidate_targets_without_claiming_target_writer_conversion
+							282 text Permissions
+							283 text taxonomy=TBD; filesystem=false; network=false; process=false; private_data=false
+							284 text Boundary
+							285 text compatibility=false; release=false; code_compliance=false; professional_reliance=false
+							286 text Export adapter SDK output is a local target-registry preview only; plugin runtime, permission taxonomy, source-basis admission for additional targets, public API transport, target compatibility, and support claims remain governed TBDs.
+						287 container Adapter framework envelope
+							288 text ADAPTER FRAMEWORK decisions= 222 ; findings= 214 ; blocked= false
+							289 container adapter-framework-export-link redaction decisions
+								290 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objective; classification=un
+							291 container adapter-framework-export-link redaction findings
+								292 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objective; class=PROVENANCE_WARN
+							293 link Adapter JSON
+								294 text Adapter JSON
+							295 text available; capabilities= 4 ; parse= not_parsed_by_framework ; diagnostics= 3 Framework
+							296 text schema_first_format_neutral_adapter_framework; formats=TBD; transport=TBD
+							297 text Capabilities
+							298 text export_model, export_results, validate_payload, contribution_review
+							299 text Validation
+							300 text schema=required; units=required; protected=required; export=required_before_shared_payload
+							301 text Units
+							302 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false; policy=unit_validation_required_before_adapter_payload_exchange; witnesses=1
+							303 text No bypass
+							304 text api=true; units=true; direct_sql=false; network=false; code_compliance_claim=false
+							305 text Runtime TBDs
+							306 text plugin=TBD; endpoint=TBD; package_scripts=TBD
+							307 text Boundary
+							308 text local_first=true; telemetry=false; private_redacted=true; handoff evidence for external validation, not a validation outcome
+							309 text Adapter framework output is a local format-neutral declaration only; concrete external formats, public transport, plugin runtime, package scripts, CI, release matrix, redaction workflow, and filesystem roots remain TBD.
+						310 container Local FEA handoff
+							311 text LOCAL FEA HANDOFF decisions= 526 ; findings= 526 ; blocked= false
+							312 container local-fea-export-link redaction decisions
+								313 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[1]; classifi
+							314 container local-fea-export-link redaction findings
+								315 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[1]; class=PROVEN
+							316 link Handoff JSON
+								317 text Handoff JSON
+							318 text available; labels= 4 ; flags= 5 ; diagnostics= 4 ; mesh=false; solver=false Contract
+							319 text schema_first_local_fea_handoff_contract; format=TBD; adapter=TBD
+							320 text State binding
+							321 text state:project:blank-local-20260914t051915z:preview; result-envelope:run:preview-linear-static-001
+							322 text Local region
+							323 text region=local-region:pipe:WF:node:WF-TIP; basis=diagnostic_suggested; nodes=2; elements=1
+							324 text Transfer
+							325 text method=result_reference_only; loads=1; displacement_refs=1; force_refs=0; moment_refs=0
+							326 text Unit witnesses
+							327 text count=1; policy=preserve_source_result_units; conversion=false
+							328 text Unsupported
+							329 text mesh_generation_not_performed; target_format_not_selected; boundary_transfer_requires_review; local_detail_assumption_unresolved; external_solver_not_invoked
+							330 text Boundary
+							331 text human_review=true; compliance=false; certification=false; sealing=false; approval=false; authentication=false
+							332 text Local FEA handoff output is target-neutral review context only; no mesh, external solver run, or target format is generated. Validation occurs in the user's accepted professional tools; this package is screening and handoff evidence.
+						333 container External prover boundary metadata
+							334 text EXTERNAL PROVER BOUNDARY
+							335 container
+								336 checkbox Include known private values in this local export, Value: 0
+								337 text Include known private values in this local export
+							338 text decisions= 412 ; findings= 260 ; blocked= true
+							339 container external-prover-export-link redaction decisions
+								340 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; classificatio
+							341 container external-prover-export-link redaction findings
+								342 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_item; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__objectives[0]; class=PROVENANCE_
+							343 text Metadata JSON
+							344 text available; metadata= non_authoritative_workflow_metadata ; refs= 1 ; diagnostics= 4 Contract
+							345 text DEL-15-04; SOW-075; schema=0.1.0
+							346 text Metadata groups
+							347 text names=1; tags=3; notes=1; attachments=1
+							348 text Context links
+							349 text handoff=1; mapping=1; export=1; state=1
+							350 text Unsupported flags
+							351 text external_solver_not_invoked, commercial_result_ingestion_deferred, formal_prover_status_not_generated
+							352 text Run boundary
+							353 text tool_invoked=false; commercial_results=false; metadata_only=true
+							354 text Unit policy
+							355 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false; policy=record_units_for_external_reviewer_without_invoking_target_solver; witnesses=1
+							356 text Authority boundary
+							357 text human_review=true; compliance=false; certification=false; sealing=false; authentication=false; acceptance_record=false
+							358 text External-prover metadata is descriptive review context only; external tools and target parsers remain outside this packet. Validation occurs in the user's accepted professional tools; this packet is screening and handoff evidence.
+						359 container Review geometry export
+							360 text REVIEW GEOMETRY EXPORT decisions= 718 ; findings= 718 ; blocked= true
+							361 container review-geometry-export-link redaction decisions
+								362 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classific
+							363 container review-geometry-export-link redaction findings
+								364 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENA
+							365 text glTF JSON
+							366 text available; format= glTF_2_0_json_preview ; segments= 1 ; nodes= 2 ; stable_ids= 7 Format
+							367 text asset=2.0; target=glTF_2_0_json_preview; units=m
+							368 text State binding
+							369 text run:preview-linear-static-001; state:project:blank-local-20260914t051915z:preview
+							370 text Coverage
+							371 text emitted=pipe_segments,nodes; approximated=supports,components; omitted=materials,load_cases,combinations
+							372 text Stable IDs
+							373 text map=7; direct_metadata=name_and_extras_candidate_only; sidecar=required
+							374 text Unit witnesses
+							375 text count=15; conversion=false; target=m; axis_transform=preview_z_up_to_gltf_y_up_rotation_x_minus_90
+							376 text Boundary
+							377 text visual_review_geometry_only; solver_geometry_equivalence=false; professional_validation=false; target_compatibility=false
+							378 text Review geometry is visual context only; it is not solver geometry or target compatibility evidence. Validation occurs in the user's accepted professional tools.
+						379 container Headless runner envelope
+							380 text HEADLESS RUNNER
+							381 container
+								382 checkbox Include known private values in this local export, Value: 0
+								383 text Include known private values in this local export
+							384 text decisions= 1405 ; findings= 1397 ; blocked= true
+							385 container headless-runner-export-link redaction decisions
+								386 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[1]; classifi
+							387 container headless-runner-export-link redaction findings
+								388 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[0]; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__scope_items[1]; class=PROVEN
+							389 text Runner JSON
+							390 text available; job= COMPLETED ; outputs= 4 ; result_refs= 67 Interface
+							391 text schema_first_headless_runner_contract; cli=openpipestress-runner <solve|validate-input|export-results|run-benchmark|run-regression> [--input <request.json>|-] [--output <result.json>] [--explicit-local-private-intent]; scripts=dev_test_convenience_only
+							392 text Job
+							393 text backend-solve-job-1; 3/3; cancel=false
+							394 text Result handoff
+							395 text schema_first_json_result_envelope; audit=audit-manifest:run:preview-linear-static-001:preview; checksums=2
+							396 text Units
+							397 text unit-system:dec-018-si-dual-display; source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false
+							398 text Unit witnesses
+							399 text count=0; policy=preserve_source_result_units; conversion=false
+							400 text Runtime Policy
+							401 text process=SETTLED_DEC_065; network=SETTLED_DEC_065; filesystem=SETTLED_DEC_065
+							402 text Boundary
+							403 text local=true; telemetry=false; network_required=false; direct_sql=false; handoff evidence for external validation, not a validation outcome
+							404 text Headless runner output is a local schema-first preview envelope under DEC-065; CI, release matrix, public transport, and external adapter formats remain TBD.
+						405 container Native JSON package
+							406 text Local Package
+							407 heading Native JSON Package, Value: 2
+								408 text Native JSON Package
+							409 text decisions= 1614 ; findings= 1614 ; blocked= false
+							410 container native-package-link redaction decisions
+								411 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[1]; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable
+							412 container native-package-link redaction findings
+								413 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[1]; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_ref
+							414 link Export JSON
+								415 text Export JSON
+							416 text ready; members= 10 ; entities= 7 ; results= 67 ; operations= 0 Profile
+							417 text native_open_json_preview; physical_container=TBD; public_transport=TBD
+							418 text Members
+							419 text manifest.json, model/project.json, maps/stable_id_map.json, reports/loss_report.json, reports/validation_report.json, diagnostics/diagnostics.json, runs/analysis_run_ref.json, results/result_envelope_ref.json, maps/unit_preservation_witnesses.json, operations/pending_operations.json
+							420 text Unit witnesses
+							421 text project_units=6; model_quantities=5; result_quantities=69; conversion=false
+							422 text Stable IDs
+							423 text entities=7; results=67; operations=0
+							424 text Validation
+							425 text shape=review_manifest_complete; deterministic_paths=true; model_hash=computed_local_preview_sha256; package_hash=computed_local_preview_sha256
+							426 text Loss report
+							427 text 1 TBD; 1 unsupported; invented model, analysis-run refs, diagnostics, and stable IDs are represented in the review package
+							428 text Storage
+							429 text engine=SQLite; network=false; telemetry=false; repository_default_private_write=false
+							430 text Persisted review context
+							431 text editor_intents=11; proposals=0; selected_targets=0; selected_ref=not_selected; mechanics_results=1; analysis_runs=1; run_ref=run:preview-linear-static-001
+							432 text Boundary
+							433 text local review package only; no private payload or protected content bundled; validation occurs in the user's accepted professional tools — this package is screening and handoff evidence
+						434 container Handoff package
+							435 text HANDOFF PACKAGE decisions= 188 ; findings= 180 ; blocked= false
+							436 container handoff-export-link redaction decisions
+								437 text path=$.__route_key__schema_version; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classification=unknown; action=redact_value; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; classi
+							438 container handoff-export-link redaction findings
+								439 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; class=PROV
+							440 link Local package JSON
+								441 text Local package JSON
+							442 text 7 entities; 5 diagnostics; 3 loss notes; no private payload Package
+							443 text handoff:project:blank-local-20260914t051915z:run:preview-linear-static-001
+							444 text State and run
+							445 text state:project:blank-local-20260914t051915z:preview; run:preview-linear-static-001
+							446 text Target profile
+							447 text native_open_json_preview; stable_ids_only_not_target_specific
+							448 text Stable IDs
+							449 text 7 entity refs; 67 result refs
+							450 text Units
+							451 text source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; results=MPa,N,N*m,mm,mode_code,rad; conversion=false
+							452 text Unit witnesses
+							453 text count=0; policy=preserve_source_result_units; conversion=false
+							454 text Loss report
+							455 text protected code/rule criteria are not bundled; target-specific commercial-solver field mapping is not generated; professional validation and acceptance are not software-generated
+							456 text Review context
+							457 text 0 pending operations; proposal=not generated
+							458 text Boundary
+							459 text local review handoff only; no private payload; no protected content; validation occurs in the user's accepted professional tools
+							460 text Local handoff packages are review context only; target-specific mappings and external validation remain user-controlled.
+						461 container Export safety review
+							462 text EXPORT SAFETY REVIEW
+							463 container
+								464 checkbox Include known private values in this local export, Value: 0
+								465 text Include known private values in this local export
+							466 text decisions= 1353 ; findings= 1345 ; blocked= true
+							467 container export-review-link redaction decisions
+								468 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[1
+							469 container export-review-link redaction findings
+								470 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[0]; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_refs[1]; c
+							471 text Local manifest JSON
+							472 text 27 of 29 local exports ready; no private/protected payloads Redaction posture
+							473 text private redacted=true; protected content blocked=true; source model mutated=false
+							474 text Local transport
+							475 text local browser download preview; network=false; telemetry=false
+							476 text State binding
+							477 text run:preview-linear-static-001; comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT
+							478 text Boundary
+							479 text private payloads=0; protected payloads=0; handoff evidence for external validation, not a validation outcome
+							480 text Units
+							481 text unit-system:dec-018-si-dual-display; covered=25/27; source=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; target=none; results=MPa,N,N*m,mm,mode_code,rad; conversion=false
+							482 container
+								483 text Project storage audit available ;  openpipestress.technical_preview.local_project_persistence_audit ; private= false Local project persistence audit export; records storage capability, local-only boundary, and non-mutating review context.
+							484 container
+								485 text Project validation preflight available ;  openpipestress.technical_preview.project_validation_preflight ; private= false Local project validation preflight export; records schema/version, migration, and round-trip category evidence.
+							486 container
+								487 text Telemetry boundary review available ;  openpipestress.technical_preview.telemetry_boundary_review ; private= false DEL-12-03 desktop telemetry boundary review; telemetry remains disabled/default-off, no payload or network behavior is initialized, and opt-in, consent surface, endpoint, vendor, retention, and allowlist decisions stay TBD.
+							488 container
+								489 text Secret/private-library boundary review available ; openpipestress.technical_preview.secret_private_library_boundary_review ; private= false DEL-12-04 desktop secret/private-library boundary review; private libraries, private paths, and credential references are metadata-only, public fixtures are blocked, public report context is reference-only, and provider, encryption, storage-root, permission, cloud/network, and external secret-manager decisions stay TBD.
+							490 container
+								491 text Security threat model review available ;  openpipestress.technical_preview.security_threat_model_review ; private= false DEL-12-05 desktop threat-model review; summarizes current private-data, report/export, plugin/import/FEA handoff, telemetry, secret, and supply-chain threat coverage without claiming security sufficiency or release readiness.
+							492 container
+								493 text Editor contract review available ;  openpipestress.technical_preview.editor_contract_review ; private= false DEL-07-03 desktop editor contract preview; materials/components/rule-pack references remain review-only command intent context, with private rule packs and private libraries represented by references only.
+							494 container
+								495 text Missing-data warning/blocking review available ; openpipestress.technical_preview.missing_data_warning_blocking_review ; private= false DEL-07-04 desktop missing-data warning review; solve-required and rule-check-required data stay distinct, missing values are not auto-filled, and warning meaning is exported as text metadata.
+							496 container
+								497 text Rule-check completeness review available ;  openpipestress.technical_preview.rule_completeness_review ; private= false Rule completeness review records explicit rule-input unit policy and missing private/user rule data without conversion.
+							498 container
+								499 text Agent proposal review pending_agent_proposal ; openpipestress.technical_preview.agent_proposal_review ; private= false Agent proposal review records metadata-only operation proposal unit-validation status without applying operations or converting units.
+							500 container
+								501 text Accessibility/usability baseline review available ; openpipestress.technical_preview.accessibility_usability_baseline_review ; private= false DEL-07-06 desktop accessibility/usability baseline review; reports deterministic core GUI-contract evidence for keyboard, focus, labels, warning visibility, result review, and solve feedback without selecting a final conformance target.
+							502 container
+								503 text Design-authoring comparison workspace available ; openpipestress.technical_preview.design_authoring_comparison_workspace ; private= false DEL-07-08 desktop design-authoring workspace review; composes design knowledge, constraint warnings, state/run context, comparison tables, overlay descriptors, and operation diff review without applying operations or mutating accepted model state.
+							504 container
+								505 text Build/package readiness available ;  openpipestress.technical_preview.build_package_readiness ; private= false Provider-neutral local build/package readiness metadata; CI provider, installer, signing, and publishing remain unselected. Technical preview — not a released product.
+							506 container
+								507 text Validation and release evidence review available ; openpipestress.technical_preview.validation_release_evidence_review ; private= false DEL-09-04/DEL-09-05 validation and release-evidence review; records manual sections, evidence inventory, local readiness profiles, release-gate families, and unresolved TBDs without authorizing release or professional reliance.
+							508 container
+								509 text Result envelope available ;  openpipestress.technical_preview.result_export_envelope ; private= false Schema-first local JSON result envelope; non-JSON formats, public transport, and local FEA package formats remain TBD.
+							510 container
+								511 text Stress-neutral CSV/JSON package available ; openpipestress.technical_preview.stress_neutral_csv_json_package ; private= false Stress-neutral CSV/JSON browser preview; fixed result columns, stable IDs, loss report, and diagnostic-only comparison semantics.
+							512 container
+								513 text Headless runner envelope available ;  openpipestress.technical_preview.headless_runner_envelope ; private= false Schema-first local headless request/result envelope under DEC-065; CI, release matrix, public transport, and external adapter formats remain TBD.
+							514 container
+								515 text Adapter framework envelope available ;  openpipestress.technical_preview.adapter_framework_envelope ; private= false Format-neutral adapter declaration; concrete formats, transport, plugin runtime, filesystem roots, redaction workflow, CI, and release matrix remain TBD.
+							516 container
+								517 text Local FEA handoff package available ;  openpipestress.technical_preview.local_fea_handoff_package ; private= false Target-neutral local shell/solid FEA handoff preview; selected region and transfer references are review context only, with mesh, target format, adapter, and external solver invocation remaining TBD.
+							518 container
+								519 text External prover boundary metadata available ; openpipestress.technical_preview.external_prover_boundary_metadata ; private= false Metadata-only external-prover workflow context; no external tool invocation, commercial result ingestion, or software-generated acceptance record.
+							520 container
+								521 text Review geometry export available ;  openpipestress.technical_preview.review_geometry_export ; private= false Local glTF JSON visual-review geometry with stable-ID sidecar metadata; not solver geometry or target-compatibility evidence; validation occurs in the user's accepted professional tools.
+							522 container
+								523 text Conservative PCF export available ; openpipestress.technical_preview.conservative_pcf_export_package ; private= false Local conservative PCF review package with sidecar stable IDs, mandatory loss report, and blocking TBDs for target profile and nominal size.
+							524 container
+								525 text CAEPIPE MBF export available ;  openpipestress.technical_preview.caepipe_mbf_export_package ; private= false Local CAEPIPE MBF smoke-subset review package with sidecar stable IDs, mandatory loss report, and carried TBDs for target version, record subset, and direct stable-ID carrier.
+							526 container
+								527 text CAEPIPE external-run evidence available ;  openpipestress.technical_preview.caepipe_external_run_package ; private= false Local CAEPIPE external-run evidence preview; executable path is absent, external execution is not attempted, parser-only CSV rows are invented, and live invocation remains user-owned/TBD.
+							528 container
+								529 text Export adapter SDK registry available ;  openpipestress.technical_preview.export_adapter_sdk_registry ; private= false Local export-adapter SDK target registry preview; additional target source-basis admission, plugin runtime, permissions, public transport, and target support remain TBD.
+							530 container
+								531 text Native JSON package available ;  openpipestress.technical_preview.native_json_package_review ; private= false Project-owned native JSON review package; physical container, public transport, canonical package hash, and target-specific adapter behavior remain TBD.
+							532 container
+								533 text Report packet available ;  openpipestress.technical_preview.report_packet_export ; private= false Schema-first local JSON report packet; private rule criteria are not bundled.
+							534 container
+								535 text Report protected-content lint available ; openpipestress.technical_preview.report_protected_content_lint_run ; private= false Local public report-surface heuristic lint; clean output is screening evidence only — human review remains required; acceptance stays with the responsible engineer.
+							536 container
+								537 text Handoff package available ;  openpipestress.technical_preview.handoff_package ; private= false Native open JSON preview profile; target-specific solver mapping remains deferred.
+							538 container
+								539 text Operation review ledger empty_operation_queue ; openpipestress.technical_preview.operation_review_ledger ; private= false Held-for-user-acceptance review records only; no accepted-state mutation is applied.
+							540 text Export review is a local manifest only; validation occurs in the user's accepted professional tools — this manifest is screening and handoff evidence.
+						541 container Redaction and export controls
+							542 text REDACTION & EXPORT CONTROLS
+							543 container
+								544 text Export context
+								545 pop up button Export context, Value: Local private (default)
+							546 container
+								547 text Explicit local-private intent
+								548 checkbox Retain private values in this local private export, Value: 0
+							549 text Posture
+							550 text context=local_private; private_by_default=true; classification_basis=explicit_metadata_only; source_mutation=false; network=false
+							551 text Decisions
+							552 text classified=3; included=0; redacted=0; local_warning_retained=0; blocked=3
+							553 text Warnings
+							554 text warning=0; blocking=3
+							555 container
+								556 text BLOCKING :  LOCAL_PRIVATE_INTENT_REQUIRED $.project.name ; action= block_export ; class= PRIVATE_DATA_WARNING Export is blocked until the metadata or boundary issue is resolved.
+							557 container
+								558 text BLOCKING :  LOCAL_PRIVATE_INTENT_REQUIRED $.project.description ; action= block_export ; class= PRIVATE_DATA_WARNING Export is blocked until the metadata or boundary issue is resolved.
+							559 container
+								560 text BLOCKING :  LOCAL_PRIVATE_INTENT_REQUIRED $.materials[0] ; action= block_export ; class= PRIVATE_DATA_WARNING Export is blocked until the metadata or boundary issue is resolved.
+							561 container
+								562 text Export withheld 3  blocking finding(s); no export artifact is offered until the boundary or intent issue above is resolved
+							563 text Checksum
+							564 text sha256:3bac7c6ac5c85796039a0f5994cd27a945774f3adb9dd56174f185f08e276dc9 (rfc8785_jcs)
+							565 text Redaction warnings inform the local export decision only; they do not certify redaction sufficiency. No protected standards content; code-specific data is user-supplied. Classification uses explicit user-entered metadata only; the source model is never mutated and nothing is transmitted.
+				566 container Workspace status
+					567 container Analysis statuses
+						568 summary Mechanics mechanics solved, Value: off
+							569 text Mechanics
+							570 text mechanics solved
+						571 summary Rule check Inputs needed, Value: off
+							572 text Rule check
+							573 text Inputs needed
+						574 summary Professional Review required, Value: off
+							575 text Professional
+							576 text Review required
+						577 summary Value: off, Solve proof seam=tauri backend job; project=project:blank-local-20260914t051915z; result model=project:blank-local-20260914t051915z; identity=match; rows=67; generation=6; job=backend-solve-job-1; model sha256=sha256:d9a667e4ed8c90ca312e9f39651e84f01ed8aa83b2cf746181ec67467aa2dbe9; input manifest sha256=90fb977d55a1b14b8be965fd6f459e3612baeb86b0d277a7c53727ab889c67cf
+							578 text Solve proof
+							579 text seam=tauri backend job; project=project:blank-local-20260914t051915z; result model=project:blank-local-20260914t051915z; identity=match; rows=67; generation=6; job=backend-solve-job-1; model sha256=sha256:d9a667e4ed8c90ca312e9f39651e84f01ed8aa83b2cf746181ec67467aa2dbe9; input manifest sha256=90fb977d55a1b14b8be965fd6f459e3612baeb86b0d277a7c53727ab889c67cf
+					580 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					581 button (collapsed) ⚑ 7 Issues, Secondary Actions: Expand
+				582 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	583 close button
+	584 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	585 minimize button
+	586 text SWBPIPE Results Engineering 3D Witness 20260913
+587 menu bar
+	588 SWBPIPE Results Engineering 3D Witness 20260913
+	589 File
+	590 Edit
+	591 View
+	592 Insert
+	593 Analyze
+
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

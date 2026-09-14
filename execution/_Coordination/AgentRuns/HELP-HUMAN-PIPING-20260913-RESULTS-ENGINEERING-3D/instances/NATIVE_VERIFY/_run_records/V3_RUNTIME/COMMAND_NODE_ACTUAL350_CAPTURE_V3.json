@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "node",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/capture_actual_file_v3.mjs",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME",
+    "DOWNLOAD_PREFLIGHT350_V3.json",
+    "DOWNLOAD_POSTSAVE350_V3.json",
+    "350",
+    "308754",
+    "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433"
+  ],
+  "started_unix": 1789368898.413023,
+  "timeout_seconds": 8,
+  "fallback": "exact metadata-confirmed actual file; Python open stalled",
+  "source": "ROOT_LEASE_NATIVE_RESULT_V3",
+  "exit_code": "timeout_owned_child_terminated",
+  "stdout": null,
+  "stderr": null,
+  "finished_unix": 1789368906.419592
+}

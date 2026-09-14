@@ -1,0 +1,37 @@
+The following is a diff from the previous accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 600, 602-716
+~					22 toggle button Loads, Value: off
+~					33 toggle button Review 1, Help: Validate and apply queued changes, Value: on
+~						119 heading Review changes, Value: 2
+~							120 text Review changes
+~					596 container Operation Apply section
+~						597 container Editing and review tools
+~							598 toggle button Review changes, Value: on
+~							599 toggle button Geometry, Value: off
++							600 toggle button Supports, Value: off
+~							601 toggle button Self weight, Value: off
++							602 toggle button Agent, Value: off
++							603 toggle button Details, Value: off
++						604 container Batch review
++							605 heading Batch review, Value: 3
++								606 text Batch review
++							607 container
++								608 text 0  queued batches;  0  batches applied this session.
++							609 text Validate to preview all steps on temporary state. Apply commits the entire batch once or leaves the model unchanged. Batch drafts and receipts shown here belong to this session.
++							610 button (disabled) Clear pending changes and batches, Help: No pending batches or requests to clear.
++						611 container Apply structured operations
++							612 text APPLY OPERATIONS
++							613 container
++								614 text 1  queued;  0  applied this session. Applying validates through the structured-operation seam and replaces the session model document; saving the project stores it locally.
++							615 container Operation status
++								616 text Engine  ready 1 unit-bearing queued, 0 dimensionless queued; no unit validations yet; 0 applied receipts.
++							617 container Session edit history
++								618 button (disabled) Undo, Help: Undo last local session model edit
++								619 button (disabled) Redo, Help: Redo last undone local session model edit
++								620 text 0  undo /  0  redo
++							621 container
++								622 text op:load-manager-load:WF-load:WF-FY-magnitude Load load:WF ;  primitive_loads.0.magnitude.value : 350  to  {"value":500,"unit":"N"}
++								623 button Validate, Help: Validate without applying
++								624 button Apply, Help: Validate and apply to the session model
++							625 text Applying a structured operation records a user-initiated local-session acceptance only; acceptance and professional judgment remain with the responsible engineer. Results of earlier solves are cleared because they no longer describe the edited model.
+The focused UI element is 3 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

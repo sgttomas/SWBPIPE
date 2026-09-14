@@ -1,0 +1,8 @@
+{
+  "pid": 62041,
+  "executable": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "binary_sha256": "756d869eec10e9146a94bd37e113cd7e576da3715c7fb2da467378776e1e4d70",
+  "ps": "62041 /Users/ryan/.cod 01:11   2.5\n",
+  "normal_quit_planned": true,
+  "signals": false
+}

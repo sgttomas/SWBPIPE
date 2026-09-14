@@ -1,0 +1,13 @@
+{
+  "trace_origin": "exact interrupted owned exec session10617 output materialized retrospectively",
+  "python_owned_session": 10617,
+  "python_exit": 130,
+  "node_owned_session": 51877,
+  "node_timeout_seconds": 8,
+  "node_cleanup": "subprocess.run TimeoutExpired kills and waits for its exact owned child before returning",
+  "node_reader_pid_not_recorded": true,
+  "further_open_attempts": false,
+  "app_responsive_results_observed": true,
+  "actual_file_bytes_read": false,
+  "utc_unix": 1789368938.6649659
+}

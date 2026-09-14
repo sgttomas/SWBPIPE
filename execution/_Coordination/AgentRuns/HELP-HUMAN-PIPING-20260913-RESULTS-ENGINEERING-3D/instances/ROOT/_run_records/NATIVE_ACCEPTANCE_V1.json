@@ -1,0 +1,28 @@
+{
+  "status": "ACCEPTED_NATIVE_V3_COMPLETE_WITH_CALIBRATED_FINDER_CAPTURE",
+  "utc": "2026-09-14T07:15:35.073297+00:00",
+  "actor": "HELP_HUMAN Agent0 /root",
+  "source_commit": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+  "source47_manifest_sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551",
+  "source47_exact": true,
+  "native_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/NATIVE_RETURN_V3.json",
+  "native_return_sha256": "2185f297c5d06f756db46ee79a046eb97394eb5b5c6e719918333cfbe6cc47f9",
+  "native_manifest_sha256": "36b60423d011a5a1bd36a403a36076b2dc410ce2cba39cad421cd523d30684f2",
+  "native_manifest_verified_files": 126,
+  "native_manifest_verified_bytes": 5862147,
+  "verdict": "Actual350/repeat350/500 native button files, exact captured bytes, strict0.2.0 and all67 source rows, analytical quantities, collision preservation, normal quit/reopen Historical500, unchanged save and fresh native solve PASS. Build/selftest and47 source/config/binary/assets equality PASS.",
+  "limits": [
+    "No fresh native href captured; source+focused review/tests+actual delivered bytes and independently checked current model/carrier compose the exact-text qualification. It is not an instrumented simultaneous producer-string/href/direct-original file comparison.",
+    "Actual original Downloads direct opens failed; original identity/receipt/metadata/observed Finder selection and real copy bind captured bytes; no direct original-to-copy byte read comparison.",
+    "Original solver-producer attestation bytes unavailable; derivative checksums are independently recomputed but never claimed to be original producer checksums.",
+    "Native UI shows filename and byte count only; resolved Downloads path independently bound by Foundation resolver and observed exact Finder file selection.",
+    "durability=not_guaranteed; path_containment=best_effort_non_adversarial; replaced_existing=false source-qualified."
+  ],
+  "publication_omission": "One raw Finder AX snapshot with incidental unrelated names retained locally by exact hash; safe own-folder excerpt published. All prior native/read/diagnostic failures retained, no host-cause or direct original-read pass inferred.",
+  "source_changed_after_native": false,
+  "runtime_lease_released": true,
+  "next_required": "Commit this evidence-only state cleanly, then run complete registered DEC025 on same47 maintained source hashes; final metadata/review/governance/receipt/CI/merge remain.",
+  "live_origin_main": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "derivative_package": true,
+  "whole_tranche_closed": false
+}

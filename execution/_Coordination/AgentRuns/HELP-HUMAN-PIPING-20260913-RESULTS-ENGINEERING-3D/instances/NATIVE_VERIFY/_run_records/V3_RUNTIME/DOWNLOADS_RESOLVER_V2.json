@@ -1,0 +1,8 @@
+{
+  "root": "/Users/ryan/Downloads",
+  "resolved": "/Users/ryan/Downloads",
+  "method": "fresh Foundation NSDownloadsDirectory/NSUserDomainMask resolver under V3 lease",
+  "probe_script": "exact byte reuse of V2 scoped metadata script, expected resolver filename retained",
+  "utc_unix": 1789368719.416775,
+  "unrelated_enumeration": false
+}

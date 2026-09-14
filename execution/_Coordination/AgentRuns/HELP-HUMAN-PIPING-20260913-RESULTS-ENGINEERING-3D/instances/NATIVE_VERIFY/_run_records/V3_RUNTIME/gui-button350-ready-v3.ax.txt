@@ -1,0 +1,5 @@
+The following is a diff from the previous accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+~								126 checkbox Include known private values in this local export, Value: 1
+~							128 text decisions= 6682 ; findings= 6682 ; blocked= false
+~							133 button Local result JSON
+The focused UI element is 133 button Local result JSON

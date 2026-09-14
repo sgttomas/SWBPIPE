@@ -1,0 +1,8 @@
+{
+  "exit_code": 1,
+  "failure": "initial ad-hoc semantic checker used category literal discrete_disclosure, instead of frozen solver_mode",
+  "frozen_category": "solver_mode",
+  "frozen_qualified_disposition": "disclosed",
+  "correction": "compare frozen qualified_disposition and solver_mode category; frozen inputs unchanged",
+  "both_analytical_commands_completed_pass_before_failure": true
+}

@@ -1,0 +1,19 @@
+{
+  "status": "PASS_FINDER_REAL_FILE_PRESERVATION",
+  "copies": [
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-500/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "bytes": 308754,
+      "sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "real_copy_equal_350_before_all_saves": true
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-500/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+      "bytes": 308754,
+      "sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "real_copy_equal_350_before_all_saves": true
+    }
+  ],
+  "originals": "exact selected matching Downloads files only",
+  "proof_limit": "no direct Downloads byte read; same-file Finder copies observed"
+}

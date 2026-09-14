@@ -1,0 +1,5 @@
+The following is a diff from the previous accessibility tree for Window: "Downloads" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
++				1099 row (selected) Downloads
++				1130 row (selected)
++						1133 text field (selected, settable) URL: file:///Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001%20(1).json, Value: openpipestress-preview-results-run-preview-linear-static-001 (1).json, Secondary Actions: Open Finder item
+	1130 row (selected)

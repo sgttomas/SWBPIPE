@@ -1,0 +1,20 @@
+Window: "SWBPIPE Results Engineering 3D Witness 20260913", App: SWBPIPE Results Engineering 3D Witness 20260913.
+1 menu Secondary Actions: Cancel
+	2 Look Up “result”, ID: WKMenuItemIdentifierLookUp
+	3 Translate “result”, ID: WKMenuItemIdentifierTranslate
+	4 Search with Google, ID: WKMenuItemIdentifierSearchWeb
+	5 Copy, ID: WKMenuItemIdentifierCopy
+	6 (disabled) Copy Link with Highlight, ID: WKMenuItemIdentifierCopyLinkWithHighlight
+	7 Share…, ID: WKMenuItemIdentifierShareMenu
+	8 Speech, ID: WKMenuItemIdentifierSpeechMenu
+		9 menu Secondary Actions: Cancel
+			10 Start Speaking, ID: forwardContextMenuAction:
+			11 (disabled) Stop Speaking, ID: forwardContextMenuAction:
+	12 Services
+		13 menu Secondary Actions: Cancel
+			14 Add to Music as a Spoken Track
+			15 Open
+			16 Open man Page in Terminal
+			17 Search man Page Index in Terminal
+			18 Show in Finder
+			19 Show Info in Finder

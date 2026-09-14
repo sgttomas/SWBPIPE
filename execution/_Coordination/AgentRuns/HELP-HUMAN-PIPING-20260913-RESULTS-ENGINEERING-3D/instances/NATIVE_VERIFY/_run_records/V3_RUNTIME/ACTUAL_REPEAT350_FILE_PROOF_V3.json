@@ -1,0 +1,16 @@
+{
+  "status": "PASS_ACTUAL_NATIVE_REPEAT350_COLLISION_AND_FIRST_PRESERVATION",
+  "actual_repeat_name": "openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+  "actual_repeat_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+  "byte_count": 308754,
+  "repeat_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "first_sha256_after_repeat": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "exact_real_copies_equal_original_before_and_after": true,
+  "original_file_metadata_exact_unchanged": true,
+  "receipt_observed": "Saved openpipestress-preview-results-run-preview-linear-static-001 (1).json (308754 bytes).",
+  "fresh_original_after_repeat_copy": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-repeat/openpipestress-preview-results-run-preview-linear-static-001.json",
+  "repeat_copy": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/after-repeat/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+  "direct_downloads_read": false,
+  "calibration": "Finder exact-file copies; original/copy byte read equality unavailable directly; independent earlier payload hash equality and original recopy equality",
+  "repeat_payload_not_duplicated_in_publication": true
+}

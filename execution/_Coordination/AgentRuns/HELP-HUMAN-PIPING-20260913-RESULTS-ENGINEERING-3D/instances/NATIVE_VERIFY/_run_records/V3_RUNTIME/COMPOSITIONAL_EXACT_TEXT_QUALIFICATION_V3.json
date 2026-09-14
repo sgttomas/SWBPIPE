@@ -1,0 +1,93 @@
+{
+  "status": "PASS_COMPOSITIONAL_EXACT_TEXT_QUALIFICATION",
+  "source_commit": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+  "source_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "1da429abbce5dcf250a7b82564bc60ab8fcae67c726fb831b932afdd7f22025c",
+      "line_spans": [
+        [
+          20,
+          26
+        ],
+        [
+          37,
+          42
+        ],
+        [
+          133,
+          135
+        ]
+      ]
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "19d58e46a9243fd0d4e04a0e7443939a10faa0f90e8406bcf5508f0e70dbc0ad",
+      "line_spans": [
+        [
+          102,
+          114
+        ],
+        [
+          136,
+          158
+        ],
+        [
+          207,
+          228
+        ]
+      ]
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "sha256": "7c3495bf5d859e8ee045fac99d614bf427ef3988513cc0d5ba7706eb95593146",
+      "line_spans": [
+        [
+          86,
+          96
+        ]
+      ]
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23",
+      "line_spans": [
+        [
+          4057,
+          4070
+        ]
+      ]
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "749dd03a591d6360105c08c44587c50e3fcbd80af36603fa6de2a4c0f4f26cf1",
+      "line_spans": [
+        [
+          106,
+          122
+        ],
+        [
+          146,
+          146
+        ],
+        [
+          163,
+          195
+        ]
+      ]
+    }
+  ],
+  "qualified_composition": [
+    "Current exact model/result/run/manifest binding produces currentPacket; compact JSON.stringify, encodeURIComponent into strict data JSON UTF8 prefix.",
+    "Screened exact canonical branch checks decoded equality and keeps original serialized href unchanged; native authorized button captures this exact href with current binding and local-private intent. No native href DOM/CopyLink.",
+    "Service forwards request unchanged to private save_local_result_json; async owned worker strictly decodes percent escapes once, validates UTF8/JSON without reserialization, create_new/write_all/flush original decoded bytes.",
+    "Actual synthetic filenames/byte counts and Finder exact-file copied bytes verified; model/carrier raw inputs equal historical source-qualified inputs and actual350/500 bytes equal historical native captured href decoded bytes."
+  ],
+  "proof_limits": [
+    "No fresh native href captured; source+focused review/tests+actual delivered bytes and independently checked current model/carrier compose the exact-text qualification. It is not an instrumented simultaneous producer-string/href/direct-original file comparison.",
+    "Actual original Downloads direct opens failed; original identity/receipt/metadata/observed Finder selection and real copy bind captured bytes; no direct original-to-copy byte read comparison.",
+    "Original solver-producer attestation bytes unavailable; derivative checksums are independently recomputed but never claimed to be original producer checksums.",
+    "Native UI shows filename and byte count only; resolved Downloads path independently bound by Foundation resolver and observed exact Finder file selection.",
+    "durability=not_guaranteed; path_containment=best_effort_non_adversarial; replaced_existing=false source-qualified."
+  ]
+}

@@ -1,0 +1,56 @@
+{
+  "probe_unix": 1789369544.459579,
+  "root": "/Users/ryan/Downloads",
+  "exact_scoped_metadata_only": true,
+  "unrelated_enumeration": false,
+  "records": [
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json",
+      "exists": true,
+      "regular": true,
+      "symlink": false,
+      "size": 308754,
+      "mtime_ns": 1789368806195682272,
+      "ctime_ns": 1789368807552898546,
+      "inode": 95323515
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (1).json",
+      "exists": true,
+      "regular": true,
+      "symlink": false,
+      "size": 308754,
+      "mtime_ns": 1789369391136367857,
+      "ctime_ns": 1789369393013600381,
+      "inode": 95324674
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (3).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (4).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (5).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (6).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (7).json",
+      "exists": false
+    },
+    {
+      "path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (8).json",
+      "exists": false
+    }
+  ]
+}

@@ -1,0 +1,673 @@
+The following is a diff from the previous accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 122-566, 595
+~					24 toggle button Results, Value: on
+~						119 heading Results, Value: 2
+~							120 text Results
++					595 container Results section
++						596 container Results
++							597 text RESULTS
++							598 container Result filtering
++								599 text Source result units
++								600 container
++									601 text MPa, N, N*m, mm, rad, mode_code  ·  67  rows · entered units preserved; displayed quantities follow the display preference where available
++								602 container Result family filter
++									603 toggle button All 67, Value: on
++									604 toggle button Displacement 8, Value: off
++									605 toggle button Rotation 6, Value: off
++									606 toggle button Reaction 1, Value: off
++									607 toggle button Force 15, Value: off
++									608 toggle button Moment 15, Value: off
++									609 toggle button Stress 21, Value: off
++									610 toggle button Other 1, Value: off
++								611 container
++									612 text Filter results
++									613 search text field (settable) Filter result rows, Placeholder: ID, entity, component, location, or basis
++										614 text ID, entity, component, location, or basis
++								615 text 67  of  67  results match filter
++								616 button (disabled) Clear result filter
++								617 container Result page controls
++									618 container
++										619 text Rows
++										620 pop up button Rows per result page, Value: 50
++									621 text Showing  1  to  50  of  67  matching results; page  1  of  2
++									622 button (disabled) Previous result page
++									623 button Next result page
++							624 container Result detail
++								625 heading Result Detail, Value: 3
++									626 text Result Detail
++								627 text Select a computed result row to inspect recovery context and review boundary.
++							628 container Governing ratio state
++								629 heading Governing Ratio, Value: 3
++									630 text Governing Ratio
++								631 text unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
++								632 text This view reports supplied ratio rows only; it does not synthesize allowables or code criteria. Acceptance and professional judgment remain with the responsible engineer.
++							633 container Displacement results
++								634 heading Displacement, Value: 3
++									635 text Displacement
++								636 table
++									637 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									638 row (selectable)
++										639 cell (selectable) result:disp:node-WF-ROOT
+physical_quantity
++										640 cell (selectable) node:WF-ROOT
++										641 cell (selectable) summary
++										642 cell (selectable) 0
+mm
++										643 cell (selectable) Entered:
+0
+mm
++									644 row (selectable)
++										645 cell (selectable) result:disp:node-WF-TIP
+physical_quantity
++										646 cell (selectable) node:WF-TIP
++										647 cell (selectable) summary
++										648 cell (selectable) 1.663072
+mm
++										649 cell (selectable) Entered:
+1.663072
+mm
++									650 row (selectable)
++										651 cell (selectable) result:disp:node-WF-ROOT:ux
+physical_quantity
++										652 cell (selectable) node:WF-ROOT
++										653 cell (selectable) node
++										654 cell (selectable) 0
+mm
++										655 cell (selectable) Entered:
+0
+mm
++									656 row (selectable)
++										657 cell (selectable) result:disp:node-WF-ROOT:uy
+physical_quantity
++										658 cell (selectable) node:WF-ROOT
++										659 cell (selectable) node
++										660 cell (selectable) 0
+mm
++										661 cell (selectable) Entered:
+0
+mm
++									662 row (selectable)
++										663 cell (selectable) result:disp:node-WF-ROOT:uz
+physical_quantity
++										664 cell (selectable) node:WF-ROOT
++										665 cell (selectable) node
++										666 cell (selectable) 0
+mm
++										667 cell (selectable) Entered:
+0
+mm
++									668 row (selectable)
++										669 cell (selectable) result:disp:node-WF-TIP:ux
+physical_quantity
++										670 cell (selectable) node:WF-TIP
++										671 cell (selectable) node
++										672 cell (selectable) 0
+mm
++										673 cell (selectable) Entered:
+0
+mm
++									674 row (selectable)
++										675 cell (selectable) result:disp:node-WF-TIP:uy
+physical_quantity
++										676 cell (selectable) node:WF-TIP
++										677 cell (selectable) node
++										678 cell (selectable) 1.663072
+mm
++										679 cell (selectable) Entered:
+1.663072
+mm
++									680 row (selectable)
++										681 cell (selectable) result:disp:node-WF-TIP:uz
+physical_quantity
++										682 cell (selectable) node:WF-TIP
++										683 cell (selectable) node
++										684 cell (selectable) 0
+mm
++										685 cell (selectable) Entered:
+0
+mm
++							686 container Rotation results
++								687 heading Rotation, Value: 3
++									688 text Rotation
++								689 table
++									690 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									691 row (selectable)
++										692 cell (selectable) result:disp:node-WF-ROOT:rx
+physical_quantity
++										693 cell (selectable) node:WF-ROOT
++										694 cell (selectable) node
++										695 cell (selectable) 0
+rad
++										696 cell (selectable) Entered:
+0
+rad
++									697 row (selectable)
++										698 cell (selectable) result:disp:node-WF-ROOT:ry
+physical_quantity
++										699 cell (selectable) node:WF-ROOT
++										700 cell (selectable) node
++										701 cell (selectable) 0
+rad
++										702 cell (selectable) Entered:
+0
+rad
++									703 row (selectable)
++										704 cell (selectable) result:disp:node-WF-ROOT:rz
+physical_quantity
++										705 cell (selectable) node:WF-ROOT
++										706 cell (selectable) node
++										707 cell (selectable) 0
+rad
++										708 cell (selectable) Entered:
+0
+rad
++									709 row (selectable)
++										710 cell (selectable) result:disp:node-WF-TIP:rx
+physical_quantity
++										711 cell (selectable) node:WF-TIP
++										712 cell (selectable) node
++										713 cell (selectable) 0
+rad
++										714 cell (selectable) Entered:
+0
+rad
++									715 row (selectable)
++										716 cell (selectable) result:disp:node-WF-TIP:ry
+physical_quantity
++										717 cell (selectable) node:WF-TIP
++										718 cell (selectable) node
++										719 cell (selectable) 0
+rad
++										720 cell (selectable) Entered:
+0
+rad
++									721 row (selectable)
++										722 cell (selectable) result:disp:node-WF-TIP:rz
+physical_quantity
++										723 cell (selectable) node:WF-TIP
++										724 cell (selectable) node
++										725 cell (selectable) 0.00078
+rad
++										726 cell (selectable) Entered:
+0.00078
+rad
++							727 container Reaction results
++								728 heading Reaction, Value: 3
++									729 text Reaction
++								730 table
++									731 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									732 row (selectable)
++										733 cell (selectable) result:reaction:support-WF-ROOT
+physical_quantity
++										734 cell (selectable) support:WF-ROOT
++										735 cell (selectable) summary
++										736 cell (selectable) 350
+N
++										737 cell (selectable) Entered:
+350
+N
++							738 container Force results
++								739 heading Force, Value: 3
++									740 text Force
++								741 table
++									742 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									743 row (selectable)
++										744 cell (selectable) result:force:pipe-WF:axial
+physical_quantity
++										745 cell (selectable) pipe:WF
++										746 cell (selectable) end_i
++										747 cell (selectable) 0
+N
++										748 cell (selectable) Entered:
+0
+N
++									749 row (selectable)
++										750 cell (selectable) result:force:pipe-WF:axial:end-j
+physical_quantity
++										751 cell (selectable) pipe:WF
++										752 cell (selectable) end_j
++										753 cell (selectable) 0
+N
++										754 cell (selectable) Entered:
+0
+N
++									755 row (selectable)
++										756 cell (selectable) result:force:pipe-WF:shear-y
+physical_quantity
++										757 cell (selectable) pipe:WF
++										758 cell (selectable) end_i
++										759 cell (selectable) 0
+N
++										760 cell (selectable) Entered:
+0
+N
++									761 row (selectable)
++										762 cell (selectable) result:force:pipe-WF:shear-y:end-j
+physical_quantity
++										763 cell (selectable) pipe:WF
++										764 cell (selectable) end_j
++										765 cell (selectable) 0
+N
++										766 cell (selectable) Entered:
+0
+N
++									767 row (selectable)
++										768 cell (selectable) result:force:pipe-WF:shear-z
+physical_quantity
++										769 cell (selectable) pipe:WF
++										770 cell (selectable) end_i
++										771 cell (selectable) 350
+N
++										772 cell (selectable) Entered:
+350
+N
++									773 row (selectable)
++										774 cell (selectable) result:force:pipe-WF:shear-z:end-j
+physical_quantity
++										775 cell (selectable) pipe:WF
++										776 cell (selectable) end_j
++										777 cell (selectable) -350
+N
++										778 cell (selectable) Entered:
+-350
+N
++									779 row (selectable)
++										780 cell (selectable) result:force:pipe-WF:quarter-1:axial
+physical_quantity
++										781 cell (selectable) pipe:WF
++										782 cell (selectable) quarter_1
++										783 cell (selectable) 0
+N
++										784 cell (selectable) Entered:
+0
+N
++									785 row (selectable)
++										786 cell (selectable) result:force:pipe-WF:quarter-1:shear-y
+physical_quantity
++										787 cell (selectable) pipe:WF
++										788 cell (selectable) quarter_1
++										789 cell (selectable) 0
+N
++										790 cell (selectable) Entered:
+0
+N
++									791 row (selectable)
++										792 cell (selectable) result:force:pipe-WF:quarter-1:shear-z
+physical_quantity
++										793 cell (selectable) pipe:WF
++										794 cell (selectable) quarter_1
++										795 cell (selectable) -350
+N
++										796 cell (selectable) Entered:
+-350
+N
++									797 row (selectable)
++										798 cell (selectable) result:force:pipe-WF:midspan:axial
+physical_quantity
++										799 cell (selectable) pipe:WF
++										800 cell (selectable) midspan
++										801 cell (selectable) 0
+N
++										802 cell (selectable) Entered:
+0
+N
++									803 row (selectable)
++										804 cell (selectable) result:force:pipe-WF:midspan:shear-y
+physical_quantity
++										805 cell (selectable) pipe:WF
++										806 cell (selectable) midspan
++										807 cell (selectable) 0
+N
++										808 cell (selectable) Entered:
+0
+N
++									809 row (selectable)
++										810 cell (selectable) result:force:pipe-WF:midspan:shear-z
+physical_quantity
++										811 cell (selectable) pipe:WF
++										812 cell (selectable) midspan
++										813 cell (selectable) -350
+N
++										814 cell (selectable) Entered:
+-350
+N
++									815 row (selectable)
++										816 cell (selectable) result:force:pipe-WF:quarter-3:axial
+physical_quantity
++										817 cell (selectable) pipe:WF
++										818 cell (selectable) quarter_3
++										819 cell (selectable) 0
+N
++										820 cell (selectable) Entered:
+0
+N
++									821 row (selectable)
++										822 cell (selectable) result:force:pipe-WF:quarter-3:shear-y
+physical_quantity
++										823 cell (selectable) pipe:WF
++										824 cell (selectable) quarter_3
++										825 cell (selectable) 0
+N
++										826 cell (selectable) Entered:
+0
+N
++									827 row (selectable)
++										828 cell (selectable) result:force:pipe-WF:quarter-3:shear-z
+physical_quantity
++										829 cell (selectable) pipe:WF
++										830 cell (selectable) quarter_3
++										831 cell (selectable) -350
+N
++										832 cell (selectable) Entered:
+-350
+N
++							833 container Moment results
++								834 heading Moment, Value: 3
++									835 text Moment
++								836 table
++									837 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									838 row (selectable)
++										839 cell (selectable) result:moment:pipe-WF:torsion
+physical_quantity
++										840 cell (selectable) pipe:WF
++										841 cell (selectable) end_i
++										842 cell (selectable) 0
+N*m
++										843 cell (selectable) Entered:
+0
+N*m
++									844 row (selectable)
++										845 cell (selectable) result:moment:pipe-WF:torsion:end-j
+physical_quantity
++										846 cell (selectable) pipe:WF
++										847 cell (selectable) end_j
++										848 cell (selectable) 0
+N*m
++										849 cell (selectable) Entered:
+0
+N*m
++									850 row (selectable)
++										851 cell (selectable) result:moment:pipe-WF:bending-y
+physical_quantity
++										852 cell (selectable) pipe:WF
++										853 cell (selectable) end_i
++										854 cell (selectable) -1120
+N*m
++										855 cell (selectable) Entered:
+-1120
+N*m
++									856 row (selectable)
++										857 cell (selectable) result:moment:pipe-WF:bending-y:end-j
+physical_quantity
++										858 cell (selectable) pipe:WF
++										859 cell (selectable) end_j
++										860 cell (selectable) 0
+N*m
++										861 cell (selectable) Entered:
+0
+N*m
++									862 row (selectable)
++										863 cell (selectable) result:moment:pipe-WF:bending-z
+physical_quantity
++										864 cell (selectable) pipe:WF
++										865 cell (selectable) end_i
++										866 cell (selectable) 0
+N*m
++										867 cell (selectable) Entered:
+0
+N*m
++									868 row (selectable)
++										869 cell (selectable) result:moment:pipe-WF:bending-z:end-j
+physical_quantity
++										870 cell (selectable) pipe:WF
++										871 cell (selectable) end_j
++										872 cell (selectable) 0
+N*m
++										873 cell (selectable) Entered:
+0
+N*m
++									874 row (selectable)
++										875 cell (selectable) result:moment:pipe-WF:quarter-1:torsion
+physical_quantity
++										876 cell (selectable) pipe:WF
++										877 cell (selectable) quarter_1
++										878 cell (selectable) 0
+N*m
++										879 cell (selectable) Entered:
+0
+N*m
++									880 row (selectable)
++										881 cell (selectable) result:moment:pipe-WF:quarter-1:bending-y
+physical_quantity
++										882 cell (selectable) pipe:WF
++										883 cell (selectable) quarter_1
++										884 cell (selectable) 840
+N*m
++										885 cell (selectable) Entered:
+840
+N*m
++									886 row (selectable)
++										887 cell (selectable) result:moment:pipe-WF:quarter-1:bending-z
+physical_quantity
++										888 cell (selectable) pipe:WF
++										889 cell (selectable) quarter_1
++										890 cell (selectable) 0
+N*m
++										891 cell (selectable) Entered:
+0
+N*m
++									892 row (selectable)
++										893 cell (selectable) result:moment:pipe-WF:midspan:torsion
+physical_quantity
++										894 cell (selectable) pipe:WF
++										895 cell (selectable) midspan
++										896 cell (selectable) 0
+N*m
++										897 cell (selectable) Entered:
+0
+N*m
++									898 row (selectable)
++										899 cell (selectable) result:moment:pipe-WF:midspan:bending-y
+physical_quantity
++										900 cell (selectable) pipe:WF
++										901 cell (selectable) midspan
++										902 cell (selectable) 560
+N*m
++										903 cell (selectable) Entered:
+560
+N*m
++									904 row (selectable)
++										905 cell (selectable) result:moment:pipe-WF:midspan:bending-z
+physical_quantity
++										906 cell (selectable) pipe:WF
++										907 cell (selectable) midspan
++										908 cell (selectable) 0
+N*m
++										909 cell (selectable) Entered:
+0
+N*m
++									910 row (selectable)
++										911 cell (selectable) result:moment:pipe-WF:quarter-3:torsion
+physical_quantity
++										912 cell (selectable) pipe:WF
++										913 cell (selectable) quarter_3
++										914 cell (selectable) 0
+N*m
++										915 cell (selectable) Entered:
+0
+N*m
++									916 row (selectable)
++										917 cell (selectable) result:moment:pipe-WF:quarter-3:bending-y
+physical_quantity
++										918 cell (selectable) pipe:WF
++										919 cell (selectable) quarter_3
++										920 cell (selectable) 280
+N*m
++										921 cell (selectable) Entered:
+280
+N*m
++									922 row (selectable)
++										923 cell (selectable) result:moment:pipe-WF:quarter-3:bending-z
+physical_quantity
++										924 cell (selectable) pipe:WF
++										925 cell (selectable) quarter_3
++										926 cell (selectable) 0
+N*m
++										927 cell (selectable) Entered:
+0
+N*m
++							928 container Stress results
++								929 heading Stress, Value: 3
++									930 text Stress
++								931 table
++									932 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									933 row (selectable)
++										934 cell (selectable) result:stress:pipe-WF:end-i:axial-normal
+physical_quantity
++										935 cell (selectable) pipe:WF
++										936 cell (selectable) end_i
++										937 cell (selectable) 0
+MPa
++										938 cell (selectable) Entered:
+0
+MPa
++									939 row (selectable)
++										940 cell (selectable) result:stress:pipe-WF:end-i:bending-normal-y
+physical_quantity
++										941 cell (selectable) pipe:WF
++										942 cell (selectable) end_i
++										943 cell (selectable) 8.185431
+MPa
++										944 cell (selectable) Entered:
+8.185431
+MPa
++									945 row (selectable)
++										946 cell (selectable) result:stress:pipe-WF:end-i:bending-normal-z
+physical_quantity
++										947 cell (selectable) pipe:WF
++										948 cell (selectable) end_i
++										949 cell (selectable) 0
+MPa
++										950 cell (selectable) Entered:
+0
+MPa
++									951 row (selectable)
++										952 cell (selectable) result:stress:pipe-WF:end-i:torsional-shear
+physical_quantity
++										953 cell (selectable) pipe:WF
++										954 cell (selectable) end_i
++										955 cell (selectable) 0
+MPa
++										956 cell (selectable) Entered:
+0
+MPa
++							957 container Other results
++								958 heading Other, Value: 3
++									959 text Other
++								960 table
++									961 row (selectable) ID
+ENTITY
+LOCATION
+VALUE
+ENTERED SOURCE
++									962 row (selectable)
++										963 cell (selectable) result:solver-mode:linear-solve-basis
+solver_mode
++										964 cell (selectable) solver:linear_static_preview
++										965 cell (selectable) load:WF
++										966 cell (selectable) 1
+mode_code
++										967 cell (selectable) Entered:
+1
+mode_code
++							968 container Mechanics gap ledger
++								969 heading Mechanics Gap Ledger, Value: 3
++									970 text Mechanics Gap Ledger
++								971 container
++									972 text Endpoint-j local force/moment recovery implemented End-i and end-j local force/moment preview results are emitted and paired in result detail; arbitrary station sweeps remain deferred.
++								973 container
++									974 text Endpoint stress component recovery implemented End-i and end-j open-mechanics stress component preview results are emitted and paired when stress recovery succeeds.
++								975 container
++									976 text Intermediate station result recovery implemented Fixed station-grid preview force, moment, shear force, and stress rows are emitted from interpolated endpoint resultants; arbitrary station sweeps, exact internal diagrams, and shear stress recovery remain deferred.
++								977 container
++									978 text Pressure-to-frame load conversion implemented Closed-end pressure thrust for straight preview pipes is applied to frame resultants; broader pressure behavior remains deferred.
++								979 container
++									980 text Thermal behavior implemented Uniform axial temperature-change loads for straight preview pipes are implemented with explicit material expansion input; temperature-dependent properties and thermal combinations remain deferred.
++								981 container
++									982 text Support stiffness completeness deferred Linear support restraints are preview inputs; richer stiffness and nonlinear behavior require explicit data.
++								983 container
++									984 text Load combinations implemented Explicit mechanics-basis user load combinations are emitted from matching scalar load-case result rows; code/rule combinations remain deferred/private.
++								985 container
++									986 text Protected rule/code checks requires private inputs Private criteria, allowables, SIF/flexibility tables, and code checks are not bundled publicly.
++						987 container Comparison workspace
++							988 text COMPARISON Reference
++							989 text load:L-100; 0 rows
++							990 text Target
++							991 text combination:C-OPER-ALT; 0 rows
++							992 text Mapped
++							993 text 0 comparable pairs; 0 reference-only; 0 target-only
++							994 text Tolerance
++							995 text not_tolerance_checked; profile=TBD
++							996 text Source unit evidence
++							997 text units=none; matching=equal_explicit_units; conversion=false; tolerance=not_tolerance_checked
++							998 text Boundary
++							999 text review-only comparison; acceptance and professional judgment remain with the responsible engineer
++							1000 text stable result IDs plus explicit source_result_refs from the preview mechanics result envelope
++							1001 text 0  comparison diagnostic s ; top 0  deltas shown from  0  mapped pairs.
++						1002 container Design-authoring workspace
++							1003 text DESIGN WORKSPACE
++							1004 container
++								1005 checkbox Include known private values in this local export, Value: 0
++								1006 text Include known private values in this local export
++							1007 text decisions= 116 ; findings= 116 ; blocked= true
++							1008 container design-workspace-export-link redaction decisions
++								1009 text path=$.__route_key__schema_version; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; classification=unknown; action=warning_only; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; classificat
++							1010 container design-workspace-export-link redaction findings
++								1011 text path=$.__route_key__schema_version; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__document_kind; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__export_scope; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__deliverable_id; class=PROVENANCE_WARNING; severity=WARNING; reason=REDISTRIBUTION_STATUS_UNKNOWN
+path=$.__route_key__package_id; class=PROVENANC
++							1012 text Workspace JSON
++							1013 text knowledge= 3 ; states= 1 ; runs= 1 ; comparisons= 0 ; operations= 0 Core contract
++							1014 text records=2; warnings=1; states=2; runs=2; overlays=5
++							1015 text Current browser
++							1016 text analysis_run=run:preview-linear-static-001; comparison=comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT; result_rows=67
++							1017 text Operation review
++							1018 text records=0; accepted_mutation=false; application=empty_operation_queue
++							1019 text Routing
++							1020 text selected=none; route=no_selected_review_target
++							1021 text Units
++							1022 text model=force=N,length=m,moment=N*m,pressure=Pa,stress=Pa,temperature=C; results=MPa,N,N*m,mm,mode_code,rad; comparison=none; conversion=false
++							1023 text Boundary
++							1024 text private_payload=false; protected=false; professional_claim=false
++							1025 text Design workspace evidence is a local composition of GUI state, comparison context, and operation-review metadata. It does not apply operations or mutate accepted model state; acceptance and professional judgment remain with the responsible engineer.
+The focused UI element is 3 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

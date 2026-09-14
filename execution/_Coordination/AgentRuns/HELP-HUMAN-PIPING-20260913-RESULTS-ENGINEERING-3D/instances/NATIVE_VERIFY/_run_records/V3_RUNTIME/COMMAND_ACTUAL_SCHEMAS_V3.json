@@ -1,0 +1,23 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/validate_actual_file_schema_v3.py",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/actual-native-file350-v3.json"
+      ],
+      "exit_code": 0
+    },
+    {
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/validate_actual_file_schema_v3.py",
+        "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/actual-native-file500-v3.json"
+      ],
+      "exit_code": 0
+    }
+  ],
+  "status": "PASS_350_500_DISPATCHER_STRICT0.2.0",
+  "schema_0.1_rejects_current_expected": true,
+  "unix": 1789369623.9384
+}

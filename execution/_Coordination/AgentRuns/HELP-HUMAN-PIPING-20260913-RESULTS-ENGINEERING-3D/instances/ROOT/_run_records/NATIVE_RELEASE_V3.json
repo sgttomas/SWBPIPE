@@ -1,0 +1,51 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V3",
+  "status": "RELEASED_TO_NATIVE_VERIFIER_EXCLUSIVE",
+  "utc": "2026-09-14T06:50:37.764341+00:00",
+  "source_commit": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+  "source_files": 47,
+  "clean_preflight_before_this_record": true,
+  "executor": "/root/native_results_witness",
+  "configured_model": "gpt-5.6-sol",
+  "effort": "high",
+  "role": "TASK Type2 no delegation",
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+      "sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_ACCEPTANCE_V6.json",
+      "sha256": "4d50eca384ae6c0ce6a5465c3fefe9b07e9b155fa979b8862650b7d5e61306c4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_NATIVE_ASYNC_SAVE_V1.md",
+      "sha256": "2a22083aba6d9f7180c6c361fc76c32397ccc60c0fe1a87d439963c187f098b0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/METHOD_ADDENDUM_V3.md",
+      "sha256": "7aae058b741a9f47705b67176a656376d8e419be557b80ccf72b075fd21c86f0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/INITIAL_SAVED_STATE_CORRECTION_V3.md",
+      "sha256": "b3d894980149340b895610cc36a2dffc00f08cef65f394a010352565fdc52761"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/HISTORICAL_NATIVE_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "627a03b190517e975eba58d93b78e1e83a8b517929b04bbb1836eadd3f49e032"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_VERIFICATION_ORDER_ADDENDUM_V1.md",
+      "sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba"
+    }
+  ],
+  "scope": "Fresh isolated native build and file-backed self-test; actual native button350, repeat350 collision,500 exact files and source/schema/row/unit/numeric proof; responsive normal quit/reopen Historical/unchanged-save/fresh-solve lifecycle. Initial retained store must be observed, expected saved350 from V2, not forced500.",
+  "effects": "Existing exact isolated native app/store and own compact V3 witness output; metadata-only exact synthetic Downloads candidates then bounded actual saved-file reads; no source/config/dependency/Git changes or unrelated file access.",
+  "evidence_calibration": "Native button no href; proof is actual files plus independently reviewed unchanged href-forwarding/once-decode/write composition, not new CopyLink capture. Reuse prior source-bound assertions only with exact unchanged hashes.",
+  "serialization": "All other tests/build/browser/native/Git integration idle until executor explicit release. Root may perform disjoint static preparation.",
+  "next": "After successful native witness and process closure, commit evidence-only as needed for clean state; full final-source DEC025 mandatory with exact47 equality."
+}

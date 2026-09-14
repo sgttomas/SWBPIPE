@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/probe_downloads_v3.py",
+    "--output",
+    "DOWNLOAD_PREFLIGHT350_V3.json"
+  ],
+  "exit_code": 0,
+  "stdout": "[{\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (1).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (2).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (3).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (4).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (5).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (6).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (7).json\", \"exists\": false}, {\"path\": \"/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001 (8).json\", \"exists\": false}]\n",
+  "stderr": "",
+  "unix": 1789368799.729889
+}

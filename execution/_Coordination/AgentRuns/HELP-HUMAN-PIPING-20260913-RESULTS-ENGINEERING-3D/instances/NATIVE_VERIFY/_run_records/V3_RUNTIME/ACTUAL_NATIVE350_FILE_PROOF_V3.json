@@ -1,0 +1,16 @@
+{
+  "status": "PASS_ACTUAL_FINDER_CAPTURED_NATIVE350_BYTES",
+  "original_delivered_path": "/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json",
+  "original_inode": 95323515,
+  "original_observed_size": 308754,
+  "finder_ui_route": "exact full-file GoTo path selected -> Copy -> exact authorized tmp folder -> Paste, no unrelated opening",
+  "captured_path": "/tmp/chirality-results-engineering-3d-20260913/native-delivery-capture-v3/openpipestress-preview-results-run-preview-linear-static-001.json",
+  "own_exact_copy": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/actual-native-file350-v3.json",
+  "byte_count": 308754,
+  "sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "stable_double_read_equal": true,
+  "prior_v2_decoded_native_href_sha_equal": true,
+  "fresh_native_href_captured": false,
+  "original_downloads_bytes_directly_read": false,
+  "proof_limit": "Finder copy/observed selection ties bytes to real delivered file; original Downloads reader opens failed; no direct original/copy byte comparison"
+}

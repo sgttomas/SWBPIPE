@@ -1,0 +1,173 @@
+{
+  "utc": "2026-09-14T07:00:44.107176+00:00",
+  "derivative_package": true,
+  "parent": "/root",
+  "executor": "/root/native_file_read_diagnosis",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "model_evidence_limit": "As supplied in sealed dispatch; no independent runtime model introspection available",
+  "no_delegation": true,
+  "scope_enforcement": "instruction-asserted",
+  "actual_host": "danger-full-access; approval never; brief remains narrower",
+  "context_history": "Fresh bounded dispatch plus system/developer and supplied user AGENTS/environment context. On-disk root AGENTS differs from user-supplied older index; both preserved in conversation and actual selected files hashed here.",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "root_resolution": "pwd and git rev-parse --show-toplevel agree",
+  "accepted_source_basis": "590defc1a95d18c8e1db2f7443e443778f34b34c; root release records reviewed source47. This diagnosis does not reaccept source.",
+  "supplied_brief_sha256": "9f39a0782d015950151cee30d42a26cb32dd2c85c798a777f7d915e51949b1b8",
+  "actual_tools": [
+    "functions.exec",
+    "exec_command",
+    "write_stdin",
+    "web.run",
+    "collaboration.send_message",
+    "apply_patch"
+  ],
+  "reads": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/DOWNLOAD_POSTSAVE350_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/DOWNLOAD_POSTSAVE350_V3.json",
+      "sha256": "6ed31ea25838268a28d0dd4ac14cfce0b868e4517c69eb027983fdc640920a68",
+      "bytes": 1628
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_FILE_CAPTURE_OPEN_FAILURE_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_FILE_CAPTURE_OPEN_FAILURE_V3.json",
+      "sha256": "072e4ced7ae291c2ea0329497a9a373684c8b6065e81a2895f0f25fde77449fc",
+      "bytes": 935
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/python-actual350-capture-interrupt.trace.txt",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/python-actual350-capture-interrupt.trace.txt",
+      "sha256": "662163701e79b4bcbd32d06cf566212cc6ed57912a50c8cbf43e04441c96187a",
+      "bytes": 696
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/COMMAND_NODE_ACTUAL350_CAPTURE_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/COMMAND_NODE_ACTUAL350_CAPTURE_V3.json",
+      "sha256": "0ac9a83da1cf8518b5c53ecdebb2d06e7eb8d3cfbdc44b478fbe0ee579ae6fd2",
+      "bytes": 936
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_CAPTURE_READER_CLEANUP_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_CAPTURE_READER_CLEANUP_V3.json",
+      "sha256": "0c718ac3c3e14494ce8feab0b099add582c66936742ddd37a9b039dd28c0a22e",
+      "bytes": 513
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/NATIVE_RELEASE_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/NATIVE_RELEASE_V3.json",
+      "sha256": "88738174120e8b82c67148f7c1e5a1e238752bc5ad0d8b9dc333e1eacfc3400e",
+      "bytes": 3888
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+      "sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551",
+      "bytes": 21300
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/HISTORICAL_NATIVE_PUBLICATION_LOCATOR_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/HISTORICAL_NATIVE_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "627a03b190517e975eba58d93b78e1e83a8b517929b04bbb1836eadd3f49e032",
+      "bytes": 2205
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+      "sha256": "8562ae00ea1f4c9c9b37cb1cd067e5b93dab65b48c35ce484eeeb9943d4d31f3",
+      "bytes": 10470
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/METHOD_ADDENDUM_V3.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/METHOD_ADDENDUM_V3.md",
+      "sha256": "7aae058b741a9f47705b67176a656376d8e419be557b80ccf72b075fd21c86f0",
+      "bytes": 7073
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/INITIAL_SAVED_STATE_CORRECTION_V3.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/INITIAL_SAVED_STATE_CORRECTION_V3.md",
+      "sha256": "b3d894980149340b895610cc36a2dffc00f08cef65f394a010352565fdc52761",
+      "bytes": 1388
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/capture_actual_file_v3.mjs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/capture_actual_file_v3.mjs",
+      "sha256": "7b9ca6d9269d460eea4146004f5626e894a44e0f0a184759ebbb331ec3bd6c38",
+      "bytes": 1532
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/SOURCE_RUNTIME_BINDING_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/SOURCE_RUNTIME_BINDING_V3.json",
+      "sha256": "db7baf7adfab705772dddda80cc9ba3e9fe6f3b399b59da5e97e5bd3f2a887fb",
+      "bytes": 25068
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/FRESH_NATIVE_BUILD_BINDING_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/FRESH_NATIVE_BUILD_BINDING_V3.json",
+      "sha256": "5137d3cc4682b34cb76cbc337a003284e0e32dc83d549eb1bbee500978ca584f",
+      "bytes": 8627
+    },
+    {
+      "path": "AGENTS.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FILE_READ_DIAGNOSIS_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FILE_READ_DIAGNOSIS_V1.md",
+      "sha256": "9f39a0782d015950151cee30d42a26cb32dd2c85c798a777f7d915e51949b1b8",
+      "bytes": 3524
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "749dd03a591d6360105c08c44587c50e3fcbd80af36603fa6de2a4c0f4f26cf1",
+      "bytes": 19811
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_NATIVE350_FILE_PROOF_V3.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/ACTUAL_NATIVE350_FILE_PROOF_V3.json",
+      "sha256": "d0debd407d74f7a7ef76ce6a45d1381f0878aa12d7573276d96bc5375d306fe6",
+      "bytes": 1272
+    }
+  ],
+  "write_boundary": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_FILE_READ_DIAGNOSIS",
+  "source_or_config_or_git_changes": false,
+  "native_app_effects": false,
+  "downloads_content_open_attempts": 0,
+  "downloads_enumeration": false,
+  "process_effects": "Only own stalled metadata ls PID61353 received SIGINT; no native/reader process was touched.",
+  "sampler_or_build_or_test": false,
+  "skills_loaded": [],
+  "failure_preservation": "Prior failure records untouched and hashed; own exact metadata failure and cleanup in METADATA_PROBES_V1.json. Initial discovery output truncation and nonexistent guessed NATIVE_PREP path retained in this record.",
+  "discovery_limitations": [
+    {
+      "command": "rg --files broad filename discovery under projects/chirality-piping, agents and AGENTS.md",
+      "exit_code": 0,
+      "output_truncated": true
+    },
+    {
+      "command": "rg --files selected V3_RUNTIME, guessed NATIVE_PREP, ROOT/_run_records, NATIVE_EXPORT_RUNTIME_DIAGNOSIS",
+      "exit_code": 2,
+      "error": "NATIVE_PREP: No such file or directory (os error 2)",
+      "output_truncated": true,
+      "resolution": "Actual V3_PREPARATION paths resolved from NATIVE_RELEASE_V3.json and read; no missing required method input remains"
+    }
+  ],
+  "late_root_coordination": "Root reports no pending UI prompt/denial, accepts actual Finder-captured350 proof, authorizes same repeat350/500 route, directs no sampler execution."
+}
