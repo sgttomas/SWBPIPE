@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.331586833,
+  "finished_utc": "2026-09-14T04:18:33.963308+00:00",
+  "files": [
+    {
+      "path": "EXIT.json",
+      "bytes": 117,
+      "sha256": "9f5f650667635c25a293d84efcb3dbc8b8c098e2abba958ced0b7a5ef3a12937"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 1438863,
+      "sha256": "f9da64e9684e5f52ba9e95cb72178bc05c2d923985a4bc1e373f344c0b1cad4e"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 4067,
+      "sha256": "c3258a94293a43559d785e3110b88fc07dc84e969d9f4602834eab948d65491f"
+    }
+  ],
+  "status_after": " M projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock\n M projects/chirality-piping/apps/desktop/src/App.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/DISPLAY_TEST_REPAIR_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_V3.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_LOCK_ACCOMMODATION_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_NATIVE_DELTA_BACKCHECK_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_TEST_REPAIR_FINAL_FAN_IN_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V2/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DISPLAY_REPAIR_IMPORT_BINDING_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DISPLAY_TEST_DIAGNOSIS_V1/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/EVIDENCE_WRAPPER_CORRECTION_V1/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V3.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/TRACKED_DEPENDENCY_INVENTORY_V1.json\n"
+}

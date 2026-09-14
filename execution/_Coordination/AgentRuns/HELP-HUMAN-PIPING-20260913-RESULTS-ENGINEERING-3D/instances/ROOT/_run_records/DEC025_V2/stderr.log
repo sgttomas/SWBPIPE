@@ -1,0 +1,436 @@
+   Compiling open_pipe_stress_viewport_editor v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/gui/viewport_editor)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_viewport_editor-7c1250652a58cb8b)
+   Doc-tests open_pipe_stress_viewport_editor
+   Compiling proc-macro2 v1.0.106
+   Compiling quote v1.0.45
+   Compiling unicode-ident v1.0.24
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+   Compiling memchr v2.8.2
+   Compiling itoa v1.0.18
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_library_import_document v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/library_import/library_import_document)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.37s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_library_import_document-971432d65e15a783)
+     Running tests/provenance_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/provenance_parity-61d57708c31a4cf8)
+   Doc-tests open_pipe_stress_library_import_document
+     Locking 3 packages to latest compatible versions
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/frame_kernel)
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/linear_supports)
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/primitive_loads)
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/load_case_algebra)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.84s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_load_case_algebra-bbc3a6c879549004)
+   Doc-tests open_pipe_stress_load_case_algebra
+     Locking 2 packages to latest compatible versions
+   Compiling open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/primitive_loads)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.56s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_primitive_loads-472542c6d9490d78)
+   Doc-tests open_pipe_stress_primitive_loads
+   Compiling proc-macro2 v1.0.107
+   Compiling version_check v0.9.5
+   Compiling quote v1.0.47
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling typenum v1.20.1
+   Compiling libc v0.2.189
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/sparse_direct)
+   Compiling memchr v2.8.3
+   Compiling serde v1.0.229
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/straight_pipe)
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/curved_bend)
+   Compiling open_pipe_stress_units v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/units)
+   Compiling ryu v1.0.23
+   Compiling cfg-if v1.0.4
+   Compiling open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/load_case_algebra)
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/diagnostics)
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/stress_recovery)
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/nonlinear_supports)
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+   Compiling syn v3.0.3
+   Compiling serde_derive v1.0.229
+   Compiling cpufeatures v0.2.17
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_self_weight_wasm v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/self_weight_wasm)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 6.18s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_self_weight_wasm-4cf71ba3703751dd)
+   Doc-tests open_pipe_stress_self_weight_wasm
+   Compiling open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/stress_recovery)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_stress_recovery-2aadcfed411417cd)
+   Doc-tests open_pipe_stress_stress_recovery
+   Compiling open_pipe_stress_user_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/user_loads)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_user_loads-0ee7a3c8cea95c8c)
+   Doc-tests open_pipe_stress_user_loads
+   Compiling libc v0.2.186
+   Compiling memchr v2.8.1
+   Compiling serde_json v1.0.150
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling cpufeatures v0.2.17
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_operation_applier v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/model_operations/operation_applier)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.22s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_operation_applier-cc00f834758059ab)
+     Running tests/canonical_hash_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/canonical_hash_parity-5baff030016eb79c)
+     Running tests/contract_corpus.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/contract_corpus-008861147ce7721d)
+     Running tests/support_authoring_conflicts.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/support_authoring_conflicts-676bb33b32ad5f4f)
+   Doc-tests open_pipe_stress_operation_applier
+   Compiling serde_json v1.0.149
+   Compiling memchr v2.8.0
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/product_physics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.19s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_product_physics-d5c36f882fe55455)
+   Doc-tests open_pipe_stress_product_physics
+   Compiling open_pipe_stress_audit_manifest v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/audit_manifest)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_audit_manifest-052cdfa51fc1d2bf)
+   Doc-tests open_pipe_stress_audit_manifest
+   Compiling quote v1.0.46
+   Compiling open_pipe_stress_protected_content_linter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/protected_content_linter)
+   Compiling serde_json v1.0.150
+   Compiling syn v2.0.118
+   Compiling serde_derive v1.0.228
+   Compiling serde v1.0.228
+   Compiling open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_generator)
+   Compiling open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_report_renderer v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_renderer)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/pdf_emitter)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.93s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_pdf_emitter-1fa0db5212fd8e0c)
+     Running tests/emit.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/emit-e1710a2d00496a22)
+   Doc-tests open_pipe_stress_pdf_emitter
+   Compiling open_pipe_stress_protected_content_linter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/protected_content_linter)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_protected_content_linter-bd484528d3aef39f)
+     Running unittests src/bin/protected_content_lint_cli.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/protected_content_lint_cli-2d7901eca0927c53)
+   Doc-tests open_pipe_stress_protected_content_linter
+     Locking 7 packages to latest compatible versions
+   Compiling open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_generator)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.39s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_generator-b251d2ae4b34c368)
+   Doc-tests open_pipe_stress_report_generator
+   Compiling open_pipe_stress_audit_manifest v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/audit_manifest)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/pdf_emitter)
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_report_package v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_package)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.59s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_package-e283d16802e870c5)
+     Running tests/container.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/container-6311eac97bee5ff2)
+   Doc-tests open_pipe_stress_report_package
+   Compiling open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_generator)
+   Compiling open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_report_renderer v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_renderer)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.22s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_renderer-e6f07091779014ec)
+     Running tests/render.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/render-989a0f803abbb358)
+   Doc-tests open_pipe_stress_report_renderer
+   Compiling open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_sections)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_sections-6f7d32bcbd75f619)
+   Doc-tests open_pipe_stress_report_sections
+     Locking 23 packages to latest compatible versions
+   Compiling serde_core v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.51s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_result_export-22f0283eb5caaa2a)
+     Running tests/derivative_contract.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/derivative_contract-84c0d71b8764b401)
+   Doc-tests open_pipe_stress_result_export
+   Compiling open_pipe_stress_completeness_checker v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/completeness_checker)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.27s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_completeness_checker-f405177abbefa97f)
+   Doc-tests open_pipe_stress_completeness_checker
+   Compiling open_pipe_stress_expression_evaluator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/expression_evaluator)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.54s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_expression_evaluator-f6b33d657c3dcb14)
+     Running tests/conformance_corpus.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/conformance_corpus-b3042cd24b9d8e03)
+   Doc-tests open_pipe_stress_expression_evaluator
+   Compiling open_pipe_stress_expression_evaluator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/expression_evaluator)
+   Compiling open_pipe_stress_rule_pack_lifecycle v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/rule_pack_lifecycle)
+   Compiling open_pipe_stress_completeness_checker v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/completeness_checker)
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_rule_pack_document v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/rule_pack_document)
+   Compiling open_pipe_stress_rule_check_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/rule_check_runner)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.80s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_check_runner-ba9405503b1768b7)
+     Running tests/acceptability_relation_run.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/acceptability_relation_run-0b94d3fd78f95784)
+     Running tests/invented_demo_run.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/invented_demo_run-0880079e622ffb3e)
+   Doc-tests open_pipe_stress_rule_check_runner
+   Compiling open_pipe_stress_rule_pack_document v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/rule_pack_document)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.44s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_pack_document-460b05f81ee67124)
+     Running tests/corpus_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/corpus_parity-785a06e2550c4442)
+     Running tests/invented_demo_document.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/invented_demo_document-0ffd9d351dfff1a0)
+   Doc-tests open_pipe_stress_rule_pack_document
+   Compiling open_pipe_stress_rule_pack_lifecycle v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/rules/rule_pack_lifecycle)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_pack_lifecycle-c9f94b9c9b2f8ccd)
+   Doc-tests open_pipe_stress_rule_pack_lifecycle
+     Locking 48 packages to latest compatible versions
+   Compiling open_pipe_stress_user_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/loads/user_loads)
+   Compiling syn v3.0.5
+   Compiling open_pipe_stress_nonlinear_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/nonlinear)
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/stress)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/mechanics)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+   Compiling serde_derive v1.0.229
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling serde v1.0.229
+   Compiling open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_generator)
+   Compiling open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_sections)
+   Compiling open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/product_physics)
+   Compiling open_pipe_stress_report_renderer v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_renderer)
+   Compiling open_pipe_stress_pdf_emitter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/pdf_emitter)
+   Compiling open_pipe_stress_report_package v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/report_package)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/runner/headless)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.79s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_headless_runner-84e23e909f2d5b44)
+     Running unittests src/bin/headless_preview_runner.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/headless_preview_runner-83dca7874aff4473)
+     Running unittests src/bin/openpipestress-runner.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/openpipestress_runner-bff94261382449b1)
+   Doc-tests open_pipe_stress_headless_runner
+   Compiling serde_core v1.0.228
+   Compiling serde_json v1.0.150
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.11s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_canonical_json-560f760bec692761)
+   Doc-tests open_pipe_stress_canonical_json
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/curved_bend)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.30s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_curved_bend-03e5b9f862fb9d76)
+   Doc-tests open_pipe_stress_curved_bend
+     Locking 4 packages to latest compatible versions
+   Compiling open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/diagnostics)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.25s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_solver_diagnostics-75f60a476f0c50fd)
+   Doc-tests open_pipe_stress_solver_diagnostics
+   Compiling open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/frame_kernel)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+   Doc-tests open_pipe_stress_frame_kernel
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/linear_supports)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_linear_supports-450a7dd8d594f216)
+   Doc-tests open_pipe_stress_linear_supports
+   Compiling open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.77s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_integration-0caa68e7dcedd237)
+   Doc-tests open_pipe_stress_nonlinear_integration
+     Locking 5 packages to latest compatible versions
+   Compiling open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/nonlinear_supports)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.35s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_supports-e94961f44ff954b8)
+   Doc-tests open_pipe_stress_nonlinear_supports
+     Locking 5 packages to latest compatible versions
+   Compiling open_pipe_stress_solver_performance_harness v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/performance_harness)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.49s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_solver_performance_harness-03124509abd0e3b0)
+   Doc-tests open_pipe_stress_solver_performance_harness
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/sparse_direct)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.31s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_sparse_direct-9432a65460bfafb0)
+   Doc-tests open_pipe_stress_sparse_direct
+     Locking 1 package to latest compatible version
+   Compiling open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/solver/straight_pipe)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.34s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_straight_pipe-e540fbc6d971b3a5)
+   Doc-tests open_pipe_stress_straight_pipe
+   Compiling open_pipe_stress_units v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/units)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.29s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_units-54ad2436ab8ad22c)
+   Doc-tests open_pipe_stress_units
+   Compiling typenum v1.20.0
+   Compiling serde_json v1.0.149
+   Compiling generic-array v0.14.7
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling block-buffer v0.10.4
+   Compiling crypto-common v0.1.7
+   Compiling digest v0.10.7
+   Compiling sha2 v0.10.9
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/mechanics)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.26s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_mechanics_benchmarks-401cb2e0c575bda6)
+   Doc-tests open_pipe_stress_mechanics_benchmarks
+   Compiling open_pipe_stress_nonlinear_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/nonlinear)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.55s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_benchmarks-f5305d485e4b6a8c)
+   Doc-tests open_pipe_stress_nonlinear_benchmarks
+   Compiling open_pipe_stress_physics_audit_regression v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/physics_audit_regression)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.46s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_physics_audit_regression-6f225694d42d9ac2)
+   Doc-tests open_pipe_stress_physics_audit_regression
+   Compiling zmij v1.0.22
+   Compiling serde_json v1.0.150
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/serialization/canonical_json)
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/stress)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.86s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_stress_benchmarks-c333f5b42fc325e2)
+   Doc-tests open_pipe_stress_stress_benchmarks
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  available; 1 user-rule ratio row
+Received:
+  unavailable; no user-rule ratio rows are present in this result envelope; mechanics results remain reviewable but no governing rule-check ratio is inferred
+ ❯ src/App.test.tsx:633:58
+    631|       <ResultsPanel analysisRun={null} knowledge={null} onSelectResult…
+    632|     );
+    633|     expect(screen.getByTestId("governing-ratio-status")).toHaveTextCon…
+       |                                                          ^
+    634|     fireEvent.click(screen.getByTestId("result-family-ratio"));
+    635|     expect(screen.getByTestId("result-row-result:ratio:invented-govern…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > renders the engineering workspace from invented local fixtures
+AssertionError: expected 'Run mechanics preview with valid Curr…' to contain 'schema-first local result envelope'
+
+Expected: "schema-first local result envelope"
+Received: "Run mechanics preview with valid Current input proof to assemble a local result JSON for review."
+
+ ❯ src/App.test.tsx:1015:7
+    1013|     expect(
+    1014|       within(resultExport).getByTestId("result-export-empty").textCont…
+    1015|     ).toContain("schema-first local result envelope");
+       |       ^
+    1016|     const headlessRunner = await screen.findByLabelText(
+    1017|       "Headless runner envelope",
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+TestingLibraryElementError: Unable to find an element by: [data-testid="result-export-summary"]
+
+Ignored nodes: comments, script, style
+[36m<section[39m
+  [33maria-label[39m=[32m"Result export audit"[39m
+  [33mclass[39m=[32m"panel result-export-panel"[39m
+  [33mdata-testid[39m=[32m"result-export-panel"[39m
+[36m>[39m
+  [36m<div[39m
+    [33mclass[39m=[32m"panel-title"[39m
+  [36m>[39m
+    [36m<svg[39m
+      [33maria-hidden[39m=[32m"true"[39m
+      [33mclass[39m=[32m"lucide lucide-file-json"[39m
+      [33mfill[39m=[32m"none"[39m
+      [33mheight[39m=[32m"16"[39m
+      [33mstroke[39m=[32m"currentColor"[39m
+      [33mstroke-linecap[39m=[32m"round"[39m
+      [33mstroke-linejoin[39m=[32m"round"[39m
+      [33mstroke-width[39m=[32m"2"[39m
+      [33mviewBox[39m=[32m"0 0 24 24"[39m
+      [33mwidth[39m=[32m"16"[39m
+      [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+    [36m>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M14 2v4a2 2 0 0 0 2 2h4"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M10 12a1 1 0 0 0-1 1v1a1 1 0 0 1-1 1 1 1 0 0 1 1 1v1a1 1 0 0 0 1 1"[39m
+      [36m/>[39m
+      [36m<path[39m
+        [33md[39m=[32m"M14 18a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1 1 1 0 0 1-1-1v-1a1 1 0 0 0-1-1"[39m
+      [36m/>[39m
+    [36m</svg>[39m
+    [0mResult Export[0m
+  [36m</div>[39m
+  [36m<p[39m
+    [33mclass[39m=[32m"muted"[39m
+    [33mdata-testid[39m=[32m"result-export-empty"[39m
+  [36m>[39m
+    [0mRun mechanics preview with valid Current input proof to assemble a local result JSON for review.[0m
+  [36m</p>[39m
+  [36m<small[39m
+    [33mclass[39m=[32m"report-note"[39m
+  [36m>[39m
+    [0mResult export is a local technical-preview JSON envelope; stress-neutral CSV/JSON preview is available after a mechanics run, while public transport and local FEA package formats remain TBD.[0m
+  [36m</small>[39m
+[36m</section>[39m
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/App.test.tsx:9940:28
+    9938|     const resultExport = await screen.findByLabelText("Result export a…
+    9939|     expect(
+    9940|       within(resultExport).getByTestId("result-export-summary").textCo…
+       |                            ^
+    9941|     ).toContain("available");
+    9942|     expect(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > converts results, endpoint pairs, diagnostic links and knowledge summaries while source evidence remains exact
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  2.248 lbf
+Received:
+  force:i integrity_failurepipe:1end_i10 N (Entered value shown: no US catalog target for unknown.)Entered: 10 N
+ ❯ src/features/display-units/rendererIntegration.test.tsx:76:54
+     74|     fireEvent.change(screen.getByLabelText("Display units"), { target:…
+     75|     await waitFor(() => expect(screen.getByTestId("selected-diagnostic…
+     76|     expect(screen.getByTestId("result-row-force:i")).toHaveTextContent…
+       |                                                      ^
+     77|     expect(screen.getByTestId("result-row-dual-force:i")).toHaveTextCo…
+     78|     expect(screen.getByTestId("result-detail-panel")).toHaveTextConten…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run
+[evidence-sweep] FAILED at surface desktop_vitest; remaining surfaces recorded as not_run

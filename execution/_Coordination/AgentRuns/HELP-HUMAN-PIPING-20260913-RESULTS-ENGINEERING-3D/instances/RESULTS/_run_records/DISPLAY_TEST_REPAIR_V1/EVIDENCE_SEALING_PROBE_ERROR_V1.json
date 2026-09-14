@@ -1,0 +1,4 @@
+{
+  "error": "Initial scope assertion compared Git repo-root-relative diff paths with project-relative allowed fence, falsely failing all paths. Raw output preserved; prefix normalized for correct project-relative check. No product/source/runtime change or actual out-of-fence finding.",
+  "raw_paths_file": "READ_ONLY_CHANGED_PATHS.stdout"
+}

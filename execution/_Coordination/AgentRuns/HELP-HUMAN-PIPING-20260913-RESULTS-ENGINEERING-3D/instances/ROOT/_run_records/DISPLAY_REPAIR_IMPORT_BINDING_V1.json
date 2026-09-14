@@ -1,0 +1,397 @@
+{
+  "derivative_package": true,
+  "source_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1",
+  "published_destination": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1",
+  "manifest_sha256": "6251972ad06ef100e1818ccf7ad4420fd45ad08b3aa3c21d08fc27047a2b488b",
+  "imported_files": 77,
+  "originals_preserved": true,
+  "files": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/COMMAND.json",
+      "sha256": "14e911b0ebf8bdeef1cbdad3100bf0f2e5c4ee0cd3365d52631c9ff275e76775"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/RESULT.json",
+      "sha256": "0303dc76e57ebe881b58db00e5dd7f467df5e8ec5e0a55e6410de3f60ab2dcfb"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/stderr.log",
+      "sha256": "83cdd16df8f4521a3446f8e71b8fc25e6ad4ccf78f8a7e21dc6e65d430322c5d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/001-renderer/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/COMMAND.json",
+      "sha256": "f55a7aa26b3b6f8c8f4286555f69aa03840913d53831195849cc050c77a8d932"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/RESULT.json",
+      "sha256": "dc8d22f0b35ebda3a76fa7a287758a1328a5438f540d340515457f4282517f83"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/002-renderer/stdout.log",
+      "sha256": "f0d71935382aee824e7b989a4ab58a6533fdfab2dbcb05307b00a24b76ba1969"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/COMMAND.json",
+      "sha256": "a3713f06bd172c9e9c47a8d37ba5ffb7b26282c1cd27fc7658337a252da5b462"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/RESULT.json",
+      "sha256": "882d0e7dd97ff5c2a33331a1b63bb9438d3a6400bb04951e1798cdd2e4d2f155"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/stderr.log",
+      "sha256": "18af2b9fcb31cbeecf40387a5f95269e4aa91ae0dc24f07102012a7a3c6069ca"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/003-app/stdout.log",
+      "sha256": "6caede74d4558d737d63a43ac87d7b5956a615cb2d26d19f5555cb49e3109d01"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/COMMAND.json",
+      "sha256": "92618e8b26b8066c0fd23223f3d55efbe92586c1adc05e788fbb2593fa663816"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/RESULT.json",
+      "sha256": "41c7b88352eb8f5e62a8e323764576a65c594dec4fdb6506c95b8e84ac6bdd88"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/stderr.log",
+      "sha256": "d28902df353afea800f7d64d2df837a35af05defc2b1d294a49c4f52876baecd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/004-app/stdout.log",
+      "sha256": "cde0b24cdb0a038203f2279d458d85233f4afa400c9cc4edc36dd98d53eb103e"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/COMMAND.json",
+      "sha256": "51259469112ebc15eaa793da18f1c554845b61a4bec12b03396f3fe03f1fde2c"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/RESULT.json",
+      "sha256": "f512effff2d19a8f934a66ea67cf59963937ec9d03b5da067705de9f7a3a1c03"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/stderr.log",
+      "sha256": "51e61a43466a8b6dde83035b21f9fbd18f87502f8696e22f12d2cbfc0a74db26"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/005-app/stdout.log",
+      "sha256": "fd542dfb78975078d49e1043ce847e28d3577bc0cb1a0892e1f991d312837f8c"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/COMMAND.json",
+      "sha256": "4715ae20e9f22394c0d7be46a7c3b9b6c284e4880f62b89fc7ad4cd0d25f2262"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/RESULT.json",
+      "sha256": "3ecb792d34aa127802290aa9baf67b4ba32b2fc9285dcbda7afe23aef1dfef3f"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/stderr.log",
+      "sha256": "563e963f836f710de016e3cd181e46b9a00f75797b8617109a1dff43c574e8fd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/006-app/stdout.log",
+      "sha256": "1cc0ed534935e52842e822f504f1212a02ff9ca1d593fe8091fb1b87eb4fc4eb"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/COMMAND.json",
+      "sha256": "bb025bb7a417d6c52054e4b23fd752b6df37a426a55f852dbf2d6ca45d960e3c"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/RESULT.json",
+      "sha256": "3ec0647e8887bf65f48843c341206194e2deb44f109bd36a6f965401c764506d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/stderr.log",
+      "sha256": "c8f10bcf24a131bcf141a4b94b71b8ea3d05c0a5781f90bb9be15b1798c2c45d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/007-app/stdout.log",
+      "sha256": "6a1d552001dc4eb752a9df333eee062fdfd4e222391fd88c47dd12b06aeb80a5"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/COMMAND.json",
+      "sha256": "dda5a3b5c648cd09a95c7fab98c09d56bf348cfb09e8a6f49865aedcc649c8ed"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/RESULT.json",
+      "sha256": "e76a593c47edf9d9dd230b0dd6eed3406d860454ebc99e5f6a551c30d4d32ea8"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/008-app/stdout.log",
+      "sha256": "6cafade1601687e03616f514b8b140e172ab9199852726c2df251e0ee02c4802"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/COMMAND.json",
+      "sha256": "ff785401f1a50cc68592a2561071e39553dc9e441aabac1dc1fc9b49a57a61d4"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/RESULT.json",
+      "sha256": "992c765f2ebc17ca5a08cf389d3d5e4a1a82d75ce6d9d6de6f6f9bf872a44aab"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/stderr.log",
+      "sha256": "fe2d5f3d142849a0eb5705a2487144689b35db00d71610dbeb4f88d1fcfad59b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/009-native-metadata/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/COMMAND.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/COMMAND.json",
+      "sha256": "e0492026c487b9e74c8c969012fffc5efd97da2f711eaefdef9063fa621f7f89"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/RESULT.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/RESULT.json",
+      "sha256": "5608faa2d78a1e174d0937f61c9ca922c1e87271da13dcbe754364a24a1bd453"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/stderr.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/stderr.log",
+      "sha256": "fe2d5f3d142849a0eb5705a2487144689b35db00d71610dbeb4f88d1fcfad59b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/stdout.log",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/011-native-locked-metadata/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ACTUAL_DISPATCH_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ACTUAL_DISPATCH_V1.json",
+      "sha256": "bfa7c4d87590d5e3945fe854c94e4e1be2fe4e2d89e9a05c3d6670cab325e518"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ACTUAL_NATIVE_LOCK_SUPPLEMENT_DISPATCH_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ACTUAL_NATIVE_LOCK_SUPPLEMENT_DISPATCH_V1.json",
+      "sha256": "930d1ce55fd3f14ca51ce720a0124bfb2905bea57cfb481269d09c24e49e8a2f"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ATTEMPT_DISPOSITIONS_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ATTEMPT_DISPOSITIONS_V1.json",
+      "sha256": "42f5cbd012204e6aea85b567e9571cbf192421e374ab0ab2f3f83e7ad22e5b46"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/COMMAND_LEDGER_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/COMMAND_LEDGER_V1.json",
+      "sha256": "9f02118f7c2b0530abadd599982bc23217ab6f56a76c7df388257a0af789079f"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/DIAGNOSIS_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/DIAGNOSIS_V1.json",
+      "sha256": "7e22fec625d3722947affa706c1c71daf0d418fa0aeb1ce4ca2836f406cd85ea"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/DISPLAY_TEST_AND_NATIVE_LOCK_TRANSFER_V1.patch",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/DISPLAY_TEST_AND_NATIVE_LOCK_TRANSFER_V1.patch",
+      "sha256": "7eaabf09189b92cce3a4cc9ba3c9f172ec91417200e153fd55568044212678bb"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/EVIDENCE_SEALING_PROBE_ERROR_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/EVIDENCE_SEALING_PROBE_ERROR_V1.json",
+      "sha256": "5603d6e9bdd9bf4b8189050c28b742f97a9a2cc84dfc9daa707a9a64ab7be11b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/EXACT_SOURCE_DISPLAY_EXPECTATIONS_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/EXACT_SOURCE_DISPLAY_EXPECTATIONS_V1.json",
+      "sha256": "dea1e43c50006f6789da9a310e338f8ac4abbe302862083b6ba50cbb8d1a84ae"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FINAL_SOURCE_AUDIT_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FINAL_SOURCE_AUDIT_V1.json",
+      "sha256": "0c49db11acd7caacae81f8d55a31e03332ffbd91355593538aa7e9b9668cb9aa"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FROZEN_WHOLE_APP_ASSERTION_BLOCK_V1.txt",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FROZEN_WHOLE_APP_ASSERTION_BLOCK_V1.txt",
+      "sha256": "61cbf27285265d4615c0303eab52b787cc1b95636eb28e5711f98da4295edf49"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FROZEN_WHOLE_APP_ASSERTION_BLOCK_V2.txt",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/FROZEN_WHOLE_APP_ASSERTION_BLOCK_V2.txt",
+      "sha256": "1849a010161bf2dab0e68a1402a45434d4af7c94cfea7c38fe6a58457eab9a0a"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/MANIFEST.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/MANIFEST.json",
+      "sha256": "6251972ad06ef100e1818ccf7ad4420fd45ad08b3aa3c21d08fc27047a2b488b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_GRAPH_DELTA_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_GRAPH_DELTA_V1.json",
+      "sha256": "e80aa8d66fa6926af6118b13fb7acdbf24e27fc391128415f2434cc22cbce33a"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_LOCK_CONTINUATION_V1.md",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_LOCK_CONTINUATION_V1.md",
+      "sha256": "29a4edef384d673d506dc16f3214feab7e2a9092ba0a41d2a1abac17446d5912"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_PRE_EFFECT_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_PRE_EFFECT_V1.json",
+      "sha256": "aed557509eaa62fa67720f6f274a61420fd9e09e31c166ecf75e746eba16ddf6"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_ROOT_ORIGIN_V1.md",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/NATIVE_ROOT_ORIGIN_V1.md",
+      "sha256": "7160b50e7f6a4781e304d6eda823851056765a76421e08e702a5433a3ffa572b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/PRE_EFFECT_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/PRE_EFFECT_V1.json",
+      "sha256": "3e325dc05ddc29092a3984e4213af0f9ca435e62600a40c2ccc7a67fb7ae8661"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/READ_ONLY_CHANGED_PATHS.stdout",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/READ_ONLY_CHANGED_PATHS.stdout",
+      "sha256": "d7ae392340350bad31eba5f123078a9cdb8ca40c0b0213f6c6163a6262daae25"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/RETURN.md",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/RETURN.md",
+      "sha256": "5d5fb65aa6c6157b4d7a3e98d76f5aeb89f27679072dd6f8186d76408e88be3b"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ROOT_ORIGIN_BRIEF_V1.md",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/ROOT_ORIGIN_BRIEF_V1.md",
+      "sha256": "bbd2effaf875a9e0ea1e17d6069a0a9e881f54f135b71c31b5b40bfac87d965d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/RUNTIME_RELEASE_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/RUNTIME_RELEASE_V1.json",
+      "sha256": "017778ee8c1556c11f225d87fa901662882b9327a9fd1e81b589ed5ecbd70699"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/TASK_WRITER_CONTINUATION_V1.md",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/TASK_WRITER_CONTINUATION_V1.md",
+      "sha256": "5bdbb7b82ad931b19025dac8fb5c1154438653fff149291b47137dddec2262b9"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/WHOLE_BLOCK_EXPECTATION_FREEZE_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/WHOLE_BLOCK_EXPECTATION_FREEZE_V1.json",
+      "sha256": "f27905999da0b66dec166fbe6e4b65d9dc3454a39c51e4ef4d51b65d7169b2d2"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/WHOLE_BLOCK_EXPECTATION_FREEZE_V2.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/WHOLE_BLOCK_EXPECTATION_FREEZE_V2.json",
+      "sha256": "7a3b1c0e2429a1d42bc55f98045de139c021e3c1af258623d67f05c5242e6cc4"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_1.patch",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_1.patch",
+      "sha256": "acca4bf3ecc53a80517627a60ef1945c41cf71cfcab8164f6bd62dd4698963cd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_2.patch",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_2.patch",
+      "sha256": "6143500ecfa6a6c83d39f1679175642d90624b7a57b5667dc71386d090d6023d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_3.patch",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/delta_3.patch",
+      "sha256": "33291d6e7b08fde3ea7b49ab0159a83fdf84fd726b8a915e20900c2b66ea2670"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/focused_run_v1.py",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/focused_run_v1.py",
+      "sha256": "3683c48d00a783d51f4487fc446644f75d4dcb0f7a509a9384cd8a684f4a8c50"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.final.Cargo.lock",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.final.Cargo.lock",
+      "sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.integration.original.Cargo.lock",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.integration.original.Cargo.lock",
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.lane.original.Cargo.lock",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/native.lane.original.Cargo.lock",
+      "sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_1.final.tsx",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_1.final.tsx",
+      "sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_1.original.tsx",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_1.original.tsx",
+      "sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_2.final.tsx",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_2.final.tsx",
+      "sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_2.original.tsx",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DISPLAY_TEST_REPAIR_V1/test_2.original.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    }
+  ],
+  "siblings": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_TEST_REPAIR_FINAL_FAN_IN_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_TEST_REPAIR_FINAL_FAN_IN_V1.json",
+      "sha256": "82b1994cc14a603440db39dcba5cd2c7ec1842768ce50ccb184f6ccd4256e613"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_NATIVE_DELTA_BACKCHECK_V1.json",
+      "published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_DISPLAY_NATIVE_DELTA_BACKCHECK_V1.json",
+      "sha256": "0793b8f9067037931fbe754e0738488341ef8f108ef2e0dea2e5c7db8f5f0e13"
+    }
+  ]
+}

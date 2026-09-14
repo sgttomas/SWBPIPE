@@ -1,0 +1,12 @@
+{
+  "observed_error": "IsADirectoryError reading DEC025_V2/sweep after registered tool completed; wrapper read_bytes loop assumed all top-level outputs were files",
+  "observed_wrapper_exec_exit_code": 1,
+  "registered_tool_top_level_exit": "not separately persisted before wrapper error; do not present as direct captured return",
+  "registered_summary": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V2/sweep/SWEEP_20260914T035406Z_bdf90f6ff686.json",
+  "registered_summary_sha256": "b640ce3faffff88a1504441b6dcfd5f898af114a852c327d005e45aff7b3e7aa",
+  "registered_summary_overall": "fail",
+  "scope": "Registered summary and per-surface command codes/stdout/stderr preserved. Rust and Python pass;desktop4failed/864passed; remaining surfaces not_run.",
+  "repair": "New evidence-only wrapper persists child EXIT.json immediately, then enumerates recursive files only. Original wrapper unchanged; no registered sweep tool or product changes.",
+  "new_wrapper_sha256": "01a0b74c0b94abae5728fb79928872ecf0611459db486ff30f597e1ad2de9048",
+  "syntax_compilation": "PASS; no runtime test launched under writer lease"
+}

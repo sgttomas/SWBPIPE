@@ -1,0 +1,26 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+AssertionError: expected undefined to match object { family: 'rotation', …(2) }
+
+- Expected:
+{
+  "dimension": "angle",
+  "family": "rotation",
+  "unit": "rad",
+}
+
++ Received:
+undefined
+
+ ❯ src/App.test.tsx:10019:22
+    10017|     expect(e.row_disclosures.some((v: {semantic_category: string, reas…
+    10018|     const rotation = e.result_sets[0].values.find((v: {source_kind: st…
+    10019|     expect(rotation).toMatchObject({ family: "rotation", unit: "rad", …
+       |                      ^
+    10020|     expect(e.diagnostics).toHaveLength(expectedSource.diagnostics.leng…
+    10021|     expect(e.reproducibility.deterministic_ordering).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

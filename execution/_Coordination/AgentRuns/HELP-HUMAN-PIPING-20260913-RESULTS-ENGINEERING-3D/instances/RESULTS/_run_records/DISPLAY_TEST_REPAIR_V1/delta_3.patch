@@ -1,0 +1,12 @@
+--- a/apps/desktop/src-tauri/Cargo.lock
++++ b/apps/desktop/src-tauri/Cargo.lock
+@@ -2256,7 +2256,9 @@
+ name = "open_pipe_stress_result_export"
+ version = "0.1.0"
+ dependencies = [
++ "open_pipe_stress_canonical_json",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]

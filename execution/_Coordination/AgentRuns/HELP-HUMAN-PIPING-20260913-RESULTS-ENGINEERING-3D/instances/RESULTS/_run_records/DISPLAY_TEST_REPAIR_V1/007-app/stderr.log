@@ -1,0 +1,19 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+AssertionError: expected '180' to contain '182'
+
+Expected: "182"
+Received: "180"
+
+ ❯ src/App.test.tsx:11289:7
+    11287|     expect(
+    11288|       within(results).getByTestId("result-family-count-moment").textCo…
+    11289|     ).toContain("182");
+       |       ^
+    11290|     expect(
+    11291|       within(results).getByTestId("result-family-count-other").textCon…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

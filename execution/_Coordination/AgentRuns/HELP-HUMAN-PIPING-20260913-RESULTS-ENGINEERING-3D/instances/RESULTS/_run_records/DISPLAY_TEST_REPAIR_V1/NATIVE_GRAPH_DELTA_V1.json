@@ -1,0 +1,31 @@
+{
+  "lock_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+  "old_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+  "changed_package_records": {
+    "open_pipe_stress_result_export": {
+      "old": {
+        "name": "open_pipe_stress_result_export",
+        "version": "0.1.0",
+        "dependencies": [
+          "serde_json"
+        ]
+      },
+      "new": {
+        "name": "open_pipe_stress_result_export",
+        "version": "0.1.0",
+        "dependencies": [
+          "open_pipe_stress_canonical_json",
+          "serde_json",
+          "sha2"
+        ]
+      }
+    }
+  },
+  "all_versions_sources_checksums_unrelated_records_exact": true,
+  "lock_header_exact": true,
+  "resolution_exit": 101,
+  "locked_offline_recheck_exit": 101,
+  "cache_failure": "android_system_properties v0.1.5 unavailable offline",
+  "native_execution_qualification": "NOT_ESTABLISHED; neither metadata command completed",
+  "network_or_filter_retry": false
+}

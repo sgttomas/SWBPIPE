@@ -1,0 +1,28 @@
+{
+  "derivative_package": true,
+  "manager_phase_verdict": "bounded two-test repair pass and native two-edge graph delta hash accepted; full native offline metadata admission blocked, root gates OPEN",
+  "return_sha256": "5d5fb65aa6c6157b4d7a3e98d76f5aeb89f27679072dd6f8186d76408e88be3b",
+  "manifest_sha256": "6251972ad06ef100e1818ccf7ad4420fd45ad08b3aa3c21d08fc27047a2b488b",
+  "patch_sha256": "7eaabf09189b92cce3a4cc9ba3c9f172ec91417200e153fd55568044212678bb",
+  "all3_source_and74_evidence_hashes_checked": true,
+  "physical_bytes": 2533880,
+  "hash_or_length_findings": [],
+  "physical_inventory_complete": true,
+  "undeclared": [],
+  "absent": [],
+  "accepted39_prior875_passed_test_bytes_complete42_source_check": "MANAGER_DISPLAY_NATIVE_DELTA_BACKCHECK_V1.json SHA0793b8f9067037931fbe754e0738488341ef8f108ef2e0dea2e5c7db8f5f0e13",
+  "actual_runtime": "renderer2/App3 pass; native metadata and locked recheck101 uncached android_system_properties0.1.5",
+  "whole_block_final_static_freeze_sha256": "7a3b1c0e2429a1d42bc55f98045de139c021e3c1af258623d67f05c5242e6cc4",
+  "whole_block_provenance": "complete final static freeze after008 already dispatched; earlier034 source/table oracle explicitly not App capture, no pre-execution or App-byte equality claim",
+  "source_dynamic_claim": "008 full actual expectedSource/model/carrier/row/target/derivative comparisons pass; actual raw App bytes not saved",
+  "historical_failed_diagnoses": "both provisional rotation/kind attributions preserved; exact work signature028 and refs governing final source-derived expectation",
+  "runtime_released": true,
+  "sole_writer_idle": true,
+  "root_remaining": [
+    "combined delta review/integration/commit",
+    "registered full sweep",
+    "native host cache/qualification determination",
+    "native lifecycle verification",
+    "formal closure"
+  ]
+}

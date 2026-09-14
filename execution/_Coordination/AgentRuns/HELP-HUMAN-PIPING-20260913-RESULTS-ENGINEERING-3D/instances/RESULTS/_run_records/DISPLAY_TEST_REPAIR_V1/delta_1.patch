@@ -1,0 +1,38 @@
+--- a/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
++++ b/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+@@ -21,8 +21,8 @@
+   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+   summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
+   results: [
+-    { id: "force:i", kind: "element_local_axial_force", value: 10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_i", basis: "test", sign_convention: "signed" } },
+-    { id: "force:j", kind: "element_local_axial_force", value: -10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_j", basis: "test", sign_convention: "signed" } },
++    { id: "force:i", kind: "element_local_axial_force", value: 10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial_force", coordinate_system: "local", location: "end_i", basis: "test", sign_convention: "signed" } },
++    { id: "force:j", kind: "element_local_axial_force", value: -10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial_force", coordinate_system: "local", location: "end_j", basis: "test", sign_convention: "signed" } },
+     { id: "disp", kind: "displacement", value: 0.0254, unit: "m", dimension: "length", entity_ref: "node:1" },
+     { id: "unknown", kind: "unclassified", value: 9, unit: "N", entity_ref: "pipe:unknown" },
+     { id: "temperature:left", kind: "temperature", value: 0, unit: "degC", dimension: "temperature", entity_ref: "pipe:1" },
+@@ -91,6 +91,24 @@
+     expect(interpretation()).toBe(evidence);
+   });
+ 
++  it("retains entered evidence and refuses conversion for a contradictory axial component", async () => {
++    const result = structuredClone(sourceResult);
++    result.results.find(row => row.id === "force:i")!.metadata!.component = "axial";
++    const before = JSON.stringify(result);
++    const convert = converter();
++    render(<DisplayUnitsProvider initialPreference="US" converter={convert}>
++      <ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId="force:i" onSelectResult={() => {}} />
++    </DisplayUnitsProvider>);
++    const invalid = screen.getByTestId("result-row-force:i");
++    expect(invalid).toHaveTextContent("integrity_failure");
++    expect(invalid).toHaveTextContent("10 N");
++    expect(invalid).toHaveTextContent("Entered value shown");
++    expect(invalid.querySelector('[data-display-status="converted"]')).toBeNull();
++    await waitFor(() => expect(screen.getByTestId("result-row-force:j")).toHaveTextContent("-2.248 lbf"));
++    expect(convert.mock.calls.flatMap(call => call[0])).not.toEqual(expect.arrayContaining([expect.objectContaining({value: 10, from_unit: "N"})]));
++    expect(JSON.stringify(result)).toBe(before);
++  });
++
+   it("converts comparison absolute temperatures and interval deltas separately, with honest stale-source fallback", async () => {
+     const compared = comparison();
+     const before = JSON.stringify(compared);

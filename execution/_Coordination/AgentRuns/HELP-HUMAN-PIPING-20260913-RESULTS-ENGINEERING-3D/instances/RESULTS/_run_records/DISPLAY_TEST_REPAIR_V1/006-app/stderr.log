@@ -1,0 +1,22 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+AssertionError: expected [] to have a length of 2 but got +0
+
+- Expected
++ Received
+
+- 2
++ 0
+
+ ❯ src/App.test.tsx:10044:35
+    10042|     expect(within(resultExport).getByTestId("result-export-link")).toH…
+    10043|     const incompatibleRotations = expectedSource.results.filter(row =>…
+    10044|     expect(incompatibleRotations).toHaveLength(2);
+       |                                   ^
+    10045|     expect(incompatibleRotations.every(row => row.dimension === "lengt…
+    10046|     const expectedStressWitnessCount = expectedSource.results.length -…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

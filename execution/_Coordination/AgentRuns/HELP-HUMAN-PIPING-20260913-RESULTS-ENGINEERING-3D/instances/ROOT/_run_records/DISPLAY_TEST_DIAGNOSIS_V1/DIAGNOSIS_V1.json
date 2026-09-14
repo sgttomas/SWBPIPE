@@ -1,0 +1,85 @@
+{
+  "mode": "read-only diagnosis; no repository writes/runtime/delegation",
+  "observed_complete_suite": {
+    "desktop": "4 failures,864 passed,2 failed files/53 passed files",
+    "python": "1014 passed",
+    "overall": "FAIL; remaining surfaces not_run"
+  },
+  "failing_cases": [
+    {
+      "file": "rendererIntegration.test.tsx",
+      "line": 76,
+      "cause": "force:i/force:j fixture metadata component axial contradicts supported element_local_axial_force component axial_force; actual producer7310\u20137311 and product tests12005 enforce axial_force",
+      "smallest_repair": "two fixture component string changes axial to axial_force; retain all conversion/end pair/diagnostic/knowledge/SI-US-entered/source-equality assertions",
+      "guard": "clone valid fixture with deliberately axial component, render ResultsPanel under display provider; assert integrity_failure/entered evidence and no converted invalid row, source clone unchanged; no semantic-table relaxation"
+    },
+    {
+      "file": "App.test.tsx",
+      "line": 633,
+      "cause": "invented user_rule_governing_ratio is outside60 source signatures; all supported governing_ratio_eligible false and ResultsPanel intentionally shows unavailable",
+      "smallest_repair": "assert added counterfeit quantity does not grant governing eligibility; remains unknown/other diagnostic review, no ratio family authority. Retain rich nonlinear diagnostics and missing-data coverage; do not invent rule semantics"
+    },
+    {
+      "file": "App.test.tsx",
+      "line": 1015,
+      "cause": "exact empty-copy expectation predates required Current proof",
+      "smallest_repair": "assert current empty proof guidance and no canonical href before solve; no product copy change required"
+    },
+    {
+      "file": "App.test.tsx",
+      "line": 9940,
+      "cause": "immediate getByTestId checks pending asynchronous canonical export; following old assertions expect0.1 redacted document/all830 quantities/witnesses and available extra formats, contrary to accepted0.2",
+      "smallest_repair": "await actual Current adapter completion, verify no href before own local intent, then decode original canonical0.2 href and validate full derivative digest/model-run-manifest binding/source accounting/value-unit-annotation/witness semantics/non-governing/TBD boundaries; retain source evidence, solve diagnostics/knowledge/proposals and separate stress-neutral checks",
+      "uncertainty": "current report shows pending empty guidance, not an adapter failure code; do not label this product pass. Later focused test must expose genuine Current failure if one persists after settle. Existing portable Current fixture docs show830 annotations/accounting,778 quantities,26 review,26 disclosures,804 witnesses, but are not the actual App solve run and must not replace its actual assertions."
+    }
+  ],
+  "proposed_added_test_fence": [
+    "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+    "apps/desktop/src/App.test.tsx"
+  ],
+  "release_needed": "root exact test/source allocation; no child activated",
+  "immutable_source": "original39 and accepted60 contract unchanged",
+  "diagnosis_preparation_failures": [
+    {
+      "scope": "ephemeral JSON count inspection",
+      "error": "looked for absent annotation semantic_category key; corrected to actual annotation keys, no repo write or product validation effect"
+    }
+  ],
+  "pins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108",
+      "bytes": 14194
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "bytes": 718236
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "bytes": 2417
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "bytes": 21494
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "bytes": 710385
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/root-gates/DEC025_V2/stdout.log",
+      "sha256": "5da3851b2f2e6dcfe8298038d9d36fe47820afa76103e76ee31e7744288c86aa",
+      "bytes": 106513
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/root-gates/DEC025_V2/stderr.log",
+      "sha256": "076db7eba915bd0c00a3d5acaf58e58e742e36de2dad74f6ac0a699474d519cf",
+      "bytes": 39644
+    }
+  ]
+}

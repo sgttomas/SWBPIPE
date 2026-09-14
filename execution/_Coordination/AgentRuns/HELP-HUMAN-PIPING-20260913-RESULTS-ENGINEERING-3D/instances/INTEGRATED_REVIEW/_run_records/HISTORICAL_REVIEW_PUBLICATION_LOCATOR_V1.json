@@ -1,0 +1,65 @@
+{
+  "derivative_package": true,
+  "purpose": "Publication placement only: preserve exact historical raw review evidence under structural _run_records. Old manifests and returns remain unchanged; resolve their original instance base then apply this exact path/hash locator. No source-review invalidation or governance change.",
+  "authority": "Parent HELP_HUMAN additive V3 instruction after self-check identified four UNCLASSIFIED raw JSON records.",
+  "entries": [
+    {
+      "historical_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "historical_manifest_relative_path": "CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/_run_records/CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "published_instance_relative_path": "_run_records/CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "sha256": "f9bee14cb2afec5ffc17fc570bd554c49241d9a70b47a1638341f77517a59fcf",
+      "bytes": 8205
+    },
+    {
+      "historical_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/COVERAGE_V1.json",
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/COVERAGE_V1.json",
+      "historical_manifest_relative_path": "COVERAGE_V1.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/_run_records/COVERAGE_V1.json",
+      "published_instance_relative_path": "_run_records/COVERAGE_V1.json",
+      "sha256": "f3b6d57e6abda8b26aa00309955fcd8ec4ece9a6ece78b1d1f3b4e3736d35e1b",
+      "bytes": 831813
+    },
+    {
+      "historical_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/COVERAGE_V2.json",
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/COVERAGE_V2.json",
+      "historical_manifest_relative_path": "COVERAGE_V2.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/_run_records/COVERAGE_V2.json",
+      "published_instance_relative_path": "_run_records/COVERAGE_V2.json",
+      "sha256": "9ff1e0e03cc4b43bb048646c95f142b872bb8b5f01f96fa0acda7be1eef83b06",
+      "bytes": 13233
+    },
+    {
+      "historical_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/GENERATED_DATA_REVIEW_V1.json",
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/GENERATED_DATA_REVIEW_V1.json",
+      "historical_manifest_relative_path": "GENERATED_DATA_REVIEW_V1.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/_run_records/GENERATED_DATA_REVIEW_V1.json",
+      "published_instance_relative_path": "_run_records/GENERATED_DATA_REVIEW_V1.json",
+      "sha256": "6a430f574a64629549e156768e6e5b365622a1eb3c87d2e7049a6ebeacba0229",
+      "bytes": 52145
+    }
+  ],
+  "prior_control_files_unchanged": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/MANIFEST.json",
+      "sha256": "79a3ac78ed81f3be900e0fd6d00e26b1a705bc1fd09063b4db1fd2617eed1a96",
+      "bytes": 1193
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/MANIFEST_V2.json",
+      "sha256": "eab67fda19a673ec524ccd9c20c22747b5f2babd00a1027257c68d2a9fefb87a",
+      "bytes": 931
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN.md",
+      "sha256": "c96b89eac4086df8e53bd1a6ef818e5c095218fe0e861eb11be0b9650cd6c28c",
+      "bytes": 7288
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_V2.md",
+      "sha256": "c63a8b60b2bc020fb9734e15be1d924c3c18cb4f2b7848064dce69e9b25df937",
+      "bytes": 3859
+    }
+  ]
+}

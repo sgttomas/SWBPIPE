@@ -1,0 +1,56 @@
+{
+  "accepted39_unchanged": true,
+  "original_manifests_unchanged": true,
+  "two_tests_exact_final008_passed_bytes": true,
+  "cumulative_scope": 42,
+  "new_source_paths": [
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "bytes": 15384,
+      "original_integration_sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108"
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "bytes": 723651,
+      "original_integration_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7"
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "bytes": 122833,
+      "original_integration_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9"
+    }
+  ],
+  "project_relative_tracked_changed_paths": [
+    "apps/desktop/src-tauri/Cargo.lock",
+    "apps/desktop/src/App.test.tsx",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+    "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+    "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "apps/desktop/src/features/report/reportPackageRequest.ts",
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+    "apps/desktop/src/features/results/ResultsPanel.tsx",
+    "apps/desktop/src/features/results/resultInterpretation.ts",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "core/reporting/report_package/Cargo.lock",
+    "core/reporting/result_export/Cargo.toml",
+    "core/reporting/result_export/src/lib.rs",
+    "core/runner/headless/src/bin/openpipestress-runner.rs",
+    "core/runner/headless/src/lib.rs",
+    "core/runner/headless/src/result_envelope_binding.rs",
+    "schemas/results.schema.yaml",
+    "tests/test_results_schema.py",
+    "validation/benchmarks/mechanics/Cargo.lock",
+    "validation/benchmarks/stress/Cargo.lock"
+  ],
+  "all_tracked_product_changes_within_accepted42": true,
+  "native_delta_only_expected_two_edges": true,
+  "runtime_complete": true,
+  "source_frozen": true
+}

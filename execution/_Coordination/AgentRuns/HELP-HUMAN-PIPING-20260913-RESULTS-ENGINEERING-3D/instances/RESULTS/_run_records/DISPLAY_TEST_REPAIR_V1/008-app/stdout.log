@@ -1,0 +1,183 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > suppresses solve proof unless the completed job, result, and exact model version remain bound
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > rejects overlap and invalidates an active generation before model commit
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > suppresses a real delayed backend completion when native open commits a new model
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > suppresses a real delayed backend failed terminal after native open
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > suppresses a real delayed backend cancelled terminal after native open
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > persists native immediate-cancel intent until the backend start receipt exists
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > dispatches detached pre-start cancellation once after native open invalidates the run
+ ✓ src/App.test.tsx > OpenPipeStress desktop preview > surfaces bounded PDU-008 nonlinear, ratio, and rich-diagnostic GUI states 127ms
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > records comparison workspace unit policy evidence without conversion
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > presents the CAD-shell menu workspace with the dock summoned from the View menu
+ ✓ src/App.test.tsx > OpenPipeStress desktop preview > renders the engineering workspace from invented local fixtures 9601ms
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > dispatches packaged native-menu DOM events through the shared command sink
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > routes both File-menu report-package attempts through App-owned intent and the honest browser no-effect result
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > records viewport editor intents without direct persisted-project mutation
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > selects rendered viewport entities into the shared model inspector
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > exposes materials, components, load cases, and combinations in the model workspace
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues layout-grid cell edits as structured review intents
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a load-case primitive magnitude through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an empty load case through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit load-case deletion through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks load-case deletion while a combination term still references it
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a concentrated-force primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a distributed-force primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a concentrated-moment primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a pressure primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies a thermal primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an imposed-displacement primitive load through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit primitive load deletion through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies load-case status metadata through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an existing combination term factor through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues a closed-set combination basis edit and surfaces the honest engine block for cross-shape changes
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit combination term through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit mechanics combination creation through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit subtraction combination creation through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks the subtraction combination draft until the operands are distinct existing load cases
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit range envelope combination creation through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit combination term deletion through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies an explicit combination deletion through the manager panel
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > renders an empty editor-intent queue when no app queue has been materialized
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues node coordinate edits with an explicit unit payload
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues load-case primitive magnitude inspector edits with an explicit unit payload
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > applies the solved global displacement direction to the deformation overlay
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > falls back to the vertical display axis when displacement component rows are absent
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > requires direction components from the same result basis as the governing magnitude row
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > discloses the deformation overlay fallback in the viewport status line
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > does not claim professional or release acceptance
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > carries queued editor intents into the report packet as review-only operation context
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > round trips local create, save, and open project controls without external file copies
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a blank local model document as the active authoring target
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > round trips review-only proposal operations through local save and open
+ ✓ src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context 21272ms
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > links selected diagnostics to affected result and model context
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > applies a queued inspector edit through the structured operation seam, clears stale results, and re-solves and saves the edited model
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit material creation through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit section creation through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit support creation through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit support deletion through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit node deletion through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks node deletion while model entities still reference it
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit pipe deletion through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks pipe deletion while primitive loads still reference it
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks support deletion while an imposed-displacement load still references it
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit viewport node geometry through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > fails closed for no-WebGL pointer placement while keeping typed node coordinates usable
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues and applies explicit straight pipe connectivity through the structured operation seam
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > picks straight pipe endpoints from viewport node targets before apply
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > blocks underspecified viewport node gestures at apply instead of inventing values
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > restores Inspector bend common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > restores Inspector valve common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > restores viewport bend common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > restores viewport valve common defaults after expansion-joint mode without inferring non-bend roles
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps Inspector tee pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps Inspector reducer pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps Inspector valve pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps Inspector flange pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps Inspector expansion_joint pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps viewport tee pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps viewport reducer pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps viewport valve pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps viewport flange pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > keeps viewport expansion_joint pipe roles empty after kind and node changes until deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears Inspector tee pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears Inspector valve pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears Inspector expansion_joint pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears viewport tee pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears viewport valve pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears viewport expansion_joint pipe roles after queue until a fresh deliberate selection
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit tee geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit reducer geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit valve geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit flange geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit expansion_joint geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > queues explicit bend geometry and connectivity from the Inspector creation form
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a tee end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a reducer end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a valve end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a flange end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a expansion_joint end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates a bend end-to-end from the explicit viewport component tool
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > creates an expansion joint on the exact selected pipe at a three-incident node and preserves every entered value
+ ↓ src/App.test.tsx > OpenPipeStress desktop preview > clears a queued tee at a three-incident node then applies the next exact user-selected roles
+ ↓ src/App.test.tsx > toolkit navigation integration > opens and focuses existing forms without queueing or changing selection
+ ↓ src/App.test.tsx > existing toolkit v2 > discards a delayed apply after opening a replacement model without creating a checkpoint
+ ↓ src/App.test.tsx > existing toolkit v2 > limits section type choices to pipe
+ ↓ src/App.test.tsx > existing toolkit v2 > continues from the accepted end in new mode and can explicitly switch to another existing endpoint
+ ↓ src/App.test.tsx > existing toolkit v2 bound section > shows the shared section and prevents independent diameter or wall edits
+ ↓ src/App.test.tsx > existing toolkit v3 integration > opens reviewed rich forms in matching context and enables exposure after a wind field is applied
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > withdraws an in-flight apply without resurrecting state or clearing newer busy ownership
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > withdraws an in-flight validate without resurrecting state or clearing newer busy ownership
+ ↓ src/App.test.tsx > existing toolkit v4 review repairs > explains why pristine pipe cancellation is disabled
+ ↓ src/App.test.tsx > native straight-route Add and Apply > keeps an accepted App route armed from its committed end with exact entered geometry and provenance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > retains a non-global plane, applicable axis, units, and pipe fields only after its own accepted new-end commit
+ ↓ src/App.test.tsx > native straight-route Add and Apply > disables the route for delayed Apply and rejects its valid response after permitted selection invalidation
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for incomplete acceptance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for model-basis mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for operation identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for diff mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for validation-state mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for warning diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for malformed info diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for applied hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for missing applied hash
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any single-route publication for missing applied model
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for incomplete acceptance
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for initial hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for engine initial payload ref mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for echoed submitted payload ref mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for batch identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for batch hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for submitted operation mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step identity mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step diff mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for step warning
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for top warning
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for malformed info diagnostic
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for validation-state mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for applied hash mismatch
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for missing applied hash
+ ↓ src/App.test.tsx > native straight-route Add and Apply > fails closed before any atomic-route publication for missing applied model
+ ↓ src/App.test.tsx > native straight-route Add and Apply > does not continue a delayed route from a coincident pipe in an externally opened project
+ ↓ src/App.test.tsx > native straight-route Add and Apply > starts node and route provenance blank and keeps Add disabled until explicit entry
+ ↓ src/App.test.tsx > native straight-route Add and Apply > validates and applies a new endpoint as one ordered batch with one checkpoint
+ ↓ src/App.test.tsx > native straight-route Add and Apply > disables every route control during delayed Add and discards the result after permitted selection invalidation
+ ↓ src/App.test.tsx > native straight-route Add and Apply > publishes neither batch member and creates no checkpoint when Apply is blocked
+ ↓ src/App.test.tsx > native straight-route Add and Apply > invalidates a frozen hash-bound route review after another model revision
+ ↓ src/App.test.tsx > native straight-route Add and Apply > applies the exact inline load magnitude intent and supports undo and redo
+ ↓ src/App.test.tsx > native straight-route Add and Apply > saves and reopens an incomplete node-only model without inventing prerequisites
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > restores unknown context, validates without acceptance, applies once and saves exact original metadata coherently
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > withdraws delayed batch validate and protects newer single-request ownership
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > withdraws delayed batch apply and protects newer single-request ownership
+ ↓ src/App.test.tsx > Tier3 shared batch and proposed context > retains a malformed restored member as untrusted data and rejects it without crashing or accepting
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > rolls back a later failed step, then previews and commits two exact mixed-author members with one undo
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > handles offline null through queue, validation, apply, save, reopen and explicit requeue as untrusted context
+ ↓ src/App.test.tsx > Tier3 adversarial batch publication > discards a pending batch when another model opens, and ignores delayed save metadata after a model replacement
+ ↓ src/App.test.tsx > Tier3 display in the actual application > passes the current result to comparison readouts and preserves the source result rows
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with project selected
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with node:N-140 selected
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from toolbar with pipe:P-120 selected
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with project selected
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with node:N-140 selected
+ ↓ src/App.test.tsx > persistent modeling workspace > opens Support creation from Insert menu with pipe:P-120 selected
+ ↓ src/App.test.tsx > persistent modeling workspace > reveals the destination of each contextual creation and review route
+ ↓ src/App.test.tsx > persistent modeling workspace > routes task navigation and searchable geometry tools while preserving the viewport
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > discloses MODEL_INCOMPLETE as blocked after a real browser model edit
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > opens saved results as readable history and preserves their exact fields on unchanged save
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_BLOCKED diagnostics while barring solved-only consumers
+ ↓ src/App.test.tsx > workflow current and historical result boundaries > keeps MECHANICS_NONCONVERGED diagnostics while barring solved-only consumers
+ ↓ src/App.test.tsx > synchronous busy history boundary > blocks undo through native menu and rendered controls while operation ownership is pending
+ ↓ src/App.test.tsx > synchronous busy history boundary > blocks redo through native menu and rendered controls while operation ownership is pending
+ ↓ src/App.test.tsx > native primitive case selection display > keeps an empty draft visibly unselected until a real sole-case transition queues the exact case
+ ↓ src/App.test.tsx > native primitive case selection display > keeps an empty node target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > native primitive case selection display > keeps an empty pipe target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > native primitive case selection display > keeps an empty support target honest until its sole available entity is explicitly selected
+ ↓ src/App.test.tsx > historical lifecycle history transitions > clears reopened computed evidence on model edit and exact undo/redo transitions
+
+ Test Files  1 passed (1)
+      Tests  3 passed | 171 skipped (174)
+   Start at  22:11:14
+   Duration  32.58s (transform 1.07s, setup 60ms, import 1.27s, tests 31.00s, environment 173ms)
+

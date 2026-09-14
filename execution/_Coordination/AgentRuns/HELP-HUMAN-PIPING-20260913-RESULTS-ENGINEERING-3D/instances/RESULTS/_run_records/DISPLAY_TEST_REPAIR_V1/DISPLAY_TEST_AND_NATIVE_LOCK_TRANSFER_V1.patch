@@ -1,0 +1,462 @@
+--- a/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
++++ b/apps/desktop/src/features/display-units/rendererIntegration.test.tsx
+@@ -21,8 +21,8 @@
+   status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+   summary: { max_displacement: { value: 0.0254, unit: "m", location_ref: "node:1", result_ref: "disp" } },
+   results: [
+-    { id: "force:i", kind: "element_local_axial_force", value: 10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_i", basis: "test", sign_convention: "signed" } },
+-    { id: "force:j", kind: "element_local_axial_force", value: -10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial", coordinate_system: "local", location: "end_j", basis: "test", sign_convention: "signed" } },
++    { id: "force:i", kind: "element_local_axial_force", value: 10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial_force", coordinate_system: "local", location: "end_i", basis: "test", sign_convention: "signed" } },
++    { id: "force:j", kind: "element_local_axial_force", value: -10, unit: "N", dimension: "force", entity_ref: "pipe:1", metadata: { component: "axial_force", coordinate_system: "local", location: "end_j", basis: "test", sign_convention: "signed" } },
+     { id: "disp", kind: "displacement", value: 0.0254, unit: "m", dimension: "length", entity_ref: "node:1" },
+     { id: "unknown", kind: "unclassified", value: 9, unit: "N", entity_ref: "pipe:unknown" },
+     { id: "temperature:left", kind: "temperature", value: 0, unit: "degC", dimension: "temperature", entity_ref: "pipe:1" },
+@@ -91,6 +91,24 @@
+     expect(interpretation()).toBe(evidence);
+   });
+ 
++  it("retains entered evidence and refuses conversion for a contradictory axial component", async () => {
++    const result = structuredClone(sourceResult);
++    result.results.find(row => row.id === "force:i")!.metadata!.component = "axial";
++    const before = JSON.stringify(result);
++    const convert = converter();
++    render(<DisplayUnitsProvider initialPreference="US" converter={convert}>
++      <ResultsPanel result={result} knowledge={null} analysisRun={null} selectedResultId="force:i" onSelectResult={() => {}} />
++    </DisplayUnitsProvider>);
++    const invalid = screen.getByTestId("result-row-force:i");
++    expect(invalid).toHaveTextContent("integrity_failure");
++    expect(invalid).toHaveTextContent("10 N");
++    expect(invalid).toHaveTextContent("Entered value shown");
++    expect(invalid.querySelector('[data-display-status="converted"]')).toBeNull();
++    await waitFor(() => expect(screen.getByTestId("result-row-force:j")).toHaveTextContent("-2.248 lbf"));
++    expect(convert.mock.calls.flatMap(call => call[0])).not.toEqual(expect.arrayContaining([expect.objectContaining({value: 10, from_unit: "N"})]));
++    expect(JSON.stringify(result)).toBe(before);
++  });
++
+   it("converts comparison absolute temperatures and interval deltas separately, with honest stale-source fallback", async () => {
+     const compared = comparison();
+     const before = JSON.stringify(compared);
+--- a/apps/desktop/src/App.test.tsx
++++ b/apps/desktop/src/App.test.tsx
+@@ -34,6 +34,7 @@
+   loadPreviewModel,
+   runPreviewMechanics,
+ } from "./services/previewService";
++import { canonicalSha256Hex } from "./services/hashService";
+ import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
+ import { applyModelOperation } from "./services/operationService";
+ import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
+@@ -630,9 +631,12 @@
+     rerender(
+       <ResultsPanel analysisRun={null} knowledge={null} onSelectResult={() => undefined} result={ratioResult} selectedResultId={null} />
+     );
+-    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("available; 1 user-rule ratio row");
+-    fireEvent.click(screen.getByTestId("result-family-ratio"));
+-    expect(screen.getByTestId("result-row-result:ratio:invented-governing")).toBeInTheDocument();
++    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
++    expect(screen.queryByTestId("result-family-ratio")).not.toBeInTheDocument();
++    fireEvent.click(screen.getByTestId("result-family-other"));
++    fireEvent.change(screen.getByTestId("result-filter-input"), { target: { value: "invented-governing" } });
++    expect(screen.getByTestId("result-row-result:ratio:invented-governing")).toHaveTextContent("unknown");
++    expect(ratioResult.results.at(-1)).toEqual({ id: "result:ratio:invented-governing", kind: "user_rule_governing_ratio", value: 0.75, unit: "1", dimension: "ratio", entity_ref: "pipe:P-120" });
+ 
+     const incompleteModel = {
+       ...model,
+@@ -1012,7 +1016,8 @@
+     const resultExport = await screen.findByLabelText("Result export audit");
+     expect(
+       within(resultExport).getByTestId("result-export-empty").textContent,
+-    ).toContain("schema-first local result envelope");
++    ).toContain("valid Current input proof");
++    expect(within(resultExport).queryByTestId("result-export-link")).not.toBeInTheDocument();
+     const headlessRunner = await screen.findByLabelText(
+       "Headless runner envelope",
+     );
+@@ -9725,6 +9730,9 @@
+   });
+ 
+   it("shows computed mechanics diagnostics in results, knowledge, and review-only proposal context", async () => {
++    const expectedModel = await loadPreviewModel();
++    const expectedSource = await runPreviewMechanics(expectedModel);
++    const originalSource = JSON.stringify({ model: expectedModel, result: expectedSource });
+     render(<App />);
+ 
+     const runButton = await screen.findByRole("button", {
+@@ -9936,166 +9944,106 @@
+       ),
+     ).toEqual(["DEC-018", "DEL-02-02", "DEL-07-07", "DEL-14-02"]);
+     const resultExport = await screen.findByLabelText("Result export audit");
+-    expect(
+-      within(resultExport).getByTestId("result-export-summary").textContent,
+-    ).toContain("available");
+-    expect(
+-      within(resultExport).getByTestId("result-export-summary").textContent,
+-    ).toContain("rows=830");
+-    expect(
+-      within(resultExport).getByTestId("result-export-summary").textContent,
+-    ).toContain("sets=1");
+-    expect(
+-      within(resultExport).getByTestId("result-export-summary").textContent,
+-    ).toContain("diagnostics=32");
+-    expect(
+-      within(resultExport).getByTestId("result-export-format").textContent,
+-    ).toContain("schema_first_json_result_envelope");
+-    expect(
+-      within(resultExport).getByTestId("result-export-format").textContent,
+-    ).toContain("additional_formats=stress_neutral_csv_json_preview_available");
+-    expect(
+-      within(resultExport).getByTestId("result-export-state-binding")
+-        .textContent,
+-    ).toContain("project:invented-loop-01");
+-    expect(
+-      within(resultExport).getByTestId("result-export-state-binding")
+-        .textContent,
+-    ).toContain("run:preview-linear-static-001");
+-    expect(
+-      within(resultExport).getByTestId("result-export-units").textContent,
+-    ).toContain("explicit units");
+-    expect(
+-      within(resultExport).getByTestId("result-export-units").textContent,
+-    ).toContain("length");
+-    expect(
+-      within(resultExport).getByTestId("result-export-units").textContent,
+-    ).toContain("stress");
+-    expect(
+-      within(resultExport).getByTestId("result-export-unit-witnesses")
+-        .textContent,
+-    ).toContain("count=830");
+-    expect(
+-      within(resultExport).getByTestId("result-export-unit-witnesses")
+-        .textContent,
+-    ).toContain("conversion=false");
+-    expect(
+-      within(resultExport).getByTestId("result-export-reproducibility")
+-        .textContent,
+-    ).toContain("deterministic_ordering=true");
+-    expect(
+-      within(resultExport).getByTestId("result-export-reproducibility")
+-        .textContent,
+-    ).toContain("run_hashes=2");
+-    expect(
+-      within(resultExport).getByTestId("result-export-boundary").textContent,
+-    ).toContain(
+-      "human review remains required; acceptance stays with the responsible engineer",
+-    );
+-    const resultExportHref =
+-      within(resultExport)
+-        .getByTestId("result-export-link")
+-        .getAttribute("href") ?? "";
+-    const resultExportPacket = JSON.parse(
+-      decodeURIComponent(resultExportHref.split(",", 2)[1]),
+-    );
+-    expect(resultExportPacket.deliverable_id).toBe("[REDACTED]");
+-    expect(resultExportPacket.package_id).toBe("[REDACTED]");
+-    expect(resultExportPacket.scope_item).toBe("[REDACTED]");
+-    expect(resultExportPacket.objectives).toEqual(["[REDACTED]", "[REDACTED]"]);
+-    expect(resultExportPacket.export_format_status.baseline_format).toBe(
+-      "[REDACTED]",
+-    );
+-    expect(resultExportPacket.export_format_status.additional_formats).toBe(
+-      "[REDACTED]",
+-    );
+-    expect(
+-      resultExportPacket.export_format_status.public_transport_protocol,
+-    ).toBe("[REDACTED]");
+-    expect(resultExportPacket.result_envelope.envelope_id).toBe("[REDACTED]");
+-    expect(resultExportPacket.result_envelope.model_ref.ref_id).toBe("[REDACTED]");
+-    expect(resultExportPacket.result_envelope.run_ref.ref_id).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.load_basis_refs.length,
+-    ).toBeGreaterThan(0);
+-    expect(resultExportPacket.result_envelope.result_sets).toHaveLength(1);
+-    expect(resultExportPacket.result_envelope.result_sets[0].set_type).toBe(
+-      "[REDACTED]",
+-    );
+-    expect(
+-      resultExportPacket.result_envelope.result_sets[0].values,
+-    ).toHaveLength(830);
+-    expect(
+-      resultExportPacket.result_envelope.result_sets[0].values[0].result_id,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.result_sets[0].values[0].unit,
+-    ).toBeTruthy();
+-    expect(
+-      resultExportPacket.result_envelope.result_sets[0].values[0].dimension,
+-    ).toBeTruthy();
+-    expect(
+-      resultExportPacket.result_envelope.unit_preservation_witnesses,
+-    ).toHaveLength(830);
+-    const resultExportUnitWitness =
+-      resultExportPacket.result_envelope.unit_preservation_witnesses[0];
+-    expect(resultExportUnitWitness.source_quantity).toEqual({
+-      value: "[REDACTED]",
+-      unit: "[REDACTED]",
+-      dimension: "[REDACTED]",
+-    });
+-    expect(resultExportUnitWitness.target_quantity).toEqual({
+-      value: "[REDACTED]",
+-      unit: "[REDACTED]",
+-      dimension: "[REDACTED]",
+-    });
+-    expect(resultExportUnitWitness.target_quantity_policy).toBe(
+-      "[REDACTED]",
+-    );
+-    expect(resultExportUnitWitness.conversion_performed).toBe("[REDACTED]");
+-    expect(resultExportPacket.result_envelope.diagnostics).toHaveLength(32);
+-    expect(
+-      resultExportPacket.result_envelope.reproducibility.deterministic_ordering,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.reproducibility.run_hashes,
+-    ).toHaveLength(2);
+-    expect(resultExportPacket.result_envelope.analysis_status).toEqual([
+-      "[REDACTED]",
+-      "[REDACTED]",
+-      "[REDACTED]",
+-    ]);
+-    expect(
+-      resultExportPacket.result_envelope.rule_pack_refs[0]
+-        .private_payload_redacted,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.rule_pack_refs[0].completeness_status,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.downstream_use
+-        .additional_export_formats,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.professional_boundary
+-        .software_makes_compliance_claim,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.professional_boundary
+-        .software_makes_certification_claim,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.professional_boundary
+-        .software_makes_sealing_claim,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.professional_boundary
+-        .software_makes_approval_claim,
+-    ).toBe("[REDACTED]");
+-    expect(
+-      resultExportPacket.result_envelope.professional_boundary
+-        .software_makes_authentication_claim,
+-    ).toBe("[REDACTED]");
++    // Wait for the real Current proof result. A settled proof failure surfaces
++    // here as the product's finding; no synthetic adapter result is substituted.
++    await waitFor(() => expect(within(resultExport).queryByTestId("result-export-summary"),
++      within(resultExport).queryByTestId("result-export-empty")?.textContent ?? "Current export pending").toBeInTheDocument(), { timeout: 10000 });
++    expect(within(resultExport).getByTestId("result-export-summary")).toHaveTextContent("available");
++    expect(within(resultExport).getByTestId("result-export-format")).toHaveTextContent("schema_first_json_result_envelope; additional_formats=TBD");
++    expect(within(resultExport).getByTestId("result-export-state-binding")).toHaveTextContent(expectedModel.project.id);
++    expect(within(resultExport).getByTestId("result-export-state-binding")).toHaveTextContent(expectedSource.run_id);
++    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("explicit units");
++    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("length");
++    expect(within(resultExport).getByTestId("result-export-units")).toHaveTextContent("stress");
++    expect(within(resultExport).getByTestId("result-export-unit-witnesses")).toHaveTextContent("conversion=false");
++    expect(within(resultExport).getByTestId("result-export-reproducibility")).toHaveTextContent("deterministic_ordering=true; run_hashes=2");
++    expect(within(resultExport).getByTestId("result-export-boundary")).toHaveTextContent("human review remains required; acceptance stays with the responsible engineer");
++    expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
++    expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
++    const ownIntent = within(resultExport).getByTestId("result-export-link-local-private-intent");
++    expect(ownIntent).not.toBeChecked();
++    fireEvent.click(ownIntent);
++    const resultExportHref = within(resultExport).getByTestId("result-export-link").getAttribute("href") ?? "";
++    const resultExportPacket = JSON.parse(decodeURIComponent(resultExportHref.split(",", 2)[1]));
++    const e = resultExportPacket.result_envelope;
++    expect(resultExportPacket.schema_version).toBe("0.2.0");
++    expect(e.schema_version).toBe("0.2.0");
++    expect(resultExportPacket.deliverable_id).toBe("DEL-08-04");
++    expect(resultExportPacket.package_id).toBe("PKG-08");
++    expect(resultExportPacket.scope_item).toBe("SOW-046");
++    expect(resultExportPacket.objectives).toEqual(["OBJ-007", "OBJ-009"]);
++    expect(resultExportPacket.export_format_status).toEqual({ baseline_format: "schema_first_json_result_envelope", additional_formats: "TBD", public_transport_protocol: "TBD", local_fea_package_format: "TBD", external_adapter_formats: "TBD" });
++    expect(e.model_ref).toEqual({ ref_type: "model_payload", ref_id: expectedModel.project.id });
++    expect(e.run_ref.ref_id).toBe(expectedSource.run_id);
++    expect(e.load_basis_refs.length).toBeGreaterThan(0);
++    expect(e.result_sets).toHaveLength(1);
++    expect(e.result_sets[0].values.length).toBeGreaterThan(0);
++    expect(e.review_evidence.length).toBeGreaterThan(0);
++    expect(e.row_disclosures.length).toBeGreaterThan(0);
++    expect(e.result_sets[0].values.length + e.review_evidence.length + e.row_disclosures.length).toBe(expectedSource.results.length);
++    expect(e.row_accounting).toHaveLength(expectedSource.results.length);
++    expect(e.source_annotations).toHaveLength(expectedSource.results.length);
++    expect(new Set(e.row_accounting.map((a: {target_field_path: string}) => a.target_field_path)).size).toBe(expectedSource.results.length);
++    for (const [index, row] of expectedSource.results.entries()) {
++      const account = e.row_accounting[index], annotation = e.source_annotations[index];
++      expect(account.source_row_index).toBe(index);
++      expect(account.source_result_id).toBe(row.id);
++      expect(account.source_kind).toBe(row.kind);
++      expect(account.source_field_path).toBe(`/results/${index}`);
++      expect(account.original_producer_row_checksum).toBeNull();
++      expect(account.received_carrier_row_checksum).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_row", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(row) });
++      expect(annotation).toMatchObject({ source_row_index: index, source_result_id: row.id, metadata: row.metadata ?? null, basis_ref: row.basis_ref ?? null, source_result_refs: row.source_result_refs ?? [], observed_carrier_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
++      const target = account.target_field_path.split("/").slice(1).reduce((value: any, key: string) => value[key], resultExportPacket);
++      expect(account.target_ref.ref_id).toBe(row.id);
++      expect(target.magnitude ?? target.source_value).toBe(row.value);
++      expect(target.unit ?? target.source_unit).toBe(row.unit);
++      const witnesses = e.unit_preservation_witnesses.filter((w: {source_row_index: number}) => w.source_row_index === index);
++      if (account.disposition === "disclosed") expect(witnesses).toHaveLength(0);
++      else {
++        expect(witnesses).toHaveLength(1);
++        const witness = witnesses[0];
++        expect(witness.source_quantity).toEqual({ value: row.value, unit: row.unit, observed_dimension: { present: Object.hasOwn(row,"dimension"), value: row.dimension ?? null } });
++        expect(witness.target_quantity).toEqual({ value: row.value, unit: row.unit, dimension: target.dimension });
++        expect(witness.conversion_performed).toBe(false);
++        expect(witness.original_producer_row_checksum).toBeNull();
++        expect(witness.target_field_path).toBe(account.target_field_path);
++        expect(witness.target_row_checksum.value).toBe(await canonicalSha256Hex(target));
++      }
++    }
++    expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0].values.length + e.review_evidence.length);
++    expect(within(resultExport).getByTestId("result-export-summary")).toHaveTextContent(`rows=${e.result_sets[0].values.length}; sets=1; diagnostics=${expectedSource.diagnostics.length}`);
++    expect(within(resultExport).getByTestId("result-export-unit-witnesses")).toHaveTextContent(`count=${e.unit_preservation_witnesses.length}`);
++    expect(e.result_sets[0].values.some((v: {family: string}) => v.family === "ratio")).toBe(false);
++    expect(e.row_disclosures.some((v: {semantic_category: string, reason_code: string}) => v.semantic_category === "count" && v.reason_code === "discrete_evidence_not_ratio")).toBe(true);
++    const rotation = e.result_sets[0].values.find((v: {source_kind: string}) => v.source_kind === "global_nodal_rotation_x");
++    expect(rotation).toMatchObject({ family: "rotation", unit: "rad", dimension: "angle" });
++    expect(e.diagnostics).toHaveLength(expectedSource.diagnostics.length);
++    expect(e.reproducibility.deterministic_ordering).toBe(true);
++    expect(e.reproducibility.run_hashes).toHaveLength(2);
++    expect(e.reproducibility.run_hashes.map((h: {payload_ref: {ref_type: string}}) => h.payload_ref.ref_type)).toEqual(["AnalysisRun", "ResultEnvelope"]);
++    expect(e.reproducibility.audit_manifest_ref.ref_type).toBe("audit_manifest");
++    expect(e.reproducibility.model_hash).toMatchObject({ algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, value: await canonicalSha256Hex(expectedModel) });
++    expect(e.reproducibility.raw_source_hashes).toEqual([]);
++    expect(e.reproducibility.request_hash).toBeNull();
++    expect(e.reproducibility.source_origin_bindings).toHaveLength(1);
++    expect(e.reproducibility.source_origin_bindings[0]).toMatchObject({ origin_class: "received_current_qualified_legacy_enriched", authentic_producer_available: false, original_producer_checksum: null, actual_model_ref: { ref_type: "model_payload", ref_id: expectedModel.project.id }, mechanics_run_ref: { ref_type: "mechanics_run", ref_id: expectedSource.run_id }, qualification_ref: {ref_type: "current_manifest", ref_id: e.reproducibility.audit_manifest_ref.ref_id}, received_carrier_checksum: { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "received_current_legacy_enriched_carrier", payload_ref: { ref_type: "received_current_carrier", ref_id: expectedSource.run_id }, value: await canonicalSha256Hex(expectedSource) } });
++    const digestPayload = structuredClone(resultExportPacket);
++    delete digestPayload.result_envelope.reproducibility.derivative_hash;
++    expect(e.reproducibility.derivative_hash).toEqual({algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "derivative_document_excludes_own_hash", payload_ref: {ref_type: "derivative_document", ref_id: e.envelope_id}, value: await canonicalSha256Hex(digestPayload)});
++    expect(e.analysis_status).toEqual(expect.arrayContaining(["MECHANICS_SOLVED", "RULE_INPUTS_INCOMPLETE", "HUMAN_REVIEW_REQUIRED"]));
++    expect(e).not.toHaveProperty("rule_pack_refs"); // 0.2 carries rule completeness in analysis_status; no private pack payload is exported.
++    expect(e.downstream_use.additional_export_formats).toBe("TBD");
++    expect(e.professional_boundary).toMatchObject({human_review_required: true, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_makes_authentication_claim: false});
++    expect(screen.getByTestId("governing-ratio-status")).toHaveTextContent("unavailable");
++    expect(JSON.stringify({model: expectedModel, result: expectedSource})).toBe(originalSource);
++    expect(resultExportHref).toBe(`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(resultExportPacket))}`);
++    fireEvent.click(ownIntent);
++    expect(within(resultExport).getByTestId("result-export-link")).not.toHaveAttribute("href");
++    expect(within(resultExport).getByTestId("result-export-link")).toHaveAttribute("aria-disabled", "true");
++    const incompatibleWorkDiagnostics = expectedSource.results.filter(row => row.kind === "nonlinear_support_free_dof_work_residual" && row.unit === "N*m");
++    expect(incompatibleWorkDiagnostics).toHaveLength(2);
++    expect(incompatibleWorkDiagnostics.every(row => row.dimension === "moment")).toBe(true); // immutable legacy moment declaration; work diagnostics have no physical semantic dimension
++    const expectedStressWitnessCount = expectedSource.results.length - incompatibleWorkDiagnostics.length;
+     const stressNeutral = await screen.findByLabelText(
+       "Stress-neutral CSV JSON export",
+     );
+@@ -10143,7 +10091,7 @@
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-unit-witnesses")
+         .textContent,
+-    ).toContain("count=830");
++    ).toContain(`count=${expectedStressWitnessCount}`);
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-unit-witnesses")
+         .textContent,
+@@ -10156,7 +10104,7 @@
+     ).toContain("stable_ids=830");
+     expect(
+       within(stressNeutral).getByTestId("stress-neutral-package").textContent,
+-    ).toContain("validation=passed");
++    ).toContain("validation=blocked");
+     await waitFor(() =>
+       expect(
+         within(stressNeutral).getByTestId("stress-neutral-package").textContent,
+@@ -10203,7 +10151,7 @@
+     expect(
+       stressNeutralPacket.unit_system_disclosure.protected_content_included,
+     ).toBe("[REDACTED]");
+-    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(830);
++    expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
+     expect(
+       stressNeutralPacket.manifest.package_members.map(
+         (item: { role: string }) => item.role,
+@@ -11338,10 +11286,10 @@
+     ).toBeInTheDocument();
+     expect(
+       within(results).getByTestId("result-family-count-moment").textContent,
+-    ).toContain("182");
++    ).toContain("180");
+     expect(
+       within(results).getByTestId("result-family-count-other").textContent,
+-    ).toContain("32");
++    ).toContain("52");
+     expect(
+       within(results).getByText("result:disp:node-N-140"),
+     ).toBeInTheDocument();
+@@ -11360,19 +11308,19 @@
+     expect(
+       within(results).getByTestId("result-family-count-displacement")
+         .textContent,
+-    ).toContain("111");
++    ).toContain("66");
+     expect(
+       within(results).getByTestId("result-family-count-reaction").textContent,
+-    ).toContain("33");
++    ).toContain("29");
+     expect(
+       within(results).getByTestId("result-family-count-force").textContent,
+-    ).toContain("182");
++    ).toContain("180");
+     expect(
+       within(results).getByTestId("result-family-count-moment").textContent,
+-    ).toContain("182");
++    ).toContain("180");
+     expect(
+       within(results).getByTestId("result-family-count-stress").textContent,
+-    ).toContain("290");
++    ).toContain("278");
+ 
+     fireEvent.click(within(results).getByTestId("result-family-reaction"));
+     expect(
+@@ -11380,10 +11328,10 @@
+     ).toHaveAttribute("aria-pressed", "true");
+     expect(
+       within(results).getByTestId("result-filter-summary").textContent,
+-    ).toContain("33 of 830 results match filter");
++    ).toContain("29 of 830 results match filter");
+     expect(
+       within(results).getByTestId("result-page-summary").textContent,
+-    ).toContain("Showing 1 to 33 of 33 matching results; page 1 of 1");
++    ).toContain("Showing 1 to 29 of 29 matching results; page 1 of 1");
+     expect(
+       within(results).getByTestId("result-group-reaction"),
+     ).toBeInTheDocument();
+@@ -11401,10 +11349,10 @@
+     );
+     expect(
+       within(results).getByTestId("result-filter-summary").textContent,
+-    ).toContain("290 of 830 results match filter");
++    ).toContain("278 of 830 results match filter");
+     expect(
+       within(results).getByTestId("result-page-summary").textContent,
+-    ).toContain("Showing 1 to 50 of 290 matching results; page 1 of 6");
++    ).toContain("Showing 1 to 50 of 278 matching results; page 1 of 6");
+     expect(
+       within(results).getByTestId("result-group-stress"),
+     ).toBeInTheDocument();
+@@ -11417,6 +11365,7 @@
+       ),
+     ).toBeInTheDocument();
+ 
++    expect(within(results).getByTestId("result-family-count-rotation")).toHaveTextContent("45");
+     fireEvent.click(within(results).getByTestId("result-family-all"));
+     expect(within(results).getByTestId("result-family-all")).toHaveAttribute(
+       "aria-pressed",
+--- a/apps/desktop/src-tauri/Cargo.lock
++++ b/apps/desktop/src-tauri/Cargo.lock
+@@ -2256,7 +2256,9 @@
+ name = "open_pipe_stress_result_export"
+ version = "0.1.0"
+ dependencies = [
++ "open_pipe_stress_canonical_json",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]

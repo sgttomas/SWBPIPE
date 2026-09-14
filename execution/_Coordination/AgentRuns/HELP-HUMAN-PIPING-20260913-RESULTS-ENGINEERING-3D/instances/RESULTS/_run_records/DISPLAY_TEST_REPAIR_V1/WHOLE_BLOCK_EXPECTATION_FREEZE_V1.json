@@ -1,0 +1,76 @@
+{
+  "status": "PRE_RERUN_SOURCE_DERIVED_WHOLE_BLOCK_FROZEN",
+  "assertion_block": {
+    "path": "FROZEN_WHOLE_APP_ASSERTION_BLOCK_V1.txt",
+    "sha256": "61cbf27285265d4615c0303eab52b787cc1b95636eb28e5711f98da4295edf49"
+  },
+  "source_oracle": {
+    "path": "EXACT_SOURCE_DISPLAY_EXPECTATIONS_V1.json",
+    "sha256": "dea1e43c50006f6789da9a310e338f8ac4abbe302862083b6ba50cbb8d1a84ae",
+    "origin": "earlier034 qualified Current fixture, not actual App capture"
+  },
+  "canonical": {
+    "rows": 830,
+    "quantities": 778,
+    "reviews": 26,
+    "disclosures": 26,
+    "witnesses": 804,
+    "mechanics_diagnostics": 31,
+    "workspace_combined_diagnostics": 32,
+    "schema": "0.2.0",
+    "own_intent_initial": false,
+    "own_intent_route": "local_private",
+    "href": "original canonical JSON, exact serialization of decoded document; no redaction",
+    "every_source_row": "exact value/unit/raw metadata/basis/source refs/observed declaration, one unique target, source checksum and no original producer attestation",
+    "scopes": [
+      "actual authored model payload",
+      "qualified received legacy-enriched carrier",
+      "received row",
+      "derivative target row",
+      "complete derivative excluding only own digest",
+      "separate frozen legacy AnalysisRun/ResultEnvelope refs"
+    ],
+    "additional_formats": "TBD",
+    "governing_ratio": "unavailable"
+  },
+  "stress_neutral": {
+    "rows": 830,
+    "witnesses": 828,
+    "withheld_source_work_ids": [
+      "result:nonlinear-support:free-dof-work-residual",
+      "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+    ],
+    "withheld_reason": "diagnostic_work N*m, legacy moment declaration, source physicalnull/derivative targetnull, consumerTBD; numerical rows retained",
+    "validation_status": "blocked",
+    "blocking_code": "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE",
+    "members": 9,
+    "loss_entries": 3,
+    "csv_columns": 11,
+    "stable_ids": 830,
+    "existing_redacted_JSON_route": "unchanged [REDACTED] protected fields, redacted values/witnesses, canonical hash carriers redacted",
+    "csv_href": "withheld under existing policy"
+  },
+  "results_workspace": {
+    "source_derived_family_counts": {
+      "other": 52,
+      "reaction": 29,
+      "displacement": 66,
+      "rotation": 45,
+      "force": 180,
+      "moment": 180,
+      "stress": 278
+    },
+    "all_filter": 830,
+    "all_pages": 17,
+    "reaction_filter": 29,
+    "stress_filter": 278,
+    "stress_pages": 6,
+    "torsional_shear_filter": 68,
+    "torsional_pages": 2,
+    "combination_force_filter": 15,
+    "page2": "51..100/830 unchanged raw source ordering",
+    "endpoints_components_diagnostics_knowledge_proposals": "remaining complete existing assertions preserved in pinned block"
+  },
+  "rerun_reason": "root requested actual focused expectedSource/expectedModel capture and explicit earlier034 origin distinction; no guessed literals or product repair",
+  "no_product_source_effect": true
+}

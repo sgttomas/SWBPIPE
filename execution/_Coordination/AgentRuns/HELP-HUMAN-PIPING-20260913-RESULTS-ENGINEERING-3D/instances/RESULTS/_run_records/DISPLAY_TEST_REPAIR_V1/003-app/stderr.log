@@ -1,0 +1,20 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  rows=778; sets=1; diagnostics=32
+Received:
+  available; rows=778; sets=1; diagnostics=31
+ ❯ src/App.test.tsx:10014:71
+    10012|     }
+    10013|     expect(e.unit_preservation_witnesses).toHaveLength(e.result_sets[0…
+    10014|     expect(within(resultExport).getByTestId("result-export-summary")).…
+       |                                                                       ^
+    10015|     expect(within(resultExport).getByTestId("result-export-unit-witnes…
+    10016|     expect(e.result_sets[0].values.some((v: {family: string}) => v.fam…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

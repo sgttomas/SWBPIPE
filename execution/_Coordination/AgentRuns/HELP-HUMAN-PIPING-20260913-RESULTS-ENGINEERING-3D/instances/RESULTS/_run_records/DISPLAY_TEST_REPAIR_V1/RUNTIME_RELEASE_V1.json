@@ -1,0 +1,17 @@
+{
+  "derivative_evidence": true,
+  "lease": "ROOT_LEASE_DISPLAY_TEST_REPAIR_01",
+  "utc": "2026-09-14T04:13:20.595644+00:00",
+  "runtime_complete": true,
+  "writer_idle_after_sealing": true,
+  "focused_tests": "renderer2 and App3 pass,171 App skipped",
+  "native_metadata_resolution_actual_exit": 101,
+  "native_locked_offline_recheck_actual_exit": 101,
+  "missing_cached_dependency": "android_system_properties0.1.5",
+  "native_lock_delta": "accepted result_export canonical_json/sha2 edges only",
+  "no_network_install_or_platform_retry": true,
+  "original39_frozen": true,
+  "source_origin_limit": "prior034 earlier qualified fixture oracle; actual App dynamic source/hash comparisons execute but standalone raw actual App capture unavailable",
+  "no_further_runtime_authorized": true,
+  "remaining": "manager read-only fan-in; root combined delta review/integration/commit/full sweep/native qualification"
+}

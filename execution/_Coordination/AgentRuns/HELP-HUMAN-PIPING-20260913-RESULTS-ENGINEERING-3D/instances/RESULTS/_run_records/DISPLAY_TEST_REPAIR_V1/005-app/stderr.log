@@ -1,0 +1,19 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/App.test.tsx > OpenPipeStress desktop preview > shows computed mechanics diagnostics in results, knowledge, and review-only proposal context
+AssertionError: expected 'Unit witnessescount=828; policy=prese…' to contain 'count=830'
+
+Expected: "count=830"
+Received: "Unit witnessescount=828; policy=preserve_source_result_units; conversion=false"
+
+ ❯ src/App.test.tsx:10090:7
+    10088|       within(stressNeutral).getByTestId("stress-neutral-unit-witnesses…
+    10089|         .textContent,
+    10090|     ).toContain("count=830");
+       |       ^
+    10091|     expect(
+    10092|       within(stressNeutral).getByTestId("stress-neutral-unit-witnesses…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+

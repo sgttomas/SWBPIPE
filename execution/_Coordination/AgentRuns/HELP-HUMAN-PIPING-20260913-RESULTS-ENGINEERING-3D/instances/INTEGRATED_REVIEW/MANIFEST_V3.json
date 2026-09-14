@@ -1,0 +1,31 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "derivative_package": true,
+  "review_base": "bdf90f6ff68641595ed0a8ef2deb63671ad5767c",
+  "source42_manifest_sha256": "a6f8f071bb67b206aaa8c04b3ab20e4057275edd2bdd4b01b71148b7079b4403",
+  "previous_manifest_sha256": "eab67fda19a673ec524ccd9c20c22747b5f2babd00a1027257c68d2a9fefb87a",
+  "files": [
+    {
+      "path": "RETURN_V3.md",
+      "sha256": "bdaee516e4ad6d407d3491edc326bead335162363d7a7122d83f176d30852ea4",
+      "bytes": 5192
+    },
+    {
+      "path": "_run_records/COVERAGE_V3.json",
+      "sha256": "828d9f8462a3f059f7920ade5b22d73b04f0aeb07d426d5e93c5ea0cf5375231",
+      "bytes": 118091
+    },
+    {
+      "path": "_run_records/HISTORICAL_REVIEW_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "6c9570bdc3b90e12ecdadf85877937db43911819de8dfd8bb55af4351b3e9888",
+      "bytes": 5541
+    }
+  ],
+  "self_hash_scope": "MANIFEST_V3.json excluded; detached hash reported",
+  "remaining": [
+    "Root acceptance and clean candidate commit",
+    "Complete registered sweep on committed cumulative42",
+    "Native lifecycle verification",
+    "Governed closeout and further delta review"
+  ]
+}

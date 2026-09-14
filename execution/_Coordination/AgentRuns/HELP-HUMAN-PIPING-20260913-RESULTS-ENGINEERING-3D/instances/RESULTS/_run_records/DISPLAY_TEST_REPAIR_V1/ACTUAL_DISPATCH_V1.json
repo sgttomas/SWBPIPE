@@ -1,0 +1,11 @@
+{
+  "derivative_evidence": true,
+  "actual_tool": "collaboration.followup_task",
+  "child": "/root/results_implementation_manager/results_writer",
+  "utc": "2026-09-14T04:04:51.515465+00:00",
+  "brief_sha256": "5bdbb7b82ad931b19025dac8fb5c1154438653fff149291b47137dddec2262b9",
+  "origin_sha256": "bbd2effaf875a9e0ea1e17d6069a0a9e881f54f135b71c31b5b40bfac87d965d",
+  "lease": "ROOT_LEASE_DISPLAY_TEST_REPAIR_01",
+  "scope": "two maintained tests, four affected focused cases and deliberate contradictory-row guard only; product39 frozen",
+  "new_child": false
+}

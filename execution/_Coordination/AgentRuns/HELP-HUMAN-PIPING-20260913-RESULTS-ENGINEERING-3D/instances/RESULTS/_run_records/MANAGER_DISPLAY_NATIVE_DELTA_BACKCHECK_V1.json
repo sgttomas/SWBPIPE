@@ -1,0 +1,55 @@
+{
+  "derivative_evidence": true,
+  "accepted39_and_prior875_hash_findings": [],
+  "passed_tests_current_byte_binding": [
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "bytes": 723651,
+      "passed_attempt": "008-app",
+      "passed_command_hash_equal_current": true
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "bytes": 15384,
+      "passed_attempt": "002-renderer",
+      "passed_command_hash_equal_current": true
+    }
+  ],
+  "native_lock_graph_delta": {
+    "path": "apps/desktop/src-tauri/Cargo.lock",
+    "old_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+    "new_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+    "package_count_equal": true,
+    "exact_package_changes": [
+      {
+        "name": "open_pipe_stress_result_export",
+        "original": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "serde_json"
+          ]
+        },
+        "new": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    ]
+  },
+  "actual_cumulative_changed_source_count": 42,
+  "expected42_complete_status_match": true,
+  "unmanifested": [],
+  "absent": [],
+  "native_metadata": "both full offline metadata attempts actually fail101 on uncached android_system_properties0.1.5; graph-only hash acceptance does not claim metadata pass",
+  "source_origin_limit": "earlier034 fixture oracle distinct from dynamic actual App expectedSource/model/row/carrier/derivative checks; standalone App raw capture unavailable",
+  "provisional_diagnoses": "rotational attributions historical failed, corrected exact diagnostic_work028 refs frozen; no product relaxation",
+  "runtime_released": true
+}

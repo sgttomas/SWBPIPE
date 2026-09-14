@@ -1,0 +1,9 @@
+{
+  "path": "apps/desktop/src-tauri/Cargo.lock",
+  "lane_original_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+  "integration_original_sha256": "64e5f32077ffb6dae2f4836ba8d3353c23417bbd73e0f89ca30a042bd577fbb9",
+  "manifest_sha256": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+  "lane_equals_integration": true,
+  "continuation_sha256": "29a4edef384d673d506dc16f3214feab7e2a9092ba0a41d2a1abac17446d5912",
+  "root_origin_sha256": "7160b50e7f6a4781e304d6eda823851056765a76421e08e702a5433a3ffa572b"
+}

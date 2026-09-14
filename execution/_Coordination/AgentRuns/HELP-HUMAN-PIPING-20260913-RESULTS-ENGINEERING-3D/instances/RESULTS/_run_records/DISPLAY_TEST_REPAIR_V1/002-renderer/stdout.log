@@ -1,0 +1,14 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > converts results, endpoint pairs, diagnostic links and knowledge summaries while source evidence remains exact 67ms
+ ✓ src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > retains entered evidence and refuses conversion for a contradictory axial component 13ms
+ ↓ src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > converts comparison absolute temperatures and interval deltas separately, with honest stale-source fallback
+ ↓ src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > converts rule-check picker and reference preview values without changing selections or pack JSON
+ ↓ src/features/display-units/rendererIntegration.test.tsx > shared display preference in result renderers > converts typed rule outcomes and retains unsupported catalog references as entered evidence
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 3 skipped (5)
+   Start at  22:07:53
+   Duration  796ms (transform 149ms, setup 93ms, import 214ms, tests 81ms, environment 317ms)
+

@@ -1,0 +1,18 @@
+{
+  "failures_preserved": {
+    "001-renderer": "missing desktop-local Vitest module; corrected existing ../../node_modules no install",
+    "003-app": "my canonical mechanics diagnostics32 assumption versus actual31/combinedworkspace32",
+    "004-app": "my guessed nodal_rotation wrong; exact global_nodal_rotation_x",
+    "005-app": "old stress830witness/passedvalidation assumption; actual accepted828/blocked",
+    "006-app": "my wrong provisional nonlinear rad withholding; exact two work residuals N*m/moment/physicalsemanticnull",
+    "007-app": "old family/filter counts;830source/table classifications frozen before008",
+    "009-native-metadata": "exit101 absent cached android_system_properties0.1.5; expectedtwoedges updated beforedownloadfailure",
+    "011-native-locked-metadata": "exit101 samecacheerror no retry",
+    "010": "NOT_RUN: optional actualsource capture preparation discarded preserving passed008 bytes"
+  },
+  "final_passes": {
+    "002-renderer": "2passed/3skipped",
+    "008-app": "3passed/171skipped"
+  },
+  "steering_timing": "008 already dispatched before root wholeblock pre-rerun freeze steering arrived; relayed truthfully. No laterApp rerun."
+}
