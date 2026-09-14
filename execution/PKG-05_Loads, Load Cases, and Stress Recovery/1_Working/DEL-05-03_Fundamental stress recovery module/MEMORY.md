@@ -339,3 +339,8 @@ Straight interior section fields now use existing cut-equilibrium recovery with 
 Accepted source for this bounded handoff: product SHA256 `93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc`, following accepted P4 selected-state integration. Fresh read-only review covered the complete frozen product diff and returned PASS with no actionable finding. Manager replayed 20 unchanged original audit inputs in both solver modes, with 314 checks passing. Final author crate run passed 137 tests; the single enabled stale browser-fixture assertion remains for root-owned F1 regeneration and full rerun. No global pass is inferred.
 
 Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json`, manager replay at `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json`, and package record `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Root owns final fixture generation, independent P9 binding, clean DEC-025/native/CI checks and Git closeout. State remains IN_PROGRESS; broader lifecycle, release and professional reliance are not advanced. D01–D06 held decisions remain.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Accepted ENGINEERING compositeV3 supplies the pressure/connector contracts, analytical expectations, UI field handoff and sealed following physics briefs. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json`. This is derivative contract/design acceptance only; pressure/connector runtime and public material/model migration remain unactivated.

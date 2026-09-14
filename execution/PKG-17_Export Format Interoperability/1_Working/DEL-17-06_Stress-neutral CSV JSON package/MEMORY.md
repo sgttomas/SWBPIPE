@@ -110,3 +110,8 @@
 - Evidence:
   `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU001-PDU038.md`.
   Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+The existing stress-neutral consumer now uses current quantity mapping, preserves received declarations and explicitly reports unavailable witnesses. The 911 stress-neutral preview schema findings in the frozen fixture/witness remain a separate follow-on; this is not a count of independent bugs or a universal application count; no full preview schema pass or packet redesign is claimed. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

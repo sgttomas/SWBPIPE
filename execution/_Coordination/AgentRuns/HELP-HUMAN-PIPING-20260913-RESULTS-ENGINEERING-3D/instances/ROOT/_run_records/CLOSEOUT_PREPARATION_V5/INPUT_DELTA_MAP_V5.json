@@ -1,0 +1,186 @@
+{
+  "prior_v4_manifest_sha256": "52c74193c7eabbc5658ba694e82dac4530c3029780b182c983342e495aee4a5e",
+  "prior_v4_patch_sha256": "d7e9da6a755b5055efb6680ebe453db8a5d91c5b60d14725572b65a5805b1a07",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md",
+    "sha256": "733af9ec4f25fd7447459665bb999cc1686f038302917a9bc5f3e352404331c6"
+  },
+  "originals": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "sha256": "eeaa25850a0880708f876e602aa6039eaf566313bce4cc4326032ae524add63a",
+      "bytes": 31961
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md",
+      "sha256": "d3fff2a6ba275a1c88f0fe3cd68475e779b63d05da6b160b801e64d8adaebd6b",
+      "bytes": 34452
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844",
+      "bytes": 16047
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+      "sha256": "a443149d225010599250821db7d6a090ffa2a52c14a397bac6563f486a05ffbf",
+      "bytes": 15013
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+      "sha256": "a303d95ca05250a25681302e83c34de3d03ffc315b329cdfa3744d33ec1ef0ba",
+      "bytes": 3401
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md",
+      "sha256": "2f2e7a8946adcbfef6f2c1b7d1a07681f3ddce5ee10e793f905fecc277a3e5ef",
+      "bytes": 20843
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md",
+      "sha256": "0d5ce7c2b0c8d2894ddef6bdaec94393d0e64d8e052c965d0a9818e717a3c338",
+      "bytes": 8906
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md",
+      "sha256": "eaa25fe3f960d240824e074b7143b5869bd26dfb3306bda7b0870c17ba37af52",
+      "bytes": 2183
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md",
+      "sha256": "c8c7d03b8a2be0ed2527fda5c5f464e4a7ff000ef1aa3d82758aa5b43a68178b",
+      "bytes": 32259
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md",
+      "sha256": "330ad6cd5b61e7309025efeabbf7c38c460a1c0367e903561185f3fce5e6eccb",
+      "bytes": 9969
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md",
+      "sha256": "8314bf2cc4cc7cd16d58800f4afe8c1ce0d78990c49b53554a7e5d672bde5df3",
+      "bytes": 8130
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md",
+      "sha256": "c6b033f7ed24d58448ce1e3de72c53b56ec1e6524b13d38f6562e6fac7492818",
+      "bytes": 8185
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md",
+      "sha256": "69cfb6c744d9d5e4724485b2abeee562d2e9054b36237610f096288cf0c16bae",
+      "bytes": 13280
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "sha256": "2cbfdf0d34a8280a2bfaec6a451c1c91a552db52e3fc2c52f7dcade0bd3f97c8",
+      "bytes": 26724
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557",
+      "bytes": 11084
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91",
+      "bytes": 34294
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "4185e8d4ca34085890d7652aafe336690702956999766e9e74cf7271c8a3851b",
+      "bytes": 61012
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "sha256": "a830f675b05d70a01380cab3dd17c0b8e6bb9d3dd40d9a99186d5f49f579d2a6",
+      "bytes": 30305
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "60223436c10db56aeb0e25a26cf3ce8faddf2187ee90670ac800e2d0b541d881",
+      "bytes": 262089
+    }
+  ],
+  "effects": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "proposed_sha256": "34b09efb4c266c82037cc1bbb6a103fcb6cdb6067c5f55dd8fc92701c1bafaff"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md",
+      "proposed_sha256": "47beafb2d9d19c5a8726766b7d336e053329c489bf21f2a53221c8a95ae3c8ce"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "proposed_sha256": "9af4bcf3f5ab3e848b56f8b69d782b87dab8e81c7ceeec3f7292419ecee10c99"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+      "proposed_sha256": "c09b952c781f24ed6dd763140e62fad9035ab7bde248f5c0b9001ae64624caa4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+      "proposed_sha256": "2f38b7db7d9462830fc4a47cc2c243cd324c481eab667e4a66699fa8085e1719"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md",
+      "proposed_sha256": "cd33cddc5c014a52039a55560d22087745923109852a4ec6fa6bb4486ba0e222"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md",
+      "proposed_sha256": "9b70b6448b7085ef3294b7754de8b5130565fadb459f098b9e847955aadef0de"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md",
+      "proposed_sha256": "458e0e2354088453be2fecde5f80aa971cb5720dd05e6211f35c4871994f2fc9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md",
+      "proposed_sha256": "7d83af28de18b6ebac99f7b46f43c53ac3b3678875ce30f59384976745abb660"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md",
+      "proposed_sha256": "aa9617c2a0547cff0b52f93f4e2551456dff8f23e615347135cc9d68eeed58d0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md",
+      "proposed_sha256": "aa6b5b16a5eb2d94bf8c1abca20d4ee090e4255603fcd5f7919aeec54c9f89b6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md",
+      "proposed_sha256": "cf9f0711163e5a96078e8d8350136d10b2957a6e8bdb438b45e93718c8d28867"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md",
+      "proposed_sha256": "84df786e5c7d8339c27538f764cf85b7ce3a3b54cf870b36b680f7ea35b6043d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "proposed_sha256": "371a7751f09e72d7b7c23c5a81331aea457b0fd3449aa464b0cc2b8e53288390"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "proposed_sha256": "691867db61448b0f13590fae80295fbb9e65b9e4dc0a46a2886f9fbeed0d606d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "proposed_sha256": "b2c577e8ffc3fdc2427abde6aa588ecbf18fd69f52ab37eb69cbdb540458e9dc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "proposed_sha256": "2ccbc54718e5a383cbecb64b5e84419e73c163ed3aa0dc0deb8d479dde33818b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "proposed_sha256": "78c171245044820590d4d91b0ef42d8ae28f57d1982af483e55ee3781b1b3463"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "proposed_sha256": "e23e0dd0bd9064e1f765c22d3fb17d52a96d99970aee558d12751f032182bdf9"
+    }
+  ],
+  "scope": 19,
+  "originals_unchanged": true,
+  "pending_basis": "NativeV2 failed; sample shows main-thread WebKit sandbox-extension issuance stall after guard; underlying OS cause unproven. Root authorized private async save IPC eight source paths/cumulative47; success/source/gates pending."
+}

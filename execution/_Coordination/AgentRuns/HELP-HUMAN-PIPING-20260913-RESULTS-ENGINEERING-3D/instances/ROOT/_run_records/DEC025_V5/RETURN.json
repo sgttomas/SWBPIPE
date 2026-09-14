@@ -1,0 +1,33 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 788.446016542,
+  "finished_utc": "2026-09-14T07:29:04.573055+00:00",
+  "files": [
+    {
+      "path": "EXIT.json",
+      "bytes": 111,
+      "sha256": "a3e002d7beb7ceb7ba3b5eac25105782befcd527fce0d5cf151a12edf31f1b06"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 17146,
+      "sha256": "34ef82b5df19514cdb72bdaf8e44a9a6c2f7887f5e8b0124a73b56512f9ee279"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 116108,
+      "sha256": "b7415ce0213258328b71ff84db36e6e067f85f3cc8cc28c7f71ea512fb987508"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 1914,
+      "sha256": "1468843cd8af69b64b361d928e772a5fcfc0af68b1504b6261c7641798af4b51"
+    },
+    {
+      "path": "sweep/SWEEP_20260914T071557Z_cda14a585236.json",
+      "bytes": 3933,
+      "sha256": "9637d76b0555f0ccad92da2f508e5223fe99ac3002c9a8596242f95aa67ed737"
+    }
+  ],
+  "status_after": ""
+}

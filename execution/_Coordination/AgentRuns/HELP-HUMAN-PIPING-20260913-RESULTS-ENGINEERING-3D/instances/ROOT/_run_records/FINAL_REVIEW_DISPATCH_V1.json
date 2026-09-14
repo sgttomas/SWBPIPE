@@ -1,0 +1,13 @@
+{
+  "utc": "2026-09-14T07:44:20.623343+00:00",
+  "parent": "/root",
+  "executor": "/root/integrated_review",
+  "role": "TASK Type2",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "high",
+  "mechanism": "delegated-harness-native followup_task; prior independent review instance",
+  "role_enforcement": "instruction-asserted",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_FINAL_CLOSEOUT_V1.md",
+  "brief_sha256": "5d0396673120fd3fd3dfc004d0e95b3b17de9e825894564cdb35073266623d81",
+  "scope": "final metadata19/root acceptance/handoff/native and final sweep evidence; all source47 read-only unchanged; only new reviewer return/manifest/coverage may be written"
+}

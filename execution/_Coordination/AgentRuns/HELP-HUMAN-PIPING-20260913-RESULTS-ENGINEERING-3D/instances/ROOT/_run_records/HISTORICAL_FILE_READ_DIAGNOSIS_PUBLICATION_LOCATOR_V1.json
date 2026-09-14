@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-14T07:38:57.379277+00:00",
+  "derivative_package": true,
+  "purpose": "Publication placement only. Preserve original bytes and resolve the immutable diagnosis manifest historical reference through this exact locator. No product source, historical manifest or governance rule changed.",
+  "trigger": "PRE_CLOSEOUT_AFFECTED_TESTS: 889 passed, 48 subtests passed; sole failure ABS_PATH_IN_UNCLASSIFIED_SURFACE for completed raw diagnosis narrative. Failed gate packet remains immutable.",
+  "entries": [
+    {
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_FILE_READ_DIAGNOSIS/DIAGNOSIS_V1.md",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_FILE_READ_DIAGNOSIS/_run_records/DIAGNOSIS_V1.md",
+      "sha256": "9cd996f3f1fe3a00c4c722f9ce6dfb63fbfe967d1155a25c67ec3397d69fc62e",
+      "bytes": 6794
+    }
+  ],
+  "historical_manifest_sha256": "8b1583698df8e181d85ed54b75fb8197dc4f043a4477915c3fca0263926ca890"
+}

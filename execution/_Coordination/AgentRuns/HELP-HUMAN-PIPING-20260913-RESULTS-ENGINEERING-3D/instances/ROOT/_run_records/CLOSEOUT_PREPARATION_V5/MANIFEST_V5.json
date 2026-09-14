@@ -1,0 +1,25 @@
+{
+  "status": "CONDITIONAL_STATIC_WORKING_DRAFT",
+  "files": [
+    {
+      "name": "CONDITIONAL_CLOSEOUT_V5.patch",
+      "sha256": "e5f3cdf96696a38373a9fb923c616d0405500637395610cb6d38e63365828487",
+      "bytes": 28872
+    },
+    {
+      "name": "INPUT_DELTA_MAP_V5.json",
+      "sha256": "678ec521ccba9b8154a33c6495caddb6254735ef58dfa294df66f942b26a5ec3",
+      "bytes": 11103
+    },
+    {
+      "name": "RECEIPT_140_DRAFT_V5.md",
+      "sha256": "86c437d17311e37c981ebce04a2d22c214635e3a05c280d5e7a1765953ef3b9a",
+      "bytes": 1485
+    },
+    {
+      "name": "RETURN_V5.md",
+      "sha256": "8c37c5304f6fb055af1d9880852a06ba410b140f63cf15007e4fc215a6193a59",
+      "bytes": 1255
+    }
+  ]
+}

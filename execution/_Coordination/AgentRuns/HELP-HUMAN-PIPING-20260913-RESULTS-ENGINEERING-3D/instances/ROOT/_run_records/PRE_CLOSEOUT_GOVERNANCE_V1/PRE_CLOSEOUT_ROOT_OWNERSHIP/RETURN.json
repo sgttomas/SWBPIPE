@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 2.0244317499999998,
+  "finished_utc": "2026-09-14T07:39:59.134703+00:00",
+  "files": [
+    {
+      "path": "EXIT.json",
+      "bytes": 108,
+      "sha256": "7a5f1f14ab57af46f452b37201689bfff2dbc7f145e2be6799d9020990b857a6"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 65,
+      "sha256": "8a2425c5d13c122eb51b2482911778315724f5d3854922916c43f49cc6247618"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 2465,
+      "sha256": "5eb47ecc4bc7b8644b02bcc75d44080afb0a30f73aaccfc06ca4d9cfebfc8b74"
+    }
+  ],
+  "status_after": " D projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_FILE_READ_DIAGNOSIS/DIAGNOSIS_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_FILE_READ_DIAGNOSIS/_run_records/DIAGNOSIS_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V5/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/HISTORICAL_FILE_READ_DIAGNOSIS_PUBLICATION_LOCATOR_V1.json\n"
+}

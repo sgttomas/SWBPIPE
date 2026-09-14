@@ -351,3 +351,8 @@ Durable context preserved after reconciliation review:
   release or publication, add or change a runner verb or payload binding,
   change DEL-10/DEL-10-05, edit a DAG or decomposition, or make a professional
   approval, certification, sealing, authentication, or code-compliance claim.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Localized existing report quantity interpretation follows the current semantic adapter without expanding report readiness or persistence format. Container compatibility-window/versioning remains open. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

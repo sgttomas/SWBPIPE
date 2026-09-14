@@ -162,3 +162,8 @@ Durable context preserved after PKG-02 grounded finding resolution:
   catalog value, private project data, lifecycle state, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Accepted ENGINEERING compositeV3 supplies the pressure/connector contracts, analytical expectations, UI field handoff and sealed following physics briefs. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json`. This is derivative contract/design acceptance only; pressure/connector runtime and public material/model migration remain unactivated.

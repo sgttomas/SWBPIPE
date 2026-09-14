@@ -500,3 +500,8 @@ Durable context preserved after reconciliation review:
 - DEL-10-02's deny-only adapter-declaration gate rejects disabled privacy classification, protected-content screening, report controls, or private-transmission defaults; rejected/quarantined declarations never dispatch, and a conforming declaration remains blocked while runtime is unselected.
 - This narrows the adapter admission residual only. It does not provide the still-open evaluator, plugin, CLI, report preview/export, or bug-report runtime bindings and is not whole-product redaction/security assurance.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+ControlledExportLink retains existing DOTH-JSON-001/local_private own initially-false intent, policy screening and lossless materialization/equality. The admitted native route uses a save button without href, while the browser retains its original anchor. Original screened href is decoded once by the private async exact-text save route; Downloads create_new collision work is background-only. Blocked/protected paths, unrelated routes and stale/current lifecycle boundaries remain. Actual native 350 N/repeat350/500 N delivery, collision preservation and lifecycle passed; capture-method limits remain explicit in the accepted native packet. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

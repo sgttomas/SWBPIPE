@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 0.777049666,
+  "finished_utc": "2026-09-14T07:31:27.938523+00:00",
+  "files": [
+    {
+      "path": "EXIT.json",
+      "bytes": 109,
+      "sha256": "18c724f36fa47cc19a4f6cf549bb2b7dca37ca50dd8ea7778e1745fe170ae303"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 44,
+      "sha256": "77e86fa18dd10ff92a9b2ba59fe74a0ae6d5a364749064e44aa2301c274b6df8"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 2001,
+      "sha256": "929a4b6ee002c59ee22b33db062b42431183b3c0a4cce2cfb492414e377f2ce1"
+    }
+  ],
+  "status_after": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V5/\n"
+}

@@ -463,3 +463,8 @@ Durable context preserved after reconciliation review:
 - Source manifest SHA256 `cf2cc3df5746b76652974df700a78ea0f876ca232ab9835ecf019ec0d5d18daf` supersedes only the applicable live source binding; previous SOURCE_V2, FINAL_SNAPSHOT and run records remain immutable historical evidence. New local evidence: `_run_records/WORKING_ITEMS_RUN_2026-09-05_BROWSER_POINTER_REPAIR.md`; manager `E2E_REPAIR_RETURN.md` and R2 `RETURN_FINAL_V3.json`.
 - Full source28, dist3, desktop748/45, build, targeteddiagnostic2 and exact1024x768 browser selection/linked-MPa/required-input-scroll/Close witness PASS. Preflight trace override is recorded; root must still run the unchanged complete clean committed DEC025 and refresh native evidence. Browser tests do not establish native GUI, solver/storage or owner usability acceptance.
 - No further Remaining narrowing: this repair belongs to the bounded presentation slice already excluded from broad residuals. IN_PROGRESS, ScopeOfWork, engineering holds, MAP031 inline Apply, full typed widgets, D58 and PDU045/046 are unchanged.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Accepted UI successor-v3 supplies editable workspace wireframes and an offline simulated prototype with inspectable intent/state/backfill mappings. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json`; entry `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html`. Production UI and personal owner visual alignment remain separate; mock interaction does not establish production Rust/model-hash equivalence.

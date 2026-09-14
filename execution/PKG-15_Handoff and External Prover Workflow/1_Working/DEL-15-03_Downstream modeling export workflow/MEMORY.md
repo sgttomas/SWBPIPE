@@ -105,3 +105,8 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - Narrowed the governed invented checksum label and added a test that DEL-15-03 carries it unchanged without a JCS claim.
 - DEL-15-03 remains a transport/workflow consumer of supplied checksum evidence; it does not recompute or validate the producer's hash contract.
 - Lifecycle remains `IN_PROGRESS`; the D-41 corpus-currentness bootstrap remains pending T7.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+HandoffPanel adds received-dimension reference witnesses and explicit omission disclosure. Existing currentness/hash and downstream workflow boundaries and formal human dispositions remain unchanged. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

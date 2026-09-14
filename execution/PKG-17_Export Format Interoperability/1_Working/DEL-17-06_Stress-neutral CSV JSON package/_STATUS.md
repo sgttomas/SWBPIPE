@@ -1,11 +1,13 @@
 # Status: DEL-17-06
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-14
 
 ## Remaining
+- Resolve the stress-neutral preview schema findings recorded in the frozen fixture/witness (911 findings, not independent bugs or a universal application count) through the owning DEL-17-06 follow-on; bounded current semantic mapping/witness repair does not claim whole preview compatibility.
 
 ## History
+- 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-001/PDU-038 added conditional unresolved-assumption and reproducibility-reference passthrough with schema and preservation evidence; comparison tolerances remain outside this package.
 - 2026-07-12 - D-41 R5 T2A narrowed the emitted JSON checksum label to the implemented sorted-compact Python JSON byte contract and added executable evidence; no lifecycle transition or JCS claim.

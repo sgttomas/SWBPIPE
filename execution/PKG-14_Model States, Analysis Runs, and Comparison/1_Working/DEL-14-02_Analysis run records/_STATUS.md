@@ -1,13 +1,14 @@
 # Status: DEL-14-02 Analysis run records
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-07-12
+**Last Updated:** 2026-09-14
 
 ## Remaining
 - Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
-- Bind explicit unit and dimension metadata for every unit-bearing referenced result through the governed result-envelope owner before closing PDU-033; the current preview source carries units but not dimensions, so DEL-14-02 must not infer them.
+- Preserve PDU-033 pending whole canonical analysis-record/version compatibility and complete governed per-result metadata coverage. The bounded current semantic adapter does not close the nine unsupported legacy Current admission variants or alter retained legacy dimension enrichment/serializer/hash verification for authentic saved attachments; separate legacy interpretation from current quantity meaning.
 
 ## History
+- 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
 - 2026-07-12 - D-41 R5 T2B recorded the PDU-033 result-envelope unit/dimension hold rather than inferring missing dimensions; lifecycle remains IN_PROGRESS.

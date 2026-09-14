@@ -243,3 +243,8 @@ Durable context preserved after reconciliation review:
 
 - The analysis-run record binds `unit_system_ref` and hashes referenced result records, but the current preview result source supplies units without explicit dimensions.
 - DEL-14-02 will not infer dimension metadata or claim per-result unit validation. Closure requires a governed result-envelope change at its owning boundary; this remains a named hold.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Current semantic adaptation is separate from version-qualified legacy dimension enrichment and attachment serializer/hash verification. Authentic legacy saved bytes remain unchanged; Historical runs are not promoted to Current. Whole canonical analysis-record/version compatibility, nine existing unsupported legacy Current admission variants and retained legacy dimension/hash behavior remain open under PDU-033. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

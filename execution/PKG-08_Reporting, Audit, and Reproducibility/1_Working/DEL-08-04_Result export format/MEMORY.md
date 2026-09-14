@@ -472,3 +472,8 @@ Durable TASK evidence:
   standards content, private payload, lifecycle transition, release-readiness
   claim, professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+Versioned canonical result derivatives use strict supported-version contracts and source-row preservation evidence that explicitly distinguishes an authentic producer from a received carrier. Genuine ratios, rotations and diagnostic evidence retain distinct meanings; source row accounting and derivative digest scope are explicit. A bounded private async exact-text native save accommodation consumes existing DEL-10-04 host/build contracts. The native admitted button exposes no href; the browser anchor remains unchanged. Original screened href is decoded once and exact UTF-8 text is saved through an off-UI-thread Downloads worker with create_new collision handling. Actual native 350 N/repeat350/500 N file saves and lifecycle passed, followed by the complete clean DEC-025 sweep on the same 47 product-source files; DEL-10-04 Remaining/lifecycle is unchanged. Target-format numerical unit conversions remain open. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

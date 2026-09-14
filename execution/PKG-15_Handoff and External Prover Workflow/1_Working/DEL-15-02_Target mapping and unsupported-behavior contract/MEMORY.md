@@ -92,3 +92,8 @@ Durable context preserved after PKG-02 grounded finding resolution:
 - The builder now blocks privacy contexts that do not affirm redaction or that report embedded private, protected, or commercial-tool payload.
 - Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU017.md`.
 - No broader adapter/CLI/report security reach or lifecycle outcome is claimed.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+HandoffPanel adds received-dimension reference witnesses and explicit omission disclosure. Existing currentness/hash boundaries and open human dispositions remain unchanged. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.

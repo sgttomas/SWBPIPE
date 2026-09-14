@@ -1,0 +1,18 @@
+{
+  "status": "PASS_FINAL_ADDITIVE_TECHNICAL_REVIEW_PUBLICATION_GATES_REMAIN",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "RETURN_FINAL_CLOSEOUT_V1.md",
+      "sha256": "ba44d5e34d8c451e350e76689ba753a86fae5e335dd1362f19f4ccd0283dcdef",
+      "bytes": 3965
+    },
+    {
+      "path": "_run_records/FINAL_CLOSEOUT_COVERAGE_V1.json",
+      "sha256": "ca5a61a11d1d1e71012c68c3cc905f794ba25a1cf13cd5df12af6caffd1d9416",
+      "bytes": 31277
+    }
+  ],
+  "manifest_self_excluded": true,
+  "prior_packets_immutable": true
+}

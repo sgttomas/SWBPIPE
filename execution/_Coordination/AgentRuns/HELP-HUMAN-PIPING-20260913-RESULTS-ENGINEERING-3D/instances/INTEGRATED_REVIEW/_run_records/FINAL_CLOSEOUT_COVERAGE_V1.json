@@ -1,0 +1,535 @@
+{
+  "status": "PASS_FINAL_ADDITIVE_TECHNICAL_REVIEW_PUBLICATION_GATES_REMAIN",
+  "created_utc": "2026-09-14T07:52:23.672125+00:00",
+  "executor": "/root/integrated_review",
+  "parent": "/root HELP_HUMAN Agent0",
+  "role": "TASK Type2, delegated-harness-native, instruction-asserted no-delegation",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "instruction_origins": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    }
+  ],
+  "sealed_basis_and_acceptance": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_FINAL_CLOSEOUT_V1.md",
+      "sha256": "5d0396673120fd3fd3dfc004d0e95b3b17de9e825894564cdb35073266623d81",
+      "bytes": 4180
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+      "sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551",
+      "bytes": 21300
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_NATIVE_ASYNC_SAVE_V1.md",
+      "sha256": "2a22083aba6d9f7180c6c361fc76c32397ccc60c0fe1a87d439963c187f098b0",
+      "bytes": 3026
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/CLOSEOUT_FINALIZATION_V1.json",
+      "sha256": "fd9e18050ff82abc4d367c8c211050d85b93f085c2df1ab9c5607e998f2e7084",
+      "bytes": 7758
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_COUNT_CORRECTION_V1.json",
+      "sha256": "683185bf238fc4ba3b982edc1dad151f6e1459d729130e0053ce163b2d425874",
+      "bytes": 4971
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md",
+      "sha256": "713f9329939f8d1e8d870440ac4631e3eca6d455a9893f5cf5204b9f335c607b",
+      "bytes": 8450
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/HANDOFF_STATE_V4.md",
+      "sha256": "9424e08849bc5caae2bbae937d11ff24dc0158a397c82589e3e0d78e73d25970",
+      "bytes": 4636
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/NATIVE_RETURN_V3.json",
+      "sha256": "2185f297c5d06f756db46ee79a046eb97394eb5b5c6e719918333cfbe6cc47f9",
+      "bytes": 8634
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/NATIVE_PHYSICAL_MANIFEST_V3.json",
+      "sha256": "36b60423d011a5a1bd36a403a36076b2dc410ce2cba39cad421cd523d30684f2",
+      "bytes": 21986
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/NATIVE_ACCEPTANCE_V1.json",
+      "sha256": "5ccb11327314f814b0f39646d2887436e869c6e8eb5359c64971019aba370fba",
+      "bytes": 2723
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V5/RETURN.json",
+      "sha256": "c4e8d948cd1909c9e61f467f876fd65163e527c4a46196e15624c6416a49cf5d",
+      "bytes": 914
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V5/sweep/SWEEP_20260914T071557Z_cda14a585236.json",
+      "sha256": "9637d76b0555f0ccad92da2f508e5223fe99ac3002c9a8596242f95aa67ed737",
+      "bytes": 3933
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/HISTORICAL_FILE_READ_DIAGNOSIS_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "a5303620565e0d9ebef36c31d6599807877ad3975b0c5f2817ff402a26cb2f2d",
+      "bytes": 1165
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json",
+      "sha256": "f03c84f5f84e577d3c5e0453b7f0148ecb31eed8e905fc92e4b6ca412429fcdc",
+      "bytes": 7677
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json",
+      "sha256": "5eb67fc7e990b2d7dd860f280e4c32f73d0bd6f9d61d5f833e3c122ad8880bfe",
+      "bytes": 31567
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_NATIVE_ROW_CONTRACT_V1.json",
+      "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+      "bytes": 135238
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_INDEPENDENT_EXPECTATIONS_V1.json",
+      "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+      "bytes": 4272
+    }
+  ],
+  "source": {
+    "count": 47,
+    "source_commit": "590defc1a95d18c8e1db2f7443e443778f34b34c",
+    "clean_sweep_commit": "cda14a585236f74abccff6cc42e5f02a23d8aaa6",
+    "actual_all47_rehashed_exact": true,
+    "prior_review_reused": "Full eight-file replacement plus39 accepted predecessors remain unchanged; implementation not rerun or rewritten."
+  },
+  "metadata": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "original_sha256": "eeaa25850a0880708f876e602aa6039eaf566313bce4cc4326032ae524add63a",
+      "final_sha256": "06d2f4d6a01519564ca23151d5d18d9db8ebc06a249ccaa0f8b9e8a1f864300b",
+      "bytes": 33148,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md",
+      "original_sha256": "d3fff2a6ba275a1c88f0fe3cd68475e779b63d05da6b160b801e64d8adaebd6b",
+      "final_sha256": "7f78d4426895633fe0a8dda41d2f0be9a5fa9a33a800a73ccdeb69e63d3a5849",
+      "bytes": 34979,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "original_sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844",
+      "final_sha256": "b1da6c0238f804d5ae1d99c17dc9c3615f038f35cea32065bc18c1545bf53c37",
+      "bytes": 16580,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+      "original_sha256": "a443149d225010599250821db7d6a090ffa2a52c14a397bac6563f486a05ffbf",
+      "final_sha256": "728626adf3ff3f9373f277b36a108ca954f1cfaead9baaa7ccb7d759c627e8f0",
+      "bytes": 15693,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+      "original_sha256": "a303d95ca05250a25681302e83c34de3d03ffc315b329cdfa3744d33ec1ef0ba",
+      "final_sha256": "b2f0a7e2b0fff71b0085218b3413dd4194f2f48d4d7543983d14fb47ab0519bd",
+      "bytes": 3864,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md",
+      "original_sha256": "2f2e7a8946adcbfef6f2c1b7d1a07681f3ddce5ee10e793f905fecc277a3e5ef",
+      "final_sha256": "4a8ad98d48e257d9d0dd6a52ea22deff80134f77887c829c6ca45551edbef1ab",
+      "bytes": 21310,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md",
+      "original_sha256": "0d5ce7c2b0c8d2894ddef6bdaec94393d0e64d8e052c965d0a9818e717a3c338",
+      "final_sha256": "c1de9f897b5c546ea378c20c2c2d9f48a1e5e4840d36b258284c2014e5c10791",
+      "bytes": 9561,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md",
+      "original_sha256": "eaa25fe3f960d240824e074b7143b5869bd26dfb3306bda7b0870c17ba37af52",
+      "final_sha256": "7f50ae8ec8121b72e661fd91eab2064b6b130d3098d39bab273b570ed5f8d81b",
+      "bytes": 2777,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md",
+      "original_sha256": "c8c7d03b8a2be0ed2527fda5c5f464e4a7ff000ef1aa3d82758aa5b43a68178b",
+      "final_sha256": "c1000be0ed29ad4ab531b7dffb614f595de3f27d0d8eed34aa444e8090c14eb4",
+      "bytes": 33169,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md",
+      "original_sha256": "330ad6cd5b61e7309025efeabbf7c38c460a1c0367e903561185f3fce5e6eccb",
+      "final_sha256": "a28b04f80f31a093b488b95c23123a5c8bc8cbe2b884690a3cb5111c5622640c",
+      "bytes": 10420,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md",
+      "original_sha256": "8314bf2cc4cc7cd16d58800f4afe8c1ce0d78990c49b53554a7e5d672bde5df3",
+      "final_sha256": "75e225b961087c3fd05f4d5d63ef8a8dcf6bfe5382c91096cbdc16c3fc653f25",
+      "bytes": 8570,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md",
+      "original_sha256": "c6b033f7ed24d58448ce1e3de72c53b56ec1e6524b13d38f6562e6fac7492818",
+      "final_sha256": "8d73c277c13776c28159dea5583d2b44f60b12ad5bb37cfa06bd03a3264b360f",
+      "bytes": 8651,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md",
+      "original_sha256": "69cfb6c744d9d5e4724485b2abeee562d2e9054b36237610f096288cf0c16bae",
+      "final_sha256": "d3d37fcc3ef0f8d5194d99bc4ffca6cd9a2b053989d15ecb72f4a0a9bfd04cef",
+      "bytes": 13801,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "original_sha256": "2cbfdf0d34a8280a2bfaec6a451c1c91a552db52e3fc2c52f7dcade0bd3f97c8",
+      "final_sha256": "57f29e71ea6319a64bae10429f07713e33477ea1133a01f2bfbbf7ff45de6e63",
+      "bytes": 27232,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "original_sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557",
+      "final_sha256": "33ceebb67bb5da17e6aa14c5e7241b569a83203a6efb0468604301722861d009",
+      "bytes": 11592,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "original_sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91",
+      "final_sha256": "174ac80ac2cee54eb6138b1824a7440e559b5ea432be4b47066b5caae0a03559",
+      "bytes": 34934,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "original_sha256": "4185e8d4ca34085890d7652aafe336690702956999766e9e74cf7271c8a3851b",
+      "final_sha256": "a4fc2bf10d16a8911943a40d38c22f5c819d0de1720319af8bfc818241bfbc16",
+      "bytes": 61652,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "original_sha256": "a830f675b05d70a01380cab3dd17c0b8e6bb9d3dd40d9a99186d5f49f579d2a6",
+      "final_sha256": "25f2ea7e8e5a4b91ee505d339fea4edf322cb239766ca97c9863228c36ed50ff",
+      "bytes": 30945,
+      "exact_conditional_plus_reviewed_finalization": true
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "original_sha256": "60223436c10db56aeb0e25a26cf3ce8faddf2187ee90670ac800e2d0b541d881",
+      "final_sha256": "1010ee8745a332b9b124609645a59edf395b04f583471f700e356f65b59eed86",
+      "bytes": 264084,
+      "exact_conditional_plus_reviewed_finalization": true
+    }
+  ],
+  "metadata_conclusion": "All19 originals independently hash-bound from unchanged RESULTS checkout. ConditionalV5 applied in memory and final19 match exactly after reviewed date/pointer finalization, two native pending\u2192qualified-pass sentences, and full reviewed Receipt140 replacement. All16 MEMORY additions preserve original prefix; two status files remain IN_PROGRESS with bounded residual clarifications only; Receipt prefix through139, examined-through cursor, parent139 preserved. Correction reverses to old recorded full receipt hash and removes exactly two measurement groups. No hidden finalization delta or unresolved placeholder.",
+  "native": {
+    "manifest_entries": 126,
+    "artifact_bytes": 5862147,
+    "physical_complete_plus_manifest": true,
+    "all_artifact_sha256_and_sizes_verified": true,
+    "current_source47_and_runtime47_and_final47_equal": true,
+    "eight_runtime_basis_refs_verified": true,
+    "build_files_rehashed": 27,
+    "binary_sha256": "756d869eec10e9146a94bd37e113cd7e576da3715c7fb2da467378776e1e4d70",
+    "actual_file_hashes": {
+      "350": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+      "500": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1"
+    },
+    "independent_static_payload_check": "All134 rows checked against paired source and frozen67-row contract: ids/order/kinds/disposition/exact values/units/source metadata/basis/dimension absence,132 quantities and2 solver disclosures. Five frozen analytical values for each force checked within5.001e-7 declared units. Native verifier/schema execution evidence has actual exit0; no adapter reconstruction used by reviewer.",
+    "lifecycle": "Read normalquit action/identity/absence records, actual save/responsiveness/Historical/Current AX evidence and visually inspected350/repeat350/500 saved-status screenshots. Independently compared all12 raw fields except timestamp for unchanged Historical500Save and fresh500solve; model/mechanics rawstrings equal historical V2-350/V1-500 source pairs. After500 recaptured base and suffix1 hashes equal prior350.",
+    "limits": [
+      "Finder exact-file selection/copies support real file delivery; original Downloads direct reads failed. No direct original/copy read equality or fresh native href capture is claimed.",
+      "Exact-text conclusion is compositional source+focusedbytechecks+actualfiles+frozenmodel/carrier expectations. No original solver-producer attestation.",
+      "V1 author/edit/UndoRedo/offline synthetic agent equality reused explicitly; no freshV3 connected-provider witness.",
+      "Selftest missing analysisbuilder/inputmanifest is preserved; actualGUI carries separate Current proof. No durability or hostile-race guarantee; saved-storecapture is quiescent standalonebytes, not online transactionalbackup.",
+      "V1/V2 native failures and V3 read/checker/method failures remain; hostcause unresolved. Only bound native process normalquits are claimed; no new reviewer runtime."
+    ],
+    "omission": {
+      "locator": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_RUNTIME/FINDER_PUBLICATION_OMISSION_LOCATOR_V3.json",
+        "sha256": "bee13ab8463bbd4aad78ede866444384541568b7e4a0ca08657bbb038a126366",
+        "bytes": 1103
+      },
+      "retained_raw_hash_and_length_verified_without_rendering_incidental_content": true,
+      "published_original_absent": true,
+      "safe_derivative_only": true
+    }
+  },
+  "sweep": {
+    "status": "PASS",
+    "clean_before_and_after": true,
+    "registered_surfaces": 5,
+    "all_command_exits_zero": true,
+    "counts": "38 Rust crates;1014 Python tests;881 desktop tests/56files;30 source-browser workflows;3 dist workflows;production build",
+    "command_exit_return_summary_raw_hashes_verified": true,
+    "native_then_sweep_order": "Native release sealed07:13:53Z; accepted07:15:35Z; clean sweep07:15:57\u201307:29:03Z. Current27native/built hashes still exact.",
+    "warnings": "Retained existing Vite chunk/color warnings; no missing surface counted as passed."
+  },
+  "governance_packets": [
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_AFFECTED_TESTS",
+      "exit": 1,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_AFFECTED_TESTS/RETURN.json",
+        "sha256": "d6a09006e5075f6356313dd4a35e6406699e9165ee3f9cbacf38a9786a4ab00c",
+        "bytes": 881
+      },
+      "command_sha256": "745209e10c946c8757206a8737df037cbed246d1584086a86225686ebe79bdab",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_AFFECTED_TESTS_V2",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_AFFECTED_TESTS_V2/RETURN.json",
+        "sha256": "b6d27085b3c21f4812ae012d1177afb82fb5b90e4acc339179da187f5446ca75",
+        "bytes": 1435
+      },
+      "command_sha256": "f572e6648b0b52f9a428af85944dc41b26c089c2301a78f2ea0571a15d18f94e",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_AGENT_INSTRUCTIONS",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_AGENT_INSTRUCTIONS/RETURN.json",
+        "sha256": "f43f0aec267d2a0147d9ec63dbf0dbe5750d113236bf7bbeb73ab68971fbc1e3",
+        "bytes": 884
+      },
+      "command_sha256": "991b576eff8d2b67f42bcf34d2ae93543306cc51716c0e1b08d5d937f3a8b626",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_CONFLICT_MARKERS",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_CONFLICT_MARKERS/RETURN.json",
+        "sha256": "5757ef68b3a39c9fc26f40c61310aff6fbe489becb908edd3e1234cace4ca1f9",
+        "bytes": 876
+      },
+      "command_sha256": "929a4b6ee002c59ee22b33db062b42431183b3c0a4cce2cfb492414e377f2ce1",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_INSTRUCTION_TRANCHE",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_INSTRUCTION_TRANCHE/RETURN.json",
+        "sha256": "23183bc026f793339686acc7f084e644291aff549e7fb3ecb40757cc312facf1",
+        "bytes": 1435
+      },
+      "command_sha256": "8e332e323f12da5b517cc50346909b2d5a76bd83a95e5beb225fc1506b3ec4e1",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_RECEIPT",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_RECEIPT/RETURN.json",
+        "sha256": "756ef84851209de554c2a52fc9ce22224a7045742d525ba59790cd37ce88c9b0",
+        "bytes": 1425
+      },
+      "command_sha256": "22b7068d51ed95ea369a3b9ef5536f9ce28eba268e928d06f1e8f57255f708db",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_ROOT_ADAPTER",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_ROOT_ADAPTER/RETURN.json",
+        "sha256": "7891bdfe9887b160f6ff9e29e3ea9e448482c37f5c0939bcd51f9bcc858d4256",
+        "bytes": 1431
+      },
+      "command_sha256": "feaf58ab64c94ce431cff9605cddc753f469ffc43de65234f0a5b7b8a400c475",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_ROOT_DISPATCH",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_ROOT_DISPATCH/RETURN.json",
+        "sha256": "0a707ea0a0f6114014f9d39df23d9f9098ed38966addf4940f3c503aa51224d1",
+        "bytes": 1425
+      },
+      "command_sha256": "4fcf9704cfec7bddbc0168c14ed4ddb084ac951052f592b0d70ce93bc2ca1565",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_ROOT_MATERIALIZATION",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_ROOT_MATERIALIZATION/RETURN.json",
+        "sha256": "5d4d71717448841115753902b158aff8427b291f5d904b19de6e21fa96283f98",
+        "bytes": 1432
+      },
+      "command_sha256": "1f8c133671c6bbb1c25c42b2681f28cc147236e81bdf40ef5815925b6be2493d",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_ROOT_OWNERSHIP",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_ROOT_OWNERSHIP/RETURN.json",
+        "sha256": "cea65934749521d81cf7cc203c9ac1796182def7e117f3d6dd1896eef6d0f843",
+        "bytes": 1431
+      },
+      "command_sha256": "5eb47ecc4bc7b8644b02bcc75d44080afb0a30f73aaccfc06ca4d9cfebfc8b74",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_SELF_CHECK",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_SELF_CHECK/RETURN.json",
+        "sha256": "54fde11a4230b7555f9120a53135d79306cb0241e329d5e7ae45513ff238cf44",
+        "bytes": 1434
+      },
+      "command_sha256": "d0f15ece8975861768c168ec2b47e7d7899bc6659a09745e0f5dc42c9ad6dd03",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "PRE_CLOSEOUT_GOVERNANCE_V1",
+      "name": "PRE_CLOSEOUT_WORKFLOW_METADATA",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRE_CLOSEOUT_GOVERNANCE_V1/PRE_CLOSEOUT_WORKFLOW_METADATA/RETURN.json",
+        "sha256": "50e60fb0e4a669cdd618454430bac857acaca1cab82903bcfda2334a08ec120b",
+        "bytes": 886
+      },
+      "command_sha256": "fb27f33ef0f5ccddc0e58a678981ac3f3fbfc24427cc67920e3358352a24a6d1",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "FINAL_METADATA_GATES_V1",
+      "name": "FINAL_AFFECTED_TESTS",
+      "exit": 1,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/FINAL_METADATA_GATES_V1/FINAL_AFFECTED_TESTS/RETURN.json",
+        "sha256": "5930e97dc3b5c337901bfef413660c7878c45d3df052f0f449de22a4bc6943c9",
+        "bytes": 5426
+      },
+      "command_sha256": "923c83134a3f47c24aea000619f2f69ee783bc7acfa00623eee28d43cfff1e5f",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "FINAL_METADATA_GATES_V1",
+      "name": "FINAL_AFFECTED_TESTS_V2",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/FINAL_METADATA_GATES_V1/FINAL_AFFECTED_TESTS_V2/RETURN.json",
+        "sha256": "bb457fd37fa6c69180ab42def80b2a1db35f7d24835e626cd81d9b4fac824339",
+        "bytes": 5594
+      },
+      "command_sha256": "590fa807682a2edccc7c2ac4fdf2093952d63701b060c73710a2d0fe1dd4bf93",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "FINAL_METADATA_GATES_V1",
+      "name": "FINAL_RECEIPT",
+      "exit": 1,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/FINAL_METADATA_GATES_V1/FINAL_RECEIPT/RETURN.json",
+        "sha256": "9b518c0b55523b5bc1067aaa4c61b99f411163b9e9bc833db16ce95dc58df003",
+        "bytes": 5423
+      },
+      "command_sha256": "4a1619cf57e3ae4bf5c0298d54658f080a8dd77c7f62684ec5405c0917091cae",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "FINAL_METADATA_GATES_V1",
+      "name": "FINAL_RECEIPT_V2",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/FINAL_METADATA_GATES_V1/FINAL_RECEIPT_V2/RETURN.json",
+        "sha256": "0e22d58ab08dec6700130c6f4e04b24af952a0b6019b79cf782084d71d647b7e",
+        "bytes": 5591
+      },
+      "command_sha256": "452b08263c51ca17a73cd3a1fe7a4f7544f6ab8d452f2f556c23e087ed5033da",
+      "raw_files_verified": 4
+    },
+    {
+      "scope": "FINAL_METADATA_GATES_V1",
+      "name": "FINAL_SELF_CHECK",
+      "exit": 0,
+      "return": {
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/FINAL_METADATA_GATES_V1/FINAL_SELF_CHECK/RETURN.json",
+        "sha256": "5a13173f85424cec51fcfabe2fc18652170695d5901055cfe84df0c8287fc846",
+        "bytes": 5600
+      },
+      "command_sha256": "67254e4d50eac1486c74d405da2bee8c219306de8497f8f10ac6417534435eff",
+      "raw_files_verified": 4
+    }
+  ],
+  "governance_disposition": "Pre-closeout initial routed test1failed/889passed/48subtests identified raw MD placement; exact historical MD/manifest preserved through locator and corrected890/48 pass. Final metadata initial affectedsuite and directreceipt fail DUPLICATED_MEASUREMENT; only two receipt count groups removed, subsequent receipt+890/48+selfcheck pass. Baseline0BLOCK/4REVIEW/112WARN/14INFO/1NA unchanged.",
+  "design_acceptance": "Prior independently reviewed ENGINEERING compositeV3 and UI successor-v3 reused at exact acceptance pins;111 rational assertions and six layout/interaction witnesses are design evidence, not runtime/productionUI activation or personal visual alignment.",
+  "actionable_findings": [],
+  "resolved_in_review_window": [
+    {
+      "origin": "root deterministic metadata checks",
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "line": 3188,
+      "code": "DUPLICATED_MEASUREMENT",
+      "disposition": "Resolved by exact receipt-only correction683185bf\u2026; failures retained and finalgate rerunsPASS."
+    }
+  ],
+  "closure": {
+    "bounded_technical_review_complete": true,
+    "derivative_package": true,
+    "authority_substitution": false,
+    "required_derivatives": "Current for bounded source/design acceptance; broader compatibility/runtime derivatives explicitly deferred inHANDOFF_STATE_V4.",
+    "remaining_publication": [
+      "Actual-commit range checks and required hosted CI on actual candidate.",
+      "Root unchanged-source check before push and authorized PR/merge.",
+      "No source/UI/runtime residual activation or whole-project/release/professional closure inferred."
+    ],
+    "rerun": "Any source change requires affectedreview/qualification; metadata/evidence changes require bounded delta/backcheck. Current actual-headCI not claimed."
+  },
+  "effects": "Only read-only files/hashes/in-memorydiffs/lightweightJSONparsing/localartifactviewing and three own new review outputs. No Git command/mutation, network, build, test, browser/native process, delegation or product/metadata effects."
+}

@@ -1,0 +1,22 @@
+{
+  "utc": "2026-09-14T07:32:00.799229+00:00",
+  "results": [
+    {
+      "label": "PRE_CLOSEOUT_AGENT_INSTRUCTIONS",
+      "exit_code": 0
+    },
+    {
+      "label": "PRE_CLOSEOUT_WORKFLOW_METADATA",
+      "exit_code": 0
+    },
+    {
+      "label": "PRE_CLOSEOUT_CONFLICT_MARKERS",
+      "exit_code": 0
+    },
+    {
+      "label": "PRE_CLOSEOUT_AFFECTED_TESTS",
+      "exit_code": 1
+    }
+  ],
+  "complete": false
+}

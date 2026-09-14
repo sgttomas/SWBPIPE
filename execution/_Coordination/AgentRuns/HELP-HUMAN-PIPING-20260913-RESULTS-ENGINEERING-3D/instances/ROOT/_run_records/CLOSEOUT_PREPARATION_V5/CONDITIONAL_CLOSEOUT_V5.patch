@@ -1,0 +1,228 @@
+--- a/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md
+@@ -472,3 +472,8 @@
+   standards content, private payload, lifecycle transition, release-readiness
+   claim, professional approval, certification, sealing, authentication, or
+   code-compliance claim changed.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Versioned canonical result derivatives use strict supported-version contracts and source-row preservation evidence that explicitly distinguishes an authentic producer from a received carrier. Genuine ratios, rotations and diagnostic evidence retain distinct meanings; source row accounting and derivative digest scope are explicit. A bounded private async exact-text native save accommodation consumes existing DEL-10-04 host/build contracts. The native admitted button exposes no href; the browser anchor remains unchanged. Original screened href is decoded once and exact UTF-8 text is saved through an off-UI-thread Downloads worker with create_new collision handling. Actual save success and final-source native/sweep acceptance remain pending; DEL-10-04 Remaining/lifecycle is unchanged. Target-format numerical unit conversions remain open. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md
+@@ -514,3 +514,8 @@
+ - Stress source and historical behavior were unchanged; nonlinear remained 5/5. DEC-046 C-B remained byte-identical at SHA-256 `1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6` and nonlinear-only.
+ - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-12_DEL1005_MECHANICS_RUNNER_BINDING.md` and managed run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/`.
+ - Lifecycle remains `IN_PROGRESS`. The public result-comparison number, manual-page promotion, Task Management, release/publication, and reliance decisions remain outside this bounded evidence. The clean-commit DEC-025 derivative evidence has not yet been produced.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++The localized library/headless result adapter separates model-content, request, raw-mechanics and derivative checksum scopes. Existing CLI transport remains unchanged. Unsupported non-solved runs retain status/diagnostics and canonical solved-document absence. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md
+@@ -205,3 +205,8 @@
+   professional approval, certification, sealing, authentication,
+   code-compliance claim, protected standards data, private project data,
+   network path, telemetry path, or DAG authority changed.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Current result interpretation/export uses rad/angle rotations, distinguishes actual ratios from dimensionless count/state/flag/mode evidence, and labels work residual as N*m diagnostic evidence. Rotational visualization and upstream criteria sufficiency remain open. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md
+@@ -243,3 +243,8 @@
+ 
+ - The analysis-run record binds `unit_system_ref` and hashes referenced result records, but the current preview result source supplies units without explicit dimensions.
+ - DEL-14-02 will not infer dimension metadata or claim per-result unit validation. Closure requires a governed result-envelope change at its owning boundary; this remains a named hold.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Current semantic adaptation is separate from version-qualified legacy dimension enrichment and attachment serializer/hash verification. Authentic legacy saved bytes remain unchanged; Historical runs are not promoted to Current. Whole canonical analysis-record/version compatibility, nine existing unsupported legacy Current admission variants and retained legacy dimension/hash behavior remain open under PDU-033. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md
++++ b/projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md
+@@ -1,13 +1,14 @@
+ # Status: DEL-14-02 Analysis run records
+ 
+ **Current State:** IN_PROGRESS
+-**Last Updated:** 2026-07-12
++**Last Updated:** [ROOT_ACTUAL_CLOSEOUT_DATE]
+ 
+ ## Remaining
+ - Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
+-- Bind explicit unit and dimension metadata for every unit-bearing referenced result through the governed result-envelope owner before closing PDU-033; the current preview source carries units but not dimensions, so DEL-14-02 must not infer them.
++- Preserve PDU-033 pending whole canonical analysis-record/version compatibility and complete governed per-result metadata coverage. The bounded current semantic adapter does not close the nine unsupported legacy Current admission variants or alter retained legacy dimension enrichment/serializer/hash verification for authentic saved attachments; separate legacy interpretation from current quantity meaning.
+ 
+ ## History
++- [ROOT_ACTUAL_CLOSEOUT_DATE] - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: [ROOT_FINAL_ACCEPTANCE_POINTER].
+ - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+ - 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.
+ - 2026-07-12 - D-41 R5 T2B recorded the PDU-033 result-envelope unit/dimension hold rather than inferring missing dimensions; lifecycle remains IN_PROGRESS.
+--- a/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md
+@@ -351,3 +351,8 @@
+   release or publication, add or change a runner verb or payload binding,
+   change DEL-10/DEL-10-05, edit a DAG or decomposition, or make a professional
+   approval, certification, sealing, authentication, or code-compliance claim.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Localized existing report quantity interpretation follows the current semantic adapter without expanding report readiness or persistence format. Container compatibility-window/versioning remains open. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md
+@@ -110,3 +110,8 @@
+ - Evidence:
+   `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T4-PDU001-PDU038.md`.
+   Lifecycle remains `IN_PROGRESS`; the D-41 bootstrap remains for T7.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++The existing stress-neutral consumer now uses current quantity mapping, preserves received declarations and explicitly reports unavailable witnesses. The 911 stress-neutral preview schema findings in the frozen fixture/witness remain a separate follow-on; this is not a count of independent bugs or a universal application count; no full preview schema pass or packet redesign is claimed. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md
++++ b/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md
+@@ -1,11 +1,13 @@
+ # Status: DEL-17-06
+ 
+ **Current State:** IN_PROGRESS
+-**Last Updated:** 2026-07-12
++**Last Updated:** [ROOT_ACTUAL_CLOSEOUT_DATE]
+ 
+ ## Remaining
++- Resolve the stress-neutral preview schema findings recorded in the frozen fixture/witness (911 findings, not independent bugs or a universal application count) through the owning DEL-17-06 follow-on; bounded current semantic mapping/witness repair does not claim whole preview compatibility.
+ 
+ ## History
++- [ROOT_ACTUAL_CLOSEOUT_DATE] - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: [ROOT_FINAL_ACCEPTANCE_POINTER].
+ - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
+ - 2026-07-12 - D-41 R5 T4 PDU-001/PDU-038 added conditional unresolved-assumption and reproducibility-reference passthrough with schema and preservation evidence; comparison tolerances remain outside this package.
+ - 2026-07-12 - D-41 R5 T2A narrowed the emitted JSON checksum label to the implemented sorted-compact Python JSON byte contract and added executable evidence; no lifecycle transition or JCS claim.
+--- a/projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md
+@@ -500,3 +500,8 @@
+ - DEL-10-02's deny-only adapter-declaration gate rejects disabled privacy classification, protected-content screening, report controls, or private-transmission defaults; rejected/quarantined declarations never dispatch, and a conforming declaration remains blocked while runtime is unselected.
+ - This narrows the adapter admission residual only. It does not provide the still-open evaluator, plugin, CLI, report preview/export, or bug-report runtime bindings and is not whole-product redaction/security assurance.
+ - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU018-PDU028.md`. Lifecycle remains `IN_PROGRESS`.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++ControlledExportLink retains existing DOTH-JSON-001/local_private own initially-false intent, policy screening and lossless materialization/equality. The admitted native route uses a save button without href, while the browser retains its original anchor. Original screened href is decoded once by the private async exact-text save route; Downloads create_new collision work is background-only. Blocked/protected paths, unrelated routes and stale/current lifecycle boundaries remain. Actual native delivery is pending. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md
+@@ -115,3 +115,8 @@
+ ## 2026-06-17 - Lifecycle Housekeeping
+ 
+ - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++HandoffPanel adds received-dimension reference witnesses and explicit omission disclosure. Existing currentness/hash boundaries, Phase H and formal human-review holds remain unchanged. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md
+@@ -92,3 +92,8 @@
+ - The builder now blocks privacy contexts that do not affirm redaction or that report embedded private, protected, or commercial-tool payload.
+ - Focused evidence is recorded in `_run_records/WORKING_ITEMS_RUN_2026-07-12_D41-R5-T3-PDU017.md`.
+ - No broader adapter/CLI/report security reach or lifecycle outcome is claimed.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++HandoffPanel adds received-dimension reference witnesses and explicit omission disclosure. Existing currentness/hash boundaries and open human dispositions remain unchanged. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md
+@@ -105,3 +105,8 @@
+ - Narrowed the governed invented checksum label and added a test that DEL-15-03 carries it unchanged without a JCS claim.
+ - DEL-15-03 remains a transport/workflow consumer of supplied checksum evidence; it does not recompute or validate the producer's hash contract.
+ - Lifecycle remains `IN_PROGRESS`; the D-41 corpus-currentness bootstrap remains pending T7.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++HandoffPanel adds received-dimension reference witnesses and explicit omission disclosure. Existing currentness/hash and downstream workflow boundaries and formal human dispositions remain unchanged. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md
+@@ -130,3 +130,8 @@
+ ## 2026-06-17 - Lifecycle Housekeeping
+ 
+ - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++The existing native-open JSON handoff receives reference-only dimension witnesses and explicit omission disclosure through HandoffPanel. No new currentness/model/hash behavior or format is introduced; RF-002 and governed DAG artifact dispositions remain. Source: `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/[ROOT_FINAL_ACCEPTANCE_RUN_LOCAL_BASENAME]` (root-filled after actual gates).
+--- a/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md
+@@ -339,3 +339,8 @@
+ Accepted source for this bounded handoff: product SHA256 `93d182ee3504db7114058ff7de0aaa6f096728398869ca72a39d6ad78b18b2cc`, following accepted P4 selected-state integration. Fresh read-only review covered the complete frozen product diff and returned PASS with no actionable finding. Manager replayed 20 unchanged original audit inputs in both solver modes, with 314 checks passing. Final author crate run passed 137 tests; the single enabled stale browser-fixture assertion remains for root-owned F1 regeneration and full rerun. No global pass is inferred.
+ 
+ Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-AUDIT/instances/P5/children/review/MANIFEST.json`, manager replay at `execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/MANIFEST.json`, and package record `_run_records/WORKING_ITEMS_RUN_2026-09-05_PHYSICS_AUDIT_REPAIRS.md`. Root owns final fixture generation, independent P9 binding, clean DEC-025/native/CI checks and Git closeout. State remains IN_PROGRESS; broader lifecycle, release and professional reliance are not advanced. D01–D06 held decisions remain.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Accepted ENGINEERING compositeV3 supplies the pressure/connector contracts, analytical expectations, UI field handoff and sealed following physics briefs. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json`. This is derivative contract/design acceptance only; pressure/connector runtime and public material/model migration remain unactivated.
+--- a/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md
+@@ -162,3 +162,8 @@
+   catalog value, private project data, lifecycle state, release-readiness
+   claim, professional approval, certification, sealing, authentication, or
+   code-compliance claim changed.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Accepted ENGINEERING compositeV3 supplies the pressure/connector contracts, analytical expectations, UI field handoff and sealed following physics briefs. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json`. This is derivative contract/design acceptance only; pressure/connector runtime and public material/model migration remain unactivated.
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md
+@@ -463,3 +463,8 @@
+ - Source manifest SHA256 `cf2cc3df5746b76652974df700a78ea0f876ca232ab9835ecf019ec0d5d18daf` supersedes only the applicable live source binding; previous SOURCE_V2, FINAL_SNAPSHOT and run records remain immutable historical evidence. New local evidence: `_run_records/WORKING_ITEMS_RUN_2026-09-05_BROWSER_POINTER_REPAIR.md`; manager `E2E_REPAIR_RETURN.md` and R2 `RETURN_FINAL_V3.json`.
+ - Full source28, dist3, desktop748/45, build, targeteddiagnostic2 and exact1024x768 browser selection/linked-MPa/required-input-scroll/Close witness PASS. Preflight trace override is recorded; root must still run the unchanged complete clean committed DEC025 and refresh native evidence. Browser tests do not establish native GUI, solver/storage or owner usability acceptance.
+ - No further Remaining narrowing: this repair belongs to the bounded presentation slice already excluded from broad residuals. IN_PROGRESS, ScopeOfWork, engineering holds, MAP031 inline Apply, full typed widgets, D58 and PDU045/046 are unchanged.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Accepted UI successor-v3 supplies editable workspace wireframes and an offline simulated prototype with inspectable intent/state/backfill mappings. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json`; entry `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html`. Production UI and personal owner visual alignment remain separate; mock interaction does not establish production Rust/model-hash equivalence.
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md
+@@ -954,3 +954,8 @@
+ - Source manifest SHA256 `cf2cc3df5746b76652974df700a78ea0f876ca232ab9835ecf019ec0d5d18daf` supersedes only the applicable live source binding; previous SOURCE_V2, FINAL_SNAPSHOT and run records remain immutable historical evidence. New local evidence: `_run_records/WORKING_ITEMS_RUN_2026-09-05_BROWSER_POINTER_REPAIR.md`; manager `E2E_REPAIR_RETURN.md` and R2 `RETURN_FINAL_V3.json`.
+ - Full source28, dist3, desktop748/45, build, targeteddiagnostic2 and exact1024x768 browser selection/linked-MPa/required-input-scroll/Close witness PASS. Preflight trace override is recorded; root must still run the unchanged complete clean committed DEC025 and refresh native evidence. Browser tests do not establish native GUI, solver/storage or owner usability acceptance.
+ - No further Remaining narrowing: this repair belongs to the bounded presentation slice already excluded from broad residuals. IN_PROGRESS, ScopeOfWork, engineering holds, MAP031 inline Apply, full typed widgets, D58 and PDU045/046 are unchanged.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Accepted UI successor-v3 supplies editable workspace wireframes and an offline simulated prototype with inspectable intent/state/backfill mappings. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json`; entry `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html`. Production UI and personal owner visual alignment remain separate; mock interaction does not establish production Rust/model-hash equivalence.
+--- a/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md
++++ b/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md
+@@ -457,3 +457,8 @@
+   target writer, manifest-level unit conversion, lifecycle transition,
+   release-readiness claim, professional approval, certification, sealing,
+   authentication, or code-compliance claim changed.
++
++
++## Bounded result-integrity/design closeout — conditional draft
++
++Accepted UI successor-v3 supplies editable workspace wireframes and an offline simulated prototype with inspectable intent/state/backfill mappings. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json`; entry `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html`. Production UI and personal owner visual alignment remain separate; mock interaction does not establish production Rust/model-hash equivalence.
+--- a/projects/chirality-piping/loop/LOOP_RECEIPTS.md
++++ b/projects/chirality-piping/loop/LOOP_RECEIPTS.md
+@@ -3177,3 +3177,13 @@
+   - Model-Attribution: Actual HELP_HUMAN, WORKING_ITEMS and TASK model/effort, parentage, scope and execution limitations are recorded in the owning AgentRuns dispatch and raw return records.
+   - Checks: Fresh independent cumulative review, qualified native lifecycle witnesses, complete clean registered DEC-025, full practitioner harness, self-check, receipt validation and affected local governance CI entrypoints: PASS.
+   - Gate-Outcome: `EXECUTED` — HELP_HUMAN accepts bounded technical implementation and local verification under the recorded in-session user direction; original failed attempts and archive findings/corrections remain preserved. PR, actual-head CI and merge remain pending. Decomposition, DAG, stage and lifecycle are unchanged; no whole-project closure or release is claimed.
++
++
++- **[ROOT_ACTUAL_CLOSEOUT_DATE] — Receipt 140** (bounded result integrity and derivative engineering/3D design).
++  - Receipt-ID: `Receipt-140`
++  - Examined-Through: `8f27fa3d8ec5e128e61fd3ac4076e74d7955f355`
++  - Parent-Receipt: `Receipt-139`
++  - Pointers: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/APPROVAL_DIRECTION.md`; `[ROOT_FINAL_ACCEPTANCE_POINTER]`; `[ROOT_ACTUAL_CLEAN_SWEEP_SUMMARY]`; `[ROOT_ACCEPTED_NATIVE_POINTER]`; candidate source `[ROOT_FINAL_PASS_SOURCE_COMMIT]`. All bracketed pointers are PENDING root completion.
++  - Model-Attribution: Owning actual dispatch/return records preserve configured model/effort and instruction-asserted role limits.
++  - Checks: PENDING actual review, complete clean DEC-025, native/browser, practitioner, self-check, receipt and affected governance outcomes; no pass inferred from this draft.
++  - Gate-Outcome: PENDING — root enters `EXECUTED` only after required technical acceptance. Whole canonical analysis/current-record compatibility, legacy Current-admission and stress-preview follow-ons (owning RESULTS acceptance/import and final root acceptance pointers in this run), target conversions, pressure/connector runtime, production UI and numerical/sparse follow-ons remain. Formal dependencies/DAG/decisions/lifecycle are unchanged; source verification and subsequent publication/actual-head CI/merge are distinct.

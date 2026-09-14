@@ -514,3 +514,8 @@ or code-compliance decisions.
 - Stress source and historical behavior were unchanged; nonlinear remained 5/5. DEC-046 C-B remained byte-identical at SHA-256 `1829a2a6a608dbbdd479248133f2c2a05406c0eabe7a03be57b998735fbe78b6` and nonlinear-only.
 - Evidence: `_run_records/WORKING_ITEMS_RUN_2026-08-12_DEL1005_MECHANICS_RUNNER_BINDING.md` and managed run `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260811-DEC025-MECHANICS-RUNNER-BINDING/`.
 - Lifecycle remains `IN_PROGRESS`. The public result-comparison number, manual-page promotion, Task Management, release/publication, and reliance decisions remain outside this bounded evidence. The clean-commit DEC-025 derivative evidence has not yet been produced.
+
+
+## 2026-09-14 — Bounded result-integrity/design closeout
+
+The localized library/headless result adapter separates model-content, request, raw-mechanics and derivative checksum scopes. Existing CLI transport remains unchanged. Unsupported non-solved runs retain status/diagnostics and canonical solved-document absence. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.
