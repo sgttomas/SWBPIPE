@@ -1,0 +1,12 @@
+--- a/core/reporting/report_package/Cargo.lock
++++ b/core/reporting/report_package/Cargo.lock
+@@ -147,7 +147,9 @@
+ name = "open_pipe_stress_result_export"
+ version = "0.1.0"
+ dependencies = [
++ "open_pipe_stress_canonical_json",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]

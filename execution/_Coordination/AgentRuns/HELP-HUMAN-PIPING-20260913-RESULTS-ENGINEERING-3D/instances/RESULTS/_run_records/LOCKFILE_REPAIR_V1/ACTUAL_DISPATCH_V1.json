@@ -1,0 +1,12 @@
+{
+  "parent": "/root/results_implementation_manager",
+  "actual_child": "/root/results_implementation_manager/results_writer",
+  "tool": "collaboration.followup_task",
+  "recorded_at_utc": "2026-09-14T03:43:58.493075+00:00",
+  "sealed_brief_sha256": "84260ae8503337ccdf7aab6aa4f5100871272a18f8849110ab23787af03af258",
+  "root_origin_sha256": "25210ee938801b71152bc5a5a1bb0dcc9226eee0cbcd6c0c132bdebf1d948a67",
+  "lease": "ROOT_LEASE_LOCKFILE_REPAIR_01",
+  "scope": "three tracked locks only, offline metadata/recheck; original36 unchanged",
+  "new_child": false,
+  "derivative_evidence": true
+}

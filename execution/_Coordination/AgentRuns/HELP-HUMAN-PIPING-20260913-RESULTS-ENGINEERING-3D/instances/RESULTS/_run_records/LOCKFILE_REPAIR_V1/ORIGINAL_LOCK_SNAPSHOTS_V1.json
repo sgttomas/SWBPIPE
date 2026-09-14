@@ -1,0 +1,26 @@
+[
+  {
+    "path": "core/reporting/report_package/Cargo.lock",
+    "snapshots": {
+      "lane_before": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+      "integration_before": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+      "tracked_head_original": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506"
+    }
+  },
+  {
+    "path": "validation/benchmarks/mechanics/Cargo.lock",
+    "snapshots": {
+      "lane_before": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+      "integration_before": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+      "tracked_head_original": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd"
+    }
+  },
+  {
+    "path": "validation/benchmarks/stress/Cargo.lock",
+    "snapshots": {
+      "lane_before": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4",
+      "integration_before": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4",
+      "tracked_head_original": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4"
+    }
+  }
+]

@@ -1,0 +1,282 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "review_delta_base": "b43cc00c4030a804aecb16308ac84e290776bc4b",
+  "source39_manifest_sha256": "c101bb98e5178cb3c9ff395e512e29621175dd83b2954884ab0811333bb215f5",
+  "source39_hash_mismatches": [],
+  "prior1718_hash_mismatches": [],
+  "source_diff": "3 tracked locks,34 additions,0 deletions; every hunk manually read",
+  "graph_checks": [
+    {
+      "path": "core/reporting/report_package/Cargo.lock",
+      "before_sha256": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+      "after_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "changed_existing_packages": [
+        "open_pipe_stress_result_export"
+      ],
+      "added_packages": [],
+      "new_records_match_existing_report_lock": true,
+      "all_other_record_bytes_exact": true
+    },
+    {
+      "path": "validation/benchmarks/mechanics/Cargo.lock",
+      "before_sha256": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+      "after_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "changed_existing_packages": [
+        "open_pipe_stress_result_export"
+      ],
+      "added_packages": [
+        "open_pipe_stress_canonical_json",
+        "ryu"
+      ],
+      "new_records_match_existing_report_lock": true,
+      "all_other_record_bytes_exact": true
+    },
+    {
+      "path": "validation/benchmarks/stress/Cargo.lock",
+      "before_sha256": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4",
+      "after_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "changed_existing_packages": [
+        "open_pipe_stress_result_export"
+      ],
+      "added_packages": [
+        "open_pipe_stress_canonical_json",
+        "ryu"
+      ],
+      "new_records_match_existing_report_lock": true,
+      "all_other_record_bytes_exact": true
+    }
+  ],
+  "packet_manifest_sha256": "593b42183ec5f14d65e54200fafa5c9faead90a0b8e566646ca9147efa0a28d2",
+  "packet_files_verified": 58,
+  "physical_packet_files": 59,
+  "packet_hash_mismatches": [],
+  "commands": [
+    {
+      "command": "command_001",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_package/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:02.717097+00:00",
+        "stdout_sha256": "39220023e125acc793b3bebe49d8a34aeb46eae50acedd17e452af0e36cb8a6f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_sha256": "39220023e125acc793b3bebe49d8a34aeb46eae50acedd17e452af0e36cb8a6f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata_export_dependency_edges_match": true
+    },
+    {
+      "command": "command_002",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:04.604707+00:00",
+        "stdout_sha256": "57b65cc73a82b82d7a3053f3f464d150dbb71de3e3ef7a1a9f30d4df4bd12c9c",
+        "stderr_sha256": "d74e709291bede1806ea3559912c9bbdf670d873bf89a014c7068a91930dc7f9"
+      },
+      "stdout_sha256": "57b65cc73a82b82d7a3053f3f464d150dbb71de3e3ef7a1a9f30d4df4bd12c9c",
+      "stderr_sha256": "d74e709291bede1806ea3559912c9bbdf670d873bf89a014c7068a91930dc7f9",
+      "metadata_export_dependency_edges_match": true
+    },
+    {
+      "command": "command_003",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/stress/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:06.476997+00:00",
+        "stdout_sha256": "d8d3d6e469b08c03c331dbad3434fb9667bfd95521247cbb78fdf90fe96bf3ff",
+        "stderr_sha256": "d74e709291bede1806ea3559912c9bbdf670d873bf89a014c7068a91930dc7f9"
+      },
+      "stdout_sha256": "d8d3d6e469b08c03c331dbad3434fb9667bfd95521247cbb78fdf90fe96bf3ff",
+      "stderr_sha256": "d74e709291bede1806ea3559912c9bbdf670d873bf89a014c7068a91930dc7f9",
+      "metadata_export_dependency_edges_match": true
+    },
+    {
+      "command": "command_004",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--locked",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_package/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:08.307435+00:00",
+        "stdout_sha256": "39220023e125acc793b3bebe49d8a34aeb46eae50acedd17e452af0e36cb8a6f",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_sha256": "39220023e125acc793b3bebe49d8a34aeb46eae50acedd17e452af0e36cb8a6f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata_export_dependency_edges_match": true
+    },
+    {
+      "command": "command_005",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--locked",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:10.125358+00:00",
+        "stdout_sha256": "57b65cc73a82b82d7a3053f3f464d150dbb71de3e3ef7a1a9f30d4df4bd12c9c",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_sha256": "57b65cc73a82b82d7a3053f3f464d150dbb71de3e3ef7a1a9f30d4df4bd12c9c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata_export_dependency_edges_match": true
+    },
+    {
+      "command": "command_006",
+      "argv": [
+        "cargo",
+        "metadata",
+        "--locked",
+        "--offline",
+        "--format-version",
+        "1",
+        "--manifest-path",
+        "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/stress/Cargo.toml"
+      ],
+      "env_overrides": {
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-lockfile-metadata-target"
+      },
+      "actual_result": {
+        "exit_code": 0,
+        "completed_utc": "2026-09-14T03:45:11.991186+00:00",
+        "stdout_sha256": "d8d3d6e469b08c03c331dbad3434fb9667bfd95521247cbb78fdf90fe96bf3ff",
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "stdout_sha256": "d8d3d6e469b08c03c331dbad3434fb9667bfd95521247cbb78fdf90fe96bf3ff",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "metadata_export_dependency_edges_match": true
+    }
+  ],
+  "additional_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/LOCKFILE_REPAIR_V1.md",
+      "sha256": "25210ee938801b71152bc5a5a1bb0dcc9226eee0cbcd6c0c132bdebf1d948a67",
+      "bytes": 2095
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_LOCK_DELTA_V1.md",
+      "sha256": "fb1e0f8fdb1fb6c64a476e36d32e95a34b59e161416f3f6b235a60ade4da0fec",
+      "bytes": 2252
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V2.json",
+      "sha256": "c101bb98e5178cb3c9ff395e512e29621175dd83b2954884ab0811333bb215f5",
+      "bytes": 18321
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_ACCEPTANCE_V1.json",
+      "sha256": "2a9e6922882ec84189795d30146e9d39e37824eb5d4795b3ba209ba2f90cf0a7",
+      "bytes": 1648
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/HANDOFF_STATE_V3.md",
+      "sha256": "b8eb8ac3fb8ea5ea69df1a10f85e1c70a9b3b8f12dcc1ec1cb3571614b956082",
+      "bytes": 1780
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_LOCKFILE_REPAIR_FINAL_FAN_IN_V1.json",
+      "sha256": "d029ead834d9a62ff354cbb488802a5110eb0ffec9de4a348325f67db2152d79",
+      "bytes": 1020
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V1/COMMAND.json",
+      "sha256": "97739aeda50595b919235a6853cabdc53df65496812490e20fe3c640283b3c4e",
+      "bytes": 1914
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V1/RETURN.json",
+      "sha256": "28d7cb51b6431eb7e647cf5ff8ef8d6d5ff42a2779bcd063c779a3dc5ed43c9f",
+      "bytes": 591
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V1/stderr.log",
+      "sha256": "977b46c48033fe349d43f06bf49756ed8de3ae147b421df0317eac4e85b10f4f",
+      "bytes": 721
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V1/stdout.log",
+      "sha256": "893f0e011509de1856bfd3b557e0153f6b142e56f1f3a2062507affd67ffbb35",
+      "bytes": 1460
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_PRECOMMIT_V1/COMMAND.json",
+      "sha256": "7e3c9b4bcf32d1e5f3571326784f599b056806fe8a658b3e395e532e047a9cc8",
+      "bytes": 364780
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_PRECOMMIT_V1/RETURN.json",
+      "sha256": "2e55fbaa6db6b51434943bb8ff7b69d9c32812807600001ee820f4d1b7f99b52",
+      "bytes": 363587
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_PRECOMMIT_V1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_PRECOMMIT_V1/stdout.log",
+      "sha256": "6c5b20b1c1d44d55526341d49653254174cc232550ae62e003cbe4cc3cc66c7e",
+      "bytes": 195
+    }
+  ],
+  "preparation_error": "First read-only script stopped at import: system Python lacks tomllib. No writes or candidate effects occurred. Replaced with exact package-block byte comparisons; no installation or runtime required.",
+  "calibration": "Only static reads, exact package-block/JSON comparisons and hashes; no Cargo/build/test/sweep runtime executed by reviewer. Six offline metadata exits attributed to sole writer; DEC025 exit1 occurred before any surface, receipt validator exit0 separate."
+}

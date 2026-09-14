@@ -1,0 +1,5 @@
+evidence-sweep prerequisite preflight failed before execution:
+  - offline Cargo cache incomplete for core/reporting/report_package/Cargo.toml: help: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.
+  - offline Cargo cache incomplete for validation/benchmarks/mechanics/Cargo.toml: help: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.
+  - offline Cargo cache incomplete for validation/benchmarks/stress/Cargo.toml: help: to generate the lock file without accessing the network, remove the --locked flag and use --offline instead.
+no prerequisite was installed or downloaded; no evidence surface ran

@@ -1,0 +1,13 @@
+{
+  "derivative_evidence": true,
+  "lease": "ROOT_LEASE_LOCKFILE_REPAIR_01",
+  "release_utc": "2026-09-14T03:45:30.300371+00:00",
+  "child_runtime_complete_received": true,
+  "all_six_metadata_resolution_and_locked_offline_rechecks_exit_zero": true,
+  "no_tests_builds_solves_or_network": true,
+  "only_three_tracked_locks_changed": true,
+  "existing_package_versions_retained_writer_assertion": true,
+  "accepted36_and_prior875_evidence_unchanged_writer_assertion": true,
+  "remaining": "writer evidence sealing and manager read-only hash/delta validation; root integration/review/commit/full sweep",
+  "further_runtime_authorized": false
+}

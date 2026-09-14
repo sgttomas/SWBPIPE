@@ -1,0 +1,315 @@
+{
+  "source_code_commit_before_lock_repair": "b43cc00c4030a804aecb16308ac84e290776bc4b",
+  "original_source_manifest_sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+  "source_paths": [
+    {
+      "path": "core/reporting/result_export/Cargo.toml",
+      "sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "bytes": 323,
+      "original_sha256": "a2840927e732377382b64403210ed36de3239e697f246290443e6d47f4e47576",
+      "original_bytes": 227,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export/Cargo.toml"
+    },
+    {
+      "path": "core/reporting/result_export/src/derivative.rs",
+      "sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "bytes": 21846,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export/src/derivative.rs"
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "bytes": 65868,
+      "original_sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "original_bytes": 65820,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export/src/lib.rs"
+    },
+    {
+      "path": "core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "bytes": 2075,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs"
+    },
+    {
+      "path": "core/reporting/result_export/tests/derivative_contract.rs",
+      "sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "bytes": 8070,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/reporting/result_export/tests/derivative_contract.rs"
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "bytes": 41028,
+      "original_sha256": "589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54",
+      "original_bytes": 40907,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs"
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "bytes": 56866,
+      "original_sha256": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+      "original_bytes": 52302,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/runner/headless/src/lib.rs"
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "bytes": 24116,
+      "original_sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "original_bytes": 52734,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs"
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "bytes": 142969,
+      "original_sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371",
+      "original_bytes": 142939,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/App.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.test.tsx",
+      "sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec",
+      "bytes": 1833,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "sha256": "4ddc2b6d251668db132c4e82d343176289f931b5b5aea2111df3a7e14c9cd9d4",
+      "bytes": 15166,
+      "original_sha256": "f5111e0e20846658e47fdfb87d8398be0cd3c46dc19031b8a9fe778fe340555c",
+      "original_bytes": 15125,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+      "sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246",
+      "bytes": 1913,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "sha256": "6af26ef4b505aae85a519a1db54d808b6bce94d9c9946fc8bc711c94fcfb753f",
+      "bytes": 16035,
+      "original_sha256": "45f7b418d6488d5f9be79fe1eb0fd88e03f66454a8cfe3e20fc0c4b605614425",
+      "original_bytes": 16485,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "bytes": 11097,
+      "original_sha256": "93a9f2e871eb2b08500c751d4415c41f226e67de001ef2e695355355e46c4caa",
+      "original_bytes": 7757,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "bytes": 8382,
+      "original_sha256": "371934110f8f8561a492d0f18dfebcd26dc641cd001415d5a60b0a0b5473e4c7",
+      "original_bytes": 6668,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "bytes": 14528,
+      "original_sha256": "c3fe9583ae9329761a186eb8e6209491bec09c584298189ad9d87ee323593437",
+      "original_bytes": 14274,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "bytes": 14421,
+      "original_sha256": "514b0582eb56a233b7445ca53b67bef0e903bde4b36acca6f8f0491d3dd0db99",
+      "original_bytes": 13549,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "bytes": 2295,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "bytes": 6587,
+      "original_sha256": "2578daad2bbcd82f7177c3072f7eba61ce3128b4f3be3b6c3ba2048d126e2820",
+      "original_bytes": 14222,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "bytes": 10407,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "bytes": 28410,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "bytes": 1466,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "bytes": 21494,
+      "original_sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "original_bytes": 21519,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "bytes": 11667,
+      "original_sha256": "9b1b9af32a51ec7938bf0b4fbbbb5eb7a6c1e7f5c767e2314ce9c2cadeb8b025",
+      "original_bytes": 12052,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.test.ts",
+      "sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60",
+      "bytes": 1706,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.test.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "bytes": 2417,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts"
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "bytes": 2505,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "bytes": 24506,
+      "original_sha256": "d1ca0890a9899c1704370cfa6d1e4f54e2b729cae1d4e7dadd8e87dc9e6e5c04",
+      "original_bytes": 23701,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx"
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2.json",
+      "sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+      "bytes": 244411,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json"
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2_rejections.json",
+      "sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+      "bytes": 52917,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2_rejections.json"
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "bytes": 37875,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json"
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "bytes": 102069,
+      "original_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "original_bytes": 23038,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.schema.yaml"
+    },
+    {
+      "path": "schemas/results.v0.1.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "bytes": 23038,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.v0.1.schema.yaml"
+    },
+    {
+      "path": "schemas/results.v0.2.schema.yaml",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "bytes": 40806,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.v0.2.schema.yaml"
+    },
+    {
+      "path": "tests/test_result_export_v0_2.py",
+      "sha256": "dd4d2bbf9de28bf099ea589ae4dc54c641a19dc48f3b8a1887e071da26efe89c",
+      "bytes": 2218,
+      "original_sha256": null,
+      "original_bytes": 0,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/tests/test_result_export_v0_2.py"
+    },
+    {
+      "path": "tests/test_results_schema.py",
+      "sha256": "b42e2cec2f07736c3d2e2732e6b794e68075b72150ed6a4541f139ee54f993ae",
+      "bytes": 26420,
+      "original_sha256": "4af1dce79e20c2c68d4f848d961ff735c7ef6bf048faf9fb76b97099d454aacb",
+      "original_bytes": 26345,
+      "original_comparison_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/tests/test_results_schema.py"
+    },
+    {
+      "path": "core/reporting/report_package/Cargo.lock",
+      "original_sha256": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+      "sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "bytes": 6470
+    },
+    {
+      "path": "validation/benchmarks/mechanics/Cargo.lock",
+      "original_sha256": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+      "sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "bytes": 6731
+    },
+    {
+      "path": "validation/benchmarks/stress/Cargo.lock",
+      "original_sha256": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4",
+      "sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "bytes": 6111
+    }
+  ],
+  "count": 39,
+  "reason": "Required tracked lock edges for accepted result_export dependency change; fullDEC025 V1 preflight failed before surfaces; existing package versions/checksums retained; original36 unchanged",
+  "review": "Original36 fullreviewPASS; three lock delta review pending"
+}

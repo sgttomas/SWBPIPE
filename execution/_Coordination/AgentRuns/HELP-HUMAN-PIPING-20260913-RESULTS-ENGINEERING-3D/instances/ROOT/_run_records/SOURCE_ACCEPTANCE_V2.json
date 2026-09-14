@@ -1,0 +1,19 @@
+{
+  "status": "39_SOURCE_CANDIDATE_ACCEPTED_FOR_COMPLETE_SWEEP",
+  "prior_source_commit": "b43cc00c4030a804aecb16308ac84e290776bc4b",
+  "source_inventory_sha256": "c101bb98e5178cb3c9ff395e512e29621175dd83b2954884ab0811333bb215f5",
+  "independent_review_return_sha256": "c63a8b60b2bc020fb9734e15be1d924c3c18cb4f2b7848064dce69e9b25df937",
+  "independent_review_manifest_sha256": "eab67fda19a673ec524ccd9c20c22747b5f2babd00a1027257c68d2a9fefb87a",
+  "delta": "Exactly3 tracked Cargo.lock files/34insertions; old package versions/sources/checksums and original36 product paths retained. Same reviewed source plus required dependency edges.",
+  "root_acceptance": "Full V2 return read, manifest files hash checked, and actual3file diff inspected. No actionable finding.",
+  "failed_sweep": "DEC025_V1 prerequisite failure preserved; no surface executed. Source and historical tracked-status correction are additive.",
+  "runtime": "All other instances idle; root exclusive DEC025_V2 next.",
+  "open_gates": [
+    "Clean fullDEC025",
+    "Actual native witness",
+    "Closeout metadata and additive review",
+    "Affected local/hostedCI",
+    "PRmerge"
+  ],
+  "minor_preparation_errors": "Two read-only JSON/file lookup assumptions failed (draft MANIFEST filename, repair source_files hash key); exact filenames/records then used. No source or gate outcome changed."
+}

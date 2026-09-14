@@ -1,0 +1,14 @@
+{
+  "status": "ADDITIVE_CORRECTION_ORIGINAL_ARTIFACTS_PRESERVED",
+  "affected_original_artifact": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/SOURCE_FENCE_AND_HASH_AUDIT_V1.json",
+  "original_sha256": "a9b74c710392523cb0fba2d474165d9476538f59e0a58801b5bafb7fa7653635",
+  "affected_field": "runtime_generated_cargo_locks_not_source_patch",
+  "corrected_status": "The three authorized paths are git-tracked product Cargo.lock files with old dependency graphs, not ignored/generated scratch. They were omitted from the original 36-file patch; this accepted three-lock additive tranche corrects that omission. No assertion about these three files being ignored/generated is valid.",
+  "paths": [
+    "core/reporting/report_package/Cargo.lock",
+    "validation/benchmarks/mechanics/Cargo.lock",
+    "validation/benchmarks/stress/Cargo.lock"
+  ],
+  "original_and_current_snapshots": "Each lock has lane_before, integration_before, tracked_head_original and lane_after bytes independently preserved; lane-before equals integration-before for all three.",
+  "original_artifacts_unchanged": true
+}

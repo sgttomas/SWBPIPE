@@ -1,0 +1,19 @@
+{
+  "derivative_package": true,
+  "verdict": "bounded lock delta accepted; root integration/delta review/recommit/full sweep pending",
+  "child_return_sha256": "7062039519cd34c5d2c0dcfd727124d3d501df9a2fe278d407f058ca633a5301",
+  "child_manifest_sha256": "593b42183ec5f14d65e54200fafa5c9faead90a0b8e566646ca9147efa0a28d2",
+  "patch_sha256": "37d87e9c48e759a730849084006e61dc384877c528611fb94c283904e16be148",
+  "checked_source_files": 3,
+  "checked_evidence_files": 58,
+  "checked_evidence_bytes": 25227731,
+  "hash_or_length_findings": [],
+  "complete_physical_inventory_match": true,
+  "unmanifested": [],
+  "absent": [],
+  "prior_versions_and36and875_independent_check": "LOCKFILE_REPAIR_V1/MANAGER_LOCK_DELTA_BACKCHECK_V1.json SHA77d7020614c083675a257c243833560a0646801b2beaa0413ec3f2a1b238c4d7",
+  "preparation_failure_preserved": "MANAGER_LOCKFILE_FAN_IN_PREPARATION_ERROR_V1.json, parser-key mismatch, no product failure",
+  "runtime_released": true,
+  "writer_idle": true,
+  "no_further_effects_planned": true
+}

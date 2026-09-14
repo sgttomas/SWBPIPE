@@ -1,0 +1,23 @@
+{
+  "exit_code": 1,
+  "elapsed_seconds": 1.5837343749999997,
+  "finished_utc": "2026-09-14T03:40:44.635550+00:00",
+  "files": [
+    {
+      "path": "stderr.log",
+      "bytes": 721,
+      "sha256": "977b46c48033fe349d43f06bf49756ed8de3ae147b421df0317eac4e85b10f4f"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 1460,
+      "sha256": "893f0e011509de1856bfd3b557e0153f6b142e56f1f3a2062507affd67ffbb35"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 1914,
+      "sha256": "97739aeda50595b919235a6853cabdc53df65496812490e20fe3c640283b3c4e"
+    }
+  ],
+  "status_after": ""
+}

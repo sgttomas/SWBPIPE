@@ -1,0 +1,22 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "review_base": "b43cc00c4030a804aecb16308ac84e290776bc4b",
+  "source39_manifest_sha256": "c101bb98e5178cb3c9ff395e512e29621175dd83b2954884ab0811333bb215f5",
+  "previous_return_sha256": "c96b89eac4086df8e53bd1a6ef818e5c095218fe0e861eb11be0b9650cd6c28c",
+  "previous_manifest_sha256": "79a3ac78ed81f3be900e0fd6d00e26b1a705bc1fd09063b4db1fd2617eed1a96",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "c63a8b60b2bc020fb9734e15be1d924c3c18cb4f2b7848064dce69e9b25df937",
+      "bytes": 3859
+    },
+    {
+      "path": "COVERAGE_V2.json",
+      "sha256": "9ff1e0e03cc4b43bb048646c95f142b872bb8b5f01f96fa0acda7be1eef83b06",
+      "bytes": 13233
+    }
+  ],
+  "self_hash_scope": "This manifest excludes itself; parent binds its hash.",
+  "remaining": "Root clean candidate commit, registered sweep, native and later additive closeout review."
+}

@@ -1,0 +1,3 @@
+     Locking 2 packages to latest compatible versions
+      Adding open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/serialization/canonical_json)
+      Adding ryu v1.0.23

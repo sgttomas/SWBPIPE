@@ -1,0 +1,40 @@
+--- a/validation/benchmarks/mechanics/Cargo.lock
++++ b/validation/benchmarks/mechanics/Cargo.lock
+@@ -73,6 +73,14 @@
+ version = "2.8.0"
+ source = "registry+https://github.com/rust-lang/crates.io-index"
+ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
++
++[[package]]
++name = "open_pipe_stress_canonical_json"
++version = "0.1.0"
++dependencies = [
++ "ryu",
++ "serde_json",
++]
+ 
+ [[package]]
+ name = "open_pipe_stress_curved_bend"
+@@ -120,7 +128,9 @@
+ name = "open_pipe_stress_result_export"
+ version = "0.1.0"
+ dependencies = [
++ "open_pipe_stress_canonical_json",
+  "serde_json",
++ "sha2",
+ ]
+ 
+ [[package]]
+@@ -170,6 +180,12 @@
+ dependencies = [
+  "proc-macro2",
+ ]
++
++[[package]]
++name = "ryu"
++version = "1.0.23"
++source = "registry+https://github.com/rust-lang/crates.io-index"
++checksum = "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+ 
+ [[package]]
+ name = "serde"

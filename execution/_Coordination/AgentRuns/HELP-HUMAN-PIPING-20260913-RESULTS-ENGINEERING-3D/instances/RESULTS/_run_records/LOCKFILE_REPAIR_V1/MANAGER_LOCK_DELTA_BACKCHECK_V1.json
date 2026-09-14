@@ -1,0 +1,99 @@
+{
+  "derivative_evidence": true,
+  "check_scope": "read-only TOML/hash/source comparison, no build/test/runtime",
+  "three_tracked_lock_changes": [
+    {
+      "path": "core/reporting/report_package/Cargo.lock",
+      "original_sha256": "162db1cd188865cf89ca70eb00581de5353265560d5a0f7b7525d95bf2ef8506",
+      "new_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "existing_package_versions_and_registry_checksums_retained": true,
+      "removed_packages": [],
+      "added_packages": [],
+      "existing_package_changes": {
+        "open_pipe_stress_result_export": {
+          "old_dependencies": [
+            "serde_json"
+          ],
+          "new_dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    },
+    {
+      "path": "validation/benchmarks/mechanics/Cargo.lock",
+      "original_sha256": "8e7fb44c6fd280e679a157f83314af8e4bcf54406eb5f98eef67111e5f13f2cd",
+      "new_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "existing_package_versions_and_registry_checksums_retained": true,
+      "removed_packages": [],
+      "added_packages": [
+        {
+          "name": "open_pipe_stress_canonical_json",
+          "version": "0.1.0",
+          "dependencies": [
+            "ryu",
+            "serde_json"
+          ]
+        },
+        {
+          "name": "ryu",
+          "version": "1.0.23",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+        }
+      ],
+      "existing_package_changes": {
+        "open_pipe_stress_result_export": {
+          "old_dependencies": [
+            "serde_json"
+          ],
+          "new_dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    },
+    {
+      "path": "validation/benchmarks/stress/Cargo.lock",
+      "original_sha256": "ba42070a993ef46bb836be0480bc9779c98784513a3bc50f262cf1bb7f97ecd4",
+      "new_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "existing_package_versions_and_registry_checksums_retained": true,
+      "removed_packages": [],
+      "added_packages": [
+        {
+          "name": "open_pipe_stress_canonical_json",
+          "version": "0.1.0",
+          "dependencies": [
+            "ryu",
+            "serde_json"
+          ]
+        },
+        {
+          "name": "ryu",
+          "version": "1.0.23",
+          "source": "registry+https://github.com/rust-lang/crates.io-index",
+          "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+        }
+      ],
+      "existing_package_changes": {
+        "open_pipe_stress_result_export": {
+          "old_dependencies": [
+            "serde_json"
+          ],
+          "new_dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    }
+  ],
+  "accepted36_and_prior875_drift": [],
+  "existing_versions_retained_all_three": true,
+  "source_graph_delta": "result_export adds canonical_json and sha2; mechanics/stress additionally gain canonical_json0.1.0 and cached ryu1.0.23"
+}

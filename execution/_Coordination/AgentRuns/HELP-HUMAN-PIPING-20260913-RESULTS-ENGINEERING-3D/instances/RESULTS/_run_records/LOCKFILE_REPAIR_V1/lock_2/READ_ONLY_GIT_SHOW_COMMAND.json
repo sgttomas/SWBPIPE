@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "git",
+    "show",
+    "HEAD:./validation/benchmarks/mechanics/Cargo.lock"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "exit_code": 0,
+  "stderr": ""
+}

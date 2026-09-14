@@ -1,0 +1,27 @@
+OpenPipeStress five-surface evidence sweep (execute) — DEC-025 + DEC-093
+repo: /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping
+
+surfaces (sequential, F-4-safe order): 5
+1. cargo_crate_sweep
+   execution capability: sandboxed
+   Rust crate tests across all discovered crate manifests.
+   command: /var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/release/check_release_readiness.py --profile cargo --execute
+2. python_pytest
+   execution capability: sandboxed
+   Repository Python contract, governance, and validation tests.
+   command: /var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python -m pytest -q tests
+3. desktop_vitest
+   execution capability: sandboxed
+   Desktop unit/contract tests; wasm engine built first.
+   command: npm run build:wasm:desktop
+   command: npm run test:desktop
+4. desktop_playwright_e2e
+   execution capability: host
+   Playwright end-to-end smoke in a real Chrome browser: dev-server lane, then production-dist lane via vite preview (TP-APP-R2-WASMPKG-001).
+   command: npm run test:e2e:desktop
+   command: npm run test:e2e:dist:desktop
+5. desktop_production_build
+   execution capability: sandboxed
+   Desktop production build (tsc -b && vite build).
+   command: npm run build:desktop
+[evidence-sweep] execution capability preflight: PASS (host)

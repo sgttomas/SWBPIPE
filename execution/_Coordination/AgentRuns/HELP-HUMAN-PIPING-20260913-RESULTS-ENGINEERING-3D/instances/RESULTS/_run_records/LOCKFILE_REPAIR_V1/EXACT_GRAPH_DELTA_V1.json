@@ -1,0 +1,110 @@
+[
+  {
+    "path": "core/reporting/report_package/Cargo.lock",
+    "changed_existing_packages": {
+      "open_pipe_stress_result_export": {
+        "old": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "serde_json"
+          ]
+        },
+        "new": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    },
+    "added_packages": {},
+    "all_other_existing_package_records_exact": true,
+    "lock_header_exact": true
+  },
+  {
+    "path": "validation/benchmarks/mechanics/Cargo.lock",
+    "changed_existing_packages": {
+      "open_pipe_stress_result_export": {
+        "old": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "serde_json"
+          ]
+        },
+        "new": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    },
+    "added_packages": {
+      "open_pipe_stress_canonical_json": {
+        "name": "open_pipe_stress_canonical_json",
+        "version": "0.1.0",
+        "dependencies": [
+          "ryu",
+          "serde_json"
+        ]
+      },
+      "ryu": {
+        "name": "ryu",
+        "version": "1.0.23",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+      }
+    },
+    "all_other_existing_package_records_exact": true,
+    "lock_header_exact": true
+  },
+  {
+    "path": "validation/benchmarks/stress/Cargo.lock",
+    "changed_existing_packages": {
+      "open_pipe_stress_result_export": {
+        "old": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "serde_json"
+          ]
+        },
+        "new": {
+          "name": "open_pipe_stress_result_export",
+          "version": "0.1.0",
+          "dependencies": [
+            "open_pipe_stress_canonical_json",
+            "serde_json",
+            "sha2"
+          ]
+        }
+      }
+    },
+    "added_packages": {
+      "open_pipe_stress_canonical_json": {
+        "name": "open_pipe_stress_canonical_json",
+        "version": "0.1.0",
+        "dependencies": [
+          "ryu",
+          "serde_json"
+        ]
+      },
+      "ryu": {
+        "name": "ryu",
+        "version": "1.0.23",
+        "source": "registry+https://github.com/rust-lang/crates.io-index",
+        "checksum": "9774ba4a74de5f7b1c1451ed6cd5285a32eddb5cccb8cc655a4e50009e06477f"
+      }
+    },
+    "all_other_existing_package_records_exact": true,
+    "lock_header_exact": true
+  }
+]

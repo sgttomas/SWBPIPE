@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "git",
+    "show",
+    "HEAD:./core/reporting/report_package/Cargo.lock"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "exit_code": 0,
+  "stderr": ""
+}
