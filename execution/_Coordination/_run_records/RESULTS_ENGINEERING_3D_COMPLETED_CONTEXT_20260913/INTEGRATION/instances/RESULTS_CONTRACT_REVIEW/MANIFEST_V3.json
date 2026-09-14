@@ -1,0 +1,146 @@
+{
+  "status": "IMMUTABLE_FOCUSED_RCR03_BACKCHECK_PASS",
+  "derivative_package": true,
+  "reviewer": "/root/results_contract_review",
+  "parent": "/root",
+  "continuation_not_fresh_reviewer": true,
+  "scope": "V4 raw annotation correction and affected expectations only",
+  "input_return": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/RETURN_V4.md",
+    "sha256": "8fc4f4a4a788c2f36c2862429ff785cdc5b7fc86d1b4c47f2d57581447059daa"
+  },
+  "input_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/MANIFEST_V4.json",
+    "sha256": "2674cb84a67f9223a886f7d7acd8c55c370e2da308429bb0a86aadc558628937"
+  },
+  "input_index": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/CONSOLIDATED_CANDIDATE_INDEX_V4.json",
+    "sha256": "fc87130ed6c98acf4913a24c0f21d141b655a6ebc9d553c35b20debf168953b2"
+  },
+  "files": [
+    {
+      "path": "MANIFEST.json",
+      "sha256": "53c55c54b774229c022d3038fa454adc13f79cece38cba1f432e0b443c93d15f",
+      "bytes": 2261
+    },
+    {
+      "path": "MANIFEST_V2.json",
+      "sha256": "6f992c0cc6c406baba0680844821dcd4a797580b49e39eef7438e7bc6d3e7664",
+      "bytes": 3676
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "665bf0e0965847f70d3be5863c39c83fffd0278a66d0d6947056147a51c4a7f1",
+      "bytes": 10701
+    },
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "e28f3638c41a2ecf580a149aabec33ad49513a4942ff5a5b616342c86496ef6a",
+      "bytes": 8577
+    },
+    {
+      "path": "RETURN_V3.md",
+      "sha256": "ee8244d16fcf80f2cc9c1ccd8a76693067ce60799c700ec3f37ed451e5cd5dc7",
+      "bytes": 5538
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "sha256": "92e267628956022e9de1cff9406ced7f62b0250df3ad9d6b16063700475001b5",
+      "bytes": 1491
+    },
+    {
+      "path": "_run_records/CONTEXT_HASHES.json",
+      "sha256": "ae8b00a45a368331ac4544cae5f587716e060e6adfe73c206b7e8b4123300377",
+      "bytes": 16458
+    },
+    {
+      "path": "_run_records/CONTINUATION_BRIEF_V2.sha256",
+      "sha256": "d58a9a73c58c81adaefa2b77bfe21530a48ff6c358b3c320093d2914d2bb49f3",
+      "bytes": 92
+    },
+    {
+      "path": "_run_records/CONTINUATION_BRIEF_V2.txt",
+      "sha256": "8058f66e9ef5c67f21a7bcc4ba609622d18c33d7d259c843bf8762ee800c32d7",
+      "bytes": 2347
+    },
+    {
+      "path": "_run_records/EXACT_CONTRACT_DIFF_V3.json",
+      "sha256": "f403fa0b10726e251433310c3ee9aace2d97f1832f695398c8263be03d3db674",
+      "bytes": 12728
+    },
+    {
+      "path": "_run_records/FINDING_LOCATIONS.json",
+      "sha256": "4c3be3b33387d592f4fc65470546906b4ee51f721f8db0747504990ef32903c2",
+      "bytes": 1328
+    },
+    {
+      "path": "_run_records/FOCUSED_INSPECTION_RECORD_V3.json",
+      "sha256": "d67ac72a8b506b72cc02e1816092b3c1f828a4f827101e8def87fe2feb8e4d8f",
+      "bytes": 13087
+    },
+    {
+      "path": "_run_records/HASH_BACKCHECK_V2.json",
+      "sha256": "44192e3c193348ef32adc27469608b6e3e938ac6e1c27a49d6263847323160c3",
+      "bytes": 216962
+    },
+    {
+      "path": "_run_records/HASH_BACKCHECK_V3.json",
+      "sha256": "8e94f1b9052a7ea0913e270dd5bff2e9bb1cc3f9dab3765f1b3fc296b1b2e44f",
+      "bytes": 107866
+    },
+    {
+      "path": "_run_records/INSPECTION_RECORD.json",
+      "sha256": "7f3f6cd61ca619670c2bd28594822586bf4b9cfff412b5cb18eb0c09c52ab303",
+      "bytes": 1059
+    },
+    {
+      "path": "_run_records/INSPECTION_RECORD_V2.json",
+      "sha256": "04bb3b52e50075f9467ee1b891121a5083cf412976c8625ed077ad46d610ef99",
+      "bytes": 4235
+    },
+    {
+      "path": "_run_records/METADATA_LOSSLESS_READ_V2.txt",
+      "sha256": "335090968d80076ddfdb6c44c096b7c443c96ae89a2523a3de04c2f783813332",
+      "bytes": 91593
+    },
+    {
+      "path": "_run_records/PARENT_DISPOSITION_CONTEXT.json",
+      "sha256": "5408add7a91454cd88e045778b898a4046bb121077cc66e9e9c221f0e7cde1a9",
+      "bytes": 546
+    },
+    {
+      "path": "_run_records/RCR03_COUNTEREXAMPLES_V2.json",
+      "sha256": "8f36c5251e5f3476a62b10702c16afd7712ad5bbd29f7bf36f9498ad5be0e9a7",
+      "bytes": 17172
+    },
+    {
+      "path": "_run_records/SEALED_BACKCHECK_BRIEF_V3.md",
+      "sha256": "d88e716823626025e79776daef7827c0db0cac3d2a86be2f693af5dce7424bb3",
+      "bytes": 3273
+    },
+    {
+      "path": "_run_records/TABLE_LOSSLESS_READ_V2.txt",
+      "sha256": "8b499f6925f477006d14df50b86577671c40a5a53634a05f99c97280d97d9cb9",
+      "bytes": 87360
+    },
+    {
+      "path": "_run_records/UPSTREAM_PHYSICAL_INVENTORY.json",
+      "sha256": "efb3ddc0a8254d705a43099fe58dec48599aac8c10e9cdf08110a7f98f32169e",
+      "bytes": 24208
+    }
+  ],
+  "files_count_excluding_self": 22,
+  "bytes_excluding_self": 632558,
+  "resolved_in_this_backcheck": [
+    "RCR-03"
+  ],
+  "previously_resolved": [
+    "RCR-01",
+    "RCR-02"
+  ],
+  "remaining_findings": [],
+  "runtime_executed": false,
+  "product_source_effect": false,
+  "acceptance_authority": "Root retains candidate acceptance and sole-writer release",
+  "selfhash": "External pin delivered to parent; excluded from own files list"
+}

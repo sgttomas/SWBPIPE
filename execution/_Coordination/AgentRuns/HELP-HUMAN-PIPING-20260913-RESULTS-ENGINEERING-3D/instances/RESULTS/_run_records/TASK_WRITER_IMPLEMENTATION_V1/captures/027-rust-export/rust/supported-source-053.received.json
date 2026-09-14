@@ -1,0 +1,25 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": null,
+      "entity_ref": "support:synthetic-source",
+      "id": "result:synthetic-supported-source-053",
+      "kind": "nonlinear_support_final_displacement",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+        "component": "nonlinear_support_final_displacement",
+        "coordinate_system": "solver_iteration",
+        "location": "rx",
+        "sign_convention": "positive value follows the global frame DOF sign convention"
+      },
+      "source_result_refs": [],
+      "unit": "rad",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

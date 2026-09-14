@@ -1,0 +1,22 @@
+{
+  "parent": "/root",
+  "instance": "/root/next_plan_review",
+  "role": "TASK Type 2",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "model_attribution": "parent-configured/tool-reported, not supplier-runtime attestation",
+  "execution": "Continuation by same original independent V2 reviewer; not a fake fresh instance",
+  "mechanism": "delegated-harness-native continuation following original collaboration.spawn_agent launch",
+  "no_children_writes": "instruction-asserted",
+  "exact_return_source": "Full final backcheck response supplied verbatim by parent",
+  "return_sha256": "6caa8de19763a35c6f967fa1dad3ad9fd2b7cbc79e7b92f52d4a5ae5ba08e3bb",
+  "bindings": {
+    "instances/SETUP/_run_records/PLAN_REVIEW_V2_DISPATCH.json": "2814e15756768f520101de2d9a4c3a8f4f8b3aa6f4237b0e2c7bea3deb6466f0",
+    "instances/PLAN_REVIEW/REVIEW_V2_RETURN.md": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+    "instances/PLAN_REVIEW/REVIEW_V2_ATTRIBUTION.json": "ea402c29f2437bc93e80273b21a492fb13ace5ffd4ba753b6e8c868d8552eff3",
+    "CANDIDATE_PLAN_V3.md": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+    "CANDIDATE_PLAN_V3_MANIFEST.json": "0e2d5527eef0d0a06a14148f2ee14cea2777a5eb318ae2395ce90416b23aaf18",
+    "briefs/PLAN_REVIEW_V3.md": "ab073436ddc0f6a6c0c847678fc789bd2a0c2bef67700b60e8489d1ccc365259",
+    "instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json": "c910e3f3aa549a40c9beb56da11282f9b64a3415d3756990aa1b980e449d7425"
+  }
+}

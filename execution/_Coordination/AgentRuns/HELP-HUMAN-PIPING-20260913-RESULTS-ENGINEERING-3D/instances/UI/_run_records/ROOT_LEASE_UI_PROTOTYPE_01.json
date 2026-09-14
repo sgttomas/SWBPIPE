@@ -1,0 +1,23 @@
+{
+  "lease": "ROOT_LEASE_UI_PROTOTYPE_01",
+  "grantor": "/root",
+  "executor": "/root/next_ui_design/prototype",
+  "source_freeze": "children/PROTOTYPE/_run_records/CANDIDATE_FREEZE_V2.json",
+  "sha256": "a3d8103ec6eb8c52e84e51ee7a42fd047e0c190f96d9a55d0b75eb64aec74263",
+  "commands": "children/PROTOTYPE/_run_records/LEASE_REQUEST_V2.md",
+  "grant": "Bundled node --check workspace.js, capabilities.js, witness.mjs; specified env Playwright module + bundled node witness.mjs; file:// headless Chromium prototype only; six viewport/density combinations \u00d7 three journeys; output witness-v1",
+  "additional_required_evidence": [
+    "Node/Playwright/browser identity",
+    "full commands/output/exits and failures",
+    "source pre/post hashes",
+    "process cleanup"
+  ],
+  "exclusions": [
+    "product build",
+    "native app",
+    "network",
+    "server"
+  ],
+  "qualification": "author/manager self-check; independent acceptance separate",
+  "status_at_record": "GRANTED_AND_RELAYED; execution result forthcoming"
+}

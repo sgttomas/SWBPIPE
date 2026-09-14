@@ -1,0 +1,275 @@
+{
+  "claim": "author self-check of simulated interaction design; not independent acceptance",
+  "lease": "ROOT_LEASE_UI_PROTOTYPE_02",
+  "freezeSHA256": "3375b8e39d49cdb833cb35d5f77c382c5c4a3e7101f12d57f1b2451ba84199a5",
+  "exitCode": 0,
+  "matrix": [
+    {
+      "width": 1024,
+      "height": 768,
+      "density": "comfortable",
+      "pass": true,
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 558,
+        "height": 320,
+        "scrollWidth": 558,
+        "clientWidth": 558,
+        "scrollHeight": 320,
+        "clientHeight": 320
+      },
+      "editor": {
+        "x": 753,
+        "y": 177,
+        "width": 271,
+        "height": 271,
+        "scrollWidth": 271,
+        "clientWidth": 271,
+        "scrollHeight": 830,
+        "clientHeight": 271
+      },
+      "dock": {
+        "x": 0,
+        "y": 570,
+        "width": 1024,
+        "height": 170,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 170,
+        "clientHeight": 170
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "density": "compact",
+      "pass": true,
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 578,
+        "height": 332,
+        "scrollWidth": 578,
+        "clientWidth": 578,
+        "scrollHeight": 332,
+        "clientHeight": 332
+      },
+      "editor": {
+        "x": 773,
+        "y": 177,
+        "width": 251,
+        "height": 274,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 274
+      },
+      "dock": {
+        "x": 0,
+        "y": 582,
+        "width": 1024,
+        "height": 158,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "density": "comfortable",
+      "pass": true,
+      "canvas": {
+        "x": 232,
+        "y": 177,
+        "width": 756,
+        "height": 342,
+        "scrollWidth": 756,
+        "clientWidth": 756,
+        "scrollHeight": 342,
+        "clientHeight": 342
+      },
+      "editor": {
+        "x": 989,
+        "y": 177,
+        "width": 291,
+        "height": 293,
+        "scrollWidth": 291,
+        "clientWidth": 291,
+        "scrollHeight": 807,
+        "clientHeight": 293
+      },
+      "dock": {
+        "x": 0,
+        "y": 592,
+        "width": 1280,
+        "height": 180,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 180,
+        "clientHeight": 180
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    },
+    {
+      "width": 1280,
+      "height": 800,
+      "density": "compact",
+      "pass": true,
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 834,
+        "height": 364,
+        "scrollWidth": 834,
+        "clientWidth": 834,
+        "scrollHeight": 364,
+        "clientHeight": 364
+      },
+      "editor": {
+        "x": 1029,
+        "y": 177,
+        "width": 251,
+        "height": 306,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 306
+      },
+      "dock": {
+        "x": 0,
+        "y": 614,
+        "width": 1280,
+        "height": 158,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    },
+    {
+      "width": 1440,
+      "height": 920,
+      "density": "comfortable",
+      "pass": true,
+      "canvas": {
+        "x": 232,
+        "y": 177,
+        "width": 916,
+        "height": 462,
+        "scrollWidth": 916,
+        "clientWidth": 916,
+        "scrollHeight": 462,
+        "clientHeight": 462
+      },
+      "editor": {
+        "x": 1149,
+        "y": 177,
+        "width": 291,
+        "height": 413,
+        "scrollWidth": 291,
+        "clientWidth": 291,
+        "scrollHeight": 807,
+        "clientHeight": 413
+      },
+      "dock": {
+        "x": 0,
+        "y": 712,
+        "width": 1440,
+        "height": 180,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 180,
+        "clientHeight": 180
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    },
+    {
+      "width": 1440,
+      "height": 920,
+      "density": "compact",
+      "pass": true,
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 994,
+        "height": 484,
+        "scrollWidth": 994,
+        "clientWidth": 994,
+        "scrollHeight": 484,
+        "clientHeight": 484
+      },
+      "editor": {
+        "x": 1189,
+        "y": 177,
+        "width": 251,
+        "height": 426,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 426
+      },
+      "dock": {
+        "x": 0,
+        "y": 734,
+        "width": 1440,
+        "height": 158,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "pageErrors": [],
+      "unexpectedNetwork": []
+    }
+  ],
+  "tested": [
+    "all three actual-button/pointer/keyboard journeys at six configurations",
+    "atomic route checkpoint, own matching continuation, cancel, undo/redo",
+    "4 CSS px orbit authoring gate; pointer/typed one draft",
+    "busy/stale apply blocker; cancelled late completion generation guard",
+    "explicit component symbol and support DOFs/provenance",
+    "finite insertion and attached transform named blockers",
+    "set_field exact before/after correction",
+    "Current edit invalidation; Historical UNKNOWN excludes overlay/readiness",
+    "rotation angle, diagnostic N*m, linked typed row selection",
+    "blocked/nonconverged/cancelled named solve states",
+    "each normative row searched/clicked; 3 ROADMAP no apply",
+    "command-search keyboard; scenario Escape focus return; unclipped body/Apply/Cancel"
+  ],
+  "notTested": [
+    "production/Rust/schema/hash/solver/numerical/engineering proof",
+    "independent source/interaction/usability acceptance",
+    "unreferenced transform apply and split apply",
+    "support update and spring/nonlinear engineering forms beyond discoverability",
+    "full keyboard-only three-journey performance, comprehensive accessibility audit",
+    "SVG wireframe browser rendering; SVGs are editable asset source"
+  ],
+  "cleanup": "all contexts closed; browser.close awaited in harness finally; Node exited0",
+  "visualInspection": "author viewed 1024 Comfortable Current and 1440 Compact Historical screenshots; manager/root own final review",
+  "executableAssetChangesAfterFreeze": false,
+  "documentaryMetadataUpdatesAfterRuntime": [
+    {
+      "path": "README.md",
+      "frozenSHA256": "13205488f01a8bc109a2124fc7cdf8b822a2f332aec555f00fdc40fceabc9dd0",
+      "currentSHA256": "8605cd048a348f8470a41a75f23a4981c4d5f9b983316022bc25650afe417fd1",
+      "reason": "documentary self-check status/inventory metadata update after runtime terminal; not executable browser source"
+    },
+    {
+      "path": "write_inventory.py",
+      "frozenSHA256": "864209d4d1ceed64e6b2a8c73e04a3df77afb427b8efd1d705678a4acd6f0225",
+      "currentSHA256": "d6f4c7a07d8bad50d4e93cd66711beb7f7e09e21427656e7d66e396622b13c5f",
+      "reason": "documentary self-check status/inventory metadata update after runtime terminal; not executable browser source"
+    }
+  ]
+}

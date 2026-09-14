@@ -1,0 +1,28 @@
+{
+  "status": "SEALED_STATIC_PREPARATION",
+  "parent": "/root",
+  "task": "/root/workflow_contact_setup",
+  "model_effort": "parent-configured gpt-5.6-sol/medium; not runtime-attested",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PORTABILITY_PACKAGING_PREPARATION_V1/BRIEF.md",
+      "sha256": "752bc659dd3b464d7d4bc8cfffd07d62b38fb274ac0fd8e510acfd6531460bc5",
+      "bytes": 2510
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PORTABILITY_PACKAGING_PREPARATION_V1/EXACT_ORIGIN_CLASSIFICATION_INVENTORY_V1.json",
+      "sha256": "26fc4a1cfcb998688720083a12ba07c49e19f9cd08002b0480646f7a9a914176",
+      "bytes": 703249
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PORTABILITY_PACKAGING_PREPARATION_V1/PROPOSED_ONE_COPY_PLACEMENT_MAP_V1.json",
+      "sha256": "ddbd74e9a73dc43c1821b97bcfde8c04e3279f6e44337f619ecaab9e2993db10",
+      "bytes": 96810
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PORTABILITY_PACKAGING_PREPARATION_V1/RETURN.md",
+      "sha256": "3b77c777e45110e69d7b61f75648d9651e4a651e5dffcd962e8154cd96920980",
+      "bytes": 971
+    }
+  ]
+}

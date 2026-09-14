@@ -1,0 +1,9 @@
+{
+  "root_parent": "/root",
+  "accepted": "Precisely one existing App.tsx ResultExportPanel invocation inputManifest={inputManifest} proof prop; no App lifecycle/handlers/state/history redesign",
+  "source_target": "apps/desktop/src/App.tsx existing ResultExportPanel call at current line2337; revalidate exact line before effect",
+  "evidence_required": "adapter validates existing current-session manifest canonical bytes/hash/ref, exact retained payload versus current model, actual model_ref versus raw mechanics, analysis-run/result/manifest binding; absent/stale/tampered proof blocks canonical export",
+  "focused_tests": "ResultExportPanel proof-binding tests in explicit proposed test fence; no broad App test redesign",
+  "role_ownership": "DEL-07-05 existing Current result/export proof handoff into DEL-08-04",
+  "state": "ACCEPTED_PRE_FREEZE_SOURCE_FENCE_ONLY; full frozen contract review and source release pending"
+}

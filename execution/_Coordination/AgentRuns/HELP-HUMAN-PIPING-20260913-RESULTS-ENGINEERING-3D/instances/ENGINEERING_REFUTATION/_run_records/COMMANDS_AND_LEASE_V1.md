@@ -1,0 +1,9 @@
+# Command and execution scope record
+
+Read-only commands used: cat / nl -ba / sed / rg --files / rg -n; git rev-parse --show-toplevel, git rev-parse HEAD; git status --short restricted to this review subtree; Python pathlib/hashlib/json inspection and evidence serialization. Absolute origins and hashes of consumed inputs are in CONTEXT_AND_COVERAGE_V1.json; candidate ranges were full contents. Production source excerpts were read, never imported/executed.
+
+The command families above describe the tool history; they are not a claimed verbatim raw transcript of every orchestration command. Actual mathematical command, tool executable identity, version, script and output hashes, exit status and full raw stdout/stderr are preserved in MATH_EXECUTION_V2.json and independent_math_v2.stdout.json / .stderr.txt.
+
+Root supplied ROOT_LEASE_ENGINEERING_MATH_01 initially for frozen independent_math_v1.py SHA10d94d733417a6b7d27751c87682cb11fe8c959fa40d1cbe3f10d3fcd0628d2b. Before execution, visual code inspection found malformed parentheses in the long central-gradient expression. V1 is preserved, unexecuted. V2 replaced it with a short explicit loop and added unequal-offset geometry; no expectations were weakened. Root explicitly amended the lease to SHA966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81. A Python capture wrapper invoked only the authorized pure checker, captured its stdout/stderr and exit, then returned the lease to root. One mathematical run, exit0, 111 exact rational assertions PASS, no failed executable attempt. The checker uses only fractions/json and explicit inputs; it reads no production outputs or files.
+
+No tests, build, native binary, browser, server, network, source edits, Git mutations, sibling messages or delegation occurred. Writes were confined to the caller-assigned ENGINEERING_REFUTATION subtree. Hash/inventory/evidence-writing shell calls were ordinary bounded evidence work, not runtime claims.

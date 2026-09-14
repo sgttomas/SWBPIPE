@@ -1,0 +1,85 @@
+{
+  "observed_utc": "2026-09-14T02:35:29.254588+00:00",
+  "parent": "/root",
+  "maximum_active_including_root": 6,
+  "actual_active_at_observation": [
+    {
+      "instance": "/root",
+      "role": "HELP_HUMAN Type0",
+      "configured": "gpt-6-astra/high",
+      "scope": "Alignment, acceptance, static fan-in; no competing runtime"
+    },
+    {
+      "instance": "/root/results_implementation_manager",
+      "role": "WORKING_ITEMS Type1",
+      "configured": "gpt-5.6-sol/high",
+      "scope": "Results management and read-only fan-in"
+    },
+    {
+      "instance": "/root/results_implementation_manager/results_writer",
+      "role": "TASK Type2",
+      "configured": "gpt-5.6-sol/high",
+      "scope": "Exclusive results source and sequential focused checks"
+    },
+    {
+      "instance": "/root/workflow_contact_setup",
+      "role": "TASK Type2",
+      "configured": "gpt-5.6-sol/medium",
+      "scope": "Static conditional closeout preparation"
+    }
+  ],
+  "completed_idle": [
+    "/root/next_engineering_design",
+    "/root/engineering_refutation",
+    "/root/next_ui_design",
+    "/root/next_ui_design/prototype",
+    "/root/ui_independent_witness",
+    "/root/results_contract_review",
+    "/root/native_results_witness"
+  ],
+  "runtime_lease": {
+    "id": "ROOT_LEASE_RESULTS_IMPLEMENTATION_01",
+    "exclusive_executor": "/root/results_implementation_manager/results_writer",
+    "status": "ACTIVE",
+    "allowed": "Sequential focused Rust/schema/Python/desktop and needed wasm builds",
+    "not_granted": "Browser/native/full sweep/Git"
+  },
+  "new_root_dispatches": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_CONTRACT_BACKCHECK_V3.md",
+      "sha256": "d88e716823626025e79776daef7827c0db0cac3d2a86be2f693af5dce7424bb3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_IMPLEMENTATION_RELEASE_V1.md",
+      "sha256": "8410016b47e60ab1f0310c175982a9a159ec6b666fec871e6f0ea870259cf293"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_VERIFY_V1.md",
+      "sha256": "4c9f6b1dfd0753ade89cdd9fdaa9dd627b8e21bb35537c3cab1c78999b185772"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FORMAT_CLARIFICATION_V1.md",
+      "sha256": "945d993444049625c62ea651c920126539b904ae5f6045866b38dcde4ed734f0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/CLOSEOUT_PREPARATION_V1.md",
+      "sha256": "f2d9a167fbde079b8b70126217242e9a683a31aa8ce743dd10aced2eeb454a3a"
+    }
+  ],
+  "method_origins": [
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    }
+  ],
+  "attribution": "Parent/tool-configured model/effort, not independent supplier attestation; delegated-harness-native role/scope instruction-asserted",
+  "handoff": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/HANDOFF_STATE_V2.md",
+    "sha256": "20fa1b9c833a0d89ffe6d753599eea9b6ea95457815738b67c37f340abefff3a"
+  },
+  "formal_state_effect": false
+}

@@ -1,0 +1,11 @@
+{
+  "evidence_kind": "derivative frozen source hash and git status fan-in",
+  "changed_source_rows": 36,
+  "all_changed_hashes_match": true,
+  "hash_mismatch_paths": [],
+  "all_actual_non_evidence_paths_in_manifest": true,
+  "unmanifested": [],
+  "declared_missing": [],
+  "parent_integrated_review_pending": true,
+  "runtime_execution": false
+}

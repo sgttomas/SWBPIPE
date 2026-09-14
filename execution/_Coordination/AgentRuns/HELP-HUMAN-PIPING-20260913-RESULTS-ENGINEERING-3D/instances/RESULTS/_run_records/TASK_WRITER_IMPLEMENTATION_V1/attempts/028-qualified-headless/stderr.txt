@@ -1,0 +1,28 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export)
+   Compiling open_pipe_stress_mechanics_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics)
+   Compiling open_pipe_stress_report_package v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_package)
+   Compiling open_pipe_stress_stress_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/stress)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+   Compiling open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless)
+warning: unused import: `PreviewRunnerOutput`
+   --> src/result_envelope_binding.rs:395:60
+    |
+395 |  use crate::{run_preview_model_value,run_preview_in_memory,PreviewRunnerOutput,JobStateKind,PrivacyContext,ProfessionalBoundary,Run...
+    |                                                            ^^^^^^^^^^^^^^^^^^^
+    |
+    = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_headless_runner` (lib test) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_headless_runner --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.90s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/results-implementation-target/debug/deps/open_pipe_stress_headless_runner-4593691b4bd03299)

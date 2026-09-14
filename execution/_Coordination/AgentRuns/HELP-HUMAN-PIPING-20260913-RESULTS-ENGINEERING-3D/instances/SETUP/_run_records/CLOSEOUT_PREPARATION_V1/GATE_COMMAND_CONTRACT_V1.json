@@ -1,0 +1,72 @@
+{
+  "status": "DRAFT_NOT_EXECUTED",
+  "commands": [
+    {
+      "cwd": "WORKING_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/release/run_evidence_sweep.py --execute --require-capability host"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python -m pytest tools/practitioner_harness -q"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/practitioner_harness/harness.py self-check"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_piping_loop_receipts.py --repo-root ."
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_agent_instructions.py --json"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_workflow_metadata.py --json"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_conflict_markers.py --base 8f27fa3d8ec5e128e61fd3ac4076e74d7955f355 --head HEAD"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/run_affected_tests.py --base 8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_root_materialization_fence.py"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_root_harness_adapter.py"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_root_surface_ownership.py"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_root_work_graph_dispatch.py"
+    },
+    {
+      "cwd": "REPO_ROOT",
+      "command": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python tools/validation/validate_instruction_tranche_manifest.py --base 8f27fa3d8ec5e128e61fd3ac4076e74d7955f355 --head HEAD --added-manifests-only"
+    }
+  ],
+  "prerequisites": [
+    "Root exclusive lease; source and complete consumer/test inventory freeze; independent 100% integrated source review; early focused and distribution assertions; H4 browser/native evidence with exact adapter/runtime/source binding as required. Source-bound old native evidence is not fresh changed-adapter evidence.",
+    "Actual clean candidate HEAD recorded before complete registered sweep; live logs private ignored until completion; no selective shortcut, waiver or source writes during sweep.",
+    "Qualified Python and supported installed dependencies; PLAYWRIGHT_WORKERS=1 CARGO_NET_OFFLINE=true; private integration-local CARGO_TARGET_DIR={WORKING_ROOT}/target/results-engineering-3d-dec025 if validated compatible at execution.",
+    "Preserve baseline 0 BLOCK / 4 REVIEW /112 WARN /14 INFO /1 NOT_APPLICABLE and all failed attempts. Stop dependent gates on failure.",
+    "Append receipt only after root acceptance; validate before commit and at closeout; actual complete-range metadata/whitespace/scope and committed-blob inventory on final publication head.",
+    "Actual-head hosted governance harness and Desktop E2E required before merge under standing owner authority; historical never-self-merge text does not add a new approval gate. Upstream drift requires assessment."
+  ],
+  "pending_followons": [
+    "Whole canonical analysis-record/version compatibility",
+    "Nine legacy Current creation variants and four preserved legacy dimension differences",
+    "Pressure/connector runtime",
+    "Production UI / owner visual alignment",
+    "Numerical robustness and end-to-end sparse execution"
+  ]
+}

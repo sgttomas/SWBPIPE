@@ -1,0 +1,402 @@
+{
+  "kind": "Engineering design applicability; accepted DAG authority unchanged",
+  "approved_DAG": "execution/_DAG/DAG-010/",
+  "rows": [
+    {
+      "DependencyID": "DAG-002-E0045",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0046",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0047",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-03",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0048",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-04",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0049",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-06",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0050",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-07",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0051",
+      "consumer": "DEL-02-05",
+      "target": "DEL-00-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0398",
+      "consumer": "DEL-02-05",
+      "target": "DEL-02-01",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0399",
+      "consumer": "DEL-02-05",
+      "target": "DEL-02-02",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0400",
+      "consumer": "DEL-02-05",
+      "target": "DEL-02-03",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0052",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0053",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0054",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-04",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0055",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-06",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0056",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-07",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0057",
+      "consumer": "DEL-03-01",
+      "target": "DEL-00-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0401",
+      "consumer": "DEL-03-01",
+      "target": "DEL-02-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0402",
+      "consumer": "DEL-03-01",
+      "target": "DEL-02-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0403",
+      "consumer": "DEL-03-01",
+      "target": "DEL-01-02",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0404",
+      "consumer": "DEL-03-01",
+      "target": "DEL-01-03",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0082",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0083",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0084",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-04",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0085",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-06",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0086",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-07",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0087",
+      "consumer": "DEL-03-06",
+      "target": "DEL-00-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0418",
+      "consumer": "DEL-03-06",
+      "target": "DEL-03-02",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0419",
+      "consumer": "DEL-03-06",
+      "target": "DEL-02-02",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0420",
+      "consumer": "DEL-03-06",
+      "target": "DEL-01-02",
+      "SatisfactionStatus": "TBD",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0105",
+      "consumer": "DEL-04-02",
+      "target": "DEL-00-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0106",
+      "consumer": "DEL-04-02",
+      "target": "DEL-00-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0107",
+      "consumer": "DEL-04-02",
+      "target": "DEL-00-03",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0108",
+      "consumer": "DEL-04-02",
+      "target": "DEL-00-06",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0109",
+      "consumer": "DEL-04-02",
+      "target": "DEL-00-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0432",
+      "consumer": "DEL-04-02",
+      "target": "DEL-04-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0433",
+      "consumer": "DEL-04-02",
+      "target": "DEL-03-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0434",
+      "consumer": "DEL-04-02",
+      "target": "DEL-02-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0140",
+      "consumer": "DEL-05-03",
+      "target": "DEL-00-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0141",
+      "consumer": "DEL-05-03",
+      "target": "DEL-00-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0142",
+      "consumer": "DEL-05-03",
+      "target": "DEL-00-03",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0143",
+      "consumer": "DEL-05-03",
+      "target": "DEL-00-06",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0144",
+      "consumer": "DEL-05-03",
+      "target": "DEL-00-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0454",
+      "consumer": "DEL-05-03",
+      "target": "DEL-04-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0455",
+      "consumer": "DEL-05-03",
+      "target": "DEL-03-08",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0456",
+      "consumer": "DEL-05-03",
+      "target": "DEL-05-01",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0457",
+      "consumer": "DEL-05-03",
+      "target": "DEL-02-02",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    },
+    {
+      "DependencyID": "DAG-002-E0458",
+      "consumer": "DEL-05-03",
+      "target": "DEL-05-04",
+      "SatisfactionStatus": "SATISFIED",
+      "current_consequence": "DESIGN_READ_ONLY: no source/schema/persistence or formal satisfaction effect",
+      "future_effect_rule": "Revalidate exact consumed interface before source effect; formal TBD stays TBD until owning instrument disposition; do not treat all rows as a UI-design blocker"
+    }
+  ],
+  "specific_holds": {
+    "DEL-03-06": [
+      "DAG-002-E0418",
+      "DAG-002-E0419",
+      "DAG-002-E0420"
+    ],
+    "DEL-02-05": [
+      "DAG-002-E0398",
+      "DAG-002-E0399",
+      "DAG-002-E0400"
+    ],
+    "DEL-03-01": [
+      "DAG-002-E0403",
+      "DAG-002-E0404"
+    ]
+  },
+  "DEL05-03_current_physics_inputs": "DAG-002-E0454,E0455,E0456,E0457,E0458 all SATISFIED at source basis; private pure-kernel design no mutation",
+  "no_false_dependency": "Connector primitive/activation does not require pressure profileE/nu; common proposed document0.3 container/DTO integration is serialized packaging, not physical math ordering. UI navigation/selection/routing design independent; finite insertion consumes connector graph/reference/operation contract only.",
+  "future_cycles": "No dependency row/graph cut/order authored here; root must record any objective-relative cycle through owning instrument, not silently linearize",
+  "result_edges": "Root/RESULTS owns approved V3 eleven exact result applicability IDs; this design does not consume them for formal output issuance"
+}

@@ -1,3 +1,4 @@
+import { semanticFamily, semanticCategory } from "./resultSemantics";
 import type {
   AnalysisRunEnvelope,
   DesignKnowledge,
@@ -40,7 +41,7 @@ export function buildResultInterpretation({
 
   return {
     result_id: item.id,
-    family: resultFamily(item),
+    family: semanticFamily(item)==="other" ? semanticCategory(item) : semanticFamily(item),
     entity_ref: item.entity_ref,
     value_label: `${item.value} ${item.unit}`,
     component: item.metadata?.component ?? item.kind,
@@ -289,17 +290,7 @@ function diagnosticExplanation(
   return `${diagnostic.message} ${affectedSummary} ${resultSummary}`;
 }
 
-function resultFamily(result: MechanicsResult["results"][number]): string {
-  const kind = result.kind.toLowerCase();
-  const id = result.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
-  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
-  if (kind.includes("force") || id.includes("force")) return "force";
-  if (kind.includes("moment") || id.includes("moment")) return "moment";
-  if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
-  return "TBD";
-}
+function resultFamily(result: MechanicsResult["results"][number]): string {return semanticFamily(result);}
 
 function basisLabel(result: MechanicsResult["results"][number]): string {
   const basis = result.metadata?.basis ?? "reported_result_value";

@@ -1,0 +1,38 @@
+{
+  "kind": "Sealed manager briefs; no actual launches",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "parent": "/root",
+  "recorder": "/root/workflow_contact_setup TASK Sol/medium",
+  "approved_archive": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913",
+  "parent_run": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D",
+  "deliberate_recorder_role_consultation": {
+    "agents/AGENT_WORKING_ITEMS.md": "9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665",
+    "agents/AGENT_HELPS_HUMANS.md": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+  },
+  "purpose": "Wider role-definition reads to seal manager brief boundaries; no recorder role change",
+  "bindings": {
+    "APPROVED_PLAN_ARCHIVE_LOCATOR_V1.json": "3ba4a3b4667458974171b7eeb65beb1b41060365a0dcb120d10bb8ba81b54c48",
+    "STARTUP_PACKAGING_RETURN_V1.json": "a631031c98a023e8575b05e511dba46f7b0bd92f3d91d2a5dfd4a60115bc8c74",
+    "STEP0_RETURN_V1.json": "ff19daba06fae0b493174f981e57c5fef191e6034224fe2b64513953e6a806d2",
+    "instances/SETUP/_run_records/APPROVAL_DIRECTION.md": "379f86df45ed4b3277e53ec6dbc934d87b676d967350fb6b563243a5a1c0f412"
+  },
+  "briefs": {
+    "RESULTS_MANAGER_V1": {
+      "path": "briefs/RESULTS_MANAGER_V1.md",
+      "sha256": "5b8ff2b029d7a83b056e40cd783847567d1859dc75d751a55f61af03c50a05bd",
+      "status": "sealed; parent launch pending"
+    },
+    "ENGINEERING_MANAGER_V1": {
+      "path": "briefs/ENGINEERING_MANAGER_V1.md",
+      "sha256": "81a8f876ce671d9e847621776bababcb439afa1073fa2507a5a3b2b59ae41929",
+      "status": "sealed; parent launch pending"
+    },
+    "UI_MANAGER_V1": {
+      "path": "briefs/UI_MANAGER_V1.md",
+      "sha256": "e773e96a714b8b07fa60633c8a4b9684b63fdc41dbc47dada39347d18435877c",
+      "status": "sealed; parent launch pending"
+    }
+  },
+  "capacity": "Root+3managers+2reservedwriters=6; recorder idles before manager child fan-out",
+  "attestation": "Models/efforts parent-configured, not supplier-runtime attested"
+}

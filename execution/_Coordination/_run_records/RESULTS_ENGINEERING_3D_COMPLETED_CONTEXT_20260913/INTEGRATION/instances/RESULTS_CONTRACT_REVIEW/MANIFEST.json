@@ -1,0 +1,57 @@
+{
+  "verdict": "CHANGES_REQUIRED",
+  "parent": "/root",
+  "agent": "/root/results_contract_review",
+  "mechanism": "delegated-harness-native",
+  "role": "TASK Type2",
+  "attribution": "gpt-6-astra/high parent-configured, not supplier-attested",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "sealed_brief_sha256": "d8d5da8a62f68e968a3f98c03eba834b9a0eb18067050de6192d52ead891b887",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW",
+  "derivative_status": "independent review derivative, not authoritative decomposition truth",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "665bf0e0965847f70d3be5863c39c83fffd0278a66d0d6947056147a51c4a7f1",
+      "bytes": 10701
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "sha256": "92e267628956022e9de1cff9406ced7f62b0250df3ad9d6b16063700475001b5",
+      "bytes": 1491
+    },
+    {
+      "path": "_run_records/CONTEXT_HASHES.json",
+      "sha256": "ae8b00a45a368331ac4544cae5f587716e060e6adfe73c206b7e8b4123300377",
+      "bytes": 16458
+    },
+    {
+      "path": "_run_records/FINDING_LOCATIONS.json",
+      "sha256": "4c3be3b33387d592f4fc65470546906b4ee51f721f8db0747504990ef32903c2",
+      "bytes": 1328
+    },
+    {
+      "path": "_run_records/INSPECTION_RECORD.json",
+      "sha256": "7f3f6cd61ca619670c2bd28594822586bf4b9cfff412b5cb18eb0c09c52ab303",
+      "bytes": 1059
+    },
+    {
+      "path": "_run_records/PARENT_DISPOSITION_CONTEXT.json",
+      "sha256": "5408add7a91454cd88e045778b898a4046bb121077cc66e9e9c221f0e7cde1a9",
+      "bytes": 546
+    },
+    {
+      "path": "_run_records/UPSTREAM_PHYSICAL_INVENTORY.json",
+      "sha256": "efb3ddc0a8254d705a43099fe58dec48599aac8c10e9cdf08110a7f98f32169e",
+      "bytes": 24208
+    }
+  ],
+  "physical_inventory_policy": "All own-instance physical files except this self-describing manifest are listed with hashes; manifest byte count measured separately by caller to avoid self-reference.",
+  "listed_file_count": 7,
+  "listed_bytes": 55791,
+  "findings": [
+    "RCR-01",
+    "RCR-02"
+  ],
+  "product_runtime_executed": false
+}

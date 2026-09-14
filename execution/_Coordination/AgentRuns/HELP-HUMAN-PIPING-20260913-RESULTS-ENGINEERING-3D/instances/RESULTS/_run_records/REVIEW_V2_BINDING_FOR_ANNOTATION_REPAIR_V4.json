@@ -1,0 +1,29 @@
+{
+  "status": "FULL_PRECISE_REVIEW_V2_READ_AND_HASH_BOUND",
+  "derivative_package": true,
+  "review_return": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/RETURN_V2.md",
+    "sha256": "e28f3638c41a2ecf580a149aabec33ad49513a4942ff5a5b616342c86496ef6a",
+    "bytes": 8577
+  },
+  "review_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V2.json",
+    "sha256": "6f992c0cc6c406baba0680844821dcd4a797580b49e39eef7438e7bc6d3e7664",
+    "bytes": 3676
+  },
+  "counterexamples": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/_run_records/RCR03_COUNTEREXAMPLES_V2.json",
+    "sha256": "8f36c5251e5f3476a62b10702c16afd7712ad5bbd29f7bf36f9498ad5be0e9a7",
+    "bytes": 17172
+  },
+  "resolved": [
+    "RCR-01",
+    "RCR-02"
+  ],
+  "remaining": [
+    "RCR-03"
+  ],
+  "all_review_manifest_files_match": true,
+  "source_effect": false,
+  "runtime": false
+}

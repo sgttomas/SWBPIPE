@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "solver:sparse_direct",
+      "id": "result:sparse-live:dense-parity-relative-delta",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "metadata": {
+        "basis": "DEC-053 dense_scrutiny_sparse_parity; solver_mode=dense_scrutiny; sparse_interactive_default=true; dense_parity_oracle=true; solver=core/solver/sparse_direct; assembly=direct_reduced_profile_entries; ordering=reverse_cuthill_mckee; reduced_dofs=21; sparse_entry_count=81; original_profile_entries=109; ordered_profile_entries=55; original_half_bandwidth=9; ordered_half_bandwidth=4; max_abs_dense_sparse_delta=0; max_abs_sparse_residual=0; nonpositive_pivots=0; profile_direct_assembly=observed; default_sparse_promotion=interactive_default",
+        "component": "sparse_live_path",
+        "coordinate_system": "reduced_system",
+        "location": "load_case",
+        "sign_convention": "unitless max absolute dense-sparse solution delta divided by max dense solution magnitude; no release threshold asserted"
+      },
+      "unit": "unitless",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

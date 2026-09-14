@@ -1,0 +1,429 @@
+{
+  "status": "IMMUTABLE_CAPTURE_SNAPSHOT",
+  "files": [
+    {
+      "path": "ANALYTICAL_EXPECTATIONS_V1.json",
+      "sha256": "c6fa1aa9485a65d77b7837f359b495c5a2d7a660b97ebdc11bca032df10b7a4e",
+      "bytes": 8626
+    },
+    {
+      "path": "CAPTURE_RETURN_V1.json",
+      "sha256": "33be3794621e91bc32f7306eb3d96653d6519578e649e4de8b9b9ca4a6aba915",
+      "bytes": 4469
+    },
+    {
+      "path": "LEASE_REQUEST_PREPARED_V1.json",
+      "sha256": "e3c28838de087bcf60138166bfc9001eaba47b113672d1ed6f37e32ca63205a3",
+      "bytes": 7438
+    },
+    {
+      "path": "LEASE_REQUEST_PREPARED_V2.json",
+      "sha256": "44408201e5963e25f7b5113c57ceaa5c7a748f2f9e24b4229827da897f3b04df",
+      "bytes": 5085
+    },
+    {
+      "path": "driver/Cargo.lock",
+      "sha256": "771890908e06614d51648ab261c91188f9a1db517051e3591d04d9e0fa909b83",
+      "bytes": 10343
+    },
+    {
+      "path": "driver/Cargo.toml",
+      "sha256": "260f6d4daad33ba9906c5b3f0bcc154d87fa6f23093cee8ba38bca8fe24d8308",
+      "bytes": 674
+    },
+    {
+      "path": "driver/src/main.rs",
+      "sha256": "16c3d830ed6d841a85dfb957d326ef292621bdbffd09b86e6585e9a6de87d99c",
+      "bytes": 4399
+    },
+    {
+      "path": "inputs/CASE_INPUTS_V1.json",
+      "sha256": "971069600440513f22541f09eabd2e3803bc929933b96b551737e057d7685592",
+      "bytes": 820
+    },
+    {
+      "path": "inputs/gap-chain-five-active.model.json",
+      "sha256": "f19c1a99f590884c39607794edee9072d30bd03a60764f5edfecdb9f63ed0965",
+      "bytes": 9671
+    },
+    {
+      "path": "inputs/gap-chain-five-active.request.json",
+      "sha256": "3288e318bcf9718a827e471571a528337ddd28708524ba9e428f15f96a5f58d9",
+      "bytes": 2086
+    },
+    {
+      "path": "inputs/gap-chain-five-inactive-control.model.json",
+      "sha256": "46b1bd78dab4868d40a476c2dd7b605ec5669317e465ad0a808720500eb6a13b",
+      "bytes": 9691
+    },
+    {
+      "path": "inputs/gap-chain-five-inactive-control.request.json",
+      "sha256": "9523333d7602fe7efcb5748c4dd9e63500d0bb5abab1d44c4900df33801b585f",
+      "bytes": 2126
+    },
+    {
+      "path": "inputs/gap-chain-two-active-control.model.json",
+      "sha256": "f6846e64792d313edcef7aa2683124fafbb6131a381501b3675aaf02bf156f03",
+      "bytes": 5608
+    },
+    {
+      "path": "inputs/gap-chain-two-active-control.request.json",
+      "sha256": "bfd67b2f841df485d938578c64342fc795f79a68bcb2903a0e840f0282cc75b1",
+      "bytes": 2114
+    },
+    {
+      "path": "inputs_attempt_02/CASE_INPUTS_V1.json",
+      "sha256": "971069600440513f22541f09eabd2e3803bc929933b96b551737e057d7685592",
+      "bytes": 820
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-five-active.model.json",
+      "sha256": "220d5fb0a311c7aa01f067e63520b714a43529b0511f2496fae817de9a9f1bfc",
+      "bytes": 9676
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-five-active.request.json",
+      "sha256": "3288e318bcf9718a827e471571a528337ddd28708524ba9e428f15f96a5f58d9",
+      "bytes": 2086
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-five-inactive-control.model.json",
+      "sha256": "c865ec5517a8cd36b758d007a5af20636e71083f49be84458fa7ac0071b2a2f0",
+      "bytes": 9696
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-five-inactive-control.request.json",
+      "sha256": "9523333d7602fe7efcb5748c4dd9e63500d0bb5abab1d44c4900df33801b585f",
+      "bytes": 2126
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-two-active-control.model.json",
+      "sha256": "2dce3bbcc576dbd89c43482d37b52a13bafcb33315f5d2d58b55fabe9968e350",
+      "bytes": 5610
+    },
+    {
+      "path": "inputs_attempt_02/gap-chain-two-active-control.request.json",
+      "sha256": "bfd67b2f841df485d938578c64342fc795f79a68bcb2903a0e840f0282cc75b1",
+      "bytes": 2114
+    },
+    {
+      "path": "logs/EXACT_INPUT_REPAIR_COMPARISON_V1.json",
+      "sha256": "85bb7db670bb5867785db9e2b983559c60a9c9d61fe7cc5bd9f15c51947c21f6",
+      "bytes": 1908
+    },
+    {
+      "path": "logs/EXECUTED_COMMAND_ATTEMPT02_V1.json",
+      "sha256": "6291f7759b3cdb4740411ec01db33c104e08b0fc562026189f19e429b4afdc3a",
+      "bytes": 1241
+    },
+    {
+      "path": "logs/EXECUTED_COMMAND_V1.json",
+      "sha256": "35d4551dcda06849a8ae3bc2f55d5a8a509da104bce92f37d3c96d715bc1b91a",
+      "bytes": 1356
+    },
+    {
+      "path": "logs/TOOLCHAIN_IDENTITY_ATTEMPT02_V1.json",
+      "sha256": "fdebb5d0a858d75bee8fd1a8e7adf00b133b122ab8332273f8c5f2c4ef99e27a",
+      "bytes": 484
+    },
+    {
+      "path": "logs/TOOLCHAIN_IDENTITY_V1.json",
+      "sha256": "892ec8f3ac87be6fc584a0c3ad28e02e1aa6be960d53665d7190660b84af1a31",
+      "bytes": 494
+    },
+    {
+      "path": "logs/attempt_01.exit.json",
+      "sha256": "22b824e78618e1b5060851b6aed2a9836d5b1b13f14d26ef9d079a2026890997",
+      "bytes": 203
+    },
+    {
+      "path": "logs/attempt_01.stderr.log",
+      "sha256": "9dda391815a20839be3eb79fa9573ab19f2ee3f49b9d62979b1775e3bac474dd",
+      "bytes": 1808
+    },
+    {
+      "path": "logs/attempt_01.stdout.log",
+      "sha256": "2c1346b886f1fdd5004b38ceac6e3b81472c22ce358d20a72ecf729804fd2759",
+      "bytes": 2072
+    },
+    {
+      "path": "logs/attempt_02.exit.json",
+      "sha256": "4db950bdbc4902cfe6a954b735ac3b65c6987e5605a6d313bd9afae9bfef6bfc",
+      "bytes": 212
+    },
+    {
+      "path": "logs/attempt_02.stderr.log",
+      "sha256": "a83de913a632f55661bec4e68d461ce67fc921cf80de146715706c6acade8b16",
+      "bytes": 1524
+    },
+    {
+      "path": "logs/attempt_02.stdout.log",
+      "sha256": "329a2292667d82323fd9e54cb6a7da682b43f49a8d7fc4a0c65c00fdcac5bc84",
+      "bytes": 1688
+    },
+    {
+      "path": "logs/cargo.attempt02.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/cargo.attempt02.stdout.log",
+      "sha256": "1aedaa9cce116919d39b1eb303a58865771582bc24fc259aa8e26cb212e0f59e",
+      "bytes": 36
+    },
+    {
+      "path": "logs/cargo.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/cargo.stdout.log",
+      "sha256": "1aedaa9cce116919d39b1eb303a58865771582bc24fc259aa8e26cb212e0f59e",
+      "bytes": 36
+    },
+    {
+      "path": "logs/rustc.attempt02.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/rustc.attempt02.stdout.log",
+      "sha256": "e794146d99fad54562fdcbd4a7c8b22b0240d2b0312ff6d879d67939b3131850",
+      "bytes": 192
+    },
+    {
+      "path": "logs/rustc.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/rustc.stdout.log",
+      "sha256": "e794146d99fad54562fdcbd4a7c8b22b0240d2b0312ff6d879d67939b3131850",
+      "bytes": 192
+    },
+    {
+      "path": "outputs_attempt_01/WITNESS_RETURN_V1.json",
+      "sha256": "2c1346b886f1fdd5004b38ceac6e3b81472c22ce358d20a72ecf729804fd2759",
+      "bytes": 2072
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.canonical_absence.json",
+      "sha256": "0576ac30c9b211ee3e09f38203755f6bcce591d6f1f24f53ca74ef2f4d7ff603",
+      "bytes": 150
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.library_error.json",
+      "sha256": "74fdf563fa16662baace225c39a3af0d724435d77f8bb53b1a0746237b745244",
+      "bytes": 958
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.mechanics.json",
+      "sha256": "a839864d8d5652fce0137d5ae69241f4c4a4b2f62f29735d3db4e195e4cfbc4c",
+      "bytes": 5357
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.model.json",
+      "sha256": "f786ba7d4676b9afdbd3bfae62e1f1b95e8efc45816b21ba4952c64f6c9f7d62",
+      "bytes": 9672
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.public_output.json",
+      "sha256": "df7fed55025ad391bd699e13b00fc43ff5e947101de1c06cbcd3f54b7111b760",
+      "bytes": 8319
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.request.json",
+      "sha256": "3288e318bcf9718a827e471571a528337ddd28708524ba9e428f15f96a5f58d9",
+      "bytes": 2086
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-active.runner.json",
+      "sha256": "4ddf1fefdf4d4676464615f600a82ac1f2bd8e0b3ffea3be0e7e18377dbb4d28",
+      "bytes": 2404
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.canonical_absence.json",
+      "sha256": "0576ac30c9b211ee3e09f38203755f6bcce591d6f1f24f53ca74ef2f4d7ff603",
+      "bytes": 150
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.library_error.json",
+      "sha256": "df68c8ef9f52eee5b0a32d10a97b656df708f535176164a998b82a756868c900",
+      "bytes": 968
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.mechanics.json",
+      "sha256": "b86e61affed5ac30a843b90b24c53db48e0fa2efa67b2673e46f0b2ffb61b0fa",
+      "bytes": 5367
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.model.json",
+      "sha256": "06f4af363e15f7027f2b6d58d98574b270a070b2d991697e1200d55ce6cc1a5f",
+      "bytes": 9692
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.public_output.json",
+      "sha256": "7061a951e3a0e444c6a43bd8e5b7e91c5198acaeb0e524904efc90e71ae44fe9",
+      "bytes": 8389
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.request.json",
+      "sha256": "9523333d7602fe7efcb5748c4dd9e63500d0bb5abab1d44c4900df33801b585f",
+      "bytes": 2126
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-five-inactive-control.runner.json",
+      "sha256": "61690e584904808a696529bee557131de76302d251640ca98dc7be7490123f27",
+      "bytes": 2464
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.canonical_absence.json",
+      "sha256": "0576ac30c9b211ee3e09f38203755f6bcce591d6f1f24f53ca74ef2f4d7ff603",
+      "bytes": 150
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.library_error.json",
+      "sha256": "ca1275ca9b27a76bda536a88a12387dcc7f53f0f390085507341dc7ca19a935d",
+      "bytes": 965
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.mechanics.json",
+      "sha256": "6f1dd8d7d24d611f9651b3dd44d0f93f6f8a8f0f74b421ca56a93d64282814a5",
+      "bytes": 2780
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.model.json",
+      "sha256": "f9029851956989226d541f5d735d6d69f379c3d967c05720d0c00f309704eb5e",
+      "bytes": 5609
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.public_output.json",
+      "sha256": "7aaf67ce9ce7ede7cfcf9f963bd3a9549cdc6881b8dc71c09a06fed9c9822502",
+      "bytes": 5604
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.request.json",
+      "sha256": "bfd67b2f841df485d938578c64342fc795f79a68bcb2903a0e840f0282cc75b1",
+      "bytes": 2114
+    },
+    {
+      "path": "outputs_attempt_01/gap-chain-two-active-control.runner.json",
+      "sha256": "28f501626c3fb42d6970c7dcbf7558209a631b8245d148f36b01300b634a8a15",
+      "bytes": 2446
+    },
+    {
+      "path": "outputs_attempt_02/WITNESS_RETURN_V1.json",
+      "sha256": "329a2292667d82323fd9e54cb6a7da682b43f49a8d7fc4a0c65c00fdcac5bc84",
+      "bytes": 1688
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.canonical_absence.json",
+      "sha256": "0576ac30c9b211ee3e09f38203755f6bcce591d6f1f24f53ca74ef2f4d7ff603",
+      "bytes": 150
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.library_error.json",
+      "sha256": "74fdf563fa16662baace225c39a3af0d724435d77f8bb53b1a0746237b745244",
+      "bytes": 958
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.mechanics.json",
+      "sha256": "2adf1119f388b4b5850f2d8d97d70304536282e8ea87d3a3ba3d26cf4e2471de",
+      "bytes": 5125
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.model.json",
+      "sha256": "c62e5fb598dea22d5a59fa46f202f2503d995151c3342ca00e8fa2a1c9428dda",
+      "bytes": 9677
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.public_output.json",
+      "sha256": "f4dfcc2183615325b38f186dbd4519a403f4e6e2fd6ebbd479de3a71c403c130",
+      "bytes": 7961
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.request.json",
+      "sha256": "3288e318bcf9718a827e471571a528337ddd28708524ba9e428f15f96a5f58d9",
+      "bytes": 2086
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-active.runner.json",
+      "sha256": "b50425a4827fb9c791c88a32c6ca469b01260bdca5d43298e613b6f74a0f3609",
+      "bytes": 2404
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.attached_document.json",
+      "sha256": "6548c4bcbe7543322d2d2d5a7fd642fcf14dd297d8e8a903ea912555fd137cc1",
+      "bytes": 488210
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.library_document.json",
+      "sha256": "6548c4bcbe7543322d2d2d5a7fd642fcf14dd297d8e8a903ea912555fd137cc1",
+      "bytes": 488210
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.mechanics.json",
+      "sha256": "e590e02dcc387339a20c87af82f1ddb87896de05875b9424a713d8305545d0e1",
+      "bytes": 225135
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.model.json",
+      "sha256": "18395854b9891b63073fe10c63653a2ad2f432efd39ad837c6c587ec9cb51a84",
+      "bytes": 9697
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.public_output.json",
+      "sha256": "ae8cce69fd4764590cd3ac6544b0ab8a401277e290acfa9d829d010e2d8ed29f",
+      "bytes": 274636
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.request.json",
+      "sha256": "9523333d7602fe7efcb5748c4dd9e63500d0bb5abab1d44c4900df33801b585f",
+      "bytes": 2126
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-five-inactive-control.runner.json",
+      "sha256": "f6ffa22e4b69e1bd177b952bacc5d526ae5342cfc6f270c07ba0eedcda6a6a09",
+      "bytes": 34861
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.attached_document.json",
+      "sha256": "5022cfe4f40ae87dd19536999638873ded6185b05359dbb8f4f6c91ee0015ac3",
+      "bytes": 225797
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.library_document.json",
+      "sha256": "5022cfe4f40ae87dd19536999638873ded6185b05359dbb8f4f6c91ee0015ac3",
+      "bytes": 225797
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.mechanics.json",
+      "sha256": "991dc51489b42d55554bcfcb8188dff78289349ad9b7ad9d6dcd839491d9b440",
+      "bytes": 102656
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.model.json",
+      "sha256": "f8b078699ead8bdcb1a14c230bc7b431f343a52b6d10cb8d4292b7db5ae2f6a9",
+      "bytes": 5611
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.public_output.json",
+      "sha256": "4eadad863d9b6f52735e2b7ae1c79dbf7c05cb2894efeec9fa6dcb94929da8ef",
+      "bytes": 125929
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.request.json",
+      "sha256": "bfd67b2f841df485d938578c64342fc795f79a68bcb2903a0e840f0282cc75b1",
+      "bytes": 2114
+    },
+    {
+      "path": "outputs_attempt_02/gap-chain-two-active-control.runner.json",
+      "sha256": "f33b8852329145fcc1d990aa1ff638f64cce773913e9b40521a459e5d51a1dd3",
+      "bytes": 16671
+    }
+  ],
+  "files_count": 84,
+  "bytes_total": 2456065,
+  "external_compiled_scratch": "/tmp/chirality-results-engineering-3d-20260913/results-baseline-target; excluded",
+  "selfhash": "Not included; externalparent records hash."
+}

@@ -1,0 +1,37 @@
+{
+  "kind": "Additive complete-current-consumer growth after frozenV1",
+  "basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "refines": "CONSUMER_MAP_V1.json",
+  "files": [
+    {
+      "path": "core/runner/headless/src/benchmark_binding.rs",
+      "sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f",
+      "role": "Legacy benchmark/metadata completeness/rule reference/test fixture path; preserve legacy semantics, disclose/refuse unsupported new composition as described in COMPOSITION_SUMMARY_REFINEMENT_V1.md"
+    },
+    {
+      "path": "apps/desktop/src/features/validation-evidence/ValidationEvidencePanel.tsx",
+      "sha256": "7aa7047d8f7b68901ea37435ad4167a4b563ca582d8d207a313a085fe45edd1f",
+      "role": "Legacy benchmark/metadata completeness/rule reference/test fixture path; preserve legacy semantics, disclose/refuse unsupported new composition as described in COMPOSITION_SUMMARY_REFINEMENT_V1.md"
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+      "sha256": "bb7908ea2dd5133829d29e0cb456a1abb44509f5706a65458a90640dadb5c526",
+      "role": "Legacy benchmark/metadata completeness/rule reference/test fixture path; preserve legacy semantics, disclose/refuse unsupported new composition as described in COMPOSITION_SUMMARY_REFINEMENT_V1.md"
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "role": "Legacy benchmark/metadata completeness/rule reference/test fixture path; preserve legacy semantics, disclose/refuse unsupported new composition as described in COMPOSITION_SUMMARY_REFINEMENT_V1.md"
+    }
+  ],
+  "producer_followup": {
+    "path": "core/product_physics/src/lib.rs",
+    "symbols": [
+      "open_formula_stress_summary",
+      "max_open_formula_stress",
+      "load_case_algebra combination/range integration"
+    ],
+    "effect": "First exactpressure/connector activated profile blocks combinations; exactpressure members do not enter legacy scalar summary/governing maxima; legacyprofile unchanged"
+  },
+  "no_source_effect": true
+}

@@ -1,0 +1,12 @@
+{
+  "lease": "ROOT_LEASE_UI_REFINEMENT_02",
+  "grantOrigin": "Parent /root current conversation; exact successor approved",
+  "harnessSHA256": "3ec96f8216d0c4b233acf7c3316cf1cb4030a7982bc226c93aa29945617be18c",
+  "status": "TERMINAL_RELEASED",
+  "syntaxExit": 0,
+  "runtimeExit": 0,
+  "matrix": "six configurations pass",
+  "scope": "Manager label/layout/route/property/Current simulation self-check",
+  "cleanup": "context.close/browser.close awaited; Node exited 0",
+  "precedingLease": "ROOT_LEASE_UI_REFINEMENT_01 also TERMINAL_RELEASED; caption CSS case assertion failure retained"
+}

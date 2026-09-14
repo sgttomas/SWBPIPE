@@ -1,0 +1,68 @@
+{
+  "method": "Read-only physical hash/byte verification and XML parse, not browser render or independent acceptance",
+  "childManifestSHA256": "e866442bd86d8e5ada5ebcc5673f48fcd7e11a5c4a9b3ebd1a3f35f3ff55da22",
+  "verifiedFiles": 81,
+  "mismatches": [],
+  "wireframes": [
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1024x768-comfortable.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1024",
+      "height": "768",
+      "viewBox": "0 0 1024 768",
+      "elements": 209,
+      "embeddedRaster": false,
+      "sha256": "57a6b4e0c481b465636c7e6bcbc86ad11bd019dd6b2cb426790cecbd61c533d6"
+    },
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1024x768-compact.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1024",
+      "height": "768",
+      "viewBox": "0 0 1024 768",
+      "elements": 212,
+      "embeddedRaster": false,
+      "sha256": "fe2d7b0034e8ea2fee181d6216a09db270d65a02c4094926417e05efd29512eb"
+    },
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1280x800-comfortable.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1280",
+      "height": "800",
+      "viewBox": "0 0 1280 800",
+      "elements": 212,
+      "embeddedRaster": false,
+      "sha256": "b03319506437a2f75ce475c7d1fe5f5984cd04578d9b489ba9bc124adb0ba0ad"
+    },
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1280x800-compact.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1280",
+      "height": "800",
+      "viewBox": "0 0 1280 800",
+      "elements": 215,
+      "embeddedRaster": false,
+      "sha256": "a609614256f266981434d2a8ab4e7cb40e9fcd555bf05c82fb63e2d81b68a1d1"
+    },
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1440x920-comfortable.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1440",
+      "height": "920",
+      "viewBox": "0 0 1440 920",
+      "elements": 215,
+      "embeddedRaster": false,
+      "sha256": "7fa05f09ff17d20cca074c3683e488bb972961dce14a8a292d3b092dcfcc57bb"
+    },
+    {
+      "path": "children/PROTOTYPE/wireframes/workspace-1440x920-compact.svg",
+      "root": "{http://www.w3.org/2000/svg}svg",
+      "width": "1440",
+      "height": "920",
+      "viewBox": "0 0 1440 920",
+      "elements": 215,
+      "embeddedRaster": false,
+      "sha256": "f8a47c83cefe683663fc32b226fb4194c389874dc8b0a81db4c520b731707cb6"
+    }
+  ]
+}

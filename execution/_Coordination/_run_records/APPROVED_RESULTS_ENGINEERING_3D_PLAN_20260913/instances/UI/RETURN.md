@@ -1,0 +1,19 @@
+# UI planning return
+
+Status: COMPLETE_FOR_PARENT_PLANNING_REVIEW. HELPS_HUMANS Type 1 → /root; no children. Configured gpt-6-astra/high is parent allocation, not independent runtime attestation.
+
+`DESIGN_PLAN.md` defines the next professional 3D workspace undertaking, tangible wireframes/prototype/walkthroughs and completion boundary, existing gesture-to-operation mapping, first production slice, backfill ownership and dependencies. Mature design can begin alongside result compatibility and pressure/connector work. The first production slice uses the landed atomic node/route path; it needs no new operation kinds or whole-engine completion.
+
+Material findings:
+- Repair candidate: build.pipe capability text and current coverage residual still call new endpoint creation planned; current route source and DEL-07-01 2026-09-09 status show it landed. Preserve historical coverage, update only current claims in a later scoped patch.
+- 1024×768 is the native minimum and checked layout target, not accepted independent usability. Existing larger verification sizes are 1280×800 and 1440×920. DEL-07-06 independent usability and measurable contrast/readability target remain held.
+- Accepted normative vocabulary includes bounded split/transform; connected/attached transforms and finite insertion remain backfill. Node renumbering, snubbers, cold spring remain ROADMAP.
+- All interactions preserve shared PKG-16 semantics, current session undo, stale/busy guards, historical run boundaries and unknown reopened acceptance. Parent RESULTS relay informs compatibility dependency; no sibling report or numerical runtime was consumed.
+
+Authority/basis: supplied UI brief hash matched `538bd51543697049a1c51cd9b02f0d6f10d04da6f69f2a65155c2eed51cc7184`; HEAD is `8f27fa3d8ec5e128e61fd3ac4076e74d7955f355`. Committed selected standing plan independently hash-matched BOOTSTRAP. Receipt 139 is parent-validated discovery. SCA-009 Gate-5 closure and approved DAG-010 are upstream; this package is derivative planning evidence. Applicable scope: DEL-07-01/02/03/05/06/09, SOW-020/021/023/036/077; PKG-16 interface SOW-069/070. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+Execution: bounded file reads, searches, hashes and primary-source web reads only. Initial lookup incorrectly resolved the brief under REPO_ROOT/execution, returned file-not-found, and was corrected to WORKING_ROOT/execution before work; no mutation or basis drift resulted. Some oversized read outputs were truncated; manifest records bounded consumption rather than full-source-review claims. Requested Specification.md files are absent at the selected live deliverable roots; DEL-07-09 MEMORY.md is absent. Current contexts/status/coverage and source contracts supplied the proposal basis. No tests/builds, product or prototype launch, GUI/browser/native application run, numerical validation, source/schema/state/register/receipt/instruction/Git changes, raster assets, external messages or child dispatch occurred.
+
+Handoff: design/prototype implementation NOT EXECUTED. Next design tranche requires its adopted scope; completion is a frozen reviewable wireframe/prototype with three witnessed task walkthroughs, full normative command discoverability and exact operation/state mapping. First production slice follows reviewed design with H4/DEC-025 and fresh source review. Formal dependency dispositions, measurable usability targets, new engineering semantics and ROADMAP promotion remain with owning human instruments. No package/deliverable lifecycle closure is asserted.
+
+Freeze: MANIFEST.json hashes every output except itself. CONTEXT_MANIFEST.json records actual origins/hashes; DEPENDENCY_CONTEXT.json is a derivative inspection excerpt. Read these artifacts at the frozen revision; changed inputs require relevant review/backfill mapping to be refreshed.

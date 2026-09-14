@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

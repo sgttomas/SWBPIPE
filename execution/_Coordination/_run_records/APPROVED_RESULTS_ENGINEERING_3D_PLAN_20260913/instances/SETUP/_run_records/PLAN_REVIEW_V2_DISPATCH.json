@@ -1,0 +1,29 @@
+{
+  "kind": "actual planning review dispatch, parent-reported",
+  "parent": "/root",
+  "instance": "/root/next_plan_review",
+  "role": "TASK Type 2",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "model_attribution": "parent-configured; not independently runtime-attested",
+  "mechanism": "collaboration.spawn_agent delegated-harness-native",
+  "fork_turns": "none",
+  "enforcement": "instruction-asserted no children/no writes",
+  "write_targets": [],
+  "exclusions": [
+    "network",
+    "tests",
+    "builds",
+    "UI",
+    "mutations",
+    "delegation"
+  ],
+  "status": "actually launched; reviewing, full return pending",
+  "bindings": {
+    "CANDIDATE_PLAN_V2.md": "ee0e3c6f08eeb825c5d95a7a422dfea19e763556ddb9947487452e6fe9d40cb6",
+    "CANDIDATE_PLAN_V2_MANIFEST.json": "209e807541f5297bcfd53f0806f02537f8adbf73631e485d56ea409923d0be43",
+    "briefs/PLAN_REVIEW_V2.md": "a8e52dda5c6e551361c866a0576a14bce656a7f84cd076b0994b8bcbf71ce39b"
+  },
+  "parent_fan_in": "Parent reports complete reading of V2 and three returns/design analytical specs",
+  "pending_revision_status": "Parent-reported known revisions are not incorporated before full review; frozen V1/V2 unchanged"
+}

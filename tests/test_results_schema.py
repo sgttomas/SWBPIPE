@@ -24,7 +24,7 @@ from schema_validation import (  # noqa: E402
     walk_keys,
 )
 
-SCHEMA_PATH = ROOT / "schemas" / "results.schema.yaml"
+SCHEMA_PATH = ROOT / "schemas" / "results.v0.1.schema.yaml"  # Exact legacy contract; version dispatch has its own focused tests.
 PRODUCT_PREVIEW_RESULT_PATH = (
     ROOT / "fixtures" / "product_preview" / "invented_mechanics_result.json"
 )

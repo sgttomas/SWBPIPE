@@ -1,0 +1,23 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "component:C-150",
+      "id": "result:component-stiffness:component-C-150:lateral",
+      "kind": "component_user_stiffness_macro_element_review",
+      "metadata": {
+        "basis": "component_family=expansion_joint;user_entered_axis=lateral;source=invented_user_entered_expansion_joint_stiffness_no_catalog_or_code_table;solver_consumption=mechanics_geometry_and_user_flexibility;macro_element_solve=assembled_user_stiffness;pressure_thrust_generation=load_side_user_effective_area;pressure_thrust=load_side_pressure_thrust_user_review_required",
+        "component": "lateral_user_stiffness",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-130",
+        "sign_convention": "positive value is user-entered expansion-joint stiffness consumed by the assembled user-stiffness macro-element; pressure-thrust generation is load-side effective-area evidence and no compliance claim is made"
+      },
+      "unit": "N/m",
+      "value": 900000.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

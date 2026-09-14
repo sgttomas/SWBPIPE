@@ -1,3 +1,4 @@
+import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
 import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
@@ -179,7 +180,7 @@ function StressNeutralLine({ label, value, testId }: { label: string; value: str
   );
 }
 
-function buildStressNeutralExportPacket({
+export function buildStressNeutralExportPacket({
   model,
   result,
   analysisRun
@@ -194,7 +195,7 @@ function buildStressNeutralExportPacket({
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((item) => stressNeutralRow(item, run.run_id));
   const csvText = renderCsv(resultRows);
-  const unitPreservationWitnesses = stressNeutralUnitPreservationWitnesses(resultRows);
+  const unitPreservationWitnesses = stressNeutralUnitPreservationWitnesses(resultRows, result.results);
   const unitSystemDisclosure = buildExportUnitSystemDisclosure({
     model,
     result,
@@ -213,9 +214,10 @@ function buildStressNeutralExportPacket({
     row_index: index,
     provenance: previewProvenance()
   }));
-  const diagnostics = stressNeutralDiagnostics(resultRows);
+  const diagnostics: Array<ReturnType<typeof stressNeutralDiagnostics>[number] | {code:string;class:string;severity:string;source:StressNeutralRef;affected_object:StressNeutralRef;message:string;remediation:string;provenance:ReturnType<typeof previewProvenance>}> = stressNeutralDiagnostics(resultRows);
+  if(unitPreservationWitnesses.length!==resultRows.length)diagnostics.push({class:"export_blocking",source:reference("ExportConsumer","DEL-17-06"),affected_object:reference("StressNeutralResultRows","stress-neutral:result-rows"),remediation:"Review received declarations and canonical0.2 source/target semantics; unavailable preservation witnesses are withheld.",code:"SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE",severity:"blocking",message:`${resultRows.length-unitPreservationWitnesses.length} received carrier dimension declarations are unavailable or differ from independently interpreted semantics; numerical rows and units retained, preservation witnesses withheld.`,provenance:previewProvenance()});
   const blockingCount = diagnostics.filter((item) => item.severity === "blocking").length;
-  const validationStatus = blockingCount === 0 ? "passed" : "blocked_missing_unit_or_dimension";
+  const validationStatus = blockingCount === 0 ? "passed" : "blocked";
 
   return {
     schema_version: STRESS_NEUTRAL_EXPORT_VERSION,
@@ -262,8 +264,8 @@ function buildStressNeutralExportPacket({
           category: "exported",
           severity: "info",
           affected_ref: reference("ResultEnvelope", `result-envelope:${result.run_id}`),
-          reason: "Mechanics result rows were emitted with canonical refs, units, dimensions, and stable map entries.",
-          downstream_implication: "Rows are suitable for local spreadsheet review and downstream adapter prototype input."
+          reason: "Received numerical rows/units/source refs are retained; dimensions are independently interpreted. Missing/incompatible declaration witnesses are withheld and validation blocked.",
+          downstream_implication: "Local review evidence only; validation/loss findings require review before downstream reliance."
         },
         {
           loss_id: "loss:desktop-preview:comparison-semantics-tbd",
@@ -311,7 +313,7 @@ function buildStressNeutralExportPacket({
         check("unit_preservation_witness_per_row", unitPreservationWitnesses.length === resultRows.length),
         check(
           "unit_preservation_witnesses_match_rows",
-          unitPreservationWitnesses.every((witness, index) => witnessMatchesRow(witness, resultRows[index]))
+          unitPreservationWitnesses.every((witness) => witnessMatchesRow(witness, resultRows.find(row=>row.result_id===witness.source_result_ref.ref)))
         ),
         check("stable_id_map_per_row", stableIdMap.length === resultRows.length),
         check("loss_report_present", true)
@@ -345,8 +347,8 @@ function buildStressNeutralExportPacket({
 }
 
 function stressNeutralRow(item: MechanicsResult["results"][number], runId: string): StressNeutralRow {
-  const family = resultFamily(item);
-  const dimension = resultDimension(family, item.kind);
+  const family = semanticFamily(item);
+  const dimension = semanticDimension(item) ?? "TBD";
   return {
     result_id: item.id,
     canonical_ref: reference("Result", item.id),
@@ -364,8 +366,8 @@ function stressNeutralRow(item: MechanicsResult["results"][number], runId: strin
   };
 }
 
-function stressNeutralUnitPreservationWitnesses(rows: StressNeutralRow[]): StressNeutralUnitPreservationWitness[] {
-  return rows.map((row) => ({
+function stressNeutralUnitPreservationWitnesses(rows: StressNeutralRow[], received: MechanicsResult["results"]): StressNeutralUnitPreservationWitness[] {
+  return rows.filter(row => {const source=received.find(x=>x.id===row.result_id);return typeof source?.dimension === "string" && source.dimension === row.dimension;}).map((row) => ({
     witness_id: `stress-neutral-unit:${safeFileToken(row.result_id)}`,
     source_result_ref: row.source_result_ref,
     source_field_path: `results.${row.result_id}.value`,
@@ -425,9 +427,10 @@ function check(checkId: string, passed: boolean) {
   };
 }
 
-function stressNeutralDiagnostics(rows: StressNeutralRow[]) {
+type StressNeutralDiagnostic = {code:string;class?:string;severity:string;source?:StressNeutralRef;affected_object?:StressNeutralRef;message:string;remediation?:string;provenance:ReturnType<typeof previewProvenance>;diagnostic_id?:string;affected_ref?:StressNeutralRef};
+function stressNeutralDiagnostics(rows: StressNeutralRow[]): StressNeutralDiagnostic[] {
   const missingRows = rows.filter((row) => !row.unit || !row.dimension || row.dimension === "TBD");
-  const diagnostics = [
+  const diagnostics: StressNeutralDiagnostic[] = [
     {
       diagnostic_id: "diagnostic:stress-neutral:hash-tbd",
       code: "SN-DESKTOP-PREVIEW-HASH-TBD",
@@ -447,11 +450,13 @@ function stressNeutralDiagnostics(rows: StressNeutralRow[]) {
   ];
   if (missingRows.length > 0) {
     diagnostics.push({
-      diagnostic_id: "diagnostic:stress-neutral:unit-dimension-missing",
+      class: "export_blocking",
+      source: reference("ExportConsumer", "DEL-17-06"),
+      affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
+      remediation: "Review bound canonical source semantics before interpreting unavailable physical dimensions.",
       code: "SN-UNIT-DIMENSION-MISSING",
       severity: "blocking",
       message: `${missingRows.length} result rows are missing unit or dimensional metadata.`,
-      affected_ref: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
       provenance: previewProvenance()
     });
   }
@@ -489,27 +494,6 @@ function entityReference(value: string) {
   return reference("CanonicalObject", value);
 }
 
-function resultFamily(item: MechanicsResult["results"][number]): string {
-  const kind = item.kind.toLowerCase();
-  const id = item.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
-  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
-  if (kind.includes("force") || id.includes("force")) return "force";
-  if (kind.includes("moment") || id.includes("moment")) return "moment";
-  if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
-  return "ratio";
-}
-
-function resultDimension(family: string, kind: string): string {
-  if (family === "displacement") return "length";
-  if (family === "reaction" || family === "force") return "force";
-  if (family === "moment") return "moment";
-  if (family === "stress") return "stress";
-  if (family === "ratio") return "dimensionless";
-  if (kind.toLowerCase().includes("rotation")) return "angle";
-  return "TBD";
-}
 
 function unitCount(packet: ReturnType<typeof buildStressNeutralExportPacket>): number {
   return new Set(packet.result_rows.map((row) => row.unit)).size;

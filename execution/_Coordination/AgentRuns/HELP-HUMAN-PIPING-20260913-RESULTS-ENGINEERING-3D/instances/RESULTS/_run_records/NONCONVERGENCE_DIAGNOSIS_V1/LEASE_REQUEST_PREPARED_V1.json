@@ -1,0 +1,89 @@
+{
+  "status": "AWAIT_ROOT_ALLOCATION_AND_LEASE",
+  "writer_restart": false,
+  "executor": "RESULTS_MANAGER only",
+  "tool": "functions.exec -> exec_command",
+  "environment": "zsh local aarch64-apple-darwin; previously captured cargo/rustc1.97.1; same cached dependency set/compatible49package lock copied byteexact",
+  "scope": "Compile evidence-only standalone driver and execute3tiny authored public-routecases (6/3/6nodes), no product sourcewrites or suite/browser/nativeGUI",
+  "estimated": "under30seconds warmed target, allow60seconds firstcompile",
+  "command_argv": [
+    "cargo",
+    "run",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/driver/Cargo.toml",
+    "--target-dir",
+    "/tmp/chirality-results-engineering-3d-20260913/results-baseline-target",
+    "--",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/outputs_attempt_01"
+  ],
+  "working_directory": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/attempt_01.stdout.log",
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/attempt_01.stderr.log",
+  "exit_record": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/attempt_01.exit.json",
+  "capture_before_execute": [
+    "cargo --version",
+    "rustc --version --verbose"
+  ],
+  "prepared_files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/ANALYTICAL_EXPECTATIONS_V1.json",
+      "sha256": "c6fa1aa9485a65d77b7837f359b495c5a2d7a660b97ebdc11bca032df10b7a4e",
+      "bytes": 8626
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/driver/Cargo.toml",
+      "sha256": "260f6d4daad33ba9906c5b3f0bcc154d87fa6f23093cee8ba38bca8fe24d8308",
+      "bytes": 674
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/driver/Cargo.lock",
+      "sha256": "771890908e06614d51648ab261c91188f9a1db517051e3591d04d9e0fa909b83",
+      "bytes": 10343
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/driver/src/main.rs",
+      "sha256": "16c3d830ed6d841a85dfb957d326ef292621bdbffd09b86e6585e9a6de87d99c",
+      "bytes": 4399
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-two-active-control.model.json",
+      "sha256": "f6846e64792d313edcef7aa2683124fafbb6131a381501b3675aaf02bf156f03",
+      "bytes": 5608
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-five-inactive-control.request.json",
+      "sha256": "9523333d7602fe7efcb5748c4dd9e63500d0bb5abab1d44c4900df33801b585f",
+      "bytes": 2126
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-five-active.request.json",
+      "sha256": "3288e318bcf9718a827e471571a528337ddd28708524ba9e428f15f96a5f58d9",
+      "bytes": 2086
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-five-active.model.json",
+      "sha256": "f19c1a99f590884c39607794edee9072d30bd03a60764f5edfecdb9f63ed0965",
+      "bytes": 9671
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-two-active-control.request.json",
+      "sha256": "bfd67b2f841df485d938578c64342fc795f79a68bcb2903a0e840f0282cc75b1",
+      "bytes": 2114
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/CASE_INPUTS_V1.json",
+      "sha256": "971069600440513f22541f09eabd2e3803bc929933b96b551737e057d7685592",
+      "bytes": 820
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs/gap-chain-five-inactive-control.model.json",
+      "sha256": "46b1bd78dab4868d40a476c2dd7b605ec5669317e465ad0a808720500eb6a13b",
+      "bytes": 9691
+    }
+  ],
+  "offline_failure": "Preserve actual log/exit and report missingdependency; no networkretry.",
+  "exit_semantics": "Driver0 asserts expected public nonconvergence/absence and converged controls; it does not mean product nonconvergence is success. Driver1 records expectation failure."
+}

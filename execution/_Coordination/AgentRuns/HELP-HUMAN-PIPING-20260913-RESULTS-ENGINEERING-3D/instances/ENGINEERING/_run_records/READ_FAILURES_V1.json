@@ -1,0 +1,20 @@
+{
+  "kind": "Preserved read-only discovery failures; no test/build/repair failure inferred",
+  "attempts": [
+    {
+      "command_description": "First batched integration read incorrectly located STEP0_RETURN_V1.json below instances/SETUP/_run_records instead of run root",
+      "exit_code": 1,
+      "disposition": "rg inventory found actual run-root STEP0/locator/startup files; corrected read/hash succeeded",
+      "raw_output_boundary": "Full traceback not separately captured; original tool call is session evidence. No reconstructed traceback claimed"
+    },
+    {
+      "command_description": "rg searched nonexistent apps/desktop/src/services/modelService.ts",
+      "disposition": "Actual current modelView/PropertyInspector/types/direct DTO files discovered and used; no product change"
+    },
+    {
+      "command_description": "Initial consumer-map candidate HistoricalRunContext under model-workspace absent",
+      "disposition": "rglob found actual source path and map corrected before candidate freeze"
+    }
+  ],
+  "execution_qualification": "No mathematical oracle execution, tests/build/native/browser/source/Git writes; reads/hash/JSON parsing/design authoring only"
+}

@@ -1,0 +1,28 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 5f7c841c1..79dcab773 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -94,13 +94,16 @@ conversational requests, load the core `create-workflow` workflow from the
+ selected library basis and follow it. Preserve its source-qualified identity;
+ do not silently substitute a same-named package from another library.
+ 
+-A user may ask in the active chat to create, save, or revise a workflow. The
+-agent prepares a valid `.chirality/workflows/<name>/WORKFLOW.md` project package
+-or `~/.chirality/workflows/<name>/WORKFLOW.md` user package through authorized
+-file tools, adds only the resources the method needs, validates package metadata
+-and containment, and refreshes the Runtime catalog. This conversational path is
+-the ordinary authoring experience; the App does not require or provide a
+-separate workflow editor.
++A user may ask in the active chat to create, save, or revise a workflow. For
++creation in the App, prepare a valid package under
++`.chirality/workflow-drafts/<name>/WORKFLOW.md` in the project or home directory,
++with only the resources the method needs. The human inspects the draft, gives
++feedback in chat, and registers the reviewed version through the Workflows
++panel. Registration makes it available in the corresponding
++`.chirality/workflows` catalog without running it or overwriting an existing
++workflow. Follow `create-workflow` for revisions and other hosts. This
++conversational path is the ordinary authoring experience; the App does not
++require or provide a separate workflow editor.
+ 
+ ## Tools, briefs, and ad hoc plans
+ 

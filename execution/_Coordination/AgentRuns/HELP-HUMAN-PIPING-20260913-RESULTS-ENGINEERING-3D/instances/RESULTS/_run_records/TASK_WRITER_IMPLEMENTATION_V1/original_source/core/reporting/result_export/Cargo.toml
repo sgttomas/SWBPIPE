@@ -1,0 +1,12 @@
+[package]
+name = "open_pipe_stress_result_export"
+version = "0.1.0"
+edition = "2021"
+description = "Result export envelope support for OpenPipeStress"
+publish = false
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+serde_json = "1"

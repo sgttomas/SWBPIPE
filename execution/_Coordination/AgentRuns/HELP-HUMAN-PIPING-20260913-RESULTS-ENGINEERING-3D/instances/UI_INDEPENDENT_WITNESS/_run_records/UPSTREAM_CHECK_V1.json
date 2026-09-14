@@ -1,0 +1,10 @@
+{
+  "managerEntriesReadAndRebound": 139,
+  "mismatches": [],
+  "managerManifestSHA256": "fc8a54d119f8ff27c4b63640aaa6dfc62dac139d92777e3fa8a09396e8eaf33a",
+  "engineeringLaterDisposition": {
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json",
+    "sha256": "f03c84f5f84e577d3c5e0453b7f0148ecb31eed8e905fc92e4b6ca412429fcdc",
+    "scope": "bounded engineering design/backfill only; UI review-pending reflects earlier freeze, no defect"
+  }
+}

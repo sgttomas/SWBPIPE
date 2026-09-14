@@ -1,0 +1,95 @@
+{
+  "kind": "Immutable composite V3 adds ER-01 derived-review suppression correction",
+  "status": "FROZEN_FOR_SAME_REVIEWER_CONTINUATION_NOT_IMPLEMENTED",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "predecessor_manifest_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+  "read_order": "V2 composite unchanged, then DERIVED_STRESS_REVIEW_CORRECTION_V1.md, UI_BACKFILL_DERIVED_REVIEW_V1.md and authored acceptance. New clauses override only missing derived review/counter/diagnostic/report availability obligations. All other predecessor contracts and holds persist.",
+  "outputs": [
+    {
+      "path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "bytes": 3405
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V1.json",
+      "sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "bytes": 1869
+    },
+    {
+      "path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "bytes": 2135
+    },
+    {
+      "path": "CONSUMER_MAP_V1.json",
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "bytes": 30755
+    },
+    {
+      "path": "UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "bytes": 4607
+    },
+    {
+      "path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "bytes": 5077
+    },
+    {
+      "path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "bytes": 4808
+    },
+    {
+      "path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "bytes": 4244
+    },
+    {
+      "path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "bytes": 4820
+    },
+    {
+      "path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "bytes": 15655
+    },
+    {
+      "path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "bytes": 15601
+    },
+    {
+      "path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "bytes": 14268
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V2.json",
+      "sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "bytes": 2590
+    },
+    {
+      "path": "contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+      "sha256": "19aac7afaf7f3da6e673a9cb1322db95d6b634c7f4d444cdfe9a789d32c0d6d2",
+      "bytes": 10105
+    },
+    {
+      "path": "UI_BACKFILL_DERIVED_REVIEW_V1.md",
+      "sha256": "c5acf8fd286d23a077420b56900a33dc25264bbbca639a0a5373c0b36fb58513",
+      "bytes": 2237
+    },
+    {
+      "path": "verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json",
+      "sha256": "3ef572be5b07820dff5654bda06275437e6ddd014ed4f26852f9ad250fb559f1",
+      "bytes": 5560
+    },
+    {
+      "path": "_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+      "sha256": "dd20f524ae9d008098893517a3bb48b79082d4625cfb8e99fb33de7c8eb81c51",
+      "bytes": 7196
+    }
+  ],
+  "closure": "ER-01 correction candidate awaits root-direct reviewer continuation and parent acceptance;111 earlier assertions attributed only."
+}

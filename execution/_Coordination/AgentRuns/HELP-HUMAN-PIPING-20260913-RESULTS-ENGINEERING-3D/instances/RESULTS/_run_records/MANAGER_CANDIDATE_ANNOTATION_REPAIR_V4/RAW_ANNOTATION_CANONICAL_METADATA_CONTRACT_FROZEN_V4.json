@@ -1,0 +1,31 @@
+{
+  "status": "FROZEN_ANNOTATION_ONLY_CANDIDATE_READY_FOR_RCR03_BACKCHECK",
+  "derivative_package": true,
+  "counterexample": "supported-source-043 spring_hanger_user_input_review/N/m/variable_spring_hanger_stiffness full original metadata with basis removed: disclose exact four-field metadata; old SourceMetadata forbids missing basis.",
+  "minimal_schema_change": "Only add raw annotation JSON definition and redirect SourceAnnotations.metadata. ResultMetadata/QuantityResult/ReviewEvidence/canonical enums, value/unit/accounting/hash/origin/Current/model/version policies unchanged.",
+  "raw_annotation_rule": "Copy exact guarded received metadata JSON, including partial/empty values and unknown/nested members. Do not invent, nullify, complete or remove received facts. Source row/carrier hash covers exact complete received input; no missing producer reconstruction. Absent metadata retains prior null annotation convention with original row pointer/hash proving field absence; explicit null remains received null.",
+  "canonical_metadata_rule": "The five original canonical fields remain required and finite as before. When permitted emit only these named fields, all values copied exactly from received source metadata; additional members remain in full raw annotation. Missing/empty required facts trigger physical/review incomplete disclosure, never canonical metadata fabrication. Optional physical metadata may remain omitted with annotation retained. Nonempty contradictory kind/unit/component still blocks canonical.",
+  "guard_boundary": "All metadata annotation JSON must pass existing guarded serializer: finite numbers, safe integers, validUnicode/plainJSON objects/arrays/primitives, no undefined/bigint/cycles/nonplainobjects. Annotation syntax never authenticates producer or establishes Current.",
+  "canonical_ResultMetadata_unchanged": true,
+  "schema": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/CANDIDATE_RESULTS_V0_2_SCHEMA_V4.json",
+    "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485"
+  },
+  "independent_annotation_fixtures": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/PARTIAL_EMPTY_UNKNOWN_ANNOTATION_EXPECTATIONS_V4.json",
+    "sha256": "dc839f3165ca557e45381deec0853c1a902d9a85b6dfcb024b8a84a023d499bc"
+  },
+  "existing60positive_metadata_expectations": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/CONCRETE_METADATA_EXPECTATIONS_V3.json",
+    "sha256": "81cb50e868738f409206a217d26f52a01f7dc46e8a6081ffd1cb7108a20b2e83"
+  },
+  "root_direction": "Root instructed immediate additive V4 freeze after sealed reviewer V2; source release remains held pending focused same-reviewer annotation backcheck.",
+  "source_release": "HELD",
+  "writer_restart": false,
+  "runtime_execution": false,
+  "review_binding": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/REVIEW_V2_BINDING_FOR_ANNOTATION_REPAIR_V4.json",
+    "sha256": "866e1bbea991c0c4f008afe38fe8e46e975ea4afed4b72933d006dc62f8c7a15",
+    "bytes": 1424
+  }
+}

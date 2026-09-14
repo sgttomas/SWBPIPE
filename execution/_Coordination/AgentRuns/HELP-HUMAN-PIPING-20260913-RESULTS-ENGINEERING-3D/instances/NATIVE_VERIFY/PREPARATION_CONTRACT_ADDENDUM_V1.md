@@ -1,0 +1,9 @@
+# Accepted V4 static preparation addendum
+
+Root supplied accepted V4 index and implementation acceptance after initial preparation. Both exact hashes match. Read selected schema, field/hash, carrier, model proof, raw metadata, seven-function legacy freeze and ResultExportPanel consumer disposition from their exact separate RESULTS checkout origins; none rebound to integration paths. Root implementation lease remains with manager/writer.
+
+FROZEN_NATIVE_ROW_CONTRACT_V1.json binds every historical 67-row signature to the selected60 source contract without executing the adapter. Native background terminal received rows require received_current_dimension_absent_carrier scope and unavailable/null original-producer checksum; no producer authenticity inferred from absent dimensions. The five independent numerical expectations remain frozen separately. Source semantics/category/disposition, canonical strict metadata versus exact raw annotations, row accounting/witness pointers and declared hash scopes are frozen before execution.
+
+Both supported native export route families will be exercised: ResultExportPanel canonical0.2 JSON and existing stress-neutral Package JSON/CSV, with raw bytes/value/unit preservation independently checked. Exact V4 schema currently says baseline schema-first JSON and additional_formats TBD, so no second canonical format/schema is claimed. Parent must resolve the brief phrase both canonical formats or identify a further selected implementation format route at final source release. This is a terminology/route dependency, not a request for source accommodation or broader authority.
+
+Initial PREPARATION_RETURN_V1 and manifest remain immutable. This addendum updates context/contract status only. Actual candidate implementation, fresh received inputs/rows and runtime checks remain unexecuted. Proposed lease remains not granted; final source/DEC025 release is required.

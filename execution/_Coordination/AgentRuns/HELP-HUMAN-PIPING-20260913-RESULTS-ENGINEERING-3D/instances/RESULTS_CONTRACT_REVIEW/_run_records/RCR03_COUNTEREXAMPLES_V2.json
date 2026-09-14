@@ -1,0 +1,318 @@
+{
+  "finding_id": "RCR-03",
+  "priority": "P1",
+  "status": "BLOCKING_CONTRACT_REPAIR",
+  "schema": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/CANDIDATE_RESULTS_V0_2_SCHEMA_V2.json",
+    "sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+    "metadata_annotation_pointer": "#/$defs/SourceAnnotations/properties/metadata",
+    "strict_source_pointer": "#/$defs/SourceMetadata",
+    "strict_definition_line": 1042,
+    "annotation_definition_line": 1118
+  },
+  "source_fixture_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/CONCRETE_METADATA_EXPECTATIONS_V3.json",
+  "source_fixture_pointer": "/fixtures/43",
+  "source_fixture": {
+    "signature_id": "supported-source-043",
+    "status": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
+    "independent_input_origin": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/straight-dense-full.mechanics.json",
+      "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+      "row_index": 781,
+      "row_pointer": "/results/781"
+    },
+    "source_function": {
+      "name": "append_spring_hanger_user_input_results",
+      "declaration_line": 8060,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"
+    },
+    "input_row": {
+      "id": "result:spring-hanger:support-SH-140:stiffness",
+      "kind": "spring_hanger_user_input_review",
+      "value": 42000.0,
+      "unit": "N/m",
+      "entity_ref": "support:SH-140",
+      "metadata": {
+        "component": "variable_spring_hanger_stiffness",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-140:UZ stiffness",
+        "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+      }
+    },
+    "expected": {
+      "disposition": "exported_review",
+      "category": "review_evidence",
+      "family": null,
+      "source_physical_semantic_dimension": "linear_stiffness",
+      "derivative_target_dimension": "linear_stiffness",
+      "value": 42000.0,
+      "unit": "N/m",
+      "observed_carrier_dimension_present": false,
+      "observed_carrier_dimension": null,
+      "source_annotation_metadata": {
+        "component": "variable_spring_hanger_stiffness",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-140:UZ stiffness",
+        "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+      },
+      "canonical_metadata": null,
+      "governing_ratio_eligible": false
+    },
+    "negative_unit": {
+      "replacement": "Pa",
+      "expected": "known_kind_unit_contradiction_blocks_canonical"
+    },
+    "negative_component": {
+      "replacement": "contradictory_source_component",
+      "expected": "known_kind_component_contradiction_blocks_canonical"
+    },
+    "missing_metadata": {
+      "expected": "review_metadata_incomplete_disclosure",
+      "source_fields_preserved": true,
+      "export_review_target": false,
+      "reason_code": "review_metadata_incomplete"
+    }
+  },
+  "counterexamples": [
+    {
+      "id": "RCR03-043-remove-basis",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/required",
+      "analytical_failure": "Missing required basis; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-empty-basis",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/properties/basis/minLength",
+      "analytical_failure": "Empty string has length 0, below minLength 1; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-remove-location",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/required",
+      "analytical_failure": "Missing required location; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-empty-location",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/properties/location/minLength",
+      "analytical_failure": "Empty string has length 0, below minLength 1; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-remove-sign_convention",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/required",
+      "analytical_failure": "Missing required sign_convention; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-empty-sign_convention",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": ""
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/properties/sign_convention/minLength",
+      "analytical_failure": "Empty string has length 0, below minLength 1; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-remove-coordinate_system",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/required",
+      "analytical_failure": "Missing required coordinate_system; object cannot match alternative null branch"
+    },
+    {
+      "id": "RCR03-043-empty-coordinate_system",
+      "synthetic_counterexample": true,
+      "source_input": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "required_output": "Exactly one review_metadata_incomplete disclosure with exact metadata object preserved; no review target or invented fields",
+      "schema_failure_path": "#/$defs/SourceMetadata/properties/coordinate_system/minLength",
+      "analytical_failure": "Empty string has length 0, below minLength 1; object cannot match alternative null branch"
+    }
+  ],
+  "affected_policy_groups": {
+    "retain_source_annotation_and_disposition": [
+      "supported-source-000",
+      "supported-source-023",
+      "supported-source-024",
+      "supported-source-025",
+      "supported-source-026",
+      "supported-source-027",
+      "supported-source-028",
+      "supported-source-030",
+      "supported-source-033",
+      "supported-source-034",
+      "supported-source-035",
+      "supported-source-036",
+      "supported-source-037",
+      "supported-source-050",
+      "supported-source-051"
+    ],
+    "exported_quantity_without_metadata": [
+      "supported-source-001",
+      "supported-source-002",
+      "supported-source-003",
+      "supported-source-004",
+      "supported-source-005",
+      "supported-source-006",
+      "supported-source-007",
+      "supported-source-008",
+      "supported-source-015",
+      "supported-source-016",
+      "supported-source-017",
+      "supported-source-018",
+      "supported-source-019",
+      "supported-source-020",
+      "supported-source-031",
+      "supported-source-032",
+      "supported-source-053",
+      "supported-source-054",
+      "supported-source-055",
+      "supported-source-059"
+    ],
+    "disclosed_physical_metadata_incomplete": [
+      "supported-source-009",
+      "supported-source-010",
+      "supported-source-011",
+      "supported-source-012",
+      "supported-source-013",
+      "supported-source-014"
+    ],
+    "review_metadata_incomplete_disclosure": [
+      "supported-source-021",
+      "supported-source-022",
+      "supported-source-029",
+      "supported-source-038",
+      "supported-source-039",
+      "supported-source-040",
+      "supported-source-041",
+      "supported-source-042",
+      "supported-source-043",
+      "supported-source-044",
+      "supported-source-045",
+      "supported-source-046",
+      "supported-source-047",
+      "supported-source-048",
+      "supported-source-049",
+      "supported-source-052",
+      "supported-source-056",
+      "supported-source-057",
+      "supported-source-058"
+    ]
+  },
+  "scope": "19 review-incomplete and 6 required physical metadata-incomplete dispositions; optional canonical metadata and disclosure-only rows also cannot retain a received incomplete or extended metadata object. Whole null already passes; it does not preserve an actual non-null partial object. Unknown extension fields fail additionalProperties:false. Array/scalar/nested arbitrary JSON retention, when promised for unknown source annotations, is likewise excluded by this typed object/null union.",
+  "repair": "Separate guarded raw received metadata annotation from unchanged strict canonical ResultMetadata; preserve exact received JSON subject to finite number/Unicode/IJSON guards; explicitly cover missing single fields, empty fields and unknown extension values without metadata invention.",
+  "method": "Analytical schema inspection only; no schema or product runtime executed."
+}

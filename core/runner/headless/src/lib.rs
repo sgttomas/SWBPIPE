@@ -12,7 +12,7 @@ pub mod result_envelope_binding;
 
 use open_pipe_stress_canonical_json::canonical_json;
 use open_pipe_stress_product_physics::{
-    run_linear_static_preview, LinearStaticPreviewRequest, MechanicsEnvelope,
+    run_linear_static_preview_with_mode, LinearStaticPreviewRequest, MechanicsEnvelope, PreviewSolverMode,
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -606,6 +606,11 @@ fn validate_result_envelope_payload(
         return;
     };
 
+    let version=root.get("schema_version").and_then(Value::as_str);
+    if !matches!(version,Some("0.1.0"|"0.2.0")) || envelope.get("schema_version").and_then(Value::as_str)!=version {
+        diagnostics.push(Diagnostic::runner_blocking("HEADLESS_RUNNER_RESULT_ENVELOPE_VERSION_UNSUPPORTED",Reference::new("result_envelope",&result.result_envelope_ref.envelope_ref.ref_id),"only matching0.1.0 or0.2.0 result contract versions are supported"));
+    }
+
     let expected_envelope_id = result.result_envelope_ref.envelope_ref.ref_id.as_str();
     if envelope.get("envelope_id").and_then(Value::as_str) != Some(expected_envelope_id) {
         diagnostics.push(Diagnostic::runner_blocking(
@@ -680,7 +685,55 @@ pub struct PreviewRunnerOutput {
     /// DEL-10-05 `export-results` follow-on.
     #[serde(skip_serializing)]
     pub result_envelope_document: Option<Value>,
+    /// Library-only explicit availability finding; never changes raw transport.
+    #[serde(skip_serializing)]
+    pub canonical_export_unavailability: Option<String>,
+    #[serde(skip_serializing)]
+    pub qualified_preview_evidence: Option<QualifiedPreviewEvidence>,
 }
+
+/// Opaque evidence minted by the actual same-Value solve route. No public
+/// constructor, Deserialize or payload setter can substitute a solved model.
+#[derive(Debug, Clone)]
+pub struct QualifiedPreviewEvidence {
+    pub(crate) solve_payload: Value,
+    pub(crate) solve_payload_digest: String,
+    pub(crate) mechanics_digest: String,
+    pub(crate) runner_digest: String,
+    pub(crate) request_digest: String,
+    pub(crate) run_id: String,
+}
+
+/// Parse the exact retained solve payload once and solve that same typed input.
+/// Unknown authored JSON remains in evidence and model digest; overrides stay
+/// separately scoped solve input rather than being merged into model identity.
+pub fn run_preview_model_value_with_rule_check(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>) -> Result<PreviewRunnerOutput, String> {
+    run_preview_model_value_mode(request,solve_payload,aggregate,PreviewSolverMode::SparseInteractive)
+}
+/// Library-only dense scrutiny/default sparse mode; no CLI/native option added.
+pub fn run_preview_model_value_with_mode(request:RunnerRequest,solve_payload:Value,mode:PreviewSolverMode)->Result<PreviewRunnerOutput,String>{run_preview_model_value_mode(request,solve_payload,None,mode)}
+fn run_preview_model_value_mode(request: RunnerRequest, solve_payload: Value, aggregate: Option<&str>, mode:PreviewSolverMode) -> Result<PreviewRunnerOutput, String> {
+    let typed: LinearStaticPreviewRequest = serde_json::from_value(solve_payload.clone()).map_err(|e|format!("SOLVE_PAYLOAD_INVALID: {e}"))?;
+    let retained_request=request.clone();
+    let mut output=run_preview_in_memory_mode(request,typed,aggregate,mode);
+    let qualified=|| -> Result<QualifiedPreviewEvidence,String> {
+        use open_pipe_stress_result_export::derivative::{digest,guard_json};
+        guard_json(&solve_payload)?;
+        let mechanics=output.mechanics_envelope.as_ref().ok_or("SOURCE_UNAVAILABLE")?;
+        if mechanics.status.mechanics!="MECHANICS_SOLVED" {return Err("SOURCE_NOT_SOLVED".into());}
+        if solve_payload["model"]["project"]["id"]!=mechanics.model_ref {return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into());}
+        Ok(QualifiedPreviewEvidence {solve_payload_digest:digest(&solve_payload)?,solve_payload,mechanics_digest:digest(&serde_json::to_value(mechanics).map_err(|e|e.to_string())?)?,runner_digest:digest(&serde_json::to_value(&output.runner_result).map_err(|e|e.to_string())?)?,request_digest:digest(&serde_json::to_value(&retained_request).map_err(|e|e.to_string())?)?,run_id:output.runner_result.run_id.clone()})
+    }();
+    match qualified {
+        Ok(evidence)=>match result_envelope_binding::build_result_export_document_with_evidence(&retained_request,&output.runner_result,output.mechanics_envelope.as_ref().unwrap(),&evidence){
+            Ok(doc)=>{output.result_envelope_document=Some(doc);output.canonical_export_unavailability=None;output.qualified_preview_evidence=Some(evidence);},
+            Err(d)=>output.canonical_export_unavailability=Some(d.message),
+        },
+        Err(reason)=>output.canonical_export_unavailability=Some(reason),
+    }
+    Ok(output)
+}
+pub fn run_preview_model_value(request: RunnerRequest, solve_payload: Value) -> Result<PreviewRunnerOutput,String> {run_preview_model_value_with_rule_check(request,solve_payload,None)}
 
 /// Map an automatic rule-check status — the `core/rules/rule_check_runner`
 /// worst-of `aggregate_status` vocabulary (`RULE_INPUTS_INCOMPLETE`,
@@ -724,6 +777,9 @@ pub fn run_preview_in_memory_with_rule_check(
     preview_request: LinearStaticPreviewRequest,
     rule_check_aggregate: Option<&str>,
 ) -> PreviewRunnerOutput {
+    run_preview_in_memory_mode(request,preview_request,rule_check_aggregate,PreviewSolverMode::SparseInteractive)
+}
+fn run_preview_in_memory_mode(request:RunnerRequest,preview_request:LinearStaticPreviewRequest,rule_check_aggregate:Option<&str>,mode:PreviewSolverMode)->PreviewRunnerOutput {
     let request_validation = validate_request(&request);
     let run_id = format!("run:headless-preview:{}", request.request_id);
 
@@ -767,10 +823,12 @@ pub fn run_preview_in_memory_with_rule_check(
             },
             mechanics_envelope: None,
             result_envelope_document: None,
+            canonical_export_unavailability: Some("SOURCE_UNAVAILABLE".into()),
+            qualified_preview_evidence: None,
         };
     }
 
-    let mut mechanics = run_linear_static_preview(preview_request);
+    let mut mechanics = run_linear_static_preview_with_mode(preview_request,mode);
     let mut diagnostics: Vec<Diagnostic> = Vec::new();
     // Drive the optional rule-check aggregate into the solve envelope before its
     // checksum binds, so the envelope and the runner analysis_status honestly
@@ -838,10 +896,13 @@ pub fn run_preview_in_memory_with_rule_check(
     let result_envelope_document =
         attach_result_envelope_document(&request, &mut runner_result, &mechanics);
 
+    let canonical_export_unavailability = Some(if mechanics.status.mechanics == "MECHANICS_SOLVED" {"EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"} else {"SOURCE_NOT_SOLVED"}.into());
     PreviewRunnerOutput {
         runner_result,
         mechanics_envelope: Some(mechanics),
         result_envelope_document,
+        canonical_export_unavailability,
+        qualified_preview_evidence: None,
     }
 }
 
@@ -863,13 +924,8 @@ fn attach_result_envelope_document(
     if mechanics.status.mechanics != "MECHANICS_SOLVED" {
         return None;
     }
-    match result_envelope_binding::build_result_export_document(request, runner_result, mechanics) {
-        Ok(document) => Some(document),
-        Err(diagnostic) => {
-            runner_result.diagnostics.push(diagnostic);
-            None
-        }
-    }
+    let _ = (request, runner_result);
+    None
 }
 
 fn has_result_envelope_checksum(result: &RunnerResult, expected_envelope_id: &str) -> bool {

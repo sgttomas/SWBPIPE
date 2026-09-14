@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "nonlinear_supports",
+      "id": "result:nonlinear-support:max-rotation-delta",
+      "kind": "nonlinear_support_observed_max_rotation_delta",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; observation_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-observation-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1; threshold_policy_status=accepted; residual_basis=displacement_reaction_delta_from_previous_iteration; threshold_axes=displacement_and_reaction_delta; translation_delta_threshold=50 mm; rotation_delta_threshold=0.05 rad; force_reaction_delta_threshold=110000 N; moment_reaction_delta_threshold=110000 N*m; product_preview_only",
+        "component": "observed_max_rotation_delta",
+        "coordinate_system": "solver_iteration",
+        "location": "final_iteration",
+        "sign_convention": "nonnegative max absolute rotational displacement change from the previous iteration"
+      },
+      "unit": "rad",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

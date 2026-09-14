@@ -1,0 +1,25 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": null,
+      "entity_ref": "support:synthetic-source",
+      "id": "result:synthetic-supported-source-056",
+      "kind": "spring_hanger_user_input_review",
+      "metadata": {
+        "basis": "support_family=variable_spring_hanger;field=movement-limit;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=review_only;dec_ref=DEC-049",
+        "component": "variable_spring_hanger_movement_limit",
+        "coordinate_system": "support_local_preview",
+        "location": "node:synthetic-source:movement-limit",
+        "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+      },
+      "source_result_refs": [],
+      "unit": "m",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

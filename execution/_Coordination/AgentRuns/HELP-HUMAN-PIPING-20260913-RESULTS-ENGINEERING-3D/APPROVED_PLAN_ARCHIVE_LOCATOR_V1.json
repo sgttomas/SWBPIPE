@@ -1,0 +1,321 @@
+{
+  "kind": "Exact archived planning copy relocation; existing structural rule, no exception/suppression",
+  "parent_authorization": "/root bounded packaging under actual user implementation approval",
+  "approval_reference": "instances/SETUP/_run_records/APPROVAL_DIRECTION.md",
+  "old_copy_root": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN",
+  "archive_root": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "files": 60,
+  "before_after_sha256": {
+    "PLANNING_DISPATCH_FAN_IN_V1.json": "da2fc86a3d39ed18e2ed9b336e588f59c30a2a847ae64313101d661974012f75",
+    "FINAL_HANDOFF.md": "3cb9298a1b8c7a790af83015b25d49141cc19cbab19b7f70ccc304acf12db847",
+    "CANDIDATE_PLAN_V2_MANIFEST.json": "209e807541f5297bcfd53f0806f02537f8adbf73631e485d56ea409923d0be43",
+    "CANDIDATE_PLAN_V1_MANIFEST.json": "05807962851e7224111af125c4675d37dfccb782673dd3316f90e805d4d3247b",
+    "FINAL_RUN_MANIFEST_V1.json": "68d7ea68762c327956016d15d8ac3c618f646cce9f103c769218c9b479018f60",
+    "CANDIDATE_PLAN_V3.md": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+    "FINAL_HANDOFF_V2.md": "20b7e76eaf9c63c705d66729dbb2073856b3a40a2fc989ec60d5fe384238e7ee",
+    "CANDIDATE_PLAN_V2.md": "ee0e3c6f08eeb825c5d95a7a422dfea19e763556ddb9947487452e6fe9d40cb6",
+    "WORK_GRAPH_V1.json": "b8f6802b3c14a1a23e623beff402fad8a4fa34e56e2daa0538733e31fb3c851b",
+    "PLANNING_CLOSEOUT_ADVICE_V1.md": "a1d4233d506f81ea2b1091d32bf858b6104bae66fb106d921a5c1b853b7446fd",
+    "CANDIDATE_PLAN_V1.md": "00a60895b0b7ccdb9bba3b3dde2822d4e95c744dd707c62e3721e00863477be4",
+    "FINAL_RUN_MANIFEST_V2.json": "b249b5d0999bf040aba20a464698ea733368cdfa24ebb6d0b6827e6bce301532",
+    "PLANNING_ACCEPTANCE_V1.json": "2f43e9e3aed8ef03949d3fb06cb6934ad4cefdeaeb1dd24fa793db44267b4b75",
+    "PLANNING_SCOPE_CLARIFICATION_V1.json": "556cff5243ca2f55f83230739599faf5d170ae4491b277abaefef7ec47d87db1",
+    "USER_DIRECTION.md": "4a3f210e1636979ab97c05ff6e835316ef384e8c93368ad0d48c65375e20b718",
+    "BOOTSTRAP.json": "b556f6be3c1120ebcec7d1a0f439c71bcf97f963eb9f58c2c649322b9e742c3a",
+    "CANDIDATE_PLAN_V3_MANIFEST.json": "0e2d5527eef0d0a06a14148f2ee14cea2777a5eb318ae2395ce90416b23aaf18",
+    "DISPATCH_READY_V1.json": "f92ef7abb8c92b00d67deb72f1bceac39231d67427431741bb460652514ae76c",
+    "briefs/ENGINEERING.md": "c0d236fcae96a47298cbae2ad2b536996b85333d6f01be448ec33b63dcfdf4f8",
+    "briefs/PLAN_REVIEW_V1.md": "87c43049a65951cf92c1f8225460a0a223a925f8743c01d7c60213bc2f57aa32",
+    "briefs/RESULTS.md": "ea837f88391c30074ef655d2d81d7d3970ed1554d7bf6a6ab4c4f74b69fdd867",
+    "briefs/PLAN_REVIEW_V2.md": "a8e52dda5c6e551361c866a0576a14bce656a7f84cd076b0994b8bcbf71ce39b",
+    "briefs/PLAN_REVIEW_V3.md": "ab073436ddc0f6a6c0c847678fc789bd2a0c2bef67700b60e8489d1ccc365259",
+    "briefs/UI.md": "538bd51543697049a1c51cd9b02f0d6f10d04da6f69f2a65155c2eed51cc7184",
+    "instances/UI/RETURN.md": "af0981096628552ba311b8a7598bd88b1df9e5488be8a188933dd081a9640067",
+    "instances/UI/DEPENDENCY_CONTEXT.json": "4d10291b1b0d7ad8dcac4c135db20a6ed21dbe9748857cb2ab65476344f1cf60",
+    "instances/UI/MANIFEST.json": "abd80d73dff5498a856f97e25451532c87ded8bf8a289ec611e9a2eb2bc68405",
+    "instances/UI/DESIGN_PLAN.md": "651b92db0c077f8d4fe470449d3f8a334462b47edd592e6cb03f2511e9b10f51",
+    "instances/UI/CONTEXT_MANIFEST.json": "918daa81d9fa549fc379b3d6b5a50f08ce7b8c1bf605e80d7df652841999572c",
+    "instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json": "c910e3f3aa549a40c9beb56da11282f9b64a3415d3756990aa1b980e449d7425",
+    "instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_ATTRIBUTION.json": "d9544b9af59b73eabbd8a4e66ae35bedd749a4bdd195fce6bf334eab3ef6e4b0",
+    "instances/PLAN_REVIEW/REVIEW_V2_RETURN.md": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+    "instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_RETURN.md": "6caa8de19763a35c6f967fa1dad3ad9fd2b7cbc79e7b92f52d4a5ae5ba08e3bb",
+    "instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json": "61d86f162ddd8d3b89b3f080e17e17b61ad87165aeb2aef81cc4893813f5cb8f",
+    "instances/PLAN_REVIEW/REVIEW_V2_ATTRIBUTION.json": "ea402c29f2437bc93e80273b21a492fb13ace5ffd4ba753b6e8c868d8552eff3",
+    "instances/SETUP/RETURN.md": "ce8ecc57def821cefd54c22d3916d7c5452c70d2dacb3d4f4e23600fe5357bb1",
+    "instances/RESULTS/RETURN.md": "dfe6ac7b1dadff03ed5973fb3145f9f0d01913b00546cc717db65f95a9157097",
+    "instances/RESULTS/MANIFEST.json": "014f5effbeac2af6f0d821aeacf2f23386a0ee062ddb35dcac6ed9f24fbe9649",
+    "instances/ENGINEERING/SOURCE_EXCERPTS.md": "83a0cff01e14785cb93194e20177bacdd894513c8c154cf3090376b2e10d69b1",
+    "instances/ENGINEERING/RETURN.md": "3626f5dc1f24407a5e6fded2b59d8e203256ae9562d75137a2e96b2155aeac0f",
+    "instances/ENGINEERING/ANALYTICAL_CONTRACT_SPEC.md": "7c994d2311098fc86fc048f82b1b1d60960ed3e28b8ab961db9c7cabb4cbaec0",
+    "instances/ENGINEERING/MANIFEST.json": "10ab42b44da204bbc9378d6c9b7a8d249af2e1fbb1912885898f959321ec99fc",
+    "instances/ENGINEERING/CONTEXT_INVENTORY.json": "6c18846b999eeae6dd26a6dcb3d4463a3eea438318229f20dc89147f05ce0242",
+    "instances/RESULTS/raw/revalidate.py": "c14b5dce148e9587bcbb910e0433074e6733f836f37142e9d2825d392c13a87a",
+    "instances/RESULTS/raw/native-blocked-native.json": "67b95e292f8e2772a2d5d6101cf124587913e23b77a0ac634cde2f166a61e296",
+    "instances/RESULTS/raw/validation.stdout.txt": "36196bb1cf24233b35bff5b1357fc8383a6783552f737377abbe46f4c54d3b98",
+    "instances/RESULTS/raw/curved_tip_weight_full_document.json": "bfeaa07893d74d7b500aa691efb02c92431f338f6b57ad1cf30429bbe6e21e58",
+    "instances/RESULTS/raw/CONTRACT_VALUES.json": "bdf0dd9530da5277deab53b9a6aab5f13d4e0087d18c71e9765842643f341234",
+    "instances/RESULTS/raw/COMMAND.json": "fb2d112695a06abbefb5d1ec01f9695c5231da2a436712e93e76d1aeff8ba6f0",
+    "instances/RESULTS/raw/RUNTIME_EQUALITY.json": "763f26ba766c7151f4b7e758b7017286c93d287a81e88e803bb05a66ee3e1911",
+    "instances/RESULTS/raw/native-fresh-reopen-before-save.json": "5daf4775142a7aafcc6b2a73f8dab15a60eaf19599bd16f8f6fc1a720496e2be",
+    "instances/RESULTS/raw/straight_full_document.json": "004ea7feba57919c335931a0471f0888e74edf8410ee7a8fbeea9c118482a705",
+    "instances/RESULTS/raw/VALIDATION.json": "8556099b5e29b1bb47b19c544d9f0b939785ad301a8ce397fc1d29c87be86f69",
+    "instances/RESULTS/raw/validation.stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "instances/RESULTS/raw/FAILED_DEFAULT_PYTHON_PROBE.json": "ab07259496eb45c06704ba57e2d00b6a9c8e7a8e2795a272ab3f4c9bf19ffb18",
+    "instances/RESULTS/raw/curved_pressure_full_document.json": "60418440ce86957d6aae7b8f4a5b56843b2d5c34ace6125ee2f0c32e5108bd20",
+    "instances/RESULTS/raw/native-initial-solved500.json": "77fc6c2da32e3f19660d6bdf33c9e9fe5189034d45473742a2589e62a3a8d0b9",
+    "instances/SETUP/_run_records/PLAN_REVIEW_V2_DISPATCH.json": "2814e15756768f520101de2d9a4c3a8f4f8b3aa6f4237b0e2c7bea3deb6466f0",
+    "instances/SETUP/_run_records/BOOTSTRAP_HOST.json": "f6d1fa90c8ed876b6ac413c919e21ae6c888ae1abcc02356c63a5424df6f5ff0",
+    "instances/SETUP/_run_records/PLAN_EXTERNAL_BASIS_V1.json": "bc4b06d652608ebaa71c28c7f6eb26e58aab79b017d81087ab5e8afc51292bb4"
+  },
+  "classification": {
+    "PLANNING_DISPATCH_FAN_IN_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "FINAL_HANDOFF.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V2_MANIFEST.json": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V1_MANIFEST.json": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "FINAL_RUN_MANIFEST_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V3.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "FINAL_HANDOFF_V2.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V2.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "WORK_GRAPH_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "PLANNING_CLOSEOUT_ADVICE_V1.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V1.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "FINAL_RUN_MANIFEST_V2.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "PLANNING_ACCEPTANCE_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "PLANNING_SCOPE_CLARIFICATION_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "USER_DIRECTION.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "BOOTSTRAP.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "CANDIDATE_PLAN_V3_MANIFEST.json": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "DISPATCH_READY_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "briefs/ENGINEERING.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "briefs/PLAN_REVIEW_V1.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "briefs/RESULTS.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "briefs/PLAN_REVIEW_V2.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "briefs/PLAN_REVIEW_V3.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "briefs/UI.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/UI/RETURN.md": {
+      "before": "EVIDENCE",
+      "after": "EVIDENCE"
+    },
+    "instances/UI/DEPENDENCY_CONTEXT.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/UI/MANIFEST.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/UI/DESIGN_PLAN.md": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "instances/UI/CONTEXT_MANIFEST.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_ATTRIBUTION.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/REVIEW_V2_RETURN.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_RETURN.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/PLAN_REVIEW/REVIEW_V2_ATTRIBUTION.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/SETUP/RETURN.md": {
+      "before": "EVIDENCE",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/RETURN.md": {
+      "before": "EVIDENCE",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/MANIFEST.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/ENGINEERING/SOURCE_EXCERPTS.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/ENGINEERING/RETURN.md": {
+      "before": "EVIDENCE",
+      "after": "EVIDENCE"
+    },
+    "instances/ENGINEERING/ANALYTICAL_CONTRACT_SPEC.md": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/ENGINEERING/MANIFEST.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/ENGINEERING/CONTEXT_INVENTORY.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/revalidate.py": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/native-blocked-native.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/validation.stdout.txt": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/curved_tip_weight_full_document.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/CONTRACT_VALUES.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/COMMAND.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/RUNTIME_EQUALITY.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/native-fresh-reopen-before-save.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/straight_full_document.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/VALIDATION.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/validation.stderr.txt": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/FAILED_DEFAULT_PYTHON_PROBE.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/curved_pressure_full_document.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/RESULTS/raw/native-initial-solved500.json": {
+      "before": "UNCLASSIFIED",
+      "after": "EVIDENCE"
+    },
+    "instances/SETUP/_run_records/PLAN_REVIEW_V2_DISPATCH.json": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    },
+    "instances/SETUP/_run_records/BOOTSTRAP_HOST.json": {
+      "before": "EVIDENCE",
+      "after": "EVIDENCE"
+    },
+    "instances/SETUP/_run_records/PLAN_EXTERNAL_BASIS_V1.json": {
+      "before": "CONTROL",
+      "after": "EVIDENCE"
+    }
+  },
+  "mechanism": {
+    "path": "tools/practitioner_harness/surface_roles.py",
+    "sha256": "bb046f041ed33e0d7b4cee797aa0da52920cc5fd98eb95fbb087f795b580f2be",
+    "rule": "classify_surface: CONTROL-name precedence within AgentRuns; outside AgentRuns _run_records structurally EVIDENCE"
+  },
+  "integrity": "All60 copied files identical before/after; original planning worktree untouched; only exact packet moved. Bootstrap/Step0 old paths remain historical observed anchors. No portability policy/shared validator edits.",
+  "active_approved_plan": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+  "approved_plan_sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536"
+}

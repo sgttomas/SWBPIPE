@@ -1,0 +1,445 @@
+{
+  "documents": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-000.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-001.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-002.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-003.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-004.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-005.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-006.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-007.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-008.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-basis-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-basis-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-component-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-component-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-coordinate_system-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-coordinate_system-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-empty_object.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-explicit_null.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-json_array.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-location-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-location-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-sign_convention-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-sign_convention-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009-unknown_member.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-009.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-010.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-011.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-012.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-013.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-014.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-015.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-016.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-017.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-018.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-019.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-020.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-021.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-022.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-023.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-024.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-025.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-026.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-027.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-028.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-029.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-030.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-031.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-032.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-033.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-034.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-035.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-036.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-037.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-038.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-039.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-040.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-041.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-042.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-basis-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-basis-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-component-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-component-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-coordinate_system-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-coordinate_system-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-empty_object.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-explicit_null.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-json_array.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-location-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-location-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-sign_convention-empty.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-sign_convention-missing.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043-unknown_member.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-043.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-044.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-045.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-046.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-047.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-048.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-049.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-050.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-051.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-052.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-053.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-054.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-055.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-056.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-057.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-058.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1/supported-source-059.document.json",
+      "error_count": 0,
+      "errors": []
+    }
+  ],
+  "total_errors": 0
+}

@@ -1,0 +1,71 @@
+{
+  "cases": [
+    {
+      "attached_document_present": false,
+      "case_id": "gap-chain-five-active",
+      "diagnostic_codes": [
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID"
+      ],
+      "library_document_present": false,
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "passed": false,
+      "raw_row_count": 0
+    },
+    {
+      "attached_document_present": false,
+      "case_id": "gap-chain-two-active-control",
+      "diagnostic_codes": [
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID"
+      ],
+      "library_document_present": false,
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "passed": false,
+      "raw_row_count": 0
+    },
+    {
+      "attached_document_present": false,
+      "case_id": "gap-chain-five-inactive-control",
+      "diagnostic_codes": [
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID",
+        "SUPPORT_INPUT_INVALID"
+      ],
+      "library_document_present": false,
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "passed": false,
+      "raw_row_count": 0
+    }
+  ],
+  "verdict": "WITNESS_EXPECTATION_FAILED"
+}

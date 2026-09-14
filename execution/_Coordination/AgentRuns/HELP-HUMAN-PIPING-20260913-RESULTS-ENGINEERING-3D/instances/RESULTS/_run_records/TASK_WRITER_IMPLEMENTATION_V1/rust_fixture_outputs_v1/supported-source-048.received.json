@@ -1,0 +1,23 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "support:CE-120",
+      "id": "result:constant-effort-support:support-CE-120:constant-load",
+      "kind": "constant_effort_user_input_review",
+      "metadata": {
+        "basis": "support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+        "component": "constant_effort_support_constant_load",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-120:constant-load",
+        "sign_convention": "positive value is user-entered constant-effort support input evidence; a support meeting the DEC-049 consumption conditions (exactly one declared translational restraint DOF and a finite positive constant load) is consumed by the assembled solve as a constant nodal force along the positive axis of that DOF, recorded per load case in constant_effort_support_applied_load rows; a support not meeting those conditions stays review-only with a non-blocking warning; no nonlinear behavior and no catalog/default value is claimed by this preview row"
+      },
+      "unit": "N",
+      "value": 375.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "derivative_package": true,
+  "closure": "manager bounded fan-in complete; root product gates OPEN",
+  "return": {
+    "path": "RETURN_IMPLEMENTATION_V1.md",
+    "sha256": "5b0106e428aaeedb28762e21eeac291c8fb4126b97a43ddf9bdf04208b766742",
+    "bytes": 2986
+  },
+  "selected_index": {
+    "path": "_run_records/IMPLEMENTATION_ACCEPTED_FAN_IN_INDEX_V1.json",
+    "sha256": "81b6d50fc1772125bf0954d7b0ce4883430225074f70d120deba6cefdc4cc492",
+    "bytes": 5535
+  },
+  "selected_artifacts": [
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/RETURN.md",
+      "sha256": "01c46320ea379ec342138d4abdd4c4e48da1578c34df7028e6d5f006cee036f7",
+      "bytes": 15153
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/MANIFEST.json",
+      "sha256": "0626b60855ee515819646f4ea85ce9df4b5a2232db38f6c29b844318da693d27",
+      "bytes": 190957
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/SOURCE_FENCE_AND_HASH_AUDIT_V1.json",
+      "sha256": "a9b74c710392523cb0fba2d474165d9476538f59e0a58801b5bafb7fa7653635",
+      "bytes": 22364
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/SOURCE_TRANSFER_V1.patch",
+      "sha256": "8121349f9f7a16004f8d33e8d3f3d279ca475cd7e2b67fa6ef5128bfc861113c",
+      "bytes": 699540
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/FINAL_CONSUMER_DISPOSITIONS_V1.json",
+      "sha256": "242cfdd33498e1f57152e7e6a48deb7c586381673afc6e275aab703d47e4588b",
+      "bytes": 88518
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/COMMAND_LEDGER_V1.json",
+      "sha256": "d43e83e513325ae485da2a7933dc303de75706f9c4822e3783782b8fca704862",
+      "bytes": 1401500
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/TYPED_SERIALIZER_BYTE_PARITY_V1.json",
+      "sha256": "f1f369b96cd6e20525461e6389a52a93eb7e581b8ffe8f3a700f583c282378b0",
+      "bytes": 5750
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/STRESS_NEUTRAL_EXISTING_SCHEMA_DISPOSITION_V1.json",
+      "sha256": "acdebb077e2af19cd5d2d16b8a5925d81d130cc2a205068042fd0c9b0bf72575",
+      "bytes": 731386
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_V1/IMMUTABLE_UPSTREAM_FAN_IN_V1.json",
+      "sha256": "70431fc033d457f47d52166e4de10068c52945431620192587d910a0f01576c3",
+      "bytes": 40244
+    },
+    {
+      "path": "_run_records/CONSOLIDATED_CANDIDATE_INDEX_V4.json",
+      "sha256": "fc87130ed6c98acf4913a24c0f21d141b655a6ebc9d553c35b20debf168953b2",
+      "bytes": 16278
+    },
+    {
+      "path": "RETURN_V4.md",
+      "sha256": "8fc4f4a4a788c2f36c2862429ff785cdc5b7fc86d1b4c47f2d57581447059daa",
+      "bytes": 4059
+    },
+    {
+      "path": "MANIFEST_V4.json",
+      "sha256": "2674cb84a67f9223a886f7d7acd8c55c370e2da308429bb0a86aadc558628937",
+      "bytes": 15224
+    },
+    {
+      "path": "_run_records/MANAGER_CHILD_IMPLEMENTATION_FINAL_BACKCHECK_V1.json",
+      "sha256": "166bca3012c2d7c80560504f3f11fd10c4186475b981ee059565eaf8a2c639f2",
+      "bytes": 692
+    },
+    {
+      "path": "_run_records/MANAGER_FROZEN_SOURCE_HASH_BACKCHECK_V1.json",
+      "sha256": "39e86fa76e05b442590943242fa9f05a9536525d445d843f7c9f3bdcbc382a4e",
+      "bytes": 346
+    },
+    {
+      "path": "_run_records/MANAGER_IMPLEMENTATION_GUARDED_SURFACE_BACKCHECK_V1.json",
+      "sha256": "54f61280b147393b4093a1d2c5e6e4c3c0143df932e189445d286c30b80bbb7b",
+      "bytes": 820
+    },
+    {
+      "path": "_run_records/MANAGER_CAPTURE_SERIALIZATION_SCOPES_V1.json",
+      "sha256": "fb572e0abcd87455c029a89ec1cf912eb06f072340caae01eaad52dd9fb3282c",
+      "bytes": 14849
+    },
+    {
+      "path": "_run_records/MANAGER_FRESH_ORIGINAL_ROW_AND_DERIVATIVE_COMPARE_V2.json",
+      "sha256": "e3fbf824fe611bb46a1304fd17c2ef57ff051a3bca3346d1a4391bbd551147ca",
+      "bytes": 3229
+    },
+    {
+      "path": "_run_records/RESULTS_IMPLEMENTATION_RUNTIME_RELEASE_V1.json",
+      "sha256": "784bb519850b7f17670012ffd61decfd198186f8195c9219ac6389d15783f128",
+      "bytes": 1013
+    },
+    {
+      "path": "_run_records/TASK_WRITER_IMPLEMENTATION_CONTINUATION_V1.md",
+      "sha256": "19253898f14497a7916998ddab37835cd3f92310bb2fdc8de26b3ceafab2e0f1",
+      "bytes": 6666
+    },
+    {
+      "path": "_run_records/CHILD_ACTUAL_IMPLEMENTATION_REACTIVATION_V1.json",
+      "sha256": "ff7ed70957505dfa79c17b8aae968cb25cc39319e84c3a0c5e3bca9f3c7a6710",
+      "bytes": 1192
+    },
+    {
+      "path": "_run_records/TASK_WRITER_LOCAL_DOWNLOAD_CONTINUATION_V1.md",
+      "sha256": "58d7e000ac84a42d639f5d00cb3bc98657a168968b92b9c2b1b787d15960998d",
+      "bytes": 2250
+    },
+    {
+      "path": "_run_records/CHILD_ACTUAL_LOCAL_DOWNLOAD_CONTINUATION_V1.json",
+      "sha256": "f83de1b77a2fa569b6ee861a38e0c64c5968bdd7ddb7ee4540b84377241e18dd",
+      "bytes": 770
+    }
+  ],
+  "source_patch_sha256": "8121349f9f7a16004f8d33e8d3f3d279ca475cd7e2b67fa6ef5128bfc861113c",
+  "runtime_released": true,
+  "sole_writer_idle": true,
+  "self_hash_scope": "manifest excluded from own hash, parent relay pins external SHA"
+}

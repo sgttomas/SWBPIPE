@@ -1,0 +1,236 @@
+{
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "professional_acceptance": "not_provided",
+    "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "data_boundary": {
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "public_examples_policy": "invented_or_cleared_data_only"
+  },
+  "diagnostics": [
+    {
+      "code": "RULE_INPUTS_MISSING",
+      "message": "Rule-check inputs are intentionally absent from this invented preview.",
+      "severity": "warning",
+      "source": "fixtures/product_preview/invented_preview_model.json"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "load:G-TIP",
+      "kind": "primitive_user_load",
+      "label": "Invented positive axial tip load",
+      "primitive_loads": [
+        {
+          "id": "load:G-TIP-X",
+          "category": "occasional",
+          "target": {
+            "type": "node",
+            "node": "node:G-2"
+          },
+          "direction": "global_x",
+          "magnitude": {
+            "value": 1000,
+            "unit": "N"
+          },
+          "dimension": "force",
+          "provenance": "invented_evidence_only"
+        }
+      ],
+      "provenance": "invented_example_no_code_combination",
+      "status": "preview_only"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000
+      },
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "provenance": "invented_example_no_material_standard",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 77000000000
+      },
+      "thermal_expansion_coefficient": {
+        "unit": "1/degC",
+        "value": 1.2e-05
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:G-0",
+      "position": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_evidence_only_axial_gap_chain"
+    },
+    {
+      "id": "node:G-1",
+      "position": {
+        "x": 1,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_evidence_only_axial_gap_chain"
+    },
+    {
+      "id": "node:G-2",
+      "position": {
+        "x": 2,
+        "y": 0,
+        "z": 0
+      },
+      "provenance": "invented_evidence_only_axial_gap_chain"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:G-0",
+      "id": "pipe:G-1",
+      "label": "Invented uniform axial segment",
+      "material": "material:invented-carbon-steel",
+      "provenance": "invented_example_no_standard_catalog",
+      "section": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "to": "node:G-1",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    },
+    {
+      "from": "node:G-1",
+      "id": "pipe:G-2",
+      "label": "Invented uniform axial segment",
+      "material": "material:invented-carbon-steel",
+      "provenance": "invented_example_no_standard_catalog",
+      "section": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "to": "node:G-2",
+      "y_reference": {
+        "x": 0,
+        "y": 1,
+        "z": 0
+      }
+    }
+  ],
+  "project": {
+    "description": "Evidence-only invented current product input; no solver policy changes.",
+    "id": "project:invented-gap-chain-two-active-control",
+    "name": "Invented axial gap-chain nonconvergence witness",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "MPa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.1.0",
+  "supports": [
+    {
+      "id": "support:G-ANCHOR",
+      "node": "node:G-0",
+      "family": "anchor",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_evidence_only"
+    },
+    {
+      "id": "support:G-NONAXIAL-1",
+      "node": "node:G-1",
+      "family": "anchor",
+      "restraints": [
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_evidence_only"
+    },
+    {
+      "id": "support:G-GAP-1",
+      "node": "node:G-1",
+      "family": "nonlinear",
+      "restraints": [],
+      "provenance": "invented_evidence_only",
+      "nonlinear": {
+        "behavior": "gap",
+        "dof": "UX",
+        "initial_state": "active",
+        "closes_when": "positive_displacement",
+        "gap": {
+          "value": 0.01,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "id": "support:G-NONAXIAL-2",
+      "node": "node:G-2",
+      "family": "anchor",
+      "restraints": [
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ],
+      "provenance": "invented_evidence_only"
+    },
+    {
+      "id": "support:G-GAP-2",
+      "node": "node:G-2",
+      "family": "nonlinear",
+      "restraints": [],
+      "provenance": "invented_evidence_only",
+      "nonlinear": {
+        "behavior": "gap",
+        "dof": "UX",
+        "initial_state": "active",
+        "closes_when": "positive_displacement",
+        "gap": {
+          "value": 0.03,
+          "unit": "mm"
+        }
+      }
+    }
+  ]
+}

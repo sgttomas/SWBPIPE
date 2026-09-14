@@ -1,0 +1,56 @@
+    Checking open_pipe_stress_frame_kernel v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/frame_kernel)
+    Checking typenum v1.20.1
+    Checking cfg-if v1.0.4
+    Checking itoa v1.0.18
+    Checking memchr v2.8.3
+    Checking open_pipe_stress_sparse_direct v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/sparse_direct)
+    Checking ryu v1.0.23
+    Checking open_pipe_stress_protected_content_linter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/protected_content_linter)
+    Checking open_pipe_stress_audit_manifest v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/audit_manifest)
+    Checking open_pipe_stress_units v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/units)
+    Checking serde_core v1.0.229
+    Checking libc v0.2.189
+    Checking zmij v1.0.23
+    Checking open_pipe_stress_linear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/linear_supports)
+    Checking open_pipe_stress_straight_pipe v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/straight_pipe)
+    Checking open_pipe_stress_curved_bend v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/curved_bend)
+    Checking open_pipe_stress_primitive_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/loads/primitive_loads)
+    Checking cpufeatures v0.2.17
+    Checking generic-array v0.14.7
+    Checking open_pipe_stress_solver_diagnostics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/diagnostics)
+    Checking open_pipe_stress_stress_recovery v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/loads/stress_recovery)
+    Checking open_pipe_stress_load_case_algebra v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/loads/load_case_algebra)
+    Checking open_pipe_stress_user_loads v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/loads/user_loads)
+    Checking open_pipe_stress_nonlinear_supports v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/nonlinear_supports)
+    Checking open_pipe_stress_nonlinear_integration v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/nonlinear_integration)
+    Checking block-buffer v0.10.4
+    Checking crypto-common v0.1.7
+    Checking digest v0.10.7
+    Checking sha2 v0.10.9
+    Checking open_pipe_stress_nonlinear_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/nonlinear)
+    Checking serde v1.0.229
+    Checking serde_json v1.0.151
+    Checking open_pipe_stress_report_generator v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_generator)
+    Checking open_pipe_stress_report_sections v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_sections)
+    Checking open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/serialization/canonical_json)
+    Checking open_pipe_stress_product_physics v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics)
+    Checking open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export)
+    Checking open_pipe_stress_stress_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/stress)
+    Checking open_pipe_stress_mechanics_benchmarks v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics)
+    Checking open_pipe_stress_report_renderer v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_renderer)
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+    Checking open_pipe_stress_pdf_emitter v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/pdf_emitter)
+    Checking open_pipe_stress_report_package v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/report_package)
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Checking open_pipe_stress_headless_runner v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.72s

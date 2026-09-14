@@ -1,0 +1,957 @@
+{
+  "basis": "Source-defined row meaning + approved V3, frozen before new adapter exists; no adapter output involved",
+  "raw_pair_snapshot_sha256": "41e28018cb85668c6c811ff232cf81e53ba314384db128400af1b0a4d77e47e4",
+  "rows": [
+    {
+      "kind": "linear_solver_mode_basis",
+      "unit": "mode_code",
+      "component": "linear_solver_mode",
+      "expected_category": "solver_mode",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Mode code evidence; never ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 0,
+        "row_id": "result:solver-mode:linear-solve-basis",
+        "value": 1.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "component": null,
+      "expected_category": "physical_quantity",
+      "expected_family": "displacement",
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 1,
+        "row_id": "result:disp:node-N-100",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_displacement_x",
+      "unit": "mm",
+      "component": "nodal_displacement_x",
+      "expected_category": "physical_quantity",
+      "expected_family": "displacement",
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 3,
+        "row_id": "result:disp:node-N-100:ux",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_displacement_y",
+      "unit": "mm",
+      "component": "nodal_displacement_y",
+      "expected_category": "physical_quantity",
+      "expected_family": "displacement",
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 4,
+        "row_id": "result:disp:node-N-100:uy",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_displacement_z",
+      "unit": "mm",
+      "component": "nodal_displacement_z",
+      "expected_category": "physical_quantity",
+      "expected_family": "displacement",
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 5,
+        "row_id": "result:disp:node-N-100:uz",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_rotation_x",
+      "unit": "rad",
+      "component": "nodal_rotation_x",
+      "expected_category": "physical_quantity",
+      "expected_family": "rotation",
+      "expected_dimension": "angle",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 6,
+        "row_id": "result:disp:node-N-100:rx",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_rotation_y",
+      "unit": "rad",
+      "component": "nodal_rotation_y",
+      "expected_category": "physical_quantity",
+      "expected_family": "rotation",
+      "expected_dimension": "angle",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 7,
+        "row_id": "result:disp:node-N-100:ry",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "global_nodal_rotation_z",
+      "unit": "rad",
+      "component": "nodal_rotation_z",
+      "expected_category": "physical_quantity",
+      "expected_family": "rotation",
+      "expected_dimension": "angle",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 8,
+        "row_id": "result:disp:node-N-100:rz",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "component": null,
+      "expected_category": "physical_quantity",
+      "expected_family": "reaction",
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 15,
+        "row_id": "result:reaction:support-S-100",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_axial_force",
+      "unit": "N",
+      "component": "axial_force",
+      "expected_category": "physical_quantity",
+      "expected_family": "force",
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 16,
+        "row_id": "result:force:pipe-P-100:axial",
+        "value": -26341.85294
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_shear_force_y",
+      "unit": "N",
+      "component": "shear_force_y",
+      "expected_category": "physical_quantity",
+      "expected_family": "force",
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 18,
+        "row_id": "result:force:pipe-P-100:shear-y",
+        "value": -26341.85294
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_shear_force_z",
+      "unit": "N",
+      "component": "shear_force_z",
+      "expected_category": "physical_quantity",
+      "expected_family": "force",
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 20,
+        "row_id": "result:force:pipe-P-100:shear-z",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_torsional_moment",
+      "unit": "N*m",
+      "component": "torsional_moment",
+      "expected_category": "physical_quantity",
+      "expected_family": "moment",
+      "expected_dimension": "moment",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 22,
+        "row_id": "result:moment:pipe-P-100:torsion",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_bending_moment_y",
+      "unit": "N*m",
+      "component": "bending_moment_y",
+      "expected_category": "physical_quantity",
+      "expected_family": "moment",
+      "expected_dimension": "moment",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 24,
+        "row_id": "result:moment:pipe-P-100:bending-y",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_bending_moment_z",
+      "unit": "N*m",
+      "component": "bending_moment_z",
+      "expected_category": "physical_quantity",
+      "expected_family": "moment",
+      "expected_dimension": "moment",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 26,
+        "row_id": "result:moment:pipe-P-100:bending-z",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_axial_normal_stress",
+      "unit": "MPa",
+      "component": "axial_normal_stress",
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 46,
+        "row_id": "result:stress:pipe-P-100:end-i:axial-normal",
+        "value": 10.521739
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_bending_normal_stress_y",
+      "unit": "MPa",
+      "component": "bending_normal_stress_y",
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 47,
+        "row_id": "result:stress:pipe-P-100:end-i:bending-normal-y",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_bending_normal_stress_z",
+      "unit": "MPa",
+      "component": "bending_normal_stress_z",
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 48,
+        "row_id": "result:stress:pipe-P-100:end-i:bending-normal-z",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "element_local_torsional_shear_stress",
+      "unit": "MPa",
+      "component": "torsional_shear_stress",
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Exact local force/moment/open-mechanics stress component in source recovery.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 49,
+        "row_id": "result:stress:pipe-P-100:end-i:torsional-shear",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "pipe_section_pressure_hoop_stress",
+      "unit": "MPa",
+      "component": "pressure_hoop_stress",
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 50,
+        "row_id": "result:stress:pipe-P-100:end-i:pressure-hoop",
+        "value": 23.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "component": null,
+      "expected_category": "physical_quantity",
+      "expected_family": "stress",
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 71,
+        "row_id": "result:stress:pipe-P-100",
+        "value": 10.521739
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "component_user_stress_multiplier_review",
+      "unit": "MPa",
+      "component": "user_entered_component_stress_multiplier",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "stress",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 72,
+        "row_id": "result:stress:component-C-110:pipe-P-100:end-j:user-multiplier",
+        "value": 12.1
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "curved_bend_macro_element_review",
+      "unit": "unitless",
+      "component": "curved_bend_flexibility",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+        "sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517",
+        "row_index": 73,
+        "row_id": "result:component-stiffness:component-C-110:curved-bend-flexibility",
+        "value": 2.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_active_set_iteration_count",
+      "unit": "count",
+      "component": "active_set_iteration_count",
+      "expected_category": "count",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Discrete count evidence; never ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 1,
+        "row_id": "result:nonlinear-support:iteration-count",
+        "value": 1.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_active_set_final_residual_count",
+      "unit": "count",
+      "component": "active_set_final_residual_count",
+      "expected_category": "count",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Discrete count evidence; never ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 2,
+        "row_id": "result:nonlinear-support:final-residual-count",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_active_set_converged_flag",
+      "unit": "boolean",
+      "component": "active_set_converged_flag",
+      "expected_category": "flag",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Convergence flag evidence; never ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 3,
+        "row_id": "result:nonlinear-support:converged-flag",
+        "value": 1.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_free_dof_force_residual",
+      "unit": "N",
+      "component": "observed_free_dof_force_residual",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 4,
+        "row_id": "result:nonlinear-support:free-dof-force-residual",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_free_dof_moment_residual",
+      "unit": "N*m",
+      "component": "observed_free_dof_moment_residual",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "moment",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 5,
+        "row_id": "result:nonlinear-support:free-dof-moment-residual",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_free_dof_work_residual",
+      "unit": "N*m",
+      "component": "free_dof_work_residual",
+      "expected_category": "diagnostic_work",
+      "expected_family": null,
+      "expected_dimension": null,
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Source free-DOF work residual diagnostic; N*m retained; no physical dimension, moment family, ratio, or energy policy.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 6,
+        "row_id": "result:nonlinear-support:free-dof-work-residual",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_friction_normal_reaction_input",
+      "unit": "N",
+      "component": "friction_normal_reaction_input",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Explicit normal-reaction input evidence; not a solved/recovered reaction.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 7,
+        "row_id": "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction",
+        "value": 1000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_active_set_state_code",
+      "unit": "state_code",
+      "component": "active_set_state_code",
+      "expected_category": "state",
+      "expected_family": null,
+      "expected_dimension": "dimensionless",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Discrete active-set state code; never ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 8,
+        "row_id": "result:nonlinear-support:support-NL-FRIC-110:state-code",
+        "value": 2.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_final_displacement",
+      "unit": "mm",
+      "component": "nonlinear_support_final_displacement",
+      "expected_category": "physical_quantity",
+      "expected_family": "displacement",
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 9,
+        "row_id": "result:nonlinear-support:support-NL-FRIC-110:ux-displacement",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_final_reaction",
+      "unit": "N",
+      "component": "nonlinear_support_final_reaction",
+      "expected_category": "physical_quantity",
+      "expected_family": "reaction",
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual recovered mechanics or nodal solved quantity; raw metadata must pass exact canonical meaning gate.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+        "sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a",
+        "row_index": 10,
+        "row_id": "result:nonlinear-support:support-NL-FRIC-110:ux-reaction",
+        "value": -100.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_max_translation_delta",
+      "unit": "mm",
+      "component": "observed_max_translation_delta",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-1.mechanics.json",
+        "sha256": "e099686123f87549684a26a299454b2e21a649585c5cc28634dbbbbbc6f3781d",
+        "row_index": 4,
+        "row_id": "result:nonlinear-support:max-translation-delta",
+        "value": 1e-06
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_max_rotation_delta",
+      "unit": "rad",
+      "component": "observed_max_rotation_delta",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "angle",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-1.mechanics.json",
+        "sha256": "e099686123f87549684a26a299454b2e21a649585c5cc28634dbbbbbc6f3781d",
+        "row_index": 5,
+        "row_id": "result:nonlinear-support:max-rotation-delta",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_max_force_reaction_delta",
+      "unit": "N",
+      "component": "observed_max_force_reaction_delta",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-1.mechanics.json",
+        "sha256": "e099686123f87549684a26a299454b2e21a649585c5cc28634dbbbbbc6f3781d",
+        "row_index": 6,
+        "row_id": "result:nonlinear-support:max-force-reaction-delta",
+        "value": 1.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "nonlinear_support_observed_max_moment_reaction_delta",
+      "unit": "N*m",
+      "component": "observed_max_moment_reaction_delta",
+      "expected_category": "diagnostic_observation",
+      "expected_family": null,
+      "expected_dimension": "moment",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Solver diagnostic residual/delta; declared dimension retained separate from recovered physical family.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/nonconverged-candidate-1.mechanics.json",
+        "sha256": "e099686123f87549684a26a299454b2e21a649585c5cc28634dbbbbbc6f3781d",
+        "row_index": 7,
+        "row_id": "result:nonlinear-support:max-moment-reaction-delta",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "unit": "unitless",
+      "component": "sparse_live_path",
+      "expected_category": "diagnostic_relative_ratio",
+      "expected_family": null,
+      "expected_dimension": "ratio",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "Actual relative diagnostic ratio by source definition; never governing-rule ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 1,
+        "row_id": "result:sparse-live:dense-parity-relative-delta",
+        "value": 0.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "unit": "N",
+      "component": "expansion_joint_pressure_thrust",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 2,
+        "row_id": "result:pressure-thrust:component-C-150",
+        "value": 21600.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "component_user_stiffness_macro_element_review",
+      "unit": "N/m",
+      "component": "axial_user_stiffness",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "linear_stiffness",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 777,
+        "row_id": "result:component-stiffness:component-C-150:axial",
+        "value": 3200000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "component_user_stiffness_macro_element_review",
+      "unit": "N/m",
+      "component": "lateral_user_stiffness",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "linear_stiffness",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 778,
+        "row_id": "result:component-stiffness:component-C-150:lateral",
+        "value": 900000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "component_user_stiffness_macro_element_review",
+      "unit": "N*m/rad",
+      "component": "angular_user_stiffness",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "rotational_stiffness",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 779,
+        "row_id": "result:component-stiffness:component-C-150:angular",
+        "value": 480000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "component_user_stiffness_macro_element_review",
+      "unit": "N*m/rad",
+      "component": "torsional_user_stiffness",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "rotational_stiffness",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 780,
+        "row_id": "result:component-stiffness:component-C-150:torsional",
+        "value": 620000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "N/m",
+      "component": "variable_spring_hanger_stiffness",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "linear_stiffness",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 781,
+        "row_id": "result:spring-hanger:support-SH-140:stiffness",
+        "value": 42000.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "N",
+      "component": "variable_spring_hanger_installed_load",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 782,
+        "row_id": "result:spring-hanger:support-SH-140:installed-load",
+        "value": 460.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "N",
+      "component": "variable_spring_hanger_cold_load",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 783,
+        "row_id": "result:spring-hanger:support-SH-140:cold-load",
+        "value": 430.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "N",
+      "component": "variable_spring_hanger_hot_load",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 784,
+        "row_id": "result:spring-hanger:support-SH-140:hot-load",
+        "value": 390.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "m",
+      "component": "variable_spring_hanger_travel_range",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 785,
+        "row_id": "result:spring-hanger:support-SH-140:travel-range",
+        "value": 0.045
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "constant_effort_user_input_review",
+      "unit": "N",
+      "component": "constant_effort_support_constant_load",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "force",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 786,
+        "row_id": "result:constant-effort-support:support-CE-120:constant-load",
+        "value": 375.0
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    },
+    {
+      "kind": "constant_effort_user_input_review",
+      "unit": "m",
+      "component": "constant_effort_support_travel_range",
+      "expected_category": "review_evidence",
+      "expected_family": null,
+      "expected_dimension": "length",
+      "governing_ratio_eligible": false,
+      "values_units_preserved_exactly": true,
+      "reason": "User/component/support review echo; do not label recovered mechanics, section_property or governing ratio.",
+      "independent_source_example": {
+        "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+        "sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67",
+        "row_index": 787,
+        "row_id": "result:constant-effort-support:support-CE-120:travel-range",
+        "value": 0.04
+      },
+      "canonical_metadata_policy": "finite explicit table; raw narrative/frame/location/basis retained in source annotations; contradiction blocks, incompleteness individually disclosed"
+    }
+  ],
+  "future_outside_observed_baseline": "Exact supported nonlinear rotational DOF requires rad=>angle and N*m=>reaction/moment; unknown kinds must be disclosed and contradictions blocked, not guessed."
+}

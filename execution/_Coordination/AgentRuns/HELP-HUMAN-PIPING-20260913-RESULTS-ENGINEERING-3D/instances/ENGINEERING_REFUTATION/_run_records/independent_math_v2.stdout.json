@@ -1,0 +1,190 @@
+{
+  "status": "PASS",
+  "method": "independent stdlib Fraction motion/energy derivation; no production imports",
+  "exact_rational_assertions": 111,
+  "checks": [
+    "Ai/pi",
+    "As/pi",
+    "P/pi",
+    "EA/pi",
+    "G",
+    "A",
+    "B",
+    "inner radial",
+    "outer radial",
+    "inner hoop",
+    "outer hoop",
+    "P1 wall force",
+    "P1 effective force",
+    "P1 recovery subtract eigen only",
+    "P1 vessel force balance",
+    "P2 wall force",
+    "P2 effective force",
+    "P2 recovery subtract eigen only",
+    "P2 vessel force balance",
+    "P2 support",
+    "P3 wall force",
+    "P3 effective force",
+    "P3 recovery subtract eigen only",
+    "P3 vessel force balance",
+    "P4_free wall force",
+    "P4_free effective force",
+    "P4_free recovery subtract eigen only",
+    "P4_free vessel force balance",
+    "P4_restrained wall force",
+    "P4_restrained effective force",
+    "P4_restrained recovery subtract eigen only",
+    "P4_restrained vessel force balance",
+    "P4_restrained support",
+    "remote P3 closure balance",
+    "chain internal caps",
+    "oriented local axial force invariant -1",
+    "oriented local axial force invariant 1",
+    "paired interpolated E nu G",
+    "independent G interpolation mutation differs",
+    "isolated q 0",
+    "isolated energy 0",
+    "isolated q 1",
+    "isolated energy 1",
+    "shear y balancing moments",
+    "isolated q 2",
+    "isolated energy 2",
+    "shear z balancing moments",
+    "isolated q 3",
+    "isolated energy 3",
+    "isolated q 4",
+    "isolated energy 4",
+    "isolated q 5",
+    "isolated energy 5",
+    "coupled g",
+    "coupled energy",
+    "rescaled H",
+    "rescaled physical K",
+    "initial residual",
+    "PSD principal determinant",
+    "PSD exact completion of square",
+    "null reference stress free",
+    "B derivative 0",
+    "rigid translation (0, 0)",
+    "rigid rotation (0, 0)",
+    "rigid translation (0, 1)",
+    "rigid rotation (0, 1)",
+    "rigid translation (0, 2)",
+    "rigid rotation (0, 2)",
+    "virtual work 0",
+    "central energy derivative 0",
+    "global force balance 0",
+    "arbitrary origin moment balance 0",
+    "rigid coordinate frame q 0",
+    "rigid coordinate frame force 0",
+    "endpoint reversal q 0",
+    "endpoint reversal residual 0",
+    "endpoint reversal energy 0",
+    "B derivative 1",
+    "rigid translation (1, 0)",
+    "rigid rotation (1, 0)",
+    "rigid translation (1, 1)",
+    "rigid rotation (1, 1)",
+    "rigid translation (1, 2)",
+    "rigid rotation (1, 2)",
+    "virtual work 1",
+    "central energy derivative 1",
+    "global force balance 1",
+    "arbitrary origin moment balance 1",
+    "rigid coordinate frame q 1",
+    "rigid coordinate frame force 1",
+    "endpoint reversal q 1",
+    "endpoint reversal residual 1",
+    "endpoint reversal energy 1",
+    "B derivative 2",
+    "rigid translation (2, 0)",
+    "rigid rotation (2, 0)",
+    "rigid translation (2, 1)",
+    "rigid rotation (2, 1)",
+    "rigid translation (2, 2)",
+    "rigid rotation (2, 2)",
+    "virtual work 2",
+    "central energy derivative 2",
+    "global force balance 2",
+    "arbitrary origin moment balance 2",
+    "rigid coordinate frame q 2",
+    "rigid coordinate frame force 2",
+    "endpoint reversal q 2",
+    "endpoint reversal residual 2",
+    "endpoint reversal energy 2",
+    "raw difference mutation correct q",
+    "raw difference mutation bad energy"
+  ],
+  "pressure_cases": [
+    {
+      "case": "P1",
+      "Nw_over_pi": "3",
+      "S_over_pi": "0",
+      "sigma_z": "1",
+      "eigen_over_pi": [
+        "3/2",
+        "-3/2"
+      ],
+      "support_over_pi": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "case": "P2",
+      "Nw_over_pi": "3/2",
+      "S_over_pi": "-3/2",
+      "sigma_z": "1/2",
+      "eigen_over_pi": [
+        "3/2",
+        "-3/2"
+      ],
+      "support_over_pi": [
+        "3/2",
+        "-3/2"
+      ]
+    },
+    {
+      "case": "P3",
+      "Nw_over_pi": "0",
+      "S_over_pi": "-3",
+      "sigma_z": "0",
+      "eigen_over_pi": [
+        "3/2",
+        "-3/2"
+      ],
+      "support_over_pi": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "case": "P4_free",
+      "Nw_over_pi": "3",
+      "S_over_pi": "0",
+      "sigma_z": "1",
+      "eigen_over_pi": [
+        "57/50",
+        "-57/50"
+      ],
+      "support_over_pi": [
+        "0",
+        "0"
+      ]
+    },
+    {
+      "case": "P4_restrained",
+      "Nw_over_pi": "57/50",
+      "S_over_pi": "-93/50",
+      "sigma_z": "19/50",
+      "eigen_over_pi": [
+        "57/50",
+        "-57/50"
+      ],
+      "support_over_pi": [
+        "93/50",
+        "-93/50"
+      ]
+    }
+  ]
+}

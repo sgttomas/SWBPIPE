@@ -1,3 +1,4 @@
+import { semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, Share2 } from "lucide-react";
 import type {
   AgentProposal,
@@ -29,7 +30,7 @@ type HandoffUnitPreservationWitness = {
     unit: string;
     dimension: string;
   };
-  target_quantity_policy: "referenced_result_value_unit_and_dimension_preserved";
+  target_quantity_policy: "referenced_received_carrier_value_unit_and_declared_dimension_preserved";
   export_unit_policy: "preserve_source_result_unit_and_dimension";
   conversion_performed: false;
   unit_system_ref: {
@@ -155,7 +156,7 @@ function HandoffLine({ label, value, testId }: { label: string; value: string; t
   );
 }
 
-function buildHandoffPackage({
+export function buildHandoffPackage({
   model,
   knowledge,
   result,
@@ -200,6 +201,7 @@ function buildHandoffPackage({
     sourceLocation: "apps/desktop/src/features/handoff/HandoffPanel.tsx"
   });
   const unitPreservationWitnesses = handoffUnitPreservationWitnesses(result);
+  lossReport.omitted_behavior_refs = result.results.filter(item => !unitPreservationWitnesses.some(w => w.source_ref.ref === item.id)).map(item => `unit-preservation-witness-unavailable:${item.id}:received-dimension-not-declared`);
 
   return {
     schema_version: "0.1.0",
@@ -216,7 +218,7 @@ function buildHandoffPackage({
     },
     units_manifest: model.project.units,
     unit_system_disclosure: unitSystemDisclosure,
-    unit_witness_policy: "preserve_source_result_value_unit_and_dimension_per_handoff_result_ref",
+    unit_witness_policy: "preserve_available_received_declarations_per_handoff_result_ref",
     unit_preservation_witnesses: unitPreservationWitnesses,
     stable_id_map: {
       id_basis: "model entity IDs and computed result IDs from the invented preview model",
@@ -295,9 +297,9 @@ function stableEntityRefs(model: PreviewModel): string[] {
 
 function handoffUnitPreservationWitnesses(result: MechanicsResult): HandoffUnitPreservationWitness[] {
   return result.results
-    .filter((item) => typeof item.value === "number" && Number.isFinite(item.value) && Boolean(item.unit))
+    .filter((item) => typeof item.value === "number" && Number.isFinite(item.value) && Boolean(item.unit) && typeof item.dimension === "string" && Boolean(item.dimension))
     .map((item) => {
-      const dimension = resultDimension(item.kind);
+      const dimension = item.dimension!; // reference-only received declaration, not physical truth
       return {
         witness_id: `handoff-unit:${safeRefToken(item.id)}`,
         source_ref: reference("ResultRow", item.id),
@@ -313,7 +315,7 @@ function handoffUnitPreservationWitnesses(result: MechanicsResult): HandoffUnitP
           unit: item.unit,
           dimension
         },
-        target_quantity_policy: "referenced_result_value_unit_and_dimension_preserved",
+        target_quantity_policy: "referenced_received_carrier_value_unit_and_declared_dimension_preserved",
         export_unit_policy: "preserve_source_result_unit_and_dimension",
         conversion_performed: false,
         unit_system_ref: reference("UnitSystem", "unit-system:dec-018-si-dual-display"),
@@ -322,16 +324,6 @@ function handoffUnitPreservationWitnesses(result: MechanicsResult): HandoffUnitP
     });
 }
 
-function resultDimension(kind: string): string {
-  if (kind.includes("displacement")) return "displacement";
-  if (kind.includes("rotation")) return "rotation";
-  if (kind.includes("force")) return "force";
-  if (kind.includes("moment")) return "moment";
-  if (kind.includes("reaction")) return "force";
-  if (kind.includes("stress")) return "stress";
-  if (kind.includes("ratio")) return "dimensionless";
-  return "TBD";
-}
 
 function selectedResultRefs(result: MechanicsResult): string[] {
   return [

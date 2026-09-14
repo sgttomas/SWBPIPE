@@ -1,0 +1,124 @@
+{
+  "status": "STATIC_PREPARATION_WITH_ACCEPTED_V4_CONTRACT",
+  "derivative_package": true,
+  "preserved_initial_manifest_sha256": "817431ed3a462b52c317a5f3f3e59c841abe506f2fb2e65ee0971817340c2cd2",
+  "accepted_results_contract_index_sha256": "fc87130ed6c98acf4913a24c0f21d141b655a6ebc9d553c35b20debf168953b2",
+  "root_contract_acceptance_sha256": "d6fb96c2dfcebcde9e058b83cfee49fce7827a6cee2675e32eb077a875a8045b",
+  "files": [
+    {
+      "path": "CONTEXT_ORIGINS_V1.json",
+      "sha256": "1f1a471c22d0ca7103ab22e03fc488ff940031d6b9500eb9c6e9c85b9ad43308",
+      "bytes": 19059,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "CONTRACT_SELECTED_ORIGINS_V1.json",
+      "sha256": "187be88501fd5993e68a08e56aa210d654a04051c89c5122b7200983df599c25",
+      "bytes": 8810,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "FROZEN_INDEPENDENT_EXPECTATIONS_V1.json",
+      "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+      "bytes": 4272,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "FROZEN_NATIVE_ROW_CONTRACT_V1.json",
+      "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+      "bytes": 135238,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "HISTORICAL_ROW_BASIS_V1.json",
+      "sha256": "f84aa76102b485eaec2352bbc86fb3c08c8315d552905ae87bf631070e316f39",
+      "bytes": 63288,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "METHOD_V1.md",
+      "sha256": "355481ec51110b57e4a7c2f27835bd64dc3e2ada5a1945d2c8a73bf955e474d6",
+      "bytes": 3299,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "PREPARATION_COMMAND_STATUS_V1.json",
+      "sha256": "086334048cf567219bddded0fa5364bd68be6712ce6596e6bde274a449c3faf1",
+      "bytes": 998,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "PREPARATION_CONTRACT_ADDENDUM_V1.md",
+      "sha256": "b1e34b80472b51b86d804df302e7bd2aea0741740bbac612d635aaa8e473df05",
+      "bytes": 1914,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "PREPARATION_MANIFEST_V1.json",
+      "sha256": "817431ed3a462b52c317a5f3f3e59c841abe506f2fb2e65ee0971817340c2cd2",
+      "bytes": 3187,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "PREPARATION_RETURN_V1.md",
+      "sha256": "6d6f88039ac65b335fe0ca4c2c7b37ef092167b9c82c6338c8fd21442d515269",
+      "bytes": 2352,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "PROPOSED_RUNTIME_LEASE_V1.json",
+      "sha256": "24b5fcbf806e8da4ca5122841a18f8c3dbb264813e3a1ecc1a574e9da72f1099",
+      "bytes": 2555,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "SYNTHETIC_MODEL_ORIGIN_V1.json",
+      "sha256": "3f76a0fc2f72dfb6940c4a80ee387f316b2bab8b6b14644efcf35c8487a97e69",
+      "bytes": 1006,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "SYNTHETIC_RETAINED_AUTHORED350_MODEL.json",
+      "sha256": "2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+      "bytes": 2689,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "assert_analytical_rows.py",
+      "sha256": "188d9b6fc1d48c068f610ddc02603b17d45210086443e78765ed7832939a3649",
+      "bytes": 1008,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "snapshot_store.py",
+      "sha256": "405937ef85e30cd85c808f3ebff017630c23376aeeadafacf4a2e15e85c543da",
+      "bytes": 908,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    },
+    {
+      "path": "tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "bytes": 379,
+      "physical": true,
+      "ignored_status": "not queried during prep; parent final inventory resolves"
+    }
+  ],
+  "total_bytes_excluding_self": 250962,
+  "self_excluded": true,
+  "runtime_pass": false
+}

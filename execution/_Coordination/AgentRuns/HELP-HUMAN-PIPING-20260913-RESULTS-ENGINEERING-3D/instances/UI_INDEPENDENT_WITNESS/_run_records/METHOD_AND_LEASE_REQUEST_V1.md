@@ -1,0 +1,12 @@
+# Independent bounded method and lease request
+
+TASK Type2 `/root/ui_independent_witness`, direct parent `/root`, no delegation. Parent-configured Sol/high, not supplier-attested. Author witness scripts were neither read nor copied. Actual source inspections informed independently authored controls/assertions; read-only prototypeInspect is the declared state evidence hook.
+
+Execute one bundled Node process launching one installed offline Chromium with one context at a time, file:// frozen prototype-v2 only. Six viewport/density configurations independently perform palette search/keyboard discovery; ft coordinates with in section dimensions, orbit gate, exact two-member payload, one checkpoint, duplicate apply disabled, continuation mm cancel, keyboard undo/redo and existing-endpoint freeze; injected stale/busy/withdrawn callback and duplicate identity; tree/typed/canvas identity, explicit Valve incidence, missing/finite/attached blockers, explicit Guide restraint and exact wall correction; Current rad/angle and diagnostic work, edit invalidation, Historical UNKNOWN/exclusions and named failed/busy solves; view/tree/density/keyboard dock checks. Capture route/property/Current/Historical and failure images, full state/intent snapshots and geometry of essential controls at each configuration. No production app, Rust, build, network/download/install, Git, source/design edits or other user files. Contexts and browser close in finally.
+
+Exact command requested after root lease:
+`/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node <own _run_records>/independent-witness-v1.mjs`
+
+Explicit binary: `/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell`. Playwright imports installed primary-runtime index.mjs. Identity/version/sha256 bound during actual execution; pre/post four asset hashes bound. Offline browser denies non-file requests. No server requested. Timeout 60 seconds per tool yield with polling for continuing process, not long blocking wait.
+
+Static identified coverage gap to validate: resultRows has no count/flag/state/mode discrete row, so required non-governing discrete evidence is currently unperformable. Simulation outcomes and browser control assertions remain separate from production Rust/hash equivalence and professional/usability/accessibility acceptance. Two failed repair cycles maximum; only own harness repair, no prototype edits.

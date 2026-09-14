@@ -1,0 +1,13 @@
+{
+  "kind": "Historical external handoffs; references only, no corpus copy",
+  "sources": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+      "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-workflow-contact-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/SETUP/_run_records/PUBLICATION_MERGE_V1/FINAL_HANDOFF.md",
+      "sha256": "50f7f0c35046ca25caed517b4d0e1917a052ffb50825963394f6745539f0e921"
+    }
+  ]
+}

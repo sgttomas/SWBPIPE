@@ -1,0 +1,17 @@
+{
+  "evidence_kind": "derivative lease handoff",
+  "lease": "ROOT_LEASE_RESULTS_IMPLEMENTATION_01",
+  "released_at_utc": "2026-09-14T03:09:41.657883+00:00",
+  "source_frozen_writer_assertion": true,
+  "writer_runtime_complete_message_received": true,
+  "remaining_manager_actions": "read-only hashes/source fence and evidence sealing only",
+  "further_runtime_authorized": false,
+  "canonical_document_checks": "103 docs,5214 rows pass",
+  "actual_download_checks": "034 and031 pass",
+  "mechanics_typed_byte_parity": "035 all12 pass",
+  "final_compilation": "039 CLI cargo check,040 TypeScript pass",
+  "final_local_consumer": "041 pass",
+  "intentional_noncanonical_validation_failure": "042 actual exit1:911 pre-existing strict stress-neutral preview shape errors remain,11 introduced/activated findings repaired",
+  "source_return_manifest_patch": "sealing, pins forthcoming",
+  "root_remaining": "fresh integrated source review, registered full sweep, independent native verification, integration and Git"
+}

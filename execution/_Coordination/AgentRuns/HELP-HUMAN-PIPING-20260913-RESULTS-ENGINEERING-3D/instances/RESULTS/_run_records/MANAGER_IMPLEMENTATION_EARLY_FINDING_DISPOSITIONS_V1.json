@@ -1,0 +1,70 @@
+{
+  "status": "READ_ONLY_IMPLEMENTATION_FANIN_PROGRESS_SNAPSHOT_NOT_FINAL_SOURCE_ACCEPTANCE",
+  "derivative_package": true,
+  "runtime_executor": "sole TASK writer; manager runtime idle",
+  "items": [
+    {
+      "id": "CURRENT_FALSY_DIMENSION",
+      "finding": "Own null/empty dimensions were overwritten by truthy-only frozen legacy binder before proof checks",
+      "disposition": "New adapter-only strict nonempty declaration admission; immutable binder unchanged",
+      "verification": "Source change observed; focused desktop proof tests pending"
+    },
+    {
+      "id": "CURRENT_PROOF_CARRIER_FIELDS",
+      "finding": "Proof digest equality alone did not validate checksum algorithms/scopes/reference types",
+      "disposition": "New adapter validates exact existing producer fields",
+      "verification": "Source change observed; focused desktop tests pending"
+    },
+    {
+      "id": "INTEGER_NUMBER_VALUE",
+      "finding": "as_f64 rebuild could mutate integer Number variant",
+      "origin": "Root independent early inspection",
+      "disposition": "Validate separately then clone original row value for all targets/witnesses",
+      "verification": "Source observed and attempt009 integer quantity/disclosure tests pass"
+    },
+    {
+      "id": "STRICT_LEGACY_DISPATCH",
+      "finding": "Preserved legacy schema accepts general version pattern",
+      "origin": "Root independent early inspection",
+      "disposition": "Dispatcher branch exact outer and inner0.1 constants; archive byte preserved",
+      "verification": "Focused version schema tests pending"
+    },
+    {
+      "id": "INHERITED_BASE_NUMERIC_ROWS",
+      "finding": "Attempt008 failed three tests at complete target cardinality due to old fixture additional numeric sets",
+      "disposition": "Both pure projections use supplied mechanics fact set and replace all numeric rows; cardinality not weakened",
+      "verification": "Attempt008 exit101 preserved; attempt009 all4 contract tests pass"
+    },
+    {
+      "id": "PORTABLE_MAINTAINED_FIXTURES",
+      "finding": "Full copied evidence packets carried dated origin paths",
+      "disposition": "Product fixtures project portable exact inputs/expected data; complete originals and projection pins stay in evidence",
+      "verification": "Static scan no dated AgentRuns origins in current portable fixtures"
+    },
+    {
+      "id": "EXISTING_TRANSPORT_WITNESS_LIMIT",
+      "finding": "Existing witness schemas cannot distinguish received declaration from independent semantics",
+      "disposition": "Preserve exact declarations where eligible, otherwise withhold unavailable/incompatible witnesses and use existing loss/validation channels; canonical0.2 owns full distinction",
+      "verification": "Writer implementing; existing schema/format/readiness preserved; focused tests pending"
+    },
+    {
+      "id": "SERIALIZER_DROPPED_PROPERTY_FACTS",
+      "finding": "Nonenumerable object properties/extra named array properties can be omitted by JSON serialization",
+      "disposition": "Request new guard reject such unsupported properties; retain serializer authority",
+      "verification": "Focused guard source/test confirmation pending"
+    },
+    {
+      "id": "PANEL_SCOPE_AND_CLOSED_WIRE_FIELDS",
+      "finding": "Unfinished helpers referenced component-scoped currentPacket; stress-neutral added disallowed semantic_category wire field",
+      "disposition": "Use helper packet args and retain closed existing row schema",
+      "verification": "Source correction observed; focused desktop compile/schema tests pending"
+    }
+  ],
+  "passed_runtime_so_far": [
+    "attempt006 existing result-export13 tests exit0",
+    "attempt009 new derivative4 tests exit0 (60 semantics/28 annotation/integer/accounting/serializer)",
+    "attempt010 qualified headless2 test functions exit0 (7 producer cases, not12 baseline cases)"
+  ],
+  "source_acceptance": "PENDING full focused schema/desktop/dense-sparse evidence then independent root review",
+  "formal_state_effect": false
+}

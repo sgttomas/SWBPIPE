@@ -1,0 +1,564 @@
+{
+  "status": "MANAGER_CONSOLIDATED_AMENDMENT_CANDIDATE_REVIEW_REQUIRED_NO_SOURCE_EFFECT",
+  "version_dispatch": {
+    "supported": [
+      "0.1.0",
+      "0.2.0"
+    ],
+    "must_match": [
+      "schema_version",
+      "result_envelope.schema_version"
+    ],
+    "legacy_schema": {
+      "source_path": "schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "original_bytes_preserved": true
+    },
+    "unknown_or_mixed": "reject before interpretation"
+  },
+  "schema_candidate_sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+  "semantic_table_ref": "SUPPORTED_SOURCE_SEMANTICS_V2.json",
+  "exact_pair_count": 60,
+  "required_semantic_checks_beyond_schema": [
+    "all source indices0..n-1 accounted exactlyonce",
+    "source IDs map uniquely or export blocks duplicateidentity",
+    "each target index/path resolves correct row and ID",
+    "known kind/unit/component table is exact; contradiction blocks",
+    "source original finite value/unit equal target exactly with no conversion",
+    "each checksum payload_scope/ref matches actual source or derivative payload",
+    "canonical metadata finite exact row contract; no arbitrary enum strings",
+    "work semantic dimension must be null; no moment orratio",
+    "discrete/count/state/flag/mode category never ratio",
+    "physical means solver recovered/assembled solved quantity only, never user review echo",
+    "source annotation original metadata/basis/refs retained exactly",
+    "blocked/nonconverged produce no successful solved wrapper",
+    "new model hash needs available exact model JSON, never reconstructed typed model/requestdigest",
+    "received dimensions preserved exactly in annotation and witness; physical mathematical meaning and derivative target are independent",
+    "observed present=false requires value=null; present=true requires exact received string",
+    "all received rows either absent dimensions or exact immutable legacy-compatible declarations; mixed/tampered fails",
+    "authentic producer availability must match qualified route, never row shape; null original checksum where unavailable",
+    "received checksum scopes/row pointer bind exact unchanged supplied payload; no raw checksum label for enriched carrier",
+    "each source index accounts exactly one physical,review,or disclosure target; every emitted target has exactly one accounting record and all annotation/witness references resolve; no orphan or duplicate targets",
+    "relative sparse parity requires exact sparse_live_path_dense_parity_relative_delta/unitless/sparse_live_path; source dimensionless, derivative ratio, disclosed diagnostic non-governing",
+    "review quantities never enter governing physical or ratio aggregation",
+    "sourceonly signatures supported in qualified headless derivative but legacy admission9throws remain Current route hold",
+    "source-model minted token binds digest of same exact Value actually parsed and solved plus raw result digest; substitutes/contradictions reject",
+    "actual model identity exact payload.project.id==mechanics.model_ref; request alias allowed separately disclosed with separately scoped request digest",
+    "blocked/nonconverged no canonical successful result, raw diagnostic/status preserved; row disclosure failures do not rewrite raw status",
+    "Requiredreview source metadata missing/incomplete ->exactlyone review_metadata_incomplete disclosure, never fabricatedlocation/basis orreviewexport; bind explicit19signatureoverride."
+  ],
+  "hash_payloads": {
+    "model_payload": "exact available model JSON value, qualified guarded canonical serialization",
+    "derived_quantity_row": "complete emitted result_sets[set].values[index], no external witness carrier",
+    "derived_review_row": "complete emitted review_evidence[index]",
+    "derivative_document_excludes_own_hash": "complete emitted document with only result_envelope.reproducibility.derivative_hash removed",
+    "raw_mechanics_checksum": "existing original producer checksum/path/label copied unchanged, separate raw source hash carrier",
+    "legacy_saved_attachment": "unchanged stored legacy run hashes and scope labels, independent localeCompare/wasm behavior retained",
+    "received_carrier": "complete exact received MechanicsEnvelope unchanged; class scope distinguishes Current absent/enriched vs headless attested; hash remains digest of provided payload, not independent proof of producer",
+    "received_carrier_row": "complete received results[index] with observed dimension presence/value unchanged",
+    "original_producer_carrier": "only exact retained authenticated headless raw producer, otherwise null; do not reconstruct by dimension removal",
+    "original_producer_row": "only exact retained corresponding producer row, otherwise null",
+    "request_payload": "exact retained request JSON separate from actual exact model JSON; null if unavailable",
+    "derived_disclosure_row": "complete emitted result_envelope.row_disclosures[index]"
+  },
+  "references": {
+    "source_field_path": "RFC6901 /results/index within received_carrier_checksum.payload_ref payload; no raw-origin inference",
+    "target_field_path": "RFC6901 pointer within derivative document; referenced target id mustmatch",
+    "source_annotation_ref": "ref_type source_annotation; ref_id resolves annotation_id",
+    "review_location_ref": "ref_type source_location; exact original location string, not invented finite physical metadata location",
+    "accounting_target_ref": "ref_type quantity_result/review_evidence/row_disclosure, exact corresponding ID",
+    "source_origin_ref": "Reference ref_type source_origin_binding, ref_id resolves reproducibility.source_origin_bindings[].origin_id",
+    "row_disclosure_target_ref": "ref_type row_disclosure, ref_id source_result_id; duplicate source IDs reject before output"
+  },
+  "new_serializer_guard": "plain JSON finite values; reject unsupported/cycles/undefined/unsafeinteger/malformedUnicode; canonical_utf16_ecma_number_utf8 only after guard",
+  "new_serializer_identity": "openpipestress_jcs_ijson_v1",
+  "independent_manager_upstream": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/INDEPENDENT_ORIGINAL_SOURCE_EXPECTATIONS_V1.json",
+    "sha256": "0aaa82af57190de7ae7f692695513dbd70fd0d26d748fa15bb38cfba4f41a943"
+  },
+  "future_kind_policy": "unknown kind finite raw row gets exactly one unsupported_source_kind disclosure preserving observed dimensions/value/unit/metadata/ref/checksum; mathematical and derivative dimensions null, no family/ratio inference. Known kinds with impossible unit/component block canonical derivative with structured diagnostic; preserve raw view.",
+  "original_phase1_field_contract": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/FIELD_TYPE_HASH_CONTRACT_V1.json",
+    "sha256": "a39c5a66391189b25b7ff10ff8ec8d543f2086415bfeb5c7a9b244ebcb98b82b"
+  },
+  "independent_supported_oracle": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json",
+    "sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda"
+  },
+  "concrete_metadata_fixtures": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/CONCRETE_METADATA_EXPECTATIONS_V3.json",
+    "sha256": "81cb50e868738f409206a217d26f52a01f7dc46e8a6081ffd1cb7108a20b2e83"
+  },
+  "field_contract": {
+    "review_evidence": {
+      "path": "/result_envelope/review_evidence",
+      "required": true,
+      "schema_definition": "ReviewEvidence",
+      "fields": {
+        "evidence_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "evidence_kind": {
+          "type": "string",
+          "enum": [
+            "user_input_review",
+            "assembled_load_review"
+          ]
+        },
+        "magnitude": {
+          "type": "number"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "dimension": {
+          "$ref": "#/$defs/DimensionId"
+        },
+        "object_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "basis_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "location_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_annotation_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        }
+      },
+      "required_fields": [
+        "evidence_id",
+        "source_row_index",
+        "source_result_id",
+        "source_kind",
+        "evidence_kind",
+        "magnitude",
+        "unit",
+        "dimension",
+        "object_ref",
+        "basis_ref",
+        "location_ref",
+        "source_annotation_ref",
+        "provenance"
+      ]
+    },
+    "row_disclosures": {
+      "path": "/result_envelope/row_disclosures",
+      "required": true,
+      "schema_definition": "RowDisclosure",
+      "fields": {
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_value": {
+          "type": "number"
+        },
+        "source_unit": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_dimension_present": {
+          "type": "boolean"
+        },
+        "source_dimension": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "declared_semantic_dimension": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DimensionId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "semantic_category": {
+          "type": "string",
+          "enum": [
+            "assembled_load_review",
+            "basis_record",
+            "count",
+            "diagnostic_observation",
+            "diagnostic_relative_ratio",
+            "diagnostic_work",
+            "flag",
+            "physical_quantity",
+            "review_evidence",
+            "solver_mode",
+            "state",
+            "unknown"
+          ]
+        },
+        "reason_code": {
+          "type": "string",
+          "enum": [
+            "diagnostic_evidence_not_physical_quantity",
+            "discrete_evidence_not_ratio",
+            "review_metadata_incomplete",
+            "physical_metadata_incomplete",
+            "unsupported_source_kind",
+            "basis_annotation_not_quantity",
+            "diagnostic_relative_ratio_non_governing"
+          ]
+        },
+        "object_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_annotation_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        },
+        "received_carrier_row_checksum": {
+          "$ref": "#/$defs/ScopedChecksum"
+        },
+        "original_producer_row_checksum": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScopedChecksum"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_physical_semantic_dimension": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required_fields": [
+        "source_row_index",
+        "source_result_id",
+        "source_kind",
+        "source_value",
+        "source_unit",
+        "source_dimension_present",
+        "source_dimension",
+        "declared_semantic_dimension",
+        "semantic_category",
+        "reason_code",
+        "object_ref",
+        "source_field_path",
+        "source_annotation_ref",
+        "received_carrier_row_checksum",
+        "message",
+        "original_producer_row_checksum",
+        "source_physical_semantic_dimension"
+      ]
+    },
+    "row_accounting": {
+      "path": "/result_envelope/row_accounting",
+      "required": true,
+      "schema_definition": "RowAccounting",
+      "fields": {
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "disposition": {
+          "type": "string",
+          "enum": [
+            "exported_quantity",
+            "exported_review",
+            "disclosed"
+          ]
+        },
+        "target_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "received_carrier_row_checksum": {
+          "$ref": "#/$defs/ScopedChecksum"
+        },
+        "original_producer_row_checksum": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScopedChecksum"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required_fields": [
+        "source_row_index",
+        "source_result_id",
+        "source_kind",
+        "source_field_path",
+        "received_carrier_row_checksum",
+        "disposition",
+        "target_ref",
+        "target_field_path",
+        "original_producer_row_checksum"
+      ]
+    },
+    "source_annotations": {
+      "path": "/result_envelope/source_annotations",
+      "required": true,
+      "schema_definition": "SourceAnnotations",
+      "fields": {
+        "annotation_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "source_result_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "metadata": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SourceMetadata"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "basis_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Reference"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_result_refs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "observed_carrier_dimension": {
+          "$ref": "#/$defs/CarrierDimension"
+        },
+        "source_physical_semantic_dimension": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "derivative_target_dimension": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DimensionId"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_origin_ref": {
+          "$ref": "#/$defs/Reference"
+        }
+      },
+      "required_fields": [
+        "annotation_id",
+        "source_row_index",
+        "source_result_id",
+        "metadata",
+        "basis_ref",
+        "source_result_refs",
+        "observed_carrier_dimension",
+        "source_physical_semantic_dimension",
+        "derivative_target_dimension",
+        "source_origin_ref"
+      ]
+    },
+    "unit_preservation_witnesses": {
+      "path": "/result_envelope/unit_preservation_witnesses",
+      "required": "required for every exported quantity/review target by semantic validation, permitted property retained",
+      "schema_definition": "UnitPreservationWitness",
+      "fields": {
+        "witness_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "source_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_quantity": {
+          "$ref": "#/$defs/CarrierQuantity"
+        },
+        "target_result_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "target_field_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "target_quantity": {
+          "$ref": "#/$defs/UnitPreservationQuantity"
+        },
+        "target_quantity_policy": {
+          "const": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+        },
+        "export_unit_policy": {
+          "const": "no_numerical_conversion_preserve_received_unit"
+        },
+        "conversion_performed": {
+          "const": false
+        },
+        "unit_system_ref": {
+          "$ref": "#/$defs/Reference"
+        },
+        "provenance": {
+          "$ref": "#/$defs/Provenance"
+        },
+        "source_row_index": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "target_row_checksum": {
+          "$ref": "#/$defs/ScopedChecksum"
+        },
+        "received_carrier_row_checksum": {
+          "$ref": "#/$defs/ScopedChecksum"
+        },
+        "original_producer_row_checksum": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScopedChecksum"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_physical_semantic_dimension": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_origin_ref": {
+          "$ref": "#/$defs/Reference"
+        }
+      },
+      "required_fields": [
+        "witness_id",
+        "source_result_ref",
+        "source_field_path",
+        "source_quantity",
+        "target_result_ref",
+        "target_field_path",
+        "target_quantity",
+        "target_quantity_policy",
+        "export_unit_policy",
+        "conversion_performed",
+        "unit_system_ref",
+        "provenance",
+        "source_row_index",
+        "target_row_checksum",
+        "received_carrier_row_checksum",
+        "original_producer_row_checksum",
+        "source_physical_semantic_dimension",
+        "source_origin_ref"
+      ]
+    }
+  },
+  "review_references": "basis_ref preserves existing actual basis when present or explicitly scoped source_basis reference to received metadata.basis; location_ref source_location exact annotation location, never invent physical enum",
+  "closure": "RCR01/02 candidate repair only; independent review/acceptance, bounded source release, focused tests/schema-semantic validation, diff check, DEC025/native/Historical/publication remain gated.",
+  "missing_review_metadata_override": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/MISSING_REVIEW_METADATA_DISPOSITION_V3.json",
+    "sha256": "91bcf652bea97ea64e2ed196b41b3e031b79f12b70153ed595d0a1773872da89"
+  },
+  "preserved_successor_field_contract": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/FIELD_TYPE_HASH_CONTRACT_V2.json",
+    "sha256": "4887da159a58d84c3f9254ced293424ade2b4dadb9fc0ef7f6b66b25f0b89877"
+  },
+  "semantic_table_hash": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/SUPPORTED_SOURCE_SEMANTICS_V2.json",
+    "sha256": "22a142045d37501eca86a93cb089577b218d40c85e4d5d20b9e6f8fc6ae6c13c"
+  },
+  "received_carrier_origin_contract": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/RECEIVED_CARRIER_ORIGIN_HASH_CONTRACT_V2.json",
+    "sha256": "70982aee3c606eadd29484e866ab0cd6954f179a54a8c23f8dabdaad102d4756"
+  }
+}

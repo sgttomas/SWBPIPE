@@ -1,0 +1,106 @@
+{
+  "status": "IMMUTABLE_CONTINUATION_BACKCHECK_CHANGES_REQUIRED_RCR03",
+  "reviewer": "/root/results_contract_review",
+  "parent": "/root",
+  "derivative_package": true,
+  "continuation_not_fresh_reviewer": true,
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "input_return_v3_sha256": "2f1264ce759f9459992b10604e7a29d419af7fa1a78634c81476060adf721e20",
+  "input_manifest_v3_sha256": "696b682b5ba45486282de54a8232109a21e1fb2b364231b517a59b96643ff29d",
+  "input_index_v3_sha256": "70946fb2d40aff979cda239b75b17222821a6a6f361b8e727065d84431c83606",
+  "files": [
+    {
+      "path": "MANIFEST.json",
+      "bytes": 2261,
+      "sha256": "53c55c54b774229c022d3038fa454adc13f79cece38cba1f432e0b443c93d15f"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 10701,
+      "sha256": "665bf0e0965847f70d3be5863c39c83fffd0278a66d0d6947056147a51c4a7f1"
+    },
+    {
+      "path": "RETURN_V2.md",
+      "bytes": 8577,
+      "sha256": "e28f3638c41a2ecf580a149aabec33ad49513a4942ff5a5b616342c86496ef6a"
+    },
+    {
+      "path": "_run_records/COMMANDS.md",
+      "bytes": 1491,
+      "sha256": "92e267628956022e9de1cff9406ced7f62b0250df3ad9d6b16063700475001b5"
+    },
+    {
+      "path": "_run_records/CONTEXT_HASHES.json",
+      "bytes": 16458,
+      "sha256": "ae8b00a45a368331ac4544cae5f587716e060e6adfe73c206b7e8b4123300377"
+    },
+    {
+      "path": "_run_records/CONTINUATION_BRIEF_V2.sha256",
+      "bytes": 92,
+      "sha256": "d58a9a73c58c81adaefa2b77bfe21530a48ff6c358b3c320093d2914d2bb49f3"
+    },
+    {
+      "path": "_run_records/CONTINUATION_BRIEF_V2.txt",
+      "bytes": 2347,
+      "sha256": "8058f66e9ef5c67f21a7bcc4ba609622d18c33d7d259c843bf8762ee800c32d7"
+    },
+    {
+      "path": "_run_records/FINDING_LOCATIONS.json",
+      "bytes": 1328,
+      "sha256": "4c3be3b33387d592f4fc65470546906b4ee51f721f8db0747504990ef32903c2"
+    },
+    {
+      "path": "_run_records/HASH_BACKCHECK_V2.json",
+      "bytes": 216962,
+      "sha256": "44192e3c193348ef32adc27469608b6e3e938ac6e1c27a49d6263847323160c3"
+    },
+    {
+      "path": "_run_records/INSPECTION_RECORD.json",
+      "bytes": 1059,
+      "sha256": "7f3f6cd61ca619670c2bd28594822586bf4b9cfff412b5cb18eb0c09c52ab303"
+    },
+    {
+      "path": "_run_records/INSPECTION_RECORD_V2.json",
+      "bytes": 4235,
+      "sha256": "04bb3b52e50075f9467ee1b891121a5083cf412976c8625ed077ad46d610ef99"
+    },
+    {
+      "path": "_run_records/METADATA_LOSSLESS_READ_V2.txt",
+      "bytes": 91593,
+      "sha256": "335090968d80076ddfdb6c44c096b7c443c96ae89a2523a3de04c2f783813332"
+    },
+    {
+      "path": "_run_records/PARENT_DISPOSITION_CONTEXT.json",
+      "bytes": 546,
+      "sha256": "5408add7a91454cd88e045778b898a4046bb121077cc66e9e9c221f0e7cde1a9"
+    },
+    {
+      "path": "_run_records/RCR03_COUNTEREXAMPLES_V2.json",
+      "bytes": 17172,
+      "sha256": "8f36c5251e5f3476a62b10702c16afd7712ad5bbd29f7bf36f9498ad5be0e9a7"
+    },
+    {
+      "path": "_run_records/TABLE_LOSSLESS_READ_V2.txt",
+      "bytes": 87360,
+      "sha256": "8b499f6925f477006d14df50b86577671c40a5a53634a05f99c97280d97d9cb9"
+    },
+    {
+      "path": "_run_records/UPSTREAM_PHYSICAL_INVENTORY.json",
+      "bytes": 24208,
+      "sha256": "efb3ddc0a8254d705a43099fe58dec48599aac8c10e9cdf08110a7f98f32169e"
+    }
+  ],
+  "files_count_excluding_self": 16,
+  "bytes_excluding_self": 486390,
+  "resolved": [
+    "RCR-01",
+    "RCR-02"
+  ],
+  "remaining": [
+    "RCR-03"
+  ],
+  "product_effect": false,
+  "runtime_executed_by_reviewer": false,
+  "closure": "Affected contract review complete; source release held pending bounded correction and focused backcheck",
+  "self_hash": "Omitted by design; parent receives exact hash"
+}

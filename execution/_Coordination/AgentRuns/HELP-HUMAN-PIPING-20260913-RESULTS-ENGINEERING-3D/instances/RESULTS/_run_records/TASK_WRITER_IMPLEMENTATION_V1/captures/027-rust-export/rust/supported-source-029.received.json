@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "support:NL-FRIC-110",
+      "id": "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction",
+      "kind": "nonlinear_support_friction_normal_reaction_input",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; explicit_user_entered_normal_reaction; no_catalog_or_default_normal_force",
+        "component": "friction_normal_reaction_input",
+        "coordinate_system": "solver_iteration",
+        "location": "normal",
+        "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+      },
+      "unit": "N",
+      "value": 1000.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

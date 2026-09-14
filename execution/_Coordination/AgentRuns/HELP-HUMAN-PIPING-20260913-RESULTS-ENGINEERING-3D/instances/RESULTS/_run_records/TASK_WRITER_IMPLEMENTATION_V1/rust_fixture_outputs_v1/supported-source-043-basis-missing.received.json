@@ -1,0 +1,22 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "support:SH-140",
+      "id": "result:spring-hanger:support-SH-140:stiffness",
+      "kind": "spring_hanger_user_input_review",
+      "metadata": {
+        "component": "variable_spring_hanger_stiffness",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-140:UZ stiffness",
+        "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+      },
+      "unit": "N/m",
+      "value": 42000.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

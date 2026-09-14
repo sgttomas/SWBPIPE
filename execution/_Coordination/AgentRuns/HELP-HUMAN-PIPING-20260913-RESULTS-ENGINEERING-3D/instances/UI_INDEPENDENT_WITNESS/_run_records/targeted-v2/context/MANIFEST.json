@@ -1,0 +1,50 @@
+{
+  "status": "SOURCE_FROZEN_TARGETED_INDEPENDENT_BACKCHECK_PENDING",
+  "derivativePackage": true,
+  "predecessorManifestSHA256": "fc8a54d119f8ff27c4b63640aaa6dfc62dac139d92777e3fa8a09396e8eaf33a",
+  "predecessor": "UI/prototype-v2",
+  "entry": "prototype/index.html",
+  "sourceHEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "changedExecutableOnly": "prototype/workspace.js",
+  "files": [
+    {
+      "path": "ACCEPTANCE_NOTES.json",
+      "bytes": 2370,
+      "sha256": "9bf62a6fa3dd53dc664dadc2367a42d6bb676f785111f3419c9cc95245256aba"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 3125,
+      "sha256": "8e46eca98497ad10ef7f2dbf6b5ece54e910ba4270c8de39ea680670b31de547"
+    },
+    {
+      "path": "SOURCE_DIFF.patch",
+      "bytes": 4184,
+      "sha256": "cf945667586a9f705a544083c2d0bcb6c81fe11925a1179bc41f6be1c31fd96b"
+    },
+    {
+      "path": "prototype/capabilities.js",
+      "bytes": 16436,
+      "sha256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+    },
+    {
+      "path": "prototype/index.html",
+      "bytes": 6580,
+      "sha256": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f"
+    },
+    {
+      "path": "prototype/workspace.css",
+      "bytes": 12578,
+      "sha256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4"
+    },
+    {
+      "path": "prototype/workspace.js",
+      "bytes": 56480,
+      "sha256": "238ab8261942bc2b4656a0c0a760c22a76bdebccdbb22e45cbf94f1187939d13"
+    }
+  ],
+  "fileCountExcludingSelf": 7,
+  "bytesExcludingSelf": 101753,
+  "runtimeForThisSuccessor": "NONE",
+  "parentConfiguredModel": "gpt-6-astra/high; not independently attested"
+}

@@ -1,0 +1,196 @@
+{
+  "schema": [
+    {
+      "path": "/$defs/RawSourceAnnotationMetadata",
+      "before": "<ABSENT>",
+      "after": {
+        "description": "Exact received source metadata JSON annotation after the existing strict guarded JSON/IJSON validation. Partial or empty fields and unknown members are preserved without filling or deleting any received field; this annotation alone never supplies canonical physical metadata, completeness or authentic producer origin.",
+        "type": [
+          "object",
+          "array",
+          "string",
+          "number",
+          "boolean",
+          "null"
+        ]
+      }
+    },
+    {
+      "path": "/$defs/SourceAnnotations/properties/metadata/$ref",
+      "before": "<ABSENT>",
+      "after": "#/$defs/RawSourceAnnotationMetadata"
+    },
+    {
+      "path": "/$defs/SourceAnnotations/properties/metadata/anyOf",
+      "before": [
+        {
+          "$ref": "#/$defs/SourceMetadata"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "after": "<ABSENT>"
+    },
+    {
+      "path": "/description",
+      "before": "Additive evidence-only successor candidate0.2.0; original0.1 and original candidate bytes retained independently. Received carrier origins/dimensions/hashes distinct from semantics.",
+      "after": "Evidence-only V4 annotation repair: raw annotation JSON separate from unchanged strict canonical physical metadata; all V1/V2/V3 snapshots preserved."
+    }
+  ],
+  "field_contract": [
+    {
+      "path": "/closure",
+      "before": "RCR01/02 candidate repair only; independent review/acceptance, bounded source release, focused tests/schema-semantic validation, diff check, DEC025/native/Historical/publication remain gated.",
+      "after": "Frozen additive RCR03 annotation repair. Product source held; implementation/schema-runtime/Historical/native/full source-diff acceptance remain."
+    },
+    {
+      "path": "/field_contract/source_annotations/fields/metadata/$ref",
+      "before": "<ABSENT>",
+      "after": "#/$defs/RawSourceAnnotationMetadata"
+    },
+    {
+      "path": "/field_contract/source_annotations/fields/metadata/anyOf",
+      "before": [
+        {
+          "$ref": "#/$defs/SourceMetadata"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "after": "<ABSENT>"
+    },
+    {
+      "path": "/partial_empty_unknown_annotation_expected_fixtures",
+      "before": "<ABSENT>",
+      "after": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/PARTIAL_EMPTY_UNKNOWN_ANNOTATION_EXPECTATIONS_V4.json",
+        "sha256": "dc839f3165ca557e45381deec0853c1a902d9a85b6dfcb024b8a84a023d499bc"
+      }
+    },
+    {
+      "path": "/preserved_manager_V3_field_contract",
+      "before": "<ABSENT>",
+      "after": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/FIELD_TYPE_HASH_CONTRACT_V3.json",
+        "sha256": "a932a9766578c40ebeb4e71cade98fcb0f52cb3238212d76f89cd37eaa30e207"
+      }
+    },
+    {
+      "path": "/raw_annotation_canonical_metadata_contract",
+      "before": "<ABSENT>",
+      "after": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/RAW_ANNOTATION_CANONICAL_METADATA_CONTRACT_FROZEN_V4.json",
+        "sha256": "c611f71027c8e3343045e38ef01d7adb95959da8ce53dc505ae7ce7bc653fa1d",
+        "bytes": 3809
+      }
+    },
+    {
+      "path": "/required_semantic_checks_beyond_schema",
+      "before": [
+        "all source indices0..n-1 accounted exactlyonce",
+        "source IDs map uniquely or export blocks duplicateidentity",
+        "each target index/path resolves correct row and ID",
+        "known kind/unit/component table is exact; contradiction blocks",
+        "source original finite value/unit equal target exactly with no conversion",
+        "each checksum payload_scope/ref matches actual source or derivative payload",
+        "canonical metadata finite exact row contract; no arbitrary enum strings",
+        "work semantic dimension must be null; no moment orratio",
+        "discrete/count/state/flag/mode category never ratio",
+        "physical means solver recovered/assembled solved quantity only, never user review echo",
+        "source annotation original metadata/basis/refs retained exactly",
+        "blocked/nonconverged produce no successful solved wrapper",
+        "new model hash needs available exact model JSON, never reconstructed typed model/requestdigest",
+        "received dimensions preserved exactly in annotation and witness; physical mathematical meaning and derivative target are independent",
+        "observed present=false requires value=null; present=true requires exact received string",
+        "all received rows either absent dimensions or exact immutable legacy-compatible declarations; mixed/tampered fails",
+        "authentic producer availability must match qualified route, never row shape; null original checksum where unavailable",
+        "received checksum scopes/row pointer bind exact unchanged supplied payload; no raw checksum label for enriched carrier",
+        "each source index accounts exactly one physical,review,or disclosure target; every emitted target has exactly one accounting record and all annotation/witness references resolve; no orphan or duplicate targets",
+        "relative sparse parity requires exact sparse_live_path_dense_parity_relative_delta/unitless/sparse_live_path; source dimensionless, derivative ratio, disclosed diagnostic non-governing",
+        "review quantities never enter governing physical or ratio aggregation",
+        "sourceonly signatures supported in qualified headless derivative but legacy admission9throws remain Current route hold",
+        "source-model minted token binds digest of same exact Value actually parsed and solved plus raw result digest; substitutes/contradictions reject",
+        "actual model identity exact payload.project.id==mechanics.model_ref; request alias allowed separately disclosed with separately scoped request digest",
+        "blocked/nonconverged no canonical successful result, raw diagnostic/status preserved; row disclosure failures do not rewrite raw status",
+        "Requiredreview source metadata missing/incomplete ->exactlyone review_metadata_incomplete disclosure, never fabricatedlocation/basis orreviewexport; bind explicit19signatureoverride."
+      ],
+      "after": [
+        "all source indices0..n-1 accounted exactlyonce",
+        "source IDs map uniquely or export blocks duplicateidentity",
+        "each target index/path resolves correct row and ID",
+        "known kind/unit/component table is exact; contradiction blocks",
+        "source original finite value/unit equal target exactly with no conversion",
+        "each checksum payload_scope/ref matches actual source or derivative payload",
+        "canonical metadata finite exact row contract; no arbitrary enum strings",
+        "work semantic dimension must be null; no moment orratio",
+        "discrete/count/state/flag/mode category never ratio",
+        "physical means solver recovered/assembled solved quantity only, never user review echo",
+        "source annotation original metadata/basis/refs retained exactly",
+        "blocked/nonconverged produce no successful solved wrapper",
+        "new model hash needs available exact model JSON, never reconstructed typed model/requestdigest",
+        "received dimensions preserved exactly in annotation and witness; physical mathematical meaning and derivative target are independent",
+        "observed present=false requires value=null; present=true requires exact received string",
+        "all received rows either absent dimensions or exact immutable legacy-compatible declarations; mixed/tampered fails",
+        "authentic producer availability must match qualified route, never row shape; null original checksum where unavailable",
+        "received checksum scopes/row pointer bind exact unchanged supplied payload; no raw checksum label for enriched carrier",
+        "each source index accounts exactly one physical,review,or disclosure target; every emitted target has exactly one accounting record and all annotation/witness references resolve; no orphan or duplicate targets",
+        "relative sparse parity requires exact sparse_live_path_dense_parity_relative_delta/unitless/sparse_live_path; source dimensionless, derivative ratio, disclosed diagnostic non-governing",
+        "review quantities never enter governing physical or ratio aggregation",
+        "sourceonly signatures supported in qualified headless derivative but legacy admission9throws remain Current route hold",
+        "source-model minted token binds digest of same exact Value actually parsed and solved plus raw result digest; substitutes/contradictions reject",
+        "actual model identity exact payload.project.id==mechanics.model_ref; request alias allowed separately disclosed with separately scoped request digest",
+        "blocked/nonconverged no canonical successful result, raw diagnostic/status preserved; row disclosure failures do not rewrite raw status",
+        "Requiredreview source metadata missing/incomplete ->exactlyone review_metadata_incomplete disclosure, never fabricatedlocation/basis orreviewexport; bind explicit19signatureoverride.",
+        "Raw annotation metadata retains exact guarded received JSON, including partial/empty fields and unknown/nested members; never replace lost facts with null or invented fields.",
+        "Canonical ResultMetadata remains strict unchanged five required finite fields; project only these known fields with exact received values, preserving all other facts in raw source annotation.",
+        "Missing/empty/non-string required review/physical metadata facts disclose incompleteness; annotation JSON by itself never supplies physical facts, Current or producer authenticity.",
+        "Received full row and carrier digest scopes include all exact annotation data and original field presence; annotation syntax doesnotreconstruct missing producer bytes."
+      ]
+    },
+    {
+      "path": "/schema_candidate_sha256",
+      "before": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+      "after": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485"
+    },
+    {
+      "path": "/sealed_review_v2",
+      "before": "<ABSENT>",
+      "after": {
+        "status": "FULL_PRECISE_REVIEW_V2_READ_AND_HASH_BOUND",
+        "derivative_package": true,
+        "review_return": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/RETURN_V2.md",
+          "sha256": "e28f3638c41a2ecf580a149aabec33ad49513a4942ff5a5b616342c86496ef6a",
+          "bytes": 8577
+        },
+        "review_manifest": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V2.json",
+          "sha256": "6f992c0cc6c406baba0680844821dcd4a797580b49e39eef7438e7bc6d3e7664",
+          "bytes": 3676
+        },
+        "counterexamples": {
+          "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/_run_records/RCR03_COUNTEREXAMPLES_V2.json",
+          "sha256": "8f36c5251e5f3476a62b10702c16afd7712ad5bbd29f7bf36f9498ad5be0e9a7",
+          "bytes": 17172
+        },
+        "resolved": [
+          "RCR-01",
+          "RCR-02"
+        ],
+        "remaining": [
+          "RCR-03"
+        ],
+        "all_review_manifest_files_match": true,
+        "source_effect": false,
+        "runtime": false
+      }
+    },
+    {
+      "path": "/status",
+      "before": "MANAGER_CONSOLIDATED_AMENDMENT_CANDIDATE_REVIEW_REQUIRED_NO_SOURCE_EFFECT",
+      "after": "FROZEN_ANNOTATION_ONLY_V4_CANDIDATE_READY_FOR_FOCUSED_RCR03_BACKCHECK"
+    }
+  ]
+}

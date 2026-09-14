@@ -1,0 +1,11 @@
+{
+  "status": "BOUNDED_PASS",
+  "UI-W1": "CLOSED_BY_ACTUAL_SUCCESSOR_TARGETED_WITNESS",
+  "pointerDetail": "CLOSED_BY_ACTUAL_SIX_LAYOUT_POINTER_TO_TYPED_SUBMISSION_PARITY",
+  "actionableFindings": [],
+  "sourceComparisonReuse": "Original36 groups preserved/source-supported reuse, not repeated.",
+  "actualCases": 6,
+  "actualCurrentDiscreteInspections": 72,
+  "actualHistoricalDiscreteInspections": 24,
+  "limits": "Engine data simulated; no production Rust/model-hash/mechanics/usability certification. Vertical dock scroll needed. Targeted page errors/request assertions are recorded; separate console listener not installed in this continuation."
+}

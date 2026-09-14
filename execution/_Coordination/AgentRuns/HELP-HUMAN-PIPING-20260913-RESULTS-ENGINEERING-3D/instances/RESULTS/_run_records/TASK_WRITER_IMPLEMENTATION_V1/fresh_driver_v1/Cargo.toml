@@ -1,0 +1,8 @@
+[package]
+name="results_fresh_implementation_driver_v1"
+version="0.1.0"
+edition="2021"
+[dependencies]
+open_pipe_stress_headless_runner={path="/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless"}
+open_pipe_stress_product_physics={path="/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics"}
+serde_json="1"

@@ -1,0 +1,16 @@
+{
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913",
+  "environment_override": {
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "argv": [
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/RESULTS/raw/revalidate.py"
+  ],
+  "stdout": "raw/validation.stdout.txt",
+  "stderr": "raw/validation.stderr.txt",
+  "exit": 1,
+  "verdict": "Expected schema failure preserved; no product or test sweep execution",
+  "dependency_probe": "Qualified Python import/version succeeded; default failed probe independently retained",
+  "qualified_python_attribution": "Existing qualified runtime path supplied by parent; imports/version independently probed"
+}

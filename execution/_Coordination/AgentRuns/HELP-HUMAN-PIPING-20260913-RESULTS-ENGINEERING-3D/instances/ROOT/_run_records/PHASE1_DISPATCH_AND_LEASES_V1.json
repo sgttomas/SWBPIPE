@@ -1,0 +1,139 @@
+{
+  "kind": "Agent0 actual dispatch and lease observation snapshot",
+  "observed_at_utc": "2026-09-14T01:32:41.633137+00:00",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "status": "EXECUTION_IN_PROGRESS_NOT_ACCEPTANCE",
+  "authority": "Latest user explicitly approves new plan implementation; standing engineering and Git authority preserved. Written candidate planning status does not cancel subsequent user approval.",
+  "delegation_class": "delegated-harness-native",
+  "role_enforcement": "instruction+config asserted; not mechanism-proven",
+  "model_attribution": "Parent configuration and tool-reported launch identity, not independent supplier attestation",
+  "maximum_active_including_root": 6,
+  "actual_instances": [
+    {
+      "id": "/root/results_implementation_manager",
+      "parent": "/root",
+      "role": "WORKING_ITEMS Type1",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "state": "phase1 returned; reactivated for bounded read-only nonconvergence-model preparation"
+    },
+    {
+      "id": "/root/results_implementation_manager/results_writer",
+      "parent": "/root/results_implementation_manager",
+      "role": "TASK Type2",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "state": "phase1 complete; idle; no product effect"
+    },
+    {
+      "id": "/root/next_engineering_design",
+      "parent": "/root",
+      "role": "HELPS_HUMANS Type1",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "state": "composite candidateV2 frozen; idle"
+    },
+    {
+      "id": "/root/next_ui_design",
+      "parent": "/root",
+      "role": "HELPS_HUMANS Type1",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "state": "design ownership and author-witness coordination active"
+    },
+    {
+      "id": "/root/next_ui_design/prototype",
+      "parent": "/root/next_ui_design",
+      "role": "TASK Type2",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "state": "prototype candidateV2 frozen; bounded author-witness active"
+    },
+    {
+      "id": "/root/results_contract_review",
+      "parent": "/root",
+      "role": "TASK Type2",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "state": "fresh independent pre-source contract review active"
+    },
+    {
+      "id": "/root/engineering_refutation",
+      "parent": "/root",
+      "role": "TASK Type2",
+      "model": "gpt-6-astra",
+      "effort": "xhigh",
+      "state": "fresh independent composite analytical review active"
+    }
+  ],
+  "current_active": [
+    "/root",
+    "/root/results_implementation_manager",
+    "/root/next_ui_design",
+    "/root/next_ui_design/prototype",
+    "/root/results_contract_review",
+    "/root/engineering_refutation"
+  ],
+  "briefs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_MANAGER_V1.md",
+      "sha256": "5b8ff2b029d7a83b056e40cd783847567d1859dc75d751a55f61af03c50a05bd",
+      "bytes": 8549
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/ENGINEERING_MANAGER_V1.md",
+      "sha256": "81a8f876ce671d9e847621776bababcb439afa1073fa2507a5a3b2b59ae41929",
+      "bytes": 7088
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/UI_MANAGER_V1.md",
+      "sha256": "e773e96a714b8b07fa60633c8a4b9684b63fdc41dbc47dada39347d18435877c",
+      "bytes": 7292
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_CONTRACT_REVIEW_V1.md",
+      "sha256": "d8d5da8a62f68e968a3f98c03eba834b9a0eb18067050de6192d52ead891b887",
+      "bytes": 5725
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/ENGINEERING_REFUTATION_V1.md",
+      "sha256": "ae16ec7bf8cc13f6f9d1b46a9156af47796aa23377d2f94819ea9c2e8f8ac8a3",
+      "bytes": 4900
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/ENGINEERING_REFUTATION_V2_ADDENDUM.md",
+      "sha256": "8a92f129b89685ccafa1ddd845092f814f6bd2425195b4c05d159801269109d2",
+      "bytes": 1756
+    }
+  ],
+  "leases": [
+    {
+      "id": "ROOT_LEASE_RESULTS_BASELINE_01",
+      "holder": "/root/results_implementation_manager and sole child",
+      "state": "RELEASED",
+      "scope": "offline locked evidence-only fresh11case Rust driver, external target directory and qualified independent full-document Python validation",
+      "observed_outcome": "cargo0; schema validator1 expected failures; actual196 main /672 across10solved documents; blocked canonical absence; six friction probes actually converged, unmet nonconvergence not waived",
+      "compiled_scratch": "/tmp/chirality-results-engineering-3d-20260913/results-baseline-target"
+    },
+    {
+      "id": "ROOT_LEASE_UI_PROTOTYPE_01",
+      "holder": "/root/next_ui_design and sole child",
+      "state": "GRANTED_NOT_YET_RETURNED",
+      "scope": "frozen candidateV2 node syntax checks and headless Chromium file:// author self-check, six viewport/density combinations and three journeys, own witness-v1 outputs; no production/build/native/network/server",
+      "candidate_freeze_sha256": "a3d8103ec6eb8c52e84e51ee7a42fd047e0c190f96d9a55d0b75eb64aec74263"
+    }
+  ],
+  "root_decisions": [
+    "Preserve legacy saved binder/serializer bytes and verification separately from new semantic adapter.",
+    "New derivative identity comes from exact authored model and matching raw producer model identity; runner request alias/digest is separate provenance.",
+    "One-prop existing App.tsx ResultExportPanel inputManifest handoff and narrow HandoffPanel/shared adapter accommodations accepted into contract-review fence, without source release or broader lifecycle changes.",
+    "No product source effect before independent contract review and root freeze acceptance.",
+    "Engineering/UI packets remain derivative and proposed for future activation; UI prototype is simulation and does not prove Rust model hashes.",
+    "Existing structural archive relocation preserves all60 approved planning files byte-identically; original handoff/worktrees untouched."
+  ],
+  "codex_plan_panel": {
+    "replacement_verified": false,
+    "limitation": "No supported Plan-card mutation tool exposed; Computer Use refused com.openai.codex. No bypass. Supported plan file open request returned queued, not visible replacement evidence."
+  },
+  "handoff": "Continue source-contract and analytical reviews, author prototype witness, genuine nonconvergence producer witness, then bounded implementation and all required gates. No whole-tranche closure or public activation."
+}

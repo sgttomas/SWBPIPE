@@ -1,0 +1,22 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "findings": [
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "scope": "prototype results journey, all six configurations",
+      "problem": "No discrete count/flag/state/mode evidence row exists; required non-governing discrete classification witness cannot be exercised.",
+      "reproduction": [
+        "Open frozen prototype-v2 index.html",
+        "Results \u2192 Run simulated solve",
+        "Inspect all seven numerical/example rows and Details/source fields",
+        "Kinds are translation, rotation, force, moment, stress, ratio and diagnostic; no count/flag/state/mode appears."
+      ],
+      "expected": "At least one explicitly typed invented discrete evidence row, visibly non-governing and unavailable to ratio/readiness behavior; no inferred ID classification.",
+      "actual": "Absent case, not observed misclassification; other simulated result semantics pass.",
+      "repair": "UI owner creates an isolated successor results-data fixture addition, preserving prototype-v2; independent targeted successor witness required."
+    }
+  ],
+  "additionalUnexecutedRequiredDetail": "Blank construction-plane/axis pointer capture and exact pointer-to-typed submission parity prepared but not executed; root explicitly declined immediate second lease and will combine with successor discrete-row witness.",
+  "noOtherActionableFindings": "All 36 main independent case groups PASS; visual QA no essential clipping/overlap, page/console errors or unexpected page requests; source unchanged."
+}

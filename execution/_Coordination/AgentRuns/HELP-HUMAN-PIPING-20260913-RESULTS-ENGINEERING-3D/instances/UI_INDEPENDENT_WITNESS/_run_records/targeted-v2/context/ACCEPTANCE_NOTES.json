@@ -1,0 +1,57 @@
+{
+  "scope": "Targeted independent successor backcheck; no full unrelated rerun requested",
+  "entry": "prototype/index.html",
+  "sourceChange": "Four appended explicit simulated discrete rows; optional Details category/governing/meaning only",
+  "expectedCurrentRowCount": 11,
+  "preservedPriorRows": 7,
+  "expectedRows": [
+    {
+      "index": 7,
+      "quantity": "Mock iteration count",
+      "kind": "count",
+      "value": 4,
+      "unit": "count"
+    },
+    {
+      "index": 8,
+      "quantity": "Mock diagnostic flag",
+      "kind": "flag",
+      "value": 1,
+      "unit": "code"
+    },
+    {
+      "index": 9,
+      "quantity": "Mock diagnostic state",
+      "kind": "state",
+      "value": 2,
+      "unit": "code"
+    },
+    {
+      "index": 10,
+      "quantity": "Mock diagnostic mode",
+      "kind": "mode",
+      "value": 3,
+      "unit": "code"
+    }
+  ],
+  "commonExpected": {
+    "dimension": "dimensionless",
+    "category": "discrete diagnostic",
+    "governing": false,
+    "frame": "not applicable",
+    "location": "Simulated diagnostic example",
+    "ref": null,
+    "type": null
+  },
+  "checks": [
+    "Run simulated Current through existing Results controls; inspect all four appended rows through actual Details buttons, including narrow/comfortable and other scoped layouts",
+    "Each original numeric value and count/code unit remains unchanged in Entered/SI/US readouts; no blanket dimensionless-to-ratio conversion",
+    "Details displays kind, category, governing=false and explicitly invented meaning; diagnostic selection never changes model entity selection",
+    "Existing illustrative ratio remains kind=ratio with value0.42/unit1; displacement, rotation and work residual retain earlier meanings and source fields",
+    "Reopen the just-saved simulated result: all11records retained; Historical acceptanceUNKNOWN, overlay=false and readiness=false, category/governing retained",
+    "Observe no new errors/network or essential clipping as rows scroll; preserve simulation/ROADMAP/plain action wording",
+    "Record final asset bindings and supplement manifest; root combines independent blank-plane XY/X parity evidence separately"
+  ],
+  "runtimeStatus": "NOT_RUN_FOR_SUCCESSOR_MANAGER",
+  "engineeringRelay": "Parent reports compositeV3 accepted design-only with ER01 suppression; no new exact artifact supplied or adopted here"
+}

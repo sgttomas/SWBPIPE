@@ -1,0 +1,18 @@
+{
+  "kind": "Capacity/scope skeleton; not actual manager dispatch",
+  "maximum_active_including_root": 6,
+  "authoring_slots": [
+    "root HELP_HUMAN",
+    "result WORKING_ITEMS manager",
+    "sole result TASK source writer",
+    "engineering HELPS_HUMANS design manager",
+    "UI HELPS_HUMANS design manager",
+    "prototype TASK writer"
+  ],
+  "later_slots": "Analytical/native/review/recording require released writer/manager slot; never seventh instance",
+  "source_lane": "Integration source scope matches approved V3 results fence; no physics/numerical product source",
+  "design_lanes": "Disjoint engineering contracts and UI prototype outputs; manager briefs/lane ownership supplied by root before launch",
+  "serialization": "Shared source writes, builds/native/browser and final integration explicitly leased",
+  "parent": "/root",
+  "status": "Proposed slots only; no children launched"
+}

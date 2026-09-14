@@ -1,0 +1,254 @@
+{
+  "allocation": "ROOT_LEASE_RESULTS_IMPLEMENTATION_01",
+  "argv": [
+    "npm",
+    "test",
+    "--workspace",
+    "apps/desktop",
+    "--",
+    "src/features/results/resultSemantics.test.ts",
+    "src/features/results/ResultsPanel.test.tsx",
+    "src/features/result-export/resultExportAdapter.test.ts",
+    "src/features/handoff/HandoffPanel.test.tsx",
+    "src/features/report/reportPackageRequest.test.ts",
+    "src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+    "src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "src/services/previewService.test.ts",
+    "src/features/history/HistoricalRunContext.test.tsx"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "executable": "/Users/ryan/.local/share/mise/installs/node/24/bin/npm",
+  "env": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+    "RESULTS_RUST_CONTRACT_OUTPUT_DIR": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/026-desktop-consumers/rust",
+    "RESULTS_CONTRACT_OUTPUT_DIR": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/026-desktop-consumers/desktop"
+  },
+  "toolchain_identity_ref": "attempts/001-cargo,002-rustc,003-node,004-python",
+  "claim": "focused-canonical-graph-and-existing-consumer-checks",
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export/src/derivative.rs",
+      "sha256": "e069a4fb0e9e48ee98ede974ab99cb58a07164257cdc1f2b623610083f39f3e5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/benchmark_binding.rs",
+      "sha256": "4a45a0889391046fe6ab887409c791a2148bc30205478138a142af07fd4f1e6f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/bin/headless_preview_runner.rs",
+      "sha256": "991c736547fa83563d80d05dfecda85c5ffb5d0db0c0c2f7f99f22cc415ef085"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/redaction_binding.rs",
+      "sha256": "16770911c5ea85c533163d45478fe1c4085cdf6c086cb79bc2b985155bad0703"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "09d159beaf8ab1ce17b7a81e534f863e90495665578165671377a13ec72bcac5"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json",
+      "sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2_rejections.json",
+      "sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json",
+      "sha256": "0e6d0fd3bf1b27d4032a6ae04c2d2c740e187200b369a60723b392b56a9d6771"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/tp_phys_015_section_property_stress_evidence_envelope.json",
+      "sha256": "11f5b11964dfa4980efb00e80e041fd31dddfac02a0037902da93834f3952edc"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/adapter_framework.schema.yaml",
+      "sha256": "9092628377cfa8305a62c8a7f612411e13c1a9841640e24bb6cf1bd093c6e934"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/analysis_boundary.schema.yaml",
+      "sha256": "6f9d8207802bf48b8267b8119977e14d56f52b9f3887d2007bcc23d8a57f21e8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/analysis_run.schema.json",
+      "sha256": "a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/analysis_status.schema.yaml",
+      "sha256": "1d92d8488f543c4b5f4aae2a90bbae82d67d144e539c5bb74b194749a851b282"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/caepipe_external_run.schema.json",
+      "sha256": "22e9878e6cff2cacf9fc3af382ada500b2c6b502421ac8ea90c1646f5281f022"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/caepipe_mbf_export.schema.json",
+      "sha256": "a6db28814b512b54c4daa1b71f6c89a8ec5cae612775015cb94df3c7640460aa"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/comparison_mapping.schema.json",
+      "sha256": "3fdbb88e328b3bb1bce046bd0fa9342fb0e4efd9bb30d4d33ed4579cb249d759"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/comparison_tolerance.schema.json",
+      "sha256": "2c2cf4089849bb42a2d8eb83d559f2a60212ca525d2fa1e0bbb910609c10525a"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/component.schema.yaml",
+      "sha256": "f50dde1bd22696c8b82a0ea0b4f870afd4bff0c8eaa722971fa9d7d4bcc9cef3"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/constraint.schema.json",
+      "sha256": "84a0d53a5c305bc6cd47eea50308da2162a16d989e1f7dbeb359b301bcb525a9"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/design_knowledge.schema.json",
+      "sha256": "a6e0a26be60d255ea5ed938124cb719b1350d3825a7bfaf36fba4454b432e510"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/export_adapter_sdk.schema.json",
+      "sha256": "3d5c29778d23b098868cd5c824e250e8b6b0e9000ce4239048a69275c98e9359"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/external_prover_metadata.schema.json",
+      "sha256": "1079153350ca41e7ba8c371d348f3f55e74919a6d18a944488a461583a3273f8"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/handoff_package.schema.json",
+      "sha256": "043a8d7dde56eacbaa0ddfd4f1f61fa75100d71ecfe404e558851ebeed28922e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/hanger.schema.yaml",
+      "sha256": "f7ada4cab2536cb0a8f952cbcc6de0e13f99a58ca4601c22441542b09c33c2f9"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/headless_runner.schema.yaml",
+      "sha256": "deaa474eebb07752c0e09878809fbd9a54e9d25052f9a6f0b8bb5f720ce7a182"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/local_fea_handoff.schema.yaml",
+      "sha256": "6693ea5b41e6ec66919e1945c68e0c8d79aae90f546071aaf5107ae185780a94"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/material.schema.yaml",
+      "sha256": "a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/model.schema.yaml",
+      "sha256": "a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/model_operation.schema.json",
+      "sha256": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/model_state.schema.json",
+      "sha256": "d0429889334090fc2b2457cedc71affba64ebeed38ea9f991a72dc02faa4c72b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/native_json_export.schema.json",
+      "sha256": "f77313c982b2ede5ffb18a284c5069ce9ea9b477e33d08aef0aad9919f51bd67"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/operation_outcome.schema.json",
+      "sha256": "ec813d20529f9a6a7806e0b6c0e99bceb6c1a04ce569d4ed6530e2171168fe1b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/pcf_export.schema.json",
+      "sha256": "91561c3680f6b497bc8c06e9b556ba62ec44c317861dd15be54396379359b71b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/plugin_manifest.schema.yaml",
+      "sha256": "2fb470eeeae8b0b26182264c6e33dfd0f89d9d321eaa2ba6b0411161264d759b"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/project_persistence.schema.yaml",
+      "sha256": "babb93fc4c7aee20be3b82d8e191d6a92a49f6d604b7e341669c1226a12b4164"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/redaction_export_controls.schema.yaml",
+      "sha256": "48ef3470c4abae64ad64c3b9d3990272f1fa20edfa39129c2fe3f89ef673256e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/report_generator.schema.yaml",
+      "sha256": "4ab83c148b520a67bf3a5c7856961a1ad728029f5f421ced358b786c34b0b5ee"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/report_protected_content_linter.schema.yaml",
+      "sha256": "d7c7c964615c440a2c4939772bdc979c18cbb1b9f143543c7ecc636ebe16dd45"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/report_sections.schema.yaml",
+      "sha256": "28316fc9b697d3fb6da5b7c581916762e7864fe1030ae0a43f9a240f40d5e094"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/results.v0.1.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/results.v0.2.schema.yaml",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/review_geometry_export.schema.json",
+      "sha256": "58da7881bf3e176eb39c2d14023fa22f52f1d3ab84cefcc60e0c814c81280164"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/rule_check_run_result.schema.json",
+      "sha256": "7f4d3ddb58bbe6a0426f3d8f857f183d042ede822c7684bfa2de85f92213a581"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/rule_pack.schema.yaml",
+      "sha256": "ac94543075cc978745bb4f9e04e306068fe1bb00f62a98236982f8b70875fad1"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/section.schema.yaml",
+      "sha256": "bff13fc13b4a6dafc89770ba527b5e7f74976bd770eb8e1ce432e3a07895994e"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "sha256": "fd903475b1670a742fc9adfd28267e404c44f7d1fcf85f2ceac9e7278f15576f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/target_mapping.schema.json",
+      "sha256": "126fc0f111912ab6fd4f8cc475bb2ce96fd723799765aed1b1e74370bded4e17"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/units.schema.yaml",
+      "sha256": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/viewport_editor.schema.yaml",
+      "sha256": "d23ce086b82ff6196edec81319257515bf5aa12dee3e2b79ae0c17246a56fcb3"
+    }
+  ],
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/attempts/026-desktop-consumers/stdout.txt",
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/attempts/026-desktop-consumers/stderr.txt",
+  "prepared_before_execution": true
+}

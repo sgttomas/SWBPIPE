@@ -1,0 +1,70 @@
+{
+  "status": "IMMUTABLE_SUCCESSOR_CANDIDATE_EVIDENCE_PREPARATION_COMPLETE_NO_SOURCE_RELEASE",
+  "derivative_package": true,
+  "return": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/RETURN_V2.md",
+    "sha256": "b97e2db7a593b6f07e0d9c4d9515b5f08af6004ce8426b5a2c606ce655f8d755"
+  },
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "original97_phase1_preserved": true,
+  "sealed_brief": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+    "sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd"
+  },
+  "independent_supported_oracle": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json",
+    "sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda"
+  },
+  "independent_expanded_fixtures": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_INDEPENDENT_EXPANDED_SOURCE_METADATA_FIXTURES_V2.json",
+    "sha256": "8b6b1303235c3565bf4709043db76cd5ddda1d36e5c9076d20cff60b41464657"
+  },
+  "root_additive_caller_acceptance": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/ROOT_ADDITIVE_CALLER_FENCE_ACCEPTANCE_V1.json",
+    "sha256": "38b4e41cfacaaa7a76ae9317e67ec16dfcdddb982ad355d75bba7afb49dabf24"
+  },
+  "files": [
+    {
+      "path": "CANDIDATE_RESULTS_V0_2_SCHEMA_V2.json",
+      "sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+      "bytes": 40432
+    },
+    {
+      "path": "CONCRETE_METADATA_EXPECTATIONS_V2.json",
+      "sha256": "8c2fa2c5c5464debb18e04bcf09e800ecf6030fe49386641add26742719fd2ab",
+      "bytes": 202521
+    },
+    {
+      "path": "FIELD_TYPE_HASH_CONTRACT_V2.json",
+      "sha256": "4887da159a58d84c3f9254ced293424ade2b4dadb9fc0ef7f6b66b25f0b89877",
+      "bytes": 19753
+    },
+    {
+      "path": "PREPARATION_PROVENANCE_AND_PRESERVATION_V2.json",
+      "sha256": "8adcbcab209f1aba489dd149afa976fb5bc16bf054df464e85aa91612896fb9e",
+      "bytes": 3870
+    },
+    {
+      "path": "RECEIVED_CARRIER_ORIGIN_HASH_CONTRACT_V2.json",
+      "sha256": "70982aee3c606eadd29484e866ab0cd6954f179a54a8c23f8dabdaad102d4756",
+      "bytes": 4249
+    },
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "b97e2db7a593b6f07e0d9c4d9515b5f08af6004ce8426b5a2c606ce655f8d755",
+      "bytes": 8674
+    },
+    {
+      "path": "SUPPORTED_SOURCE_SEMANTICS_V2.json",
+      "sha256": "22a142045d37501eca86a93cb089577b218d40c85e4d5d20b9e6f8fc6ae6c13c",
+      "bytes": 204727
+    }
+  ],
+  "runtime_lease": "NONE",
+  "source_release": "HELD",
+  "no_product_writes": true,
+  "no_tests_build_browser_native": true,
+  "no_delegation": true,
+  "closure": "candidate evidence complete; independent review/implementation/runtime/native/formalstatus/publication not closed",
+  "attribution": "TASK Type2 existing writer, instruction-asserted; model configuration inherited, not runtime-attested"
+}

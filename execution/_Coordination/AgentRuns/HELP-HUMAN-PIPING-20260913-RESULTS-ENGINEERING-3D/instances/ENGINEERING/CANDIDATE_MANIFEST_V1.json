@@ -1,0 +1,54 @@
+{
+  "kind": "Frozen engineering full candidate for root-direct analytical refutation",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "status": "FROZEN_CANDIDATE_V1_NOT_IMPLEMENTED",
+  "outputs": [
+    {
+      "path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "bytes": 3405
+    },
+    {
+      "path": "CONSUMER_MAP_V1.json",
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "bytes": 30755
+    },
+    {
+      "path": "UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "bytes": 4607
+    },
+    {
+      "path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "bytes": 5077
+    },
+    {
+      "path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "bytes": 4808
+    },
+    {
+      "path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "bytes": 4244
+    },
+    {
+      "path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "bytes": 15655
+    },
+    {
+      "path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "bytes": 15601
+    },
+    {
+      "path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "bytes": 14268
+    }
+  ],
+  "manifest_self_hash": "Excluded; returned separately",
+  "independent_review": "NOT_DISPATCHED_BY_THIS_MANAGER; root schedules Astra/xhigh in released slot"
+}

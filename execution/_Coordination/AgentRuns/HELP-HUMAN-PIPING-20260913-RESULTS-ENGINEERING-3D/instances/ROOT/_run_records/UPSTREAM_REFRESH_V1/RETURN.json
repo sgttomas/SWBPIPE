@@ -1,0 +1,26 @@
+{
+  "status": "FAST_FORWARD_UPSTREAM_ACCEPTED_DISJOINT_SOURCE",
+  "time_utc": "2026-09-14T02:47:01.726659+00:00",
+  "old_head": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "new_head": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "upstream_pr": 786,
+  "command": [
+    "git",
+    "merge",
+    "--ff-only",
+    "origin/main"
+  ],
+  "exit_code": 0,
+  "tracked_worktree_was_clean": true,
+  "untracked_tranche_evidence_preserved": true,
+  "product_source_delta": [],
+  "piping_change": [
+    "execution/_Coordination/NOTICE_2026-09-13_WORKFLOW_DRAFT_REVIEW.md"
+  ],
+  "root_instruction_old_sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+  "root_instruction_new_sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+  "adoption": "Read exact Root AGENTS delta and Piping coordination notice. New workflow creation now uses human-reviewed draft registration in Chirality App. No reusable workflow is being authored by this tranche; no current product or instruction-mirror adaptation is required. Accepted historical bases remain historical.",
+  "acceptance_reuse": "Piping product, fixtures, schemas, tests and tools have no upstream diff. Contract/design math and prototype remain on exact accepted8f27 source hashes; fresh final review/sweep will bind the integrated candidate based on12f5. Separate RESULTS lane continues unchanged until integration.",
+  "receipt_basis": "Original Step0 Examined-Through8f27 and ParentReceipt139 remain exact, not rewritten to imply a second Step0. This later refresh is recorded separately.",
+  "scope_effect": "No branch rebase, conflict, force push, new source work, release or lifecycle effect"
+}

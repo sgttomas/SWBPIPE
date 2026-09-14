@@ -1,0 +1,114 @@
+{
+  "cases": 12,
+  "no_solve_executed": true,
+  "records": [
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-0",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "curved-tip-weight-full",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-1",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "curved-pressure-full",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-4",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-3",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-2",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "nonconverged-candidate-5",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "straight-full",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "blocked",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "straight-dense-full",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": false,
+      "runner_scope": "old baseline retained default sparse runner refs786 while mechanics replaced dense788; fresh actual explicit dense route runner refs788"
+    },
+    {
+      "capture_format": "Value pretty/key-sorted/no trailing newline; distinct from baseline typed pretty plus newline",
+      "captured_mechanics_file_byte_equal": false,
+      "case": "straight-sparse-full",
+      "mechanics_same_typed_pretty_serializer_bytes_equal": true,
+      "private_library_fields_absent": true,
+      "runner_result_same_typed_pretty_serializer_bytes_equal": true,
+      "runner_scope": "same original raw typed RunnerResult"
+    }
+  ]
+}

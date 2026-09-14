@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:N-100",
+      "id": "result:disp:node-N-100:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

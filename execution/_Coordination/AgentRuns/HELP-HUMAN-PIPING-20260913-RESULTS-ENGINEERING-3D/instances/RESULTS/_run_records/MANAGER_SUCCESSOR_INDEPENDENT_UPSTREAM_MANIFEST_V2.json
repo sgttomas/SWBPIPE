@@ -1,0 +1,47 @@
+{
+  "status": "INDEPENDENT_MANAGER_SUCCESSOR_UPSTREAM_FROZEN_PRE_ADAPTER",
+  "derivative_package": true,
+  "source_effect": false,
+  "child_state": "ActualexistingTASKreactivatedforevidenceonly; awaitingreturn",
+  "authority_limit": "Candidatecontractsourceoracle and actualproductwitness; no decomposition/lifecycle/dependency/readinesspromotion",
+  "upstream_files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json",
+      "sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda",
+      "bytes": 135490
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_INDEPENDENT_EXPANDED_SOURCE_METADATA_FIXTURES_V2.json",
+      "sha256": "8b6b1303235c3565bf4709043db76cd5ddda1d36e5c9076d20cff60b41464657",
+      "bytes": 23781
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/BASELINE_COUNT_CORRECTION_DISPOSITION_V1.json",
+      "sha256": "a88da6e441d0f375b043d26cd6f2b936554779dc03df4d646a49e6a3bbf2c522",
+      "bytes": 3912
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/CAPTURE_RETURN_V1.json",
+      "sha256": "33be3794621e91bc32f7306eb3d96653d6519578e649e4de8b9b9ca4a6aba915",
+      "bytes": 4469
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/CAPTURE_MANIFEST_V1.json",
+      "sha256": "b3662a9c40ec9a8a353e58a48282685a68f7c06981e4a28fcacdad241326b741",
+      "bytes": 15674
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd",
+      "bytes": 8004
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/CHILD_ACTUAL_REACTIVATION_V2.json",
+      "sha256": "32cb5ab3401c4e13053cdaf23c8c40602ebf7ee393d9d3a44b83341f386221f4",
+      "bytes": 1072
+    }
+  ],
+  "counts_authoritative": "60supportedexactsignatures/47uniquekinds,50observed+10sourceonly;47legacy-equal/4legacy-different/9legacy-throws. Baseline12cases/11solved+1blocked2991rows672errors. Olderprose46kind and11total/10solved countwording preservedbutadditivelycorrected.",
+  "product_witness_closure": "Genuinepublicnonconvergence+absence captured; implementationnewadapter/wholev02schema/serializer/Historical/native/fullregisteredDEC025/source-diffreviewandpublicationgatesremainunexecuted.",
+  "current_state_handoff": "Currentlegacyanalysisrecordunsupported9branches retainlaterDEL14decision; newcanonicalheadlesssupportdoesnotproveeverydesktoprouteCurrent."
+}

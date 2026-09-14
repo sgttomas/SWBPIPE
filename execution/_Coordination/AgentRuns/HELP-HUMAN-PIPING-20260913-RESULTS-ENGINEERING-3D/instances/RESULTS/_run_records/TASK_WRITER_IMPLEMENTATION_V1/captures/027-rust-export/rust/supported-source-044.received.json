@@ -1,0 +1,23 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "support:SH-140",
+      "id": "result:spring-hanger:support-SH-140:installed-load",
+      "kind": "spring_hanger_user_input_review",
+      "metadata": {
+        "basis": "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "component": "variable_spring_hanger_installed_load",
+        "coordinate_system": "support_local_preview",
+        "location": "node:N-140:installed-load",
+        "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+      },
+      "unit": "N",
+      "value": 460.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

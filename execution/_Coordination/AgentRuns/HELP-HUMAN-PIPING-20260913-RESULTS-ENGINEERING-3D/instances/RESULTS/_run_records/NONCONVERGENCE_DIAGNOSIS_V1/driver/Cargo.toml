@@ -1,0 +1,13 @@
+[package]
+name="results_fresh_p5_baseline"
+version="0.0.0"
+edition="2021"
+publish=false
+[workspace]
+[dependencies]
+open_pipe_stress_headless_runner={path="/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless"}
+open_pipe_stress_product_physics={path="/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics"}
+open_pipe_stress_canonical_json={path="/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/serialization/canonical_json"}
+serde={version="1",features=["derive"]}
+serde_json="1"
+sha2="0.10"

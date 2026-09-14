@@ -1,0 +1,82 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "finding_ids": [
+    "ER-01"
+  ],
+  "analytical_computation_status": "PASS",
+  "exact_rational_assertions": 111,
+  "role": "TASK Type2",
+  "parent": "HELP_HUMAN /root",
+  "delegation": "delegated-harness-native actual child; no descendants",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "xhigh",
+  "attribution": "parent configured, not independently supplier-attested",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "reviewed_candidate_manifest_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+  "brief_sha256": "ae16ec7bf8cc13f6f9d1b46a9156af47796aa23377d2f94819ea9c2e8f8ac8a3",
+  "addendum_sha256": "8a92f129b89685ccafa1ddd845092f814f6bd2425195b4c05d159801269109d2",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING_REFUTATION/**",
+  "derivative_package": true,
+  "closure": "Analytical execution complete; composite design requires ER-01 correction and parent acceptance",
+  "handoff": "Route additive immutable engineering correction; re-review affected source-consumer/contract/brief/oracle boundaries, no unchanged-math rerun unless warranted",
+  "unexecuted": [
+    "production source/runtime/tests/build/browser/native/schema/persistence/CI",
+    "public physics/connector/version/migration/compatibility activation",
+    "engineering/industry/professional validation"
+  ],
+  "physical_file_count_excluding_manifest": 10,
+  "physical_bytes_excluding_manifest": 152725,
+  "outputs": [
+    {
+      "path": "RETURN.md",
+      "bytes": 7846,
+      "sha256": "f6ac2eac0bb3c628d79c2458784a7fe7d5a51efbbb3dd5c46ca033e752c7adab"
+    },
+    {
+      "path": "_run_records/ANALYTICAL_REVIEW_V1.md",
+      "bytes": 10644,
+      "sha256": "9cbd510a31169e29bc3c9ccc697f3a9f18d69f3b91e4eed7c62c3a76ee787ec6"
+    },
+    {
+      "path": "_run_records/COMMANDS_AND_LEASE_V1.md",
+      "bytes": 1963,
+      "sha256": "c9123313fe92e7b1c68c216b121896e2b424bdfb2efe19c7c2e8fa79fd76c526"
+    },
+    {
+      "path": "_run_records/CONTEXT_AND_COVERAGE_V1.json",
+      "bytes": 92898,
+      "sha256": "a6fc98c9ba59634ae9727e23d49f02ab8d2d962b4f23c6c45b7a55be41f36459"
+    },
+    {
+      "path": "_run_records/ER01_SOURCE_EXCERPTS_V1.md",
+      "bytes": 18797,
+      "sha256": "0d3eaa69946fe8488c88889022728bff6f85c164f75677e22b83633bb54e371d"
+    },
+    {
+      "path": "_run_records/MATH_EXECUTION_V2.json",
+      "bytes": 907,
+      "sha256": "86e68b5b413d90b809f946c544d88a2a6da7b4f105055c086191aff731483925"
+    },
+    {
+      "path": "_run_records/independent_math_v1.py",
+      "bytes": 7494,
+      "sha256": "10d94d733417a6b7d27751c87682cb11fe8c959fa40d1cbe3f10d3fcd0628d2b"
+    },
+    {
+      "path": "_run_records/independent_math_v2.py",
+      "bytes": 7550,
+      "sha256": "966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81"
+    },
+    {
+      "path": "_run_records/independent_math_v2.stderr.txt",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "_run_records/independent_math_v2.stdout.json",
+      "bytes": 4626,
+      "sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7"
+    }
+  ],
+  "manifest_self_hash": "Excluded; supplied to parent separately"
+}

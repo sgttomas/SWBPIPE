@@ -1,0 +1,196 @@
+{
+  "mechanics_envelope": {
+    "accepted_model_state_mutated": false,
+    "diagnostics": [
+      {
+        "affected_refs": [
+          "load:G-TIP",
+          "active-set:support:G-GAP-2"
+        ],
+        "code": "NONLINEAR_SUPPORT_NONCONVERGENCE",
+        "id": "diagnostic:nonlinear:load-G-TIP:1:NONLINEAR_SUPPORT_NONCONVERGENCE",
+        "message": "solver did not converge after 4 iterations; residual 1 exceeds tolerance 0; active-set changed supports: support:G-GAP-2; active-set states: support:G-GAP-1=active,support:G-GAP-2=inactive,support:G-GAP-3=inactive,support:G-GAP-4=inactive,support:G-GAP-5=inactive",
+        "severity": "blocking",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:G-GAP-1",
+          "load:G-TIP"
+        ],
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "id": "diagnostic:nonlinear:load-G-TIP:support-G-GAP-1:state",
+        "message": "nonlinear support support:G-GAP-1 ended in active state for load case load:G-TIP; sparse_interactive preview loop evidence only",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:G-GAP-2",
+          "load:G-TIP"
+        ],
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "id": "diagnostic:nonlinear:load-G-TIP:support-G-GAP-2:state",
+        "message": "nonlinear support support:G-GAP-2 ended in inactive state for load case load:G-TIP; sparse_interactive preview loop evidence only",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:G-GAP-3",
+          "load:G-TIP"
+        ],
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "id": "diagnostic:nonlinear:load-G-TIP:support-G-GAP-3:state",
+        "message": "nonlinear support support:G-GAP-3 ended in inactive state for load case load:G-TIP; sparse_interactive preview loop evidence only",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:G-GAP-4",
+          "load:G-TIP"
+        ],
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "id": "diagnostic:nonlinear:load-G-TIP:support-G-GAP-4:state",
+        "message": "nonlinear support support:G-GAP-4 ended in inactive state for load case load:G-TIP; sparse_interactive preview loop evidence only",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:G-GAP-5",
+          "load:G-TIP"
+        ],
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "id": "diagnostic:nonlinear:load-G-TIP:support-G-GAP-5:state",
+        "message": "nonlinear support support:G-GAP-5 ended in inactive state for load case load:G-TIP; sparse_interactive preview loop evidence only",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "load:G-TIP",
+          "DEC-046"
+        ],
+        "code": "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED",
+        "id": "diagnostic:nonlinear:load-G-TIP:loop",
+        "message": "sparse_interactive nonlinear support active-set preview completed 4 iteration(s); final residual count 1; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        "severity": "warning",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "load:G-TIP"
+        ],
+        "code": "SOLVER_SYSTEM_BLOCKED",
+        "id": "diagnostic:physics:selected-state-unavailable",
+        "message": "nonlinear selected mechanics state is unavailable or did not converge",
+        "severity": "blocking",
+        "source": "core/product_physics"
+      }
+    ],
+    "document_kind": "openpipestress.product_preview.mechanics_result",
+    "model_ref": "project:invented-gap-chain-five-active",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "results": [],
+    "run_id": "run:preview-linear-static-blocked",
+    "schema_version": "0.1.0",
+    "status": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "summary": {
+      "component_pressure_thrust_load_count": 0,
+      "component_stress_modifier_count": 0,
+      "component_user_stiffness_macro_element_count": 0,
+      "load_case_count": 1,
+      "max_displacement": null,
+      "max_open_formula_stress": null,
+      "node_count": 6,
+      "segment_count": 5,
+      "spring_hanger_user_input_count": 0,
+      "support_count": 11
+    }
+  },
+  "runner_result": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MODEL_INCOMPLETE",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "audit_manifest_ref": {
+      "ref_id": "audit-manifest:run:headless-preview:gap-witness-gap-chain-five-active",
+      "ref_type": "audit_manifest"
+    },
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "gap-witness-gap-chain-five-active",
+          "ref_type": "runner_request"
+        },
+        "value": "8349fad54c5be13165f33ec4028a996f8eac708e43bc28d31f18ef52e6a284b5"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-active",
+          "ref_type": "result_envelope"
+        },
+        "value": "c6154f95af1b009d0dc59a808a3500c3746eb0931318bfe9ff4289673b198200"
+      }
+    ],
+    "diagnostics": [],
+    "job": {
+      "cancellation_requested": false,
+      "cancellation_supported": true,
+      "current_step": 3,
+      "job_id": "job:gap-witness-gap-chain-five-active",
+      "state": "COMPLETED",
+      "total_steps": 3
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+      "source_name": "Invented current public-product axial gap chain"
+    },
+    "result_envelope_ref": {
+      "compatibility": "schema_first_json_result_envelope",
+      "envelope_ref": {
+        "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-active",
+        "ref_type": "result_envelope"
+      },
+      "schema_ref": "schemas/results.schema.yaml"
+    },
+    "result_refs": [],
+    "run_id": "run:headless-preview:gap-witness-gap-chain-five-active"
+  }
+}

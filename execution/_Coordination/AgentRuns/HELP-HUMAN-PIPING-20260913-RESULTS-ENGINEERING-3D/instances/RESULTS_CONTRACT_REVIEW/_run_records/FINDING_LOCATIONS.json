@@ -1,0 +1,36 @@
+{
+  "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/FIELD_TYPE_HASH_CONTRACT_V1.json": {
+    "exact_pair_count": [
+      21
+    ],
+    "known kind/unit/component": [
+      26
+    ],
+    "future_kind_policy": [
+      60
+    ]
+  },
+  "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/INDEPENDENT_EXPECTED_ROW_SEMANTICS_V1.json": {
+    "nonlinear_support_final_displacement": [
+      595,
+      597
+    ],
+    "nonlinear_support_final_reaction": [
+      614,
+      616
+    ],
+    "sparse_live_path_dense_parity_relative_delta": [
+      709
+    ],
+    "future_outside_observed_baseline": [
+      956
+    ]
+  },
+  "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/INDEPENDENT_ORIGINAL_SOURCE_EXPECTATIONS_V1.json": {
+    "sparse_live_path_dense_parity_relative_delta": [
+      400,
+      9429,
+      13083
+    ]
+  }
+}

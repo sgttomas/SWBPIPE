@@ -1,0 +1,74 @@
+{
+  "basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "legacy_functions": [
+    {
+      "function": "buildAnalysisRunPreview",
+      "start_line": 152,
+      "next_top_level_declaration_bound": true,
+      "sha256": "dbea47b3056924662e1f153d017dc0fce1239703f9b63d460851b7d55be4560e",
+      "bytes": 5907
+    },
+    {
+      "function": "bindSourceResultDimensions",
+      "start_line": 319,
+      "next_top_level_declaration_bound": true,
+      "sha256": "a588a83b479e0218e3d14782eee51994f61864b98720ea94bf45c94438072b57",
+      "bytes": 545
+    },
+    {
+      "function": "declaredSourceResultDimension",
+      "start_line": 339,
+      "next_top_level_declaration_bound": true,
+      "sha256": "d4148b33011f20b921f71486c888db4597f65f9290d380564c0bdccf217360a5",
+      "bytes": 3524
+    },
+    {
+      "function": "resultFamily",
+      "start_line": 719,
+      "next_top_level_declaration_bound": true,
+      "sha256": "280088a9c00ca8100715060106ef93eaa13a3c880097aa823971ebe28d53adbf",
+      "bytes": 1231
+    },
+    {
+      "function": "canonicalJson",
+      "start_line": 759,
+      "next_top_level_declaration_bound": true,
+      "sha256": "e6616afa8ac6c7c6bcfd6690a6e2e4e5e42637e44bf6eaccdba744342b8400f6",
+      "bytes": 94
+    },
+    {
+      "function": "sortJson",
+      "start_line": 763,
+      "next_top_level_declaration_bound": true,
+      "sha256": "876698c07aea3564e5bcadf3cfe4ab6a0994d2eef8c5d862ee614264a2c22843",
+      "bytes": 364
+    },
+    {
+      "function": "sha256",
+      "start_line": 777,
+      "next_top_level_declaration_bound": true,
+      "sha256": "bf2123c373ed5b857cd94350047310a410a538d84eb5c2123953815105e03cc3",
+      "bytes": 561
+    }
+  ],
+  "full_file_hashes": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "5ccb4b3a8c79c1814aa694e4ad94d563fa943a5203c87aaaa581065b6bcf185c"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0"
+    }
+  ],
+  "contract": "Legacy saved attachment enrichment/hash path is immutable; current adapter displays semantic changes independently. Historical canonicalSha256Hex wasm and legacy buildAnalysisRunPreview localeCompare serializer remain separately qualified, not assumed universally identical.",
+  "status": "PREWRITE_BASELINE_FREEZE; no new meaning accepted here"
+}

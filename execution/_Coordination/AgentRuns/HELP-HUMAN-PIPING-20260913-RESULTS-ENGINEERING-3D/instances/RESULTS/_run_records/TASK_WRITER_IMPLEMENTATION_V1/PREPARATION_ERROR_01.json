@@ -1,0 +1,7 @@
+{
+  "effect": "attempted new derivative_contract.rs evidence/test source write",
+  "actual_error": "zsh:3: no such file or directory: core/reporting/result_export/tests/derivative_contract.rs",
+  "reason": "new tests directory not created",
+  "repair": "create named authorized tests directory before writing; no test execution occurred",
+  "source_numeric_repair": "original row.value now cloned after finite guard, preserving integer vs float Value representation"
+}

@@ -1,0 +1,71 @@
+{
+  "status": "PASS_READ_ONLY_FANIN_WITH_PRECISE_ADDITIVE_METADATA_AMENDMENT_NOT_PRODUCT_TEST_PASS",
+  "candidate_scope": "ChildV2schema/table/origin + managerV3fieldcontract/metadata/19reviewmissingpolicy",
+  "exact60positive_fixture_source_backcheck": true,
+  "schema_field_dictionary_parity": true,
+  "child7frozenartifact_hash_bytes_backcheck": [
+    {
+      "path": "CANDIDATE_RESULTS_V0_2_SCHEMA_V2.json",
+      "sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+      "bytes": 40432
+    },
+    {
+      "path": "CONCRETE_METADATA_EXPECTATIONS_V2.json",
+      "sha256": "8c2fa2c5c5464debb18e04bcf09e800ecf6030fe49386641add26742719fd2ab",
+      "bytes": 202521
+    },
+    {
+      "path": "FIELD_TYPE_HASH_CONTRACT_V2.json",
+      "sha256": "4887da159a58d84c3f9254ced293424ade2b4dadb9fc0ef7f6b66b25f0b89877",
+      "bytes": 19753
+    },
+    {
+      "path": "PREPARATION_PROVENANCE_AND_PRESERVATION_V2.json",
+      "sha256": "8adcbcab209f1aba489dd149afa976fb5bc16bf054df464e85aa91612896fb9e",
+      "bytes": 3870
+    },
+    {
+      "path": "RECEIVED_CARRIER_ORIGIN_HASH_CONTRACT_V2.json",
+      "sha256": "70982aee3c606eadd29484e866ab0cd6954f179a54a8c23f8dabdaad102d4756",
+      "bytes": 4249
+    },
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "b97e2db7a593b6f07e0d9c4d9515b5f08af6004ce8426b5a2c606ce655f8d755",
+      "bytes": 8674
+    },
+    {
+      "path": "SUPPORTED_SOURCE_SEMANTICS_V2.json",
+      "sha256": "22a142045d37501eca86a93cb089577b218d40c85e4d5d20b9e6f8fc6ae6c13c",
+      "bytes": 204727
+    }
+  ],
+  "old_childmetadata_fixture_unchanged": true,
+  "manager_amendment_only_fixture_changes": [
+    "supported-source-021",
+    "supported-source-022",
+    "supported-source-029",
+    "supported-source-038",
+    "supported-source-039",
+    "supported-source-040",
+    "supported-source-041",
+    "supported-source-042",
+    "supported-source-043",
+    "supported-source-044",
+    "supported-source-045",
+    "supported-source-046",
+    "supported-source-047",
+    "supported-source-048",
+    "supported-source-049",
+    "supported-source-052",
+    "supported-source-056",
+    "supported-source-057",
+    "supported-source-058"
+  ],
+  "all_other60fixture_content_exactly_preserved": true,
+  "original97preservation_attributed_and_bound": true,
+  "actual_runtime_limit": "OnlymanagerGapleasedruns executed, earlierbaseline separate; no new producttest/schema-runtime/build/native/browser execution performed duringfan-in.",
+  "source_effect": false,
+  "source_release": "HELD",
+  "final_independent_review": "RequiredsameAstrareviewerbackcheckbeforeeffect"
+}

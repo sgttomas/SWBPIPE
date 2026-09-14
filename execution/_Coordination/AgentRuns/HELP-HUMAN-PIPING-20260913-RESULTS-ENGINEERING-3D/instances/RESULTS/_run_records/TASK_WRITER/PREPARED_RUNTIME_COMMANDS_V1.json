@@ -1,0 +1,27 @@
+{
+  "status": "PREPARED_UNEXECUTED_ROOT_LEASE_REQUIRED",
+  "commands": [
+    [
+      "cargo",
+      "run",
+      "--manifest-path",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/Cargo.toml",
+      "--target-dir",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/runtime_target_v1",
+      "--",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1"
+    ],
+    [
+      "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/validate_fresh_p5_v1.py",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1"
+    ]
+  ],
+  "original_harness": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/P5/schema_witness",
+  "original_harness_sha256": "526fc85b72e77ec314c91f90691f0aeaed333a45087ed3fcdd69b5d47575ca1f",
+  "dense_route": "explicit lower-level mode; no attached dense claim",
+  "nonconverged_candidates": "actual status/diagnostics determine qualification; no manufactured status or policy setter",
+  "python_origin": "historical qualified path from archived COMMAND.json; fresh availability/dependency must be probed under lease"
+}

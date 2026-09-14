@@ -1,0 +1,30 @@
+{
+  "status": "PRE_EFFECT_EXACT_MODEL_BINDING_PROPOSAL",
+  "authoritative_relationship": [
+    "exact model_payload.project.id equals original mechanics.model_ref",
+    "derivative result_envelope.model_ref.ref_id equals exact model_payload.project.id",
+    "derivative reproducibility.model_hash.payload_ref identifies that exact model payload, hash is guarded qualified model-content serialization"
+  ],
+  "request_relationship": "RunnerRequest.model_ref is request metadata identity, preserved separately with original runner-request digest; never copied as derivative actual model identity. If namespace/input does not permit distinction, canonical export blocks contradiction. Raw solve/request/checksum bytes unchanged.",
+  "baseline_observation": {
+    "payload_project_id": "project:invented-loop-01",
+    "mechanics_model_ref": "project:invented-loop-01",
+    "request_model_ref": "invented-<case>",
+    "old_derivative_model_ref": "invented-<case>",
+    "finding": "request ref was incorrectly copied as model identity; genuine hash alone would not fix reference relation"
+  },
+  "new_reference_fields": {
+    "result_envelope.model_ref": "actual model payload identity",
+    "result_envelope.reproducibility.request_binding": "separate object with request_ref,request_model_ref,request_checksum,model_reference_relation enum exact_match/different_request_reference,diagnostic_ref; no request reference masquerades as actual model",
+    "request_binding_note": "typed evidence attachment in new derivative only, no native/CLI shape expansion"
+  },
+  "missing_or_mismatched_actual_payload_producer_identity": "explicit EXPORT_BLOCKING, no canonical solved derivative",
+  "negative_tests": [
+    "same request different model-content=>different genuine modelhash",
+    "changed request same modelcontent=>same modelhash different requestdigest",
+    "payload.project.id differs mechanics.model_ref=>blocked",
+    "requestmodelref differs actual model identity=>separate relation diagnostic or blocked, never copied authoritative",
+    "missing exact payload=>unavailable blocked",
+    "unknown typed reconstruction discarded fields=>not accepted exact input"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "status": "SEALED_PREPARATION_ONLY",
+  "parent": "/root",
+  "task": "/root/workflow_contact_setup",
+  "model_effort": "parent-configured gpt-5.6-sol/medium; no independent runtime attestation",
+  "role": "TASK Type2 nondelegating instruction-asserted",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/BRIEF.md",
+      "sha256": "f2d9a167fbde079b8b70126217242e9a683a31aa8ce743dd10aced2eeb454a3a",
+      "bytes": 3496
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/CONDITIONAL_DELIVERABLE_DELTA_MAP_V1.json",
+      "sha256": "b978351a48b1ee092a0097e72e936c8b4bbe870a9b46653d16177bcc1dae26ea",
+      "bytes": 19819
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/GATE_COMMAND_CONTRACT_V1.json",
+      "sha256": "ab3d1543cb2b4b2445e5dc475008670805429a29cd759360ad7bdf1025daf971",
+      "bytes": 4782
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/INPUT_BINDINGS_V1.json",
+      "sha256": "8ac9127177fc98a006ee0e90bffe83dcf09558de85705948697fb4360e7acc54",
+      "bytes": 2511
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/PHYSICAL_IGNORED_SIZE_INVENTORY_V1.json",
+      "sha256": "14de162d0020978cb177434d82c343f446fe620a5d3adca03a39fff003cdc69f",
+      "bytes": 150183
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/PREPARATION_RETURN_V1.md",
+      "sha256": "237644e6f7604c375a2291d1c611ffd3c20accf5277e4950ff818b80d1e6f2a6",
+      "bytes": 1313
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/RECEIPT_140_DRAFT.md",
+      "sha256": "5929a8f37c09ae859ddf1214fd615802cbdb94782c2b73452a184989b5db3f40",
+      "bytes": 1252
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/CLOSEOUT_PREPARATION_V1/STATIC_INSPECTION_LIMITS_V1.json",
+      "sha256": "5539c087254edd0dfa37bad139fd965bc170af01172f6a9a48bad4f6199c1c4b",
+      "bytes": 436
+    }
+  ],
+  "count": 8,
+  "bytes": 183792
+}

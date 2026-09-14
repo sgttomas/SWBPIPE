@@ -10,7 +10,8 @@ import {
   verifyCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence
 } from "../../services/inputManifestService";
-import { declaredSourceResultDimension } from "../../services/previewService";
+import { resultSemantics, completeSourceMetadata } from "../results/resultSemantics";
+
 import { buildRenderableReportInput } from "./renderableReportInput";
 import { buildStateComparisonHandoffSections } from "./stateComparisonHandoffSections";
 
@@ -45,60 +46,16 @@ function safeId(value: string): string {
   return value.replace(/[^A-Za-z0-9._-]+/g, "-").replace(/^-+|-+$/g, "") || "report-package";
 }
 
-function familyFor(
-  item: MechanicsResult["results"][number],
-  sourceDimension: MechanicsResult["results"][number]["dimension"]
-): string {
-  if (!sourceDimension) {
-    throw new Error(
-      `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
-    );
-  }
-  const expectedDimension = declaredSourceResultDimension(item);
-  if (sourceDimension !== expectedDimension) {
-    throw new Error(
-      `REPORT-PACKAGE-UNSUPPORTED-RESULT-FAMILY: ${item.id} declares ${sourceDimension}; exact kind semantics require ${expectedDimension}.`
-    );
-  }
-  if (
-    sourceDimension === "force" &&
-    (
-      item.kind === "reaction_resultant" ||
-      item.kind === "nonlinear_support_final_reaction" ||
-      item.kind === "nonlinear_support_friction_normal_reaction_derived" ||
-      item.kind === "nonlinear_support_observed_max_force_reaction_delta"
-    )
-  ) {
-    return "reaction";
-  }
-  if (
-    sourceDimension === "moment" &&
-    item.kind === "nonlinear_support_observed_max_moment_reaction_delta"
-  ) {
-    return "reaction";
-  }
-  const families: Record<string, string> = {
-    length: "displacement",
-    angle: "rotation",
-    force: "force",
-    moment: "moment",
-    stress: "stress",
-    pressure: "stress",
-    linear_stiffness: "section_property",
-    rotational_stiffness: "section_property",
-    area: "section_property",
-    section_modulus: "section_property",
-    second_moment_area: "section_property",
-    ratio: "ratio",
-    dimensionless: "ratio"
-  };
-  const family = families[sourceDimension];
-  if (!family) {
-    throw new Error(
-      `REPORT-PACKAGE-UNSUPPORTED-RESULT-FAMILY: ${item.id} uses unsupported explicit dimension ${sourceDimension}.`
-    );
-  }
-  return family;
+function reportMetadata(item: MechanicsResult["results"][number]) {
+  if (!completeSourceMetadata(item)) return null;
+  const md = item.metadata!;
+  // The unchanged report transport accepts the legacy metadata vocabulary.
+  const component = ["axial_force", "shear_force_y", "shear_force_z", "torsional_moment", "bending_moment_y", "bending_moment_z", "nodal_force_x", "nodal_force_y", "nodal_force_z", "nodal_moment_x", "nodal_moment_y", "nodal_moment_z", "axial_normal_stress", "bending_normal_stress_y", "bending_normal_stress_z", "torsional_shear_stress", "pressure_hoop_stress", "pressure_longitudinal_stress", "section_area", "section_modulus_y", "section_modulus_z", "torsion_constant", "torsion_radius", "TBD"];
+  const coordinate_system = ["global", "element_local", "pipe_section", "TBD"];
+  const location = ["end_i", "end_j", "node", "quarter_1", "midspan", "quarter_3", "summary", "TBD"];
+  const basis = ["recovered_from_local_element_stiffness", "assembled_solver_load_vector", "solved_from_global_linear_system", "recovered_from_open_mechanics_stress_components", "interpolated_from_endpoint_resultants", "derived_from_user_entered_section_geometry", "explicit_user_linear_combination", "explicit_user_result_state_subtraction", "explicit_user_range_envelope", "stress_recovery_summary", "rule_pack_evaluation", "TBD"];
+  if (!component.includes(md.component) || !coordinate_system.includes(md.coordinate_system) || !location.includes(md.location) || !basis.includes(md.basis)) return null;
+  return {component:md.component, coordinate_system:md.coordinate_system,location:md.location,basis:md.basis,sign_convention:md.sign_convention};
 }
 
 function diagnosticClass(severity: string): string {
@@ -222,8 +179,19 @@ export async function buildReportPackageRequest({
       item.source_dimension
     ])
   );
+  const semanticDisclosures: Array<{id:string;reason:string}> = [];
   const groupedResults = new Map<string, MechanicsResult["results"]>();
   for (const item of result.results) {
+    const semantics = resultSemantics(item); // known unit/component contradictions fail closed
+    const declared = resultDimensions.get(item.id);
+    if (!declared || (item.dimension && item.dimension !== declared)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
+    if (!semantics || semantics.category !== "physical_quantity") {
+      semanticDisclosures.push({id:item.id,reason:semantics?.category ?? "unsupported_source_kind"}); continue;
+    }
+    const requiredMetadata = ["force","moment","section_property"].includes(semantics.family ?? "");
+    if (requiredMetadata && !reportMetadata(item)) {
+      semanticDisclosures.push({id:item.id,reason:"legacy_report_metadata_unavailable"}); continue;
+    }
     const basisKey = `${item.basis_ref?.ref_type ?? "analysis_run"}:${item.basis_ref?.ref_id ?? result.run_id}`;
     groupedResults.set(basisKey, [...(groupedResults.get(basisKey) ?? []), item]);
   }
@@ -245,7 +213,8 @@ export async function buildReportPackageRequest({
             `REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id} differs from its DEL-14-02 declaration.`
           );
         }
-        const family = familyFor(item, sourceDimension);
+        const semantics = resultSemantics(item)!;
+        const family = semantics.family;
         return {
         result_id: item.id,
         family,
@@ -254,18 +223,8 @@ export async function buildReportPackageRequest({
         station_ref: null,
         magnitude: item.value,
         unit: item.unit,
-        dimension: sourceDimension,
-        metadata:
-          item.metadata ??
-          (["force", "moment", "section_property"].includes(family)
-            ? {
-                component: item.kind,
-                coordinate_system: "source_result_coordinate_system_not_expanded",
-                location: item.entity_ref,
-                basis: item.basis_ref?.ref_id ?? result.run_id,
-                sign_convention: "source scalar sign preserved from the mechanics-result envelope"
-              }
-            : null),
+        dimension: semantics.derivative_target_dimension,
+        metadata: reportMetadata(item),
         diagnostics: [],
         trace_chain: (item.source_result_refs ?? []).map((source, traceIndex) => ({
           trace_id: `trace:${item.id}:${traceIndex + 1}`,
@@ -292,7 +251,7 @@ export async function buildReportPackageRequest({
     unit_system_ref: reference("unit_system", UNIT_SYSTEM_REF),
     load_basis_refs: run.load_basis_refs.map((item) => reference(item.object_type, item.ref)),
     result_sets: resultSets,
-    diagnostics: result.diagnostics.map((item, index) => ({
+    diagnostics: [...result.diagnostics.map((item, index) => ({
       code: item.code,
       class: diagnosticClass(item.severity),
       severity: item.severity === "blocking" || item.severity === "error" ? "blocking" : "warning",
@@ -301,7 +260,12 @@ export async function buildReportPackageRequest({
       message: item.message,
       remediation: item.remediation ?? "Human review required before reliance.",
       provenance
-    })),
+    })), ...semanticDisclosures.map(item => ({
+      code:"REPORT_SOURCE_EVIDENCE_DISCLOSED",class:"assumption_warning",severity:"warning",
+      source:reference("source_result",item.id),affected_object:reference("result",item.id),
+      message:`${item.id}: ${item.reason}; received numerical evidence remains in the bound source result envelope and legacy analysis-run references.`,
+      remediation:"Review the bound source result evidence; this unchanged report transport cannot represent it as a physical quantity.",provenance
+    }))],
     provenance,
     reproducibility: {
       model_hash: checksum(reference("model", model.project.id), modelHash),

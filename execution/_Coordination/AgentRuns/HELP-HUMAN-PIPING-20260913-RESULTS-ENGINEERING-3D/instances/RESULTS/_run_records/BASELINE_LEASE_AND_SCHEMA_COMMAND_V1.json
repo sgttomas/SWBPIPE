@@ -1,0 +1,20 @@
+{
+  "root_lease": "ROOT_LEASE_RESULTS_BASELINE_01",
+  "root_grant": "Exclusive manager/sole child fresh baseline 11 tiny cases, offline lock compilation/run and read-only schema validation; no productsource/fulltests/native/browser; external compiledscratch target specified.",
+  "compiledscratch": "/tmp/chirality-results-engineering-3d-20260913/results-baseline-target",
+  "schema_command": {
+    "argv": [
+      "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/validate_fresh_current_v1.py",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/current_validation_outputs_v1"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+    "environment_override": {
+      "PYTHONDONTWRITEBYTECODE": "1"
+    },
+    "script_sha256": "608bbeee535a7d2b467d5fc0c845c44b6308314031491beb9fffd9b42a5e840f",
+    "qualified_python_attribution": "root supplied existing Python3.13.14/jsonschema4.26.0; runtime invocation will report actual environment"
+  },
+  "state": "GRANTED_PREPARED_NOT_EXECUTED_SCHEMA_COMMAND"
+}

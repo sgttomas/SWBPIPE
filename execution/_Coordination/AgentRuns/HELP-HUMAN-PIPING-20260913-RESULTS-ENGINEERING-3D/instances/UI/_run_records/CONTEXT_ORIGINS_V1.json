@@ -1,0 +1,613 @@
+{
+  "kind": "source-qualified actual context evidence",
+  "source_head": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913",
+  "integration_repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "role": "HELPS_HUMANS Type1",
+  "model_effort": "parent-configured gpt-6-astra/high; not independent runtime attestation",
+  "source_contexts": [
+    {
+      "path": "AGENTS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/AGENTS.md",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/agents/AGENT_HELPS_HUMANS.md",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "docs/CONTRACT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/docs/CONTRACT.md",
+      "sha256": "64747d2a3c58ae93194bd5c7118d89a591b7b4ebe8cec7e88cb6a95dc55895bd",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/docs/CONTRACT.md",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/docs/PRD.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/docs/PRD.md",
+      "sha256": "9c3bccd8d2eb8e68c10e05d50bdd29619892196c98069a2587ba3a1ff4880793",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_COORDINATION.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/_Coordination/_COORDINATION.md",
+      "sha256": "54e071eecfea36658dc8ba99f1ecd81d2f464d2c32be8431339cd2118d10ab5c",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md",
+      "sha256": "0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/styles.css",
+      "sha256": "e33086d3bf832cc0f79592eff86f86b6c50356a3ee680f614665cc482a485304",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "sha256": "83920a7d8f87175e0f4b42b95b17f50253a41dd0e6c2fe76083ef786b65e1a7e",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+      "sha256": "85ad1673e18af061ff2058b86e7b74b1130b41dccb43be9b941351efa13a6e68",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "sha256": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationService.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/services/operationService.ts",
+      "sha256": "8f213ac1f3a0afb1f98072b7fa476e6d89ce13bde9b44e6fa56f60a13b5670e2",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/model_operation.schema.json",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/schemas/model_operation.schema.json",
+      "sha256": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "sha256": "15ad89aeaf7892df1bd6241984270307cede87d520869e50832ed0f83818d9d9",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "sha256": "90ad5c2f760ee91d93284f00908aeb15c4254336a549da1d8620216d13b0ba72",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "sha256": "a393a4d47ba3ad7056eda44bc722e7c3a9aef2ecf360f3c29b63d409f10a36a3",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "sha256": "4185e8d4ca34085890d7652aafe336690702956999766e9e74cf7271c8a3851b",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "sha256": "1e19832a2a39dc2b7fdfb24a57293e4fe676cafa8bca674eb4c1a97f354742dc",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "sha256": "e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "sha256": "a830f675b05d70a01380cab3dd17c0b8e6bb9d3dd40d9a99186d5f49f579d2a6",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "sha256": "c511f8ea8ec13ac94133d6f5d8c98bbece580a216ace03c269fdfd15ed4c2457",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+      "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+      "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "sha256": "a3ef564379b14d756ef6c40c13302ad48ea95011f0c02dd7646a332246c03b64",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md",
+      "sha256": "64436868120a3fa4d6694110680aaaf455fcecd0f75553295093d10e4828f51b",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "sha256": "49e19ab2f223b8e46c7826cd97243abfacf4237f9a5ddaff41a714879ad27f60",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv",
+      "sha256": "34a7fd72702820213dee27eb1e79260c306fd28fa3e054bc587f4f83dfe483c9",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "sha256": "a1868f1ee972db40eaf0ae42cd73bd3c749e70e6979dffb5cbbdc0230a812b46",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "sha256": "fa87653ae52947b845a7d8fb20a499f1c6c5b963911b798f2b0035d385bd6620",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_STATUS.md",
+      "sha256": "ad375299b8e9c562b4267e950cf38a233308740be66007eb9415298091a66ed4",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_CONTEXT.md",
+      "sha256": "3ebc6937b0988d597682c5a9ad811b9a9fc25df39f9e96be6c38ac854d414059",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/MEMORY.md",
+      "sha256": "c20b36438a147dcfef395d628a81a5bc0ac08c56494a2ad68ba86a9dd5c6c1f7",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "sha256": "e03750d50568a7710865e81e3e90c75e874e29dd2837be7805faaf214e6550ec",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "sha256": "40fde135a21a9adc07c56694b617e7151d2d215a1a36ff6f7915bf3d1111bd29",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+      "sha256": "8671b445ce7f168ae6d0197a41971cf889a9b0fa076190d78dbd9e249bb9b469",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "sha256": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+      "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+      "sha256": "dfb94b10c777df62fd41a33053b11b4a33a4a695dc4f5de0e2d34a887b6b1361",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_STATUS.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_STATUS.md",
+      "sha256": "39af5d4b4ebfcf0c0c46b122f29d33f33b0774094be317201ac8a8269572b366",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_CONTEXT.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_CONTEXT.md",
+      "sha256": "dfee96be2f6a42034720dc98ab2c095e0b812f06fd449cea74bbd4bebf034a7b",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/MEMORY.md",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/MEMORY.md",
+      "sha256": "f687e95232366012570553723093937bc94d8c2209c3df706e5b2bbce1d4458e",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Dependencies.csv",
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913/projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Dependencies.csv",
+      "sha256": "a08285042346d161ecfdf41cd1ea1c1975e6d3f83d023ca71ffde607e2e6d4eb",
+      "matches_inherited_planning_source": true,
+      "consumption": "inherited same-agent prior bounded source/context reading; bytes independently hash-rebound in active lane; current status excerpts refreshed"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/UI_MANAGER_V1.md",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/UI_MANAGER_V1.md",
+      "sha256": "e773e96a714b8b07fa60633c8a4b9684b63fdc41dbc47dada39347d18435877c",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/APPROVAL_DIRECTION.md",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/APPROVAL_DIRECTION.md",
+      "sha256": "379f86df45ed4b3277e53ec6dbc934d87b676d967350fb6b563243a5a1c0f412",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STEP0_RETURN_V1.json",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STEP0_RETURN_V1.json",
+      "sha256": "ff19daba06fae0b493174f981e57c5fef191e6034224fe2b64513953e6a806d2",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/APPROVED_PLAN_ARCHIVE_LOCATOR_V1.json",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/APPROVED_PLAN_ARCHIVE_LOCATOR_V1.json",
+      "sha256": "3ba4a3b4667458974171b7eeb65beb1b41060365a0dcb120d10bb8ba81b54c48",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STARTUP_PACKAGING_RETURN_V1.json",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STARTUP_PACKAGING_RETURN_V1.json",
+      "sha256": "a631031c98a023e8575b05e511dba46f7b0bd92f3d91d2a5dfd4a60115bc8c74",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_HANDOFF_V2.md",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_HANDOFF_V2.md",
+      "sha256": "20b7e76eaf9c63c705d66729dbb2073856b3a40a2fc989ec60d5fe384238e7ee",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_RUN_MANIFEST_V2.json",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_RUN_MANIFEST_V2.json",
+      "sha256": "b249b5d0999bf040aba20a464698ea733368cdfa24ebb6d0b6827e6bce301532",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/BOOTSTRAP.json",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/BOOTSTRAP.json",
+      "sha256": "b556f6be3c1120ebcec7d1a0f439c71bcf97f963eb9f58c2c649322b9e742c3a",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V2_RETURN.md",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V2_RETURN.md",
+      "sha256": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_RETURN.md",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_RETURN.md",
+      "sha256": "6caa8de19763a35c6f967fa1dad3ad9fd2b7cbc79e7b92f52d4a5ae5ba08e3bb",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json",
+      "sha256": "61d86f162ddd8d3b89b3f080e17e17b61ad87165aeb2aef81cc4893813f5cb8f",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json",
+      "path": "projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json",
+      "sha256": "c910e3f3aa549a40c9beb56da11282f9b64a3415d3756990aa1b980e449d7425",
+      "consumption": "integration read-only supplied context; archived sources remain derivative/historical; actual user approval is execution direction"
+    }
+  ],
+  "standing_plan_loader": "git show HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+  "limits": [
+    "No independent receipt validator/selfcheck repeated; root-qualified baseline and Receipt139 consumed as attributed evidence.",
+    "Initial mistaken STEP0/locator/startup lookups under SETUP/_run_records failed; corrected to integration run root using bounded file discovery.",
+    "Source excerpts may be truncated; hash rebinding does not claim complete line-by-line source review.",
+    "No wider role or skill bodies consulted."
+  ]
+}

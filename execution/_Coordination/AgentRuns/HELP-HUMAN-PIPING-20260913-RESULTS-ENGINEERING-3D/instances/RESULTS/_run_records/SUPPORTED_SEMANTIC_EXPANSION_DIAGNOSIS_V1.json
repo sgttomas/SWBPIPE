@@ -1,0 +1,132 @@
+{
+  "status": "READ_ONLY_SOURCE_DIAGNOSIS_NOT_SUCCESSOR_FREEZE",
+  "derivative_package": true,
+  "source_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+  "source_sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+  "original_observed_table_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/INDEPENDENT_EXPECTED_ROW_SEMANTICS_V1.json",
+  "original_observed_table_sha256": "51a8e6c9f0da16883e1e8388d98e04900aa70854ddd60a40cf832fdc5c513c46",
+  "original_observed_signatures": 50,
+  "new_supported_source_signatures": [
+    {
+      "kind": "modulus_basis_record",
+      "unit": "record",
+      "component": "material_modulus_basis",
+      "source_lines": "6215-6242",
+      "source_meaning": "basis_presence_record",
+      "source_physical_dimension": "dimensionless",
+      "possible_existing_family": null,
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "combination_modulus_basis_record",
+      "unit": "record",
+      "component": "material_modulus_basis",
+      "source_lines": "6246-6312",
+      "source_meaning": "basis_presence_record",
+      "source_physical_dimension": "dimensionless",
+      "possible_existing_family": null,
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "constant_effort_support_applied_load",
+      "unit": "N",
+      "component": "constant_effort_support_applied_load",
+      "source_lines": "8495-8519",
+      "source_meaning": "assembled_applied_load_evidence",
+      "source_physical_dimension": "force",
+      "possible_existing_family": "force",
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "nonlinear_support_final_displacement",
+      "unit": "rad",
+      "component": "nonlinear_support_final_displacement",
+      "source_lines": "2133-2159",
+      "source_meaning": "solved_rotation",
+      "source_physical_dimension": "angle",
+      "possible_existing_family": "rotation",
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "nonlinear_support_final_reaction",
+      "unit": "N*m",
+      "component": "nonlinear_support_final_reaction",
+      "source_lines": "2160-2187",
+      "source_meaning": "solved_moment_reaction",
+      "source_physical_dimension": "moment",
+      "possible_existing_family": "reaction",
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "nonlinear_support_friction_normal_reaction_derived",
+      "unit": "N",
+      "component": "friction_normal_reaction_derived",
+      "source_lines": "9247-9270",
+      "source_meaning": "derived_normal_evidence",
+      "source_physical_dimension": "force",
+      "possible_existing_family": "reaction",
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "m",
+      "component": "variable_spring_hanger_movement_limit",
+      "source_lines": "8129-8165",
+      "source_meaning": "user_length_review",
+      "source_physical_dimension": "length",
+      "possible_existing_family": null,
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "constant_effort_user_input_review",
+      "unit": "m",
+      "component": "constant_effort_support_movement_limit",
+      "source_lines": "8177-8199",
+      "source_meaning": "user_length_review",
+      "source_physical_dimension": "length",
+      "possible_existing_family": null,
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    },
+    {
+      "kind": "spring_hanger_user_input_review",
+      "unit": "N*m/rad",
+      "component": "variable_spring_hanger_stiffness",
+      "source_lines": "3547-3566,8095-8114",
+      "source_meaning": "user_rotational_stiffness_review",
+      "source_physical_dimension": "rotational_stiffness",
+      "possible_existing_family": null,
+      "raw_declared_dimension": "absent_from_current_ResultItem_type",
+      "numerical_conversion": false,
+      "governing_ratio_eligible": false
+    }
+  ],
+  "coverage_calibration": "50 is the frozen observed-case set, not an exhaustive supported-producer contract. These9additional source-supported exact signatures require successor admission/disclosure dispositions. Final exhaustive count and target structure await complete reviewer return plus all-helper source backcheck.",
+  "sparse_relative_delta_disposition": {
+    "kind": "sparse_live_path_dense_parity_relative_delta",
+    "unit": "unitless",
+    "component": "sparse_live_path",
+    "source_physical_dimension": "dimensionless",
+    "raw_declared_dimension": "absent",
+    "derivative_Result_DimensionId": "ratio",
+    "category": "solver_parity_diagnostic",
+    "governing_ratio_eligible": false,
+    "basis": "Root accepted explicit distinction; original child/manager bytebound50case witnesses stayunchanged. Only this genuine computed relative-delta ratio takes derivative ratio target; mode/count/state/flags/flexibility do not."
+  },
+  "rerun_requirements": "No runtime or source changes performed. Wait full reviewer findings before consolidated candidate repair; root sourceeffect release still pending."
+}

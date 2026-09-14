@@ -1,0 +1,178 @@
+{
+  "status": "MANAGER_INDEPENDENT_RELEASE_AND_PRE_EFFECT_SELECTED_CONTRACT_BACKCHECK",
+  "timestamp_utc": "2026-09-14T02:30:52.124206+00:00",
+  "derivative_package": true,
+  "selected_count": 28,
+  "selected": [
+    {
+      "key": "schema_v0_2",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "match": true
+    },
+    {
+      "key": "supported_source_table",
+      "sha256": "22a142045d37501eca86a93cb089577b218d40c85e4d5d20b9e6f8fc6ae6c13c",
+      "match": true
+    },
+    {
+      "key": "field_type_hash_contract",
+      "sha256": "3f4ea29ff3f1a490c59abea823a0f840b1ef61ced637ea0d4b0d7fbfb5e807f2",
+      "match": true
+    },
+    {
+      "key": "metadata_positive_negative_fixtures",
+      "sha256": "81cb50e868738f409206a217d26f52a01f7dc46e8a6081ffd1cb7108a20b2e83",
+      "match": true
+    },
+    {
+      "key": "missing_review_metadata_disposition",
+      "sha256": "91bcf652bea97ea64e2ed196b41b3e031b79f12b70153ed595d0a1773872da89",
+      "match": true
+    },
+    {
+      "key": "received_carrier_origin_hash_contract",
+      "sha256": "70982aee3c606eadd29484e866ab0cd6954f179a54a8c23f8dabdaad102d4756",
+      "match": true
+    },
+    {
+      "key": "independent_manager_source_legacy_oracle",
+      "sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda",
+      "match": true
+    },
+    {
+      "key": "independent_expanded_metadata_oracle",
+      "sha256": "8b6b1303235c3565bf4709043db76cd5ddda1d36e5c9076d20cff60b41464657",
+      "match": true
+    },
+    {
+      "key": "independent_fanin_backcheck",
+      "sha256": "645562aa82d5103bd3f758ec459df6e7b191dbe4aa8e5965cd75661e68c008d6",
+      "match": true
+    },
+    {
+      "key": "child_return",
+      "sha256": "b97e2db7a593b6f07e0d9c4d9515b5f08af6004ce8426b5a2c606ce655f8d755",
+      "match": true
+    },
+    {
+      "key": "child_manifest",
+      "sha256": "d86d82320e656b28c14e74cf8e5447c68e6218747172aedf553853e59252082c",
+      "match": true
+    },
+    {
+      "key": "genuine_public_nonconvergence_return",
+      "sha256": "33be3794621e91bc32f7306eb3d96653d6519578e649e4de8b9b9ca4a6aba915",
+      "match": true
+    },
+    {
+      "key": "genuine_public_nonconvergence_manifest",
+      "sha256": "b3662a9c40ec9a8a353e58a48282685a68f7c06981e4a28fcacdad241326b741",
+      "match": true
+    },
+    {
+      "key": "original_observed50",
+      "sha256": "51a8e6c9f0da16883e1e8388d98e04900aa70854ddd60a40cf832fdc5c513c46",
+      "match": true
+    },
+    {
+      "key": "original_manager2991row_expectations",
+      "sha256": "0aaa82af57190de7ae7f692695513dbd70fd0d26d748fa15bb38cfba4f41a943",
+      "match": true
+    },
+    {
+      "key": "original_full74consumer_ledger",
+      "sha256": "7454c57f6c837d7fa953f946c3dab0c6db36bf1a96d32d48b36053093214c9f3",
+      "match": true
+    },
+    {
+      "key": "current122interface_applicability",
+      "sha256": "9e8ad51568291a04aea083731c9cfbfccfaff9eab83f0f94c30ab01aeb32ba6a",
+      "match": true
+    },
+    {
+      "key": "immutable_legacy_binder_freeze",
+      "sha256": "df1bf79b128aa2ff5f8a1dc3a5559dbcea0b6274fb1cba8e2f7ddd7bae662270",
+      "match": true
+    },
+    {
+      "key": "original_source_model_binding_contract",
+      "sha256": "2da7873de1a49d390ef8dfb0d10cc5bccf0595c4d6ec1d1f906f56ca0bee17cd",
+      "match": true
+    },
+    {
+      "key": "root_single_App_proof_prop_fence",
+      "sha256": "38b4e41cfacaaa7a76ae9317e67ec16dfcdddb982ad355d75bba7afb49dabf24",
+      "match": true
+    },
+    {
+      "key": "baseline_count_correction",
+      "sha256": "a88da6e441d0f375b043d26cd6f2b936554779dc03df4d646a49e6a3bbf2c522",
+      "match": true
+    },
+    {
+      "key": "actual_child_reactivation_brief",
+      "sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd",
+      "match": true
+    },
+    {
+      "key": "actual_child_reactivation",
+      "sha256": "32cb5ab3401c4e13053cdaf23c8c40602ebf7ee393d9d3a44b83341f386221f4",
+      "match": true
+    },
+    {
+      "key": "raw_annotation_canonical_metadata_contract",
+      "sha256": "c611f71027c8e3343045e38ef01d7adb95959da8ce53dc505ae7ce7bc653fa1d",
+      "match": true
+    },
+    {
+      "key": "partial_empty_unknown_annotation_expectations",
+      "sha256": "dc839f3165ca557e45381deec0853c1a902d9a85b6dfcb024b8a84a023d499bc",
+      "match": true
+    },
+    {
+      "key": "annotation_structural_minimal_repair_backcheck",
+      "sha256": "025b7fbf788e3bfbb32bf16cde428d9c4d4ee70f0d67ba94762562b7180c74ba",
+      "match": true
+    },
+    {
+      "key": "sealed_review_v2_binding",
+      "sha256": "866e1bbea991c0c4f008afe38fe8e46e975ea4afed4b72933d006dc62f8c7a15",
+      "match": true
+    },
+    {
+      "key": "historical_auxiliary_failed_pin_disposition",
+      "sha256": "c2f00b4c037e61deecb25da2e344fe6e80832f3c3149fcfd952e04a6ef9430bc",
+      "match": true
+    }
+  ],
+  "accepted_origins": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_IMPLEMENTATION_RELEASE_V1.md",
+      "sha256": "8410016b47e60ab1f0310c175982a9a159ec6b666fec871e6f0ea870259cf293",
+      "bytes": 3247,
+      "read": "FULL"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RESULTS_CONTRACT_ACCEPTANCE_V1.json",
+      "sha256": "d6fb96c2dfcebcde9e058b83cfee49fce7827a6cee2675e32eb077a875a8045b",
+      "bytes": 18663,
+      "read": "FULL"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/RETURN_V3.md",
+      "sha256": "ee8244d16fcf80f2cc9c1ccd8a76693067ce60799c700ec3f37ed451e5cd5dc7",
+      "bytes": 5538,
+      "read": "FULL"
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V3.json",
+      "sha256": "c5c1ccf4aec1b98e5627d7fdd61f2e620de3f57f1a5f9e535ab969afe9f8210b",
+      "bytes": 5462,
+      "read": "FULL"
+    }
+  ],
+  "baseline_tracked_source_status": "git status --short --untracked-files=no empty before writer product effects",
+  "runtime_executor": "sole existing TASK child under ROOT_LEASE_RESULTS_IMPLEMENTATION_01; manager read-only/JSON evidence only",
+  "remaining": "implementation/focused runtime proof, then independent integrated100percent diff, fullregistered sweep and native lifecycle",
+  "formal_state_effect": false
+}

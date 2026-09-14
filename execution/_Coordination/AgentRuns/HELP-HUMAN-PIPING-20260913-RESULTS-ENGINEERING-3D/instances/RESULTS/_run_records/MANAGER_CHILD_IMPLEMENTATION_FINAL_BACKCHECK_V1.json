@@ -1,0 +1,14 @@
+{
+  "snapshot_kind": "derivative manager fan-in",
+  "child_return_sha256": "01c46320ea379ec342138d4abdd4c4e48da1578c34df7028e6d5f006cee036f7",
+  "child_manifest_sha256": "0626b60855ee515819646f4ea85ce9df4b5a2232db38f6c29b844318da693d27",
+  "evidence_files_checked": 875,
+  "evidence_bytes_checked": 173871356,
+  "product_files_checked": 36,
+  "hash_or_length_findings": [],
+  "complete_physical_evidence_inventory_match": true,
+  "undeclared_physical_files": [],
+  "declared_absent": [],
+  "scope": "read-only full hashing, JSON parsing and physical file accounting; no runtime tests or source writes",
+  "source_implementation_local_phase": "complete, root integration acceptance pending"
+}

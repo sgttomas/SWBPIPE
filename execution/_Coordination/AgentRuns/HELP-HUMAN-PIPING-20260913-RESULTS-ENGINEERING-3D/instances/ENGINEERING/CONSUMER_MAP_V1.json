@@ -1,0 +1,393 @@
+{
+  "kind": "Complete bounded current consumer map plus explicit future/deferred contracts",
+  "basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "origin": "own engineering source lane; absolute origin/hash inventory under _run_records",
+  "inventory_method": "rg -l pressure_hoop|pressure_longitudinal|expansion_joint_pressure_thrust|component_user_stiffness_macro|axial_stiffness_user_value|expansion_joint_pipe_ref|MaterialInput|poisson_ratio across core/apps/schemas; followed row metadata/family/quantity-result and direct call sites. Entries distinguish affected direct owners, generic forwarding readers and deferred canonical bridge, not a claim every file must change. Revalidate new result-writer table at later integration.",
+  "entries": [
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "group": "direct_pressure_connector_DTO_and_validation",
+      "exists_at_basis": true,
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "current_role_and_required_consequence": "Validate profiles/version/required solve fields and overrides before build; normalize E/nu, percase temperature, regions and independent connector typed work record. No guessed missing data. Tauri and headless exercise identical direct DTO route.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/product_physics/src/validation.rs",
+      "group": "direct_pressure_connector_DTO_and_validation",
+      "exists_at_basis": true,
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "current_role_and_required_consequence": "Validate profiles/version/required solve fields and overrides before build; normalize E/nu, percase temperature, regions and independent connector typed work record. No guessed missing data. Tauri and headless exercise identical direct DTO route.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/types.ts",
+      "group": "direct_pressure_connector_DTO_and_validation",
+      "exists_at_basis": true,
+      "sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "current_role_and_required_consequence": "Validate profiles/version/required solve fields and overrides before build; normalize E/nu, percase temperature, regions and independent connector typed work record. No guessed missing data. Tauri and headless exercise identical direct DTO route.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "group": "direct_pressure_connector_DTO_and_validation",
+      "exists_at_basis": true,
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "current_role_and_required_consequence": "Validate profiles/version/required solve fields and overrides before build; normalize E/nu, percase temperature, regions and independent connector typed work record. No guessed missing data. Tauri and headless exercise identical direct DTO route.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "group": "direct_pressure_connector_DTO_and_validation",
+      "exists_at_basis": true,
+      "sha256": "589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54",
+      "current_role_and_required_consequence": "Validate profiles/version/required solve fields and overrides before build; normalize E/nu, percase temperature, regions and independent connector typed work record. No guessed missing data. Tauri and headless exercise identical direct DTO route.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/solver/frame_kernel/src/lib.rs",
+      "group": "private_primitives_legacy_preservation",
+      "exists_at_basis": true,
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "current_role_and_required_consequence": "Annulus kernel stays new internal product module; stress_recovery mean-radius helper unchanged. Separate objective connector primitive leaves UserStiffnessElement untouched until distinct activation.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/loads/stress_recovery/src/lib.rs",
+      "group": "private_primitives_legacy_preservation",
+      "exists_at_basis": true,
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "current_role_and_required_consequence": "Annulus kernel stays new internal product module; stress_recovery mean-radius helper unchanged. Separate objective connector primitive leaves UserStiffnessElement untouched until distinct activation.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/model_document_migration.rs",
+      "group": "document_legacy_and_Current_Historical_boundary",
+      "exists_at_basis": true,
+      "sha256": "ce3e36b018559eafe1955155b0cb0ce6e2aac6ad3556c9fded7a17306741c704",
+      "current_role_and_required_consequence": "Explicit old->new in-memory migration, untouched saved bytes until save; legacy attachment verifier/dimensions/serializer immutable. Edit/reopen Current/Historical tests apply, no analysis-run persistence migration.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "group": "document_legacy_and_Current_Historical_boundary",
+      "exists_at_basis": true,
+      "sha256": "aa4a531d4abaebd03bcbd9f2fc824e3f299cbfd2546d508091b1fed8a3ceb0b7",
+      "current_role_and_required_consequence": "Explicit old->new in-memory migration, untouched saved bytes until save; legacy attachment verifier/dimensions/serializer immutable. Edit/reopen Current/Historical tests apply, no analysis-run persistence migration.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+      "group": "document_legacy_and_Current_Historical_boundary",
+      "exists_at_basis": true,
+      "sha256": "93784ee93b07d363786f9af7d9d3455752822e3d8df898b7efb032b0b90f1d4a",
+      "current_role_and_required_consequence": "Explicit old->new in-memory migration, untouched saved bytes until save; legacy attachment verifier/dimensions/serializer immutable. Edit/reopen Current/Historical tests apply, no analysis-run persistence migration.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+      "group": "document_legacy_and_Current_Historical_boundary",
+      "exists_at_basis": true,
+      "sha256": "ec154ed3e0ad1e4e516bdfbee4bc9c5988cb27fc52820d45b6f4fd74fa721741",
+      "current_role_and_required_consequence": "Explicit old->new in-memory migration, untouched saved bytes until save; legacy attachment verifier/dimensions/serializer immutable. Edit/reopen Current/Historical tests apply, no analysis-run persistence migration.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "group": "document_legacy_and_Current_Historical_boundary",
+      "exists_at_basis": true,
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "current_role_and_required_consequence": "Explicit old->new in-memory migration, untouched saved bytes until save; legacy attachment verifier/dimensions/serializer immutable. Edit/reopen Current/Historical tests apply, no analysis-run persistence migration.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/model-workspace/modelView.ts",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/component-creation/componentIntent.ts",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/model_operations/operation_applier/src/lib.rs",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/model_operations/operation_applier/src/geometry_operations.rs",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/model_operations/operation_applier/src/rich_authoring.rs",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/model_operations/validation_preview/engine.py",
+      "group": "authored_field_readers_and_typed_operation_owners",
+      "exists_at_basis": true,
+      "sha256": "11c2e7e0bcd046b795178efe7a4012687bdc45c4bb3c209599123d4ab3a3a897",
+      "current_role_and_required_consequence": "New fields initially proposed-backfill. Later activation makes property/read-only derivedG and frame/reference/topology meaning truthful; existing typed operation/batch validation must accept explicit new fields or deterministically block. No finite-insertion/automatic frame/default transform.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.ts",
+      "group": "row_dimension_binding_and_persistence",
+      "exists_at_basis": true,
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "current_role_and_required_consequence": "Add-only exact force/stress and objective q/g kind semantics; old declarations/hash path unchanged. Preserve raw0.1 versus new0.2 mechanics versions and explicit contract_evidence through binding and stored records. No H->moment/ratio coercion.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/analysis_runs/records.py",
+      "group": "row_dimension_binding_and_persistence",
+      "exists_at_basis": true,
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "current_role_and_required_consequence": "Add-only exact force/stress and objective q/g kind semantics; old declarations/hash path unchanged. Preserve raw0.1 versus new0.2 mechanics versions and explicit contract_evidence through binding and stored records. No H->moment/ratio coercion.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "group": "row_dimension_binding_and_persistence",
+      "exists_at_basis": true,
+      "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "current_role_and_required_consequence": "Add-only exact force/stress and objective q/g kind semantics; old declarations/hash path unchanged. Preserve raw0.1 versus new0.2 mechanics versions and explicit contract_evidence through binding and stored records. No H->moment/ratio coercion.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "2578daad2bbcd82f7177c3072f7eba61ce3128b4f3be3b6c3ba2048d126e2820",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "9b1b9af32a51ec7938bf0b4fbbbb5eb7a6c1e7f5c767e2314ce9c2cadeb8b025",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "d1ca0890a9899c1704370cfa6d1e4f54e2b729cae1d4e7dadd8e87dc9e6e5c04",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "45f7b418d6488d5f9be79fe1eb0fd88e03f66454a8cfe3e20fc0c4b605614425",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "514b0582eb56a233b7445ca53b67bef0e903bde4b36acca6f8f0491d3dd0db99",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/report/ReportPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderableReportInput.ts",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "041621201bc438c0323cd0219e2cbd862cc801128186da051f698d5e9e046826",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "f5111e0e20846658e47fdfb87d8398be0cd3c46dc19031b8a9fe778fe340555c",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "e9ef9db712a1acc88ef671b4d18ee55c3dacc85ae7c79bb5d724fa85c689af2a",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "ea5a03797cb13c0b8e12c0f2cc3e694243f0d289bf63b0d48c4b5a36f2f80cc3",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/index.tsx",
+      "group": "derivative_export_report_display_and_handoff",
+      "exists_at_basis": true,
+      "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9",
+      "current_role_and_required_consequence": "Register every new row in supported canonical0.3 semantic table; account/disclose unsupported typed matrix evidence; report original row/provenance/value/unit checks, never fallback ratio. H/energy are separate raw typed parameter evidence, not moment quantities.",
+      "write_disposition": "FUTURE_ACTIVATED_CONSUMER_ONLY; not authorized now"
+    },
+    {
+      "path": "schemas/model.schema.yaml",
+      "group": "canonical_bridge_not_live_preview_activation",
+      "exists_at_basis": true,
+      "sha256": "a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c",
+      "current_role_and_required_consequence": "Deferred until actual canonical transform/adapter invoked; extend LoadRecord/profile/connector unions and material properties end to end then. Existing library poisson slot is not live-preview support.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "schemas/material.schema.yaml",
+      "group": "canonical_bridge_not_live_preview_activation",
+      "exists_at_basis": true,
+      "sha256": "a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172",
+      "current_role_and_required_consequence": "Deferred until actual canonical transform/adapter invoked; extend LoadRecord/profile/connector unions and material properties end to end then. Existing library poisson slot is not live-preview support.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "schemas/component.schema.yaml",
+      "group": "canonical_bridge_not_live_preview_activation",
+      "exists_at_basis": true,
+      "sha256": "f50dde1bd22696c8b82a0ea0b4f870afd4bff0c8eaa722971fa9d7d4bcc9cef3",
+      "current_role_and_required_consequence": "Deferred until actual canonical transform/adapter invoked; extend LoadRecord/profile/connector unions and material properties end to end then. Existing library poisson slot is not live-preview support.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "core/model_transform/physical_to_analytical/contract.py",
+      "group": "canonical_bridge_not_live_preview_activation",
+      "exists_at_basis": true,
+      "sha256": "7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0",
+      "current_role_and_required_consequence": "Deferred until actual canonical transform/adapter invoked; extend LoadRecord/profile/connector unions and material properties end to end then. Existing library poisson slot is not live-preview support.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+      "group": "canonical_bridge_not_live_preview_activation",
+      "exists_at_basis": true,
+      "sha256": "3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990",
+      "current_role_and_required_consequence": "Deferred until actual canonical transform/adapter invoked; extend LoadRecord/profile/connector unions and material properties end to end then. Existing library poisson slot is not live-preview support.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "core/units/src/lib.rs",
+      "group": "scoped_parameter_units_and_deferred_canonical_analysis",
+      "exists_at_basis": true,
+      "sha256": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592",
+      "current_role_and_required_consequence": "Future ConnectorParameterUnitContractV1 is typed raw fixed-SI work record plus length/rad decoder, not global energyDimensionId adoption. Global catalog extension and whole canonical analysis-run convergence remain separately scoped.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "schemas/units.schema.yaml",
+      "group": "scoped_parameter_units_and_deferred_canonical_analysis",
+      "exists_at_basis": true,
+      "sha256": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4",
+      "current_role_and_required_consequence": "Future ConnectorParameterUnitContractV1 is typed raw fixed-SI work record plus length/rad decoder, not global energyDimensionId adoption. Global catalog extension and whole canonical analysis-run convergence remain separately scoped.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "schemas/analysis_run.schema.json",
+      "group": "scoped_parameter_units_and_deferred_canonical_analysis",
+      "exists_at_basis": true,
+      "sha256": "a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f",
+      "current_role_and_required_consequence": "Future ConnectorParameterUnitContractV1 is typed raw fixed-SI work record plus length/rad decoder, not global energyDimensionId adoption. Global catalog extension and whole canonical analysis-run convergence remain separately scoped.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    },
+    {
+      "path": "docs/TYPES.md",
+      "group": "scoped_parameter_units_and_deferred_canonical_analysis",
+      "exists_at_basis": true,
+      "sha256": "c79a9173a92d7fe5a76c5e74f53b0c58a35b4a5f44cb00d17d4b0eda5f02af6d",
+      "current_role_and_required_consequence": "Future ConnectorParameterUnitContractV1 is typed raw fixed-SI work record plus length/rad decoder, not global energyDimensionId adoption. Global catalog extension and whole canonical analysis-run convergence remain separately scoped.",
+      "write_disposition": "DEFERRED_BRIDGE_OR_POLICY"
+    }
+  ],
+  "future_new_files": [
+    "core/product_physics/src/pressure_exact.rs",
+    "core/solver/frame_kernel/src/objective_connector.rs",
+    "core/product_physics/src/connector_parameter_units.rs"
+  ],
+  "current_this_tranche_write_scope": "ENGINEERING design subtree only",
+  "shared_serialization": [
+    "product_physics/src/lib.rs",
+    "frame_kernel/src/lib.rs",
+    "desktop types.ts",
+    "desktop model migration supported version/chain",
+    "previewService new semantic adapter versus immutable legacy binder",
+    "results schema/semantic table",
+    "analysis_runs add-only new-kind dimension table"
+  ],
+  "root_relay_required": "Final results0.2 semantic table/legacy binder and UI proposed controls received through root; no sibling acceptance",
+  "legacy_mechanics_claim": "Old1/2 document payload/algorithm retained pending explicit connector refusal activation; repaired endpoint/category semantics already source-baseline truth"
+}

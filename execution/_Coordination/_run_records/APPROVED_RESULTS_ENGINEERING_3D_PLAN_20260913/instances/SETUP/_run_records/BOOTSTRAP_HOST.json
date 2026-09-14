@@ -1,0 +1,14 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913/projects/chirality-piping",
+  "parent": "/root",
+  "task": "/root/workflow_contact_setup",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "medium",
+  "runtime_identity_limit": "Parent-supplied configuration; no independent supplier model identity assertion",
+  "native_role_enforcement": "instruction-asserted TASK/non-delegation",
+  "head_before_new_evidence": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "clean_before_new_evidence": true,
+  "verified_remote_main": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "created_utc": "2026-09-14T00:22:26.689862+00:00"
+}

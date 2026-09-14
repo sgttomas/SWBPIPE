@@ -1,0 +1,36 @@
+{
+  "head": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "native_bound_commit": "d51169a2c89e98d49175c23dea2c4b78d55ea8be",
+  "native_build_binding": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/POST_DEC025_VIEWPORT/FRESH_BUILD_BINDING.json",
+  "native_build_binding_sha256": "64a96395883d62ed57e1051c63e5112c7fbb0c389ef0e2982ac85e1be721f9bf",
+  "relevant_diff": {
+    "core/runner/headless": [],
+    "core/reporting/result_export": [],
+    "core/product_physics": [],
+    "core/solver": [],
+    "core/serialization/canonical_json": [],
+    "apps/desktop/src-tauri": [],
+    "apps/desktop/src/services/previewService.ts": [],
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx": [],
+    "apps/desktop/src/features/results/HistoricalRunContext.tsx": [],
+    "apps/desktop/src/App.tsx": [],
+    "schemas/results.schema.yaml": [],
+    "schemas/analysis_run.schema.json": []
+  },
+  "current_native_source_hash_comparison": {
+    "projects/chirality-piping/apps/desktop/e2e/linear-authoring.spec.ts": false,
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts": true,
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs": true,
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": true,
+    "projects/chirality-piping/apps/desktop/src/App.tsx": true,
+    "projects/chirality-piping/apps/desktop/src/features/load-cases/LoadCaseManagerPanel.tsx": true,
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": true,
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": true,
+    "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts": true,
+    "projects/chirality-piping/apps/desktop/src/services/previewService.ts": true,
+    "projects/chirality-piping/core/product_physics/src/lib.rs": true,
+    "projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs": true
+  },
+  "p5_source_diff": " .../core/product_physics/src/lib.rs                | 1108 +++++++++++++++++---\n .../runner/headless/src/result_envelope_binding.rs |   97 +-\n 2 files changed, 1033 insertions(+), 172 deletions(-)\n",
+  "interpretation": "Native relevant code byte equality proven to exact build-bound commit; binary execution/build binding is inherited committed evidence, not newly attested. P5 historical complete document is not a new current-produced document."
+}

@@ -1,0 +1,21 @@
+{
+  "lease": "ROOT_LEASE_RESULTS_BASELINE_01",
+  "argv": [
+    "cargo",
+    "run",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/Cargo.toml",
+    "--target-dir",
+    "/tmp/chirality-results-engineering-3d-20260913/results-baseline-target",
+    "--",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "exit": 0,
+  "elapsed_seconds": 10.764364242553711,
+  "stdout": "baseline-cargo-v1.stdout.txt",
+  "stderr": "baseline-cargo-v1.stderr.txt"
+}

@@ -1,0 +1,793 @@
+{
+  "manifest_sha256": "2cb948c8b426af93b13c376affd669e9284c73ed6fcca4f96fb103f4aae346f4",
+  "bound_evidence_files": 97,
+  "source_files_rechecked": 74,
+  "all_bound_hash_bytes_match": true,
+  "all_source_hashes_unchanged": true,
+  "checks": [
+    {
+      "path": "BASELINE_EXECUTION_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "BASELINE_MANIFEST_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "BASELINE_PREP_RUNTIME_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "CANDIDATE_RESULTS_V0_2_SCHEMA_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "CONTEXT_ORIGINS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "DETAILED_CONSUMER_VERSION_DISPOSITIONS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "FIELD_TYPE_HASH_CONTRACT_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "FRESH_PRODUCER_STATUS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "FROZEN_ORIGINAL_PRODUCER_SEMANTICS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "INDEPENDENT_EXPECTED_ROW_SEMANTICS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "MANIFEST.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "MODEL_IDENTITY_CONTRACT_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "NEXT_GENUINE_NONCONVERGENCE_ROUTE_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "PREPARATION_FAILURES_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "PREPARED_RUNTIME_COMMANDS_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "RETURN.md",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "RETURN_V2.md",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "SOURCE_CONSUMER_INVENTORY_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "SOURCE_MODEL_QUALIFICATION_CONTRACT_V1.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline-cargo-v1.stderr.txt",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline-cargo-v1.stdout.txt",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.canonical_absence.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/blocked.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-pressure-full.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/curved-tip-weight-full.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-0.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-1.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-2.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-3.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-4.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/nonconverged-candidate-5.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-dense-full.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-full.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.document.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.mechanics.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.model.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.original_rows.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.request.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "baseline_outputs_v1/straight-sparse-full.runner.json",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "fresh_p5_driver_v1/Cargo.lock",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "fresh_p5_driver_v1/Cargo.toml",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "fresh_p5_driver_v1/src/main.rs",
+      "hash_match": true,
+      "bytes_match": true
+    },
+    {
+      "path": "validate_fresh_p5_v1.py",
+      "hash_match": true,
+      "bytes_match": true
+    }
+  ],
+  "source_checks": [
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/exportUnitDisclosure.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/ReportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderableReportInput.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/stateComparisonHandoffSections.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/toolkit/ResultQuantity.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/services/hashService.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.test.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/services/projectService.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/services/ruleCheckService.ts",
+      "sha_match": true
+    },
+    {
+      "path": "apps/desktop/src/types.ts",
+      "sha_match": true
+    },
+    {
+      "path": "core/adapters/framework/adapter_framework.py",
+      "sha_match": true
+    },
+    {
+      "path": "core/analysis_runs/records.py",
+      "sha_match": true
+    },
+    {
+      "path": "core/loads/load_case_algebra/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/loads/primitive_loads/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/loads/stress_recovery/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/report_generator/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/report_package/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/report_package/src/wire.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/report_package/tests/container.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/result_export/Cargo.toml",
+      "sha_match": true
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "sha_match": true
+    },
+    {
+      "path": "core/solver/nonlinear_integration/src/lib.rs",
+      "sha_match": true
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "sha_match": true
+    },
+    {
+      "path": "tests/product_preview/test_product_preview_service.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_adapter_framework_contract.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_analysis_run_schema.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_analysis_status_schema.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_comparison_contracts.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_handoff_export_workflow.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_handoff_package_schema.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_headless_runner_contract.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_nonlinear_support_regression.py",
+      "sha_match": true
+    },
+    {
+      "path": "tests/test_results_schema.py",
+      "sha_match": true
+    }
+  ],
+  "attribution": "manager independent ephemeral read/hash/JSON inspection, no new build/test/runtime"
+}

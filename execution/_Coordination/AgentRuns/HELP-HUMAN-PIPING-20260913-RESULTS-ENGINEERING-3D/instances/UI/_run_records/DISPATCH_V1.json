@@ -1,0 +1,21 @@
+{
+  "parent": "/root/next_ui_design",
+  "child": "/root/next_ui_design/prototype",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "fork_turns": "none",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "attribution": "configured dispatch; no independent supplier attestation",
+  "brief": "PROTOTYPE_BRIEF_V1.md",
+  "brief_sha256": "d50febac80054ffe7ce288feae3c67ab75a6edd80345d432b69c84f46e80acad",
+  "concept": "CONCEPT_V1.md",
+  "concept_sha256": "2fc7c4f79f1337f65dad2d31fe233766a6e2c921620f20eca8beecd88156f9b7",
+  "actual_dispatch_result": {
+    "task_name": "/root/next_ui_design/prototype"
+  },
+  "write_scope": "children/PROTOTYPE/**",
+  "runtime_lease": "NOT_GRANTED_AT_DISPATCH",
+  "approval": "integration run instances/SETUP/_run_records/APPROVAL_DIRECTION.md",
+  "source_head": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+}

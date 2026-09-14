@@ -1,0 +1,46 @@
+{
+  "testedFreeze": "CANDIDATE_FREEZE_V3.json",
+  "runtimeSourceUnchanged": true,
+  "changedNonRuntimeMetadata": [
+    {
+      "path": "README.md",
+      "frozenSHA256": "13205488f01a8bc109a2124fc7cdf8b822a2f332aec555f00fdc40fceabc9dd0",
+      "currentSHA256": "8605cd048a348f8470a41a75f23a4981c4d5f9b983316022bc25650afe417fd1",
+      "reason": "documentary self-check status/inventory metadata update after runtime terminal; not executable browser source"
+    },
+    {
+      "path": "write_inventory.py",
+      "frozenSHA256": "864209d4d1ceed64e6b2a8c73e04a3df77afb427b8efd1d705678a4acd6f0225",
+      "currentSHA256": "d6f4c7a07d8bad50d4e93cd66711beb7f7e09e21427656e7d66e396622b13c5f",
+      "reason": "documentary self-check status/inventory metadata update after runtime terminal; not executable browser source"
+    }
+  ],
+  "executionSources": [
+    {
+      "path": "prototype/index.html",
+      "currentSHA256": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709",
+      "testedSHA256": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709"
+    },
+    {
+      "path": "prototype/workspace.css",
+      "currentSHA256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+      "testedSHA256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4"
+    },
+    {
+      "path": "prototype/workspace.js",
+      "currentSHA256": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b",
+      "testedSHA256": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b"
+    },
+    {
+      "path": "prototype/capabilities.js",
+      "currentSHA256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+      "testedSHA256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+    },
+    {
+      "path": "witness-v2.mjs",
+      "currentSHA256": "ac0f4c94881bfd8665c759c4b927f5d898d8a8f96b5effdcbf4afce692709326",
+      "testedSHA256": "ac0f4c94881bfd8665c759c4b927f5d898d8a8f96b5effdcbf4afce692709326"
+    }
+  ],
+  "handoff": "Independent witness consumes final manifest and these unchanged tested executable sources. Metadata updates do not change UI behavior."
+}

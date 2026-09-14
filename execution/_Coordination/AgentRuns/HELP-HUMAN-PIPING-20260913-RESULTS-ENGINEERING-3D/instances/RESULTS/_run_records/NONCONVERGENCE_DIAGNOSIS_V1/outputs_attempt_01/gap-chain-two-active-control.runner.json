@@ -1,0 +1,73 @@
+{
+  "run_id": "run:headless-preview:gap-witness-gap-chain-two-active-control",
+  "job": {
+    "job_id": "job:gap-witness-gap-chain-two-active-control",
+    "state": "COMPLETED",
+    "current_step": 3,
+    "total_steps": 3,
+    "cancellation_supported": true,
+    "cancellation_requested": false
+  },
+  "analysis_status": [
+    "HUMAN_REVIEW_REQUIRED",
+    "MODEL_INCOMPLETE",
+    "RULE_INPUTS_INCOMPLETE"
+  ],
+  "result_envelope_ref": {
+    "schema_ref": "schemas/results.schema.yaml",
+    "envelope_ref": {
+      "ref_type": "result_envelope",
+      "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-two-active-control"
+    },
+    "compatibility": "schema_first_json_result_envelope"
+  },
+  "result_refs": [],
+  "audit_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "audit-manifest:run:headless-preview:gap-witness-gap-chain-two-active-control"
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "runner_request",
+        "ref_id": "gap-witness-gap-chain-two-active-control"
+      },
+      "value": "b336061cebf97234ba1e60f1bc7b2eaaa29eda2967c06fcc5605d65ab89c4d29"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-two-active-control"
+      },
+      "value": "6e8e1ff38734b7811040e34fe1c530390ed9d290a722e468583fa2cf3e054660"
+    }
+  ],
+  "diagnostics": [],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "Invented current public-product axial gap chain",
+    "source_location": "instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  }
+}

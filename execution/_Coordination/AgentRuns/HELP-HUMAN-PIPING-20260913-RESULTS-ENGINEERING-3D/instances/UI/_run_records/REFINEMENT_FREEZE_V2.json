@@ -1,0 +1,17 @@
+{
+  "status": "FROZEN_AWAITING_ROOT_LEASE",
+  "harness": {
+    "path": "witness-refinement-v2.mjs",
+    "sha256": "3ec96f8216d0c4b233acf7c3316cf1cb4030a7982bc226c93aa29945617be18c"
+  },
+  "assets": {
+    "prototype-v2/capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+    "prototype-v2/index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "prototype-v2/workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+    "prototype-v2/workspace.js": "d4b76578959dac477597758553bc4054088674584f7a06a4cb9214d513ddd3b7"
+  },
+  "change": "Harness-only visible caption case assertion follows CSS uppercase; product and simulated semantics unchanged",
+  "preservedFailure": "refinement-03-runtime.json",
+  "firstLeaseTerminal": true,
+  "cleanup": "context.close and browser.close awaited, Node exit1"
+}

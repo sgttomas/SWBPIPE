@@ -1,0 +1,358 @@
+{
+  "deliverable_id": "DEL-08-04",
+  "export_format_status": {
+    "additional_formats": "TBD",
+    "baseline_format": "schema_first_json_result_envelope",
+    "external_adapter_formats": "TBD",
+    "local_fea_package_format": "TBD",
+    "public_transport_protocol": "TBD"
+  },
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "package_id": "PKG-08",
+  "result_envelope": {
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "diagnostics": [
+      {
+        "affected_object": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "TP_PHYS_015A_RESULT_BOUNDARY_EVIDENCE",
+        "message": "Invented validation-local result envelope records canonical payload solve-result evidence.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "remediation": "Use adjacent export and runner contracts before relying on serialized runtime behavior.",
+        "severity": "info",
+        "source": {
+          "ref_id": "DEL-09-01",
+          "ref_type": "mechanics_benchmark"
+        }
+      }
+    ],
+    "downstream_use": {
+      "additional_export_formats": "TBD",
+      "governed_downstream_tooling": true,
+      "headless_automation": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "review": true
+    },
+    "envelope_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+    "load_basis_refs": [
+      {
+        "ref_id": "LC-TP-PHYS-014",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:synthetic-semantic-contract",
+      "ref_type": "model_payload"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "validation/benchmarks/invented",
+      "source_name": "invented mechanics fixture"
+    },
+    "reproducibility": {
+      "audit_manifest_ref": {
+        "ref_id": "TASK_RUN_2026-05-17_TP-RESULT-017",
+        "ref_type": "task_run_record"
+      },
+      "derivative_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "derivative_document"
+        },
+        "payload_scope": "derivative_document_excludes_own_hash",
+        "value": "0cde32ae3ba5aa6be1da3753f4028130e7aee668a796dd948161ce0d5aaffa8c"
+      },
+      "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "project:synthetic-semantic-contract",
+          "ref_type": "model_payload"
+        },
+        "value": "898dd90cab0da56e55b787fdd9b185dc7941aa91dfbee96e4011228bca89ac55"
+      },
+      "raw_source_hashes": [],
+      "request_hash": null,
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "ref_id": "analysis-run",
+            "ref_type": "payload"
+          },
+          "value": "analysis-run-hash"
+        }
+      ],
+      "source_origin_bindings": [
+        {
+          "actual_model_ref": {
+            "ref_id": "project:synthetic-semantic-contract",
+            "ref_type": "model_payload"
+          },
+          "authentic_producer_available": false,
+          "mechanics_run_ref": {
+            "ref_id": "synthetic",
+            "ref_type": "mechanics_run"
+          },
+          "origin_class": "received_current_dimension_absent",
+          "origin_id": "synthetic-fixture-unattested",
+          "origin_limit": "Unattested synthetic test projection",
+          "original_producer_checksum": null,
+          "qualification_ref": {
+            "ref_id": "not-authentic-Current",
+            "ref_type": "synthetic_fixture"
+          },
+          "received_carrier_checksum": {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "ref_id": "fixture-only",
+              "ref_type": "synthetic_received_carrier"
+            },
+            "payload_scope": "received_current_dimension_absent_carrier",
+            "value": "5c574492ba46fdf16645dc2aae906ad66d9231d65dacc52a9ea75b0c904f9d85"
+          },
+          "request_alias_disclosure": null,
+          "request_model_ref": null,
+          "request_run_ref": null
+        }
+      ]
+    },
+    "result_sets": [
+      {
+        "basis_ref": {
+          "ref_id": "LC-TP-PHYS-014",
+          "ref_type": "load_case"
+        },
+        "set_id": "result-set:tp-phys-015:mechanics",
+        "set_type": "mechanics",
+        "values": []
+      }
+    ],
+    "review_evidence": [
+      {
+        "basis_ref": {
+          "ref_id": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "ref_type": "source_basis"
+        },
+        "dimension": "linear_stiffness",
+        "evidence_id": "result:spring-hanger:support-SH-140:stiffness",
+        "evidence_kind": "user_input_review",
+        "location_ref": {
+          "ref_id": "node:N-140:UZ stiffness",
+          "ref_type": "source_location"
+        },
+        "magnitude": 42000.0,
+        "object_ref": {
+          "ref_id": "support:SH-140",
+          "ref_type": "preview_entity"
+        },
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "source_annotation_ref": {
+          "ref_id": "source-annotation:0",
+          "ref_type": "source_annotation"
+        },
+        "source_kind": "spring_hanger_user_input_review",
+        "source_result_id": "result:spring-hanger:support-SH-140:stiffness",
+        "source_row_index": 0,
+        "unit": "N/m"
+      }
+    ],
+    "row_accounting": [
+      {
+        "disposition": "exported_review",
+        "original_producer_row_checksum": null,
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "8e41af855b7ca67b55970b183cde762865df1abee7b01acef3b95722e39d8c19"
+        },
+        "source_field_path": "/results/0",
+        "source_kind": "spring_hanger_user_input_review",
+        "source_result_id": "result:spring-hanger:support-SH-140:stiffness",
+        "source_row_index": 0,
+        "target_field_path": "/result_envelope/review_evidence/0",
+        "target_ref": {
+          "ref_id": "result:spring-hanger:support-SH-140:stiffness",
+          "ref_type": "review_evidence"
+        }
+      }
+    ],
+    "row_disclosures": [],
+    "rule_pack_refs": [],
+    "run_ref": {
+      "ref_id": "RUN-TP-PHYS-015A-CANONICAL-SOLVE-RESULT-ENVELOPE",
+      "ref_type": "analysis_run"
+    },
+    "schema_version": "0.2.0",
+    "solver_version": {
+      "solver_build_ref": "validation-local-cargo-test",
+      "solver_name": "open_pipe_stress_validation_mechanics_benchmark",
+      "solver_version": "0.1.0"
+    },
+    "source_annotations": [
+      {
+        "annotation_id": "source-annotation:0",
+        "basis_ref": null,
+        "derivative_target_dimension": "linear_stiffness",
+        "metadata": {
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
+          "unrecognized_source_payload": {
+            "a_numeric_key": {
+              "10": "ten",
+              "2": "two"
+            },
+            "nested": [
+              1,
+              false,
+              null
+            ],
+            "supplementary": "𐀀"
+          }
+        },
+        "observed_carrier_dimension": {
+          "present": false,
+          "value": null
+        },
+        "source_origin_ref": {
+          "ref_id": "synthetic-fixture-unattested",
+          "ref_type": "source_origin_binding"
+        },
+        "source_physical_semantic_dimension": "linear_stiffness",
+        "source_result_id": "result:spring-hanger:support-SH-140:stiffness",
+        "source_result_refs": [],
+        "source_row_index": 0
+      }
+    ],
+    "unit_preservation_witnesses": [
+      {
+        "conversion_performed": false,
+        "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+        "original_producer_row_checksum": null,
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "8e41af855b7ca67b55970b183cde762865df1abee7b01acef3b95722e39d8c19"
+        },
+        "source_field_path": "/results/0",
+        "source_origin_ref": {
+          "ref_id": "synthetic-fixture-unattested",
+          "ref_type": "source_origin_binding"
+        },
+        "source_physical_semantic_dimension": "linear_stiffness",
+        "source_quantity": {
+          "observed_dimension": {
+            "present": false,
+            "value": null
+          },
+          "unit": "N/m",
+          "value": 42000.0
+        },
+        "source_result_ref": {
+          "ref_id": "result:spring-hanger:support-SH-140:stiffness",
+          "ref_type": "received_result"
+        },
+        "source_row_index": 0,
+        "target_field_path": "/result_envelope/review_evidence/0",
+        "target_quantity": {
+          "dimension": "linear_stiffness",
+          "unit": "N/m",
+          "value": 42000.0
+        },
+        "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+        "target_result_ref": {
+          "ref_id": "result:spring-hanger:support-SH-140:stiffness",
+          "ref_type": "review_evidence"
+        },
+        "target_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+            "ref_type": "derivative_document"
+          },
+          "payload_scope": "derived_review_row",
+          "value": "71894a022b4dcef5da8fefde0a2d2fb8b858b618230fbe19383bd65a5f32254f"
+        },
+        "unit_system_ref": {
+          "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K",
+          "ref_type": "unit_system"
+        },
+        "witness_id": "value-unit-witness:0"
+      }
+    ],
+    "unit_system_ref": {
+      "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K",
+      "ref_type": "unit_system"
+    },
+    "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+  },
+  "schema_version": "0.2.0",
+  "scope_item": "SOW-046"
+}

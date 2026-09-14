@@ -1,0 +1,19 @@
+{
+  "kind": "Immutable factual scope clarification only",
+  "parent": "/root",
+  "qualifies": "Broad no Git effects wording in final handoff/acceptance for this planning phase",
+  "actual_effects": [
+    "Created isolated local branch codex/piping-results-engineering-3d-plan-20260913 and worktree at exact 8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+    "Wrote new planning run files"
+  ],
+  "no_effects": [
+    "No product/source/schema/deliverable-state/receipt edits",
+    "No commits, pushes, PRs or merges in this planning tranche"
+  ],
+  "unchanged": "No change to V3 plan, review verdict, authority or formal activation; all earlier frozen files preserved",
+  "bindings": {
+    "FINAL_HANDOFF.md": "3cb9298a1b8c7a790af83015b25d49141cc19cbab19b7f70ccc304acf12db847",
+    "PLANNING_ACCEPTANCE_V1.json": "2f43e9e3aed8ef03949d3fb06cb6934ad4cefdeaeb1dd24fa793db44267b4b75",
+    "FINAL_RUN_MANIFEST_V1.json": "68d7ea68762c327956016d15d8ac3c618f646cce9f103c769218c9b479018f60"
+  }
+}

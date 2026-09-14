@@ -1,0 +1,30 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "component:C-150",
+      "id": "result:pressure-thrust:component-C-150",
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "metadata": {
+        "basis": "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "component": "expansion_joint_pressure_thrust",
+        "coordinate_system": "element_local",
+        "location": "pipe:P-130",
+        "sign_convention": "positive value is explicit pressure multiplied by user-entered effective pressure area and applied as equal/opposite axial load along the mapped pipe; no compliance claim is made"
+      },
+      "source_result_refs": [
+        "load:L-100-P-EJ"
+      ],
+      "unit": "N",
+      "value": 21600.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

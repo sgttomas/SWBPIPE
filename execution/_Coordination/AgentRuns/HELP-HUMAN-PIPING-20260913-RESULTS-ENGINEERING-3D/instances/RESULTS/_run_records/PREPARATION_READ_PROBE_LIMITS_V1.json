@@ -1,0 +1,26 @@
+{
+  "read_probe_failures": [
+    {
+      "requested": "integration run instances/SETUP/_run_records/STEP0_RETURN_V1.json",
+      "outcome": "not found",
+      "resolved": "integration run STEP0_RETURN_V1.json"
+    },
+    {
+      "requested": "execution/_Registers/Deliverables.csv",
+      "outcome": "not found",
+      "resolved": "docs/_Registers/Deliverables.csv"
+    },
+    {
+      "requested": "core/model/model_state/src/lib.rs",
+      "outcome": "not found",
+      "resolved": "not consumed; source inventory pending exact location"
+    },
+    {
+      "requested": "apps/desktop/src/features/historical-run/HistoricalRunContext.tsx",
+      "outcome": "not found",
+      "resolved": "apps/desktop/src/features/results/HistoricalRunContext.tsx"
+    }
+  ],
+  "standing_plan_read_calibration": "Worktree plan was opened during discovery before loader obligation read. It is not selected/executed basis. Proper committed-HEAD loader selection/read subsequently performed, regular blob and sha verified; committed bytes are authority for protocol.",
+  "tests": "No runtime/build/test executed; read-probe failure is not product/test failure."
+}

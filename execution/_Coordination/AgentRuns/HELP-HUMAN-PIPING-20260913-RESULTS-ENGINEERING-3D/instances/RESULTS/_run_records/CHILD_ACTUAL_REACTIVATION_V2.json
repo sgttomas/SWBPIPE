@@ -1,0 +1,17 @@
+{
+  "parent": "/root/results_implementation_manager",
+  "child": "/root/results_implementation_manager/results_writer",
+  "mechanism": "delegated-harness-native collaboration.followup_task",
+  "actual_dispatch_completed": true,
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning": "high",
+  "supplier_identity_independently_attested": false,
+  "original_dispatch_configuration_preserved": true,
+  "brief_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+  "brief_sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd",
+  "root_allocation": "Existingsolewriter slot allocated for evidence-onlyadditivecontracts; no producteffect/runtime",
+  "read_only_source": true,
+  "write_lane": "TASK_WRITER_SUCCESSOR_V2/**",
+  "Type2_nondelegation": "instruction+configasserted",
+  "return_state": "AWAIT_CHILD_ADDITIVE_CONTRACT_RETURN"
+}

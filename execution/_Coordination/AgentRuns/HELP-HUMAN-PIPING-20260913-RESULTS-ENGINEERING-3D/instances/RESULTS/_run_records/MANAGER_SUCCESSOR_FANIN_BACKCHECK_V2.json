@@ -1,0 +1,125 @@
+{
+  "status": "INDEPENDENT_FANIN_STRUCTURAL_HASH_SOURCE_BACKCHECK_WITH_TARGETED_METADATA_FIXTURE_AMENDMENT_REQUIRED",
+  "matched_exact_source_fixture_rows": 60,
+  "supported_pairs": 60,
+  "schema_field_definition_parity": true,
+  "existing_candidate_schema_sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1",
+  "problems": [
+    {
+      "signature": "supported-source-021",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-022",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-029",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-038",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-039",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-040",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-041",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-042",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-043",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-044",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-045",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-046",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-047",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-048",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-049",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-052",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-056",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-057",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    },
+    {
+      "signature": "supported-source-058",
+      "issue": "Missingreviewmetadata mustdisclose notretainexportreview",
+      "old_expected": "retain_source_annotation_and_disposition",
+      "required": "review_metadata_incomplete_disclosure"
+    }
+  ],
+  "method": "Read/hash/JSON comparisons only, not product tests/schema-runtimevalidation.",
+  "source_effect": false
+}

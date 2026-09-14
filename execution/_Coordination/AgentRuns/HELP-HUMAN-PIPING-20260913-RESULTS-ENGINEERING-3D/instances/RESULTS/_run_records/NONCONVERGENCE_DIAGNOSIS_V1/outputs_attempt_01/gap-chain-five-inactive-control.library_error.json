@@ -1,0 +1,24 @@
+{
+  "code": "HEADLESS_RUNNER_RESULT_ENVELOPE_PRODUCTION_FAILED",
+  "class": "RUNNER_BLOCKING",
+  "severity": "blocking",
+  "source": {
+    "ref_type": "headless_runner",
+    "ref_id": "DEL-10-05"
+  },
+  "affected_object": {
+    "ref_type": "result_envelope",
+    "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+  },
+  "message": "result-envelope production failed structurally: payload contract validation blocked: HEADLESS_RUNNER_RESULT_REFS_MISSING",
+  "remediation": "Provide explicit schema-first runner metadata before relying on this request or result.",
+  "provenance": {
+    "source_name": "OpenPipeStress headless runner validator",
+    "source_location": "core/runner/headless",
+    "source_license": "project",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "diagnostic metadata only",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  }
+}

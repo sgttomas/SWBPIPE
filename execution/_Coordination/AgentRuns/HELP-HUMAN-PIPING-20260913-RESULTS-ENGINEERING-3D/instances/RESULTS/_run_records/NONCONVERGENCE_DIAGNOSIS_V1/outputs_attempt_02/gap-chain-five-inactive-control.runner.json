@@ -1,0 +1,1394 @@
+{
+  "run_id": "run:headless-preview:gap-witness-gap-chain-five-inactive-control",
+  "job": {
+    "job_id": "job:gap-witness-gap-chain-five-inactive-control",
+    "state": "COMPLETED",
+    "current_step": 3,
+    "total_steps": 3,
+    "cancellation_supported": true,
+    "cancellation_requested": false
+  },
+  "analysis_status": [
+    "HUMAN_REVIEW_REQUIRED",
+    "MECHANICS_SOLVED",
+    "RULE_INPUTS_INCOMPLETE"
+  ],
+  "result_envelope_ref": {
+    "schema_ref": "schemas/results.schema.yaml",
+    "envelope_ref": {
+      "ref_type": "result_envelope",
+      "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+    },
+    "compatibility": "schema_first_json_result_envelope"
+  },
+  "result_refs": [
+    {
+      "ref_type": "result",
+      "ref_id": "result:solver-mode:linear-solve-basis"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:iteration-count"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:final-residual-count"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:converged-flag"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-force-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-moment-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-work-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-1:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-1:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-1:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-2:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-2:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-2:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-3:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-3:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-3:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-4:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-4:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-4:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-5:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-5:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-G-GAP-5:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-0:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-1:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-2:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-3:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-4:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-G-5:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-ANCHOR"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-NONAXIAL-1"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-GAP-1"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-NONAXIAL-2"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-GAP-2"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-NONAXIAL-3"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-GAP-3"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-NONAXIAL-4"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-GAP-4"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-NONAXIAL-5"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-G-GAP-5"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-1:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-1:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-1"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-2:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-2:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-2"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-3:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-3:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-3"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-4:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-4:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-4"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-G-5:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-G-5:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-G-5"
+    }
+  ],
+  "audit_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "audit-manifest:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "runner_request",
+        "ref_id": "gap-witness-gap-chain-five-inactive-control"
+      },
+      "value": "f5c25bee609719f23b13a59e497fdf4c6fb5546e8ee7d323bc009c3da1f341d9"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+      },
+      "value": "6ad73ade05cbc3ba847ab310e484212f1c79a242c06ad62d6a5dc91eca21aa29"
+    }
+  ],
+  "diagnostics": [],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "Invented current public-product axial gap chain",
+    "source_location": "instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  }
+}

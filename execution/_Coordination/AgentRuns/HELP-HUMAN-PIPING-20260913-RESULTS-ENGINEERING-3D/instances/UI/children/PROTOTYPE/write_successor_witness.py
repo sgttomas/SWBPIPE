@@ -1,0 +1,9 @@
+from pathlib import Path
+out=Path(__file__).resolve().parent
+source=(out/'witness.mjs').read_bytes()
+(out/'_run_records/WITNESS_V2_ORIGINAL_RAW.mjs').write_bytes(source)
+s=source.decode().replace("import fs from 'node:fs';", "import fs from 'node:fs';\nimport {createHash} from 'node:crypto';")
+s=s.replace("'_run_records','witness-v1'", "'_run_records','witness-v2'")
+s=s.replace("const browser=await chromium.launch({headless:true});", "const executablePath=process.env.PROTOTYPE_CHROMIUM;\nif(!executablePath)throw new Error('PROTOTYPE_CHROMIUM exact approved installed binary path is required');\nconst browser=await chromium.launch({headless:true,executablePath});\nconst packagePath=path.join(path.dirname(modulePath),'package.json');\nconst identity={node:{executable:process.execPath,version:process.version},playwright:{modulePath,version:JSON.parse(fs.readFileSync(packagePath,'utf8')).version,packageSHA256:createHash('sha256').update(fs.readFileSync(packagePath)).digest('hex')},browser:{executablePath,version:browser.version(),executableSHA256:createHash('sha256').update(fs.readFileSync(executablePath)).digest('hex')},environmentQualification:'Package default expects headless-shell1234; root-approved installed executable is headless-shell1223. Actual outcomes qualify compatibility only for this design self-check, not general environment or product qualification.'};\nfs.writeFileSync(path.join(output,'IDENTITY.json'),JSON.stringify(identity,null,2));\nconsole.log(JSON.stringify({identity}));")
+(out/'witness-v2.mjs').write_text(s)
+p=out/'freeze_candidate.py';s=p.read_text().replace("if p.is_file() and '_run_records' not in p.relative_to(out).parts", "if p.is_file() and p.name not in ['RETURN.md','MANIFEST.json'] and '_run_records' not in p.relative_to(out).parts");p.write_text(s)

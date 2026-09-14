@@ -1,0 +1,35 @@
+{
+  "status": "PROPOSED_FRAGMENT_AWAIT_COMPLETE_REVIEW_RETURN_NOT_CANONICAL_SCHEMA",
+  "derivative_package": true,
+  "prior_schema": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/CANDIDATE_RESULTS_V0_2_SCHEMA_V2.json",
+    "sha256": "0ee0f136f99a19bc9cceca5616f9aa9a7a123626f9cc2ba636ec074b9b03b4f1"
+  },
+  "replace_only": {
+    "RawSourceAnnotationMetadata": {
+      "description": "Exact received metadata JSON retained as annotation evidence after the existing guarded JSON/IJSON check. This payload is not canonical physical metadata and does not attest origin or completeness. Partial/empty fields, unknown object members and other JSON shapes remain exact received evidence only.",
+      "type": [
+        "object",
+        "array",
+        "string",
+        "number",
+        "boolean",
+        "null"
+      ]
+    },
+    "SourceAnnotations.metadata": {
+      "$ref": "#/$defs/RawSourceAnnotationMetadata"
+    }
+  },
+  "unchanged_definitions": [
+    "ResultMetadata",
+    "QuantityResult",
+    "ReviewEvidence",
+    "SourceMetadata",
+    "DimensionId",
+    "ResultFamily"
+  ],
+  "semantic_guard": "Existing strict guarded JSON rejects nonfinite values, unsupported JS values, unsafe integers, malformedUnicode/cycles/nonplainobjects before hashing. Annotation JSON presence alone never passes canonical metadata completeness or finite enum gates. Known contradiction units/components still block; missing required review metadata discloses.",
+  "metadata_absence_note": "Prior annotations represent absent metadata as null while original received row hash/pointer retains exact original field presence. If explicit absent-vs-null annotation proof is required, a separate metadata_present boolean may be considered after complete reviewer return; no new absence-field contract is asserted by this fragment.",
+  "scope_limit": "Annotation syntax only; no physical vocabulary, solver policy, producer DTO, source fence, Current gate, historical bytes, persistence, transport or runtime expansion."
+}

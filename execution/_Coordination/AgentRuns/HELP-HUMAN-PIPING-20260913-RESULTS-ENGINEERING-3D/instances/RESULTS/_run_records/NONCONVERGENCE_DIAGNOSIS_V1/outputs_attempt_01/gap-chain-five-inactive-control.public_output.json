@@ -1,0 +1,259 @@
+{
+  "runner_result": {
+    "run_id": "run:headless-preview:gap-witness-gap-chain-five-inactive-control",
+    "job": {
+      "job_id": "job:gap-witness-gap-chain-five-inactive-control",
+      "state": "COMPLETED",
+      "current_step": 3,
+      "total_steps": 3,
+      "cancellation_supported": true,
+      "cancellation_requested": false
+    },
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MODEL_INCOMPLETE",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "result_envelope_ref": {
+      "schema_ref": "schemas/results.schema.yaml",
+      "envelope_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+      },
+      "compatibility": "schema_first_json_result_envelope"
+    },
+    "result_refs": [],
+    "audit_manifest_ref": {
+      "ref_type": "audit_manifest",
+      "ref_id": "audit-manifest:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+    },
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_type": "runner_request",
+          "ref_id": "gap-witness-gap-chain-five-inactive-control"
+        },
+        "value": "f5c25bee609719f23b13a59e497fdf4c6fb5546e8ee7d323bc009c3da1f341d9"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_type": "result_envelope",
+          "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-inactive-control"
+        },
+        "value": "2b7b327553bb01e33e5eac98a77c91c92ef4220b8545162b5f8f1b5776eedb0a"
+      }
+    ],
+    "diagnostics": [],
+    "privacy": {
+      "local_only": true,
+      "telemetry_allowed": false,
+      "private_payload_redacted": true,
+      "classification": "public_metadata"
+    },
+    "provenance": {
+      "source_name": "Invented current public-product axial gap chain",
+      "source_location": "instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+      "source_license": "project invented",
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    }
+  },
+  "mechanics_envelope": {
+    "schema_version": "0.1.0",
+    "document_kind": "openpipestress.product_preview.mechanics_result",
+    "run_id": "run:preview-linear-static-blocked",
+    "model_ref": "project:invented-gap-chain-five-inactive-control",
+    "status": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "rule_check": "RULE_INPUTS_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED"
+    },
+    "summary": {
+      "node_count": 6,
+      "segment_count": 5,
+      "support_count": 11,
+      "load_case_count": 1,
+      "component_stress_modifier_count": 0,
+      "component_user_stiffness_macro_element_count": 0,
+      "component_pressure_thrust_load_count": 0,
+      "spring_hanger_user_input_count": 0,
+      "max_displacement": null,
+      "max_open_formula_stress": null
+    },
+    "results": [],
+    "diagnostics": [
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-1",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rx is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-1"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-1",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Ry is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-1"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-1",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rz is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-1"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-2",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rx is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-2"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-2",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Ry is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-2"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-2",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rz is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-2"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-3",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rx is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-3"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-3",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Ry is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-3"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-3",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rz is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-3"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-4",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rx is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-4"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-4",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Ry is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-4"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-4",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rz is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-4"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-5",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rx is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-5"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-5",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Ry is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-5"
+        ]
+      },
+      {
+        "id": "diagnostic:support:support:G-NONAXIAL-5",
+        "code": "SUPPORT_INPUT_INVALID",
+        "severity": "blocking",
+        "message": "Rz is not valid for Guide",
+        "source": "core/product_physics",
+        "affected_refs": [
+          "support:G-NONAXIAL-5"
+        ]
+      }
+    ],
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false
+    },
+    "accepted_model_state_mutated": false
+  }
+}

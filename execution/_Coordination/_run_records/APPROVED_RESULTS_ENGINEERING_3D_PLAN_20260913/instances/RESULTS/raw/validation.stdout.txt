@@ -1,0 +1,7 @@
+curved_pressure_full_document.json FAIL 18
+curved_tip_weight_full_document.json FAIL 18
+straight_full_document.json FAIL 160
+initial-solved500.json analysis-errors 147 metadata-only-errors 16 rows 67 dimensions 0
+blocked-native.json analysis-errors 13 metadata-only-errors 0 rows 0 dimensions 0
+fresh-reopen-before-save.json analysis-errors 147 metadata-only-errors 16 rows 67 dimensions 0
+historical total 196 {'canonicalization': 6, 'component': 135, 'basis': 16, 'coordinate_system': 18, 'location': 21}

@@ -1,0 +1,1 @@
+922 classified;11 introduced/activated failures repaired;911 unchanged preview/schema gaps remain; full-schema verdict FAIL retained

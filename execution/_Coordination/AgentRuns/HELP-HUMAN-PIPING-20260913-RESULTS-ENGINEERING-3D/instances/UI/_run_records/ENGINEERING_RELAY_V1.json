@@ -1,0 +1,15 @@
+{
+  "relay": "/root to /root/next_ui_design; no sibling communications",
+  "received_sources": [
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae"
+    },
+    {
+      "resolved_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CANDIDATE_MANIFEST_V2.json",
+      "sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610"
+    }
+  ],
+  "review_status": "proposed engineering contract; independent review pending",
+  "effect": "ENGINEERING_FIELD_MAP_V2.md only; frozen prototype source unchanged during witness"
+}

@@ -1,0 +1,9 @@
+{
+  "command": [
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "tools/practitioner_harness/harness.py",
+    "self-check"
+  ],
+  "exit": 0,
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+}

@@ -1,0 +1,132 @@
+{
+  "status": "FROZEN_SOURCE_CANDIDATE_UNTESTED",
+  "sourceHEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "claims": "design simulation only",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6475,
+      "sha256": "13205488f01a8bc109a2124fc7cdf8b822a2f332aec555f00fdc40fceabc9dd0"
+    },
+    {
+      "path": "capability-map.json",
+      "bytes": 17258,
+      "sha256": "7d32cf5ba4788ef2a2c789c8902abced7ec5ffb0a75861b4dcc6a5a31f5c497e"
+    },
+    {
+      "path": "format_source.py",
+      "bytes": 1966,
+      "sha256": "162c0281ce28c2e091b180693de49562e83ec305313ae8c288cfe0920fb43eb1"
+    },
+    {
+      "path": "freeze_candidate.py",
+      "bytes": 1673,
+      "sha256": "5060b41417061875bce508f68b225c0062090bbd1014cf41454da490f0b4bc8f"
+    },
+    {
+      "path": "prepare_witness.py",
+      "bytes": 938,
+      "sha256": "d7676ab2ac61054681df3c8db4501e0e69d81b2a37f79947b4985bc850d1cd18"
+    },
+    {
+      "path": "prototype/capabilities.js",
+      "bytes": 16436,
+      "sha256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+    },
+    {
+      "path": "prototype/index.html",
+      "bytes": 6582,
+      "sha256": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709"
+    },
+    {
+      "path": "prototype/workspace.css",
+      "bytes": 12578,
+      "sha256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4"
+    },
+    {
+      "path": "prototype/workspace.js",
+      "bytes": 54889,
+      "sha256": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b"
+    },
+    {
+      "path": "record_terminal_hashes.py",
+      "bytes": 1518,
+      "sha256": "88a19d72dcb4b3f91992c25499d5b4bbb975827f90fa5f99e598de144bbef989"
+    },
+    {
+      "path": "refine_source.py",
+      "bytes": 3327,
+      "sha256": "27bd441e972ad7988e92c79ccaf3fd04f98d69a029ec91b7dc08e3bb00365bc8"
+    },
+    {
+      "path": "refine_witness.py",
+      "bytes": 1792,
+      "sha256": "30dd47460818314ddd6b36e70f956c366444c4601e5d63edae262c16df060ba3"
+    },
+    {
+      "path": "state-intent-map.json",
+      "bytes": 2473,
+      "sha256": "bec5f6e34fb0578442d4cd1f19a466376615da4962df5118eea002ac0d12bb9a"
+    },
+    {
+      "path": "wireframes/workspace-1024x768-comfortable.svg",
+      "bytes": 20958,
+      "sha256": "57a6b4e0c481b465636c7e6bcbc86ad11bd019dd6b2cb426790cecbd61c533d6"
+    },
+    {
+      "path": "wireframes/workspace-1024x768-compact.svg",
+      "bytes": 21225,
+      "sha256": "fe2d7b0034e8ea2fee181d6216a09db270d65a02c4094926417e05efd29512eb"
+    },
+    {
+      "path": "wireframes/workspace-1280x800-comfortable.svg",
+      "bytes": 21255,
+      "sha256": "b03319506437a2f75ce475c7d1fe5f5984cd04578d9b489ba9bc124adb0ba0ad"
+    },
+    {
+      "path": "wireframes/workspace-1280x800-compact.svg",
+      "bytes": 21526,
+      "sha256": "a609614256f266981434d2a8ab4e7cb40e9fcd555bf05c82fb63e2d81b68a1d1"
+    },
+    {
+      "path": "wireframes/workspace-1440x920-comfortable.svg",
+      "bytes": 21554,
+      "sha256": "7fa05f09ff17d20cca074c3683e488bb972961dce14a8a292d3b092dcfcc57bb"
+    },
+    {
+      "path": "wireframes/workspace-1440x920-compact.svg",
+      "bytes": 21549,
+      "sha256": "f8a47c83cefe683663fc32b226fb4194c389874dc8b0a81db4c520b731707cb6"
+    },
+    {
+      "path": "witness-v2.mjs",
+      "bytes": 13272,
+      "sha256": "ac0f4c94881bfd8665c759c4b927f5d898d8a8f96b5effdcbf4afce692709326"
+    },
+    {
+      "path": "witness.mjs",
+      "bytes": 12217,
+      "sha256": "0e8474088a8fabc164ba6a60a7231ae7b4e086107e5867151d4912baddc17856"
+    },
+    {
+      "path": "write_inventory.py",
+      "bytes": 2113,
+      "sha256": "864209d4d1ceed64e6b2a8c73e04a3df77afb427b8efd1d705678a4acd6f0225"
+    },
+    {
+      "path": "write_maps.py",
+      "bytes": 3830,
+      "sha256": "1abf5ec00fdaf395a78fe5bdcbfc62787441d00e46dfa7b9e67886b76bb57139"
+    },
+    {
+      "path": "write_successor_witness.py",
+      "bytes": 1807,
+      "sha256": "f0aad7cb9b604a92930501f54fe855990c4770e3cfe7189c72351f8bb28d6090"
+    },
+    {
+      "path": "write_wireframes.py",
+      "bytes": 8565,
+      "sha256": "be52fe24ac32fcd6316dc70315a0f99d5cfe2a0a896a37a5a31e744990cd3073"
+    }
+  ]
+}

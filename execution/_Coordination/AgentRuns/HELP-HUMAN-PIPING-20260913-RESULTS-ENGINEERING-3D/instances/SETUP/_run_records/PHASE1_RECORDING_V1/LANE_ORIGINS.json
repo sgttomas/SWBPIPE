@@ -1,0 +1,9 @@
+{
+  "actual_external_read_origins": {
+    "INTEGRATION": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+    "RESULTS": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+    "ENGINEERING": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913",
+    "UI": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913"
+  },
+  "portable_reference_rule": "lane_id plus repo-relative path; no raw corpus copied"
+}

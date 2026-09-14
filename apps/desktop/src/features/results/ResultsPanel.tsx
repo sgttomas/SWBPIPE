@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { QuantityReadout } from "../display-units";
-import { ResultQuantity } from "../toolkit/ResultQuantity";
+import { semanticFamily, semanticDimension, semanticCategory } from "./resultSemantics";
 import { ChevronLeft, ChevronRight, Search, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { AnalysisRunEnvelope, DesignKnowledge, MechanicsGap, MechanicsResult, ResultInterpretation } from "../../types";
@@ -8,12 +8,13 @@ import { buildResultInterpretation, mechanicsGaps } from "./resultInterpretation
 
 const RESULT_PAGE_SIZE_OPTIONS = [50, 100, 200] as const;
 const DEFAULT_RESULT_PAGE_SIZE = RESULT_PAGE_SIZE_OPTIONS[0];
-type ResultFamily = "displacement" | "reaction" | "force" | "moment" | "stress" | "ratio" | "other";
+type ResultFamily = "rotation" | "displacement" | "reaction" | "force" | "moment" | "stress" | "ratio" | "other";
 type ResultFamilyFilter = "all" | ResultFamily;
 type ResultFamilyCounts = Record<ResultFamily, number> & { total: number };
 const RESULT_FAMILY_OPTIONS: { id: ResultFamilyFilter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "displacement", label: "Displacement" },
+  { id: "rotation", label: "Rotation" },
   { id: "reaction", label: "Reaction" },
   { id: "force", label: "Force" },
   { id: "moment", label: "Moment" },
@@ -24,6 +25,7 @@ const RESULT_FAMILY_OPTIONS: { id: ResultFamilyFilter; label: string }[] = [
 const EMPTY_RESULT_FAMILY_COUNTS: ResultFamilyCounts = {
   total: 0,
   displacement: 0,
+  rotation: 0,
   reaction: 0,
   force: 0,
   moment: 0,
@@ -109,7 +111,7 @@ export function ResultsPanel({
             onNextPage={() => setPageIndex((current) => Math.min(page.pageCount - 1, current + 1))}
           />
           <ResultDetail interpretation={interpretation} result={result} />
-          <GoverningRatioState ratioCount={familyCounts.ratio} />
+          <GoverningRatioState ratioCount={0} />
           <div className="result-groups">
             {groups.length > 0 ? (
               groups.map((group) => (
@@ -146,11 +148,11 @@ export function ResultsPanel({
                           }}
                           tabIndex={0}
                         >
-                          <td>{item.id}</td>
+                          <td>{item.id}<small> {semanticCategory(item)}</small></td>
                           <td>{item.entity_ref}</td>
                           <td>{item.metadata?.location ?? "summary"}</td>
                           <td>
-                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: item.dimension ?? "unknown" }} />
+                            <QuantityReadout quantity={{ value: item.value, unit: item.unit, dimension_id: semanticDimension(item) ?? "unknown" }} />
                           </td>
                           <td className="dual-unit-cell" data-testid={`result-row-dual-${item.id}`}>
                             <span>Entered: {item.value} {item.unit}</span>
@@ -371,7 +373,7 @@ function ResultDetail({ interpretation, result }: { interpretation: ResultInterp
         <DetailLine label="Result" value={interpretation.result_id} testId="selected-result-id" />
         <DetailLine label="Family" value={interpretation.family} />
         <DetailLine label="Entity ref" value={interpretation.entity_ref} testId="selected-result-entity-ref" />
-        <DetailLine label="Value" value={<ResultQuantity result={result} id={interpretation.result_id} fallback={interpretation.value_label} />} />
+        <DetailLine label="Value" value={<SemanticResultQuantity result={result} id={interpretation.result_id} fallback={interpretation.value_label} />} />
         <DetailLine label="Component" value={interpretation.component} testId="selected-result-component" />
         <DetailLine label="Coordinate system" value={interpretation.coordinate_system} testId="selected-result-coordinate-system" />
         <DetailLine label="Location" value={interpretation.location} testId="selected-result-location" />
@@ -436,7 +438,7 @@ function EndpointPairTable({ interpretation, result }: { interpretation: ResultI
             <tr key={item.result_id}>
               <td>{item.location}</td>
               <td>{item.result_id}</td>
-              <td><ResultQuantity result={result} id={item.result_id} fallback={item.value_label} /></td>
+              <td><SemanticResultQuantity result={result} id={item.result_id} fallback={item.value_label} /></td>
             </tr>
           ))}
         </tbody>
@@ -474,6 +476,7 @@ function MechanicsGapLedger({ gaps }: { gaps: MechanicsGap[] }) {
 function groupResults(resultItems: MechanicsResult["results"]) {
   const specs: { title: string; family: ResultFamily }[] = [
     { title: "Displacement", family: "displacement" },
+    { title: "Rotation", family: "rotation" },
     { title: "Reaction", family: "reaction" },
     { title: "Force", family: "force" },
     { title: "Moment", family: "moment" },
@@ -554,15 +557,11 @@ function filterResults(
 }
 
 function resultFamilyKey(result: MechanicsResult["results"][number]): ResultFamily {
-  const kind = result.kind.toLowerCase();
-  const id = result.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
-  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
-  if (kind.includes("force") || id.includes("force")) return "force";
-  if (kind.includes("moment") || id.includes("moment")) return "moment";
-  if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (hasResultSemanticToken(kind, "ratio") || hasResultSemanticToken(id, "ratio")) return "ratio";
-  return "other";
+  return semanticFamily(result) as ResultFamily;
+}
+function SemanticResultQuantity({result,id,fallback}:{result:MechanicsResult|null;id:string;fallback:string}) {
+  const row=result?.results.find(x=>x.id===id);
+  return row?<QuantityReadout quantity={{value:row.value,unit:row.unit,dimension_id:semanticDimension(row)??"unknown"}}/>:<span>{fallback}</span>;
 }
 
 function hasResultSemanticToken(value: string, expected: string): boolean {

@@ -1,0 +1,14 @@
+{
+  "REPO_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "WORKING_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping",
+  "planning_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN",
+  "parent": "/root",
+  "instance": "/root/workflow_contact_setup",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "medium",
+  "attestation": "parent-configured; not independently runtime-attested",
+  "delegation_limit": "Instruction-asserted TASK/no children",
+  "clean_before_copy_and_new_evidence": true,
+  "source_sha": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "created_branch": "codex/piping-results-engineering-3d-20260913"
+}

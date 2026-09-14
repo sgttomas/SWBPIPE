@@ -1,0 +1,59 @@
+{
+  "status": "EXPLICIT_HISTORICAL_NONSELECTED_FAILED_PINS",
+  "derivative_package": true,
+  "items": [
+    {
+      "historical_manifest": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/PHASE1_FROZEN_MANIFEST_V3.json",
+        "sha256": "de8b06937e89461542e34c4d127935dc4a25f0737bff58d018e1a2a213393236",
+        "bytes": 18977
+      },
+      "recorded_return_entries": [
+        {
+          "path": "RETURN_V2.md",
+          "sha256": "4a6c9424421feae72e26756f70e216c08a10d423c04ca3390ecdd2df6aa9f782",
+          "bytes": 5027
+        }
+      ],
+      "current_return": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/RETURN_V2.md",
+        "sha256": "33473920d807ad44bf857570711b9f5547b50c7f18f7e6bca50449a8c18169de",
+        "bytes": 6184
+      },
+      "classification": "HISTORICAL_FAILED_AUXILIARY_RETURN_PIN_NONSELECTED_PRESERVED",
+      "not_accepted_final97_mutation": true
+    },
+    {
+      "historical_manifest": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/PHASE1_FROZEN_MANIFEST_FINAL_V1.json",
+        "sha256": "b69a03ea5434348a9e51256c747e53075bfe0b68384f45249d6572009b39d2df",
+        "bytes": 19388
+      },
+      "recorded_return_entries": [
+        {
+          "path": "RETURN_V2.md",
+          "sha256": "a467b66baee917d25d89456086f30b9df261dc4ddb87370b82a8a8455add16de",
+          "bytes": 5525
+        }
+      ],
+      "current_return": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/RETURN_V2.md",
+        "sha256": "33473920d807ad44bf857570711b9f5547b50c7f18f7e6bca50449a8c18169de",
+        "bytes": 6184
+      },
+      "classification": "HISTORICAL_FAILED_AUXILIARY_RETURN_PIN_NONSELECTED_PRESERVED",
+      "not_accepted_final97_mutation": true
+    }
+  ],
+  "accepted_original_manifest": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/MANIFEST_FINAL_PHASE1.json",
+    "sha256": "2cb948c8b426af93b13c376affd669e9284c73ed6fcca4f96fb103f4aae346f4",
+    "bytes": 19880
+  },
+  "policy": "Preserve both historical bytes; do not present obsolete RETURN pins as passing. Selected accepted final97 manifest and prior V3 winning index remain unchanged; no source contract change.",
+  "review": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/RETURN_V2.md",
+    "sha256": "e28f3638c41a2ecf580a149aabec33ad49513a4942ff5a5b616342c86496ef6a",
+    "bytes": 8577
+  }
+}

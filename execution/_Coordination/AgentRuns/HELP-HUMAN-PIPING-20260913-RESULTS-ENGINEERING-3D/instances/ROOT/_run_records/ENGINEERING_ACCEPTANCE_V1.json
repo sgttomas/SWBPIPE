@@ -1,0 +1,175 @@
+{
+  "kind": "Agent0 bounded engineering design acceptance",
+  "accepted_at_utc": "2026-09-14T01:50:30.083718+00:00",
+  "parent": "/root HELP_HUMAN",
+  "authority": "User-approved CANDIDATE_PLAN_V3 implementation/design undertaking and standing ordinary engineering authority",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "approved_plan_sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+  "accepted_candidate_sha256": "3dff84b6632aa2ba9a979eee49223d938f740fea7db3b0f4ebc4a12a72abbe3b",
+  "accepted_candidate_entries": 17,
+  "review": {
+    "original_full_review": "instances/ENGINEERING_REFUTATION/RETURN.md",
+    "original_verdict": "CHANGES_REQUIRED ER-01; preserved",
+    "continuation_return": "instances/ENGINEERING_REFUTATION/RETURN_V2.md",
+    "continuation_sha256": "df3c9c90a9b8b33adfea21300f451bc8cce0f2674adfcf56d04e85ac762728f5",
+    "verdict": "PASS",
+    "independent_math": "111 exact rational assertions passed in original leased computation; unchanged inputs reused in continuation; no implementation proof"
+  },
+  "decision": "Accept compositeV3 as the bounded pressure/connector analytical and design contract for following scoped implementation preparation. ER-01 is resolved in this design, with explicit unavailable derived stress review instead of a guessed scalar.",
+  "derivative_status": "Accepted derivative design package, not authoritative decomposition or product release",
+  "copied_from": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING",
+  "copied_to": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING",
+  "copy": "Complete physical subtree copied byte-identically after manager freeze and independent review; source lane and predecessor evidence preserved",
+  "physical_files": [
+    {
+      "path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "bytes": 3405
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V1.json",
+      "sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "bytes": 1869
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V2.json",
+      "sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "bytes": 2590
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V3.json",
+      "sha256": "3dff84b6632aa2ba9a979eee49223d938f740fea7db3b0f4ebc4a12a72abbe3b",
+      "bytes": 3666
+    },
+    {
+      "path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "bytes": 2135
+    },
+    {
+      "path": "CONSUMER_MAP_V1.json",
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "bytes": 30755
+    },
+    {
+      "path": "MANIFEST.json",
+      "sha256": "8f2e72824c4c60fcf8aa4f5040e8147352c9b3b6c4a87ac73c7391be003eeb6d",
+      "bytes": 4959
+    },
+    {
+      "path": "MANIFEST_V2.json",
+      "sha256": "41f114dea0f99f3e82775c54387085243195553c54a1de3c255c78eadaab0cbc",
+      "bytes": 1916
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b",
+      "bytes": 5688
+    },
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "1cd1862ef9a6a190e8b1105f06e500a2261d84cafb6d05a95baa5577fd247442",
+      "bytes": 2375
+    },
+    {
+      "path": "UI_BACKFILL_DERIVED_REVIEW_V1.md",
+      "sha256": "c5acf8fd286d23a077420b56900a33dc25264bbbca639a0a5373c0b36fb58513",
+      "bytes": 2237
+    },
+    {
+      "path": "UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "bytes": 4607
+    },
+    {
+      "path": "_run_records/CONTEXT_ORIGINS_V1.json",
+      "sha256": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9",
+      "bytes": 51871
+    },
+    {
+      "path": "_run_records/DELIVERABLE_CONTEXT_EXCERPTS_V1.md",
+      "sha256": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9",
+      "bytes": 32554
+    },
+    {
+      "path": "_run_records/DEPENDENCY_APPLICABILITY_V1.json",
+      "sha256": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c",
+      "bytes": 22472
+    },
+    {
+      "path": "_run_records/ENGINEERING_CHOICE_RATIONALE_V1.md",
+      "sha256": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e",
+      "bytes": 4591
+    },
+    {
+      "path": "_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+      "sha256": "dd20f524ae9d008098893517a3bb48b79082d4625cfb8e99fb33de7c8eb81c51",
+      "bytes": 7196
+    },
+    {
+      "path": "_run_records/PHYSICAL_ARTIFACT_INVENTORY_V1.json",
+      "sha256": "dc459521e26e31583fe6d56126e9dfcf3cb0971f2bf09a554c3e8fe86c7cb519",
+      "bytes": 3529
+    },
+    {
+      "path": "_run_records/READ_FAILURES_V1.json",
+      "sha256": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58",
+      "bytes": 1191
+    },
+    {
+      "path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "bytes": 5077
+    },
+    {
+      "path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "bytes": 4808
+    },
+    {
+      "path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "bytes": 4244
+    },
+    {
+      "path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "bytes": 4820
+    },
+    {
+      "path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "bytes": 15655
+    },
+    {
+      "path": "contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+      "sha256": "19aac7afaf7f3da6e673a9cb1322db95d6b634c7f4d444cdfe9a789d32c0d6d2",
+      "bytes": 10105
+    },
+    {
+      "path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "bytes": 15601
+    },
+    {
+      "path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "bytes": 14268
+    },
+    {
+      "path": "verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json",
+      "sha256": "3ef572be5b07820dff5654bda06275437e6ddd014ed4f26852f9ad250fb559f1",
+      "bytes": 5560
+    }
+  ],
+  "total_files": 28,
+  "total_bytes": 269744,
+  "preserved_boundaries": [
+    "No pressure or connector kernel/runtime source activation in this tranche",
+    "Proposed document0.3 and future result0.3/material/legacy-refusal decisions remain attached to their specific future activation",
+    "Connector has no exact-pressure/E-nu prerequisite",
+    "Current result0.2 and immutable historical binders require revalidation before later consumer changes",
+    "No DAG/receipt/lifecycle/whole-project closure or external-solver/professional acceptance claim"
+  ],
+  "handoff": "UI consumes accepted proposed field/availability definitions as design backfill; following private pressure kernel and independently serialized connector source work require their own bounded launch. Remaining current tranche: result repair, independent prototype witness, integrated review/gates/publication."
+}

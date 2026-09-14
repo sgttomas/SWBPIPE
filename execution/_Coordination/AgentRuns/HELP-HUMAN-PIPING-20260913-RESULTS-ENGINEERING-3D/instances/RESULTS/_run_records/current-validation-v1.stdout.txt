@@ -1,0 +1,12 @@
+blocked EXPECTED_PRODUCER_ABSENCE rows 0 schema_errors n/a mechanics MODEL_INCOMPLETE
+curved-pressure-full FAIL_SCHEMA rows 74 schema_errors 18 mechanics MECHANICS_SOLVED
+curved-tip-weight-full FAIL_SCHEMA rows 69 schema_errors 18 mechanics MECHANICS_SOLVED
+nonconverged-candidate-0 FAIL_SCHEMA rows 78 schema_errors 26 mechanics MECHANICS_SOLVED
+nonconverged-candidate-1 FAIL_SCHEMA rows 82 schema_errors 26 mechanics MECHANICS_SOLVED
+nonconverged-candidate-2 FAIL_SCHEMA rows 82 schema_errors 26 mechanics MECHANICS_SOLVED
+nonconverged-candidate-3 FAIL_SCHEMA rows 82 schema_errors 26 mechanics MECHANICS_SOLVED
+nonconverged-candidate-4 FAIL_SCHEMA rows 82 schema_errors 26 mechanics MECHANICS_SOLVED
+nonconverged-candidate-5 FAIL_SCHEMA rows 82 schema_errors 26 mechanics MECHANICS_SOLVED
+straight-dense-full FAIL_SCHEMA rows 788 schema_errors 160 mechanics MECHANICS_SOLVED
+straight-full FAIL_SCHEMA rows 786 schema_errors 160 mechanics MECHANICS_SOLVED
+straight-sparse-full FAIL_SCHEMA rows 786 schema_errors 160 mechanics MECHANICS_SOLVED

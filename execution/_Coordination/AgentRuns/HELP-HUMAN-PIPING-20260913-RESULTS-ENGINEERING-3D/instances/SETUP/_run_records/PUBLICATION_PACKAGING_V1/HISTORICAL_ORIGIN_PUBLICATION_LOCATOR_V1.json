@@ -1,0 +1,152 @@
+{
+  "status": "Applied byte-identical packaging; no product or governed acceptance effect",
+  "mappings": [
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_CONTRACT_BACKCHECK_V3.md",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_CONTRACT_BACKCHECK_V3.md",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/briefs/RESULTS_CONTRACT_BACKCHECK_V3.md",
+      "sha256": "d88e716823626025e79776daef7827c0db0cac3d2a86be2f693af5dce7424bb3",
+      "bytes": 3273,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTEXT_ORIGINS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTEXT_ORIGINS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTEXT_ORIGINS_V1.json",
+      "sha256": "1f1a471c22d0ca7103ab22e03fc488ff940031d6b9500eb9c6e9c85b9ad43308",
+      "bytes": 19059,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "sha256": "187be88501fd5993e68a08e56aa210d654a04051c89c5122b7200983df599c25",
+      "bytes": 8810,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_COMMAND_STATUS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_COMMAND_STATUS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PREPARATION_COMMAND_STATUS_V1.json",
+      "sha256": "086334048cf567219bddded0fa5364bd68be6712ce6596e6bde274a449c3faf1",
+      "bytes": 998,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PROPOSED_RUNTIME_LEASE_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PROPOSED_RUNTIME_LEASE_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROPOSED_RUNTIME_LEASE_V1.json",
+      "sha256": "24b5fcbf806e8da4ca5122841a18f8c3dbb264813e3a1ecc1a574e9da72f1099",
+      "bytes": 2555,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/RESULTS_CONTRACT_REVIEW/MANIFEST.json",
+      "sha256": "53c55c54b774229c022d3038fa454adc13f79cece38cba1f432e0b443c93d15f",
+      "bytes": 2261,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V3.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V3.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/RESULTS_CONTRACT_REVIEW/MANIFEST_V3.json",
+      "sha256": "c5c1ccf4aec1b98e5627d7fdd61f2e620de3f57f1a5f9e535ab969afe9f8210b",
+      "bytes": 5462,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/_run_records/SEALED_BACKCHECK_BRIEF_V3.md",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/_run_records/SEALED_BACKCHECK_BRIEF_V3.md",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/RESULTS_CONTRACT_REVIEW/_run_records/SEALED_BACKCHECK_BRIEF_V3.md",
+      "sha256": "d88e716823626025e79776daef7827c0db0cac3d2a86be2f693af5dce7424bb3",
+      "bytes": 3273,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PHASE1_RECORDING_V1/BRIEF.md",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PHASE1_RECORDING_V1/BRIEF.md",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/SETUP/_run_records/PHASE1_RECORDING_V1/BRIEF.md",
+      "sha256": "b0d31d02f3c674ca9c5e0fac7e9cef51fbbaf1e04b995309355c46e3661139e8",
+      "bytes": 2567,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/MANIFEST.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/MANIFEST.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/UI_INDEPENDENT_WITNESS/MANIFEST.json",
+      "sha256": "f525956a2dc6dc422a5d4f3bfe6abd2d6ebbae2deb4c15cdf8140992b012597e",
+      "bytes": 15997,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/MANIFEST_V2.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/MANIFEST_V2.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/UI_INDEPENDENT_WITNESS/MANIFEST_V2.json",
+      "sha256": "6e75e7f3a8a8c37b52f6dacd4788bd4ee8740fa4e5a2b99a1d8aefb316217728",
+      "bytes": 33052,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "RESULTS",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/MANIFEST_V3.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/MANIFEST_V3.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/RESULTS/instances/RESULTS/MANIFEST_V3.json",
+      "sha256": "696b682b5ba45486282de54a8232109a21e1fb2b364231b517a59b96643ff29d",
+      "bytes": 4770,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "RESULTS",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/MANIFEST_V4.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/MANIFEST_V4.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/RESULTS/instances/RESULTS/MANIFEST_V4.json",
+      "sha256": "2674cb84a67f9223a886f7d7acd8c55c370e2da308429bb0a86aadc558628937",
+      "bytes": 15224,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "RESULTS",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/STANDING_PLAN_COMMITTED_SELECTION_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/STANDING_PLAN_COMMITTED_SELECTION_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/RESULTS/instances/RESULTS/_run_records/STANDING_PLAN_COMMITTED_SELECTION_V1.json",
+      "sha256": "5d405f136ecfa2c170214c9ba8dedb7d42a1f5e5f5bfd3da87594e95268574c3",
+      "bytes": 499,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "RESULTS",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/RESULTS/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd",
+      "bytes": 8004,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "RESULTS",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_BRIEF_V1.md",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_BRIEF_V1.md",
+      "published_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/RESULTS/instances/RESULTS/_run_records/TASK_WRITER_BRIEF_V1.md",
+      "sha256": "030e2af13fb2cc20f55193b776bc08c2aad5cbf8258ee823b8cc95d88d8f6880",
+      "bytes": 3753,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    }
+  ],
+  "base_semantics": "Embedded historical manifests remain unchanged. Each old origin/path/hash is resolved via mapping and original lane/package base, never reinterpreted relative to moved file. Unmoved imported RESULTS files are mapped completely by RESULTS_IMPORT_BINDING_V1.json.",
+  "current_consumers": "Native/reviewer must consume locator-aware current bindings; root controls and frozen acceptances were not rewritten.",
+  "deduplication": "No identified completed briefs deduplicated; exact published map retains distinct origin copies pending optional checked dedup, avoiding unproven identity."
+}

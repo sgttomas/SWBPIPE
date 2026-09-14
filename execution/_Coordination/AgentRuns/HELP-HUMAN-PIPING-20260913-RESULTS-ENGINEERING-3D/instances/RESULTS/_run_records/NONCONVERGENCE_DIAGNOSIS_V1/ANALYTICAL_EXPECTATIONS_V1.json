@@ -1,0 +1,233 @@
+{
+  "status": "PREPARED_NOT_EXECUTED",
+  "derivative_package": true,
+  "basis": "Exact authored model derived from existing fresh current regression input; analytical axial balance checked against live source conventions; no runtime claim.",
+  "source_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "bytes": 710385
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/nonlinear_supports/src/lib.rs",
+      "sha256": "956f64abfab50f16310641e2ffa63eccf37a3cb31ce48332fe7c14be28125d11",
+      "bytes": 50031
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+      "bytes": 174367
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/lib.rs",
+      "sha256": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+      "bytes": 52302
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "bytes": 52734
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/straight-full.model.json",
+      "sha256": "8e1798ecbc1b2ddbf24a7b364718c8aad77a42b195798925f61e6f5e72d74de5",
+      "bytes": 19197
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/straight-full.request.json",
+      "sha256": "eff5e7c6eb29a8ea2773ebc64b5fb137ebc56a3d079cbde27a8df45795dfa809",
+      "bytes": 1973
+    }
+  ],
+  "uniform_segment_length_m": 1,
+  "E_Pa": 200000000000,
+  "section_area_m2": 0.003540574920595698,
+  "axial_k_N_per_m": 708114984.1191397,
+  "F_N": 1000,
+  "F_over_k_m": 1.4122000274347407e-06,
+  "delta_m": [
+    1e-05,
+    2e-05,
+    3.0000000000000004e-05,
+    4e-05,
+    5e-05
+  ],
+  "cumulative_gaps_m": [
+    1e-05,
+    3.0000000000000004e-05,
+    6.000000000000001e-05,
+    0.00010000000000000002,
+    0.00015000000000000001
+  ],
+  "all_delta_strictly_above_F_over_k": true,
+  "source_rules": {
+    "nonlinear_supports/src/lib.rs:613-631": "Engaged positive gaps retain reaction<=0; inactive positive gaps engage displacement>=gap.",
+    "nonlinear_integration/src/lib.rs:1440-1461": "Active positive gap imposes +gap; inactive is free.",
+    "nonlinear_integration/src/lib.rs:478-649": "Sequential current active-set solve; cap returns changed state with final pre-classification iterate vector; recovery only first-iterate singular inactive seed, inapplicable anchored nonsingular chain.",
+    "product_physics/src/lib.rs:64-66,2233-2241": "Existing product cap4, residual tolerance0 and floor0.",
+    "product_physics/src/lib.rs:1374-1395": "Nonconverged selected state becomes blocking, intermediate loop rows discarded.",
+    "product_physics/src/lib.rs:2037-2224": "Current source diagnostic loop message includes iteration count and residual; final loop convergence diagnostic preserved.",
+    "product_physics/src/lib.rs:9367-9398": "Blocked envelope statusMODEL_INCOMPLETE, zero rows.",
+    "product_physics/src/lib.rs:4566-4580,9575-9586": "Gap length unit normalized; positive_displacement token supported."
+  },
+  "iterations": [
+    {
+      "iteration": 1,
+      "active_before": [
+        "support:G-GAP-1",
+        "support:G-GAP-2",
+        "support:G-GAP-3",
+        "support:G-GAP-4",
+        "support:G-GAP-5"
+      ],
+      "release": "support:G-GAP-5",
+      "residual_changed_support_count": 1,
+      "active_after": [
+        "support:G-GAP-1",
+        "support:G-GAP-2",
+        "support:G-GAP-3",
+        "support:G-GAP-4"
+      ],
+      "analytical_displacements_m_nodes_0_to_5": [
+        0.0,
+        1e-05,
+        3.0000000000000004e-05,
+        6.000000000000001e-05,
+        0.00010000000000000002,
+        0.00015000000000000001
+      ],
+      "analytical_reactions_N_nodes_0_to_5": [
+        -7081.149841191397,
+        -7081.149841191397,
+        -7081.149841191398,
+        -7081.149841191396,
+        -7081.149841191396,
+        34405.749205956985
+      ],
+      "inactive_stops_do_not_reengage": true
+    },
+    {
+      "iteration": 2,
+      "active_before": [
+        "support:G-GAP-1",
+        "support:G-GAP-2",
+        "support:G-GAP-3",
+        "support:G-GAP-4"
+      ],
+      "release": "support:G-GAP-4",
+      "residual_changed_support_count": 1,
+      "active_after": [
+        "support:G-GAP-1",
+        "support:G-GAP-2",
+        "support:G-GAP-3"
+      ],
+      "analytical_displacements_m_nodes_0_to_5": [
+        0.0,
+        1e-05,
+        3.0000000000000004e-05,
+        6.000000000000001e-05,
+        0.00010000000000000002,
+        0.00010141220002743476
+      ],
+      "analytical_reactions_N_nodes_0_to_5": [
+        -7081.149841191397,
+        -7081.149841191397,
+        -7081.149841191398,
+        -7081.149841191396,
+        27324.59936476559,
+        0
+      ],
+      "inactive_stops_do_not_reengage": true
+    },
+    {
+      "iteration": 3,
+      "active_before": [
+        "support:G-GAP-1",
+        "support:G-GAP-2",
+        "support:G-GAP-3"
+      ],
+      "release": "support:G-GAP-3",
+      "residual_changed_support_count": 1,
+      "active_after": [
+        "support:G-GAP-1",
+        "support:G-GAP-2"
+      ],
+      "analytical_displacements_m_nodes_0_to_5": [
+        0.0,
+        1e-05,
+        3.0000000000000004e-05,
+        6.000000000000001e-05,
+        6.141220002743475e-05,
+        6.282440005486949e-05
+      ],
+      "analytical_reactions_N_nodes_0_to_5": [
+        -7081.149841191397,
+        -7081.149841191397,
+        -7081.149841191398,
+        20243.449523574192,
+        0,
+        0
+      ],
+      "inactive_stops_do_not_reengage": true
+    },
+    {
+      "iteration": 4,
+      "active_before": [
+        "support:G-GAP-1",
+        "support:G-GAP-2"
+      ],
+      "release": "support:G-GAP-2",
+      "residual_changed_support_count": 1,
+      "active_after": [
+        "support:G-GAP-1"
+      ],
+      "analytical_displacements_m_nodes_0_to_5": [
+        0.0,
+        1e-05,
+        3.0000000000000004e-05,
+        3.1412200027434744e-05,
+        3.2824400054869483e-05,
+        3.423660008230423e-05
+      ],
+      "analytical_reactions_N_nodes_0_to_5": [
+        -7081.149841191397,
+        -7081.149841191397,
+        13162.299682382794,
+        0,
+        0,
+        0
+      ],
+      "inactive_stops_do_not_reengage": true
+    }
+  ],
+  "public_expected": {
+    "mechanics_status": "MODEL_INCOMPLETE",
+    "result_rows": 0,
+    "diagnostics_present": [
+      "NONLINEAR_SUPPORT_NONCONVERGENCE",
+      "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED",
+      "SOLVER_SYSTEM_BLOCKED"
+    ],
+    "loop_message_contains": "completed 4 iteration(s); final residual count 1;",
+    "attached_canonical_document": null,
+    "lower_level_iteration_trace_exposed_by_public_path": false,
+    "direct_legacy_library_builder_attempt": "Informational only; attached solve-status gate supplies absence claim, direct builder return is recorded without assuming rejection."
+  },
+  "control_expectations": [
+    {
+      "case_id": "gap-chain-two-active-control",
+      "model_file": "gap-chain-two-active-control.model.json",
+      "request_file": "gap-chain-two-active-control.request.json",
+      "expectation": "converged_control",
+      "expected_iterations": 3
+    },
+    {
+      "case_id": "gap-chain-five-inactive-control",
+      "model_file": "gap-chain-five-inactive-control.model.json",
+      "request_file": "gap-chain-five-inactive-control.request.json",
+      "expectation": "converged_control",
+      "expected_iterations": 1
+    }
+  ],
+  "scope_limit": "No source edit, no physics/policy change, no cap argument, no lower-level reconstructed trace runtime, no schema-validation pass claim."
+}

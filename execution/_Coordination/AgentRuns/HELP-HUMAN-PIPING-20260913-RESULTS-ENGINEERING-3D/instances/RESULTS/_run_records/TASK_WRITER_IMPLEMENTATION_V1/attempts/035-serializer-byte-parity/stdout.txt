@@ -1,0 +1,1 @@
+PASS12 typed mechanics serializer bytes;11 runner equal,1 explicit dense attribution difference; private fields absent

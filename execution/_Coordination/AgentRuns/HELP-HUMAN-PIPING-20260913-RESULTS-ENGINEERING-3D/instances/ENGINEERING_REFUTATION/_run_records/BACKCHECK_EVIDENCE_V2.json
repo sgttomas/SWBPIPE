@@ -1,0 +1,465 @@
+{
+  "status": "PASS",
+  "continuation_type": "Same reviewer affected-contract backcheck; not a second fresh reviewer",
+  "parent": "HELP_HUMAN /root",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "xhigh",
+  "attribution": "Parent supplied, not independently supplier-attested",
+  "continuation_brief_sha256": "0c7e0c229080c96f529351a4ee5005b0e98f4883a31be5d34714ab280eaf4148",
+  "v3_manifest_sha256": "3dff84b6632aa2ba9a979eee49223d938f740fea7db3b0f4ebc4a12a72abbe3b",
+  "engineering_return_v2_sha256": "1cd1862ef9a6a190e8b1105f06e500a2261d84cafb6d05a95baa5577fd247442",
+  "engineering_manifest_v2_sha256": "41f114dea0f99f3e82775c54387085243195553c54a1de3c255c78eadaab0cbc",
+  "full_additive_candidate_files_read": [
+    "UI_BACKFILL_DERIVED_REVIEW_V1.md",
+    "_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+    "contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+    "verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json"
+  ],
+  "candidate_entry_checks": [
+    {
+      "candidate_relative_path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CANDIDATE_FOR_REFUTATION_V1.md",
+      "expected_sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "actual_sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "hash_match": true,
+      "bytes": 3405,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "CANDIDATE_MANIFEST_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CANDIDATE_MANIFEST_V1.json",
+      "expected_sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "actual_sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "hash_match": true,
+      "bytes": 1869,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "expected_sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "actual_sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "hash_match": true,
+      "bytes": 2135,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "CONSUMER_MAP_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CONSUMER_MAP_V1.json",
+      "expected_sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "actual_sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "hash_match": true,
+      "bytes": 30755,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "UI_BACKFILL_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/UI_BACKFILL_V1.md",
+      "expected_sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "actual_sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "hash_match": true,
+      "bytes": 4607,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "expected_sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "actual_sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "hash_match": true,
+      "bytes": 5077,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRESSURE_RUNTIME_V2.md",
+      "expected_sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "actual_sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "hash_match": true,
+      "bytes": 4808,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "expected_sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "actual_sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "hash_match": true,
+      "bytes": 4244,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "expected_sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "actual_sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "hash_match": true,
+      "bytes": 4820,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/CONNECTOR_CONTRACT_V1.md",
+      "expected_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "actual_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "hash_match": true,
+      "bytes": 15655,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md",
+      "expected_sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "actual_sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "hash_match": true,
+      "bytes": 15601,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json",
+      "expected_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "actual_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "hash_match": true,
+      "bytes": 14268,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "CANDIDATE_MANIFEST_V2.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CANDIDATE_MANIFEST_V2.json",
+      "expected_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "actual_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "hash_match": true,
+      "bytes": 2590,
+      "size_match": true,
+      "content_coverage": "Previously fully read; unchanged hash reverified in continuation"
+    },
+    {
+      "candidate_relative_path": "contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+      "expected_sha256": "19aac7afaf7f3da6e673a9cb1322db95d6b634c7f4d444cdfe9a789d32c0d6d2",
+      "actual_sha256": "19aac7afaf7f3da6e673a9cb1322db95d6b634c7f4d444cdfe9a789d32c0d6d2",
+      "hash_match": true,
+      "bytes": 10105,
+      "size_match": true,
+      "content_coverage": "Full content read in this continuation"
+    },
+    {
+      "candidate_relative_path": "UI_BACKFILL_DERIVED_REVIEW_V1.md",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/UI_BACKFILL_DERIVED_REVIEW_V1.md",
+      "expected_sha256": "c5acf8fd286d23a077420b56900a33dc25264bbbca639a0a5373c0b36fb58513",
+      "actual_sha256": "c5acf8fd286d23a077420b56900a33dc25264bbbca639a0a5373c0b36fb58513",
+      "hash_match": true,
+      "bytes": 2237,
+      "size_match": true,
+      "content_coverage": "Full content read in this continuation"
+    },
+    {
+      "candidate_relative_path": "verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json",
+      "expected_sha256": "3ef572be5b07820dff5654bda06275437e6ddd014ed4f26852f9ad250fb559f1",
+      "actual_sha256": "3ef572be5b07820dff5654bda06275437e6ddd014ed4f26852f9ad250fb559f1",
+      "hash_match": true,
+      "bytes": 5560,
+      "size_match": true,
+      "content_coverage": "Full content read in this continuation"
+    },
+    {
+      "candidate_relative_path": "_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+      "expected_sha256": "dd20f524ae9d008098893517a3bb48b79082d4625cfb8e99fb33de7c8eb81c51",
+      "actual_sha256": "dd20f524ae9d008098893517a3bb48b79082d4625cfb8e99fb33de7c8eb81c51",
+      "hash_match": true,
+      "bytes": 7196,
+      "size_match": true,
+      "content_coverage": "Full content read in this continuation"
+    }
+  ],
+  "engineering_predecessor_21_checks": [
+    {
+      "candidate_relative_path": "CANDIDATE_MANIFEST_V2.json",
+      "expected_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "actual_sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "RETURN.md",
+      "expected_sha256": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b",
+      "actual_sha256": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "UI_BACKFILL_V1.md",
+      "expected_sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "actual_sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "expected_sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "actual_sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "CONSUMER_MAP_V1.json",
+      "expected_sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "actual_sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "MANIFEST.json",
+      "expected_sha256": "8f2e72824c4c60fcf8aa4f5040e8147352c9b3b6c4a87ac73c7391be003eeb6d",
+      "actual_sha256": "8f2e72824c4c60fcf8aa4f5040e8147352c9b3b6c4a87ac73c7391be003eeb6d",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "expected_sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "actual_sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "CANDIDATE_MANIFEST_V1.json",
+      "expected_sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "actual_sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "expected_sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "actual_sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "expected_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "actual_sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "expected_sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "actual_sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "expected_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "actual_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/DEPENDENCY_APPLICABILITY_V1.json",
+      "expected_sha256": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c",
+      "actual_sha256": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/DELIVERABLE_CONTEXT_EXCERPTS_V1.md",
+      "expected_sha256": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9",
+      "actual_sha256": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/PHYSICAL_ARTIFACT_INVENTORY_V1.json",
+      "expected_sha256": "dc459521e26e31583fe6d56126e9dfcf3cb0971f2bf09a554c3e8fe86c7cb519",
+      "actual_sha256": "dc459521e26e31583fe6d56126e9dfcf3cb0971f2bf09a554c3e8fe86c7cb519",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/READ_FAILURES_V1.json",
+      "expected_sha256": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58",
+      "actual_sha256": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/ENGINEERING_CHOICE_RATIONALE_V1.md",
+      "expected_sha256": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e",
+      "actual_sha256": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "_run_records/CONTEXT_ORIGINS_V1.json",
+      "expected_sha256": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9",
+      "actual_sha256": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "expected_sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "actual_sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "expected_sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "actual_sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "match": true
+    },
+    {
+      "candidate_relative_path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "expected_sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "actual_sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "match": true
+    }
+  ],
+  "source_reference_9_checks": [
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "expected_sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "actual_sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "expected_sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "actual_sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "expected_sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "actual_sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "expected_sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "actual_sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "expected_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "actual_sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "expected_sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "actual_sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/analysis_runs/records.py",
+      "path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "expected_sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "actual_sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "path": "projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "expected_sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "actual_sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    },
+    {
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "expected_sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "actual_sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "match": true,
+      "content_coverage": "Source binding verification; previous exact producer/report excerpt inspection and current targeted source search. No full-source review claimed."
+    }
+  ],
+  "own_original_output_checks": [
+    {
+      "path": "RETURN.md",
+      "expected_sha256": "f6ac2eac0bb3c628d79c2458784a7fe7d5a51efbbb3dd5c46ca033e752c7adab",
+      "actual_sha256": "f6ac2eac0bb3c628d79c2458784a7fe7d5a51efbbb3dd5c46ca033e752c7adab",
+      "match": true
+    },
+    {
+      "path": "_run_records/ANALYTICAL_REVIEW_V1.md",
+      "expected_sha256": "9cbd510a31169e29bc3c9ccc697f3a9f18d69f3b91e4eed7c62c3a76ee787ec6",
+      "actual_sha256": "9cbd510a31169e29bc3c9ccc697f3a9f18d69f3b91e4eed7c62c3a76ee787ec6",
+      "match": true
+    },
+    {
+      "path": "_run_records/COMMANDS_AND_LEASE_V1.md",
+      "expected_sha256": "c9123313fe92e7b1c68c216b121896e2b424bdfb2efe19c7c2e8fa79fd76c526",
+      "actual_sha256": "c9123313fe92e7b1c68c216b121896e2b424bdfb2efe19c7c2e8fa79fd76c526",
+      "match": true
+    },
+    {
+      "path": "_run_records/CONTEXT_AND_COVERAGE_V1.json",
+      "expected_sha256": "a6fc98c9ba59634ae9727e23d49f02ab8d2d962b4f23c6c45b7a55be41f36459",
+      "actual_sha256": "a6fc98c9ba59634ae9727e23d49f02ab8d2d962b4f23c6c45b7a55be41f36459",
+      "match": true
+    },
+    {
+      "path": "_run_records/ER01_SOURCE_EXCERPTS_V1.md",
+      "expected_sha256": "0d3eaa69946fe8488c88889022728bff6f85c164f75677e22b83633bb54e371d",
+      "actual_sha256": "0d3eaa69946fe8488c88889022728bff6f85c164f75677e22b83633bb54e371d",
+      "match": true
+    },
+    {
+      "path": "_run_records/MATH_EXECUTION_V2.json",
+      "expected_sha256": "86e68b5b413d90b809f946c544d88a2a6da7b4f105055c086191aff731483925",
+      "actual_sha256": "86e68b5b413d90b809f946c544d88a2a6da7b4f105055c086191aff731483925",
+      "match": true
+    },
+    {
+      "path": "_run_records/independent_math_v1.py",
+      "expected_sha256": "10d94d733417a6b7d27751c87682cb11fe8c959fa40d1cbe3f10d3fcd0628d2b",
+      "actual_sha256": "10d94d733417a6b7d27751c87682cb11fe8c959fa40d1cbe3f10d3fcd0628d2b",
+      "match": true
+    },
+    {
+      "path": "_run_records/independent_math_v2.py",
+      "expected_sha256": "966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81",
+      "actual_sha256": "966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81",
+      "match": true
+    },
+    {
+      "path": "_run_records/independent_math_v2.stderr.txt",
+      "expected_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "actual_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "match": true
+    },
+    {
+      "path": "_run_records/independent_math_v2.stdout.json",
+      "expected_sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7",
+      "actual_sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7",
+      "match": true
+    }
+  ],
+  "own_original_manifest_sha256": "254217e023c4c42dbe5111e6ac429650a4a04c692df3ebdfb8ef30bbd43a401a",
+  "math_reuse": {
+    "status": "Reuse only, no rerun",
+    "oracle_sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+    "checker_sha256": "966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81",
+    "stdout_sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7",
+    "assertions": 111,
+    "reason": "All mathematical contract/oracle bytes unchanged; additions affect only derived row/diagnostic/consumer/brief and future test obligations"
+  },
+  "tools": "Read-only Python pathlib/hashlib/json verification and own evidence serialization; rg targeted source search. No runtime/math/test/build/browser/native/network/Git mutation.",
+  "closure": "ER-01 resolved for bounded design review; root acceptance and future implementation checks remain separate."
+}

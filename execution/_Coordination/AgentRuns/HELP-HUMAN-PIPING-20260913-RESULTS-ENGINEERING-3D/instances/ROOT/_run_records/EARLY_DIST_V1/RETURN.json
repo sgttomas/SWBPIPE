@@ -1,0 +1,23 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 49.214212791,
+  "finished_utc": "2026-09-14T03:28:52.587083+00:00",
+  "files": [
+    {
+      "path": "stderr.log",
+      "bytes": 848,
+      "sha256": "8fea2381ae889731a30ad9d69e457639a7a57e3b15fb2965259011129500653c"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 2854,
+      "sha256": "cb8777b23d69a055029a35cc294b968d5661a9c042cdf79e2a9f7f3187a3b100"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 4793,
+      "sha256": "55a8017fbf205129989facae84bebaa2d316cd9f9b2be6af608bc4f62f405785"
+    }
+  ],
+  "status_after": " M projects/chirality-piping/apps/desktop/src/App.tsx\n M projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.tsx\n M projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx\n M projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts\n M projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts\n M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx\n M projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx\n M projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts\n M projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx\n M projects/chirality-piping/core/reporting/result_export/Cargo.toml\n M projects/chirality-piping/core/reporting/result_export/src/lib.rs\n M projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs\n M projects/chirality-piping/core/runner/headless/src/lib.rs\n M projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs\n M projects/chirality-piping/schemas/results.schema.yaml\n M projects/chirality-piping/tests/test_results_schema.py\n?? projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.test.tsx\n?? projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx\n?? projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx\n?? projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts\n?? projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts\n?? projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.test.tsx\n?? projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.test.ts\n?? projects/chirality-piping/apps/desktop/src/features/results/resultSemantics.ts\n?? projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx\n?? projects/chirality-piping/core/reporting/result_export/src/derivative.rs\n?? projects/chirality-piping/core/reporting/result_export/src/semantic_contract.rs\n?? projects/chirality-piping/core/reporting/result_export/tests/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/\n?? projects/chirality-piping/execution/_Coordination/_run_records/\n?? projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json\n?? projects/chirality-piping/fixtures/results/invented/result_export_v0_2_rejections.json\n?? projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json\n?? projects/chirality-piping/schemas/results.v0.1.schema.yaml\n?? projects/chirality-piping/schemas/results.v0.2.schema.yaml\n?? projects/chirality-piping/tests/test_result_export_v0_2.py\n"
+}

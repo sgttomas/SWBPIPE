@@ -1,0 +1,4 @@
+{
+  "sealing_probe": "First inline audit failed at App literal matcher using currentResult/currentAnalysisRun names; actual accepted caller is currentSolvedResult/analysisRun. Corrected evidence assertion only; no product source mutation. Earlier changed-set/fence count assertion passed.",
+  "earlier": "PREPARATION_ERROR_01 missing authorized new tests directory and FAILED_LOCATION_PROBES_V1 preserved."
+}

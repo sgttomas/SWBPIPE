@@ -1,0 +1,5060 @@
+[
+  {
+    "width": 1024,
+    "height": 768,
+    "density": "comfortable",
+    "pass": true,
+    "elapsedMs": 2349,
+    "geometry": {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 768,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 768,
+        "clientHeight": 768
+      },
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 558,
+        "height": 320,
+        "scrollWidth": 558,
+        "clientWidth": 558,
+        "scrollHeight": 320,
+        "clientHeight": 320
+      },
+      "editor": {
+        "x": 753,
+        "y": 177,
+        "width": 271,
+        "height": 271,
+        "scrollWidth": 271,
+        "clientWidth": 271,
+        "scrollHeight": 830,
+        "clientHeight": 271
+      },
+      "dock": {
+        "x": 0,
+        "y": 570,
+        "width": 1024,
+        "height": 170,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 170,
+        "clientHeight": 170
+      },
+      "apply": {
+        "x": 898.578125,
+        "y": 537,
+        "width": 117.421875,
+        "height": 27,
+        "scrollWidth": 115,
+        "clientWidth": 115,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 767,
+        "y": 481,
+        "width": 57.984375,
+        "height": 32,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 30,
+        "clientHeight": 30
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "comfortable density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "mm",
+            "x": "6200",
+            "y": "1800",
+            "z": "3000",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":6200,\"y\":1800,\"z\":3000},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  },
+  {
+    "width": 1024,
+    "height": 768,
+    "density": "compact",
+    "pass": true,
+    "elapsedMs": 2342,
+    "geometry": {
+      "viewport": {
+        "width": 1024,
+        "height": 768
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1024,
+        "height": 768,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 768,
+        "clientHeight": 768
+      },
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 578,
+        "height": 332,
+        "scrollWidth": 578,
+        "clientWidth": 578,
+        "scrollHeight": 332,
+        "clientHeight": 332
+      },
+      "editor": {
+        "x": 773,
+        "y": 177,
+        "width": 251,
+        "height": 274,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 274
+      },
+      "dock": {
+        "x": 0,
+        "y": 582,
+        "width": 1024,
+        "height": 158,
+        "scrollWidth": 1024,
+        "clientWidth": 1024,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "apply": {
+        "x": 898.578125,
+        "y": 549,
+        "width": 117.421875,
+        "height": 27,
+        "scrollWidth": 115,
+        "clientWidth": 115,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 787,
+        "y": 499,
+        "width": 57.984375,
+        "height": 26,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 24,
+        "clientHeight": 24
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "compact density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "mm",
+            "x": "6200",
+            "y": "1800",
+            "z": "3000",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":6200,\"y\":1800,\"z\":3000},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "density": "comfortable",
+    "pass": true,
+    "elapsedMs": 2329,
+    "geometry": {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 800,
+        "clientHeight": 800
+      },
+      "canvas": {
+        "x": 232,
+        "y": 177,
+        "width": 756,
+        "height": 342,
+        "scrollWidth": 756,
+        "clientWidth": 756,
+        "scrollHeight": 342,
+        "clientHeight": 342
+      },
+      "editor": {
+        "x": 989,
+        "y": 177,
+        "width": 291,
+        "height": 293,
+        "scrollWidth": 291,
+        "clientWidth": 291,
+        "scrollHeight": 807,
+        "clientHeight": 293
+      },
+      "dock": {
+        "x": 0,
+        "y": 592,
+        "width": 1280,
+        "height": 180,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 180,
+        "clientHeight": 180
+      },
+      "apply": {
+        "x": 1135.59375,
+        "y": 559,
+        "width": 130.40625,
+        "height": 27,
+        "scrollWidth": 128,
+        "clientWidth": 128,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 1003,
+        "y": 503,
+        "width": 57.984375,
+        "height": 32,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 30,
+        "clientHeight": 30
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "comfortable density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "ft",
+            "x": "20.341207349081365",
+            "y": "5.905511811023622",
+            "z": "9.84251968503937",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":20.341207349081365,\"y\":5.905511811023622,\"z\":9.84251968503937},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "ft",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  },
+  {
+    "width": 1280,
+    "height": 800,
+    "density": "compact",
+    "pass": true,
+    "elapsedMs": 2281,
+    "geometry": {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1280,
+        "height": 800,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 800,
+        "clientHeight": 800
+      },
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 834,
+        "height": 364,
+        "scrollWidth": 834,
+        "clientWidth": 834,
+        "scrollHeight": 364,
+        "clientHeight": 364
+      },
+      "editor": {
+        "x": 1029,
+        "y": 177,
+        "width": 251,
+        "height": 306,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 306
+      },
+      "dock": {
+        "x": 0,
+        "y": 614,
+        "width": 1280,
+        "height": 158,
+        "scrollWidth": 1280,
+        "clientWidth": 1280,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "apply": {
+        "x": 1135.59375,
+        "y": 581,
+        "width": 130.40625,
+        "height": 27,
+        "scrollWidth": 128,
+        "clientWidth": 128,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 1043,
+        "y": 531,
+        "width": 57.984375,
+        "height": 26,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 24,
+        "clientHeight": 24
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "compact density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "ft",
+            "x": "20.341207349081365",
+            "y": "5.905511811023622",
+            "z": "9.84251968503937",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":20.341207349081365,\"y\":5.905511811023622,\"z\":9.84251968503937},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "ft",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  },
+  {
+    "width": 1440,
+    "height": 920,
+    "density": "comfortable",
+    "pass": true,
+    "elapsedMs": 2398,
+    "geometry": {
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 920,
+        "clientHeight": 920
+      },
+      "canvas": {
+        "x": 232,
+        "y": 177,
+        "width": 916,
+        "height": 462,
+        "scrollWidth": 916,
+        "clientWidth": 916,
+        "scrollHeight": 462,
+        "clientHeight": 462
+      },
+      "editor": {
+        "x": 1149,
+        "y": 177,
+        "width": 291,
+        "height": 413,
+        "scrollWidth": 291,
+        "clientWidth": 291,
+        "scrollHeight": 807,
+        "clientHeight": 413
+      },
+      "dock": {
+        "x": 0,
+        "y": 712,
+        "width": 1440,
+        "height": 180,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 180,
+        "clientHeight": 180
+      },
+      "apply": {
+        "x": 1295.59375,
+        "y": 679,
+        "width": 130.40625,
+        "height": 27,
+        "scrollWidth": 128,
+        "clientWidth": 128,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 1163,
+        "y": 623,
+        "width": 57.984375,
+        "height": 32,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 30,
+        "clientHeight": 30
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "comfortable density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "in",
+            "x": "244.09448818897638",
+            "y": "70.86614173228347",
+            "z": "118.11023622047244",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":244.09448818897638,\"y\":70.86614173228347,\"z\":118.11023622047244},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "in",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "comfortable",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  },
+  {
+    "width": 1440,
+    "height": 920,
+    "density": "compact",
+    "pass": true,
+    "elapsedMs": 2498,
+    "geometry": {
+      "viewport": {
+        "width": 1440,
+        "height": 920
+      },
+      "body": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 920,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 920,
+        "clientHeight": 920
+      },
+      "canvas": {
+        "x": 194,
+        "y": 177,
+        "width": 994,
+        "height": 484,
+        "scrollWidth": 994,
+        "clientWidth": 994,
+        "scrollHeight": 484,
+        "clientHeight": 484
+      },
+      "editor": {
+        "x": 1189,
+        "y": 177,
+        "width": 251,
+        "height": 426,
+        "scrollWidth": 251,
+        "clientWidth": 251,
+        "scrollHeight": 795,
+        "clientHeight": 426
+      },
+      "dock": {
+        "x": 0,
+        "y": 734,
+        "width": 1440,
+        "height": 158,
+        "scrollWidth": 1440,
+        "clientWidth": 1440,
+        "scrollHeight": 158,
+        "clientHeight": 158
+      },
+      "apply": {
+        "x": 1295.59375,
+        "y": 701,
+        "width": 130.40625,
+        "height": 27,
+        "scrollWidth": 128,
+        "clientWidth": 128,
+        "scrollHeight": 25,
+        "clientHeight": 25
+      },
+      "cancel": {
+        "x": 1203,
+        "y": 651,
+        "width": 57.984375,
+        "height": 26,
+        "scrollWidth": 56,
+        "clientWidth": 56,
+        "scrollHeight": 24,
+        "clientHeight": 24
+      },
+      "rows": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        "R1",
+        "R2",
+        "R3"
+      ]
+    },
+    "states": [
+      {
+        "label": "initial",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 0,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.65,
+            "pitch": 0.65,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "compact density · view state only; same draft/history."
+        }
+      },
+      {
+        "label": "route-frozen",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r1",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "review",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 2,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N7",
+            "pipeId": "P7",
+            "plane": "XZ",
+            "axis": "X",
+            "unit": "in",
+            "x": "244.09448818897638",
+            "y": "70.86614173228347",
+            "z": "118.11023622047244",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed explicit XYZ",
+            "continue": true
+          },
+          "frozen": {
+            "basis": "mock:r1",
+            "members": [
+              "op:prototype-1-create_node",
+              "op:prototype-1-connect_pipe_run"
+            ],
+            "errors": [],
+            "submission": {
+              "batch_id": "batch:prototype-1",
+              "operations": [
+                {
+                  "operation_id": "op:prototype-1-create_node",
+                  "operation_kind": "create",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Node",
+                    "ref": "N7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-create_node",
+                    "change_kind": "create_node",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "nodes",
+                    "before": "not_present",
+                    "after": "{\"id\":\"N7\",\"label\":\"N7\",\"position\":{\"x\":244.09448818897638,\"y\":70.86614173228347,\"z\":118.11023622047244},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "in",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                },
+                {
+                  "operation_id": "op:prototype-1-connect_pipe_run",
+                  "operation_kind": "connect",
+                  "operation_status": "proposed",
+                  "author_type": "user",
+                  "target": {
+                    "object_type": "Element",
+                    "ref": "P7"
+                  },
+                  "change": {
+                    "change_id": "change:prototype-1-connect_pipe_run",
+                    "change_kind": "connect_pipe_run",
+                    "field_label": "Explicit prototype authoring",
+                    "field_path": "pipe_segments",
+                    "before": "not_present",
+                    "after": "{\"id\":\"P7\",\"label\":\"P7\",\"from\":\"N5\",\"to\":\"N7\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Invented demo geometry; user may replace\"}",
+                    "unit": "mm",
+                    "dimension": "length",
+                    "source_note": "Invented demo geometry; user may replace"
+                  },
+                  "validation": {
+                    "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                    "diff_preview_status": "SIMULATED_ONLY",
+                    "application_status": "not_applied"
+                  },
+                  "audit_boundary": {
+                    "mutation_route": "structured_operations_only",
+                    "direct_model_mutation_allowed": false,
+                    "requires_user_acceptance": true,
+                    "mutates_accepted_model_state": false
+                  },
+                  "professional_boundary": {
+                    "human_review_required": true,
+                    "software_makes_compliance_claim": false,
+                    "software_makes_certification_claim": false,
+                    "software_makes_sealing_claim": false,
+                    "software_makes_approval_claim": false,
+                    "software_makes_authentication_claim": false
+                  },
+                  "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+                }
+              ]
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 0,
+          "redoCount": 0,
+          "nodeCount": 8,
+          "pipeCount": 6,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+        }
+      },
+      {
+        "label": "route-redo",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r4",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "ready",
+          "engine": "ready",
+          "tool": "route",
+          "generation": 6,
+          "draft": {
+            "from": "N5",
+            "endMode": "new",
+            "to": "N6",
+            "nodeId": "N8",
+            "pipeId": "P8",
+            "plane": "XZ",
+            "axis": "Free",
+            "unit": "m",
+            "x": "6.2",
+            "y": "1.8",
+            "z": "3",
+            "od": "114.3",
+            "wall": "6.02",
+            "sectionUnit": "mm",
+            "material": "M-DEMO",
+            "yx": "0",
+            "yy": "1",
+            "yz": "0",
+            "provenance": "Invented demo geometry; user may replace",
+            "placement": "Typed invented coordinates",
+            "continue": false
+          },
+          "frozen": null,
+          "lastRoute": null,
+          "historyCount": 1,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 0,
+          "supportCount": 1,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Redo one simulated session checkpoint · mock:r4; Current results invalidated."
+        }
+      },
+      {
+        "label": "component-support-property",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": null,
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Applied one simulated atomic checkpoint · mock:r7. No accepted engineering mutation."
+        }
+      },
+      {
+        "label": "current-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r7",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 18,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.1",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r6",
+            "members": [
+              "op:prototype-4-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-4-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-4-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "6.02",
+                  "after": "7.1",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 4,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Current",
+            "basis": "mock:r7",
+            "overlay": true,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Simulated Current example generated and saved as a prototype record. Values are invented."
+        }
+      },
+      {
+        "label": "historical-results",
+        "state": {
+          "claim": "SIMULATED DESIGN PROTOTYPE",
+          "revision": "mock:r8",
+          "selection": {
+            "type": "Node",
+            "ref": "N5"
+          },
+          "phase": "applied",
+          "engine": "ready",
+          "tool": "property",
+          "generation": 19,
+          "draft": {
+            "pipe": "P5",
+            "field": "wall_thickness",
+            "value": "7.3",
+            "unit": "mm",
+            "provenance": "Explicit invented witness property correction"
+          },
+          "frozen": {
+            "basis": "mock:r7",
+            "members": [
+              "op:prototype-5-set_field"
+            ],
+            "errors": [],
+            "submission": {
+              "intent": {
+                "operation_id": "op:prototype-5-set_field",
+                "operation_kind": "modify",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "P5"
+                },
+                "change": {
+                  "change_id": "change:prototype-5-set_field",
+                  "change_kind": "set_field",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "section.wall_thickness",
+                  "before": "7.1",
+                  "after": "7.3",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Explicit invented witness property correction"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            }
+          },
+          "lastRoute": null,
+          "historyCount": 5,
+          "redoCount": 0,
+          "nodeCount": 9,
+          "pipeCount": 7,
+          "componentCount": 1,
+          "supportCount": 2,
+          "result": {
+            "status": "Historical",
+            "basis": "mock:r7",
+            "overlay": false,
+            "readiness": false,
+            "acceptance": "UNKNOWN",
+            "rows": [
+              {
+                "quantity": "Displacement",
+                "kind": "translation",
+                "component": "Uz",
+                "value": 2.31,
+                "unit": "mm",
+                "dimension": "length",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Rotation",
+                "kind": "rotation",
+                "component": "Ry",
+                "value": 0.00124,
+                "unit": "rad",
+                "dimension": "angle",
+                "frame": "global",
+                "location": "Node N5",
+                "basis": "mock:r7",
+                "ref": "N5",
+                "type": "Node"
+              },
+              {
+                "quantity": "Reaction",
+                "kind": "force",
+                "component": "Fz",
+                "value": 1240,
+                "unit": "N",
+                "dimension": "force",
+                "frame": "global",
+                "location": "Support S1 / N1",
+                "basis": "mock:r7",
+                "ref": "S1",
+                "type": "Support"
+              },
+              {
+                "quantity": "Moment",
+                "kind": "moment",
+                "component": "My",
+                "value": 84.2,
+                "unit": "N*m",
+                "dimension": "moment",
+                "frame": "local pipe",
+                "location": "Pipe P3 / end",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Stress",
+                "kind": "stress",
+                "component": "bending",
+                "value": 12.8,
+                "unit": "MPa",
+                "dimension": "stress",
+                "frame": "local pipe",
+                "location": "Pipe P3 / section",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Illustrative ratio",
+                "kind": "ratio",
+                "component": "demand / entered limit",
+                "value": 0.42,
+                "unit": "1",
+                "dimension": "dimensionless",
+                "frame": "not applicable",
+                "location": "Pipe P3 / mock check",
+                "basis": "mock:r7",
+                "ref": "P3",
+                "type": "Element"
+              },
+              {
+                "quantity": "Work residual",
+                "kind": "diagnostic",
+                "component": "iteration residual",
+                "value": 0.018,
+                "unit": "N*m",
+                "dimension": "not classified by prototype",
+                "frame": "solver diagnostic",
+                "location": "Mock solve / iteration 4",
+                "basis": "mock:r7",
+                "ref": null,
+                "type": null
+              }
+            ]
+          },
+          "camera": {
+            "yaw": -0.4099999999999999,
+            "pitch": 0.6980000000000001,
+            "zoom": 1
+          },
+          "density": "compact",
+          "operationScenario": "ready",
+          "solveScenario": "current",
+          "message": "Historical prototype record · acceptance UNKNOWN · excluded from Current overlays and rule checks."
+        }
+      }
+    ],
+    "errors": [],
+    "network": []
+  }
+]

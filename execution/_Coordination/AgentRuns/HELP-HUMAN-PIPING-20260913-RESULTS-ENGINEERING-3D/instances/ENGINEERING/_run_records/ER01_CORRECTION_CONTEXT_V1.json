@@ -1,0 +1,98 @@
+{
+  "role": "HELPS_HUMANS Type1",
+  "parent": "/root HELP_HUMAN",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "allocation_attribution": "parent-configured; not independently runtime-attested",
+  "actual_write_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "finding_origin": "Root NEW_TASK relayed fresh direct Astra/xhigh ER-01 P2 and111 rational assertions; final reviewer RETURN/MANIFEST forthcoming and not consumed as accepted evidence",
+  "source_origins": [
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "bytes": 710385
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "bytes": 49601
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "bytes": 21519
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "bytes": 29883
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "bytes": 718236
+    },
+    {
+      "path": "projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "bytes": 52734
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/records.py",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "bytes": 22818
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/reporting/report_generator/src/lib.rs",
+      "sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "bytes": 41024
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "bytes": 65820
+    }
+  ],
+  "prior_frozen_files": {
+    "CANDIDATE_MANIFEST_V2.json": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+    "RETURN.md": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b",
+    "UI_BACKFILL_V1.md": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+    "CONSUMER_INVENTORY_SUPPLEMENT_V1.json": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+    "CONSUMER_MAP_V1.json": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+    "MANIFEST.json": "8f2e72824c4c60fcf8aa4f5040e8147352c9b3b6c4a87ac73c7391be003eeb6d",
+    "CANDIDATE_FOR_REFUTATION_V1.md": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+    "CANDIDATE_MANIFEST_V1.json": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+    "contracts/PRESSURE_CONTRACT_V1.md": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+    "contracts/CONNECTOR_CONTRACT_V1.md": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+    "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+    "verification/ANALYTICAL_ORACLES_V1.json": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+    "_run_records/DEPENDENCY_APPLICABILITY_V1.json": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c",
+    "_run_records/DELIVERABLE_CONTEXT_EXCERPTS_V1.md": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9",
+    "_run_records/PHYSICAL_ARTIFACT_INVENTORY_V1.json": "dc459521e26e31583fe6d56126e9dfcf3cb0971f2bf09a554c3e8fe86c7cb519",
+    "_run_records/READ_FAILURES_V1.json": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58",
+    "_run_records/ENGINEERING_CHOICE_RATIONALE_V1.md": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e",
+    "_run_records/CONTEXT_ORIGINS_V1.json": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9",
+    "briefs/PRIVATE_PRESSURE_KERNEL_V1.md": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+    "briefs/OBJECTIVE_CONNECTOR_V1.md": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+    "briefs/PRESSURE_RUNTIME_V2.md": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817"
+  },
+  "read_limits": "Batched broad rg output and reviewer source excerpts truncated; controlling producer/report clauses separately read in exact own-source windows. No claim of full reviewer report consumption.",
+  "read_failures": [
+    "Initial rg probed nonexistent desktop/src, then rg --files identified apps/desktop/src",
+    "Second bounded rg probed nonexistent ui directory; corrected to apps/desktop/src",
+    "ReportPanel.test.tsx nonexistent; rg App.test.tsx found actual legacy report witnesses"
+  ],
+  "accepted_upstream": "Same sealed manager brief, approved V3 and original context packet; no new accepted public contract",
+  "dependency_applicability": "Original47-row ledger unchanged. Additive ER-01 consumer obligations are engineering release checks, not formal dependency satisfaction or new UI/physics gate.",
+  "effects": "Design authoring/hash/JSON parsing only; no math/test/build/source/runtime/Git effects or child dispatch"
+}

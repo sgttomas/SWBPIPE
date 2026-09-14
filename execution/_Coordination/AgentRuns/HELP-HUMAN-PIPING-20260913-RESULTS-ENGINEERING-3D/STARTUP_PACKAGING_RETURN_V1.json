@@ -1,0 +1,27 @@
+{
+  "kind": "Startup packaging completion snapshot, additive to original Step0",
+  "parent_step0_acceptance": "/root accepted source/cursor/DAG/stage/inventory and six review-only evidence placement findings",
+  "archive_locator": "APPROVED_PLAN_ARCHIVE_LOCATOR_V1.json",
+  "archive_locator_sha256": "3ba4a3b4667458974171b7eeb65beb1b41060365a0dcb120d10bb8ba81b54c48",
+  "post_placement_selfcheck": {
+    "exit": 0,
+    "BLOCK": 0,
+    "REVIEW": 4,
+    "WARN": 112,
+    "INFO": 14,
+    "NOT_APPLICABLE": 1,
+    "delta": "Six new placement classifications removed by exact immutable archive relocation; initial10REVIEW output preserved",
+    "raw": "instances/SETUP/_run_records/self-check-post-placement.stdout.txt"
+  },
+  "existing_method_consulted": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/BASELINE_PORTABLE_RELOCATION_V1.json",
+    "sha256": "94e788eae2b1c7de24efbade9f8315fa7ab921bd963c6507033a8db94e9ce895",
+    "advice": "Prior method preserved raw bytes with explicit relocation/current binding. Outside-AgentRuns _run_records handles this packet including control filenames under existing structural rules, requiring no exception or policy change."
+  },
+  "UI_plan_panel_limitation": {
+    "attribution": "Parent-reported",
+    "boundary": "No dedicated built-in Plan replacement tool; CUA blocked Codex self interaction for safety. Parent requested approved file open through open_in_codex (queued); actual side-panel replacement was not claimed. Implementation approval unaffected."
+  },
+  "ready": "All three isolated manager lanes clean at8f27; source execution not blocked by old review-only difference; awaiting exact parent leaf briefs",
+  "preservation": "Original planning60files and all prior lanes unchanged; copied60files moved exact; old bootstrap/Step0 anchors are observed history, locator supplies current archive root"
+}

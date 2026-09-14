@@ -1,0 +1,15 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/redaction-controls/ControlledExportLink.test.tsx src/features/redaction-controls/redactionExportControls.test.ts src/features/redaction-controls/RedactionExportControlsPanel.test.tsx src/features/result-export/ResultExportPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/results/resultSemantics.test.ts src/features/results/HistoricalRunContext.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/redaction-controls/ControlledExportLink.test.tsx (8 tests | 1 failed) 75ms
+     × source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked 7ms
+
+ Test Files  1 failed | 6 passed (7)
+      Tests  1 failed | 71 passed (72)
+   Start at  21:01:14
+   Duration  3.38s (transform 737ms, setup 614ms, import 896ms, tests 4.96s, environment 1.99s)
+

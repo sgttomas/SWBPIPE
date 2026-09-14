@@ -1,0 +1,188 @@
+{
+  "status": "PREPARATION_ONLY",
+  "bindings": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+      "sha256": "58d5ba902653bd3b8658ffef9af88e246cc2ac7d456aae66bbd394b073144d61"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "sha256": "eeaa25850a0880708f876e602aa6039eaf566313bce4cc4326032ae524add63a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+      "sha256": "a303d95ca05250a25681302e83c34de3d03ffc315b329cdfa3744d33ec1ef0ba"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+      "sha256": "a443149d225010599250821db7d6a090ffa2a52c14a397bac6563f486a05ffbf"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_STATUS.md",
+      "sha256": "304cb989054c4b4c72e779f02debcfd1455af6ffa890e88bb43aa06a9ea7a9ed"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md",
+      "sha256": "d3fff2a6ba275a1c88f0fe3cd68475e779b63d05da6b160b801e64d8adaebd6b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_STATUS.md",
+      "sha256": "76c2114a211582726c6bc3a93a8817bb1193b200bf0b616716e92a6d768136b2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md",
+      "sha256": "2f2e7a8946adcbfef6f2c1b7d1a07681f3ddce5ee10e793f905fecc277a3e5ef"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md",
+      "sha256": "eaa25fe3f960d240824e074b7143b5869bd26dfb3306bda7b0870c17ba37af52"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md",
+      "sha256": "0d5ce7c2b0c8d2894ddef6bdaec94393d0e64d8e052c965d0a9818e717a3c338"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/_STATUS.md",
+      "sha256": "4d01746c91d6b34539616bacba457ee5be7cb76b3a3d88ce4e88890d8a239911"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md",
+      "sha256": "330ad6cd5b61e7309025efeabbf7c38c460a1c0367e903561185f3fce5e6eccb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/_STATUS.md",
+      "sha256": "a74ca38b2db318cde298451b2a94b76b44a1a7512e51ccc30ac7cf50d1df8fa1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md",
+      "sha256": "8314bf2cc4cc7cd16d58800f4afe8c1ce0d78990c49b53554a7e5d672bde5df3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/_STATUS.md",
+      "sha256": "a152d50295e251f639f361d666518aee9e366b0b5262c2ef3ea31084e56f46c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md",
+      "sha256": "c6b033f7ed24d58448ce1e3de72c53b56ec1e6524b13d38f6562e6fac7492818"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/_STATUS.md",
+      "sha256": "5d995bbc609cdc320b193bac4d916add99a7190be7d7e4f92c9f570ef02c2db9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md",
+      "sha256": "69cfb6c744d9d5e4724485b2abeee562d2e9054b36237610f096288cf0c16bae"
+    }
+  ],
+  "deltas": [
+    {
+      "deliverable": "DEL-08-04",
+      "status_path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-04_Result export format/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Add remaining target-format unit-conversion witnesses outside the already-covered export boundaries (residual hardening) (source: PRD plan \u00a73 Phase B-tail row / FR-002)",
+      "proposed_effect": "Conditional: record strict derivative result export and original-producer preservation evidence after source acceptance. Do not delete the broader remaining target-format unit-conversion witness bullet: this tranche preserves values/units rather than implementing arbitrary target conversions. Narrow landed coverage may qualify it with actual evidence.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-14-02",
+      "status_path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-14_Model States, Analysis Runs, and Comparison/1_Working/DEL-14-02_Analysis run records/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.\n- Bind explicit unit and dimension metadata for every unit-bearing referenced result through the governed result-envelope owner before closing PDU-033; the current preview source carries units but not dimensions, so DEL-14-02 must not infer them.",
+      "proposed_effect": "Conditional localized legacy-binding/new-adapter accommodation only. Preserve diagnostic breadth and governed full analysis-record metadata residuals; nine unsupported legacy Current creation variants and four legacy dimension differences remain separate follow-ons. Do not claim canonical analysis-record convergence.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-07-05",
+      "status_path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Implement rotational-deformation visualization for emitted `rx`/`ry`/`rz` result rows; the current graphical deformation overlay visualizes translational `ux`/`uy`/`uz` only (source: DEC-074 O1 / PDU-061)\n- Preserve ratio producer/rule-pack sufficiency as upstream responsibilities; the PDU-008 viewer now shows supplied ratio rows and an explicit unavailable state when none are present, without synthesizing criteria.",
+      "proposed_effect": "Conditional consistent current quantity display: rad/angle rotations, genuine ratios distinct from count/state/mode evidence, N*m work residual diagnostic. Preserve rotational visualization and upstream ratio sufficiency residuals.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-10-05",
+      "status_path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-10_Build, Packaging, API, and Interoperability/1_Working/DEL-10-05_Headless CLI and structured I-O analysis runner/MEMORY.md",
+      "recorded_remaining": "## Remaining",
+      "proposed_effect": "Conditional strict supported derivative library result and honest non-solved absence/hash semantics. Remaining section already empty; add bounded MEMORY evidence without inventing a blocker or promoting lifecycle.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-08-01",
+      "status_path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-08_Reporting, Audit, and Reproducibility/1_Working/DEL-08-01_Calculation report generator/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Define the .opsproj container compatibility-window/versioning policy beyond schema_version 1.0.0 (DEC-028 bounded-tranche territory) (see also DEL-02-05) (source: TP-E3-CONTAINER-001 residuals)",
+      "proposed_effect": "Conditional localized semantic classification/report accommodation only; no new readiness. Preserve container compatibility-window policy.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-17-06",
+      "status_path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/MEMORY.md",
+      "recorded_remaining": "## Remaining",
+      "proposed_effect": "Conditional existing stress-neutral semantic mapping and independent preservation witnesses only. Remaining already empty; no new formats or lifecycle claim.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-15-01",
+      "status_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-01_Canonical handoff package schema and manifest/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Phase H program: design-knowledge schema/entry and constraint engine, physical-to-analytical transform contract, canonical handoff package + manifest, target-mapping/unsupported-behavior contract, downstream export workflow, external-prover boundary metadata, and remaining PKG-17 wire-format completion (stage-gated: v0.2 R6; DEL-17-01 vendor questions gate CAEPIPE MBF-specific claims) (see also DEL-13-01..04, DEL-15-02, DEL-15-03, DEL-15-04, DEL-17-01..09) (source: PRD plan \u00a73 Forward Horizon row H / DEC-056)\n- Obtain owning human-review dispositions for open `RF-001` and `RF-002`; both retain `HumanDisposition=TBD`, and technically corrected schema/currentness/target wording does not formally close either finding (PDU-060).",
+      "proposed_effect": "Conditional exact source/model/derivative binding and currentness handoff accommodations only. Preserve Phase H and formal RF dispositions.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-15-02",
+      "status_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-02_Target mapping and unsupported-behavior contract/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Obtain owning human dispositions for `DEL-15-02-PKG02-001`, `RF-001`, and `RF-002`; all remain technically addressed/open with `HumanDisposition=TBD`, and current mapping/privacy/currentness evidence does not create approval or formal closure (PDU-060).",
+      "proposed_effect": "Conditional localized supplied target/currentness binding. Preserve all HumanDisposition=TBD findings.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-15-03",
+      "status_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-15_Handoff and External Prover Workflow/1_Working/DEL-15-03_Downstream modeling export workflow/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Obtain owning human dispositions for `DEL-15-03-PKG02-001`, `RF-001`, and `RF-002`; all retain `HumanDisposition=TBD`, and implemented authority screening/currentness/target-boundary remediation does not formally close them (PDU-060).",
+      "proposed_effect": "Conditional localized downstream source binding/readability accommodation. Preserve all HumanDisposition=TBD findings and external workflow boundary.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    },
+    {
+      "deliverable": "DEL-17-03",
+      "status_path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/_STATUS.md",
+      "memory_path": "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-03_Native open JSON export package/MEMORY.md",
+      "recorded_remaining": "## Remaining\n- Obtain the owning human-review disposition for open `RF-002` and refresh its canonical DAG artifact-presence flags only through the governed DAG workflow; local artifacts do not close the finding, and `HumanDisposition` remains `TBD` (PDU-060).",
+      "proposed_effect": "Conditional localized native-open JSON handoff binding only. Preserve RF-002 HumanDisposition=TBD and governed DAG artifact flags.",
+      "condition": "RESULTS source freeze, complete consumer scope acceptance, independent review and required gates; NOT executed",
+      "lifecycle": "Preserve existing lifecycle; no whole-deliverable closure",
+      "memory_addition_template": "Record only accepted source-cut behavior, exact source/evidence bindings, focused and complete gate outcomes, and preserved exclusions. Cite final root acceptance and owning RESULTS packet; do not substitute this preparation for implementation evidence."
+    }
+  ],
+  "design_ownership": "Accepted ENGINEERING/UI packets are derivative design/prototype evidence; pressure/connector runtime and production UI remain outside this source tranche. Engineering/UI primary ownership locators are consumed from their acceptance records, not a broad deliverable-status audit."
+}

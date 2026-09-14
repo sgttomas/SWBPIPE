@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "nonlinear_supports",
+      "id": "result:nonlinear-support:free-dof-force-residual",
+      "kind": "nonlinear_support_observed_free_dof_force_residual",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+        "component": "observed_free_dof_force_residual",
+        "coordinate_system": "solver_iteration",
+        "location": "final_iteration",
+        "sign_convention": "nonnegative max absolute translational free-DOF equilibrium residual in the final linearized solve"
+      },
+      "unit": "N",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

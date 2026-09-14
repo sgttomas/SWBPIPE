@@ -1,0 +1,13 @@
+{
+  "exactRestorationToV2": true,
+  "onlyChanges": "four resultRows records appended; Details conditional category/governing/meaning fields",
+  "unchangedAssets": {
+    "index.html": true,
+    "workspace.css": true,
+    "capabilities.js": true
+  },
+  "successorManifestEntriesVerified": 7,
+  "mismatches": [],
+  "priorWitnessReuse": "Original36 case groups source-supported for unchanged routing/operations/state/selection/view/guards/quantity rows; earlier images are not new successor captures. New discrete rows affect results dock contents and Details, receiving actual targeted witness.",
+  "noFullRerunClaim": true
+}

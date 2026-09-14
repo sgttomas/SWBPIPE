@@ -1,0 +1,43 @@
+{
+  "parent": "/root",
+  "task": "/root/workflow_contact_setup",
+  "configured_model_effort": "gpt-5.6-sol/medium; not runtime-attested",
+  "role": "TASK nondelegating instruction-asserted",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/AFTER_PHYSICAL_INVENTORY_V1.json",
+      "sha256": "a5c5187b18be5ec68f9507b57694ba471e811b5591dc4c3cc162664c2adb4a7a",
+      "bytes": 557647
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/BEFORE_PHYSICAL_INVENTORY_V1.json",
+      "sha256": "f2ce82732b50fb0506fb1be79efc66bba66e5165c5e00e44bbef78c3f8555b79",
+      "bytes": 145593
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/BRIEF.md",
+      "sha256": "2352f20c62c4ba3e72ddff43ae9fc3bcc3cce77c8180f3d90617bf86f1e97131",
+      "bytes": 3377
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/EFFECT_ACCOUNTING_V1.json",
+      "sha256": "36d89d062429feefcc24a74ad74195357e79c9fe3cdc9c69385b933fa3a68da6",
+      "bytes": 750
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/HISTORICAL_ORIGIN_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "857ec78891156946ab024957ccc74b1c17cfb291e474c2b13c929ed8e3ec53b0",
+      "bytes": 16720
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/RESULTS_IMPORT_BINDING_V1.json",
+      "sha256": "6b17cc4f68ee838f715db320d7a3e197439f91d28ef79d4899b88cbe6dc59708",
+      "bytes": 1080667
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/RETURN.md",
+      "sha256": "83807d056fd118b40919f0183bfbe5399e2f17bced81304c68d24f802670ab7c",
+      "bytes": 974
+    }
+  ]
+}

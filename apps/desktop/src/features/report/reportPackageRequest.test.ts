@@ -3,6 +3,7 @@ import { buildAnalysisRunPreview, buildPreviewComparison, loadPreviewModel, runP
 import { canonicalSha256Hex } from "../../services/hashService";
 import { buildCurrentSessionInputManifest } from "../../services/inputManifestService";
 import type { PreviewModel } from "../../types";
+import {resultSemantics} from "../results/resultSemantics";
 import { buildReportPackageRequest } from "./reportPackageRequest";
 import componentProvenanceProjection from "../../../../../fixtures/reports/invented/component_provenance_cross_layer_projection.json";
 
@@ -125,7 +126,9 @@ describe("report-package current-session request", () => {
     expect(inputManifest.manifest_sha256).not.toBe(resultEnvelopeHash);
     expect(request.audit_manifest.rule_pack_refs).toEqual([]);
     expect(request.result_envelopes[0].run_ref.ref_id).toBe(result.run_id);
-    expect(request.result_envelopes[0].result_sets.flatMap((set) => set.values)).toHaveLength(result.results.length);
+    expect(request.result_envelopes[0].result_sets.flatMap((set) => set.values).length).toBeLessThan(result.results.length);
+    for(const value of request.result_envelopes[0].result_sets.flatMap(set=>set.values)){const row=result.results.find(row=>row.id===value.result_id)!;expect(resultSemantics(row)?.category).toBe("physical_quantity");expect(value.magnitude).toBe(row.value);expect(value.unit).toBe(row.unit);expect(value.dimension).toBe(resultSemantics(row)?.derivative_target_dimension);}
+    expect(request.result_envelopes[0].diagnostics.some(d=>d.code==="REPORT_SOURCE_EVIDENCE_DISCLOSED")).toBe(true);
     expect(request.result_envelopes[0].provenance).toMatchObject({
       source_location: "local desktop session",
       contributor: "user_local_session",
@@ -142,14 +145,14 @@ describe("report-package current-session request", () => {
           item.result_id ===
           "result:component-stiffness:component-C-150:axial"
       )?.dimension
-    ).toBe("linear_stiffness");
+    ).toBeUndefined();
     expect(
       resultValues.find(
         (item) =>
           item.result_id ===
           "result:component-stiffness:component-C-150:torsional"
       )?.dimension
-    ).toBe("rotational_stiffness");
+    ).toBeUndefined();
     const reportValues = request.report.report_sections.user_supplied_values;
     expect(
       reportValues.find((item) => item.value_id === "spring-hanger:support:SH-140")
@@ -258,23 +261,7 @@ describe("report-package current-session request", () => {
     const analysisRun = await buildAnalysisRunPreview(deceptive, {
       inputManifest
     });
-    const request = await buildReportPackageRequest({
-      model,
-      result: deceptive,
-      analysisRun,
-      inputManifest,
-      projectSummary: null,
-      comparison: null,
-      ruleCheckAggregate: null
-    });
-    const mapped = request.result_envelopes[0].result_sets
-      .flatMap((set) => set.values)
-      .find((item) => item.result_id === target!.id);
-    expect(mapped).toMatchObject({
-      family: "force",
-      dimension: "force",
-      unit: "MPa"
-    });
+    await expect(buildReportPackageRequest({model,result:deceptive,analysisRun,inputManifest,projectSummary:null,comparison:null,ruleCheckAggregate:null})).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
   });
 
   it("blocks a source dimension that contradicts exact result kind semantics", async () => {

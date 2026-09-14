@@ -1,0 +1,524 @@
+{
+  "kind": "Candidate analytical specifications; no execution or adopted engineering tolerance",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "verification_method": "Fresh root-direct checker derives and evaluates before source effect, importing no production solver/kernel. This manager authored exact expected expressions and performed no mathematical executable tests.",
+  "precision_contract": {
+    "identities": "Symbolic exact where possible; numerical oracle implementations state machine-precision/scale guards and residuals before observing production outputs",
+    "engineering_acceptance_threshold": "NONE introduced",
+    "geometry_guard_candidate": "64*machine_epsilon*declared_reference_scale; dimensionless triad checks use separate dimensionless scale"
+  },
+  "pressure": {
+    "inputs": {
+      "ri_m": 1,
+      "ro_m": 2,
+      "L_m": 1,
+      "E_pa": 120,
+      "nu": "1/4",
+      "p_pa": 3,
+      "external_reference_pa": 0
+    },
+    "derived_exact": {
+      "Ai_m2": "pi",
+      "As_m2": "3*pi",
+      "P_N": "3*pi",
+      "EA_N": "360*pi",
+      "G_pa": 48,
+      "A_pa": 1,
+      "B_pa_m2": 4
+    },
+    "lame_boundaries": {
+      "inner_radial_pa": -3,
+      "outer_radial_pa": 0,
+      "inner_hoop_pa": 5,
+      "outer_hoop_pa": 2,
+      "radial_plus_hoop_pa": 2
+    },
+    "cases": [
+      {
+        "id": "P1_FREE_TRANSFER",
+        "thermal_strain": 0,
+        "terminal_transfer": [
+          true,
+          true
+        ],
+        "epsilon_z": "1/240",
+        "Nw_N": "3*pi",
+        "S_N": 0,
+        "axial_membrane_pa": 1,
+        "pipe_support_pair_N": [
+          0,
+          0
+        ],
+        "eigen_pair_N": [
+          "3*pi/2",
+          "-3*pi/2"
+        ],
+        "cap_pair_N": [
+          "-3*pi",
+          "3*pi"
+        ],
+        "wall_endpoint_pair_N": [
+          "-3*pi",
+          "3*pi"
+        ]
+      },
+      {
+        "id": "P2_RESTRAINED_TRANSFER",
+        "thermal_strain": 0,
+        "terminal_transfer": [
+          true,
+          true
+        ],
+        "epsilon_z": 0,
+        "Nw_N": "3*pi/2",
+        "S_N": "-3*pi/2",
+        "axial_membrane_pa": "1/2",
+        "support_on_vessel_pair_N": [
+          "3*pi/2",
+          "-3*pi/2"
+        ],
+        "wall_endpoint_pair_N": [
+          "-3*pi/2",
+          "3*pi/2"
+        ]
+      },
+      {
+        "id": "P3_FREE_SEPARATE_CLOSURES",
+        "thermal_strain": 0,
+        "terminal_transfer": [
+          false,
+          false
+        ],
+        "epsilon_z": "-1/240",
+        "Nw_N": 0,
+        "S_N": "-3*pi",
+        "axial_membrane_pa": 0,
+        "pipe_support_pair_N": [
+          0,
+          0
+        ],
+        "remote_support_pair_N": [
+          "3*pi",
+          "-3*pi"
+        ],
+        "eigen_pair_N": [
+          "3*pi/2",
+          "-3*pi/2"
+        ],
+        "assembled_cap_pair_N": [
+          0,
+          0
+        ],
+        "wall_endpoint_pair_N": [
+          0,
+          0
+        ]
+      },
+      {
+        "id": "P4_MIXED_THERMAL_PRESSURE",
+        "thermal_strain": "1/1000",
+        "terminal_transfer": [
+          true,
+          true
+        ],
+        "free": {
+          "epsilon_z": "31/6000",
+          "Nw_N": "3*pi",
+          "S_N": 0,
+          "axial_membrane_pa": 1,
+          "pipe_support_pair_N": [
+            0,
+            0
+          ]
+        },
+        "restrained": {
+          "epsilon_z": 0,
+          "Nw_N": "57*pi/50",
+          "S_N": "-93*pi/50",
+          "axial_membrane_pa": "19/50",
+          "support_on_vessel_pair_N": [
+            "93*pi/50",
+            "-93*pi/50"
+          ]
+        },
+        "eigen_pair_N": [
+          "57*pi/50",
+          "-57*pi/50"
+        ]
+      }
+    ],
+    "sign_and_conservation": [
+      "For local i-to-j positive tension, node-on-element wall endpoint actions[-Nw,+Nw], cuts[-qi,+qj] both Nw; support-on-vessel uses opposite endpoint action sign as explicitly declared",
+      "Two equal-bore collinear members[0,1],[1,2] have zero internal cap action; reversing either authored member leaves global loads/wall section meaning invariant",
+      "Unequal wall area but equal bore preserves internal P cancellation while member Poisson strain depends on EAs",
+      "One transferring/one separate terminal under adequate supports has explicitly nonzero resultant applied wall load; support balance accounts for it; a free globally unbalanced case must block singular/unsupported solve, never fabricate equilibrium",
+      "Pressure-only free and restrained support balance is verified vectorially, not only magnitudes",
+      "Mechanical distributed-load fixed-end correction is separate from eigenload; station Nw variation follows existing cut equilibrium"
+    ],
+    "reductions": [
+      "p=0 thermal-only",
+      "nu=0 no Poisson eigenload",
+      "thermal_strain=0",
+      "signed p reversal",
+      "signed temperature reversal",
+      "linear superposition within declared approximation"
+    ],
+    "material_interpolation_case": {
+      "points": [
+        {
+          "fraction": 0,
+          "E_pa": 120,
+          "nu": "1/4",
+          "G_pa": 48
+        },
+        {
+          "fraction": 1,
+          "E_pa": 240,
+          "nu": "1/3",
+          "G_pa": 90
+        }
+      ],
+      "midpoint_expected": {
+        "E_pa": 180,
+        "nu": "7/24",
+        "G_pa": "2160/31"
+      },
+      "forbidden_independent_G_interpolation_pa": 69,
+      "basis": "interpolate E/nu then derive G"
+    },
+    "missing_and_legacy": [
+      "Exact missing nu/constitutive_basis/terminals/region pressure blocks without defaults",
+      "Nonempty partial request.materials never merges with model.materials",
+      "Exact pressure-dimensional/category primitive rejects, legacy genuine-pressure eligibility unchanged",
+      "Disconnected/cyclic/branched/noncollinear/overlapping/unequal-bore region blocks",
+      "Old0.1/0.2 without new namespace selects legacy without input mutation",
+      "Old version with new namespace blocks",
+      "Unknown/newer version blocks",
+      "In-memory0.2->0.3 adds legacy profile only; stored model/attachment bytes unchanged until explicit save",
+      "Temperature base/point/bracket uses one E/nu pair; no base fallback/extrapolation"
+    ],
+    "mutations": [
+      "omit2nuP",
+      "flip Poisson sign",
+      "subtract cap from wall recovery",
+      "double cap",
+      "double longitudinal pressure stress",
+      "use mean-radius Ai",
+      "omit S fluid term",
+      "keep independent G interpolation",
+      "infer legacy closure/nu",
+      "silently ignore exact namespace"
+    ],
+    "runtime_following_slice_only": [
+      "dense/sparse parity for all cases",
+      "whole new canonical solved envelopes validate",
+      "each new row/source/contract evidence survives export/analysis-run persistence without modifying legacy hashing",
+      "blocked/nonconverged status never fabricates canonical solved results"
+    ]
+  },
+  "connector": {
+    "base_geometry": {
+      "xi_m": [
+        0,
+        0,
+        0
+      ],
+      "xj_m": [
+        2,
+        0,
+        0
+      ],
+      "offset_i_m": [
+        0,
+        0,
+        0
+      ],
+      "offset_j_m": [
+        0,
+        0,
+        0
+      ],
+      "Qi_Qj_Q": "identity triads",
+      "Ls_m": 2,
+      "rotation_scale_rad": 1
+    },
+    "diagonal_example": {
+      "Kc_diagonal_SI": [
+        10,
+        20,
+        30,
+        40,
+        50,
+        60
+      ],
+      "H_diagonal_N_m": [
+        40,
+        80,
+        120,
+        40,
+        50,
+        60
+      ],
+      "q_ref": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "rigid_modes": {
+      "translations": "ui=uj=t,theta_i=theta_j=0 yields q=0",
+      "rotations": "uk=t+omega cross(xk-origin),theta_i=theta_j=omega yields q=0 including arbitrary offsets/triads/origins",
+      "stress_free": "Kc q_ref=0 implies f=Pi=0",
+      "prestressed": "q unchanged and Pi/f invariant after adding rigid motion; nonzero baseline force/energy permitted"
+    },
+    "six_components": [
+      {
+        "component": "tx",
+        "q": 0.01,
+        "isolation": "ujx=.01; otherDOF0",
+        "generalized_force_N": 0.1,
+        "energy_N_m": 0.0005
+      },
+      {
+        "component": "ty",
+        "q": 0.01,
+        "isolation": "ujy=.01; theta0",
+        "generalized_force_N": 0.2,
+        "node_force_y_N": [
+          -0.2,
+          0.2
+        ],
+        "node_moment_z_N_m": [
+          -0.2,
+          -0.2
+        ],
+        "energy_N_m": 0.001
+      },
+      {
+        "component": "tz",
+        "q": 0.01,
+        "isolation": "ujz=.01; theta0",
+        "generalized_force_N": 0.3,
+        "node_force_z_N": [
+          -0.3,
+          0.3
+        ],
+        "node_moment_y_N_m": [
+          0.3,
+          0.3
+        ],
+        "energy_N_m": 0.0015
+      },
+      {
+        "component": "rx",
+        "q": 0.01,
+        "isolation": "theta_jx=.01; uj0",
+        "generalized_moment_N_m": 0.4,
+        "energy_N_m": 0.002
+      },
+      {
+        "component": "ry",
+        "q": 0.01,
+        "isolation": "theta_jy=.01; ujz=-.01 cancels qt",
+        "generalized_moment_N_m": 0.5,
+        "energy_N_m": 0.0025
+      },
+      {
+        "component": "rz",
+        "q": 0.01,
+        "isolation": "theta_jz=.01; ujy=.01 cancels qt",
+        "generalized_moment_N_m": 0.6,
+        "energy_N_m": 0.003
+      }
+    ],
+    "coupled_H_case": {
+      "nonzero_H_entries_N_m": {
+        "H00": 4,
+        "H03": 1,
+        "H33": 9
+      },
+      "q_SI": [
+        0.2,
+        0,
+        0,
+        0.1,
+        0,
+        0
+      ],
+      "qhat": [
+        0.1,
+        0,
+        0,
+        0.1,
+        0,
+        0
+      ],
+      "generalized_force_tx_N": 0.25,
+      "generalized_moment_rx_N_m": 1,
+      "energy_N_m": 0.075,
+      "semidefinite_null_modes": "remaining four coordinates intentionally null",
+      "initial_reference_case": {
+        "q_ref_SI": [
+          0.2,
+          0,
+          0,
+          0.1,
+          0,
+          0
+        ],
+        "d_installed": 0,
+        "initial_node_force_x_N": [
+          0.25,
+          -0.25
+        ],
+        "initial_node_moment_x_N_m": [
+          1,
+          -1
+        ],
+        "initial_energy_N_m": 0.075,
+        "equivalent_RHS": "negative of initial internal residual"
+      }
+    },
+    "scale_calibration": {
+      "old_Ls_m": 2,
+      "new_Ls_m": 1,
+      "same_physical_q_ref": "unchanged",
+      "new_coupled_H": {
+        "H00": 1,
+        "H03": 0.5,
+        "H33": 9
+      },
+      "new_qhat": [
+        0.2,
+        0,
+        0,
+        0.1,
+        0,
+        0
+      ],
+      "same_expected_energy_N_m": 0.075,
+      "same_generalized_tx_N": 0.25,
+      "same_generalized_rx_N_m": 1,
+      "length_unit_case": "translation_scale=2000mm normalizes exactly to2m; q_ref translations1mm versus.001m; normalized K/forces/energy identical",
+      "forbidden": "Map H N*m coefficients to canonical physical moment quantities"
+    },
+    "offset_frame_origin_case": {
+      "xi_m": [
+        1,
+        2,
+        3
+      ],
+      "xj_m": [
+        3,
+        2,
+        3
+      ],
+      "offset_local_i_m": [
+        0,
+        0.2,
+        0
+      ],
+      "offset_local_j_m": [
+        0,
+        0.2,
+        0
+      ],
+      "Qi_Qj_Q": "Identity initial triads; additionally rotate all reference geometry/triads by R and translate",
+      "expected": "B rigid modes0; transformed q/H-reference energy unchanged; global forces/moments transform with R; arbitrary-origin force/moment balance0",
+      "R_row_major": [
+        [
+          0,
+          -1,
+          0
+        ],
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "translation_m": [
+        7,
+        -3,
+        5
+      ]
+    },
+    "reversal": {
+      "J_diagonal": [
+        -1,
+        1,
+        -1
+      ],
+      "T": "blockdiag(-J,-J)",
+      "operations": "Swap attachments and transform Q'=QJ,q_ref'=Tq_ref,Kc'=TKcT^T,H'=THT^T",
+      "expected": "energy identical; global nodal internal force/moment blocks permuted; all initial residuals and q_ref transformed"
+    },
+    "derivatives": [
+      "Independent symbolic B=dq/dd",
+      "finite-difference B",
+      "energy gradient=f_internal",
+      "Ke symmetric=B^TKcB",
+      "virtual work g dot delta_q=f dot delta_d",
+      "force sum0 and sum((x-origin) cross F+M)=0 including offsets/prestress"
+    ],
+    "PSD_cases": [
+      "positive definite diagonal",
+      "coupled4,1,9 principal block with positive determinant35",
+      "null-coordinate reference accepted only with Kq_ref=0 stress-free",
+      "negativeoffdiagonal valid PSD",
+      "negative eigenvalue rejects",
+      "nonfinite H/scale rejects",
+      "coefficient_unit otherthan N*m rejects",
+      "unsupported units/coordinateorder rejects"
+    ],
+    "topologies": [
+      "replacement omits exactly matching span; rejects duplicate replacement and unowned span loads",
+      "series explicit through/terminal roles and adjacent end-plane incidences; no direct bridgingpipe",
+      "parallel every declared samepair element retained; rejects mismatched/unlisted parallel span",
+      "connector can activate under legacy pressure without E/nu; jointpressure composition rejects"
+    ],
+    "raw_difference_mutation": {
+      "omega_z": 0.01,
+      "ui_m": [
+        0,
+        0,
+        0
+      ],
+      "uj_m": [
+        0,
+        0.02,
+        0
+      ],
+      "theta_i_theta_j_rad": [
+        0,
+        0,
+        0.01
+      ],
+      "expected_correct_q_energy": 0,
+      "restored_raw_difference_qy_m": 0.02,
+      "restored_raw_difference_generalized_y_N": 0.4,
+      "restored_raw_difference_energy_N_m": 0.004,
+      "mutation_kill": "nonzero finite-end rigidrotation energy/uncancelled force couple"
+    },
+    "other_mutations": [
+      "omit initialresidual",
+      "reinterpret nonzero q_ref asstressfree",
+      "swapIDs without Q/H/q_reftransform",
+      "transpose authored columntriad",
+      "ignoreoffsets",
+      "use fixed1m instead authoredLs",
+      "mapH tomoment quantity",
+      "inferremote endpoint wholepipe",
+      "assemble replacement span inparallel",
+      "silentlyactivate ambiguouslegacy"
+    ]
+  }
+}

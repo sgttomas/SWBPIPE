@@ -1,0 +1,30 @@
+{
+  "status": "FINAL_PRE_EFFECT_QUALIFICATION_PROPOSAL",
+  "headless_model_aware_solve": {
+    "input": "Exact authored preview-request JSON Value containing model and explicit materials; original RunnerRequest remains separate request metadata.",
+    "binding_creation": "Model-aware solve deserializes typed LinearStaticPreviewRequest from same retained exact Value then calls unchanged physics; qualified internal binding ties exact model-content digest and exact raw mechanics digest/result identity. Material overrides stay separate solve-input provenance and are not guessed from model hash.",
+    "capability": "QualifiedSolvedModelBinding constructor private to actual model-aware solve; public pure adapter accepts this bound evidence, not arbitrary supplied Value plus MechanicsEnvelope.",
+    "internal_carrier": "Private/skipped in PreviewRunnerOutput or separate returned internal binding; no persisted native/CLI transport field expansion.",
+    "mismatch_or_substitution": "Exact model payload identity must equal source mechanics.model_ref; wrong run/raw mechanics digest/substituted payload/missing binding blocks canonical derivative. Matching id alone insufficient."
+  },
+  "request_alias": {
+    "accepted": "RunnerRequest.model_ref may differ as request alias; retain original ref and original request digest in derivative provenance with explicit alias disclosure.",
+    "must_not": "reject cloned baseline solely alias, rename old inputs, copy alias as actual derivative model_ref, treat requestdigest as modelhash"
+  },
+  "desktop_current_session_binding": {
+    "input": "Existing verified CurrentSessionInputManifestEvidence captured for actual current solve, exact original model payload and original result/run source binding.",
+    "localized_call": "Propose App.tsx only existing ResultExportPanel JSX inputManifest={inputManifest} prop; no broad App/history edits. Manager/root acceptance required before this added file effect.",
+    "adapter": "Verify input manifest ref/hash, exact model payload digest/model identity, source result/run source binding and lifecycle already Current; absent proof yields explicit canonical unavailable. Existing preview saved/run hashes never recomputed.",
+    "constraint": "Manifest/model id match alone insufficient; preserve captured solve-input/result linkage. Do not invent a WeakMap/global cache or change immutable legacy seven binder/serializer functions."
+  },
+  "negative_tests": [
+    "sameprojectid substituted model geometry blocked against original solve binding",
+    "substitute raw mechanics with same model/runids blocked by exact rawdigest",
+    "different exact model payload hashed honestly but lacks qualified actual solve token=>blocked",
+    "wrong manifest/hash/modelpayload source=>blocked",
+    "requestalias differs actual producer model=>allowed with distinct alias diagnostic/raw requesthash",
+    "material override explicit input captured separately from authored model hash",
+    "missing proof=>canonical unavailable, raw mechanics/saved bytes unchanged"
+  ],
+  "exact_extra_caller_fence": "apps/desktop/src/App.tsx existing ResultExportPanel call only one proof prop; proposal awaiting root relay, no product write taken"
+}

@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "nonlinear_supports",
+      "id": "result:nonlinear-support:converged-flag",
+      "kind": "nonlinear_support_active_set_converged_flag",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; policy_status=accepted; residual_is_changed_support_count",
+        "component": "active_set_converged_flag",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "sign_convention": "1 means the active-set state-change residual satisfied the supplied preview tolerance"
+      },
+      "unit": "boolean",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

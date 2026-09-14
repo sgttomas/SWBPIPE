@@ -1,0 +1,506 @@
+{
+  "status": "FROZEN_INDEPENDENT_EXPECTATIONS_BEFORE_NEW_ADAPTER",
+  "derivative_package": true,
+  "oracle_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json",
+  "oracle_sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda",
+  "source_only_variants": 10,
+  "fixtures": [
+    {
+      "signature_id": "supported-source-050",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 6230,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-050",
+        "kind": "modulus_basis_record",
+        "value": 1.0,
+        "unit": "record",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "material_modulus_basis",
+          "coordinate_system": "not_applicable",
+          "location": "load:synthetic-source-basis",
+          "basis": "material_base_values",
+          "sign_convention": "presence record; value1 names authoredbasis"
+        }
+      },
+      "expected": {
+        "disposition": "disclosed",
+        "category": "basis_record",
+        "family": null,
+        "dimension": "dimensionless",
+        "value": 1.0,
+        "unit": "record",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "material_modulus_basis",
+          "coordinate_system": "not_applicable",
+          "location": "load:synthetic-source-basis",
+          "basis": "material_base_values",
+          "sign_convention": "presence record; value1 names authoredbasis"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-051",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 6295,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-051",
+        "kind": "combination_modulus_basis_record",
+        "value": 1.0,
+        "unit": "record",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "material_modulus_basis",
+          "coordinate_system": "not_applicable",
+          "location": "load:synthetic-source-basis",
+          "basis": "material_base_values",
+          "sign_convention": "presence record; value1 names authoredbasis"
+        }
+      },
+      "expected": {
+        "disposition": "disclosed",
+        "category": "basis_record",
+        "family": null,
+        "dimension": "dimensionless",
+        "value": 1.0,
+        "unit": "record",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "material_modulus_basis",
+          "coordinate_system": "not_applicable",
+          "location": "load:synthetic-source-basis",
+          "basis": "material_base_values",
+          "sign_convention": "presence record; value1 names authoredbasis"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-052",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 8498,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-052",
+        "kind": "constant_effort_support_applied_load",
+        "value": 1.0,
+        "unit": "N",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "constant_effort_support_applied_load",
+          "coordinate_system": "global",
+          "location": "node:synthetic-source:UX applied load",
+          "basis": "support_family=constant_effort_support;consumed_dof=UX;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        }
+      },
+      "expected": {
+        "disposition": "exported_review",
+        "category": "assembled_load_review",
+        "family": null,
+        "dimension": "force",
+        "value": 1.0,
+        "unit": "N",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "constant_effort_support_applied_load",
+          "coordinate_system": "global",
+          "location": "node:synthetic-source:UX applied load",
+          "basis": "support_family=constant_effort_support;consumed_dof=UX;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-053",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 2145,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-053",
+        "kind": "nonlinear_support_final_displacement",
+        "value": 1.0,
+        "unit": "rad",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "nonlinear_support_final_displacement",
+          "coordinate_system": "solver_iteration",
+          "location": "rx",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF sign convention"
+        }
+      },
+      "expected": {
+        "disposition": "exported_quantity",
+        "category": "physical_quantity",
+        "family": "rotation",
+        "dimension": "angle",
+        "value": 1.0,
+        "unit": "rad",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "nonlinear_support_final_displacement",
+          "coordinate_system": "solver_iteration",
+          "location": "rx",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF sign convention"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-054",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 2167,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-054",
+        "kind": "nonlinear_support_final_reaction",
+        "value": 1.0,
+        "unit": "N*m",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "nonlinear_support_final_reaction",
+          "coordinate_system": "solver_iteration",
+          "location": "rx",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF reaction sign convention"
+        }
+      },
+      "expected": {
+        "disposition": "exported_quantity",
+        "category": "physical_quantity",
+        "family": "reaction",
+        "dimension": "moment",
+        "value": 1.0,
+        "unit": "N*m",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "nonlinear_support_final_reaction",
+          "coordinate_system": "solver_iteration",
+          "location": "rx",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=active",
+          "sign_convention": "positive value follows the global frame DOF reaction sign convention"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-055",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 9257,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-055",
+        "kind": "nonlinear_support_friction_normal_reaction_derived",
+        "value": 1.0,
+        "unit": "N",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "friction_normal_reaction_derived",
+          "coordinate_system": "solver_iteration",
+          "location": "ux",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:synthetic-normal; source_dof=ux",
+          "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
+        }
+      },
+      "expected": {
+        "disposition": "exported_quantity",
+        "category": "physical_quantity",
+        "family": "reaction",
+        "dimension": "force",
+        "value": 1.0,
+        "unit": "N",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "friction_normal_reaction_derived",
+          "coordinate_system": "solver_iteration",
+          "location": "ux",
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:synthetic-normal; source_dof=ux",
+          "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-056",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 8100,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-056",
+        "kind": "spring_hanger_user_input_review",
+        "value": 1.0,
+        "unit": "m",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "variable_spring_hanger_movement_limit",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:movement-limit",
+          "basis": "support_family=variable_spring_hanger;field=movement-limit;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=review_only;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        }
+      },
+      "expected": {
+        "disposition": "exported_review",
+        "category": "review_evidence",
+        "family": null,
+        "dimension": "length",
+        "value": 1.0,
+        "unit": "m",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "variable_spring_hanger_movement_limit",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:movement-limit",
+          "basis": "support_family=variable_spring_hanger;field=movement-limit;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=review_only;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-057",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 8184,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-057",
+        "kind": "constant_effort_user_input_review",
+        "value": 1.0,
+        "unit": "m",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "constant_effort_support_movement_limit",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:movement-limit",
+          "basis": "support_family=constant_effort_support;field=movement-limit;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=review_only;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        }
+      },
+      "expected": {
+        "disposition": "exported_review",
+        "category": "review_evidence",
+        "family": null,
+        "dimension": "length",
+        "value": 1.0,
+        "unit": "m",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "constant_effort_support_movement_limit",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:movement-limit",
+          "basis": "support_family=constant_effort_support;field=movement-limit;source=synthetic_user_reference;manufacturer=synthetic_user_reference;load_side_review=synthetic_user_reference;mechanics_consumption=review_only;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-058",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 8100,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-058",
+        "kind": "spring_hanger_user_input_review",
+        "value": 1.0,
+        "unit": "N*m/rad",
+        "entity_ref": "support:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:RX stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=RX;source=synthetic_user_reference;manufacturer=synthetic_user_reference;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        }
+      },
+      "expected": {
+        "disposition": "exported_review",
+        "category": "review_evidence",
+        "family": null,
+        "dimension": "rotational_stiffness",
+        "value": 1.0,
+        "unit": "N*m/rad",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:synthetic-source:RX stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=RX;source=synthetic_user_reference;manufacturer=synthetic_user_reference;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "Synthetic source-bound user-input evidence; not computed witness"
+        },
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    },
+    {
+      "signature_id": "supported-source-059",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT",
+      "source_kind_occurrence_line": 8645,
+      "raw_row": {
+        "id": "result:synthetic-supported-source-059",
+        "kind": "pipe_section_pressure_longitudinal_stress",
+        "value": 1.0,
+        "unit": "MPa",
+        "entity_ref": "pipe:synthetic-source",
+        "basis_ref": null,
+        "source_result_refs": [],
+        "metadata": {
+          "component": "pressure_longitudinal_stress",
+          "coordinate_system": "pipe_section",
+          "location": "end_i",
+          "basis": "recovered_from_open_mechanics_stress_components",
+          "sign_convention": "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis"
+        }
+      },
+      "expected": {
+        "disposition": "exported_quantity",
+        "category": "physical_quantity",
+        "family": "stress",
+        "dimension": "stress",
+        "value": 1.0,
+        "unit": "MPa",
+        "source_dimension_present": false,
+        "source_dimension": null,
+        "source_annotation_metadata": {
+          "component": "pressure_longitudinal_stress",
+          "coordinate_system": "pipe_section",
+          "location": "end_i",
+          "basis": "recovered_from_open_mechanics_stress_components",
+          "sign_convention": "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis"
+        },
+        "canonical_metadata": {
+          "component": "pressure_longitudinal_stress",
+          "coordinate_system": "pipe_section",
+          "location": "end_i",
+          "basis": "recovered_from_open_mechanics_stress_components",
+          "sign_convention": "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis"
+        },
+        "canonical_metadata_policy": "Pressurelongitudinalcopy exactfinitefields; all otherexpandedvariants reviews/disclosures or optionalphysicalmetadataomission with complete sourceannotation retained.",
+        "governing_ratio_eligible": false
+      },
+      "negative_unit": {
+        "unit": "Pa",
+        "expectation": "known_kind_unit_contradiction_blocks_canonical"
+      },
+      "negative_component": {
+        "component": "contradictory_source_component",
+        "expectation": "known_kind_component_contradiction_blocks_canonical"
+      }
+    }
+  ],
+  "limits": "All10sourcevariants authored from livebranch facts; synthetic value1 and user-reference strings arenot measuredmechanics. No runtime coverageclaim. Later tests must bind genuine model/currentproof whereadapterrequires it; no spoofedCurrentqualification."
+}

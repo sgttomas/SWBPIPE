@@ -1,0 +1,599 @@
+{
+  "kind": "actual bounded UI context manifest",
+  "base_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913/projects/chirality-piping",
+  "parent": "/root",
+  "role": "HELPS_HUMANS Type 1",
+  "runtime": {
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "attestation": "parent-configured; not independently supplier/runtime-attested",
+    "mechanism": "delegated-harness-native child; no children dispatched"
+  },
+  "instruction_notes": [
+    "Actual checkout root AGENTS and named role were consulted; inherited user-supplied older AGENTS is retained conversation context, not represented as current checkout bytes.",
+    "No wider role packages or skill bodies consulted.",
+    "Receipt 139 validity, R5 state and parent discovery remain parent-attributed; no independent receipt check, selfcheck, tests or runtime witness."
+  ],
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+      "bytes": 12638,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "bytes": 2044,
+      "consumption": "full file supplied"
+    },
+    {
+      "path": "docs/CONTRACT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "64747d2a3c58ae93194bd5c7118d89a591b7b4ebe8cec7e88cb6a95dc55895bd",
+      "bytes": 22362,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "bytes": 6912,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/docs/PRD.md",
+      "origin": "active checkout filesystem",
+      "sha256": "9c3bccd8d2eb8e68c10e05d50bdd29619892196c98069a2587ba3a1ff4880793",
+      "bytes": 70146,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "bytes": 36628,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "origin": "git show HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+      "bytes": 15003,
+      "consumption": "committed bytes loaded; sha256 independently matched BOOTSTRAP"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "origin": "active checkout filesystem",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "bytes": 2808,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "bytes": 1778370,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_COORDINATION.md",
+      "origin": "active checkout filesystem",
+      "sha256": "54e071eecfea36658dc8ba99f1ecd81d2f464d2c32be8431339cd2118d10ab5c",
+      "bytes": 5997,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/Vocabulary_Annex.md",
+      "origin": "active checkout filesystem",
+      "sha256": "f005abbc0d55b047ee7c34628e169aeb3646cd139a9c2c214a33760df4d63c7c",
+      "bytes": 14891,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_ScopeChange/SCA-009_2026-08-20_0000/ACCEPTANCE_RECORD.md",
+      "origin": "active checkout filesystem",
+      "sha256": "0e4b789920f9a0f8f6f3776555a44352de051f4542e750aa9bc6e8604a785771",
+      "bytes": 12343,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371",
+      "bytes": 142939,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/styles.css",
+      "origin": "active checkout filesystem",
+      "sha256": "e33086d3bf832cc0f79592eff86f86b6c50356a3ee680f614665cc482a485304",
+      "bytes": 75080,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+      "bytes": 131119,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4",
+      "bytes": 5311,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4",
+      "bytes": 23073,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/ToolkitPalette.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "83920a7d8f87175e0f4b42b95b17f50253a41dd0e6c2fe76083ef786b65e1a7e",
+      "bytes": 5553,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7",
+      "bytes": 13913,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/toolkit/BatchReviewPanel.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "66a4f562d1354ea86041858b678c7c92e477d071aedb1a5a9ad4cdc59b976ba5",
+      "bytes": 4328,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3",
+      "bytes": 45695,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+      "bytes": 119519,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "bytes": 21519,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "bytes": 5181,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/operations/OperationLedgerPanel.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "85ad1673e18af061ff2058b86e7b74b1130b41dccb43be9b941351efa13a6e68",
+      "bytes": 17161,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/geometry-tools/GeometryToolsPanel.tsx",
+      "origin": "active checkout filesystem",
+      "sha256": "d08375d3a81530b7d5661d903353f5c80b7222d573f4bbc4af8198db6042a9e7",
+      "bytes": 6752,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationService.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "8f213ac1f3a0afb1f98072b7fa476e6d89ce13bde9b44e6fa56f60a13b5670e2",
+      "bytes": 4498,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f",
+      "bytes": 3436,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "origin": "active checkout filesystem",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f",
+      "bytes": 736,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/playwright.config.ts",
+      "origin": "active checkout filesystem",
+      "sha256": "d06b8c52bad88e5299ca9dad1feb8170f85f7b76682d837ee209060b93460db0",
+      "bytes": 3290,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "origin": "active checkout filesystem",
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "bytes": 530814,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/schemas/model_operation.schema.json",
+      "origin": "active checkout filesystem",
+      "sha256": "7bdb79be17ce332a81275c9bd5a83250c74bfb6b96a9a1675ad1aef470898f44",
+      "bytes": 20914,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/BOOTSTRAP.json",
+      "origin": "active checkout filesystem",
+      "sha256": "b556f6be3c1120ebcec7d1a0f439c71bcf97f963eb9f58c2c649322b9e742c3a",
+      "bytes": 2546,
+      "consumption": "full file supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/USER_DIRECTION.md",
+      "origin": "active checkout filesystem",
+      "sha256": "4a3f210e1636979ab97c05ff6e835316ef384e8c93368ad0d48c65375e20b718",
+      "bytes": 878,
+      "consumption": "full file supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/briefs/UI.md",
+      "origin": "active checkout filesystem",
+      "sha256": "538bd51543697049a1c51cd9b02f0d6f10d04da6f69f2a65155c2eed51cc7184",
+      "bytes": 5527,
+      "consumption": "full file supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1",
+      "bytes": 6223,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "15ad89aeaf7892df1bd6241984270307cede87d520869e50832ed0f83818d9d9",
+      "bytes": 2987,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91",
+      "bytes": 34294,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128",
+      "bytes": 23962,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "90ad5c2f760ee91d93284f00908aeb15c4254336a549da1d8620216d13b0ba72",
+      "bytes": 6915,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "a393a4d47ba3ad7056eda44bc722e7c3a9aef2ecf360f3c29b63d409f10a36a3",
+      "bytes": 2926,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "4185e8d4ca34085890d7652aafe336690702956999766e9e74cf7271c8a3851b",
+      "bytes": 61012,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "0a86bb4f7f447ab84d496b7c4390e1c54744764a7a558aa38615504b3a6ff1b6",
+      "bytes": 19435,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "1e19832a2a39dc2b7fdfb24a57293e4fe676cafa8bca674eb4c1a97f354742dc",
+      "bytes": 5103,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "e69a8d7d832b5af0f15e08c3c242e9d5ace98f26a752ee41fda06855f528ae10",
+      "bytes": 3400,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "a830f675b05d70a01380cab3dd17c0b8e6bb9d3dd40d9a99186d5f49f579d2a6",
+      "bytes": 30305,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "c511f8ea8ec13ac94133d6f5d8c98bbece580a216ace03c269fdfd15ed4c2457",
+      "bytes": 21115,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "b1f353431a062c9bb69ef6adadce7df66c0a3739f52f1f078a4f0b1a25807522",
+      "bytes": 3166,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "4eba62035a7b9c9d92df35e538bbee3a00f736b74ec4928867fabba92f6a547a",
+      "bytes": 2993,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "17f04201bb2378faf0b9a84044e087cbc6586fcb457859ac2d217ab72919b844",
+      "bytes": 16047,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "3968848bca64fe50fe5a9901f0d20e95a3323126a52f5a477f36e0a5752d4596",
+      "bytes": 20541,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "a3ef564379b14d756ef6c40c13302ad48ea95011f0c02dd7646a332246c03b64",
+      "bytes": 4203,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "64436868120a3fa4d6694110680aaaf455fcecd0f75553295093d10e4828f51b",
+      "bytes": 2971,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "49e19ab2f223b8e46c7826cd97243abfacf4237f9a5ddaff41a714879ad27f60",
+      "bytes": 34407,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "34a7fd72702820213dee27eb1e79260c306fd28fa3e054bc587f4f83dfe483c9",
+      "bytes": 18534,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/ScopeOfWork.md",
+      "origin": "active checkout filesystem",
+      "sha256": "a1868f1ee972db40eaf0ae42cd73bd3c749e70e6979dffb5cbbdc0230a812b46",
+      "bytes": 27775,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e",
+      "bytes": 2487,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641",
+      "bytes": 2547,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0",
+      "bytes": 5239,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Palette_Operation_Routing.md",
+      "origin": "active checkout filesystem",
+      "sha256": "fa87653ae52947b845a7d8fb20a499f1c6c5b963911b798f2b0035d385bd6620",
+      "bytes": 18220,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "ad375299b8e9c562b4267e950cf38a233308740be66007eb9415298091a66ed4",
+      "bytes": 3798,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "3ebc6937b0988d597682c5a9ad811b9a9fc25df39f9e96be6c38ac854d414059",
+      "bytes": 3851,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "c20b36438a147dcfef395d628a81a5bc0ac08c56494a2ad68ba86a9dd5c6c1f7",
+      "bytes": 10255,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "e03750d50568a7710865e81e3e90c75e874e29dd2837be7805faaf214e6550ec",
+      "bytes": 15333,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "40fde135a21a9adc07c56694b617e7151d2d215a1a36ff6f7915bf3d1111bd29",
+      "bytes": 2872,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "8671b445ce7f168ae6d0197a41971cf889a9b0fa076190d78dbd9e249bb9b469",
+      "bytes": 3791,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "4d17f0f2976ece12a3433ea15628c68f9ec45bad2ea8b90c36649875a000118f",
+      "bytes": 59117,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "32c6177e2912012386cd19de2c0813ac5a22dbd96ba8d5ebb90441e6c6e389a7",
+      "bytes": 19807,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "60ceeb8eef85c03980c7aae302096c841689cd69fabed52b110253e3db5c54a5",
+      "bytes": 3412,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "dfb94b10c777df62fd41a33053b11b4a33a4a695dc4f5de0e2d34a887b6b1361",
+      "bytes": 4043,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "44aa9d313d36cc9168a6627098842062c0ed5d19d7639afe0c44c64abea7f244",
+      "bytes": 43234,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "3f9a2038f2fe330d13bf4c3d16cd31e557f0c70ec0e2081b25716fbfb16a04af",
+      "bytes": 16584,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_STATUS.md",
+      "origin": "active checkout filesystem",
+      "sha256": "39af5d4b4ebfcf0c0c46b122f29d33f33b0774094be317201ac8a8269572b366",
+      "bytes": 4283,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/_CONTEXT.md",
+      "origin": "active checkout filesystem",
+      "sha256": "dfee96be2f6a42034720dc98ab2c095e0b812f06fd449cea74bbd4bebf034a7b",
+      "bytes": 3834,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/MEMORY.md",
+      "origin": "active checkout filesystem",
+      "sha256": "f687e95232366012570553723093937bc94d8c2209c3df706e5b2bbce1d4458e",
+      "bytes": 10880,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Dependencies.csv",
+      "origin": "active checkout filesystem",
+      "sha256": "a08285042346d161ecfdf41cd1ea1c1975e6d3f83d023ca71ffde607e2e6d4eb",
+      "bytes": 15233,
+      "consumption": "bounded excerpts/search; tool output may be truncated; hash binds complete source file, not an assertion every line was supplied"
+    }
+  ],
+  "missing_requested_files": [
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-02_Model tree and property inspector/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-03_Material, component, and rule-pack editors/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-05_Results viewer/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-06_Accessibility and usability baseline/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Specification.md",
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Specification.md",
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-02_Operation validation and diff preview/Specification.md",
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-03_User acceptance and operation audit trail/Specification.md",
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-04_Agent rationale and professional-boundary controls/Specification.md"
+  ],
+  "web": {
+    "access_date": "2026-09-13",
+    "relied_on": [
+      {
+        "url": "https://help.autodesk.com/cloudhelp/2026/ENU/Plant3D-UserGuide/files/GUID-80606EFD-7D5C-43CD-8F90-DBFEF07EE34D.htm",
+        "title": "About the Compass and Snaps",
+        "consumed": "web tool text lines 4-72; routing planes, continuation grips, object snaps and direct distance input"
+      },
+      {
+        "url": "https://www.sstusa.com/caepipe-graphics.php",
+        "title": "CAEPIPE Graphics",
+        "consumed": "web tool text lines 64-118; synchronized text/graphics selection, contextual commands and result views"
+      }
+    ],
+    "unusable_not_relied_on": [
+      {
+        "url": "https://help.solidworks.com/2026/english/SolidWorks/sldworks/c_triad.htm",
+        "reason": "web tool unsafe/non-retryable response"
+      },
+      {
+        "url": "https://help.solidworks.com/2025/english/SolidWorks/sldworks/c_triad.htm",
+        "reason": "opened text was JS shell only; search snippet not used to substantiate design"
+      }
+    ],
+    "hash_note": "Remote bytes not downloaded or hash-attested; URLs and actual tool reading scope recorded."
+  }
+}

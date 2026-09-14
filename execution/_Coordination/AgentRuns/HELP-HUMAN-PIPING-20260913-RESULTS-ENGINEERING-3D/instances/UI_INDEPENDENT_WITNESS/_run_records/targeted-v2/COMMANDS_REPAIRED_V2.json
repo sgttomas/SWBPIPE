@@ -1,0 +1,26 @@
+{
+  "tool": "functions.exec → tools.exec_command/write_stdin; tools.view_image for local QA",
+  "lease": "ROOT_LEASE_UI_INDEPENDENT_03_RELEASED",
+  "command": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/targeted-v2/independent-targeted-witness-v2-repaired.mjs > /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/targeted-v2/browser-v2-repaired.stdout.txt 2> /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/targeted-v2/browser-v2-repaired.stderr.txt",
+  "processSession": 59752,
+  "processExit": 0,
+  "assertionOutcome": "BOUNDED_PASS_ALL_SIX",
+  "report": "TARGETED_REPORT_V2_REPAIRED.json",
+  "stdout": "browser-v2-repaired.stdout.txt",
+  "stderr": "browser-v2-repaired.stderr.txt",
+  "browserAndContextsClosed": true,
+  "sourceUnchanged": true,
+  "errorsScope": "pageerror listener and non-file page-request interception; console-error listener was not separately installed for targeted continuation",
+  "repairCycles": 1,
+  "appRepairs": 0,
+  "visualQA": {
+    "all24SuccessfulScreenshotsReviewedInFourContactSheets": true,
+    "originals": [
+      "1024x768-comfortable-discrete-current-details",
+      "1024x768-compact-discrete-historical-details",
+      "1024x768-comfortable-discrete-historical-top",
+      "1440x920-comfortable-repaired-pointer-review"
+    ],
+    "result": "Essential controls remain reachable and layout unchanged. Added rows/details require vertical dock scrolling; category/governing/invented meanings and Historical warnings inspectable. No new actionable layout finding."
+  }
+}

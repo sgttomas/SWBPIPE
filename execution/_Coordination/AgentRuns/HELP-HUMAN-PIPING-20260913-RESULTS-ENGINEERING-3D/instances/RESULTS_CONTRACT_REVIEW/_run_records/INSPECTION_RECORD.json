@@ -1,0 +1,24 @@
+{
+  "at": "2026-09-14 UTC current host date as recorded by session; no runtime validation performed",
+  "operation": "read-only file/JSON/hash inspection, no product tests/builds",
+  "base": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+  },
+  "manifest_entries": 97,
+  "manifest_mismatches": [],
+  "source_consumer_records": 74,
+  "source_consumer_hash_mismatches": [],
+  "original_sources": 12,
+  "original_rows": 2991,
+  "original_row_mismatches": [],
+  "frozen_pair_examples": 50,
+  "pair_example_mismatches": [],
+  "solved_documents": 11,
+  "blocked_sources": 1,
+  "physical_results_files": 125,
+  "physical_results_bytes": 14394234,
+  "ignored_command_exit": 0,
+  "ignored_output": "",
+  "limits": "Structural evidence comparison is not running schema/product tests or verifying mechanics; current source portions read for contract meaning only."
+}

@@ -1,0 +1,354 @@
+{
+  "status": "STATIC_ANALYTICAL_CONTRACT_BACKCHECK_PASS",
+  "scope": "RCR03 only; continuation not fresh reviewer",
+  "schema_change_paths": [
+    "/$defs/RawSourceAnnotationMetadata",
+    "/$defs/SourceAnnotations/properties/metadata/$ref",
+    "/$defs/SourceAnnotations/properties/metadata/anyOf",
+    "/description"
+  ],
+  "canonical_ResultMetadata_identical": true,
+  "existing_definitions_other_than_SourceAnnotations_identical": true,
+  "all_existing_semantic_checks_retained_in_order": true,
+  "new_semantic_checks": [
+    "Raw annotation metadata retains exact guarded received JSON, including partial/empty fields and unknown/nested members; never replace lost facts with null or invented fields.",
+    "Canonical ResultMetadata remains strict unchanged five required finite fields; project only these known fields with exact received values, preserving all other facts in raw source annotation.",
+    "Missing/empty/non-string required review/physical metadata facts disclose incompleteness; annotation JSON by itself never supplies physical facts, Current or producer authenticity.",
+    "Received full row and carrier digest scopes include all exact annotation data and original field presence; annotation syntax doesnotreconstruct missing producer bytes."
+  ],
+  "annotation_field_schema_parity": true,
+  "case_checks": [
+    {
+      "case_id": "supported-source-043-component-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-component-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-coordinate_system-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-coordinate_system-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-location-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-location-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-basis-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-basis-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-sign_convention-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-sign_convention-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-043-unknown_member",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "exported_review",
+      "reason": null,
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-043-empty_object",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-043-json_array",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-043-explicit_null",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "review_metadata_incomplete",
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-009-component-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-component-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-coordinate_system-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-coordinate_system-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-location-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-location-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-basis-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-basis-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-sign_convention-missing",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-sign_convention-empty",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null,
+      "original_value_matches": true,
+      "exact_declared_single_change": true
+    },
+    {
+      "case_id": "supported-source-009-unknown_member",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "exported_quantity",
+      "reason": null,
+      "canonical_metadata": {
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "basis": "recovered_from_local_element_stiffness",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      }
+    },
+    {
+      "case_id": "supported-source-009-empty_object",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-009-json_array",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null
+    },
+    {
+      "case_id": "supported-source-009-explicit_null",
+      "all_nonmetadata_fields_preserved": true,
+      "annotation_exact_copy": true,
+      "disposition": "disclosed",
+      "reason": "physical_metadata_incomplete",
+      "canonical_metadata": null
+    }
+  ],
+  "original_eight_counterexamples_covered": [
+    {
+      "id": "RCR03-043-remove-basis",
+      "matched_case_ids": [
+        "supported-source-043-basis-missing"
+      ]
+    },
+    {
+      "id": "RCR03-043-empty-basis",
+      "matched_case_ids": [
+        "supported-source-043-basis-empty"
+      ]
+    },
+    {
+      "id": "RCR03-043-remove-location",
+      "matched_case_ids": [
+        "supported-source-043-location-missing"
+      ]
+    },
+    {
+      "id": "RCR03-043-empty-location",
+      "matched_case_ids": [
+        "supported-source-043-location-empty"
+      ]
+    },
+    {
+      "id": "RCR03-043-remove-sign_convention",
+      "matched_case_ids": [
+        "supported-source-043-sign_convention-missing"
+      ]
+    },
+    {
+      "id": "RCR03-043-empty-sign_convention",
+      "matched_case_ids": [
+        "supported-source-043-sign_convention-empty"
+      ]
+    },
+    {
+      "id": "RCR03-043-remove-coordinate_system",
+      "matched_case_ids": [
+        "supported-source-043-coordinate_system-missing"
+      ]
+    },
+    {
+      "id": "RCR03-043-empty-coordinate_system",
+      "matched_case_ids": [
+        "supported-source-043-coordinate_system-empty"
+      ]
+    }
+  ],
+  "absent_metadata": "Explicit contract retains null annotation convention; exact received row hash/pointer retains actual absence. No separate absent-field fixture among the 28; prior missing policy retained.",
+  "guard_limits": "Raw JSON schema permits types; recursive finite-number/safe-integer/Unicode/plain-JSON guards remain required semantic serializer checks. Not claimed encoded completely in JSON Schema or executed here.",
+  "read_scope": "Complete new raw/canonical contract, all 28 cases, exact schema and field-contract diff, full V4 return/index/manifest, structural preparation and stale auxiliary pin disposition. Unaffected content hashes only; prior review carries forward.",
+  "errors": "One display-only KeyError looked for fixtures instead of cases; corrected and all 28 cases subsequently read. No product/schema-runtime error occurred because none was run.",
+  "runtime": false,
+  "product_edits": false,
+  "delegation": false,
+  "finding_status": {
+    "RCR-01": "resolved in RETURN_V2",
+    "RCR-02": "resolved in RETURN_V2",
+    "RCR-03": "resolved by selected V4 contract"
+  }
+}

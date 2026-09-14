@@ -1,0 +1,17 @@
+{
+  "node": {
+    "executable": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "version": "v24.19.0"
+  },
+  "playwright": {
+    "modulePath": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs",
+    "version": "1.62.1",
+    "packageSHA256": "ca170ec143a88ed3043ac953eb3b2377b2b97304104f4e1e23316684ce2c35af"
+  },
+  "browser": {
+    "executablePath": "/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "version": "148.0.7778.96",
+    "executableSHA256": "aa25f2e795c02d5cb5ef5d6987745cc5bbe7d8bea58827390c7a4c81c8d2dd7b"
+  },
+  "environmentQualification": "Package default expects headless-shell1234; root-approved installed executable is headless-shell1223. Actual outcomes qualify compatibility only for this design self-check, not general environment or product qualification."
+}

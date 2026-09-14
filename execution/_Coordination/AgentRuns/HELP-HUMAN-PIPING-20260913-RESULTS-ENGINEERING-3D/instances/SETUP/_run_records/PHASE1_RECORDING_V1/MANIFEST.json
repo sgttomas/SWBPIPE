@@ -1,0 +1,45 @@
+{
+  "kind": "Immutable bounded ongoing phase1 recorder packet",
+  "parent": "/root",
+  "recorder": "/root/workflow_contact_setup TASK gpt-5.6-sol/medium",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "scope": "Only instances/SETUP/_run_records/PHASE1_RECORDING_V1",
+  "status": "ONGOING_EXECUTION_NOT_ACCEPTANCE",
+  "payload_files": 8,
+  "payload_bytes": 346036,
+  "ignored_extras": [],
+  "files": {
+    "BRIEF.md": {
+      "sha256": "b0d31d02f3c674ca9c5e0fac7e9cef51fbbaf1e04b995309355c46e3661139e8",
+      "bytes": 2567
+    },
+    "BRIEF.sha256": {
+      "sha256": "42dec1ad9902b1727ea49b1f5bd702cc335f22625de2a957d6bc02e33fd2ccea",
+      "bytes": 65
+    },
+    "INVENTORY_PREPARATION_LIMIT.json": {
+      "sha256": "dd1a2c12c6b73a8270773e09f9a474a8a0bed3ac202629fa8c56a3d6eaf4a246",
+      "bytes": 682
+    },
+    "LANE_ARTIFACT_INVENTORIES.json": {
+      "sha256": "ae1a9384c6525a391a595fd86f4424722121621c236f5f8012715b8fb311bccf",
+      "bytes": 325700
+    },
+    "LANE_ORIGINS.json": {
+      "sha256": "2ca1e863e6e26ee0e9cbf7da606e22fa2c7d55756315a52137c1606c9ef1856e",
+      "bytes": 489
+    },
+    "ORCHESTRATION_AND_LEASES.json": {
+      "sha256": "f429b9aa0f702ca8fba29108e49ee252e4e3bb59d68827e384a39b5d1660701a",
+      "bytes": 11453
+    },
+    "REFINEMENT_ASSET_EQUALITY.json": {
+      "sha256": "35e61b0a6d25ade632f39d35d5b8027c76f7407ac41c9f1057578ad57eb77f6b",
+      "bytes": 860
+    },
+    "RETURN.md": {
+      "sha256": "28a16e4b12a580a0ace75473d08858b4abf5f5fa7bc2ff6c19d59c57f456bfe6",
+      "bytes": 4220
+    }
+  }
+}

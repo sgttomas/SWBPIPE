@@ -1,0 +1,14 @@
+[
+  {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2.json",
+    "winning_full_packet_sha256": "81cb50e868738f409206a217d26f52a01f7dc46e8a6081ffd1cb7108a20b2e83",
+    "portable_projection_sha256": "cd25a0a5dc151ee4523f44dea5def7086325ffad65753bdbba699813a3854978",
+    "projection": "only semantic inputs/expected/negatives/status; dated provenance retained in original evidence packet"
+  },
+  {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/fixtures/results/invented/result_export_v0_2_rejections.json",
+    "winning_full_packet_sha256": "dc839f3165ca557e45381deec0853c1a902d9a85b6dfcb024b8a84a023d499bc",
+    "portable_projection_sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+    "projection": "only semantic inputs/expected/negatives/status; dated provenance retained in original evidence packet"
+  }
+]

@@ -1,0 +1,1876 @@
+{
+  "pre": {
+    "index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "workspace.js": "238ab8261942bc2b4656a0c0a760c22a76bdebccdbb22e45cbf94f1187939d13",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+  },
+  "cases": [
+    {
+      "key": "1024x768-comfortable",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2263.88117808",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2263.88117808,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2263.88117808",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2263.88117808,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    },
+    {
+      "key": "1024x768-compact",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2257.67080822",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2257.67080822,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2257.67080822",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2257.67080822,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    },
+    {
+      "key": "1280x800-comfortable",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-3304.34125099",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-3304.34125099,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-3304.34125099",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-3304.34125099,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    },
+    {
+      "key": "1280x800-compact",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-3484.1858529",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-3484.1858529,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-3484.1858529",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-3484.1858529,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    },
+    {
+      "key": "1440x920-comfortable",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2796.47279458",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2796.47279458,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2796.47279458",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2796.47279458,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "comfortable",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    },
+    {
+      "key": "1440x920-compact",
+      "pointer": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 2,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2954.81275561",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Pointer XY / X; 12 significant digits in mm",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2954.81275561,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "typed": {
+        "claim": "SIMULATED DESIGN PROTOTYPE",
+        "revision": "mock:r1",
+        "selection": {
+          "type": "Node",
+          "ref": "N5"
+        },
+        "phase": "review",
+        "engine": "ready",
+        "tool": "route",
+        "generation": 4,
+        "draft": {
+          "from": "N5",
+          "endMode": "new",
+          "to": "N6",
+          "nodeId": "W-POINTER",
+          "pipeId": "W-POINTER-RUN",
+          "plane": "XY",
+          "axis": "X",
+          "unit": "mm",
+          "x": "-2954.81275561",
+          "y": "1800",
+          "z": "1800",
+          "od": "114.3",
+          "wall": "6.02",
+          "sectionUnit": "mm",
+          "material": "M-DEMO",
+          "yx": "0",
+          "yy": "1",
+          "yz": "0",
+          "provenance": "Independent invented pointer-to-typed parity",
+          "placement": "Typed explicit XYZ",
+          "continue": false
+        },
+        "frozen": {
+          "basis": "mock:r1",
+          "members": [
+            "op:prototype-1-create_node",
+            "op:prototype-1-connect_pipe_run"
+          ],
+          "errors": [],
+          "submission": {
+            "batch_id": "batch:prototype-1",
+            "operations": [
+              {
+                "operation_id": "op:prototype-1-create_node",
+                "operation_kind": "create",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Node",
+                  "ref": "W-POINTER"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-create_node",
+                  "change_kind": "create_node",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "nodes",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER\",\"label\":\"W-POINTER\",\"position\":{\"x\":-2954.81275561,\"y\":1800,\"z\":1800},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              },
+              {
+                "operation_id": "op:prototype-1-connect_pipe_run",
+                "operation_kind": "connect",
+                "operation_status": "proposed",
+                "author_type": "user",
+                "target": {
+                  "object_type": "Element",
+                  "ref": "W-POINTER-RUN"
+                },
+                "change": {
+                  "change_id": "change:prototype-1-connect_pipe_run",
+                  "change_kind": "connect_pipe_run",
+                  "field_label": "Explicit prototype authoring",
+                  "field_path": "pipe_segments",
+                  "before": "not_present",
+                  "after": "{\"id\":\"W-POINTER-RUN\",\"label\":\"W-POINTER-RUN\",\"from\":\"N5\",\"to\":\"W-POINTER\",\"section\":{\"outside_diameter\":{\"value\":114.3,\"unit\":\"mm\"},\"wall_thickness\":{\"value\":6.02,\"unit\":\"mm\"}},\"material\":\"M-DEMO\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0},\"provenance\":\"Independent invented pointer-to-typed parity\"}",
+                  "unit": "mm",
+                  "dimension": "length",
+                  "source_note": "Independent invented pointer-to-typed parity"
+                },
+                "validation": {
+                  "schema_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "constraint_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "unit_validation": "NOT_RUN_PROTOTYPE_ONLY",
+                  "diff_preview_status": "SIMULATED_ONLY",
+                  "application_status": "not_applied"
+                },
+                "audit_boundary": {
+                  "mutation_route": "structured_operations_only",
+                  "direct_model_mutation_allowed": false,
+                  "requires_user_acceptance": true,
+                  "mutates_accepted_model_state": false
+                },
+                "professional_boundary": {
+                  "human_review_required": true,
+                  "software_makes_compliance_claim": false,
+                  "software_makes_certification_claim": false,
+                  "software_makes_sealing_claim": false,
+                  "software_makes_approval_claim": false,
+                  "software_makes_authentication_claim": false
+                },
+                "rationale": "Interaction design simulation; source operation mapping only, no schema/Rust validation or model-hash proof"
+              }
+            ]
+          }
+        },
+        "lastRoute": null,
+        "historyCount": 0,
+        "redoCount": 0,
+        "nodeCount": 8,
+        "pipeCount": 6,
+        "componentCount": 0,
+        "supportCount": 1,
+        "result": null,
+        "camera": {
+          "yaw": -0.65,
+          "pitch": 0.65,
+          "zoom": 1
+        },
+        "density": "compact",
+        "operationScenario": "ready",
+        "solveScenario": "current",
+        "message": "Frozen draft prepared. Inspect and validate simulation before Apply."
+      },
+      "discreteInspections": [],
+      "status": "FAIL",
+      "error": "locator.innerText: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for locator('#results-table tbody tr').nth(7).locator('td').nth(2)\u001b[22m\n"
+    }
+  ],
+  "errors": [],
+  "requests": [],
+  "claim": "Actual browser gestures; mock source-shaped intent parity only, no production/Rust/hash equivalence",
+  "identity": {
+    "node": "v24.19.0",
+    "browser": "148.0.7778.96",
+    "nodeSHA": "27db838bb204ef7c21df2931f5656e4c8fb32e6e947f363a402b49714d32b5b1",
+    "browserSHA": "aa25f2e795c02d5cb5ef5d6987745cc5bbe7d8bea58827390c7a4c81c8d2dd7b",
+    "scriptSHA": "ba69b548aa1797c763b5fe3568a92161e7d2f9ac18e36f84d9fd7913d5a6b807"
+  },
+  "post": {
+    "index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "workspace.js": "238ab8261942bc2b4656a0c0a760c22a76bdebccdbb22e45cbf94f1187939d13",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+  },
+  "sourceUnchanged": true,
+  "status": "CHANGES_REQUIRED"
+}

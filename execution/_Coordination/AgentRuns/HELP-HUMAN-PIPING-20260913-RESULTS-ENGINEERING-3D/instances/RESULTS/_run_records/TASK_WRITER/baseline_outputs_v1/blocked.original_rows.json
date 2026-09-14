@@ -1,0 +1,6 @@
+{
+  "mechanics_file": "blocked.mechanics.json",
+  "mechanics_file_sha256": "aafc348b0fab302a2743cab068686117937ccd8ca4d0dedae96d82985a658d73",
+  "original_source_dimension_absence": "source producer rows have no dimension; later semantics require independently frozen contract",
+  "rows": []
+}

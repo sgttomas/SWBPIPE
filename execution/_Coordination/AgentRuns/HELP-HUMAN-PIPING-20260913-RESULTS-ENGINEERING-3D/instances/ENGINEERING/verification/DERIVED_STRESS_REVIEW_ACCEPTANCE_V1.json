@@ -1,0 +1,86 @@
+{
+  "status": "AUTHORED_NOT_EXECUTED",
+  "finding": "ER-01 P2 root-relayed independent review",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "cases": [
+    {
+      "id": "ER01-A",
+      "setup": "Exact region member with otherwise valid geometry-only bend/elbow modifiers; combinations=[]",
+      "expected": "No user-multiplier row at either eligible endpoint; zero per-case count contribution; no APPLIED diagnostic; one unavailable warning per qualified endpoint/case; exact physical components and displacement remain."
+    },
+    {
+      "id": "ER01-B",
+      "setup": "Geometry-only branch/tee record at a region terminal references pressure member and eligible nonpressure member; valid straight-region graph",
+      "expected": "Pressure-side review unavailable; nonpressure-side review numerical MPa and APPLIED diagnostic retained; producer/report counts include surviving side only; per-side provenance truthful."
+    },
+    {
+      "id": "ER01-C",
+      "setup": "Same candidate as A, authored region pressure exactly0",
+      "expected": "Same suppression/disclosure as A; membership not pressure magnitude defines the contract."
+    },
+    {
+      "id": "ER01-D",
+      "setup": "Multiple distinct load cases and multiple qualifying components on one endpoint",
+      "expected": "Warnings have collision-free case/region/component/pipe/endpoint identity; no dedup hides coverage; total count is sum of surviving per-case rows; no candidate count increments."
+    },
+    {
+      "id": "ER01-E",
+      "setup": "Exact profile no regions; genuine thermal/mechanical loads and valid geometry-only modifiers",
+      "expected": "Preserve p=0 nonpressure numeric scalar/reviews and count/applied behavior; no region or unavailable warning fabricated."
+    },
+    {
+      "id": "ER01-F",
+      "setup": "Legacy profile old0.1/0.2 fixtures and0.3 explicit legacy; existing bend and branch fixtures with combinations",
+      "expected": "Prior rows/source refs/numbers/case counts/report counts and applied diagnostics unchanged; keep DEC-070 curved SIF-only test and thin-wall legacy summaries untouched."
+    },
+    {
+      "id": "ER01-G",
+      "setup": "Pressure member with no qualified modifier or unqualified fields",
+      "expected": "No numeric derived review; no invented eligible/applied claim; previous validation diagnostics preserved; global summary-unavailable warning sufficient when no qualified candidates."
+    },
+    {
+      "id": "ER01-H",
+      "setup": "Rule/selection/report asks for old suppressed user-multiplier ID",
+      "expected": "Explicit missing/unavailable; no v2 component/other-side ID substitution or invented scalar; no dangling reference in any available ResultItem."
+    },
+    {
+      "id": "ER01-I",
+      "setup": "Exact model any region plus surviving nonpressure reviews exported to report",
+      "expected": "Global scalar max null; retained modifiers/provenance present; numeric evidence/count contains only surviving rows; diagnostic refs and rendered unavailable coverage retained; selected refs subset of available rows."
+    },
+    {
+      "id": "ER01-J",
+      "setup": "Exact profile nonempty combinations",
+      "expected": "Existing unsupported-composition block; no derived combination resurrects suppressed rows; no current result repair or legacy combination regression."
+    }
+  ],
+  "mutations_to_reject": [
+    "Suppress only open_formula_stress_summary but call multiplier appender anyway",
+    "Post-filter numeric rows but keep count increments or COMPONENT_STRESS_MULTIPLIER_APPLIED",
+    "Gate on p!=0, active curved macro, global-null summary, or component entity instead of pressure pipe membership",
+    "Compute a Lam\u00e9-selected scalar and multiply it, or replace source_result_refs with new exact IDs",
+    "Hide all reviews at a shared component and thereby remove valid nonpressure-side rows",
+    "Emit zero/null numeric review or claim count0 means no entered modifiers/all coverage complete",
+    "Drop unavailable warnings from report handoff, or retain absent result IDs in numeric evidence/selection refs",
+    "Reuse applied diagnostic ID or omit case from identity, collapsing distinct coverage",
+    "Retarget old rule/selection ID or reconstruct scalar review in exporter",
+    "Change legacy fixture numbers, report count12, producer count8 or DEC-070 SIF-only semantics to fit exact examples"
+  ],
+  "following_source_tests": {
+    "product_physics/src/lib.rs": [
+      "Add isolated exact-profile cases A\u2013J to following runtime owner tests",
+      "Preserve bend_component_user_multipliers_emit_stress_review_rows at12367 (count8), branch_component_user_multipliers_emit_side_specific_stress_review_rows at12440, curved_bend_macro_element_multiplier_applies_sif_only at16782 and legacy_bend_mode_keeps_multiplier_and_chord_realization_unchanged at17843"
+    ],
+    "apps/desktop/src/App.test.tsx": [
+      "Localized future exact report case I preserves diagnostics/provenance and absent old references",
+      "Retain legacy export count12 witness at12048 and existing source selections near12001/12060/12159/12167"
+    ],
+    "apps/desktop/src/services/previewService.test.ts": [
+      "Prove future exact binder keeps warnings and rejects/leaves absent suppressed numeric rows without global mapper removal"
+    ],
+    "tests/test_report_generator_contract.py": [
+      "Only extend if actual following report handoff needs disclosure adaptation; preserve accepted old packet contract"
+    ]
+  },
+  "no_tests_run_this_lane": true
+}

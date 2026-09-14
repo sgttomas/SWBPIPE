@@ -1,0 +1,86 @@
+{
+  "schema_version": "0.1.0",
+  "document_kind": "openpipestress.product_preview.mechanics_result",
+  "run_id": "run:preview-linear-static-blocked",
+  "model_ref": "project:invented-loop-01",
+  "status": {
+    "mechanics": "MODEL_INCOMPLETE",
+    "rule_check": "RULE_INPUTS_INCOMPLETE",
+    "professional_acceptance": "NOT_PROVIDED"
+  },
+  "summary": {
+    "node_count": 5,
+    "segment_count": 4,
+    "support_count": 5,
+    "load_case_count": 2,
+    "component_stress_modifier_count": 0,
+    "component_user_stiffness_macro_element_count": 0,
+    "component_pressure_thrust_load_count": 0,
+    "spring_hanger_user_input_count": 0,
+    "max_displacement": null,
+    "max_open_formula_stress": null
+  },
+  "results": [],
+  "diagnostics": [
+    {
+      "id": "diagnostic:spring-hanger:support-SH-140:hanger",
+      "code": "SPRING_HANGER_USER_DATA_REVIEWED",
+      "severity": "info",
+      "message": "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:SH-140",
+        "hanger"
+      ]
+    },
+    {
+      "id": "diagnostic:spring-hanger:support-CE-120:hanger",
+      "code": "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+      "severity": "info",
+      "message": "constant-effort support carries explicit user-entered constant load, travel metadata, and source reference under DEC-049; no global constant-effort solve behavior or catalog default is claimed",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "support:CE-120",
+        "hanger"
+      ]
+    },
+    {
+      "id": "diagnostic:component:component-C-130:rigid-review",
+      "code": "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+      "severity": "info",
+      "message": "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-130"
+      ]
+    },
+    {
+      "id": "diagnostic:component:component-C-150:expansion-joint-review",
+      "code": "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+      "severity": "info",
+      "message": "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "component:C-150"
+      ]
+    },
+    {
+      "id": "diagnostic:physics:document-kind",
+      "code": "PREVIEW_DOCUMENT_KIND_INVALID",
+      "severity": "blocking",
+      "message": "physics adapter requires an openpipestress.product_preview.model document",
+      "source": "core/product_physics",
+      "affected_refs": [
+        "model"
+      ]
+    }
+  ],
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false
+  },
+  "accepted_model_state_mutated": false
+}

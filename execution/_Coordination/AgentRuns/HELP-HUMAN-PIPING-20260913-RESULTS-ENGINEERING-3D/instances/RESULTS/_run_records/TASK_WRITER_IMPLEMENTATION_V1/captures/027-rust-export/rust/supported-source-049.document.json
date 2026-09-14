@@ -1,0 +1,346 @@
+{
+  "deliverable_id": "DEL-08-04",
+  "export_format_status": {
+    "additional_formats": "TBD",
+    "baseline_format": "schema_first_json_result_envelope",
+    "external_adapter_formats": "TBD",
+    "local_fea_package_format": "TBD",
+    "public_transport_protocol": "TBD"
+  },
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "package_id": "PKG-08",
+  "result_envelope": {
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "diagnostics": [
+      {
+        "affected_object": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "TP_PHYS_015A_RESULT_BOUNDARY_EVIDENCE",
+        "message": "Invented validation-local result envelope records canonical payload solve-result evidence.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "remediation": "Use adjacent export and runner contracts before relying on serialized runtime behavior.",
+        "severity": "info",
+        "source": {
+          "ref_id": "DEL-09-01",
+          "ref_type": "mechanics_benchmark"
+        }
+      }
+    ],
+    "downstream_use": {
+      "additional_export_formats": "TBD",
+      "governed_downstream_tooling": true,
+      "headless_automation": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "review": true
+    },
+    "envelope_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+    "load_basis_refs": [
+      {
+        "ref_id": "LC-TP-PHYS-014",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:synthetic-semantic-contract",
+      "ref_type": "model_payload"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "validation/benchmarks/invented",
+      "source_name": "invented mechanics fixture"
+    },
+    "reproducibility": {
+      "audit_manifest_ref": {
+        "ref_id": "TASK_RUN_2026-05-17_TP-RESULT-017",
+        "ref_type": "task_run_record"
+      },
+      "derivative_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "derivative_document"
+        },
+        "payload_scope": "derivative_document_excludes_own_hash",
+        "value": "866804769b9dfc591b761351b16ff807d76f78b70cdac0e715d5f2fdf08688ac"
+      },
+      "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "project:synthetic-semantic-contract",
+          "ref_type": "model_payload"
+        },
+        "value": "898dd90cab0da56e55b787fdd9b185dc7941aa91dfbee96e4011228bca89ac55"
+      },
+      "raw_source_hashes": [],
+      "request_hash": null,
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "ref_id": "analysis-run",
+            "ref_type": "payload"
+          },
+          "value": "analysis-run-hash"
+        }
+      ],
+      "source_origin_bindings": [
+        {
+          "actual_model_ref": {
+            "ref_id": "project:synthetic-semantic-contract",
+            "ref_type": "model_payload"
+          },
+          "authentic_producer_available": false,
+          "mechanics_run_ref": {
+            "ref_id": "run:synthetic-semantic-contract",
+            "ref_type": "mechanics_run"
+          },
+          "origin_class": "received_current_dimension_absent",
+          "origin_id": "synthetic-fixture-unattested",
+          "origin_limit": "Unattested synthetic test projection",
+          "original_producer_checksum": null,
+          "qualification_ref": {
+            "ref_id": "not-authentic-Current",
+            "ref_type": "synthetic_fixture"
+          },
+          "received_carrier_checksum": {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "ref_id": "fixture-only",
+              "ref_type": "synthetic_received_carrier"
+            },
+            "payload_scope": "received_current_dimension_absent_carrier",
+            "value": "7704311659fc34e6a55042484556f89e996c497ff5a69fb4f775d90e1eaf26c2"
+          },
+          "request_alias_disclosure": null,
+          "request_model_ref": null,
+          "request_run_ref": null
+        }
+      ]
+    },
+    "result_sets": [
+      {
+        "basis_ref": {
+          "ref_id": "LC-TP-PHYS-014",
+          "ref_type": "load_case"
+        },
+        "set_id": "result-set:tp-phys-015:mechanics",
+        "set_type": "mechanics",
+        "values": []
+      }
+    ],
+    "review_evidence": [
+      {
+        "basis_ref": {
+          "ref_id": "support_family=constant_effort_support;field=travel-range;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+          "ref_type": "source_basis"
+        },
+        "dimension": "length",
+        "evidence_id": "result:constant-effort-support:support-CE-120:travel-range",
+        "evidence_kind": "user_input_review",
+        "location_ref": {
+          "ref_id": "node:N-120:travel-range",
+          "ref_type": "source_location"
+        },
+        "magnitude": 0.04,
+        "object_ref": {
+          "ref_id": "support:CE-120",
+          "ref_type": "preview_entity"
+        },
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "source_annotation_ref": {
+          "ref_id": "source-annotation:0",
+          "ref_type": "source_annotation"
+        },
+        "source_kind": "constant_effort_user_input_review",
+        "source_result_id": "result:constant-effort-support:support-CE-120:travel-range",
+        "source_row_index": 0,
+        "unit": "m"
+      }
+    ],
+    "row_accounting": [
+      {
+        "disposition": "exported_review",
+        "original_producer_row_checksum": null,
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "228b7dec2cd97890e9fdbe585d8db91f6eb68e0aac79957179fd09b7a1193be6"
+        },
+        "source_field_path": "/results/0",
+        "source_kind": "constant_effort_user_input_review",
+        "source_result_id": "result:constant-effort-support:support-CE-120:travel-range",
+        "source_row_index": 0,
+        "target_field_path": "/result_envelope/review_evidence/0",
+        "target_ref": {
+          "ref_id": "result:constant-effort-support:support-CE-120:travel-range",
+          "ref_type": "review_evidence"
+        }
+      }
+    ],
+    "row_disclosures": [],
+    "rule_pack_refs": [],
+    "run_ref": {
+      "ref_id": "RUN-TP-PHYS-015A-CANONICAL-SOLVE-RESULT-ENVELOPE",
+      "ref_type": "analysis_run"
+    },
+    "schema_version": "0.2.0",
+    "solver_version": {
+      "solver_build_ref": "validation-local-cargo-test",
+      "solver_name": "open_pipe_stress_validation_mechanics_benchmark",
+      "solver_version": "0.1.0"
+    },
+    "source_annotations": [
+      {
+        "annotation_id": "source-annotation:0",
+        "basis_ref": null,
+        "derivative_target_dimension": "length",
+        "metadata": {
+          "basis": "support_family=constant_effort_support;field=travel-range;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+          "component": "constant_effort_support_travel_range",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-120:travel-range",
+          "sign_convention": "positive value is user-entered constant-effort support input evidence; a support meeting the DEC-049 consumption conditions (exactly one declared translational restraint DOF and a finite positive constant load) is consumed by the assembled solve as a constant nodal force along the positive axis of that DOF, recorded per load case in constant_effort_support_applied_load rows; a support not meeting those conditions stays review-only with a non-blocking warning; no nonlinear behavior and no catalog/default value is claimed by this preview row"
+        },
+        "observed_carrier_dimension": {
+          "present": false,
+          "value": null
+        },
+        "source_origin_ref": {
+          "ref_id": "synthetic-fixture-unattested",
+          "ref_type": "source_origin_binding"
+        },
+        "source_physical_semantic_dimension": "length",
+        "source_result_id": "result:constant-effort-support:support-CE-120:travel-range",
+        "source_result_refs": [],
+        "source_row_index": 0
+      }
+    ],
+    "unit_preservation_witnesses": [
+      {
+        "conversion_performed": false,
+        "export_unit_policy": "no_numerical_conversion_preserve_received_unit",
+        "original_producer_row_checksum": null,
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "228b7dec2cd97890e9fdbe585d8db91f6eb68e0aac79957179fd09b7a1193be6"
+        },
+        "source_field_path": "/results/0",
+        "source_origin_ref": {
+          "ref_id": "synthetic-fixture-unattested",
+          "ref_type": "source_origin_binding"
+        },
+        "source_physical_semantic_dimension": "length",
+        "source_quantity": {
+          "observed_dimension": {
+            "present": false,
+            "value": null
+          },
+          "unit": "m",
+          "value": 0.04
+        },
+        "source_result_ref": {
+          "ref_id": "result:constant-effort-support:support-CE-120:travel-range",
+          "ref_type": "received_result"
+        },
+        "source_row_index": 0,
+        "target_field_path": "/result_envelope/review_evidence/0",
+        "target_quantity": {
+          "dimension": "length",
+          "unit": "m",
+          "value": 0.04
+        },
+        "target_quantity_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension",
+        "target_result_ref": {
+          "ref_id": "result:constant-effort-support:support-CE-120:travel-range",
+          "ref_type": "review_evidence"
+        },
+        "target_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+            "ref_type": "derivative_document"
+          },
+          "payload_scope": "derived_review_row",
+          "value": "8b4a418b33831a6ad7642b1f22427490b9561228c7d184e981a40fb29a86265f"
+        },
+        "unit_system_ref": {
+          "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K",
+          "ref_type": "unit_system"
+        },
+        "witness_id": "value-unit-witness:0"
+      }
+    ],
+    "unit_system_ref": {
+      "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K",
+      "ref_type": "unit_system"
+    },
+    "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+  },
+  "schema_version": "0.2.0",
+  "scope_item": "SOW-046"
+}

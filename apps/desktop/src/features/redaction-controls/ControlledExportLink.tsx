@@ -9,9 +9,11 @@ type RouteBinding = {
   context: RedactionExportContext;
   lossless?: boolean;
   knownPrivateScalar?: boolean;
+  exactCanonicalPayload?: boolean;
 };
 
 const TEST_ID_BINDINGS: Record<string, RouteBinding> = {
+  "result-export-link": { routeId: "DOTH-JSON-001", context: "local_private", lossless: true, exactCanonicalPayload: true },
   "report-export-link": { routeId: "DREP-JSON-002", context: "public_report" },
   "report-lint-export-link": { routeId: "DREP-LINT-JSON-007", context: "public_report" },
   "rendered-report-save": { routeId: "DREP-HTML-SAVE-005", context: "public_report", lossless: true },
@@ -89,15 +91,21 @@ export function ControlledExportLink({ href, children, ...anchorProps }: Props) 
     binding.knownPrivateScalar && isObject(controlled.payload)
       ? controlled.payload.value
       : controlled.payload;
-  const controlledHref = controlled.blocked
-    ? undefined
+  const exactPayload = !binding.exactCanonicalPayload || sameDecodedJson(controlledPayload, decoded.payload);
+  const canonicalIntentMissing = Boolean(binding.exactCanonicalPayload && !explicitIntent);
+  const exposureBlocked = controlled.blocked || canonicalIntentMissing || !exactPayload;
+  const exposureReason = canonicalIntentMissing ? "LOCAL_PRIVATE_INTENT_REQUIRED" : controlled.blocked
+    ? controlled.summary.local_first?.reason_code ?? "EXPORT_POLICY_BLOCKED"
+    : !exactPayload ? "CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED" : null;
+  const controlledHref = exposureBlocked ? undefined : binding.exactCanonicalPayload
+    ? href // original serialized canonical document; never rehash a redacted derivative
     : encodeDataHref(controlledPayload, decoded.mediaType, decoded.isJson);
 
   return (
     <span
       className="controlled-export-control"
-      data-local-first-blocked={String(controlled.summary.local_first?.blocked ?? true)}
-      data-local-first-reason={controlled.summary.local_first?.reason_code ?? "LOCAL_FIRST_EVIDENCE_MISSING"}
+      data-local-first-blocked={String(binding.exactCanonicalPayload ? exposureBlocked : controlled.summary.local_first?.blocked ?? true)}
+      data-local-first-reason={binding.exactCanonicalPayload && exposureReason ? exposureReason : controlled.summary.local_first?.reason_code ?? "LOCAL_FIRST_EVIDENCE_MISSING"}
       data-route-id={binding.routeId}
     >
       {binding.context === "local_private" ? (
@@ -113,8 +121,9 @@ export function ControlledExportLink({ href, children, ...anchorProps }: Props) 
       ) : null}
       <span data-testid={`${testId}-redaction-summary`}>
         decisions={controlled.summary.decision_count}; findings={controlled.summary.finding_count}; blocked=
-        {String(controlled.blocked)}
+        {String(exposureBlocked)}
       </span>
+      {binding.exactCanonicalPayload && exposureReason ? <span data-testid={`${testId}-canonical-block-reason`}>{exposureReason}</span> : null}
       <pre aria-label={`${testId} redaction decisions`} data-testid={`${testId}-redaction-decisions`}>
         {controlled.decisions
           .map(
@@ -164,4 +173,14 @@ function decodeDataHref(href: string): { payload: unknown; mediaType: string; is
 function encodeDataHref(payload: unknown, mediaType: string, isJson: boolean): string {
   const text = isJson ? `${JSON.stringify(payload, null, 2)}\n` : String(payload ?? "");
   return `data:${mediaType};charset=utf-8,${encodeURIComponent(text)}`;
+}
+
+// Exact decoded JSON equivalence checks that policy projection/intent stripping
+// changed no facts. The original href preserves the separate serialized bytes.
+function sameDecodedJson(left: unknown, right: unknown): boolean {
+  if(left===right)return true;
+  if(left===null||right===null||typeof left!=="object"||typeof right!=="object")return false;
+  if(Array.isArray(left)!==Array.isArray(right))return false;
+  const a=left as Record<string,unknown>,b=right as Record<string,unknown>;
+  const keys=Object.keys(a);return keys.length===Object.keys(b).length&&keys.every(key=>Object.hasOwn(b,key)&&sameDecodedJson(a[key],b[key]));
 }

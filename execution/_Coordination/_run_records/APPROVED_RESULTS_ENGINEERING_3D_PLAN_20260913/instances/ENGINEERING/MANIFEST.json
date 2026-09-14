@@ -1,0 +1,37 @@
+{
+  "status": "FROZEN_PLANNING_RETURN",
+  "agent": "HELPS_HUMANS Type 1 / ENGINEERING",
+  "parent": "/root HELP_HUMAN",
+  "base_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "model_attribution": "parent-configured; not independently runtime/supplier-attested",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/**",
+  "derivative_package": true,
+  "accepted_upstream_source_snapshot": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "closure_verdict": "Planning outputs complete; runtime policy, implementation and acceptance holds remain open as stated in RETURN.md",
+  "rerun_requirement": "Revalidate live producer/consumer/version/dependency currency before later effect; independent analytical/design refutation precedes effect; no tests or builds run here",
+  "outputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/ANALYTICAL_CONTRACT_SPEC.md",
+      "sha256": "7c994d2311098fc86fc048f82b1b1d60960ed3e28b8ab961db9c7cabb4cbaec0",
+      "bytes": 5274
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/CONTEXT_INVENTORY.json",
+      "sha256": "6c18846b999eeae6dd26a6dcb3d4463a3eea438318229f20dc89147f05ce0242",
+      "bytes": 22266
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/RETURN.md",
+      "sha256": "3626f5dc1f24407a5e6fded2b59d8e203256ae9562d75137a2e96b2155aeac0f",
+      "bytes": 13540
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/SOURCE_EXCERPTS.md",
+      "sha256": "83a0cff01e14785cb93194e20177bacdd894513c8c154cf3090376b2e10d69b1",
+      "bytes": 55285
+    }
+  ],
+  "manifest_hash_excluded": "Self-referential manifest excluded from listed artifact hashes; parent receives manifest hash separately"
+}

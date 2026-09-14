@@ -1,0 +1,66 @@
+{
+  "kind": "Results manager bounded execution work graph",
+  "accepted_upstream": {
+    "source": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+    "plan": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+    "step0": "root accepted; STEP0_RETURN_V1 and STARTUP_PACKAGING_RETURN_V1 attributed"
+  },
+  "nodes": [
+    {
+      "id": "R1",
+      "owner": "results_writer",
+      "objective": "read-only full consumer/test/schema/hash contract inventory, evidence baseline harness preparation",
+      "state": "RUNNING_ACTUAL_CHILD"
+    },
+    {
+      "id": "R2",
+      "owner": "results_manager",
+      "objective": "current DAG applicability and source-qualified context evidence",
+      "state": "V1_PREPARED"
+    },
+    {
+      "id": "R3",
+      "owner": "root",
+      "objective": "exclusive fresh current baseline lease then routine full contract integration acceptance",
+      "state": "PENDING"
+    },
+    {
+      "id": "R4",
+      "owner": "results_writer",
+      "objective": "sole fenced source implementation and focused checks/repair",
+      "state": "HELD_UNTIL_R3"
+    },
+    {
+      "id": "R5",
+      "owner": "root",
+      "objective": "fresh independent 100% frozen diff review/full DEC025/native/closure integration",
+      "state": "LATER_ROOT_OWNED"
+    }
+  ],
+  "edges": [
+    {
+      "from": "R1",
+      "to": "R3",
+      "kind": "contract/baseline preparation"
+    },
+    {
+      "from": "R2",
+      "to": "R3",
+      "kind": "applicability acceptance"
+    },
+    {
+      "from": "R3",
+      "to": "R4",
+      "kind": "explicit product release and exact scoped runtime lease"
+    },
+    {
+      "from": "R4",
+      "to": "R5",
+      "kind": "frozen patch/evidence handoff"
+    }
+  ],
+  "product_writer": "one TASK child only",
+  "no_delegation_children": true,
+  "runtime_lease": "NONE",
+  "parent_root": "/root"
+}

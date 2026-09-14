@@ -1,0 +1,25 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": null,
+      "entity_ref": "pipe:synthetic-source",
+      "id": "result:synthetic-supported-source-059",
+      "kind": "pipe_section_pressure_longitudinal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "pressure_longitudinal_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "sign_convention": "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis"
+      },
+      "source_result_refs": [],
+      "unit": "MPa",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

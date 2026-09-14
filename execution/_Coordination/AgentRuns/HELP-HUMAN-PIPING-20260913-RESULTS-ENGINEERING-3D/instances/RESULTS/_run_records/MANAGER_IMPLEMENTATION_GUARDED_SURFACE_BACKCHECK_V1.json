@@ -1,0 +1,21 @@
+{
+  "snapshot_kind": "derivative static guarded-surface backcheck, not final source freeze",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "legacy_preview_whole_file_byte_equal": true,
+  "legacy_preview_sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+  "legacy_v0_1_archive_byte_equal": true,
+  "legacy_v0_1_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+  "v0_2_accepted_candidate_byte_equal": true,
+  "v0_2_sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+  "App_diff": "",
+  "immutable_surface_names": [
+    "buildAnalysisRunPreview",
+    "bindSourceResultDimensions",
+    "declaredSourceResultDimension",
+    "resultFamily",
+    "canonicalJson",
+    "sortJson",
+    "sha256"
+  ],
+  "runtime_execution": false
+}

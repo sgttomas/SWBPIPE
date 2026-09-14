@@ -1,0 +1,30 @@
+{
+  "parent": "/root",
+  "lanes": [
+    {
+      "scope": "RESULTS",
+      "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+      "branch": "codex/piping-results-integrity-20260913",
+      "HEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+      "clean": true,
+      "creation": "New isolated local lane; no commits/publication"
+    },
+    {
+      "scope": "ENGINEERING",
+      "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913",
+      "branch": "codex/piping-engineering-contracts-20260913",
+      "HEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+      "clean": true,
+      "creation": "New isolated local lane; no commits/publication"
+    },
+    {
+      "scope": "UI",
+      "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913",
+      "branch": "codex/piping-3d-design-20260913",
+      "HEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+      "clean": true,
+      "creation": "New isolated local lane; no commits/publication"
+    }
+  ],
+  "status": "Manager leaf briefs pending parent supply; none dispatched"
+}

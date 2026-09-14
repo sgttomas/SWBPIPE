@@ -1,0 +1,1168 @@
+{
+  "method": "Static parse of all captured sources/documents; complete source/target cardinality, unique IDs/target paths, value/unit, raw metadata/basis/source refs, observed dimension and accepted semantic dimensions checked independently. No product adapter or solver executed, no fresh schema-validation or serializer-runtime claim.",
+  "documents": 103,
+  "rows": 5214,
+  "mismatches": [],
+  "records": [
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-pressure-full.document.json",
+      "rows": 74,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.document.json",
+      "rows": 69,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/gap-chain-five-inactive-control.document.json",
+      "rows": 330,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/gap-chain-two-active-control.document.json",
+      "rows": 145,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-0.document.json",
+      "rows": 78,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.document.json",
+      "rows": 82,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-2.document.json",
+      "rows": 82,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-3.document.json",
+      "rows": 82,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-4.document.json",
+      "rows": 82,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-5.document.json",
+      "rows": 82,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-dense-full.document.json",
+      "rows": 788,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-full.document.json",
+      "rows": 786,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-sparse-full.document.json",
+      "rows": 786,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-000.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-001.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-002.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-003.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-004.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-005.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-006.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-007.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-008.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-basis-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-basis-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-component-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-component-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-coordinate_system-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-coordinate_system-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-empty_object.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-explicit_null.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-json_array.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-location-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-location-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-sign_convention-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-sign_convention-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009-unknown_member.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-009.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-010.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-011.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-012.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-013.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-014.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-015.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-016.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-017.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-018.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-019.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-020.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-021.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-022.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-023.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-024.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-025.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-026.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-027.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-028.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-029.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-030.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-031.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-032.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-033.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-034.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-035.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-036.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-037.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-038.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-039.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-040.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-041.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-042.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-basis-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-basis-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-component-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-component-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-coordinate_system-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-coordinate_system-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-empty_object.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-explicit_null.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-json_array.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-location-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-location-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-sign_convention-empty.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-sign_convention-missing.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043-unknown_member.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-043.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-044.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-045.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-046.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-047.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-048.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-049.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-050.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-051.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-052.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-053.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-054.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-055.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-056.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-057.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-058.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/027-rust-export/rust/supported-source-059.document.json",
+      "rows": 1,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/034-current-schema-repair/desktop/current-absent.document.json",
+      "rows": 830,
+      "errors": []
+    },
+    {
+      "document": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/034-current-schema-repair/desktop/current-enriched.document.json",
+      "rows": 830,
+      "errors": []
+    }
+  ],
+  "historical_attempts": [
+    {
+      "attempt": "001-cargo",
+      "argv": [
+        "cargo",
+        "--version"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "002-rustc",
+      "argv": [
+        "rustc",
+        "--version"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "003-node",
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "004-python",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "-c",
+        "import sys,jsonschema; print(sys.version);print(jsonschema.__version__)"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "005-export-lock",
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "006-export-test",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "007-headless-lock",
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "008-export-contract",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--test",
+        "derivative_contract"
+      ],
+      "result": {
+        "exit_code": 101
+      }
+    },
+    {
+      "attempt": "009-export-contract-repair",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--test",
+        "derivative_contract"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "010-headless-qualified",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--lib",
+        "result_envelope_binding"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "011-wasm-build",
+      "argv": [
+        "node",
+        "apps/desktop/scripts/build-wasm-engine.mjs"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "012-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/desktop/tsconfig.json",
+        "--noEmit"
+      ],
+      "result": {
+        "exit_code": 2
+      }
+    },
+    {
+      "attempt": "013-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/desktop/tsconfig.json",
+        "--noEmit"
+      ],
+      "result": {
+        "exit_code": 2
+      }
+    },
+    {
+      "attempt": "014-desktop-focused",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/results/resultSemantics.test.ts",
+        "src/features/results/ResultsPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/result-export/ResultExportPanel.test.tsx",
+        "src/features/handoff/HandoffPanel.test.tsx",
+        "src/features/report/reportPackageRequest.test.ts"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    },
+    {
+      "attempt": "015-fresh-driver-lock",
+      "argv": [
+        "cargo",
+        "generate-lockfile",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "016-fresh-producer-routes",
+      "argv": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1"
+      ],
+      "result": {
+        "exit_code": 101
+      }
+    },
+    {
+      "attempt": "017-fresh-producer-routes",
+      "argv": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "018-fresh-producer-schema",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tests/test_result_export_v0_2.py",
+        "--outputs",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "019-rust-fixture-capture",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--test",
+        "derivative_contract"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "020-original-source-parity",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/compare_original_sources_v1.py"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "021-rust-fixture-schema",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tests/test_result_export_v0_2.py",
+        "--outputs",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/rust_fixture_outputs_v1"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "022-desktop-consumers",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/results/resultSemantics.test.ts",
+        "src/features/results/ResultsPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/handoff/HandoffPanel.test.tsx",
+        "src/features/report/reportPackageRequest.test.ts",
+        "src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+        "src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    },
+    {
+      "attempt": "023-rust-graph-contract",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--test",
+        "derivative_contract"
+      ],
+      "result": {
+        "exit_code": 101
+      }
+    },
+    {
+      "attempt": "024-rust-graph-contract",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--test",
+        "derivative_contract"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "025-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/desktop/tsconfig.json",
+        "--noEmit"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "026-desktop-consumers",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/results/resultSemantics.test.ts",
+        "src/features/results/ResultsPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/handoff/HandoffPanel.test.tsx",
+        "src/features/report/reportPackageRequest.test.ts",
+        "src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+        "src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+        "src/services/previewService.test.ts",
+        "src/features/history/HistoricalRunContext.test.tsx"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "027-rust-export",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/reporting/result_export/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "028-qualified-headless",
+      "argv": [
+        "cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--lib",
+        "result_envelope_binding"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "029-local-download",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/redaction-controls/ControlledExportLink.test.tsx",
+        "src/features/redaction-controls/redactionExportControls.test.ts",
+        "src/features/redaction-controls/RedactionExportControlsPanel.test.tsx",
+        "src/features/result-export/ResultExportPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/results/resultSemantics.test.ts",
+        "src/features/results/HistoricalRunContext.test.tsx"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    },
+    {
+      "attempt": "030-serializer-byte-parity",
+      "argv": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--",
+        "--serializer-compare",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/TYPED_SERIALIZER_BYTE_PARITY_V1.json"
+      ],
+      "result": {
+        "exit_code": 101
+      }
+    },
+    {
+      "attempt": "031-local-download",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/redaction-controls/ControlledExportLink.test.tsx",
+        "src/features/redaction-controls/redactionExportControls.test.ts",
+        "src/features/redaction-controls/RedactionExportControlsPanel.test.tsx",
+        "src/features/result-export/ResultExportPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/results/resultSemantics.test.ts",
+        "src/features/results/HistoricalRunContext.test.tsx"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "032-serializer-byte-parity",
+      "argv": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--",
+        "--serializer-compare",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/TYPED_SERIALIZER_BYTE_PARITY_V1.json"
+      ],
+      "result": {
+        "exit_code": 101
+      }
+    },
+    {
+      "attempt": "033-desktop-schema",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tests/test_result_export_v0_2.py",
+        "--outputs",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/captures/031-local-download/desktop"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    },
+    {
+      "attempt": "034-current-schema-repair",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/result-export/ResultExportPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/redaction-controls/ControlledExportLink.test.tsx"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "035-serializer-byte-parity",
+      "argv": [
+        "cargo",
+        "run",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_driver_v1/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--",
+        "--serializer-compare",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/TYPED_SERIALIZER_BYTE_PARITY_V1.json"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "036-final-python",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/final_checks_v1.py"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    },
+    {
+      "attempt": "037-final-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/desktop/tsconfig.json",
+        "--noEmit"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "038-stress-diagnostic-channel",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "039-headless-cli-compile",
+      "argv": [
+        "cargo",
+        "check",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "core/runner/headless/Cargo.toml",
+        "--target-dir",
+        "/tmp/chirality-results-engineering-3d-20260913/results-implementation-target",
+        "--bin",
+        "openpipestress-runner"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "040-final-typescript",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--project",
+        "apps/desktop/tsconfig.json",
+        "--noEmit"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "041-final-stress-check",
+      "argv": [
+        "npm",
+        "test",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "src/features/stress-neutral/StressNeutralExportPanel.test.tsx"
+      ],
+      "result": {
+        "exit_code": 0
+      }
+    },
+    {
+      "attempt": "042-stress-schema-disposition",
+      "argv": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/stress_schema_disposition_v1.py"
+      ],
+      "result": {
+        "exit_code": 1
+      }
+    }
+  ]
+}

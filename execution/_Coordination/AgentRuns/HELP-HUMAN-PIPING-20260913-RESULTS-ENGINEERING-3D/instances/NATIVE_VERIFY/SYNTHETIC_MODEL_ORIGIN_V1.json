@@ -1,0 +1,16 @@
+{
+  "source_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/FINAL_V2/_run_records/gui-authored350.json",
+  "source_snapshot_sha256": "ae781ac142cf752038091b7537586b74b94d505791648fbd4f9efdf9cd5f4492",
+  "retained_exact_field": "model_json",
+  "output_sha256": "2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+  "original_qualified_model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "hash_status": "computed_local_preview",
+    "payload_ref": "project:blank-local-20260913t210608z",
+    "payload_scope": "model_payload",
+    "value": "sha256:2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788"
+  },
+  "purpose": "small retained invented source basis for independent preparation; not fresh authoring or solve proof",
+  "runtime_authoring": "new actual blank-model GUI authoring proposed; source-known historical model can supply cross-check only"
+}

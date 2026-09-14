@@ -1,0 +1,104 @@
+{
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "python": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "commands": [
+    {
+      "name": "committed-plan-tree",
+      "command": [
+        "git",
+        "ls-tree",
+        "-r",
+        "HEAD",
+        "projects/chirality-piping/loop/"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "committed-plan-read",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "receipt-validation",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit": 0
+    },
+    {
+      "name": "receipts-after-validation",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/loop/LOOP_RECEIPTS.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "dag-pointer",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/execution/_DAG/_LATEST.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "dag-approval",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/execution/_DAG/DAG-010/APPROVAL_RECORD.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "decision-register",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "stage",
+      "command": [
+        "git",
+        "show",
+        "HEAD:projects/chirality-piping/execution/_Coordination/_COORDINATION.md"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "status-inventory",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exit": 0
+    },
+    {
+      "name": "self-check",
+      "command": [
+        "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit": 0
+    }
+  ]
+}

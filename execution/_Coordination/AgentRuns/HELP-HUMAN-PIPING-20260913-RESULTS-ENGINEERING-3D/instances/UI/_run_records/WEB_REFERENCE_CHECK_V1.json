@@ -1,0 +1,18 @@
+{
+  "date": "2026-09-13",
+  "method": "web open/search tool; primary sources only; no media copied",
+  "sources": [
+    {
+      "url": "https://help.autodesk.com/cloudhelp/2026/ENU/Plant3D-UserGuide/files/GUID-80606EFD-7D5C-43CD-8F90-DBFEF07EE34D.htm",
+      "outcome": "Opened official 2026 documentation; continuation, plane, precision snap/direct distance conventions"
+    },
+    {
+      "url": "https://cad.onshape.com/help/Content/Home/user_interface_basics.htm?Highlight=use",
+      "outcome": "Official documentation search result; tool search and feature-list/graphics context"
+    },
+    {
+      "url": "https://www.sstusa.com/caepipe-graphics.php",
+      "outcome": "Tool failed after redirect to sstcae.com/tech-feature/caepipe-graphics; direct redirect target also unavailable; not relied on as current evidence"
+    }
+  ]
+}

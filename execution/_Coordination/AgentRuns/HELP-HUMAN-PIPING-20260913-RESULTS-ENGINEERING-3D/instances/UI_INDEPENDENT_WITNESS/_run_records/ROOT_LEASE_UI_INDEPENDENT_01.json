@@ -1,0 +1,18 @@
+{
+  "lease": "ROOT_LEASE_UI_INDEPENDENT_01",
+  "issuer": "/root",
+  "recipient": "/root/ui_independent_witness",
+  "mechanism": "delegated-harness-native",
+  "scriptSHA256": "1e3ca76760c7a5a5e7f84ca2aaca2874b1acb841ac2014662b29d55163df0aab",
+  "methodSHA256": "91400b6a8b638703874807e091aa498552918468a6d2ef418717892b363819ed",
+  "authority": "Parent message: exclusive six-layout offline file-only cached shell1223 browser run. Read-only Git status/rev-parse/check-ignore permitted; no mutations.",
+  "status": "RELEASED",
+  "preparedSyntaxCheck": {
+    "command": "bundled Node --check independent-witness-v1.mjs",
+    "exit": 0,
+    "type": "syntax preparation, not browser result"
+  },
+  "browserProcessExit": 0,
+  "contextsClosed": true,
+  "browserClosed": true
+}

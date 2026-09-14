@@ -1,0 +1,471 @@
+{
+  "source_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "search_roots": [
+    "apps/desktop/src",
+    "core",
+    "tools",
+    "tests"
+  ],
+  "search_pattern": "MechanicsResult|MechanicsEnvelope|result_export::|open_pipe_stress_result_export|results.schema.yaml|declaredSourceResultDimension|bindSourceResultDimensions|function resultDimension|function resultFamily|work_residual",
+  "scope": "live source/test consumer inventory; immutable execution history not executable consumer",
+  "files": [
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "bd1fe68442d6d592e9e4a5f20fcdf5f1a496d050fa32ef408bc629f58d2c5ce7",
+      "bytes": 718236,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "345e008506291cb9b4bbae4212863835aba643f256d6b9e04e5787f2bf27f371",
+      "bytes": 142939,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/adapter-framework/AdapterFrameworkPanel.tsx",
+      "sha256": "df40082875a551b9f78ace4130262828e53f3f7a9d493e336b972370085599c3",
+      "bytes": 13446,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/caepipe-external/CaepipeExternalHarnessPanel.tsx",
+      "sha256": "c6f0562ac7e710389859f29d0a31d1e8ab2f2be7e26b9aeaa9478c44d32f274c",
+      "bytes": 21959,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/caepipe-mbf/CaepipeMbfExportPanel.tsx",
+      "sha256": "a21d66143575572990da4d41f6dd4b1653d1108e7d40fd69463f3e55f3bd11ae",
+      "bytes": 30735,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/comparison/ComparisonPanel.tsx",
+      "sha256": "546c1acf201288293c8f9f5f2b385bfee5207585279d1b4f97499755aefc8185",
+      "bytes": 6904,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/design-workspace/DesignWorkspacePanel.tsx",
+      "sha256": "8131061c82223aabb571ac6ac9f546b7aced5e3b25e7c969bdccb3ed0f8eab48",
+      "bytes": 15699,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/diagnostics/DiagnosticsPanel.tsx",
+      "sha256": "c752935edf4268f05adedc29a8f1047241c0cb498f8dd44144eeec657f637c1b",
+      "bytes": 8582,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "0bc6054b86ab3031b7dc8cf806aa2a7b298d33e394711e279bfc9619aa3e7108",
+      "bytes": 14194,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/export-adapter-sdk/ExportAdapterSdkPanel.tsx",
+      "sha256": "63fe57ef6b8755dace2418e5ec557aaeef6305c5bcf5c730436e82a4f50c9c89",
+      "bytes": 22253,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/export-review/ExportReviewPanel.tsx",
+      "sha256": "6ac3c9a4f73c951f20b8176777215917306665b5900d6e25c30be013cd211a6a",
+      "bytes": 63520,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/exportUnitDisclosure.ts",
+      "sha256": "2f8e796d51b45a6156f50a3b1dbde37cef635ba436bac2fcb64eb8eb36c01a58",
+      "bytes": 3581,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/external-prover/ExternalProverBoundaryPanel.tsx",
+      "sha256": "35ce11753fefbe0f39d0f7a23cbfe22651b20d2b292919d15369f76029430d71",
+      "bytes": 16759,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "sha256": "f5111e0e20846658e47fdfb87d8398be0cd3c46dc19031b8a9fe778fe340555c",
+      "bytes": 15125,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "sha256": "45f7b418d6488d5f9be79fe1eb0fd88e03f66454a8cfe3e20fc0c4b605614425",
+      "bytes": 16485,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/knowledge/KnowledgePanel.tsx",
+      "sha256": "85f0635bf155aefe7cade9176a4efb6f088babbb9610a061fd6fb7c6fee4ce11",
+      "bytes": 6150,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "sha256": "8ba59a57b86a73bb38ed49c1c8305f2c2c5b1ef3b3c8976678cd96b118218b75",
+      "bytes": 8600,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "sha256": "e9ef9db712a1acc88ef671b4d18ee55c3dacc85ae7c79bb5d724fa85c689af2a",
+      "bytes": 24693,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/missing-data/MissingDataBlockingPanel.tsx",
+      "sha256": "c9bd328a6b97074d454cdc93ca7bbc8ada802051548b0d4eab576645b5a4b479",
+      "bytes": 24226,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "sha256": "aa4a531d4abaebd03bcbd9f2fc824e3f299cbfd2546d508091b1fed8a3ceb0b7",
+      "bytes": 35934,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/pcf-export/PcfExportPanel.tsx",
+      "sha256": "b288615f668ab9e3b5afd7ec96b082893dd0337ab216eb78159007048629940b",
+      "bytes": 31335,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report-lint/ReportLintPanel.tsx",
+      "sha256": "ac581abf6d77d20f0a3b74ddb2f3ad8d66d8868e4b6962baf8889bf012f7e425",
+      "bytes": 47065,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report/RenderedReportPanel.tsx",
+      "sha256": "846accdb86db0045e34d64a57233c74ca4cde2eabb63f7062a9fba9d356d931f",
+      "bytes": 10860,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report/ReportPanel.tsx",
+      "sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "bytes": 49601,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderableReportInput.ts",
+      "sha256": "041621201bc438c0323cd0219e2cbd862cc801128186da051f698d5e9e046826",
+      "bytes": 17678,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report/renderedReport.test.tsx",
+      "sha256": "a028a6e14771643d81fcbd42f1b6602e98e730643ffc4d16a4111f0bbbcf5c68",
+      "bytes": 19050,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "514b0582eb56a233b7445ca53b67bef0e903bde4b36acca6f8f0491d3dd0db99",
+      "bytes": 13549,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/report/stateComparisonHandoffSections.ts",
+      "sha256": "197c62814de74f629e5d6d8e2a91d4b759f2aa0b885eda9da3bc44f08b601c8d",
+      "bytes": 9748,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "2578daad2bbcd82f7177c3072f7eba61ce3128b4f3be3b6c3ba2048d126e2820",
+      "bytes": 14222,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "bytes": 5181,
+      "disposition": "immutable_legacy_reader_preserve"
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "bytes": 21519,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "9b1b9af32a51ec7938bf0b4fbbbb5eb7a6c1e7f5c767e2314ce9c2cadeb8b025",
+      "bytes": 12052,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/review-geometry/ReviewGeometryPanel.tsx",
+      "sha256": "25b228d7c5aa068b58c8050b74dd7dc7d79c118d2d39655f301228d659c9281e",
+      "bytes": 28169,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckPanel.tsx",
+      "sha256": "bb7908ea2dd5133829d29e0cb456a1abb44509f5706a65458a90640dadb5c526",
+      "bytes": 17963,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckRunPanel.test.tsx",
+      "sha256": "221b30f6b3d59fbbde2ce71913a9f05f3bbd0449fecc09d2a243d379e96d5723",
+      "bytes": 25438,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/rule-check/RuleCheckRunPanel.tsx",
+      "sha256": "afd74a1ed5d4fde16f806863c2baa3da3a874c1b4f6455f51aad40c5614d0796",
+      "bytes": 40154,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "sha256": "ea5a03797cb13c0b8e12c0f2cc3e694243f0d289bf63b0d48c4b5a36f2f80cc3",
+      "bytes": 5535,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/solve/SolvePanel.tsx",
+      "sha256": "ec154ed3e0ad1e4e516bdfbee4bc9c5988cb27fc52820d45b6f4fd74fa721741",
+      "bytes": 16192,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "d1ca0890a9899c1704370cfa6d1e4f54e2b729cae1d4e7dadd8e87dc9e6e5c04",
+      "bytes": 23701,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/features/toolkit/ResultQuantity.tsx",
+      "sha256": "bc8580052919490c6d8f8e5db9c3347c4a61cf0132ddfba428d782288c93a891",
+      "bytes": 612,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/features/viewport/PipeViewport.tsx",
+      "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb",
+      "bytes": 131119,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/services/hashService.ts",
+      "sha256": "5ccb4b3a8c79c1814aa694e4ad94d563fa943a5203c87aaaa581065b6bcf185c",
+      "bytes": 3412,
+      "disposition": "immutable_legacy_reader_preserve"
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.test.ts",
+      "sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+      "bytes": 17099,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "bytes": 29883,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "apps/desktop/src/services/projectService.ts",
+      "sha256": "da38305ab02c69be95cdae4e79c9546568038716d597cc72385883938cc1363d",
+      "bytes": 23589,
+      "disposition": "immutable_legacy_reader_preserve"
+    },
+    {
+      "path": "apps/desktop/src/services/ruleCheckService.ts",
+      "sha256": "51ac8f40d016b71334f28e6cb18bd7486b551e4bc096cc9adfe7d4adeaafc4b1",
+      "bytes": 10652,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "apps/desktop/src/types.ts",
+      "sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "bytes": 26474,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/adapters/framework/adapter_framework.py",
+      "sha256": "e47acd218c913930b6d01694d5884f1cf9f5c2f9de5a675122d4aab50a1243e9",
+      "bytes": 44122,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/analysis_runs/records.py",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "bytes": 22818,
+      "disposition": "immutable_legacy_reader_preserve"
+    },
+    {
+      "path": "core/loads/load_case_algebra/src/lib.rs",
+      "sha256": "fd70056f81320e33fad4f7e05152a4c83f2a97fd20aaaad384f25eff0b66a050",
+      "bytes": 34032,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/loads/primitive_loads/src/lib.rs",
+      "sha256": "fea5e1839ba663b2df47c1b4b98c0cb98482e1d00806c7ac670af63b918a4252",
+      "bytes": 157098,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/loads/stress_recovery/src/lib.rs",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "bytes": 55911,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "bytes": 710385,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/reporting/report_generator/src/lib.rs",
+      "sha256": "82b2a055cc1fc88eb15c4237cdc4feafc38e23e84fe117b980f60b64e12cc864",
+      "bytes": 41024,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/reporting/report_package/src/lib.rs",
+      "sha256": "3322f42f51605645c49cdaf578c6050b2a333eb1f7d4bb7247545a05af1b7e5c",
+      "bytes": 30287,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/reporting/report_package/src/wire.rs",
+      "sha256": "4a04fbde7b50515b00d55dde7438497fa7c5fe1d433bb7fc7d9ff5ee771489e1",
+      "bytes": 38170,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/reporting/report_package/tests/container.rs",
+      "sha256": "3ea39a03f3c721e09409fd1d5a09cad75d6ad90d89f76d39828b75ed359d6ff4",
+      "bytes": 25673,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "core/reporting/result_export/Cargo.toml",
+      "sha256": "a2840927e732377382b64403210ed36de3239e697f246290443e6d47f4e47576",
+      "bytes": 227,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "bytes": 65820,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54",
+      "bytes": 40907,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "57324f6611769ce754b87223e9007c36762e70c2dd8b2519bb6de51d6ff7e60b",
+      "bytes": 52302,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "bytes": 52734,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "core/solver/nonlinear_integration/src/lib.rs",
+      "sha256": "4dd1f651fb43293ba7738d7fe9ec3236d02331ee49d7b7b819bfe4adc712ed78",
+      "bytes": 174367,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "bytes": 23038,
+      "disposition": "proposed_localized_repair"
+    },
+    {
+      "path": "tests/product_preview/test_product_preview_service.py",
+      "sha256": "451924c6c2f9aa1a47b75f822459e35d1ea8740c6b77bbb73e4086ff77f19032",
+      "bytes": 22181,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_adapter_framework_contract.py",
+      "sha256": "03d094e0a709582ce333d3b811eeb1c5f4dd5e80df0822db5e7cbba89bea19a1",
+      "bytes": 30297,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_analysis_run_schema.py",
+      "sha256": "0a860733fe72b00e54e6fd27a77e46e24331f6c08d185bda4a2b56a275f9a022",
+      "bytes": 8373,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_analysis_status_schema.py",
+      "sha256": "ed1fc0cfa450a5a8fc08293db15084d52b7198a1e56794a58fb2bd9a06168f73",
+      "bytes": 7027,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_comparison_contracts.py",
+      "sha256": "d12a0607e9bb0e4d1b55cc82dfaacf0d48d913da2a572c6187035f7a1e5c9bad",
+      "bytes": 15302,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_handoff_export_workflow.py",
+      "sha256": "26ca22910597378f622796edb9a36589845db1135523981bacc4c76d1e375479",
+      "bytes": 29472,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_handoff_package_schema.py",
+      "sha256": "93015596ffdb36cfb25a2cdd32a959e31a5f67f7e3e744c56192c274ea3e520b",
+      "bytes": 14642,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_headless_runner_contract.py",
+      "sha256": "e81952a191f7a3ce7e80adceb7d7e45c952d82f32c406136f79e58fe99c82706",
+      "bytes": 26036,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_nonlinear_support_regression.py",
+      "sha256": "e37fe350698bbafc182ab947be6aae523dfd8e4c2f4322f57fa8da77d53dda06",
+      "bytes": 34283,
+      "disposition": "inventory_read_only_or_focused_test"
+    },
+    {
+      "path": "tests/test_results_schema.py",
+      "sha256": "4af1dce79e20c2c68d4f848d961ff735c7ef6bf048faf9fb76b97099d454aacb",
+      "bytes": 26345,
+      "disposition": "inventory_read_only_or_focused_test"
+    }
+  ],
+  "known_omitted_history": "no historical raw trace copying",
+  "probe_failures": [
+    {
+      "probe": "rg execution/_Coordination/_run_records in source lane",
+      "exit": 2,
+      "meaning": "planning archive exists only integration root; corrected origin used"
+    },
+    {
+      "probe": "core/audit/src/lib.rs",
+      "exit": 2,
+      "meaning": "actual audit crate core/reporting/audit_manifest"
+    }
+  ]
+}

@@ -1,0 +1,108 @@
+{
+  "status": "MANAGER_READ_ONLY_JSON_SOURCE_AND_DERIVATIVE_COMPARE_CORRECTED_LOCATOR_NOT_SCHEMA_RUNTIME",
+  "derivative_package": true,
+  "original_rows_count": 2991,
+  "cases_count": 12,
+  "records": [
+    {
+      "case": "blocked",
+      "rows": 0,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "canonical_absent": true
+    },
+    {
+      "case": "curved-pressure-full",
+      "rows": 74,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 74
+    },
+    {
+      "case": "curved-tip-weight-full",
+      "rows": 69,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 69
+    },
+    {
+      "case": "nonconverged-candidate-0",
+      "rows": 78,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 78
+    },
+    {
+      "case": "nonconverged-candidate-1",
+      "rows": 82,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 82
+    },
+    {
+      "case": "nonconverged-candidate-2",
+      "rows": 82,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 82
+    },
+    {
+      "case": "nonconverged-candidate-3",
+      "rows": 82,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 82
+    },
+    {
+      "case": "nonconverged-candidate-4",
+      "rows": 82,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 82
+    },
+    {
+      "case": "nonconverged-candidate-5",
+      "rows": 82,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 82
+    },
+    {
+      "case": "straight-dense-full",
+      "rows": 788,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 788
+    },
+    {
+      "case": "straight-full",
+      "rows": 786,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 786
+    },
+    {
+      "case": "straight-sparse-full",
+      "rows": 786,
+      "raw_whole_json_equal": true,
+      "source_rows_equal": true,
+      "attached_explicit_equal": true,
+      "accounts_count": 786
+    }
+  ],
+  "findings": [],
+  "all_comparisons_match": true,
+  "previous_snapshot": "MANAGER_FRESH_ORIGINAL_ROW_AND_DERIVATIVE_COMPARE_V1.json preserved; its11 attached-absence findings were manager filename-assumption errors (.attached.json versus actual.document.json), not producer canonical absence. Source whole JSON equality for all12 was valid there.",
+  "runtime_executor": "sole child; manager ephemeral JSON inspection only",
+  "limits": "No schema runtime or new canonical checksum execution; child/runtime hash/schema evidence separate. Gap cases separately captured. No native/browser claim."
+}

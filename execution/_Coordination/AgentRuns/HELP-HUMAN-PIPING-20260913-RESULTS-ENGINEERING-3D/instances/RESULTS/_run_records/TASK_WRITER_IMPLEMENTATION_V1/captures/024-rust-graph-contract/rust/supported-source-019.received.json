@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100:end-i:pressure-hoop",
+      "kind": "pipe_section_pressure_hoop_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "pressure_hoop_stress",
+        "coordinate_system": "pipe_section",
+        "location": "end_i",
+        "sign_convention": "positive pressure membrane hoop stress follows the explicit pipe pressure basis"
+      },
+      "unit": "MPa",
+      "value": 23.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

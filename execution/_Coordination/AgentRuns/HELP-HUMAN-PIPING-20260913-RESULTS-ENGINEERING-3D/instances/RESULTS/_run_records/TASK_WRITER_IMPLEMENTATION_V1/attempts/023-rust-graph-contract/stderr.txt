@@ -1,0 +1,4 @@
+   Compiling open_pipe_stress_result_export v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/core/reporting/result_export)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.48s
+     Running tests/derivative_contract.rs (/tmp/chirality-results-engineering-3d-20260913/results-implementation-target/debug/deps/derivative_contract-621b5d62c44985a2)
+error: test failed, to rerun pass `--test derivative_contract`

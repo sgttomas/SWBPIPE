@@ -1,0 +1,7 @@
+100644 blob aea1bfebb8b390acf53d2fc39535aa809be207ea	projects/chirality-piping/loop/LOOP_INIT.md
+100644 blob 3f8ca15f0d06f72c99117a840744f7ee4bfd3377	projects/chirality-piping/loop/LOOP_RECEIPTS.md
+100644 blob ee1ef82aca0c8e5fc5ff64f65b23d64eaf23a171	projects/chirality-piping/loop/WORKPLAN_2026-07-04_piping_loop.md
+100644 blob 8e81dcc0ca5ea3fb81a0d4dea9273bf275d22ade	projects/chirality-piping/loop/WORKPLAN_2026-07-10_piping_loop.md
+100644 blob 6a1388476d11e63af4b5bcd6b3944df61d8b1a22	projects/chirality-piping/loop/WORKPLAN_2026-07-17_piping_loop.md
+100644 blob b7041c1495bfc8f99b641bdb9db8d266790d68f4	projects/chirality-piping/loop/WORKPLAN_2026-07-18_piping_loop.md
+100644 blob 61dbbca25b9be766383aa1e5a743a021ce4d63d1	projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md

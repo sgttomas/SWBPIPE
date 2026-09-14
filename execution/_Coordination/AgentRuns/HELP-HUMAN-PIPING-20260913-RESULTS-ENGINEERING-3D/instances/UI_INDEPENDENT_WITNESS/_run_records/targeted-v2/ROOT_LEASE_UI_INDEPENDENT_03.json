@@ -1,0 +1,15 @@
+{
+  "lease": "ROOT_LEASE_UI_INDEPENDENT_03",
+  "issuer": "/root",
+  "recipient": "/root/ui_independent_witness",
+  "scriptSHA256": "80495b369b334b11222dcac7c5443ccbb74caf3369ea0e7d56f6330ab223ca84",
+  "methodSHA256": "4908da8d3bb0b897e8318c80116a29e89789bf9f940d1698d897755e5f542edb",
+  "scope": "One supported harness correction; unchanged successor, six-layout actual pointer/discrete/Historical/geometry checks; offline file-only cached browser. No app repair.",
+  "status": "RELEASED",
+  "predecessorLease02": "RELEASED; six failed locator cases, process exit0 is not PASS",
+  "syntaxPreparationExit": 0,
+  "processExit": 0,
+  "acceptanceOutcome": "BOUNDED_PASS",
+  "browserAndContextsClosed": true,
+  "sourceUnchanged": true
+}

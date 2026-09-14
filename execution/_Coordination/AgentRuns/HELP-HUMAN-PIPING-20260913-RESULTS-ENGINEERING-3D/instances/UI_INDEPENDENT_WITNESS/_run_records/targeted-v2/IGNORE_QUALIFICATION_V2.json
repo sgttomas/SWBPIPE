@@ -1,0 +1,14 @@
+{
+  "command": [
+    "git",
+    "check-ignore",
+    "-z",
+    "--stdin"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "inputMode": "all physical own evidence paths, NUL-separated stdin",
+  "exit": 1,
+  "ignoredRepoPaths": [],
+  "stderr": "",
+  "scope": "parent-authorized read-only Git qualification, no mutations"
+}

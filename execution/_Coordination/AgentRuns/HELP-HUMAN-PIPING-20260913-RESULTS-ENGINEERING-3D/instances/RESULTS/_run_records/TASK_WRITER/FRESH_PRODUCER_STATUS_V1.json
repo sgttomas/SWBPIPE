@@ -1,0 +1,202 @@
+{
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "lease": "ROOT_LEASE_RESULTS_BASELINE_01",
+  "records": [
+    {
+      "case": "blocked",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "rows": 0,
+      "canonical_document_exists": false,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "SPRING_HANGER_USER_DATA_REVIEWED",
+        "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+        "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+        "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+        "PREVIEW_DOCUMENT_KIND_INVALID"
+      ]
+    },
+    {
+      "case": "curved-pressure-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 74,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "curved-tip-weight-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 69,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-0",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 78,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-1",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 82,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-2",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 82,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-3",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 82,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-4",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 82,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "nonconverged-candidate-5",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 82,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "straight-dense-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 788,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "SPRING_HANGER_USER_DATA_REVIEWED",
+        "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+        "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+        "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+        "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "straight-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 786,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "SPRING_HANGER_USER_DATA_REVIEWED",
+        "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+        "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+        "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+        "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    },
+    {
+      "case": "straight-sparse-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "rows": 786,
+      "canonical_document_exists": true,
+      "nonconvergence_observed": false,
+      "diagnostic_codes": [
+        "SPRING_HANGER_USER_DATA_REVIEWED",
+        "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+        "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+        "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+        "SUPPORT_CONSTANT_EFFORT_NOT_CONSUMED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "EXPANSION_JOINT_PRESSURE_THRUST_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMPONENT_STRESS_MULTIPLIER_APPLIED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "COMBINATION_STRESS_SUMMARY_SKIPPED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ]
+    }
+  ],
+  "nonconvergence_witness": "NOT_YET_OBSERVED_FIXED_PRODUCT_CAP4_PROBES_ALL_CONVERGED"
+}

@@ -11,7 +11,7 @@ use std::process::ExitCode;
 use open_pipe_stress_headless_runner::{
     benchmark_binding::{self, SuiteRunReport},
     redaction_binding::control_local_private,
-    run_preview_in_memory_with_rule_check, validate_request, validate_result, Diagnostic,
+    run_preview_model_value_with_rule_check, validate_request, validate_result, Diagnostic,
     JobStateKind, Reference, RunnerOperation, RunnerRequest, RunnerResult, RunnerValidation,
 };
 use open_pipe_stress_product_physics::{solver_component_name, solver_component_version};
@@ -729,8 +729,9 @@ fn execute_solve(
         );
     }
 
-    let preview_request: LinearStaticPreviewRequest =
-        match serde_json::from_value(solve.preview_model) {
+    let exact_solve_payload = solve.preview_model;
+    let _preview_request: LinearStaticPreviewRequest =
+        match serde_json::from_value(exact_solve_payload.clone()) {
             Ok(preview_request) => preview_request,
             Err(error) => {
                 diagnostics.push(blocking(
@@ -753,11 +754,11 @@ fn execute_solve(
             }
         };
 
-    let preview = run_preview_in_memory_with_rule_check(
+    let preview = run_preview_model_value_with_rule_check(
         input.request,
-        preview_request,
+        exact_solve_payload,
         input.rule_check_aggregate.as_deref(),
-    );
+    ).expect("same exact payload already typed validated");
     let result_validation = validate_result(&preview.runner_result);
     let clean = preview.runner_result.job.state == JobStateKind::Completed
         && preview.runner_result.diagnostics.is_empty()

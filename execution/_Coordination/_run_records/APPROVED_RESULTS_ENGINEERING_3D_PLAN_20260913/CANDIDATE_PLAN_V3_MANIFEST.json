@@ -1,0 +1,33 @@
+{
+  "kind": "Sealed derivative Agent0 candidate V3; immutable earlier candidates and child recommendations",
+  "base_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "parent": "/root HELP_HUMAN",
+  "recorder": "/root/workflow_contact_setup TASK Sol/medium",
+  "status": "Fresh V2-rooted independent backcheck pending; continuing local planning",
+  "effect": "No implementation/Git/receipt/lifecycle/decision effects",
+  "bindings": {
+    "CANDIDATE_PLAN_V1.md": "00a60895b0b7ccdb9bba3b3dde2822d4e95c744dd707c62e3721e00863477be4",
+    "PLANNING_DISPATCH_FAN_IN_V1.json": "da2fc86a3d39ed18e2ed9b336e588f59c30a2a847ae64313101d661974012f75",
+    "PLANNING_CLOSEOUT_ADVICE_V1.md": "a1d4233d506f81ea2b1091d32bf858b6104bae66fb106d921a5c1b853b7446fd",
+    "BOOTSTRAP.json": "b556f6be3c1120ebcec7d1a0f439c71bcf97f963eb9f58c2c649322b9e742c3a",
+    "USER_DIRECTION.md": "4a3f210e1636979ab97c05ff6e835316ef384e8c93368ad0d48c65375e20b718",
+    "DISPATCH_READY_V1.json": "f92ef7abb8c92b00d67deb72f1bceac39231d67427431741bb460652514ae76c",
+    "briefs/RESULTS.md": "ea837f88391c30074ef655d2d81d7d3970ed1554d7bf6a6ab4c4f74b69fdd867",
+    "briefs/ENGINEERING.md": "c0d236fcae96a47298cbae2ad2b536996b85333d6f01be448ec33b63dcfdf4f8",
+    "briefs/UI.md": "538bd51543697049a1c51cd9b02f0d6f10d04da6f69f2a65155c2eed51cc7184",
+    "briefs/PLAN_REVIEW_V1.md": "87c43049a65951cf92c1f8225460a0a223a925f8743c01d7c60213bc2f57aa32",
+    "instances/SETUP/_run_records/PLAN_EXTERNAL_BASIS_V1.json": "bc4b06d652608ebaa71c28c7f6eb26e58aab79b017d81087ab5e8afc51292bb4",
+    "instances/ENGINEERING/MANIFEST.json": "10ab42b44da204bbc9378d6c9b7a8d249af2e1fbb1912885898f959321ec99fc",
+    "instances/RESULTS/MANIFEST.json": "014f5effbeac2af6f0d821aeacf2f23386a0ee062ddb35dcac6ed9f24fbe9649",
+    "instances/UI/MANIFEST.json": "abd80d73dff5498a856f97e25451532c87ded8bf8a289ec611e9a2eb2bc68405",
+    "CANDIDATE_PLAN_V1_MANIFEST.json": "05807962851e7224111af125c4675d37dfccb782673dd3316f90e805d4d3247b",
+    "CANDIDATE_PLAN_V2.md": "ee0e3c6f08eeb825c5d95a7a422dfea19e763556ddb9947487452e6fe9d40cb6",
+    "briefs/PLAN_REVIEW_V2.md": "a8e52dda5c6e551361c866a0576a14bce656a7f84cd076b0994b8bcbf71ce39b",
+    "CANDIDATE_PLAN_V2_MANIFEST.json": "209e807541f5297bcfd53f0806f02537f8adbf73631e485d56ea409923d0be43",
+    "CANDIDATE_PLAN_V3.md": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+    "briefs/PLAN_REVIEW_V3.md": "ab073436ddc0f6a6c0c847678fc789bd2a0c2bef67700b60e8489d1ccc365259",
+    "instances/PLAN_REVIEW/REVIEW_V2_RETURN.md": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+    "instances/PLAN_REVIEW/REVIEW_V2_ATTRIBUTION.json": "ea402c29f2437bc93e80273b21a492fb13ace5ffd4ba753b6e8c868d8552eff3",
+    "instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json": "61d86f162ddd8d3b89b3f080e17e17b61ad87165aeb2aef81cc4893813f5cb8f"
+  }
+}

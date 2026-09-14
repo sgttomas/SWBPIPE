@@ -1,0 +1,16 @@
+{
+  "mechanism": "delegated-harness-native collaboration.spawn_agent",
+  "parent": "/root/results_implementation_manager",
+  "child": "/root/results_implementation_manager/results_writer",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "fork_turns": "none",
+  "attribution_limit": "configured parent/tool response; not independent runtime supplier attestation",
+  "sealed_brief": "_run_records/TASK_WRITER_BRIEF_V1.md",
+  "sealed_sha256": "030e2af13fb2cc20f55193b776bc08c2aad5cbf8258ee823b8cc95d88d8f6880",
+  "phase": "actual running read-only/evidence child; product effect held",
+  "non_delegation": "instruction+config asserted",
+  "write_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER",
+  "lease": "none",
+  "wider_role_consultation": "manager read full AGENT_TASK.md to construct sealed child boundary, not role activation"
+}

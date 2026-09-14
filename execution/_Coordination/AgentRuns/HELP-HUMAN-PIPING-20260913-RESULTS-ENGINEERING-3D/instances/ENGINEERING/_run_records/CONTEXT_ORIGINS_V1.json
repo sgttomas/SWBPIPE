@@ -1,0 +1,689 @@
+{
+  "REPO_ROOT_actual": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913",
+  "WORKING_ROOT_actual": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping",
+  "INTEGRATION_REPO_ROOT_parent_supplied": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "attribution": "parent-configured; not independently supplier/runtime-attested",
+  "committed_plan_loader": {
+    "command": "git show HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+  },
+  "origins": [
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/ENGINEERING_MANAGER_V1.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "81a8f876ce671d9e847621776bababcb439afa1073fa2507a5a3b2b59ae41929",
+      "bytes": 7088
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/APPROVAL_DIRECTION.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "379f86df45ed4b3277e53ec6dbc934d87b676d967350fb6b563243a5a1c0f412",
+      "bytes": 719
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STEP0_RETURN_V1.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "ff19daba06fae0b493174f981e57c5fef191e6034224fe2b64513953e6a806d2",
+      "bytes": 4937
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/APPROVED_PLAN_ARCHIVE_LOCATOR_V1.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "3ba4a3b4667458974171b7eeb65beb1b41060365a0dcb120d10bb8ba81b54c48",
+      "bytes": 14626
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/STARTUP_PACKAGING_RETURN_V1.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "a631031c98a023e8575b05e511dba46f7b0bd92f3d91d2a5dfd4a60115bc8c74",
+      "bytes": 1924
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+      "bytes": 20468
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_HANDOFF_V2.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "20b7e76eaf9c63c705d66729dbb2073856b3a40a2fc989ec60d5fe384238e7ee",
+      "bytes": 2890
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/FINAL_RUN_MANIFEST_V2.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "b249b5d0999bf040aba20a464698ea733368cdfa24ebb6d0b6827e6bce301532",
+      "bytes": 9753
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V2_RETURN.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+      "bytes": 7267
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/REVIEW_V3_BACKCHECK_RETURN.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "6caa8de19763a35c6f967fa1dad3ad9fd2b7cbc79e7b92f52d4a5ae5ba08e3bb",
+      "bytes": 2221
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/V2_PARENT_DISPOSITION.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "61d86f162ddd8d3b89b3f080e17e17b61ad87165aeb2aef81cc4893813f5cb8f",
+      "bytes": 1409
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/PLAN_REVIEW/APPLICABILITY_ID_MAPPING_V1.json",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "c910e3f3aa549a40c9beb56da11282f9b64a3415d3756990aa1b980e449d7425",
+      "bytes": 862
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/ENGINEERING/RETURN.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "3626f5dc1f24407a5e6fded2b59d8e203256ae9562d75137a2e96b2155aeac0f",
+      "bytes": 13540
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/instances/ENGINEERING/ANALYTICAL_CONTRACT_SPEC.md",
+      "source_kind": "supplied integration checkout read-only; archive bytes historical, actual origin here",
+      "sha256": "7c994d2311098fc86fc048f82b1b1d60960ed3e28b8ab961db9c7cabb4cbaec0",
+      "bytes": 5274
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/AGENTS.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352",
+      "bytes": 12638
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/agents/AGENT_HELPS_HUMANS.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e",
+      "bytes": 2044
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/AGENTS.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/docs/CONTRACT.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3",
+      "bytes": 6912
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539",
+      "bytes": 36628
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3",
+      "bytes": 2808
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28",
+      "bytes": 1778370
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "09c27aa61a1417578caffc9e218fdef17c8d5f6b223afe7db237864b2aa196ca",
+      "bytes": 69150
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f",
+      "bytes": 3779
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_ADDENDUM_2026-09-08.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "c9fdfda7822c6dd3c30563a0be56107b9236b30e55f64d82f871557a3198e32b",
+      "bytes": 1339
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/POST_FAN_IN_REFINEMENTS.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "feac415215a22cfda71ee370a2543411fb05937ebee28758402d840fd0addb00",
+      "bytes": 2869
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e",
+      "bytes": 16161
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_DESIGN_REFUTATION_V1.md",
+      "source_kind": "own source checkout; full doctrine/report or bounded text inspection",
+      "sha256": "d0830b75fae3cb81e1add0f6f5370d9074a86452a92c0c3c251d14b091740336",
+      "bytes": 20531
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/product_physics/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b",
+      "bytes": 710385
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/product_physics/src/validation.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7",
+      "bytes": 75863
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/types.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "bytes": 26474
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "bytes": 273741
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/runner/headless/src/bin/openpipestress-runner.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "589b9c4bec1bd55a7dadd93cb4f4c820e4643662988e8af0b77d70dbcb85ad54",
+      "bytes": 40907
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde",
+      "bytes": 63643
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2",
+      "bytes": 55911
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "ce3e36b018559eafe1955155b0cb0ce6e2aac6ad3556c9fded7a17306741c704",
+      "bytes": 17044
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "aa4a531d4abaebd03bcbd9f2fc824e3f299cbfd2546d508091b1fed8a3ceb0b7",
+      "bytes": 35934
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/project-storage/ProjectStorageAuditPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "93784ee93b07d363786f9af7d9d3455752822e3d8df898b7efb032b0b90f1d4a",
+      "bytes": 14649
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/solve/SolvePanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "ec154ed3e0ad1e4e516bdfbee4bc9c5988cb27fc52820d45b6f4fd74fa721741",
+      "bytes": 16192
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "bytes": 5181
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "c95dd98a20ff43f886e3ba6c2bb2deff8e9fc271b9f4161d0151dc879ccf26c4",
+      "bytes": 18423
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78",
+      "bytes": 119519
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3",
+      "bytes": 45695
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/component-creation/componentIntent.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "9fe80410d9694f843cd7276029f98ec094302b3bddc3fd2131935a16a046e3b7",
+      "bytes": 16245
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "bytes": 530814
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_operations/operation_applier/src/geometry_operations.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "cf787c0ae6d00c4179018f6ae47379ac34352c9de632a32e41543921b8da2bdf",
+      "bytes": 37979
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_operations/operation_applier/src/rich_authoring.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "4b86c259924ee4b8d083c371154a91b3649fc0a1765f2f113e31e2756224c282",
+      "bytes": 36817
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_operations/validation_preview/engine.py",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "11c2e7e0bcd046b795178efe7a4012687bdc45c4bb3c209599123d4ab3a3a897",
+      "bytes": 28403
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "bytes": 29883
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/analysis_runs/records.py",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0",
+      "bytes": 22818
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/runner/headless/src/result_envelope_binding.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "fd965bb016daf9ab13df41e89057efaf84b8c4c92f87e973676fabddb917e1f0",
+      "bytes": 52734
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/reporting/result_export/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "dec88a2b29fe834afa9fb98b11a3bb94e7b7f06d9955d3c834cc948319831929",
+      "bytes": 65820
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/results.schema.yaml",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "bytes": 23038
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "2578daad2bbcd82f7177c3072f7eba61ce3128b4f3be3b6c3ba2048d126e2820",
+      "bytes": 14222
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/results/ResultsPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "ce68a760468116cf457513869819b000f456891d2c8d6fc94918c38e4618e102",
+      "bytes": 21519
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "9b1b9af32a51ec7938bf0b4fbbbb5eb7a6c1e7f5c767e2314ce9c2cadeb8b025",
+      "bytes": 12052
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "d1ca0890a9899c1704370cfa6d1e4f54e2b729cae1d4e7dadd8e87dc9e6e5c04",
+      "bytes": 23701
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "45f7b418d6488d5f9be79fe1eb0fd88e03f66454a8cfe3e20fc0c4b605614425",
+      "bytes": 16485
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "514b0582eb56a233b7445ca53b67bef0e903bde4b36acca6f8f0491d3dd0db99",
+      "bytes": 13549
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "bytes": 49601
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "041621201bc438c0323cd0219e2cbd862cc801128186da051f698d5e9e046826",
+      "bytes": 17678
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "f5111e0e20846658e47fdfb87d8398be0cd3c46dc19031b8a9fe778fe340555c",
+      "bytes": 15125
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "e9ef9db712a1acc88ef671b4d18ee55c3dacc85ae7c79bb5d724fa85c689af2a",
+      "bytes": 24693
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/run-audit/RunAuditPanel.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "ea5a03797cb13c0b8e12c0f2cc3e694243f0d289bf63b0d48c4b5a36f2f80cc3",
+      "bytes": 5535
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/apps/desktop/src/features/display-units/index.tsx",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "147119db58caa69057eecf5cc8a5e2cacba1e934bfa5f407c978071bb94221c9",
+      "bytes": 6086
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/model.schema.yaml",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "a47b00e0f93c915da49657057261b6903ea1eb9f091adaf555cae312bbe01b6c",
+      "bytes": 48268
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/material.schema.yaml",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "a948c66881823afb794525b63912a7822f358e61d048654fffcdbe68951af172",
+      "bytes": 20832
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/component.schema.yaml",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "f50dde1bd22696c8b82a0ea0b4f870afd4bff0c8eaa722971fa9d7d4bcc9cef3",
+      "bytes": 20472
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_transform/physical_to_analytical/contract.py",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "7dd1046344f66f4c06a3c9740162362cabf6db9959adbfa85469e1c1e70e2ac0",
+      "bytes": 31893
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/model_transform/physical_to_analytical/_solver_boundary_adapter.py",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "3c9c53019b9e557576d80fb5f1178ce61104a49617bed5d9b942350f6841d990",
+      "bytes": 47833
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/core/units/src/lib.rs",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "4bd102e98cc6be95562002637b48af4517dc88c9d82c23f8d1aede7c5fcf8592",
+      "bytes": 57390
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/units.schema.yaml",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "53233e2b586db0e63eb48c1d7c1a2f47e04a7c7de1fdb89f121a8eb8a96f32c4",
+      "bytes": 23374
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/schemas/analysis_run.schema.json",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f",
+      "bytes": 20276
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/docs/TYPES.md",
+      "source_kind": "own source checkout; bounded rg/callsite/type/hash inspection, not whole-file semantic audit",
+      "sha256": "c79a9173a92d7fe5a76c5e74f53b0c58a35b4a5f44cb00d17d4b0eda5f02af6d",
+      "bytes": 40881
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "0bde752dbb3ae9a943bc7ff9ada3bdf41672011c9c9c37b0e8a38c75725fa1c2",
+      "bytes": 4233
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9",
+      "bytes": 2997
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/ScopeOfWork.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "ac00bcf4d2985eec1bb47792de5aa47c17742e8b1973c8be831f81dc97677f28",
+      "bytes": 24840
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "2cbfdf0d34a8280a2bfaec6a451c1c91a552db52e3fc2c52f7dcade0bd3f97c8",
+      "bytes": 26724
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_REFERENCES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "ec49d94487b07b767e25763f2640632ab5885062f2da4512f77b37f215b007ef",
+      "bytes": 1361
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f",
+      "bytes": 13768
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_DEPENDENCIES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "f43f747be2d869bf0823184663e18d7e3e265e8eda98126d2d1def012eb811de",
+      "bytes": 4596
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_STATUS.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "2aa9dce213cb3a42c8a6d2300f484e8efddd16bdc21ff9cb1c5826060b453145",
+      "bytes": 2347
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_CONTEXT.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "216cae114fa6d87afb82638cde52a134af01c45a561de19de7cbbf6b10bb33a8",
+      "bytes": 3057
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/ScopeOfWork.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "d49ba65e086c0b7bfb0444a4e262ada196c22d72d7de98303a35e82efbdb4225",
+      "bytes": 22301
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/MEMORY.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "7f2b87bd6562ea1aa22ea077605b70d6df76d6a4b3695f68e1c78dd6e732393d",
+      "bytes": 17038
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_REFERENCES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "ed284e0b74848a1d10a2e604aa560c5b5c7e9efcd91fea7ae02a928380feca2a",
+      "bytes": 1366
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Dependencies.csv",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "a529a9ff4b9590ec5aec4480e2b176b9280601f3cd25bd90a6c552a8b337bb2e",
+      "bytes": 16145
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_DEPENDENCIES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "0dc7c91d6e64080634ef8c65163ccadd317afb231e6f999eecd94bdbb11e726d",
+      "bytes": 2653
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_STATUS.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "78f7431537150d1a8b1325109cb8a60c1f1e6cfc88f3e60f277505b6631ce88f",
+      "bytes": 3578
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_CONTEXT.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "d19fd67b153e8cd42a880daab77db0da7271070e6446943144408bcfb7032851",
+      "bytes": 4243
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/ScopeOfWork.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "aabffaa90b438c0e2cd5d73622940af4fdc233666470cbbb38f948f603642d8d",
+      "bytes": 60019
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/MEMORY.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "9f64f6558910e5d8df8264efee93f299253ba37a3f3a9c843de0826d7e1bb9b1",
+      "bytes": 30180
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_REFERENCES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "35e557b55b3665d63de60e7153fa14d4f40132bfe82598f520a227cecbf8c2d8",
+      "bytes": 1383
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Dependencies.csv",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "d0229fac70080f271dc3f9f14b4d2b5d16d205967812c7df166762f4e5250de1",
+      "bytes": 14947
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/_DEPENDENCIES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "a935b247222aeaeb8c1bdb5a88075f7eda1b95846e54dcf6a9bf80233668c68e",
+      "bytes": 2539
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_STATUS.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "06a92c876098f082dc4947fee1e4bc076fe3c5bd0599da97f4c4709d81123290",
+      "bytes": 2026
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_CONTEXT.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "bdb1df1b6260380a8a105a6efc9cefb9090c017cbc1423c05400eaf38dd002b2",
+      "bytes": 3033
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/ScopeOfWork.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "448f383993cca728fc88dbf35d150a8b9514119296cd16c587ff84945cda388e",
+      "bytes": 23222
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557",
+      "bytes": 11084
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_REFERENCES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "42858ef7e10c03cfcc0a20e5547ba3f3973f6401ebefc81dfcbce90cece88c7c",
+      "bytes": 1358
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Dependencies.csv",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "966c97839e50bf8d27591ca35b2aeda7f3271c9df9af9f65ceb0969122522b41",
+      "bytes": 18418
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_DEPENDENCIES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "b36dfab542353e4fe5756251865a321ef46cd54b17ba690d7001ce5eeae32005",
+      "bytes": 2205
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "9c47f104f443d3382f239097e4baaa46aeb34eeb60e94afebd79cc4d23299979",
+      "bytes": 3227
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_CONTEXT.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "e3b9614cf177d5e632d3cb463984ae4f185c0625a48cae87f88eec552bb5f304",
+      "bytes": 2950
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/ScopeOfWork.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "0ad4bf821d93e45097c4185148aaf367dd1759c6edf2b47d3624869416655e13",
+      "bytes": 16115
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "8fed6f9fe0f5f57e6ed910d55db497e7180d0ab909325915e784979de9c59d19",
+      "bytes": 27393
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_REFERENCES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "a6357bcbaf27005a2baf4733a02f39a6ebfddae49f5b5bdfa9bc2dca1dc371a7",
+      "bytes": 1348
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Dependencies.csv",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "3c8d2658ecab02326e502c484603342e62afe39a82d0c907b73918544f8ff21b",
+      "bytes": 12718
+    },
+    {
+      "actual_origin": "/Users/ryan/.codex/worktrees/8728/chirality-engineering-contracts-20260913/projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_DEPENDENCIES.md",
+      "source_kind": "own deliverable kit/Remaining/source-of-work/local dependency context",
+      "sha256": "5cd42810e32bcdf38d96f1118435bcb0d92f693986129d801492cbeda89efba2",
+      "bytes": 3838
+    }
+  ],
+  "missing_requested_kit_paths": [
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Specification.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Datasheet.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Guidance.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Procedure.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Specification.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Datasheet.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Guidance.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Procedure.md",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Specification.md",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Datasheet.md",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Guidance.md",
+    "projects/chirality-piping/execution/PKG-02_Domain Model, Units, and Core Schemas/1_Working/DEL-02-05_Project persistence and round-trip serialization/Procedure.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Specification.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Datasheet.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Guidance.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Procedure.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Specification.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Datasheet.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Guidance.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Procedure.md"
+  ],
+  "kit_qualification": "Live consolidated ScopeOfWork.md exists and was consumed; four historical kit filenames are absent in this checkout, not reconstructed or written. Source hashes identify origin files, not a claim every code file was audited in full.",
+  "parent_Step0": "Receipt139 validated/read by parent; R5,DAG010,decomp0.12,SCA009; initial10REVIEW preserved, immutable relocation yielded0BLOCK4REVIEW112WARN14INFO1NA; no independent rerun here",
+  "physics_sources": "Vetted local independent reports/refutations with their cited primary MIT/Abaqus basis; no piping-design OCR equation artifact consumed. No network/refutation computation or external industry-solver evidence produced.",
+  "consultation": "Named HELPS_HUMANS role only; no wider role activation, retired CHANGE persona or child dispatch"
+}

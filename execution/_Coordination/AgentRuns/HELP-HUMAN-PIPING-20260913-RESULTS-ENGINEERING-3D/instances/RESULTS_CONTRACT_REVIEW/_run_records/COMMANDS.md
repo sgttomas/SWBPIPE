@@ -1,0 +1,7 @@
+# Read-only command record
+
+The live tool transcript is the original exact invocation record. This durable index does not purport to reconstruct each earlier heredoc verbatim.
+
+Executed operations: `cat` of sealed brief/instructions/contracts/returns; `rg --files` discovery in the declared project/run roots; `rg -n` source pattern inspection; `sed -n` bounded source reads; Python pathlib/json parsing with compact or sliced full candidate displays; hashlib SHA-256 file inspection; `git -C <declared checkout> rev-parse --show-toplevel HEAD`; `git -C <results checkout> ls-files --others --ignored --exclude-standard -- <run>/instances/RESULTS` (exit 0, empty output).
+
+The final structural-inspection heredoc compared manifest hashes, source inventory hashes, all frozen original row fields and candidate source examples to parsed original raw files. It did not import or invoke product code, jsonschema, test runners, solver/build/browser/native facilities, or network. Its exact outcomes are retained in INSPECTION_RECORD.json. Python writes were restricted to this instance's output and _run_records directories. Earlier oversized display outputs were truncated; later compact/chunked reads completed the explicitly declared document coverage. One exploratory rg used a nonexistent canonicalizer path and returned an IO error; discovery corrected it to core/serialization/canonical_json/src/lib.rs, which was read fully. No failed product test or build occurred because none was run.

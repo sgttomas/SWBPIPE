@@ -1,0 +1,33 @@
+{
+  "status": "STATIC_PREPARATION_NO_RUNTIME",
+  "source_freeze_sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+  "format_clarification_sha256": "945d993444049625c62ea651c920126539b904ae5f6045866b38dcde4ed734f0",
+  "initial_manifest_V2_sha256": "ddc091dcafb247b9d42f342c43582f0d99168356a276eed40d800ada4ff1cc99",
+  "locator_sha256": "857ec78891156946ab024957ccc74b1c17cfb291e474c2b13c929ed8e3ec53b0",
+  "new_files": [
+    {
+      "path": "_run_records/FINAL_SOURCE_PREPARATION_CONTEXT_V1.json",
+      "sha256": "542c8104c8889e90861692abae09a0aa040ef9d5516b943935ec7bbec2c171c0",
+      "bytes": 11384
+    },
+    {
+      "path": "_run_records/FINAL_CAPTURE_ROUTE_PREPARATION_V1.md",
+      "sha256": "21be5f5afb51dbdb87a95fe05ce96e8457686c4a2e8b9093b7c72e26e0ef37cf",
+      "bytes": 4023
+    },
+    {
+      "path": "_run_records/PROPOSED_RUNTIME_LEASE_FINAL_V1.json",
+      "sha256": "7585b4e2a74b5c1da6798fdf2d7e3ec3966e0fd679744beaa0779fdc4e35e8ee",
+      "bytes": 3613
+    },
+    {
+      "path": "_run_records/verify_captured_result.mjs",
+      "sha256": "189012e1cacda97ec2477d7ec2830199a047ea6fdfc1a0e86c1755e6ede7a7a5",
+      "bytes": 5005
+    }
+  ],
+  "old_bytes_preserved": true,
+  "new_scripts_not_executed": true,
+  "runtime_not_granted": true,
+  "capture_limitation": "actual WKWebView download/Copy Link support must be observed under lease, no runtime capability claimed"
+}

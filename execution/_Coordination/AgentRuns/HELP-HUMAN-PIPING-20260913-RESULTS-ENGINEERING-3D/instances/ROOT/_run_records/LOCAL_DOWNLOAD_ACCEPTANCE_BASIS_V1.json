@@ -1,0 +1,145 @@
+{
+  "status": "ACCEPTED_LOCAL_CANONICAL_DOWNLOAD_CALLER_ACCOMMODATION",
+  "utc": "2026-09-14T03:00:51.926783+00:00",
+  "parent": "/root HELP_HUMAN",
+  "authority": "Approved result repair and owner standing routine engineering authority; concrete actual download failure, existing policy consumption",
+  "release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULT_LOCAL_DOWNLOAD_REPAIR_V1.md",
+    "sha256": "cbcb121dddc3d6769fda570fee46f49ca48f72a894b4e1b0f41716d3721321b8"
+  },
+  "integration_base": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "source_scope": [
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx"
+  ],
+  "basis": [
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_CONTEXT.md",
+      "sha256": "e3f27d2a4990b3cf05ff201f9b3c234849a2cf167185fd5b86f63377da92d9b1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/_STATUS.md",
+      "sha256": "3c15e7870a6b5250d3c86173ef7fc8d83f56c9b02b025eb2da35e2bc91cdb876"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/Dependencies.csv",
+      "sha256": "421fd47e0ffbc1bb35374e9c34fd953e920660e858c8734fa3427d735795902b"
+    },
+    {
+      "path": "projects/chirality-piping/docs/IP_AND_DATA_BOUNDARY.md",
+      "sha256": "87458097809cec9563d95fddfc6fa2e77f0613a51cae80c36401571c71a93ea6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/redactionExportControls.ts",
+      "sha256": "0e5b4a8016e70b629ce20c0b271c88c5d779a29a623c09284713c78a3af0d653"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "371934110f8f8561a492d0f18dfebcd26dc641cd001415d5a60b0a0b5473e4c7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "93a9f2e871eb2b08500c751d4415c41f226e67de001ef2e695355355e46c4caa"
+    }
+  ],
+  "dependency_statements": [
+    {
+      "id": "TP-DAG-004-DEL-12-02-A001",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 implements SOW-040 for private data handling controls including redaction/export safeguards."
+    },
+    {
+      "id": "TP-DAG-004-DEL-12-02-A002",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 supports OBJ-010 for protecting private project code rule-pack and component data in local-first workflows."
+    },
+    {
+      "id": "DAG-002-E0361",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-01 from DEL-00-01 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0362",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-02 from DEL-00-02 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0363",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-03 from DEL-00-03 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0364",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-04 from DEL-00-04 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0365",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-06 from DEL-00-06 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0366",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-07 from DEL-00-07 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0367",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 must apply SCA-001 architecture-basis constraint AB-00-08 from DEL-00-08 when executing the sealed PKG-12 security/privacy scope."
+    },
+    {
+      "id": "DAG-002-E0610",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-12-05 as a predecessor: redaction/export controls follow threat model."
+    },
+    {
+      "id": "DAG-002-E0611",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-12-01 as a predecessor: redaction/export controls use private path markers."
+    },
+    {
+      "id": "DAG-002-E0612",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-08-01 as a predecessor: report exports may expose private data."
+    },
+    {
+      "id": "DAG-002-E0613",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-08-04 as a predecessor: structured exports may expose private data."
+    },
+    {
+      "id": "DAG-002-E0614",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-06-04 as a predecessor: private rule-pack metadata and checksums need export controls."
+    },
+    {
+      "id": "DAG-002-E0615",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 needs DEL-03-07 as a predecessor: library provenance and redistribution status drive export controls."
+    },
+    {
+      "id": "TP-DAG-004-DEL-12-02-E001",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 is constrained by OPS-K-IP OPS-K-DATA OPS-K-AUTH OPS-K-REPORT OPS-K-PRIV OPS-K-RULE and OPS-K-AGENT invariants."
+    },
+    {
+      "id": "TP-DAG-004-DEL-12-02-E002",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 export controls must follow the public/private data policy quarantine rule and report boundary."
+    },
+    {
+      "id": "TP-DAG-004-DEL-12-02-E003",
+      "status": "SATISFIED",
+      "statement": "DEL-12-02 redaction/export controls are constrained by report audit content warning classes adapter no-bypass and validation expectations."
+    }
+  ],
+  "disposition": "Repair result-export-link with registered DOTH-JSON-001/local_private, explicit wrapper-owned intent, existing lossless policy and new result-only exact materialization check. Original href only after exact allowed output; altered/blocked output has no href. Existing policy semantics, unknown/protected treatment and all other routes remain unchanged.",
+  "exclusions": [
+    "Policy engine or document mutation",
+    "New export format/public destination/transport API/readiness",
+    "Formal dependency or lifecycle promotion",
+    "Model operation semantics change"
+  ],
+  "remaining": "Required focused actual-href/intent/policy regressions, independent complete source review, registered sweep and native witness; no implementation pass inferred here."
+}

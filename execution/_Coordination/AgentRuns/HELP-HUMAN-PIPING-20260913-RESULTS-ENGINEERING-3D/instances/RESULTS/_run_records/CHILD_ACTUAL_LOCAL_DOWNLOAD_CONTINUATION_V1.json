@@ -1,0 +1,16 @@
+{
+  "snapshot_kind": "derivative coordination evidence",
+  "dispatch_tool": "collaboration.send_message",
+  "actual_target": "/root/results_implementation_manager/results_writer",
+  "target_status": "running existing sole writer",
+  "recorded_at_utc": "2026-09-14T02:59:46.880790+00:00",
+  "continuation_sha256": "58d7e000ac84a42d639f5d00cb3bc98657a168968b92b9c2b1b787d15960998d",
+  "root_origin_sha256": "cbcb121dddc3d6769fda570fee46f49ca48f72a894b4e1b0f41716d3721321b8",
+  "added_source_fence": [
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx"
+  ],
+  "lease": "ROOT_LEASE_RESULTS_IMPLEMENTATION_01",
+  "no_new_child": true,
+  "formal_state_change": false
+}

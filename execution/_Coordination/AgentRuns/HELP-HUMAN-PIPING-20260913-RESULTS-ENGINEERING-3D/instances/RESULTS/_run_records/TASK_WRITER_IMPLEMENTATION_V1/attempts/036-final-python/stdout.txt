@@ -1,0 +1,13 @@
+EXECUTE ['/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python', 'tests/test_results_schema.py']
+EXIT 0  
+EXECUTE ['/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python', 'tests/test_result_export_v0_2.py']
+EXIT 0  ..
+----------------------------------------------------------------------
+Ran 2 tests in 0.375s
+
+OK
+
+EXECUTE ['/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python', 'tests/test_results_viewer_contract.py']
+EXIT 0  
+FULL_DOCUMENTS 103 ERRORS 0
+STRESS_EXISTING_SCHEMA_ERRORS 922

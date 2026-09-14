@@ -1,0 +1,30 @@
+{
+  "kind": "frozen UI planning output manifest",
+  "status": "COMPLETE_FOR_PARENT_PLANNING_REVIEW",
+  "base_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "derivative_package": true,
+  "read_only_after_freeze": true,
+  "artifacts": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/UI/CONTEXT_MANIFEST.json",
+      "sha256": "918daa81d9fa549fc379b3d6b5a50f08ce7b8c1bf605e80d7df652841999572c",
+      "bytes": 38639
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/UI/DEPENDENCY_CONTEXT.json",
+      "sha256": "4d10291b1b0d7ad8dcac4c135db20a6ed21dbe9748857cb2ab65476344f1cf60",
+      "bytes": 49607
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/UI/DESIGN_PLAN.md",
+      "sha256": "651b92db0c077f8d4fe470449d3f8a334462b47edd592e6cb03f2511e9b10f51",
+      "bytes": 15555
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/UI/RETURN.md",
+      "sha256": "af0981096628552ba311b8a7598bd88b1df9e5488be8a188933dd081a9640067",
+      "bytes": 3868
+    }
+  ],
+  "manifest_self_hash_excluded": true
+}

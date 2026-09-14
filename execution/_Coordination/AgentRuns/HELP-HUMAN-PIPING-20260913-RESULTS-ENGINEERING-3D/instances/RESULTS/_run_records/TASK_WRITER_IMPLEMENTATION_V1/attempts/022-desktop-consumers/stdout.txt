@@ -1,0 +1,17 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/resultSemantics.test.ts src/features/results/ResultsPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/handoff/HandoffPanel.test.tsx src/features/report/reportPackageRequest.test.ts src/features/headless-runner/HeadlessRunnerPanel.test.tsx src/features/stress-neutral/StressNeutralExportPanel.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx (1 test | 1 failed) 68ms
+   × keeps received declarations as reference evidence and reports unavailable witnesses 68ms
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx (1 test | 1 failed) 94ms
+   × retains every source numerical row and CSV unit while withholding incompatible declaration witnesses 93ms
+
+ Test Files  2 failed | 5 passed (7)
+      Tests  2 failed | 21 passed (23)
+   Start at  20:55:16
+   Duration  1.55s (transform 855ms, setup 658ms, import 968ms, tests 1.60s, environment 1.97s)
+

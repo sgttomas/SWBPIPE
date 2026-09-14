@@ -1,0 +1,100 @@
+{
+  "derivative_package": true,
+  "status": "ADDITIVE_COUNTING_CORRECTION_ONLY",
+  "basis": "Independent physical enumeration of exact frozen baseline_outputs_v1/*.mechanics.json; no prior artifact changed. Root and fresh reviewer reconcile same raw inventory.",
+  "total_cases": 12,
+  "solved_cases": 11,
+  "blocked_cases": 1,
+  "all_raw_rows": 2991,
+  "solved_raw_rows": 2991,
+  "preserved_schema_errors_all_solved": 672,
+  "preserved_schema_errors_main_three": 196,
+  "cases": [
+    {
+      "case_id": "blocked",
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "raw_rows": 0,
+      "canonical_document_present": false,
+      "mechanics_sha256": "aafc348b0fab302a2743cab068686117937ccd8ca4d0dedae96d82985a658d73"
+    },
+    {
+      "case_id": "curved-pressure-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 74,
+      "canonical_document_present": true,
+      "mechanics_sha256": "d1139c67de3f29835bbf38a524095c9064d24561e7c608eac34211a2c5fe6517"
+    },
+    {
+      "case_id": "curved-tip-weight-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 69,
+      "canonical_document_present": true,
+      "mechanics_sha256": "c58471bd6a1cfb6bb3270b01a766119fe523984a7fbfac7e5ece499cf4d97186"
+    },
+    {
+      "case_id": "nonconverged-candidate-0",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 78,
+      "canonical_document_present": true,
+      "mechanics_sha256": "de28bddcf878a4e626e79b96b896ef31ea44eb92435182dc486f434ec02ace0a"
+    },
+    {
+      "case_id": "nonconverged-candidate-1",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 82,
+      "canonical_document_present": true,
+      "mechanics_sha256": "e099686123f87549684a26a299454b2e21a649585c5cc28634dbbbbbc6f3781d"
+    },
+    {
+      "case_id": "nonconverged-candidate-2",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 82,
+      "canonical_document_present": true,
+      "mechanics_sha256": "e78c4fe5223681d21bdf0991f6c71eb99c03441f50509ee31a6f12f57fd27455"
+    },
+    {
+      "case_id": "nonconverged-candidate-3",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 82,
+      "canonical_document_present": true,
+      "mechanics_sha256": "268069aabe5506c0d5ecab4cf8c7b7a27a6627526ab38ce9a73cf3d1f1582bc7"
+    },
+    {
+      "case_id": "nonconverged-candidate-4",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 82,
+      "canonical_document_present": true,
+      "mechanics_sha256": "ee13f98143c6a7a6eda594bd167cd8c7083c5f2f39de26766d761d44aa6152e5"
+    },
+    {
+      "case_id": "nonconverged-candidate-5",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 82,
+      "canonical_document_present": true,
+      "mechanics_sha256": "9fb671f49d45112aec3fdd91c286171703a3fbc8b5a2fa57431c78529c77e373"
+    },
+    {
+      "case_id": "straight-dense-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 788,
+      "canonical_document_present": true,
+      "mechanics_sha256": "e60cb867a220af19371a9e4a3f79507c47e4471aea9607bc3443460a49ad8f67"
+    },
+    {
+      "case_id": "straight-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 786,
+      "canonical_document_present": true,
+      "mechanics_sha256": "73f74868c626fdeac12e490312e488dc37f7aef7fe97d03a4fc93959e8f014b8"
+    },
+    {
+      "case_id": "straight-sparse-full",
+      "mechanics_status": "MECHANICS_SOLVED",
+      "raw_rows": 786,
+      "canonical_document_present": true,
+      "mechanics_sha256": "73f74868c626fdeac12e490312e488dc37f7aef7fe97d03a4fc93959e8f014b8"
+    }
+  ],
+  "supersession": "Prior manager prose/metadata stating11total/10solved+1blocked is a counting error, not the authoritative inventory. Retain bytebound historical snapshots and read this additive correction with them. Phase1 frozen semantics2991rows and independently validated672errors remain unchanged.",
+  "source_effect": false
+}

@@ -1,0 +1,191 @@
+{
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "professional_acceptance": "not_provided",
+    "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [
+    {
+      "completeness": [
+        {
+          "diagnostic_code": "BEND_GEOMETRY_INCOMPLETE",
+          "finding_id": "finding:C-110:bend-geometry",
+          "missing_field_kinds": [],
+          "status": "complete"
+        }
+      ],
+      "geometry": {
+        "bend_angle": {
+          "unit": "rad",
+          "value": 1.5707963267948966
+        },
+        "bend_geometry_source_reference": "invented_user_entered_preview_geometry",
+        "bend_pipe_ref": "pipe:P-100",
+        "bend_plane_orientation": "global_xy_preview",
+        "bend_radius": {
+          "unit": "m",
+          "value": 1.4142135623730951
+        }
+      },
+      "id": "component:C-110",
+      "kind": "bend",
+      "label": "Invented elbow marker",
+      "mechanics_interface": {
+        "rule_check_consumption": "user_rule_pack_inputs_only",
+        "solver_consumption": "curved_bend_macro_element"
+      },
+      "modifiers": {
+        "flexibility_factor_user_value": {
+          "unit": "none",
+          "value": 2.0
+        },
+        "sif_user_value": {
+          "unit": "none",
+          "value": 1.15
+        },
+        "source_reference": "invented_user_entered_preview_no_code_table"
+      },
+      "node": "node:N-110",
+      "provenance": "invented_example_user_entered_bend_values_no_code_table"
+    }
+  ],
+  "data_boundary": {
+    "private_data_policy": "no_private_project_data",
+    "professional_boundary": "technical_preview_requires_human_engineering_review",
+    "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+    "public_examples_policy": "invented_or_cleared_data_only"
+  },
+  "diagnostics": [
+    {
+      "code": "RULE_INPUTS_MISSING",
+      "message": "Rule-check inputs are intentionally absent from this invented preview.",
+      "severity": "warning",
+      "source": "fixtures/product_preview/invented_preview_model.json"
+    }
+  ],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "load:L-100",
+      "kind": "primitive_user_load",
+      "label": "Invented operating gravity and pressure preview",
+      "primitive_loads": [
+        {
+          "category": "pressure",
+          "dimension": "pressure",
+          "direction": "global_x",
+          "id": "load:L-100-P",
+          "magnitude": {
+            "unit": "Pa",
+            "value": 2000000.0
+          },
+          "provenance": "invented_example_user_input",
+          "target": {
+            "pipe": "pipe:P-100",
+            "type": "element"
+          }
+        }
+      ],
+      "provenance": "invented_example_no_code_combination",
+      "status": "preview_only"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000
+      },
+      "id": "material:invented-carbon-steel",
+      "label": "Invented carbon-steel-like material",
+      "provenance": "invented_example_no_material_standard",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 77000000000
+      },
+      "thermal_expansion_coefficient": {
+        "unit": "1/degC",
+        "value": 0.000012
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:N-100",
+      "label": "Pump nozzle",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    },
+    {
+      "id": "node:N-110",
+      "label": "Low point elbow",
+      "position": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_example"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:N-100",
+      "id": "pipe:P-100",
+      "label": "Pump discharge run",
+      "material": "material:invented-carbon-steel",
+      "provenance": "invented_example_no_standard_catalog",
+      "section": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "to": "node:N-110",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "project": {
+    "description": "Small invented centerline model for desktop integration review.",
+    "id": "project:invented-loop-01",
+    "name": "Invented Utility Loop Preview",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "MPa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.1.0",
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "support:S-100",
+      "label": "Anchor at pump nozzle",
+      "node": "node:N-100",
+      "provenance": "invented_example",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    }
+  ]
+}

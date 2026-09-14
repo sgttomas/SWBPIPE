@@ -1,0 +1,19 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/results/resultSemantics.test.ts src/features/results/ResultsPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/result-export/ResultExportPanel.test.tsx src/features/handoff/HandoffPanel.test.tsx src/features/report/reportPackageRequest.test.ts
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/handoff/HandoffPanel.test.tsx (1 test | 1 failed) 6ms
+   × reference-only handoff preserves received declarations and withholds absent dimension witnesses 6ms
+ ❯ src/features/report/reportPackageRequest.test.ts (8 tests | 1 failed) 312ms
+     × maps the actual manifest, source dimensions, private copies, and DEL-08-06 records without mutating sources 82ms
+ ❯ src/features/result-export/ResultExportPanel.test.tsx (1 test | 1 failed) 901ms
+   × only makes Current proof-bound JSON downloadable and invalidates it on same-id edit 899ms
+
+ Test Files  3 failed | 3 passed (6)
+      Tests  3 failed | 18 passed (21)
+   Start at  20:51:33
+   Duration  1.66s (transform 538ms, setup 633ms, import 698ms, tests 2.23s, environment 2.38s)
+

@@ -1,0 +1,161 @@
+{
+  "mechanics_envelope": {
+    "accepted_model_state_mutated": false,
+    "diagnostics": [
+      {
+        "affected_refs": [
+          "support:SH-140",
+          "hanger"
+        ],
+        "code": "SPRING_HANGER_USER_DATA_REVIEWED",
+        "id": "diagnostic:spring-hanger:support-SH-140:hanger",
+        "message": "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "support:CE-120",
+          "hanger"
+        ],
+        "code": "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+        "id": "diagnostic:spring-hanger:support-CE-120:hanger",
+        "message": "constant-effort support carries explicit user-entered constant load, travel metadata, and source reference under DEC-049; no global constant-effort solve behavior or catalog default is claimed",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "component:C-130"
+        ],
+        "code": "RIGID_COMPONENT_STIFFNESS_SCALING_REVIEWED",
+        "id": "diagnostic:component:component-C-130:rigid-review",
+        "message": "rigid/semi-rigid component carries user-entered dimensions, weight, center of gravity, mapping, stiffness scaling, semi-rigid stiffness quantities, and source notes under DEC-045 mechanics_geometry_only; no protected/default component values are supplied",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "component:C-150"
+        ],
+        "code": "EXPANSION_JOINT_USER_STIFFNESS_REVIEWED",
+        "id": "diagnostic:component:component-C-150:expansion-joint-review",
+        "message": "expansion joint carries user-entered stiffnesses, effective pressure area, movement limit, hardware/manufacturer provenance, and load-side pressure-thrust handling evidence under DEC-045; no protected/default manufacturer values are supplied",
+        "severity": "info",
+        "source": "core/product_physics"
+      },
+      {
+        "affected_refs": [
+          "model"
+        ],
+        "code": "PREVIEW_DOCUMENT_KIND_INVALID",
+        "id": "diagnostic:physics:document-kind",
+        "message": "physics adapter requires an openpipestress.product_preview.model document",
+        "severity": "blocking",
+        "source": "core/product_physics"
+      }
+    ],
+    "document_kind": "openpipestress.product_preview.mechanics_result",
+    "model_ref": "project:invented-loop-01",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "results": [],
+    "run_id": "run:preview-linear-static-blocked",
+    "schema_version": "0.1.0",
+    "status": {
+      "mechanics": "MODEL_INCOMPLETE",
+      "professional_acceptance": "NOT_PROVIDED",
+      "rule_check": "RULE_INPUTS_INCOMPLETE"
+    },
+    "summary": {
+      "component_pressure_thrust_load_count": 0,
+      "component_stress_modifier_count": 0,
+      "component_user_stiffness_macro_element_count": 0,
+      "load_case_count": 2,
+      "max_displacement": null,
+      "max_open_formula_stress": null,
+      "node_count": 5,
+      "segment_count": 4,
+      "spring_hanger_user_input_count": 0,
+      "support_count": 5
+    }
+  },
+  "runner_result": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MODEL_INCOMPLETE",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "audit_manifest_ref": {
+      "ref_id": "audit-manifest:run:headless-preview:p5-blocked",
+      "ref_type": "audit_manifest"
+    },
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "p5-blocked",
+          "ref_type": "runner_request"
+        },
+        "value": "88dd5982531c4570e2a806f1ba393e73e9f6566fc926bbfcf745a56f9f7dd3c6"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "result-envelope:run:headless-preview:p5-blocked",
+          "ref_type": "result_envelope"
+        },
+        "value": "4f29ae3d2cbd06d43c458983eb421a1f62298122d5b19ebd5716c9833cbee70f"
+      }
+    ],
+    "diagnostics": [],
+    "job": {
+      "cancellation_requested": false,
+      "cancellation_supported": true,
+      "current_step": 3,
+      "job_id": "job:p5-blocked",
+      "state": "COMPLETED",
+      "total_steps": 3
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "instances/P5/schema_witness",
+      "source_name": "P5 invented complete-envelope schema witness"
+    },
+    "result_envelope_ref": {
+      "compatibility": "schema_first_json_result_envelope",
+      "envelope_ref": {
+        "ref_id": "result-envelope:run:headless-preview:p5-blocked",
+        "ref_type": "result_envelope"
+      },
+      "schema_ref": "schemas/results.schema.yaml"
+    },
+    "result_refs": [],
+    "run_id": "run:headless-preview:p5-blocked"
+  }
+}

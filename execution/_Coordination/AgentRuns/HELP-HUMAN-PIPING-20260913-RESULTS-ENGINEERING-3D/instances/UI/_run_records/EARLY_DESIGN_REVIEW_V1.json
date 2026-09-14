@@ -1,0 +1,44 @@
+{
+  "kind": "manager early source/design observations, candidate still being authored",
+  "reviewer": "/root/next_ui_design",
+  "scope": "prototype/index.html,workspace.css,workspace.js partial static read only",
+  "positives": [
+    "Permanent simulation label and mock engine state",
+    "Command groups, contextual task rail and pinned Add/Cancel/Apply",
+    "Explicit Current/Historical result state and typed quantity fields",
+    "Two density choices preserve same task state"
+  ],
+  "findings": [
+    {
+      "id": "UI-EARLY-01",
+      "status": "sent_to_writer",
+      "finding": "SVG screen coordinate scaling ignores preserveAspectRatio letterbox; use inverse screen CTM or matching projection so pointer placement matches visible model."
+    },
+    {
+      "id": "UI-EARLY-02",
+      "status": "sent_to_writer",
+      "finding": "Avoid implicit three-decimal authored coordinate rounding; retain sufficient explicit capture precision or make precision choice truthful."
+    },
+    {
+      "id": "UI-EARLY-03",
+      "status": "sent_to_writer",
+      "finding": "Format long minified JavaScript into reviewable blocks before source freeze."
+    },
+    {
+      "id": "UI-EARLY-04",
+      "status": "sent_to_writer",
+      "finding": "continueRoute retains entered unit but previously wrote proposed X in canonical metres; fix all XYZ conversion or preserve explicit fields."
+    },
+    {
+      "id": "UI-EARLY-05",
+      "status": "sent_to_writer",
+      "finding": "Mock split must preserve original pipe ID on first half and create one new second-half ID per current source; do not replace both identities."
+    },
+    {
+      "id": "UI-EARLY-06",
+      "status": "sent_to_writer",
+      "finding": "Do not claim actual stale/late callback suppression exercised unless a delayed mock callback/event actually exists; distinguish cancellation state from asynchronous evidence."
+    }
+  ],
+  "execution": "No runtime/test/browser executed; source inspection is not live visual evidence."
+}

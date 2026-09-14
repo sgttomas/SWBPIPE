@@ -2334,7 +2334,7 @@ function AppSession() {
               aria-label="Exports section"
               data-testid="workspace-section-exports"
             >
-              <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} inputManifest={inputManifest} />
               <StressNeutralExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <CaepipeMbfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />

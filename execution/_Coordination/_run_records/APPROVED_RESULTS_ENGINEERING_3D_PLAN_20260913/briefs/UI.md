@@ -1,0 +1,27 @@
+# Sealed professional 3D interaction/design planning brief
+
+Role: HELPS_HUMANS, Type 1. Parent: /root. Configured allocation: gpt-6-astra/high. This bounded planning stage has no child allocation and no delegation. Own only `instances/UI/**` beneath this run.
+
+## Objective and bounded work
+
+Prepare the next-tranche professional 3D interaction/design brief, without implementing UI. Parent reports the user dislikes the current 1990s appearance and wants user-friendly, industry-familiar full tool palettes and proper 3D authoring, using the mature UI target to drive functionality backfill. Treat this as parent-reported intent, not a fabricated verbatim quotation.
+
+Read current viewport, palette, route, tree, inspector, results and history surfaces; DEL-07-01/02/03/05/06/09; SCA-009 Vocabulary_Annex; and PKG16 typed operation contracts. Derive landed capabilities versus ROADMAP. Confirm the live accepted 1024×768 minimum and larger-desktop usability basis before retaining it in the proposal.
+
+Specify CAD-like workflows and professional visual hierarchy with reviewable later design outputs: workspace/tool palette, modes, selection/snapping, route editing, component placement, properties, analysis/results interaction map. Provide human gesture → typed intent/query → validation/history/busy mapping, a smallest useful first implementation slice and explicit engine-backfill matrix. Preserve current operation validation, preview/apply, stale-response, cancellation, busy and history semantics. No new independent operation semantics.
+
+Use a small set of current official CAD/stress-tool references only if useful for familiar conventions; cite primary URLs and do not copy protected material. No raster mockups, browser/native product runs or renderer changes now. Define later wireframe/prototype/witness deliverables and their acceptance boundary. Prioritize modelling functionality. UI slices can proceed alongside engine backfill with explicit semantic dependencies; completing every backend proposal, connecting a harness or adding export is not a prerequisite.
+
+## Basis, authority and boundaries
+
+Resolve REPO_ROOT with `git rev-parse --show-toplevel`; set WORKING_ROOT to `{REPO_ROOT}/projects/chirality-piping`. Base is frozen at `8f27fa3d8ec5e128e61fd3ac4076e74d7955f355`. Run path relative to WORKING_ROOT is `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN`. Confirm HEAD before work; report drift to parent rather than silently changing basis.
+
+Read Root AGENTS.md, your own role package, project AGENTS.md, and the committed selected standing plan identified and hash-validated in BOOTSTRAP.json. Load the plan with `git show HEAD:<selected path>`; use parent-attributed validated Receipt 139 discovery without claiming an independent receipt check. Read docs/CONTRACT.md and relevant deliverable `_STATUS.md` including Remaining, `_CONTEXT.md`, Specification.md, MEMORY.md, Registers/Deliverables and active local/DAG dependencies. Discover relevant paths with bounded searches. Prior run NEXT_WORK.md is a derivative clue, not authority. Record actual supplied file origins/hashes and exact references used; consult wider role instructions only deliberately and attribute that consultation.
+
+USER_DIRECTION.md contains the exact current chat prompt. Parent reports the accepted sequence: reliable native cycle/contact work completed; next revalidate result compatibility and shape pressure/connector contracts; begin professional 3D interaction/design concurrently; implement UI later in bounded slices alongside engine backfill. Finishing all five backend proposals is not a UI prerequisite. This is planning direction, not authorization for downstream code/design execution or a new register ruling. Preserve PR 785 semantics and shared typed operation/semantic equivalence. CAEPIPE, connected harness, export, release and instruction changes remain deferred. Standard claim fence applies (F-PIP-2; claims taxonomy per DEC-081).
+
+Use bounded shell reads/searches/hashes and appropriate primary-source web reading. Write only your own instances subtree, including raw output/private scratch there. No source, fixtures, schemas, deliverable state, registers, receipts, instructions, old runs, account/configuration changes, or product effects. No tests/builds/browser/native/GUI/global builds except RESULTS' specifically authorized existing deterministic schema validation on known synthetic inputs. Do not recompile or produce new native evidence. No children; no sibling messages. Report only to /root. At most six active instances including root; parent owns scheduling.
+
+## Return contract
+
+Return useful compact planning prose, approximately 1,500 words plus necessary tables/raw evidence. Write RETURN.md and MANIFEST.json in your own subtree. Include source-path citations; known facts versus proposals versus unresolved questions; exact next scope, acceptance cases, proposed ownership/dependencies and phase boundary; genuine decisions exceeding existing authority; execution limits. Preserve any authorized raw validation with command, environment, input hashes, full output and exit, distinguishing failed attempts from decisive results. Record model/effort as parent-configured, not supplier/runtime-attested. Hash all output artifacts after completion, excluding the self-referential manifest; freeze and return file hashes. A written brief is not evidence that a child executed. Do not perform implementation or adopt a proposed policy.

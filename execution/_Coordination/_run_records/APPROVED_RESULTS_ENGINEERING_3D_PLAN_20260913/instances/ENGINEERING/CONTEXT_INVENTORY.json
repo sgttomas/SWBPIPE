@@ -1,0 +1,365 @@
+{
+  "base_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-plan-20260913/projects/chirality-piping",
+  "model_effort": {
+    "model": "gpt-5.6-sol",
+    "effort": "high",
+    "attribution": "parent-configured; not independently supplier/runtime-attested"
+  },
+  "committed_plan": {
+    "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "origin": "git show HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+    "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+  },
+  "read_scope": "Full doctrine/brief/plan and engineering reports; bounded excerpts/searches of code and deliverable context, captured in SOURCE_EXCERPTS.md. Hashes identify whole origin file, not a claim of whole-file inspection.",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352"
+    },
+    {
+      "path": "agents/AGENT_HELPS_HUMANS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "a0c9fb9443d8671d694c1f7b24ff3c402ffd626c781a2739342c938f2f3c3d1e"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/stress_recovery/src/lib.rs",
+      "origin": "assigned checkout filesystem",
+      "sha256": "0c3a0b6278a1cce4a802fc6c2e4c81af1b6f393c5cde4bb28ff55b99d5d956f2"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "origin": "assigned checkout filesystem",
+      "sha256": "399096ec0f8033ae9bd9dcfd933091b0e0e482eb1f0107caf8af1098879e123b"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/self_weight.rs",
+      "origin": "assigned checkout filesystem",
+      "sha256": "23429a54f0f611b0a920364bb7734bf9c44a6e675b985fb43426c2b33fe00144"
+    },
+    {
+      "path": "projects/chirality-piping/core/product_physics/src/validation.rs",
+      "origin": "assigned checkout filesystem",
+      "sha256": "cc98b205467c9a965adc03179e91c43f174ba4b9bafb0f7aff47ed5ad6e936a7"
+    },
+    {
+      "path": "projects/chirality-piping/core/solver/frame_kernel/src/lib.rs",
+      "origin": "assigned checkout filesystem",
+      "sha256": "d657e6507aa5d4ef80124e3f6d10bd5a8af8eae54fe21af787c92814c8b73fde"
+    },
+    {
+      "path": "projects/chirality-piping/docs/CONTRACT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "60cd0b5893a7b218a5f75c22d480bf03cb4f93c9134f118adad6c0dcc3960fd3"
+    },
+    {
+      "path": "projects/chirality-piping/docs/_Registers/Deliverables.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "f46ea92ab5e5896e86f6b0b8ecbec4e98158886def5d0cf0d7b80d0200f03539"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "a529a9ff4b9590ec5aec4480e2b176b9280601f3cd25bd90a6c552a8b337bb2e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "7f2b87bd6562ea1aa22ea077605b70d6df76d6a4b3695f68e1c78dd6e732393d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "216cae114fa6d87afb82638cde52a134af01c45a561de19de7cbbf6b10bb33a8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "2aa9dce213cb3a42c8a6d2300f484e8efddd16bdc21ff9cb1c5826060b453145"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "966c97839e50bf8d27591ca35b2aeda7f3271c9df9af9f65ceb0969122522b41"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "840aec86d0739c6df1628e8003152a65980af524494a133eef8258770a7f6557"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "bdb1df1b6260380a8a105a6efc9cefb9090c017cbc1423c05400eaf38dd002b2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "06a92c876098f082dc4947fee1e4bc076fe3c5bd0599da97f4c4709d81123290"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c9b779dd0a5a0e7af11fa905be1b146bbe7d4a76367dcb75a1f1cb7e12ae1b51"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "2ef37078d39cd7f1f22d2a86311226a4f20848e0db1fb3e022a948f09b70d351"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "7a01c5f73c77c3a6ddf9e0a1e1fc7a5b0374849956b89f1c9cd896a4b64829d7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "ac89330b7448c1321600967c41421ac403076f00bdd366c9efb655b927486700"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "3c8d2658ecab02326e502c484603342e62afe39a82d0c907b73918544f8ff21b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "8fed6f9fe0f5f57e6ed910d55db497e7180d0ab909325915e784979de9c59d19"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "e3b9614cf177d5e632d3cb463984ae4f185c0625a48cae87f88eec552bb5f304"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "9c47f104f443d3382f239097e4baaa46aeb34eeb60e94afebd79cc4d23299979"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "36577cf71e5d25ab4746900b11c75dfc9872f2757c5f019ddefdb265788ba49f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "2cbfdf0d34a8280a2bfaec6a451c1c91a552db52e3fc2c52f7dcade0bd3f97c8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "7dd4cdec050215540756cd6590076ee02b16b5b341f95b66e3c5801f020526f9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "0bde752dbb3ae9a943bc7ff9ada3bdf41672011c9c9c37b0e8a38c75725fa1c2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/INVESTIGATION_REPORT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "736b82572f887cfc367db579d66e5d55d2d3a3d618662b6a17a6c91966c831af"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/_run_records/PHYSICS_UI_EXECUTION_20260908/SIGN_CONVENTION_CLARIFICATION_V2.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "6cffcf8b74bf45526014b3f0a3e797268195c6f31a9035ac68a94b36b3d46bd0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "b326fa5520ab83da81930b17eea043ac18b6feac5a3a01713557b20c40add9f6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "6b771d5dd28d6abec772ad7039c4479ad4126251d6c932880665561fe944a30e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c6bdb71713a30193c17d59a093bb0b2270931ddc4591c2f7891da0ed4084cf71"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "933c42079b56224e26360ffa58ecf5c2d790c069e18ab6cbe16a320360d3e4ac"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "f9ca09f503126374b8c3645b054f66da373008e1c9d4d90bc970a12b5dbd2128"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "cc3ccbc7f765f9bbc7ab594d02e5f4ce707736881d17c0ff4ed557b316cb6f91"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "15ad89aeaf7892df1bd6241984270307cede87d520869e50832ed0f83818d9d9"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "21aa9911866df6add7d5edbb6bfd09c0a05ab6ca3cb7129f902a09aba54e1ac1"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "2e586338b9bfba2ea469f016e63d3e3d27d906893116f7a07ef560a04344dae0"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "74e16027574a01f3f6ce59d8a39847d313529d3cbda9bd3e8e319780581d6641"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "367eed3b0c3a2b365ba9c456468936f8ad159263ce1c5da6313be2756abfc09e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Dependencies.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "e03750d50568a7710865e81e3e90c75e874e29dd2837be7805faaf214e6550ec"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/MEMORY.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c20b36438a147dcfef395d628a81a5bc0ac08c56494a2ad68ba86a9dd5c6c1f7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_CONTEXT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "3ebc6937b0988d597682c5a9ad811b9a9fc25df39f9e96be6c38ac854d414059"
+    },
+    {
+      "path": "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/_STATUS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "ad375299b8e9c562b4267e950cf38a233308740be66007eb9415298091a66ed4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/CREFUTE/design/CONNECTOR_DESIGN_REFUTATION_RETURN_V1.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c9179a30caacd0877cbc8ac4cca75c06c252eef8e74744109c2f19f12f4a054e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260909-VIEWPORT-ROUTING/instances/PREVIEW/design/PRESSURE_DESIGN_REFUTATION_V1.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "d0830b75fae3cb81e1add0f6f5370d9074a86452a92c0c3c251d14b091740336"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/BOOTSTRAP.json",
+      "origin": "assigned checkout filesystem",
+      "sha256": "b556f6be3c1120ebcec7d1a0f439c71bcf97f963eb9f58c2c649322b9e742c3a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/USER_DIRECTION.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "4a3f210e1636979ab97c05ff6e835316ef384e8c93368ad0d48c65375e20b718"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/briefs/ENGINEERING.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c0d236fcae96a47298cbae2ad2b536996b85333d6f01be448ec33b63dcfdf4f8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_2026-09-08.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "578087fbad9ed71e61ea7a22acb3b42ede46684669d16cd2b5d480e0ffae904f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-66_RULING_ADDENDUM_2026-09-08.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "c9fdfda7822c6dd3c30563a0be56107b9236b30e55f64d82f871557a3198e32b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "09c27aa61a1417578caffc9e218fdef17c8d5f6b223afe7db237864b2aa196ca"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/DAG-010/DependencyEdges.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "1892d2e7295d936b1dbf57104ab00df149fe17f8afbab4dc8b7e1c8b95082d28"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_DAG/_LATEST.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "9da625a75f75819fe39a05532d67697fa6de0d7a84982c4e2e1b89c6d3ef80b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/EVALUATION_REPORT.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "d45352b57ec68c747c3286bcef2b4747d4bf327c1165c2375037246885c08919"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/HANDOFF.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "2aae57a752d15bd1aa916c2b5a7c27144a8e1ca2a054816b6458845d2ee845db"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/POST_FAN_IN_REFINEMENTS.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "feac415215a22cfda71ee370a2543411fb05937ebee28758402d840fd0addb00"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/PROVISIONAL_OBJECTIVE_CONNECTOR_RECOMMENDATION_V1.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "ef335820dec9f920778698f4a533315fcc939aa6138367ccd8110f71f84bc379"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/FINDINGS.csv",
+      "origin": "assigned checkout filesystem",
+      "sha256": "673ea47f37eaeabbb22010cf4d4deeac3f57e4ccefbf71b677fa752b0e93b167"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Evaluation/PHYSICS_REMAINING_20260909/returns/NS/RETURN.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "52612be36e1d3f71219f54302a23159708f3bb707ab99939f3133b1821b8a32a"
+    },
+    {
+      "path": "projects/chirality-piping/validation/hand_calcs/stress/pressure_membrane.md",
+      "origin": "assigned checkout filesystem",
+      "sha256": "f3eded5f9685684070551661e6b56039a774af7961bec6e3030ffad2f9f7d6a1"
+    }
+  ],
+  "missing_requested_files": [
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-01_Material library schema with provenance/Specification.md",
+    "projects/chirality-piping/execution/PKG-03_Piping Components, Materials, and Library Data Model/1_Working/DEL-03-06_Expansion joint component model/Specification.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-03_Fundamental stress recovery module/Specification.md",
+    "projects/chirality-piping/execution/PKG-05_Loads, Load Cases, and Stress Recovery/1_Working/DEL-05-05_Concentrated and distributed user load application/Specification.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-01_3D frame stiffness kernel/Specification.md",
+    "projects/chirality-piping/execution/PKG-04_Solver Core and Numerical Methods/1_Working/DEL-04-02_Straight pipe element/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-01_3D viewport and centerline editor/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/Specification.md",
+    "projects/chirality-piping/execution/PKG-07_Graphical User Interface and Engineering Workflow/1_Working/DEL-07-09_Interactive operation vocabulary and tool palette contract/MEMORY.md",
+    "projects/chirality-piping/execution/PKG-16_Model Operation and Agent Proposal Framework/1_Working/DEL-16-01_Structured model operation schema/Specification.md"
+  ],
+  "primary_web": [
+    {
+      "url": "https://ocw.mit.edu/courses/22-314j-structural-mechanics-in-nuclear-power-technology-fall-2006/137e6469e37e9d347b7b3b69292da2f3_l4_2.pdf",
+      "read": "official primary PDF generalized Hooke law; page 23/34 screenshot request; web bytes not locally hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connelastbehav.htm",
+      "read": "local relative components and symmetric coupled elasticity; web bytes not locally hashed"
+    },
+    {
+      "url": "https://docs.software.vt.edu/abaqusv2025/English/SIMACAEELMRefMap/simaelm-c-connectorbehavior.htm",
+      "read": "constitutive reference versus initial position; explicit series/parallel topology; web bytes not locally hashed"
+    }
+  ],
+  "execution_limits": "No tests, builds, native/browser/GUI evidence, source/schema/state/Git writes, delegation or sibling messages. Parent-attributed Receipt 139 discovery not independently checked. Initial brief read omitted WORKING_ROOT and failed; corrected read/hash passed."
+}

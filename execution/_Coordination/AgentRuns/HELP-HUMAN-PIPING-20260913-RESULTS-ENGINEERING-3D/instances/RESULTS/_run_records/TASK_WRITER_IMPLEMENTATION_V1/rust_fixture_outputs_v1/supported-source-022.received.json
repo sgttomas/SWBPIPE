@@ -1,0 +1,23 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "component:C-110",
+      "id": "result:component-stiffness:component-C-110:curved-bend-flexibility",
+      "kind": "curved_bend_macro_element_review",
+      "metadata": {
+        "basis": "component_family=bend;user_entered_flexibility=2;flexibility_axis_mapping=single_user_factor_applied_to_in_plane_and_out_of_plane_bending;bend_radius_m=1.414214;arc_included_angle_rad=1.570796;arc_length_m=2.221441;arc_plane=chord_and_pipe_y_reference;arc_side=bows_toward_positive_pipe_y_reference;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;macro_element_solve=assembled_curved_bend_stiffness;thermal_load_treatment=exact_free_expansion_identity;distributed_load_treatment=arc_consistent_fixed_end_integration;pressure_thrust_treatment=arc_end_cap_tangent_pair_plus_consistent_radial_wall_load;recovery=end_forces_from_assembled_stiffness_in_chord_frame;interior_stations=arc_section_equilibrium_stations",
+        "component": "curved_bend_flexibility",
+        "coordinate_system": "component_local_preview",
+        "location": "pipe:P-100",
+        "sign_convention": "positive value is the user-entered bend flexibility factor consumed by the assembled curved-bend macro-element stiffness; the stress-review multiplier applies the user-entered SIF only and no protected or default component factor is supplied"
+      },
+      "unit": "unitless",
+      "value": 2.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

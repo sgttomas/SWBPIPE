@@ -1,0 +1,72 @@
+{
+  "kind": "planning skeleton; not implementation activation",
+  "parent": "/root",
+  "coordination_recorder": "/root/workflow_contact_setup",
+  "nodes": [
+    {
+      "id": "SETUP",
+      "role": "TASK",
+      "status": "bootstrap complete"
+    },
+    {
+      "id": "RESULTS",
+      "scope": "instances/RESULTS",
+      "purpose": "Result compatibility planning",
+      "status": "reserved; not dispatched by this TASK"
+    },
+    {
+      "id": "ENGINEERING",
+      "scope": "instances/ENGINEERING",
+      "purpose": "Engineering contract planning",
+      "status": "reserved; not dispatched by this TASK"
+    },
+    {
+      "id": "UI",
+      "scope": "instances/UI",
+      "purpose": "Concurrent professional 3D interaction/design brief",
+      "status": "reserved; not dispatched by this TASK"
+    },
+    {
+      "id": "FAN_IN",
+      "role": "HELP_HUMAN",
+      "purpose": "Evaluate concrete proposals and dependencies",
+      "status": "pending"
+    }
+  ],
+  "edges": [
+    [
+      "SETUP",
+      "RESULTS"
+    ],
+    [
+      "SETUP",
+      "ENGINEERING"
+    ],
+    [
+      "SETUP",
+      "UI"
+    ],
+    [
+      "RESULTS",
+      "FAN_IN"
+    ],
+    [
+      "ENGINEERING",
+      "FAN_IN"
+    ],
+    [
+      "UI",
+      "FAN_IN"
+    ]
+  ],
+  "execution_distinction": "Written skeleton and reserved scopes are not evidence of actual child execution. Parent records real launches and returns.",
+  "lessons": [
+    "Complete affected-surface selection before full sweep",
+    "Audit physical, staged and ignored evidence beyond manifests",
+    "Keep immutable source-review and metadata-review pointers separate",
+    "Use one canonical raw copy with explicit mappings",
+    "Measure archive bytes before publication",
+    "Avoid casual retrials and repeated unchanged polling narration"
+  ],
+  "implementation_status": "Not authorized by this planning bootstrap"
+}

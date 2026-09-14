@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "attached_document_present": false,
+      "case_id": "gap-chain-five-active",
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_NONCONVERGENCE",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_NOT_CONVERGED",
+        "SOLVER_SYSTEM_BLOCKED"
+      ],
+      "library_document_present": false,
+      "mechanics_status": "MODEL_INCOMPLETE",
+      "passed": true,
+      "raw_row_count": 0
+    },
+    {
+      "attached_document_present": true,
+      "case_id": "gap-chain-two-active-control",
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "library_document_present": true,
+      "mechanics_status": "MECHANICS_SOLVED",
+      "passed": true,
+      "raw_row_count": 145
+    },
+    {
+      "attached_document_present": true,
+      "case_id": "gap-chain-five-inactive-control",
+      "diagnostic_codes": [
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "RULE_CHECK_INPUTS_MISSING"
+      ],
+      "library_document_present": true,
+      "mechanics_status": "MECHANICS_SOLVED",
+      "passed": true,
+      "raw_row_count": 330
+    }
+  ],
+  "verdict": "PUBLIC_PRODUCT_WITNESS_AND_CONTROLS_PASSED"
+}

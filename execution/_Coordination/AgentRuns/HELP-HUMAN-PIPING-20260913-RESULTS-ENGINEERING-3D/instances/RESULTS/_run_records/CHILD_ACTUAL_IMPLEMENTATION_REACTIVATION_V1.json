@@ -1,0 +1,17 @@
+{
+  "status": "ACTUAL_FOLLOWUP_TASK_DISPATCH_COMPLETED",
+  "timestamp_utc": "2026-09-14T02:30:25.843199+00:00",
+  "parent": "/root/results_implementation_manager",
+  "child": "/root/results_implementation_manager/results_writer",
+  "role": "TASK Type2",
+  "configuration": "gpt-5.6-sol/high inherited allocated existing child",
+  "mechanism": "delegated-harness-native collaboration.followup_task",
+  "sealed_brief": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_CONTINUATION_V1.md",
+  "sealed_brief_sha256": "19253898f14497a7916998ddab37835cd3f92310bb2fdc8de26b3ceafab2e0f1",
+  "root_release_sha256": "8410016b47e60ab1f0310c175982a9a159ec6b666fec871e6f0ea870259cf293",
+  "root_acceptance_sha256": "d6fb96c2dfcebcde9e058b83cfee49fce7827a6cee2675e32eb077a875a8045b",
+  "runtime_lease": "ROOT_LEASE_RESULTS_IMPLEMENTATION_01 exclusive sequential sole child; manager runtime idle",
+  "nondelegation": "instruction/config asserted",
+  "return": "PENDING",
+  "source_effect": "AUTHORIZED_EXACT_FENCE"
+}

@@ -1,0 +1,91 @@
+{
+  "kind": "Pre-source-effect physical artifact inventory V1",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/BASELINE_LEASE_AND_SCHEMA_COMMAND_V1.json",
+      "bytes": 1746,
+      "sha256": "58a268b37b97e07b20ca78cbbecd765cbdf35589ef4deec4ece492d0cbc20d89"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/CHILD_ACTUAL_DISPATCH_V1.json",
+      "bytes": 1039,
+      "sha256": "0e0e8aad8adc4e4eaceab221e9d65f1e1e23bf0010ac1e6550bbdffb521ca0f6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DAG_CURRENT_INTERFACE_APPLICABILITY_V1.json",
+      "bytes": 67975,
+      "sha256": "7640604482f7d492a1fd06309ca3c28ab8a47443c9a1db0d70ed8953140967dd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DAG_CURRENT_INTERFACE_APPLICABILITY_V2.json",
+      "bytes": 122872,
+      "sha256": "9e8ad51568291a04aea083731c9cfbfccfaff9eab83f0f94c30ab01aeb32ba6a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CONTEXT_ORIGINS_V1.json",
+      "bytes": 7705,
+      "sha256": "ad3c2439bdc3a78b0960d1697c2f507080fa8a0b7dc8dcbb4bb21d1ddc6a33e6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/PREPARATION_READ_PROBE_LIMITS_V1.json",
+      "bytes": 1145,
+      "sha256": "e2290d668567585cf563ee0e4baccc56224af047ddd3b448a7ca5ce7153a0b37"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/STANDING_PLAN_COMMITTED_SELECTION_V1.json",
+      "bytes": 499,
+      "sha256": "5d405f136ecfa2c170214c9ba8dedb7d42a1f5e5f5bfd3da87594e95268574c3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/CONTEXT_ORIGINS_V1.json",
+      "bytes": 12773,
+      "sha256": "7c42bafa0fce2e5a0cdcc8c8c534cffee29102800e5113a0c041537c4021ae10"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/PREPARED_RUNTIME_COMMANDS_V1.json",
+      "bytes": 2504,
+      "sha256": "b4c25961c0d80f68b5f252074903c320ed7b92341f3dcb8217b7e1a30ca1f3dd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/SOURCE_CONSUMER_INVENTORY_V1.json",
+      "bytes": 19048,
+      "sha256": "ce749c6201692f85e9cb2b47ce9964fef6e7187606535a567f1528be694299f4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/Cargo.toml",
+      "bytes": 464,
+      "sha256": "98e121b3f0688e836b4a44dea74e34f4fa9a8e95c30d66d5f4c8b44934984871"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/src/main.rs",
+      "bytes": 12479,
+      "sha256": "20b10b439cbe8e64fa0aefd7509c9e95fb5f6116ac8d06ec2bf72965b6f8f491"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/validate_fresh_p5_v1.py",
+      "bytes": 1883,
+      "sha256": "ab369cfa1aa85bc9732b7c667676eaf263279735f4e8db15a1f7f86bd44d77a5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_BRIEF_V1.md",
+      "bytes": 3753,
+      "sha256": "030e2af13fb2cc20f55193b776bc08c2aad5cbf8258ee823b8cc95d88d8f6880"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/WORK_GRAPH_V1.json",
+      "bytes": 1852,
+      "sha256": "7c803baaaf6ab4583e0b8506b8f7d0c6567a13f2c046292ecf1170348e55511e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/validate_fresh_current_v1.py",
+      "bytes": 2476,
+      "sha256": "608bbeee535a7d2b467d5fc0c845c44b6308314031491beb9fffd9b42a5e840f"
+    }
+  ],
+  "file_count": 16,
+  "total_bytes": 260213,
+  "inventory_excludes_self": "this inventory written after enumeration",
+  "git_status": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/BASELINE_LEASE_AND_SCHEMA_COMMAND_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/CHILD_ACTUAL_DISPATCH_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DAG_CURRENT_INTERFACE_APPLICABILITY_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/DAG_CURRENT_INTERFACE_APPLICABILITY_V2.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CONTEXT_ORIGINS_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/PREPARATION_READ_PROBE_LIMITS_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/STANDING_PLAN_COMMITTED_SELECTION_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/CONTEXT_ORIGINS_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/PREPARED_RUNTIME_COMMANDS_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/SOURCE_CONSUMER_INVENTORY_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/Cargo.toml\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/fresh_p5_driver_v1/src/main.rs\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/validate_fresh_p5_v1.py\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_BRIEF_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/WORK_GRAPH_V1.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/validate_fresh_current_v1.py\n",
+  "ignored_artifacts_in_evidence": [],
+  "compiledscratch_policy": "outside governed evidence /tmp/chirality-results-engineering-3d-20260913/results-baseline-target; will inventory scratch separately before integration, not publish binaries"
+}

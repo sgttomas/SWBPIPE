@@ -1,0 +1,22 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "entity_ref": "support:SH-140",
+      "id": "result:spring-hanger:support-SH-140:stiffness",
+      "kind": "spring_hanger_user_input_review",
+      "metadata": [
+        "raw annotation",
+        {
+          "unrecognized": 1
+        }
+      ],
+      "unit": "N/m",
+      "value": 42000.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

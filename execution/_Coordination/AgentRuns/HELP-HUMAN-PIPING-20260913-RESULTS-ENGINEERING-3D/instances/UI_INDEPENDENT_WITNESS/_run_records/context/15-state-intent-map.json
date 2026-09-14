@@ -1,0 +1,22 @@
+{
+  "claim": "Design simulation only; no production/Rust/hash/solver evidence",
+  "inspectHook": "window.prototypeInspect() returns a copy; no state setter",
+  "revision": "mock:r<number>",
+  "states": ["draft", "review", "ready", "busy", "stale", "blocked", "cancelled", "applied", "Current", "Unavailable", "Historical", "Blocked", "Nonconverged", "Cancelled", "Busy"],
+  "transitions": [
+    {"event":"tool or typed/pointer input","effect":"one shared mutable draft; no model checkpoint"},
+    {"event":"Add","effect":"freeze operation member list, source values, generation and mock basis; errors block"},
+    {"event":"Validate simulation","effect":"mock ready/busy/stale/blocked/cancelled outcome; no Rust or schema validation"},
+    {"event":"Apply","effect":"matching frozen basis + ready only; atomic copied model, one checkpoint"},
+    {"event":"Continue","effect":"own matching applied route endpoint only; explicit next coordinates required"},
+    {"event":"Cancel","effect":"generation advances, review withdrawn, no model/history mutation"},
+    {"event":"Complete held mock callback","effect":"generation guard; cancelled completion cannot restore review or apply"},
+    {"event":"Undo/Redo","effect":"one mock checkpoint; invalidate Current and pending review"},
+    {"event":"view/camera/selection/density/units","effect":"view only; no model history"},
+    {"event":"simulated solve","effect":"invented Current or named failed state; no solved export"},
+    {"event":"model edit","effect":"Current becomes Unavailable; current overlay and readiness off"},
+    {"event":"reopen prototype record","effect":"Historical; acceptance UNKNOWN; no current overlay/rule/readiness"}
+  ],
+  "operations": {"node":"create_node", "newRoute":"atomic [create_node, connect_pipe_run]", "existingRoute":"connect_pipe_run", "component":"insert_component_symbol", "support":"create_support / update_support", "property":"set_field", "split":"split_pipe_run — original pipe identity first half", "unreferencedTransform":"transform_pipe_run", "finiteInsertion":"unavailable/backfill", "attachedTransform":"blocked; no cascade", "nonjourney":"contextual mapping only; no simulated apply"},
+  "results": {"rotation":"rad / angle", "ratio":"explicit ratio kind only", "workResidual":"diagnostic N*m; no new energy dimension policy", "classification":"explicit fields, never ID", "saved":"invented prototype localStorage record where available; no production checksum proof"}
+}

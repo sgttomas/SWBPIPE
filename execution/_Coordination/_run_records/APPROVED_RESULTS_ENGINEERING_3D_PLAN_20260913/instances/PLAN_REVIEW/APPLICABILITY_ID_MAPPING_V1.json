@@ -1,0 +1,26 @@
+{
+  "kind": "Additive parent identifier precision mapping; sealed V3 unchanged",
+  "parent": "/root",
+  "candidate": "CANDIDATE_PLAN_V3.md",
+  "mapping": {
+    "DEL-08-04 E0514/E0515": [
+      "DAG-002-E0514",
+      "DAG-002-E0515"
+    ],
+    "DEL-08-04 dependency rows": [
+      "DEP-08-04-E001",
+      "DEP-08-04-E002",
+      "DEP-08-04-E003",
+      "DEP-08-04-E004"
+    ],
+    "DEL-14-02 E0783\u2013E0787": [
+      "DAG-002-E0783",
+      "DAG-002-E0784",
+      "DAG-002-E0785",
+      "DAG-002-E0786",
+      "DAG-002-E0787"
+    ]
+  },
+  "effect": "Identity clarification only; active TBD rows not satisfied by this plan/review; include mapping in final handoff",
+  "preservation": "Parent independently rechecked original handoff SHAebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035 unchanged; planning Git status only this new untracked run"
+}

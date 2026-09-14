@@ -1,0 +1,54 @@
+{
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "c3fb6dbe394c168f75f12e761fce47b80a81ab9ae1bd41cfb0d28dd1e4003352"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": ".agents/skills/chirality-change/SKILL.md",
+      "sha256": "2b490e172436417896c1cd25dbcd543c676e3473aa58b7663985d75785ff7dba"
+    },
+    {
+      "path": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+      "sha256": "9cc54bfb649168801c2ea060acb242145f48a0e08ac893e6ca38824439f7c5b3"
+    },
+    {
+      "path": ".github/workflows/governance-harness.yml",
+      "sha256": "0e2c9f9ab517d90cecf9a10f36f623f0521ee2e73aa29cbef9a474e853d74247"
+    },
+    {
+      "path": "projects/chirality-piping/tools/release/run_evidence_sweep.py",
+      "sha256": "dce9b1eb34131e202b30de9b41927586e675a436d1607836203033b4f4778dda"
+    },
+    {
+      "path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+      "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "60223436c10db56aeb0e25a26cf3ce8faddf2187ee90670ac800e2d0b541d881"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RESULTS_CONTRACT_ACCEPTANCE_V1.json",
+      "sha256": "d6fb96c2dfcebcde9e058b83cfee49fce7827a6cee2675e32eb077a875a8045b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json",
+      "sha256": "f03c84f5f84e577d3c5e0453b7f0148ecb31eed8e905fc92e4b6ca412429fcdc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json",
+      "sha256": "5eb67fc7e990b2d7dd860f280e4c32f73d0bd6f9d61d5f833e3c122ad8880bfe"
+    }
+  ],
+  "inspection_limit": "Selective static inspection and hashing; no check execution. Earlier declared role/instruction context retained. Root acceptance records own current design/source contract acceptance."
+}

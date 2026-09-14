@@ -1,0 +1,15 @@
+{
+  "lease": "ROOT_LEASE_UI_INDEPENDENT_02",
+  "issuer": "/root",
+  "recipient": "/root/ui_independent_witness",
+  "mechanism": "delegated-harness-native",
+  "scriptSHA256": "ba69b548aa1797c763b5fe3568a92161e7d2f9ac18e36f84d9fd7913d5a6b807",
+  "methodSHA256": "5d1e54417405f14084a9d19f7ad02a7d4d98a199b2c989177998d159685bb9ea",
+  "authority": "Parent exclusive actual successor offline file-only cached browser six-layout pointer/discrete/Historical/geometry grant. Original36 group source-supported reuse, no new full rerun.",
+  "status": "RELEASED",
+  "syntaxPreparationExit": 0,
+  "initialPreparedSupplement": "V1 standalone parity script was never executed; adapted combined V2 script is executing under this later grant.",
+  "processExit": 0,
+  "browserAndContextsClosed": true,
+  "failedAcceptance": "Harness invalid #results-table locator, six bounded cases; no app repair. No signal safe-abort hook, so bounded run completed normally."
+}

@@ -1,0 +1,248 @@
+{
+  "status": "AUTHORITATIVE_CANDIDATE_MISSING_REVIEW_METADATA_DISPOSITION_PRE_SOURCE_EFFECT",
+  "derivative_package": true,
+  "basis": "Managerindependent60sourceoracle alreadyrequires missingreviewmetadata per-rowdisclosure; faninfound child19missingmetadatafixtures wrong whilepositive60fixtures correct. Preserveallchildfrozenbytes.",
+  "original_child_metadata": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/CONCRETE_METADATA_EXPECTATIONS_V2.json",
+    "sha256": "8c2fa2c5c5464debb18e04bcf09e800ecf6030fe49386641add26742719fd2ab"
+  },
+  "corrected_metadata": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_AMENDMENT_V3/CONCRETE_METADATA_EXPECTATIONS_V3.json",
+    "sha256": "81cb50e868738f409206a217d26f52a01f7dc46e8a6081ffd1cb7108a20b2e83"
+  },
+  "changes": [
+    {
+      "signature_id": "supported-source-021",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-022",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-029",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-038",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-039",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-040",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-041",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-042",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-043",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-044",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-045",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-046",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-047",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-048",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-049",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-052",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-056",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-057",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    },
+    {
+      "signature_id": "supported-source-058",
+      "old": {
+        "expected": "retain_source_annotation_and_disposition"
+      },
+      "new": {
+        "expected": "review_metadata_incomplete_disclosure",
+        "source_fields_preserved": true,
+        "export_review_target": false,
+        "reason_code": "review_metadata_incomplete"
+      }
+    }
+  ],
+  "exact_rule": "For the19exportedreview source signatures, absent/incomplete required source component/location/basis/sign/frame facts trigger exactlyone review_metadata_incomplete RowDisclosure; do notemit ReviewEvidence or infer/fabricate refs. Receivedrowvalue/unit/dimensionpresence/ref/rawmetadata and hashremainaccounted. Knowncontradictoryunit/component stillblock wholecanonical; trulyunknownkind disclosure unchanged.",
+  "precedence": "Overrides only old childfixture missing_metadata retain_source_annotation_and_disposition outcomes and generic physicalmissingfieldpolicies for these19review signatures. Allpositive source/headless/Current/version/hashcontract andsource-onlycoverage remain unchanged.",
+  "schema_change": false,
+  "runtime_change": false,
+  "source_effect": false
+}

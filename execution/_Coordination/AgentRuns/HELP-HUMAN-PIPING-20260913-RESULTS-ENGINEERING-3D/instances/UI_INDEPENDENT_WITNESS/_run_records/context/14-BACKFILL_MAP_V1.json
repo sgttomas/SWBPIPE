@@ -1,0 +1,107 @@
+{
+  "kind": "derivative design-to-function backfill map; no authoritative dependency disposition",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "approved_plan": "CANDIDATE_PLAN_V3.md sha256 74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+  "columns": [
+    "id",
+    "target_experience",
+    "landed_or_accepted_basis",
+    "ui_implementation_owner",
+    "semantic_dependencies",
+    "availability",
+    "boundary"
+  ],
+  "rows": [
+    {
+      "id": "workspace_palette",
+      "target_experience": "All 24 normative capabilities in persistent grouped tools + search",
+      "landed_or_accepted_basis": "Existing capability catalog and routes; stale new-endpoint wording does not constrain mock design",
+      "ui_implementation_owner": "DEL-07-01,DEL-07-02,DEL-07-06",
+      "semantic_dependencies": "DEL-07-09 coverage only",
+      "availability": "ready_for_following_bounded_UI_slice",
+      "boundary": "No operation kind added; sole result writer may correct product wording"
+    },
+    {
+      "id": "route",
+      "target_experience": "From-aware plane/axis/pointer/typed route with review/apply/continue",
+      "landed_or_accepted_basis": "Landed create_node/connect_pipe_run atomic route and own-commit continuation",
+      "ui_implementation_owner": "DEL-07-01",
+      "semantic_dependencies": "DEL-16-01,DEL-16-02",
+      "availability": "existing_contract_reference",
+      "boundary": "Do not add auto fittings, collision/route optimization, or hidden engineering defaults"
+    },
+    {
+      "id": "spatial_transform",
+      "target_experience": "Pick a precise transform handle and preview selected run",
+      "landed_or_accepted_basis": "Existing split_pipe_run/transform_pipe_run for supported unreferenced geometry",
+      "ui_implementation_owner": "DEL-07-01",
+      "semantic_dependencies": "DEL-02-01,DEL-16-01",
+      "availability": "scoped_gesture_backfill",
+      "boundary": "Attached supports/components/loads/reference remapping remain blocked"
+    },
+    {
+      "id": "finite_insertion",
+      "target_experience": "Valve/fitting/EJ finite insert in a pipe",
+      "landed_or_accepted_basis": "Component-symbol creation is landed; finite port geometry is separate",
+      "ui_implementation_owner": "DEL-07-01,DEL-07-02",
+      "semantic_dependencies": "DEL-02-01,DEL-03-03,DEL-03-04,DEL-03-05,DEL-03-06,DEL-16-01",
+      "availability": "engineering_contract_required",
+      "boundary": "Port/end frames/offsets/length/incidence and load-path ownership; no imaginary resolver"
+    },
+    {
+      "id": "pressure_v2",
+      "target_experience": "Explicit region/material/pressure-transfer settings",
+      "landed_or_accepted_basis": "Existing pressure authoring remains available; new applicability contract not activated",
+      "ui_implementation_owner": "DEL-07-02,DEL-07-03",
+      "semantic_dependencies": "DEL-05-03,DEL-03-01,DEL-02-05",
+      "availability": "design_only_pending_root_contract_relay",
+      "boundary": "legacy_pressure_v1 coexistence; E/nu authoritative; region closures; no double-counted longitudinal term"
+    },
+    {
+      "id": "connector",
+      "target_experience": "Explicit ends, frames, offsets and constitutive topology",
+      "landed_or_accepted_basis": "Proposal symmetric_midpoint_small_rotation_v1; no runtime activation",
+      "ui_implementation_owner": "DEL-07-01,DEL-07-02",
+      "semantic_dependencies": "DEL-03-06,DEL-04-02,DEL-16-01",
+      "availability": "design_only_pending_root_contract_relay",
+      "boundary": "Work-conjugate coordinates, reference/prestress, PSD stiffness and replacement/series/parallel explicit"
+    },
+    {
+      "id": "results_semantics",
+      "target_experience": "Current result field/units/identity and historical inspection",
+      "landed_or_accepted_basis": "Approved V3 explicit producer semantics; separate legacy checksum binding",
+      "ui_implementation_owner": "DEL-07-05",
+      "semantic_dependencies": "DEL-08-04,DEL-10-05,DEL-14-02",
+      "availability": "parallel_result_writer",
+      "boundary": "Only actual ratios govern; rotation angle; work diagnostic N*m; exact production proofs outside prototype"
+    },
+    {
+      "id": "durable_history",
+      "target_experience": "Saved accepted decision/history timeline",
+      "landed_or_accepted_basis": "Only session checkpoints and proposed metadata retention landed",
+      "ui_implementation_owner": "DEL-16-03",
+      "semantic_dependencies": "DEL-02-05,DEL-14-01",
+      "availability": "separate_contract_required",
+      "boundary": "Reopen acceptance UNKNOWN; no batch grouping/receipt/timestamp fabrication"
+    },
+    {
+      "id": "usability",
+      "target_experience": "Refined density, focus and readable task journeys",
+      "landed_or_accepted_basis": "1024x768 layout target; 1280x800/1440x920 larger checks",
+      "ui_implementation_owner": "DEL-07-06",
+      "semantic_dependencies": "",
+      "availability": "independent_usability_hold",
+      "boundary": "No conformance/target adoption; human-selected measurable contrast/readability still TBD"
+    },
+    {
+      "id": "roadmap",
+      "target_experience": "Node renumbering, snubbers, cold spring",
+      "landed_or_accepted_basis": "Explicit SCA009 ROADMAP, no required current coverage",
+      "ui_implementation_owner": "unassigned",
+      "semantic_dependencies": "",
+      "availability": "owner_promotion_required",
+      "boundary": "No active controls, auto implementation or invented landing"
+    }
+  ],
+  "activation_rule": "Design can proceed before contracts complete; effective production gestures wait only for their specific semantic dependencies. No diagram silently resolves cycles or satisfies formal TBD edges."
+}

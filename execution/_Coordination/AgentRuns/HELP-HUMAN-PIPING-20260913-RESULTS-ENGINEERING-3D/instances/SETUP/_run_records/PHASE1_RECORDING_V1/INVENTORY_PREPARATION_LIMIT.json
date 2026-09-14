@@ -1,0 +1,8 @@
+{
+  "attempt": "Initial own read-only inventory script",
+  "exit": 130,
+  "raw_terminal": "Traceback (most recent call last):\n  File \"<stdin>\", line 41, in <module>\nKeyboardInterrupt\n",
+  "cause": "Recorder identified repeated tracked/untracked/ignored set union inside per-physical-file comprehension, causing quadratic work; own ephemeral inventory process interrupted deliberately, no test/build/manager lease affected",
+  "correction": "Compute union sets once and use exact same complete file scope; outcome-verification record already completed and retained",
+  "qualification": "Preparation performance correction with new evidence, not runtime failure or test retry"
+}

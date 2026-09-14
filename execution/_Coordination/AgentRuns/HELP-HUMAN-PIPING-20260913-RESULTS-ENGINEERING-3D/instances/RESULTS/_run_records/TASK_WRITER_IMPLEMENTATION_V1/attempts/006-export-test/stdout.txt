@@ -1,0 +1,23 @@
+
+running 13 tests
+test tests::stiffness_dimensions_serialize_as_explicit_contract_identifiers ... ok
+test tests::result_values_sort_deterministically_for_regression_comparison ... ok
+test tests::missing_units_and_dimensions_are_blocking ... ok
+test tests::professional_boundary_violation_is_blocking ... ok
+test tests::rule_pack_payload_must_remain_redacted ... ok
+test tests::human_review_required_status_is_mandatory ... ok
+test tests::unsupported_result_set_type_is_blocking ... ok
+test tests::protected_rule_pack_reference_blocks_export ... ok
+test tests::local_force_and_moment_metadata_is_mandatory ... ok
+test tests::valid_envelope_has_no_blocking_diagnostics ... ok
+test tests::load_vector_and_station_resultant_set_types_are_governed_vocabulary ... ok
+test tests::tp_phys_015_fixture_serializes_to_schema_wrapper ... ok
+test tests::tp_section_021_fixture_serializes_section_property_evidence ... ok
+
+test result: ok. 13 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

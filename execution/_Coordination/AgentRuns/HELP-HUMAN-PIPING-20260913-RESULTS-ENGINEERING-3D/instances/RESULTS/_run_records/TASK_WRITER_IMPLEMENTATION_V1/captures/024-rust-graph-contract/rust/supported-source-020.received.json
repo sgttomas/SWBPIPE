@@ -1,0 +1,20 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:P-100",
+      "id": "result:stress:pipe-P-100",
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "value": 10.521739
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

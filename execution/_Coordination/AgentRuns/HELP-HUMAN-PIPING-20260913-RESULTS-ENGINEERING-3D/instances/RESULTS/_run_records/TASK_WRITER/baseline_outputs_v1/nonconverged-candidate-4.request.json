@@ -1,0 +1,70 @@
+{
+  "request_id": "p5-nonconverged-candidate-4",
+  "operation": "solve",
+  "operation_ref": {
+    "ref_type": "api_operation",
+    "ref_id": "solve"
+  },
+  "project_ref": {
+    "ref_type": "project",
+    "ref_id": "invented-project"
+  },
+  "model_ref": {
+    "ref_type": "model",
+    "ref_id": "invented-nonconverged-candidate-4"
+  },
+  "unit_system_ref": {
+    "ref_type": "unit_system",
+    "ref_id": "invented-si"
+  },
+  "load_basis_refs": [
+    {
+      "ref_type": "load_case",
+      "ref_id": "load:L-100"
+    }
+  ],
+  "input_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "manifest-nonconverged-candidate-4"
+  },
+  "requested_outputs": [
+    "result_envelope",
+    "audit_manifest",
+    "diagnostics"
+  ],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "P5 invented complete-envelope schema witness",
+    "source_location": "instances/P5/schema_witness",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  },
+  "tbd_decisions": {
+    "final_cli_command_syntax": "SETTLED_DEC_065",
+    "package_scripts": "SETTLED_DEC_065",
+    "process_invocation": "SETTLED_DEC_065",
+    "network_access": "SETTLED_DEC_065",
+    "filesystem_mutation_policy": "SETTLED_DEC_065",
+    "ci_provider": "TBD",
+    "release_matrix": "TBD",
+    "public_transport_protocol": "TBD",
+    "external_adapter_formats": "TBD",
+    "physical_project_container": "TBD"
+  }
+}

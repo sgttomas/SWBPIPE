@@ -1,0 +1,13 @@
+{
+  "lease": "ROOT_LEASE_ENGINEERING_MATH_01 amended V2",
+  "command": [
+    "/Users/ryan/.local/share/mise/installs/python/3.13/bin/python3",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING_REFUTATION/_run_records/independent_math_v2.py"
+  ],
+  "python_version": "3.13.14 (main, Jul 18 2026, 16:56:45) [Clang 22.1.3 ]",
+  "exit_code": 0,
+  "script_sha256": "966b3bd5922cd0311fb530f5bb04fc01c30c43ee8aab37eaec5c874c47f96d81",
+  "stdout_sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Independent rational analytical checker only; wrapper spawns only the authorized Python checker for exact output/exit capture."
+}

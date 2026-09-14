@@ -1,0 +1,10 @@
+{
+  "records": [
+    {
+      "operation": "write phase1 inventory/context records",
+      "exit": 1,
+      "error": "IsADirectoryError on final summary digest due local p variable reused for final directory; outputs inventory/context/prepared commands were already written",
+      "repair": "read exact files and generate final manifest with task-specific variables; no product or runtime failure inferred"
+    }
+  ]
+}

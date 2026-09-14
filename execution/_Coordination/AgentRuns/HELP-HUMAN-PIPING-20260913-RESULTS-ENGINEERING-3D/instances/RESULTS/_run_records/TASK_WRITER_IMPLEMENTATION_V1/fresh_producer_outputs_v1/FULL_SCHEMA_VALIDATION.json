@@ -1,0 +1,70 @@
+{
+  "documents": [
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-pressure-full.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/gap-chain-five-inactive-control.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/gap-chain-two-active-control.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-0.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-2.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-3.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-4.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-5.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-dense-full.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-full.document.json",
+      "error_count": 0,
+      "errors": []
+    },
+    {
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/straight-sparse-full.document.json",
+      "error_count": 0,
+      "errors": []
+    }
+  ],
+  "total_errors": 0
+}

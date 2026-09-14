@@ -1,0 +1,61 @@
+{
+  "status": "CANDIDATE_UNVALIDATED_REVIEW_REQUIRED_NO_PRODUCT_EFFECT",
+  "version_dispatch": {
+    "supported": [
+      "0.1.0",
+      "0.2.0"
+    ],
+    "must_match": [
+      "schema_version",
+      "result_envelope.schema_version"
+    ],
+    "legacy_schema": {
+      "source_path": "schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "original_bytes_preserved": true
+    },
+    "unknown_or_mixed": "reject before interpretation"
+  },
+  "schema_candidate_sha256": "27d9ad3b3480d4c5fec35491f51173d104b92a0e3bf5edd147f95088afc12bc1",
+  "semantic_table_ref": "INDEPENDENT_EXPECTED_ROW_SEMANTICS_V1.json",
+  "exact_pair_count": 50,
+  "required_semantic_checks_beyond_schema": [
+    "all source indices0..n-1 accounted exactlyonce",
+    "source IDs map uniquely or export blocks duplicateidentity",
+    "each target index/path resolves correct row and ID",
+    "known kind/unit/component table is exact; contradiction blocks",
+    "source original finite value/unit equal target exactly with no conversion",
+    "row hashes cover original raw row and emitted target row with same qualified serialization",
+    "each checksum payload_scope/ref matches actual source or derivative payload",
+    "canonical metadata finite exact row contract; no arbitrary enum strings",
+    "work semantic dimension must be null; no moment orratio",
+    "discrete/count/state/flag/mode category never ratio",
+    "physical means solver recovered/assembled solved quantity only, never user review echo",
+    "source annotation original metadata/basis/refs retained exactly",
+    "blocked/nonconverged produce no successful solved wrapper",
+    "new model hash needs available exact model JSON, never reconstructed typed model/requestdigest"
+  ],
+  "hash_payloads": {
+    "model_payload": "exact available model JSON value, qualified guarded canonical serialization",
+    "raw_source_row": "complete original mechanics.results[index] before dimension enrichment",
+    "derived_quantity_row": "complete emitted result_sets[set].values[index], no external witness carrier",
+    "derived_review_row": "complete emitted review_evidence[index]",
+    "derivative_document_excludes_own_hash": "complete emitted document with only result_envelope.reproducibility.derivative_hash removed",
+    "raw_mechanics_checksum": "existing original producer checksum/path/label copied unchanged, separate raw source hash carrier",
+    "legacy_saved_attachment": "existing legacy enrichment, locale serializer producer and wasm verifier behavior preserved independently, no rehash/relabel"
+  },
+  "references": {
+    "source_field_path": "RFC6901 pointer within raw_source_checksum.payload_ref payload",
+    "target_field_path": "RFC6901 pointer within derivative document; referenced target id mustmatch",
+    "source_annotation_ref": "ref_type source_annotation; ref_id resolves annotation_id",
+    "review_location_ref": "ref_type source_location; exact original location string, not invented finite physical metadata location",
+    "accounting_target_ref": "ref_type quantity_result/review_evidence/row_disclosure, exact corresponding ID"
+  },
+  "new_serializer_guard": "plain JSON finite values; reject unsupported/cycles/undefined/unsafeinteger/malformedUnicode; canonical_utf16_ecma_number_utf8 only after guard",
+  "new_serializer_identity": "openpipestress_jcs_ijson_v1",
+  "independent_manager_upstream": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/INDEPENDENT_ORIGINAL_SOURCE_EXPECTATIONS_V1.json",
+    "sha256": "0aaa82af57190de7ae7f692695513dbd70fd0d26d748fa15bb38cfba4f41a943"
+  },
+  "future_kind_policy": "Every future unknown raw kind gets one structured disclosure with original value/unit/metadata/ref; no inferred family/dimension/ratio. Known invalid unit or contradictory component blocks canonical export with explicit evidence."
+}

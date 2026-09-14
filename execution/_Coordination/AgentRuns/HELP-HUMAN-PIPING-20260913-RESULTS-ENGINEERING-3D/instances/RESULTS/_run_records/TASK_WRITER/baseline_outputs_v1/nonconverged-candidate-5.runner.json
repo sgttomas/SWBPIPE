@@ -1,0 +1,402 @@
+{
+  "run_id": "run:headless-preview:p5-nonconverged-candidate-5",
+  "job": {
+    "job_id": "job:p5-nonconverged-candidate-5",
+    "state": "COMPLETED",
+    "current_step": 3,
+    "total_steps": 3,
+    "cancellation_supported": true,
+    "cancellation_requested": false
+  },
+  "analysis_status": [
+    "HUMAN_REVIEW_REQUIRED",
+    "MECHANICS_SOLVED",
+    "RULE_INPUTS_INCOMPLETE"
+  ],
+  "result_envelope_ref": {
+    "schema_ref": "schemas/results.schema.yaml",
+    "envelope_ref": {
+      "ref_type": "result_envelope",
+      "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-5"
+    },
+    "compatibility": "schema_first_json_result_envelope"
+  },
+  "result_refs": [
+    {
+      "ref_type": "result",
+      "ref_id": "result:solver-mode:linear-solve-basis"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:iteration-count"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:final-residual-count"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:converged-flag"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:max-translation-delta"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:max-rotation-delta"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:max-force-reaction-delta"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:max-moment-reaction-delta"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-force-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-moment-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:free-dof-work-residual"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-NL-FRIC-110:state-code"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-NL-FRIC-110:ux-displacement"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:nonlinear-support:support-NL-FRIC-110:ux-reaction"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-100:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:ux"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:uy"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:uz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:rx"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:ry"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:disp:node-N-110:rz"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-S-100"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:reaction:support-NL-FRIC-110"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:axial:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:shear-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:shear-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:torsion:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:bending-y:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:bending-z:end-j"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-1:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-1:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-1:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-1:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-1:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-1:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:midspan:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:midspan:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:midspan:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:midspan:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:midspan:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:midspan:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-3:axial"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-3:shear-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:force:pipe-P-100:quarter-3:shear-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-3:torsion"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-3:bending-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:moment:pipe-P-100:quarter-3:bending-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-i:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-i:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-i:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-i:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-j:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-j:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-j:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:end-j:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-1:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-1:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-1:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-1:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:midspan:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:midspan:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:midspan:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:midspan:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-3:axial-normal"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-3:bending-normal-y"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-3:bending-normal-z"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100:quarter-3:torsional-shear"
+    },
+    {
+      "ref_type": "result",
+      "ref_id": "result:stress:pipe-P-100"
+    }
+  ],
+  "audit_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "audit-manifest:run:headless-preview:p5-nonconverged-candidate-5"
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "runner_request",
+        "ref_id": "p5-nonconverged-candidate-5"
+      },
+      "value": "40ef719c9271fc3a3eed0a1856af27be76d68eb6a3ed00203adfdfbadc530018"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-5"
+      },
+      "value": "f5f05b46cbb730a37ce295d105718081858607ee539f5e17e83e45a62b6b6d27"
+    }
+  ],
+  "diagnostics": [],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "P5 invented complete-envelope schema witness",
+    "source_location": "instances/P5/schema_witness",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  }
+}

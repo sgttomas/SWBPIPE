@@ -1,0 +1,25 @@
+{
+  "schema_version": "evidence_only_1",
+  "cases": [
+    {
+      "case_id": "gap-chain-five-active",
+      "model_file": "gap-chain-five-active.model.json",
+      "request_file": "gap-chain-five-active.request.json",
+      "expectation": "nonconverged_public_absence"
+    },
+    {
+      "case_id": "gap-chain-two-active-control",
+      "model_file": "gap-chain-two-active-control.model.json",
+      "request_file": "gap-chain-two-active-control.request.json",
+      "expectation": "converged_control",
+      "expected_iterations": 3
+    },
+    {
+      "case_id": "gap-chain-five-inactive-control",
+      "model_file": "gap-chain-five-inactive-control.model.json",
+      "request_file": "gap-chain-five-inactive-control.request.json",
+      "expectation": "converged_control",
+      "expected_iterations": 1
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": null,
+      "entity_ref": "support:synthetic-source",
+      "id": "result:synthetic-supported-source-055",
+      "kind": "nonlinear_support_friction_normal_reaction_derived",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; derived_support_reaction; source_ref=support:synthetic-normal; source_dof=ux",
+        "component": "friction_normal_reaction_derived",
+        "coordinate_system": "solver_iteration",
+        "location": "ux",
+        "sign_convention": "positive value is the absolute support reaction at the named normal-source DOF"
+      },
+      "source_result_refs": [],
+      "unit": "N",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

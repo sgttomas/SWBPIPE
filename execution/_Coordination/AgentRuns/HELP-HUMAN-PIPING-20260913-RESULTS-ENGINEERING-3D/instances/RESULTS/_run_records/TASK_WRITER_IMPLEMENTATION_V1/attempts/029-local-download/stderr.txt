@@ -1,0 +1,22 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked
+Error: expect(element).not.toHaveAttribute("href") // element.hasAttribute("href")
+
+Expected the element not to have attribute:
+  href
+Received:
+  href="data:application/json,%7B%22field_id%22%3A%22policy-blocked%22%2C%22field_class%22%3A%22test%22%2C%22privacy_classification%22%3A%22secrets%22%2C%22redistribution_status%22%3A%22private_only%22%2C%22review_status%22%3A%22accepted%22%2C%22value%22%3A%22INVENTED_SENSITIVE_SCALAR%22%7D"
+ ❯ src/features/redaction-controls/ControlledExportLink.test.tsx:188:475
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/redaction-controls/ControlledExportLink.test.tsx src/features/redaction-controls/redactionExportControls.test.ts src/features/redaction-controls/RedactionExportControlsPanel.test.tsx src/features/result-export/ResultExportPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/results/resultSemantics.test.ts src/features/results/HistoricalRunContext.test.tsx

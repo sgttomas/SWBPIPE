@@ -1,0 +1,6 @@
+[
+  {
+    "phase": "context capture",
+    "error": "Assumed project CONTRACT.md absent; rg located actual docs/CONTRACT.md; no source state changed."
+  }
+]

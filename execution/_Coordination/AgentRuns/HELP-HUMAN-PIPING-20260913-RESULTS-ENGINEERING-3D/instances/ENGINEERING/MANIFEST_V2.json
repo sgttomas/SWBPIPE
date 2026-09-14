@@ -1,0 +1,48 @@
+{
+  "status": "ADDITIVE_ER01_CORRECTION_FROZEN_PENDING_REVIEW_CONTINUATION_AND_ROOT_ACCEPTANCE",
+  "role": "HELPS_HUMANS Type1",
+  "parent": "/root HELP_HUMAN",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "selected_candidate": "CANDIDATE_MANIFEST_V3.json",
+  "predecessor_run_manifest_sha256": "8f2e72824c4c60fcf8aa4f5040e8147352c9b3b6c4a87ac73c7391be003eeb6d",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "allocation_attribution": "parent-configured; not independently attested",
+  "derivative_package": true,
+  "outputs": [
+    {
+      "path": "contracts/DERIVED_STRESS_REVIEW_CORRECTION_V1.md",
+      "sha256": "19aac7afaf7f3da6e673a9cb1322db95d6b634c7f4d444cdfe9a789d32c0d6d2",
+      "bytes": 10105
+    },
+    {
+      "path": "UI_BACKFILL_DERIVED_REVIEW_V1.md",
+      "sha256": "c5acf8fd286d23a077420b56900a33dc25264bbbca639a0a5373c0b36fb58513",
+      "bytes": 2237
+    },
+    {
+      "path": "verification/DERIVED_STRESS_REVIEW_ACCEPTANCE_V1.json",
+      "sha256": "3ef572be5b07820dff5654bda06275437e6ddd014ed4f26852f9ad250fb559f1",
+      "bytes": 5560
+    },
+    {
+      "path": "_run_records/ER01_CORRECTION_CONTEXT_V1.json",
+      "sha256": "dd20f524ae9d008098893517a3bb48b79082d4625cfb8e99fb33de7c8eb81c51",
+      "bytes": 7196
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V3.json",
+      "sha256": "3dff84b6632aa2ba9a979eee49223d938f740fea7db3b0f4ebc4a12a72abbe3b",
+      "bytes": 3666
+    },
+    {
+      "path": "RETURN_V2.md",
+      "sha256": "1cd1862ef9a6a190e8b1105f06e500a2261d84cafb6d05a95baa5577fd247442",
+      "bytes": 2375
+    }
+  ],
+  "predecessors_unchanged": 21,
+  "closure": "Design correction frozen, not accepted. Root reviewer continuation required; existing public activation holds persist.",
+  "verification": "Read/search/source-qualified hashes, JSON parsing, immutable predecessor verification only; authored future cases not executed.",
+  "children": []
+}

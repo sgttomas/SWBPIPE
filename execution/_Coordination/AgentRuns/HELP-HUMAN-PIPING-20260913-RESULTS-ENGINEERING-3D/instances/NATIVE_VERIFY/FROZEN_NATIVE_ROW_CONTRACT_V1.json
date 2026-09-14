@@ -1,0 +1,2516 @@
+{
+  "status": "STATIC_PRE_ADAPTER_EXPECTATIONS; current native actual input/carrier must be freshly frozen again",
+  "accepted_index_sha256": "fc87130ed6c98acf4913a24c0f21d141b655a6ebc9d553c35b20debf168953b2",
+  "accepted_field_hash_contract_sha256": "3f4ea29ff3f1a490c59abea823a0f840b1ef61ced637ea0d4b0d7fbfb5e807f2",
+  "historical_row_crosscheck_count": 67,
+  "rows": [
+    {
+      "source_row_id": "result:solver-mode:linear-solve-basis",
+      "historical_value": 1,
+      "unit": "mode_code",
+      "kind": "linear_solver_mode_basis",
+      "source_metadata": {
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=1051.469644; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:WF",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      },
+      "signature_id": "supported-source-000",
+      "physical_semantic_dimension": "dimensionless",
+      "derivative_target_dimension": "dimensionless",
+      "category": "solver_mode",
+      "family": null,
+      "qualified_disposition": "disclosed",
+      "metadata_normalization": {
+        "policy": "omit_optional_physical_metadata_retain_source_annotation",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": null,
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "displacement_magnitude",
+      "source_metadata": null,
+      "signature_id": "supported-source-001",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "omit_optional_physical_metadata_retain_source_annotation",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": null,
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP",
+      "historical_value": 1.663072,
+      "unit": "mm",
+      "kind": "displacement_magnitude",
+      "source_metadata": null,
+      "signature_id": "supported-source-001",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "omit_optional_physical_metadata_retain_source_annotation",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": null,
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:ux",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_x",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "signature_id": "supported-source-002",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:uy",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_y",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "signature_id": "supported-source-003",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:uz",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_z",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "signature_id": "supported-source-004",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:rx",
+      "historical_value": 0,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_x",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "signature_id": "supported-source-005",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:ry",
+      "historical_value": 0,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_y",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "signature_id": "supported-source-006",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:rz",
+      "historical_value": 0,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_z",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "signature_id": "supported-source-007",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:ux",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_x",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "signature_id": "supported-source-002",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:uy",
+      "historical_value": 1.663072,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_y",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "signature_id": "supported-source-003",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:uz",
+      "historical_value": 0,
+      "unit": "mm",
+      "kind": "global_nodal_displacement_z",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "signature_id": "supported-source-004",
+      "physical_semantic_dimension": "length",
+      "derivative_target_dimension": "length",
+      "category": "physical_quantity",
+      "family": "displacement",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_displacement_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:rx",
+      "historical_value": 0,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_x",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "signature_id": "supported-source-005",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_x",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:ry",
+      "historical_value": 0,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_y",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "signature_id": "supported-source-006",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_y",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:rz",
+      "historical_value": 0.00078,
+      "unit": "rad",
+      "kind": "global_nodal_rotation_z",
+      "source_metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "signature_id": "supported-source-007",
+      "physical_semantic_dimension": "angle",
+      "derivative_target_dimension": "angle",
+      "category": "physical_quantity",
+      "family": "rotation",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "nodal_rotation_z",
+          "coordinate_system": "global",
+          "location": "node",
+          "basis": "solved_from_global_linear_system",
+          "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:reaction:support-WF-ROOT",
+      "historical_value": 350,
+      "unit": "N",
+      "kind": "reaction_resultant",
+      "source_metadata": null,
+      "signature_id": "supported-source-008",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "reaction",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "omit_optional_physical_metadata_retain_source_annotation",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": null,
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:axial",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_axial_force",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-009",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:axial:end-j",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_axial_force",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-009",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-y",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_shear_force_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-010",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-y:end-j",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_shear_force_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-010",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-z",
+      "historical_value": 350,
+      "unit": "N",
+      "kind": "element_local_shear_force_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-011",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-z:end-j",
+      "historical_value": -350,
+      "unit": "N",
+      "kind": "element_local_shear_force_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-011",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:torsion",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_torsional_moment",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-012",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:torsion:end-j",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_torsional_moment",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-012",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-y",
+      "historical_value": -1120,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-013",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-y:end-j",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-013",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-z",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "signature_id": "supported-source-014",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-z:end-j",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "signature_id": "supported-source-014",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:axial",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_axial_force",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-009",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:shear-y",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_shear_force_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-010",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:shear-z",
+      "historical_value": -350,
+      "unit": "N",
+      "kind": "element_local_shear_force_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-011",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:torsion",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_torsional_moment",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-012",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:bending-y",
+      "historical_value": 840,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-013",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:bending-z",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-014",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:axial",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_axial_force",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-009",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:shear-y",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_shear_force_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-010",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:shear-z",
+      "historical_value": -350,
+      "unit": "N",
+      "kind": "element_local_shear_force_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-011",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:torsion",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_torsional_moment",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-012",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:bending-y",
+      "historical_value": 560,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-013",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:bending-z",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-014",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:axial",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_axial_force",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-009",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:shear-y",
+      "historical_value": 0,
+      "unit": "N",
+      "kind": "element_local_shear_force_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-010",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:shear-z",
+      "historical_value": -350,
+      "unit": "N",
+      "kind": "element_local_shear_force_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-011",
+      "physical_semantic_dimension": "force",
+      "derivative_target_dimension": "force",
+      "category": "physical_quantity",
+      "family": "force",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "shear_force_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:torsion",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_torsional_moment",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-012",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_moment",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:bending-y",
+      "historical_value": 280,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-013",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:bending-z",
+      "historical_value": 0,
+      "unit": "N*m",
+      "kind": "element_local_bending_moment_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-014",
+      "physical_semantic_dimension": "moment",
+      "derivative_target_dimension": "moment",
+      "category": "physical_quantity",
+      "family": "moment",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": true,
+        "expected_example_canonical_metadata": {
+          "component": "bending_moment_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:axial-normal",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_axial_normal_stress",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-015",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:bending-normal-y",
+      "historical_value": 8.185431,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-016",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:bending-normal-z",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-017",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:torsional-shear",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_torsional_shear_stress",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-018",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:axial-normal",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_axial_normal_stress",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-015",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:bending-normal-y",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_y",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-016",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:bending-normal-z",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_z",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-017",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:torsional-shear",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_torsional_shear_stress",
+      "source_metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "signature_id": "supported-source-018",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:axial-normal",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_axial_normal_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-015",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:bending-normal-y",
+      "historical_value": 6.139073,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_y",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-016",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:bending-normal-z",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_z",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-017",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:torsional-shear",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_torsional_shear_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-018",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:axial-normal",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_axial_normal_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-015",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:bending-normal-y",
+      "historical_value": 4.092716,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_y",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-016",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:bending-normal-z",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_z",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-017",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:torsional-shear",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_torsional_shear_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-018",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:axial-normal",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_axial_normal_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-015",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "axial_normal_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:bending-normal-y",
+      "historical_value": 2.046358,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_y",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-016",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_y",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:bending-normal-z",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_bending_normal_stress_z",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-017",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "bending_normal_stress_z",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:torsional-shear",
+      "historical_value": 0,
+      "unit": "MPa",
+      "kind": "element_local_torsional_shear_stress",
+      "source_metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "signature_id": "supported-source-018",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "exact_finite_copy",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": {
+          "component": "torsional_shear_stress",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "local x is endpoint arc tangent toward j; local z is bend-plane normal; local y is z cross x toward arc center; resultants come from section equilibrium over assembled end actions"
+        },
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF",
+      "historical_value": 8.185431,
+      "unit": "MPa",
+      "kind": "open_formula_stress_summary",
+      "source_metadata": null,
+      "signature_id": "supported-source-020",
+      "physical_semantic_dimension": "stress",
+      "derivative_target_dimension": "stress",
+      "category": "physical_quantity",
+      "family": "stress",
+      "qualified_disposition": "exported_quantity",
+      "metadata_normalization": {
+        "policy": "omit_optional_physical_metadata_retain_source_annotation",
+        "required_physical_metadata": false,
+        "expected_example_canonical_metadata": null,
+        "source_annotation": "retain exact metadata including narrative and coordinate/location/basis strings; no coercion to TBD",
+        "missing_required_field": "one physical_metadata_incomplete disclosure for this row",
+        "missing_optional_field": "omit physical metadata; retain source annotation",
+        "known_unit_or_component_contradiction": "block entire canonical derivative with explicit diagnostic; raw evidence remains reviewable"
+      },
+      "legacy_admission": "accepts_with_legacy_dimension_equal_new_semantics",
+      "governing_ratio_eligible": false
+    }
+  ],
+  "version_dispatch": {
+    "supported": [
+      "0.1.0",
+      "0.2.0"
+    ],
+    "must_match": [
+      "schema_version",
+      "result_envelope.schema_version"
+    ],
+    "legacy_schema": {
+      "source_path": "schemas/results.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "original_bytes_preserved": true
+    },
+    "unknown_or_mixed": "reject before interpretation"
+  },
+  "semantic_assertions": [
+    "all source indices0..n-1 accounted exactlyonce",
+    "source IDs map uniquely or export blocks duplicateidentity",
+    "each target index/path resolves correct row and ID",
+    "known kind/unit/component table is exact; contradiction blocks",
+    "source original finite value/unit equal target exactly with no conversion",
+    "each checksum payload_scope/ref matches actual source or derivative payload",
+    "canonical metadata finite exact row contract; no arbitrary enum strings",
+    "work semantic dimension must be null; no moment orratio",
+    "discrete/count/state/flag/mode category never ratio",
+    "physical means solver recovered/assembled solved quantity only, never user review echo",
+    "source annotation original metadata/basis/refs retained exactly",
+    "blocked/nonconverged produce no successful solved wrapper",
+    "new model hash needs available exact model JSON, never reconstructed typed model/requestdigest",
+    "received dimensions preserved exactly in annotation and witness; physical mathematical meaning and derivative target are independent",
+    "observed present=false requires value=null; present=true requires exact received string",
+    "all received rows either absent dimensions or exact immutable legacy-compatible declarations; mixed/tampered fails",
+    "authentic producer availability must match qualified route, never row shape; null original checksum where unavailable",
+    "received checksum scopes/row pointer bind exact unchanged supplied payload; no raw checksum label for enriched carrier",
+    "each source index accounts exactly one physical,review,or disclosure target; every emitted target has exactly one accounting record and all annotation/witness references resolve; no orphan or duplicate targets",
+    "relative sparse parity requires exact sparse_live_path_dense_parity_relative_delta/unitless/sparse_live_path; source dimensionless, derivative ratio, disclosed diagnostic non-governing",
+    "review quantities never enter governing physical or ratio aggregation",
+    "sourceonly signatures supported in qualified headless derivative but legacy admission9throws remain Current route hold",
+    "source-model minted token binds digest of same exact Value actually parsed and solved plus raw result digest; substitutes/contradictions reject",
+    "actual model identity exact payload.project.id==mechanics.model_ref; request alias allowed separately disclosed with separately scoped request digest",
+    "blocked/nonconverged no canonical successful result, raw diagnostic/status preserved; row disclosure failures do not rewrite raw status",
+    "Requiredreview source metadata missing/incomplete ->exactlyone review_metadata_incomplete disclosure, never fabricatedlocation/basis orreviewexport; bind explicit19signatureoverride.",
+    "Raw annotation metadata retains exact guarded received JSON, including partial/empty fields and unknown/nested members; never replace lost facts with null or invented fields.",
+    "Canonical ResultMetadata remains strict unchanged five required finite fields; project only these known fields with exact received values, preserving all other facts in raw source annotation.",
+    "Missing/empty/non-string required review/physical metadata facts disclose incompleteness; annotation JSON by itself never supplies physical facts, Current or producer authenticity.",
+    "Received full row and carrier digest scopes include all exact annotation data and original field presence; annotation syntax doesnotreconstruct missing producer bytes."
+  ],
+  "digest_scope_contract": {
+    "model_payload": "exact available model JSON value, qualified guarded canonical serialization",
+    "derived_quantity_row": "complete emitted result_sets[set].values[index], no external witness carrier",
+    "derived_review_row": "complete emitted review_evidence[index]",
+    "derivative_document_excludes_own_hash": "complete emitted document with only result_envelope.reproducibility.derivative_hash removed",
+    "raw_mechanics_checksum": "existing original producer checksum/path/label copied unchanged, separate raw source hash carrier",
+    "legacy_saved_attachment": "unchanged stored legacy run hashes and scope labels, independent localeCompare/wasm behavior retained",
+    "received_carrier": "complete exact received MechanicsEnvelope unchanged; class scope distinguishes Current absent/enriched vs headless attested; hash remains digest of provided payload, not independent proof of producer",
+    "received_carrier_row": "complete received results[index] with observed dimension presence/value unchanged",
+    "original_producer_carrier": "only exact retained authenticated headless raw producer, otherwise null; do not reconstruct by dimension removal",
+    "original_producer_row": "only exact retained corresponding producer row, otherwise null",
+    "request_payload": "exact retained request JSON separate from actual exact model JSON; null if unavailable",
+    "derived_disclosure_row": "complete emitted result_envelope.row_disclosures[index]"
+  },
+  "source_row_pointer_contract": {
+    "source_field_path": "RFC6901 /results/index within received_carrier_checksum.payload_ref payload; no raw-origin inference",
+    "target_field_path": "RFC6901 pointer within derivative document; referenced target id mustmatch",
+    "source_annotation_ref": "ref_type source_annotation; ref_id resolves annotation_id",
+    "review_location_ref": "ref_type source_location; exact original location string, not invented finite physical metadata location",
+    "accounting_target_ref": "ref_type quantity_result/review_evidence/row_disclosure, exact corresponding ID",
+    "source_origin_ref": "Reference ref_type source_origin_binding, ref_id resolves reproducibility.source_origin_bindings[].origin_id",
+    "row_disclosure_target_ref": "ref_type row_disclosure, ref_id source_result_id; duplicate source IDs reject before output"
+  },
+  "schema_scoped_checksum": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "algorithm",
+      "canonicalization",
+      "payload_scope",
+      "payload_ref",
+      "value"
+    ],
+    "properties": {
+      "algorithm": {
+        "const": "sha256"
+      },
+      "canonicalization": {
+        "const": "openpipestress_jcs_ijson_v1"
+      },
+      "payload_scope": {
+        "type": "string",
+        "enum": [
+          "model_payload",
+          "raw_source_row",
+          "derived_quantity_row",
+          "derived_review_row",
+          "derivative_document_excludes_own_hash",
+          "received_current_dimension_absent_carrier",
+          "received_current_legacy_enriched_carrier",
+          "received_current_dimension_absent_row",
+          "received_current_legacy_enriched_row",
+          "attested_headless_producer_carrier",
+          "request_payload",
+          "derived_disclosure_row"
+        ]
+      },
+      "payload_ref": {
+        "$ref": "#/$defs/Reference"
+      },
+      "value": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    }
+  },
+  "canonical_format_contract": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "baseline_format",
+      "additional_formats",
+      "public_transport_protocol",
+      "local_fea_package_format",
+      "external_adapter_formats"
+    ],
+    "properties": {
+      "baseline_format": {
+        "const": "schema_first_json_result_envelope"
+      },
+      "additional_formats": {
+        "const": "TBD"
+      },
+      "public_transport_protocol": {
+        "const": "TBD"
+      },
+      "local_fea_package_format": {
+        "const": "TBD"
+      },
+      "external_adapter_formats": {
+        "const": "TBD"
+      }
+    }
+  },
+  "native_route_expected": {
+    "source": "App native background terminal.result",
+    "scope": "received_current_dimension_absent_carrier",
+    "authentic_producer_available": false,
+    "original_producer_checksums": null,
+    "no_transport_shape_origin_claim": true
+  },
+  "format_limit": "V4 schema specifies one canonical schema-first JSON format, additional_formats TBD. Stress-neutral JSON/CSV is separately retained existing preview route; exact interpretation of brief both canonical formats pending root confirmation/candidate routes, no invented second canonical schema."
+}

@@ -1,0 +1,18 @@
+{
+  "sourceHEAD": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "gitHeadExit": 0,
+  "statusCommand": [
+    "git",
+    "status",
+    "--porcelain",
+    "--untracked-files=all"
+  ],
+  "statusExit": 0,
+  "outsideOwnUIStatus": [],
+  "withinOwnUIStatusCount": 137,
+  "finalExecutableMatchesWitness": true,
+  "successorSixConfigurationPass": true,
+  "childManifestUnchanged": true,
+  "runtimeLeases": "All terminal and released",
+  "independentAcceptance": false
+}

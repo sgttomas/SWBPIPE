@@ -1,0 +1,75 @@
+{
+  "status": "static_preparation_only",
+  "derivative_package": true,
+  "accepted_upstream_plan_sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+  "sealed_brief_sha256": "4c9f6b1dfd0753ade89cdd9fdaa9dd627b8e21bb35537c3cab1c78999b185772",
+  "files": [
+    {
+      "path": "CONTEXT_ORIGINS_V1.json",
+      "sha256": "1f1a471c22d0ca7103ab22e03fc488ff940031d6b9500eb9c6e9c85b9ad43308",
+      "bytes": 19059,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "FROZEN_INDEPENDENT_EXPECTATIONS_V1.json",
+      "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+      "bytes": 4272,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "HISTORICAL_ROW_BASIS_V1.json",
+      "sha256": "f84aa76102b485eaec2352bbc86fb3c08c8315d552905ae87bf631070e316f39",
+      "bytes": 63288,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "METHOD_V1.md",
+      "sha256": "355481ec51110b57e4a7c2f27835bd64dc3e2ada5a1945d2c8a73bf955e474d6",
+      "bytes": 3299,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "PREPARATION_RETURN_V1.md",
+      "sha256": "6d6f88039ac65b335fe0ca4c2c7b37ef092167b9c82c6338c8fd21442d515269",
+      "bytes": 2352,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "PROPOSED_RUNTIME_LEASE_V1.json",
+      "sha256": "24b5fcbf806e8da4ca5122841a18f8c3dbb264813e3a1ecc1a574e9da72f1099",
+      "bytes": 2555,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "SYNTHETIC_MODEL_ORIGIN_V1.json",
+      "sha256": "3f76a0fc2f72dfb6940c4a80ee387f316b2bab8b6b14644efcf35c8487a97e69",
+      "bytes": 1006,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "SYNTHETIC_RETAINED_AUTHORED350_MODEL.json",
+      "sha256": "2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+      "bytes": 2689,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    },
+    {
+      "path": "tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "bytes": 379,
+      "physical": true,
+      "ignored_status": "not queried: prep forbids Git effect; parent final inventory must resolve ignored status"
+    }
+  ],
+  "total_bytes_excluding_manifest": 98899,
+  "self_manifest_excluded_from_its_hash_inventory": true,
+  "old_hundreds_MB_raw_tree_copied": false,
+  "no_runtime_pass": true
+}

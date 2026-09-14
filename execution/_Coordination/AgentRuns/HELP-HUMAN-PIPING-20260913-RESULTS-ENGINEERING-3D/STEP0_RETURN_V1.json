@@ -1,0 +1,49 @@
+{
+  "kind": "Fresh Step0 return; new approved implementation activation",
+  "source_basis": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "committed_plan_sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+  "receipt_cursor": "Receipt-139 read only after qualified validator exit0",
+  "DAG": "DAG-010 approved active graph authority",
+  "stage": "R5",
+  "decomposition": "0.12",
+  "SCA": "SCA-009",
+  "decision_register": "D-66 remains last row; formally retained public/material/dependency choices are unchanged",
+  "status_inventory": {
+    "deliverables": 102,
+    "statuses": {
+      "IN_PROGRESS": 100,
+      "ISSUED": 1,
+      "OPEN": 1
+    },
+    "Remaining": 130,
+    "deliverables_with_Remaining": 64
+  },
+  "self_check": {
+    "exit": 0,
+    "BLOCK": 0,
+    "REVIEW": 10,
+    "WARN": 112,
+    "INFO": 14,
+    "NOT_APPLICABLE": 1,
+    "baseline_delta": "REVIEW +6; all other severities unchanged",
+    "new_findings": [
+      "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/ENGINEERING/CONTEXT_INVENTORY.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |",
+      "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/PLAN_REVIEW/REVIEW_V2_RETURN.md:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |",
+      "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/RESULTS/raw/COMMAND.json:2` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 2. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |",
+      "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/RESULTS/raw/VALIDATION.json:3` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 1 machine-absolute-path hit line(s); first hit at line 3. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |",
+      "| REVIEW | ABS_PATH_IN_PROJECT_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/SETUP/_run_records/PLAN_EXTERNAL_BASIS_V1.json:5` | SPEC-0.2.4 (N_A) | Active CONTROL surface (managed control record `PLAN_EXTERNAL_BASIS_V1.json`) carries 2 machine-absolute-path hit line(s); first hit at line 5. SPEC \u00a70.2.4 requires repo-relative anchoring on active controls. Use `{REPO_ROOT}`, `{WORKING_ROOT}`, or a repo-relative path; only a hash-bound historical exception can acknowledge immutable control history. |",
+      "| REVIEW | ABS_PATH_IN_UNCLASSIFIED_SURFACE | path-anchoring | `projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D-PLAN/instances/UI/CONTEXT_MANIFEST.json:4` | SPEC-0.2.4 (N_A) | Active surface (unknown managed AgentRuns artifact) carries 2 machine-absolute-path hit line(s); first hit at line 4. Unknown managed artifacts fail closed: define a structural role or remove the machine-local path. |"
+    ],
+    "qualification": "Copied immutable planning artifacts expose path-classification findings. No suppressions, frozen edits or claim baseline unchanged. Parent direction required for owned packaging disposition; this does not expand source authority."
+  },
+  "planning_copy": {
+    "files": 60,
+    "manifest_V2_sha256": "b249b5d0999bf040aba20a464698ea733368cdfa24ebb6d0b6827e6bce301532",
+    "approved_V3_sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+    "all_bytes_verified": true,
+    "origin_untouched": true
+  },
+  "preparation_only": "No manager launch, product/schema/deliverable-state/receipt edits, full tests, build/native/browser lease or commits/publication",
+  "raw_commands": "instances/SETUP/_run_records/STEP0_COMMANDS.json",
+  "known_read_probe_limits": "Initial ad hoc README glob lookup had no matching pathname; no test failure inferred; actual self-check command read from current governance workflow. Canonical Step0 raw command records are complete."
+}

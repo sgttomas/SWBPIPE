@@ -1,0 +1,128 @@
+{
+  "role": "TASK Type 2 independent read-only reviewer, direct to HELP_HUMAN /root",
+  "model_effort": "parent-configured gpt-6-astra/high; no independent supplier attestation",
+  "delegation": "delegated-harness-native; instruction-asserted non-delegation; no children spawned",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW",
+  "context": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/.agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a",
+      "bytes": 1303
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_V1.md",
+      "sha256": "4ee71022e9aaa243fbc5020eae5067487fba09cdec179c9d95bfa6506d9874ea",
+      "bytes": 5288
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULT_LOCAL_DOWNLOAD_REPAIR_V1.md",
+      "sha256": "cbcb121dddc3d6769fda570fee46f49ca48f72a894b4e1b0f41716d3721321b8",
+      "bytes": 3986
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULTS_IMPLEMENTATION_RELEASE_V1.md",
+      "sha256": "8410016b47e60ab1f0310c175982a9a159ec6b666fec871e6f0ea870259cf293",
+      "bytes": 3247
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+      "bytes": 20468
+    }
+  ],
+  "additional_reviewed_evidence": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FINAL_SOURCE_PREPARATION_V1.md",
+      "sha256": "8f081f85f403e3fa5d7fb3a5aa13339d0039febd4ce53743fd5268716d553199",
+      "bytes": 2687
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_CAPTURE_ROUTE_PREPARATION_V1.md",
+      "sha256": "21be5f5afb51dbdb87a95fe05ce96e8457686c4a2e8b9093b7c72e26e0ef37cf",
+      "bytes": 4023
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_SOURCE_PREPARATION_CONTEXT_V1.json",
+      "sha256": "542c8104c8889e90861692abae09a0aa040ef9d5516b943935ec7bbec2c171c0",
+      "bytes": 11384
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_SOURCE_PREPARATION_MANIFEST_V1.json",
+      "sha256": "a5e443fad9641c21d6d08994884d4b8dfdf52e9998f14764b5307a990cf833ef",
+      "bytes": 1413
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROPOSED_RUNTIME_LEASE_FINAL_V1.json",
+      "sha256": "7585b4e2a74b5c1da6798fdf2d7e3ec3966e0fd679744beaa0779fdc4e35e8ee",
+      "bytes": 3613
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/verify_captured_result.mjs",
+      "sha256": "189012e1cacda97ec2477d7ec2830199a047ea6fdfc1a0e86c1755e6ede7a7a5",
+      "bytes": 5005
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRACTITIONER_V1/COMMAND.json",
+      "sha256": "9516aa6aa61bff8271ff1509165b86a54224c8da9320637d9e00e33c26ce1027",
+      "bytes": 4905
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRACTITIONER_V1/RETURN.json",
+      "sha256": "4ba8c8bb53c7e30bf67d6af7156dbfeae89e06683e72d1ec3d1e136d09bb96ae",
+      "bytes": 362927
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRACTITIONER_V1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PRACTITIONER_V1/stdout.log",
+      "sha256": "8a965ce8e9a4339cddefc8085a99ba310585bd9b2e75b3e7c47f6fcbcb62bcb2",
+      "bytes": 501
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/REVIEW_CANDIDATE_INVENTORY_V1.json",
+      "sha256": "428b19f0f6e74355a61678f62c1c95bccfcfaf8c796ef39e72abebfe05a0bbeb",
+      "bytes": 586468
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SELF_CHECK_V1/COMMAND.json",
+      "sha256": "89c39bf7a7f711804f5f2f3488fe979bd0b331c074fd08327e4a1a5ee7bc7754",
+      "bytes": 364276
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SELF_CHECK_V1/RETURN.json",
+      "sha256": "065e01019ee7e8be13a611bcf222de15ede6baab35357b1746e0484aeaba5e17",
+      "bytes": 363267
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SELF_CHECK_V1/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SELF_CHECK_V1/stdout.log",
+      "sha256": "fb273bec4c6416fccaf949f6f9282532ab97189878ea972227d023a96f64070e",
+      "bytes": 41362
+    }
+  ],
+  "native_preparation_verdict": "Read source-informed route preparation, proposed ungranted lease and complete 5005-byte independent capture-check script; hash-verified context origins and all four new files. Script remains unexecuted; numeric analytical/schema checks separate; actual capture availability remains future runtime observation.",
+  "root_gate_evidence": "Read successful root distribution/build log (3 tests), practitioner log (379 tests), and self-check summary (0 BLOCK,4 REVIEW,112 WARN,14 INFO,1 NOT_APPLICABLE), all attributed to root. No local runtime executed."
+}

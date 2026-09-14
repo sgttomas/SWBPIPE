@@ -1,0 +1,28 @@
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/headless-runner/HeadlessRunnerPanel.test.tsx > keeps received declarations as reference evidence and reports unavailable witnesses
+TypeError: Cannot read properties of undefined (reading 'dimension')
+ ❯ src/features/headless-runner/HeadlessRunnerPanel.test.tsx:11:247
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/features/stress-neutral/StressNeutralExportPanel.test.tsx > retains every source numerical row and CSV unit while withholding incompatible declaration witnesses
+AssertionError: expected 'other' to be 'rotation' // Object.is equality
+
+Expected: "rotation"
+Received: "other"
+
+ ❯ src/features/stress-neutral/StressNeutralExportPanel.test.tsx:15:277
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+npm error Lifecycle script `test` failed with error:
+npm error code 1
+npm error path /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error workspace @openpipestress/desktop@0.1.0
+npm error location /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+npm error command failed
+npm error command sh -c vitest run src/features/results/resultSemantics.test.ts src/features/results/ResultsPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/handoff/HandoffPanel.test.tsx src/features/report/reportPackageRequest.test.ts src/features/headless-runner/HeadlessRunnerPanel.test.tsx src/features/stress-neutral/StressNeutralExportPanel.test.tsx

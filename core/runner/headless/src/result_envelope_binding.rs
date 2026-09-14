@@ -1,34 +1,16 @@
-//! DEL-08-04 result-envelope producer binding for the governed preview
-//! analysis-run path (R14 W1 T1, `CB-2026-07-19-T1-PKG04-PRODUCER-BINDING-001`
-//! v3).
-//!
-//! Bounded-coverage mapping: a `MechanicsEnvelope` result row is exported as a
-//! DEL-08-04 `QuantityResult` only when its `(kind, unit)` pair resolves
-//! through the explicit [`mapped_family_dimension`] table to an existing
-//! `ResultFamily`/`DimensionId` whose semantics match the accepted D-01 unit
-//! classification. Every row outside that table is disclosed per-row (result
-//! id, kind, unit) in a dedicated NON-BLOCKING vocabulary-boundary diagnostic
-//! carried in the envelope document itself — no silent drop, no invented
-//! family/dimension identifier, no coercion (in particular, the `N*m`
-//! free-DOF work residual is never exported as a moment). A STRUCTURAL
-//! production or validation failure returns a blocking runner diagnostic for
-//! the caller to append fail-closed; the disclosure path is not a failure and
-//! never changes exit codes or serialized CLI output.
-//!
-//! The DEL-08-04 vocabulary-extension need (stiffness, energy/work,
-//! count/state dimensions) is a reported follow-on for HELP_HUMAN, not
-//! resolved here.
+//! Canonical 0.2 derivative assembly consumes opaque same-Value actual-solve evidence.
+//! Raw MechanicsEnvelope/RunnerResult transport and legacy analysis hashes remain independent.
+//! Rows use the complete shared semantic contract; unsupported rows are retained in disclosures.
 
 use open_pipe_stress_product_physics::{
     nonlinear_assembled_loop_context, solver_component_name, solver_component_version,
-    Diagnostic as MechanicsDiagnostic, MechanicsEnvelope, ResultItem,
-    ResultMetadata as MechanicsResultMetadata,
+    Diagnostic as MechanicsDiagnostic, MechanicsEnvelope,
 };
 use open_pipe_stress_result_export as export;
 use serde_json::Value;
 
 use crate::{
-    validate_result_with_optional_envelope_payload, AnalysisStatus, ChecksumRef, Diagnostic,
+    AnalysisStatus, ChecksumRef, Diagnostic,
     Provenance, RedistributionStatus, Reference, RunnerRequest, RunnerResult,
 };
 
@@ -51,103 +33,6 @@ pub const NONLINEAR_LOOP_LIMITATION_CODE: &str = "NONLINEAR_ASSEMBLED_LOOP_LIMIT
 /// Schema version of the produced result envelope, matching the committed
 /// DEL-08-04 fixtures and `schemas/results.schema.yaml` version pattern.
 const RESULT_ENVELOPE_SCHEMA_VERSION: &str = "0.1.0";
-
-/// The enumerated deterministic `(kind, unit)` → (`ResultFamily`,
-/// `DimensionId`) export table (brief §3.2 v3, §4 bounded-coverage shape).
-///
-/// Every entry is checkable against the accepted D-01 unit classification
-/// (`docs/SPEC.md` §4): displacements/lengths in `mm` → length, rotations in
-/// `rad` → angle, forces in `N` → force, moments in `N*m` → moment, stresses
-/// in `MPa` → stress. Rows deliberately absent from this table (and therefore
-/// disclosed, never coerced) include: user-stiffness review echoes
-/// (`N/m`, `N*m/rad` — D-01 classifies these `linear_stiffness` /
-/// `rotational_stiffness`, which DEL-08-04 does not carry), nonlinear
-/// count/flag/state-code rows, residual-observation rows (including the
-/// `N*m` free-DOF work residual, an energy quantity), solver-mode basis
-/// rows, hanger travel-range rows, and every kind not listed here.
-fn mapped_family_dimension(
-    kind: &str,
-    unit: &str,
-) -> Option<(export::ResultFamily, export::DimensionId)> {
-    use export::DimensionId;
-    use export::ResultFamily;
-    match (kind, unit) {
-        // Straight-pipe / global displacement results (floor classes: export).
-        ("displacement_magnitude", "mm")
-        | ("global_nodal_displacement_x", "mm")
-        | ("global_nodal_displacement_y", "mm")
-        | ("global_nodal_displacement_z", "mm") => {
-            Some((ResultFamily::Displacement, DimensionId::Length))
-        }
-        ("global_nodal_rotation_x", "rad")
-        | ("global_nodal_rotation_y", "rad")
-        | ("global_nodal_rotation_z", "rad") => Some((ResultFamily::Rotation, DimensionId::Angle)),
-        // Support reactions.
-        ("reaction_resultant", "N") => Some((ResultFamily::Reaction, DimensionId::Force)),
-        // Straight-pipe element local force results (metadata-gated family).
-        ("element_local_axial_force", "N")
-        | ("element_local_shear_force_y", "N")
-        | ("element_local_shear_force_z", "N") => Some((ResultFamily::Force, DimensionId::Force)),
-        // Straight-pipe element local moment results (metadata-gated family).
-        ("element_local_bending_moment_y", "N*m")
-        | ("element_local_bending_moment_z", "N*m")
-        | ("element_local_torsional_moment", "N*m") => {
-            Some((ResultFamily::Moment, DimensionId::Moment))
-        }
-        // Stress results (element-local recovery, open-formula summary,
-        // pressure hoop, and the user-multiplier stress review value — all
-        // stress magnitudes in MPa).
-        ("element_local_axial_normal_stress", "MPa")
-        | ("element_local_bending_normal_stress_y", "MPa")
-        | ("element_local_bending_normal_stress_z", "MPa")
-        | ("element_local_torsional_shear_stress", "MPa")
-        | ("open_formula_stress_summary", "MPa")
-        | ("pipe_section_pressure_hoop_stress", "MPa")
-        | ("component_user_stress_multiplier_review", "MPa") => {
-            Some((ResultFamily::Stress, DimensionId::Stress))
-        }
-        // Force-valued user-input review evidence (metadata-gated family).
-        ("expansion_joint_pressure_thrust_load_review", "N")
-        | ("spring_hanger_user_input_review", "N")
-        | ("constant_effort_user_input_review", "N") => {
-            Some((ResultFamily::Force, DimensionId::Force))
-        }
-        // Nonlinear final-state physical values (displacements/reactions).
-        ("nonlinear_support_final_displacement", "mm") => {
-            Some((ResultFamily::Displacement, DimensionId::Length))
-        }
-        ("nonlinear_support_final_reaction", "N")
-        | ("nonlinear_support_friction_normal_reaction_input", "N")
-        | ("nonlinear_support_friction_normal_reaction_derived", "N") => {
-            Some((ResultFamily::Reaction, DimensionId::Force))
-        }
-        _ => None,
-    }
-}
-
-/// Whether the exported family requires complete five-field metadata under
-/// the DEL-08-04 validator gate.
-fn family_requires_metadata(family: export::ResultFamily) -> bool {
-    matches!(
-        family,
-        export::ResultFamily::Force
-            | export::ResultFamily::Moment
-            | export::ResultFamily::SectionProperty
-    )
-}
-
-fn metadata_gate_complete(metadata: Option<&MechanicsResultMetadata>) -> bool {
-    let Some(metadata) = metadata else {
-        return false;
-    };
-    let non_tbd =
-        |value: &str| !value.trim().is_empty() && !value.trim().eq_ignore_ascii_case("TBD");
-    non_tbd(&metadata.component)
-        && non_tbd(&metadata.coordinate_system)
-        && non_tbd(&metadata.location)
-        && non_tbd(&metadata.basis)
-        && !metadata.sign_convention.trim().is_empty()
-}
 
 /// Deterministic detection that the solve exercised (attempted or completed)
 /// the nonlinear active-set loop, from envelope content only.
@@ -213,29 +98,11 @@ fn export_analysis_status(status: AnalysisStatus) -> export::AnalysisStatus {
     }
 }
 
-fn export_metadata(metadata: &MechanicsResultMetadata) -> export::ResultMetadata {
-    export::ResultMetadata {
-        component: metadata.component.clone(),
-        coordinate_system: metadata.coordinate_system.clone(),
-        location: metadata.location.clone(),
-        basis: metadata.basis.clone(),
-        sign_convention: metadata.sign_convention.clone(),
-    }
-}
+
 
 /// Producer-origin provenance for disclosure metadata (diagnostic metadata
 /// only, following the existing validator invented-provenance precedent).
-fn producer_provenance() -> export::Provenance {
-    export::Provenance {
-        source_name: "OpenPipeStress headless result-envelope producer".to_string(),
-        source_location: "core/runner/headless/src/result_envelope_binding.rs".to_string(),
-        source_license: "project".to_string(),
-        contributor: "OpenPipeStress".to_string(),
-        contributor_certification: "vocabulary-boundary disclosure metadata only".to_string(),
-        redistribution_status: export::RedistributionStatus::InventedNonEngineeringExample,
-        review_status: "accepted".to_string(),
-    }
-}
+
 
 /// Provenance naming the assembled-loop source crate for the nonlinear
 /// assumption/limitation context rows (brief §3.3).
@@ -316,25 +183,7 @@ fn export_mechanics_diagnostic(diagnostic: &MechanicsDiagnostic) -> export::Diag
 }
 
 /// Per-row NON-BLOCKING vocabulary-boundary disclosure (brief §3.2 v3).
-fn disclosure_diagnostic(row: &ResultItem) -> export::Diagnostic {
-    export::Diagnostic {
-        code: VOCABULARY_BOUNDARY_DISCLOSURE_CODE.to_string(),
-        class: export::DiagnosticClass::UnitWarning,
-        severity: export::DiagnosticSeverity::Info,
-        source: export::Reference::new("result_envelope_producer", "core/runner/headless"),
-        affected_object: export::Reference::new("preview_result", row.id.clone()),
-        message: format!(
-            "result row not exported: id={} kind={} unit={} is outside the enumerated \
-             DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 \
-             vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
-            row.id, row.kind, row.unit
-        ),
-        remediation: "Consume this row from the carried mechanics envelope; do not infer a \
-                      result family or dimension for it from this export."
-            .to_string(),
-        provenance: producer_provenance(),
-    }
-}
+
 
 fn nonlinear_context_diagnostic(
     code: &str,
@@ -376,7 +225,38 @@ fn production_failed(envelope_id: &str, detail: String) -> Diagnostic {
 /// or validation failure for the caller to append fail-closed (brief §3.5).
 /// The per-row vocabulary-boundary disclosure is NOT a failure: it rides the
 /// document's own diagnostics with non-blocking severity.
-pub fn build_result_export_document(
+/// Typed legacy callers lack the exact authored solve payload. Raw result
+/// transport remains available; canonical derivative export is unavailable.
+pub fn build_result_export_document(_request: &RunnerRequest, runner_result: &RunnerResult, mechanics: &MechanicsEnvelope) -> Result<Value, Diagnostic> {
+    Err(production_failed(&runner_result.result_envelope_ref.envelope_ref.ref_id,
+        if mechanics.status.mechanics != "MECHANICS_SOLVED" { "SOURCE_NOT_SOLVED" } else { "EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE" }.to_string()))
+}
+
+/// Consume evidence minted only by the model-aware actual solve route.
+pub fn build_result_export_document_with_evidence(request: &RunnerRequest, runner_result: &RunnerResult, mechanics: &MechanicsEnvelope, evidence: &crate::QualifiedPreviewEvidence) -> Result<Value, Diagnostic> {
+    use export::derivative::{checksum, digest, reference, derive_document};
+    let envelope_id=&runner_result.result_envelope_ref.envelope_ref.ref_id;
+    let make=|| -> Result<Value,String> {
+        let source=serde_json::to_value(mechanics).map_err(|e|e.to_string())?;
+        let request_value=serde_json::to_value(request).map_err(|e|e.to_string())?;
+        if digest(&evidence.solve_payload)? != evidence.solve_payload_digest || digest(&source)? != evidence.mechanics_digest || digest(&serde_json::to_value(runner_result).map_err(|e|e.to_string())?)? != evidence.runner_digest || digest(&request_value)? != evidence.request_digest || evidence.run_id != runner_result.run_id {
+            return Err("SOLVED_SOURCE_BINDING_MISMATCH".into());
+        }
+        let model=&evidence.solve_payload["model"];
+        if model["project"]["id"] != source["model_ref"] { return Err("SOURCE_MODEL_IDENTITY_MISMATCH".into()); }
+        let payload_ref=reference("attested_headless_producer",envelope_id);
+        let carrier=checksum(&source,"attested_headless_producer_carrier",payload_ref)?;
+        let actual_ref=reference("model_payload",mechanics.model_ref.as_str());
+        let alias=if request.model_ref.ref_id!=mechanics.model_ref {serde_json::json!(format!("request model_ref {} is a provenance alias; actual model {}",request.model_ref.ref_id,mechanics.model_ref))}else{Value::Null};
+        let origin=serde_json::json!({"origin_id":"source-origin:headless-actual-solve","origin_class":"attested_headless_producer","qualification_ref":reference("private_solve_evidence",&format!("{}:{}",evidence.run_id,evidence.solve_payload_digest)),"authentic_producer_available":true,"received_carrier_checksum":carrier,"original_producer_checksum":carrier,"origin_limit":"Private same-Value actual solve evidence; exact solve payload incl material overrides retained; no model reconstruction","actual_model_ref":actual_ref,"mechanics_run_ref":reference("mechanics_run",&mechanics.run_id),"request_model_ref":export_reference_json(&request.model_ref),"request_run_ref":reference("runner_run",&runner_result.run_id),"request_alias_disclosure":alias});
+        let base=build_base_result_export_document(request,runner_result,mechanics).map_err(|e|e.message)?;
+        derive_document(base,model,&source,origin,Some(&request_value))
+    };
+    make().map_err(|detail|production_failed(envelope_id,detail))
+}
+fn export_reference_json(r:&Reference)->Value {serde_json::json!({"ref_type":r.ref_type,"ref_id":r.ref_id})}
+
+fn build_base_result_export_document(
     request: &RunnerRequest,
     runner_result: &RunnerResult,
     mechanics: &MechanicsEnvelope,
@@ -390,40 +270,8 @@ pub fn build_result_export_document(
     let run_basis = export::Reference::new("analysis_run", run_id.clone());
     let envelope_provenance = export_provenance(&runner_result.provenance);
 
-    // Bounded-coverage export with per-row disclosure (no silent drop).
-    let mut values = Vec::new();
-    let mut diagnostics: Vec<export::Diagnostic> = mechanics
-        .diagnostics
-        .iter()
-        .map(export_mechanics_diagnostic)
-        .collect();
-    for row in &mechanics.results {
-        let mapped = mapped_family_dimension(&row.kind, &row.unit).filter(|(family, _)| {
-            !family_requires_metadata(*family) || metadata_gate_complete(row.metadata.as_ref())
-        });
-        let Some((family, dimension)) = mapped else {
-            diagnostics.push(disclosure_diagnostic(row));
-            continue;
-        };
-        values.push(export::QuantityResult {
-            result_id: row.id.clone(),
-            family,
-            object_ref: export::Reference::new("preview_entity", row.entity_ref.clone()),
-            basis_ref: row
-                .basis_ref
-                .as_ref()
-                .map(|basis| export::Reference::new(basis.ref_type.clone(), basis.ref_id.clone()))
-                .unwrap_or_else(|| run_basis.clone()),
-            station_ref: None,
-            magnitude: row.value,
-            unit: row.unit.clone(),
-            dimension,
-            metadata: row.metadata.as_ref().map(export_metadata),
-            diagnostics: Vec::new(),
-            trace_chain: Vec::new(),
-            provenance: envelope_provenance.clone(),
-        });
-    }
+    let values = Vec::new();
+    let mut diagnostics: Vec<export::Diagnostic> = mechanics.diagnostics.iter().map(export_mechanics_diagnostic).collect();
 
     // Nonlinear assembled-loop context binds only when the solve actually
     // exercised nonlinear supports (no false context, brief §3.3).
@@ -538,56 +386,14 @@ pub fn build_result_export_document(
         },
     };
 
-    // Structural validation gate 1: the typed DEL-08-04 validator.
-    let typed_validation = export::validate_result_envelope(&envelope);
-    if typed_validation.has_blocking_diagnostics() {
-        let codes: Vec<&str> = typed_validation
-            .diagnostics
-            .iter()
-            .filter(|diagnostic| diagnostic.severity == export::DiagnosticSeverity::Blocking)
-            .map(|diagnostic| diagnostic.code.as_str())
-            .collect();
-        return Err(production_failed(
-            &envelope_id,
-            format!("typed envelope validation blocked: {}", codes.join(", ")),
-        ));
-    }
-
-    // Serialize into the exact schema-first wrapper shape.
-    let document = export::result_export_document(&envelope);
-
-    // Structural validation gate 2: the runner payload contract (envelope-id
-    // match, HUMAN_REVIEW_REQUIRED, result sets, ordering, checksum).
-    let payload_validation =
-        validate_result_with_optional_envelope_payload(runner_result, Some(&document));
-    if payload_validation.has_blocking_diagnostics() {
-        let codes: Vec<&str> = payload_validation
-            .diagnostics
-            .iter()
-            .filter(|diagnostic| diagnostic.severity == crate::DiagnosticSeverity::Blocking)
-            .map(|diagnostic| diagnostic.code.as_str())
-            .collect();
-        return Err(production_failed(
-            &envelope_id,
-            format!("payload contract validation blocked: {}", codes.join(", ")),
-        ));
-    }
-
-    Ok(document)
+    Ok(export::result_export_document(&envelope))
 }
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::{
-        run_preview_in_memory, validate_result, JobStateKind, PrivacyContext, ProfessionalBoundary,
-        RunnerOperation, TbdDecisions,
-    };
-    use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
-
-    const PREVIEW_MODEL_FIXTURE: &str =
-        include_str!("../../../../fixtures/product_preview/invented_preview_model.json");
-
+ use super::*;
+ use crate::{run_preview_model_value,run_preview_in_memory,JobStateKind,PrivacyContext,ProfessionalBoundary,RunnerOperation,TbdDecisions};
+ use open_pipe_stress_product_physics::LinearStaticPreviewRequest;
     fn provenance() -> Provenance {
         Provenance {
             source_name: "invented producer-binding fixture".to_string(),
@@ -622,539 +428,34 @@ mod tests {
         }
     }
 
-    fn nonlinear_bearing_preview_request() -> LinearStaticPreviewRequest {
-        LinearStaticPreviewRequest {
-            model: serde_json::from_str(PREVIEW_MODEL_FIXTURE)
-                .expect("invented preview model fixture should parse"),
-            materials: Vec::new(),
-        }
-    }
 
-    /// The same invented model with every nonlinear-bearing support removed,
-    /// so the solve never enters the active-set loop (linear-only fixture).
-    fn linear_only_preview_request() -> LinearStaticPreviewRequest {
-        let mut model: Value = serde_json::from_str(PREVIEW_MODEL_FIXTURE)
-            .expect("invented preview model fixture should parse");
-        let supports = model["supports"]
-            .as_array_mut()
-            .expect("fixture carries a supports array");
-        supports.retain(|support| support.get("nonlinear").is_none());
-        LinearStaticPreviewRequest {
-            model: serde_json::from_value(model).expect("linear-only model still deserializes"),
-            materials: Vec::new(),
-        }
-    }
-
-    fn envelope_object(document: &Value) -> &serde_json::Map<String, Value> {
-        document["result_envelope"]
-            .as_object()
-            .expect("document carries a result_envelope object")
-    }
-
-    fn diagnostics_with_code<'a>(document: &'a Value, code: &str) -> Vec<&'a Value> {
-        envelope_object(document)["diagnostics"]
-            .as_array()
-            .expect("envelope carries diagnostics")
-            .iter()
-            .filter(|diagnostic| diagnostic["code"].as_str() == Some(code))
-            .collect()
-    }
-
-    #[test]
-    fn mapping_table_is_bounded_and_never_coerces() {
-        use export::{DimensionId, ResultFamily};
-        assert_eq!(
-            mapped_family_dimension("element_local_axial_force", "N"),
-            Some((ResultFamily::Force, DimensionId::Force))
-        );
-        assert_eq!(
-            mapped_family_dimension("element_local_bending_moment_z", "N*m"),
-            Some((ResultFamily::Moment, DimensionId::Moment))
-        );
-        assert_eq!(
-            mapped_family_dimension("global_nodal_displacement_y", "mm"),
-            Some((ResultFamily::Displacement, DimensionId::Length))
-        );
-        assert_eq!(
-            mapped_family_dimension("reaction_resultant", "N"),
-            Some((ResultFamily::Reaction, DimensionId::Force))
-        );
-        // Out-of-vocabulary classes are disclosed, never coerced.
-        assert_eq!(
-            mapped_family_dimension("component_user_stiffness_macro_element_review", "N/m"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("component_user_stiffness_macro_element_review", "N*m/rad"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("spring_hanger_user_input_review", "N/m"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("nonlinear_support_active_set_iteration_count", "count"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("nonlinear_support_active_set_converged_flag", "boolean"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("nonlinear_support_active_set_state_code", "state_code"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("linear_solver_mode_basis", "mode_code"),
-            None
-        );
-        // The N*m free-DOF work residual is an energy quantity: never a moment.
-        assert_eq!(
-            mapped_family_dimension("nonlinear_support_free_dof_work_residual", "N*m"),
-            None
-        );
-        assert_eq!(
-            mapped_family_dimension("nonlinear_support_observed_max_translation_delta", "mm"),
-            None
-        );
-        // The table is unit-exact: an unexpected unit never inherits a mapping.
-        assert_eq!(
-            mapped_family_dimension("element_local_axial_force", "kN"),
-            None
-        );
-    }
-
-    #[test]
-    fn nonlinear_bearing_solve_attaches_validated_envelope_with_context() {
-        let output = run_preview_in_memory(request(), nonlinear_bearing_preview_request());
-        let mechanics = output.mechanics_envelope.as_ref().expect("solve envelope");
-        assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
-        // Clean success path: document attached, no runner diagnostics, so
-        // exit codes and serialized CLI output are unchanged.
-        assert!(output.runner_result.diagnostics.is_empty());
-        assert_eq!(output.runner_result.job.state, JobStateKind::Completed);
-        let document = output
-            .result_envelope_document
-            .as_ref()
-            .expect("completed solve attaches the envelope document");
-
-        // Exact wrapper shape and envelope-id binding.
-        assert_eq!(document["deliverable_id"].as_str(), Some("DEL-08-04"));
-        let envelope = envelope_object(document);
-        assert_eq!(
-            envelope["envelope_id"].as_str(),
-            Some(
-                output
-                    .runner_result
-                    .result_envelope_ref
-                    .envelope_ref
-                    .ref_id
-                    .as_str()
-            )
-        );
-
-        // Solver-version block: product-physics identity plus the
-        // nonlinear-integration component identity, crate-constant-derived.
-        let solver_version = &envelope["solver_version"];
-        assert_eq!(
-            solver_version["solver_name"].as_str(),
-            Some(solver_component_name())
-        );
-        assert_eq!(
-            solver_version["solver_version"].as_str(),
-            Some(solver_component_version())
-        );
-        let context = nonlinear_assembled_loop_context();
-        let build_ref = solver_version["solver_build_ref"]
-            .as_str()
-            .expect("build ref");
-        assert!(build_ref.contains(&format!(
-            "nonlinear_component={}@{}",
-            context.component_name, context.component_version
-        )));
-
-        // Assumption/limitation context rows ride as non-blocking
-        // diagnostics with provenance naming the source crate.
-        let assumptions = diagnostics_with_code(document, NONLINEAR_LOOP_ASSUMPTION_CODE);
-        let limitations = diagnostics_with_code(document, NONLINEAR_LOOP_LIMITATION_CODE);
-        assert_eq!(assumptions.len(), context.assumptions.len());
-        assert_eq!(limitations.len(), context.limitations.len());
-        for diagnostic in assumptions.iter().chain(limitations.iter()) {
-            assert_ne!(diagnostic["severity"].as_str(), Some("blocking"));
-            assert_eq!(
-                diagnostic["provenance"]["source_name"].as_str(),
-                Some(context.component_name)
-            );
-        }
-        assert_eq!(
-            assumptions[0]["message"].as_str(),
-            Some(context.assumptions[0].as_str())
-        );
-
-        // Bounded coverage with per-row disclosure: every mechanics result
-        // row is either exported or disclosed — never silently dropped.
-        let values = envelope["result_sets"][0]["values"]
-            .as_array()
-            .expect("mechanics result set carries values");
-        let disclosures = diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE);
-        assert_eq!(values.len() + disclosures.len(), mechanics.results.len());
-        assert!(!values.is_empty());
-        assert!(!disclosures.is_empty());
-        for disclosure in &disclosures {
-            assert_eq!(disclosure["severity"].as_str(), Some("info"));
-        }
-
-        // Straight-pipe element rows export with their metadata; the
-        // stiffness review echo is disclosed by id/kind/unit, not exported.
-        assert!(values.iter().any(|value| {
-            value["result_id"].as_str().is_some_and(|id| {
-                id.contains("element_local_axial_force")
-                    || id.contains(":axial-force")
-                    || id.contains("axial")
-            }) && value["family"].as_str() == Some("force")
-                && value["metadata"].is_object()
-        }));
-        let stiffness_row_id = "result:component-stiffness:component-C-150:axial";
-        assert!(!values
-            .iter()
-            .any(|value| value["result_id"].as_str() == Some(stiffness_row_id)));
-        assert!(disclosures.iter().any(|disclosure| {
-            disclosure["affected_object"]["ref_id"].as_str() == Some(stiffness_row_id)
-                && disclosure["message"]
-                    .as_str()
-                    .is_some_and(|message| message.contains("N/m"))
-        }));
-        // Nonlinear evidence scalars are disclosed, not exported.
-        assert!(disclosures.iter().any(|disclosure| {
-            disclosure["message"].as_str().is_some_and(|message| {
-                message.contains("nonlinear_support_active_set_iteration_count")
-            })
-        }));
-
-        // Both validators are clean on the attached document.
-        let payload_validation =
-            validate_result_with_optional_envelope_payload(&output.runner_result, Some(document));
-        assert!(
-            !payload_validation.has_blocking_diagnostics(),
-            "{payload_validation:?}"
-        );
-        let result_validation = validate_result(&output.runner_result);
-        assert!(
-            !result_validation.has_blocking_diagnostics(),
-            "{result_validation:?}"
-        );
-    }
-
-    #[test]
-    fn linear_only_solve_attaches_envelope_without_nonlinear_context() {
-        let output = run_preview_in_memory(request(), linear_only_preview_request());
-        let mechanics = output.mechanics_envelope.as_ref().expect("solve envelope");
-        assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
-        assert!(output.runner_result.diagnostics.is_empty());
-        let document = output
-            .result_envelope_document
-            .as_ref()
-            .expect("linear-only solve attaches the envelope document");
-
-        // No false nonlinear context: no assumption/limitation rows and no
-        // nonlinear component identity in the build reference.
-        assert!(diagnostics_with_code(document, NONLINEAR_LOOP_ASSUMPTION_CODE).is_empty());
-        assert!(diagnostics_with_code(document, NONLINEAR_LOOP_LIMITATION_CODE).is_empty());
-        let build_ref = envelope_object(document)["solver_version"]["solver_build_ref"]
-            .as_str()
-            .expect("build ref");
-        assert!(!build_ref.contains("nonlinear_component="));
-
-        // Disclosure still applies to out-of-vocabulary linear rows (for
-        // example the solver-mode basis row) without any exit-code effect.
-        let disclosures = diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE);
-        assert!(disclosures.iter().any(|disclosure| {
-            disclosure["message"]
-                .as_str()
-                .is_some_and(|message| message.contains("linear_solver_mode_basis"))
-        }));
-        let values = envelope_object(document)["result_sets"][0]["values"]
-            .as_array()
-            .expect("values");
-        assert_eq!(values.len() + disclosures.len(), mechanics.results.len());
-    }
-
-    #[test]
-    fn straight_station_library_document_metadata_uses_canonical_schema_categories() {
-        // Test the real library-only canonical document, not the preview DTO or
-        // CLI serialization (which deliberately omits this document).
-        let schema: Value =
-            serde_json::from_str(include_str!("../../../../schemas/results.schema.yaml"))
-                .expect("canonical schema uses strict JSON syntax");
-        let definition = &schema["$defs"]["ResultMetadata"];
-        let required = definition["required"].as_array().unwrap();
-        let properties = definition["properties"].as_object().unwrap();
-        assert_eq!(definition["additionalProperties"], false);
-        let mut zero_pressure = linear_only_preview_request();
-        for case in &mut zero_pressure.model.load_cases {
-            for load in &mut case.primitive_loads {
-                if load.dimension == "pressure" {
-                    load.magnitude.value = 0.0;
-                }
-            }
-        }
-        for (label, preview) in [
-            ("linear", linear_only_preview_request()),
-            ("nonlinear", nonlinear_bearing_preview_request()),
-            ("zero_pressure", zero_pressure),
-        ] {
-            let output = run_preview_in_memory(request(), preview);
-            let mechanics = output.mechanics_envelope.as_ref().expect("mechanics");
-            assert_eq!(mechanics.status.mechanics, "MECHANICS_SOLVED");
-            let document = output
-                .result_envelope_document
-                .as_ref()
-                .expect("actual canonical document");
-            let values = envelope_object(document)["result_sets"][0]["values"]
-                .as_array()
-                .unwrap();
-            let mut primitive_components = std::collections::BTreeSet::new();
-            let mut combinations = 0;
-            for row in &mechanics.results {
-                let Some(metadata) = &row.metadata else {
-                    continue;
-                };
-                if !matches!(
-                    metadata.location.as_str(),
-                    "quarter_1" | "midspan" | "quarter_3"
-                ) || !matches!(
-                    metadata.coordinate_system.as_str(),
-                    "element_local" | "pipe_section"
-                ) {
-                    continue;
-                }
-                let canonical = values
-                    .iter()
-                    .find(|value| value["result_id"].as_str() == Some(row.id.as_str()));
-                let preview_metadata = serde_json::to_value(metadata).unwrap();
-                let actual_metadata = if let Some(canonical) = canonical {
-                    &canonical["metadata"]
-                } else {
-                    // Existing export mapping omits longitudinal pressure stress.
-                    // Preserve and test its explicit disclosure; do not invent a
-                    // mapping to make this bounded metadata test pass.
-                    assert_eq!(row.kind, "pipe_section_pressure_longitudinal_stress");
-                    assert!(mapped_family_dimension(&row.kind, &row.unit).is_none());
-                    assert!(
-                        diagnostics_with_code(document, VOCABULARY_BOUNDARY_DISCLOSURE_CODE)
-                            .iter()
-                            .any(|diagnostic| {
-                                diagnostic["message"].as_str().is_some_and(|message| {
-                                    message.contains(&format!("id={} ", row.id))
-                                })
-                            })
-                    );
-                    &preview_metadata
-                };
-                let actual = actual_metadata
-                    .as_object()
-                    .expect("station metadata object");
-                for key in required {
-                    let key = key.as_str().unwrap();
-                    assert!(
-                        actual
-                            .get(key)
-                            .and_then(Value::as_str)
-                            .is_some_and(|value| !value.is_empty()),
-                        "{} missing {key}",
-                        row.id
-                    );
-                }
-                for (key, value) in actual {
-                    let rule = properties
-                        .get(key)
-                        .unwrap_or_else(|| panic!("unexpected metadata key {key}"));
-                    assert!(value.is_string(), "{}: {key} must be a string", row.id);
-                    if let Some(allowed) = rule.get("enum") {
-                        assert!(
-                            allowed.as_array().unwrap().contains(value),
-                            "{}: {key}={value} is outside canonical schema",
-                            row.id
-                        );
-                    }
-                }
-                if row
-                    .basis_ref
-                    .as_ref()
-                    .is_some_and(|basis| basis.ref_type == "combination")
-                {
-                    combinations += 1;
-                    assert_eq!(actual["basis"], "explicit_user_linear_combination");
-                    assert!(actual["sign_convention"]
-                        .as_str()
-                        .unwrap()
-                        .contains("explicit user linear combination"));
-                } else {
-                    primitive_components.insert(metadata.component.as_str());
-                    let convention = actual["sign_convention"].as_str().unwrap();
-                    match row.kind.as_str() {
-                        "pipe_section_pressure_hoop_stress" => {
-                            assert_eq!(actual["component"], "pressure_hoop_stress");
-                            assert_eq!(actual["coordinate_system"], "pipe_section");
-                            assert_eq!(
-                                actual["basis"],
-                                "recovered_from_open_mechanics_stress_components"
-                            );
-                            assert_eq!(
-                                convention,
-                                "positive pressure membrane hoop stress follows the explicit pipe pressure basis at this station"
-                            );
-                            assert!(!convention.contains("section action"));
-                        }
-                        "pipe_section_pressure_longitudinal_stress" => {
-                            assert_eq!(actual["component"], "pressure_longitudinal_stress");
-                            assert_eq!(actual["coordinate_system"], "pipe_section");
-                            assert_eq!(
-                                actual["basis"],
-                                "recovered_from_open_mechanics_stress_components"
-                            );
-                            assert_eq!(
-                                convention,
-                                "positive pressure membrane longitudinal stress follows the explicit pipe pressure basis at this station"
-                            );
-                            assert!(!convention.contains("section action"));
-                        }
-                        _ => {
-                            assert_eq!(actual["coordinate_system"], "element_local");
-                            let stress = row.kind.contains("stress");
-                            assert_eq!(
-                                actual["basis"],
-                                if stress {
-                                    "recovered_from_open_mechanics_stress_components"
-                                } else {
-                                    "recovered_from_local_element_stiffness"
-                                }
-                            );
-                            for detail in [
-                                "j-side section action",
-                                "element-local frame",
-                                "section equilibrium",
-                                "stiffness-recovered end actions",
-                                "consistent distributed-load fixed-end correction",
-                            ] {
-                                assert!(
-                                    convention.contains(detail),
-                                    "{} lacks {detail}: {convention}",
-                                    row.id
-                                );
-                            }
-                            assert!(!convention.contains("interpolated"));
-                        }
-                    }
-                }
-            }
-            for component in [
-                "axial_force",
-                "shear_force_y",
-                "shear_force_z",
-                "torsional_moment",
-                "bending_moment_y",
-                "bending_moment_z",
-                "axial_normal_stress",
-                "bending_normal_stress_y",
-                "bending_normal_stress_z",
-                "torsional_shear_stress",
-                "pressure_hoop_stress",
-            ] {
-                assert!(
-                    primitive_components.contains(component),
-                    "missing exercised family {component}"
-                );
-            }
-            if label == "zero_pressure" {
-                assert!(primitive_components.contains("pressure_longitudinal_stress"));
-            } else {
-                assert!(!primitive_components.contains("pressure_longitudinal_stress"));
-            }
-            assert!(combinations > 0);
-            // Optional test-only evidence export. Normal tests write nothing;
-            // the audit invocation supplies its explicitly bounded artifact dir.
-            if let Some(directory) = std::env::var_os("PIPING_P5_SCHEMA_WITNESS_DIR") {
-                let path = std::path::PathBuf::from(directory)
-                    .join(format!("{label}_canonical_document.json"));
-                std::fs::write(path, serde_json::to_vec_pretty(document).unwrap())
-                    .expect("write requested canonical evidence");
-            }
-        }
-    }
-
-    #[test]
-    fn preview_runner_output_serialization_excludes_envelope_document() {
-        let output = run_preview_in_memory(request(), nonlinear_bearing_preview_request());
-        assert!(output.result_envelope_document.is_some());
-        let serialized = serde_json::to_value(&output).expect("output serializes");
-        let object = serialized
-            .as_object()
-            .expect("output serializes to an object");
-        // Library-only surface: the document never reaches any serialized
-        // output (headless_preview_runner witness stdout, CliOutput).
-        assert!(!object.contains_key("result_envelope_document"));
-        assert!(object.contains_key("runner_result"));
-        assert!(object.contains_key("mechanics_envelope"));
-    }
-
-    #[test]
-    fn structural_failure_appends_blocking_runner_diagnostic() {
-        let request = request();
-        let output = run_preview_in_memory(request.clone(), nonlinear_bearing_preview_request());
-        let mechanics = output.mechanics_envelope.expect("solve envelope");
-        let mut doctored = output.runner_result.clone();
-        doctored.result_envelope_ref.envelope_ref.ref_id =
-            "result-envelope:wrong-reference".to_string();
-
-        let attached = crate::attach_result_envelope_document(&request, &mut doctored, &mechanics);
-
-        assert!(attached.is_none());
-        assert!(doctored.diagnostics.iter().any(|diagnostic| {
-            diagnostic.code == RESULT_ENVELOPE_PRODUCTION_FAILED_CODE
-                && diagnostic.severity == crate::DiagnosticSeverity::Blocking
-        }));
-    }
-
-    #[test]
-    fn producer_rejects_missing_envelope_checksum_structurally() {
-        let request = request();
-        let output = run_preview_in_memory(request.clone(), nonlinear_bearing_preview_request());
-        let mechanics = output.mechanics_envelope.expect("solve envelope");
-        let mut doctored = output.runner_result.clone();
-        doctored
-            .checksums
-            .retain(|checksum| checksum.payload_ref.ref_type != "result_envelope");
-
-        let produced = build_result_export_document(&request, &doctored, &mechanics);
-
-        let error = produced.expect_err("missing envelope checksum is structural");
-        assert_eq!(error.code, RESULT_ENVELOPE_PRODUCTION_FAILED_CODE);
-        assert_eq!(error.severity, crate::DiagnosticSeverity::Blocking);
-    }
-
-    #[test]
-    fn model_incomplete_solve_attaches_nothing_and_adds_no_diagnostics() {
-        let mut model: Value = serde_json::from_str(PREVIEW_MODEL_FIXTURE)
-            .expect("invented preview model fixture should parse");
-        model["schema_version"] = Value::String(String::new());
-        let preview_request = LinearStaticPreviewRequest {
-            model: serde_json::from_value(model).expect("model still deserializes"),
-            materials: Vec::new(),
-        };
-
-        let output = run_preview_in_memory(request(), preview_request);
-        let mechanics = output
-            .mechanics_envelope
-            .as_ref()
-            .expect("blocked envelope");
-        assert_ne!(mechanics.status.mechanics, "MECHANICS_SOLVED");
-        // Not a completed solve product: no envelope document, and the
-        // pre-existing not-clean signaling is preserved without any new
-        // runner diagnostic (byte-stable behavior for incomplete solves).
-        assert!(output.result_envelope_document.is_none());
-        assert!(output.runner_result.diagnostics.is_empty());
-        let validation = validate_result(&output.runner_result);
-        assert!(validation.has_blocking_diagnostics());
-    }
+ const PREVIEW_MODEL_FIXTURE:&str=include_str!("../../../../fixtures/product_preview/invented_preview_model.json");
+ fn cases()->Value{serde_json::from_str(include_str!("../../../../fixtures/results/invented/result_export_v0_2.json")).unwrap()}
+ #[test] fn qualified_actual_solved_documents_match_explicit_library_and_bind_model_identity(){
+   for case in cases()["producer_cases"].as_array().unwrap(){
+     let output=run_preview_model_value(request(),serde_json::json!({"model":case["model"],"materials":[]})).unwrap();
+     let mechanics=output.mechanics_envelope.as_ref().unwrap();
+     assert_eq!(mechanics.status.mechanics,case["expected_status"].as_str().unwrap(),"{}",case["case_id"]);
+     if mechanics.status.mechanics!="MECHANICS_SOLVED"{
+       assert!(output.result_envelope_document.is_none());assert!(output.qualified_preview_evidence.is_none());
+       assert!(build_result_export_document(&request(),&output.runner_result,mechanics).is_err());
+       if case["case_id"]=="gap-chain-five-active"{assert!(mechanics.diagnostics.iter().any(|d|d.code=="NONLINEAR_SUPPORT_NONCONVERGENCE"));assert!(mechanics.results.is_empty());}
+       continue;
+     }
+     let doc=output.result_envelope_document.as_ref().unwrap_or_else(||panic!("{} {:?}",case["case_id"],output.canonical_export_unavailability));
+     let proof=output.qualified_preview_evidence.as_ref().unwrap();
+     let explicit=build_result_export_document_with_evidence(&request(),&output.runner_result,mechanics,proof).unwrap();assert_eq!(doc,&explicit);
+     assert_eq!(doc["result_envelope"]["model_ref"]["ref_id"],case["model"]["project"]["id"]);
+     assert!(doc["result_envelope"]["reproducibility"]["source_origin_bindings"][0]["request_alias_disclosure"].is_string());
+     assert_eq!(doc["result_envelope"]["row_accounting"].as_array().unwrap().len(),mechanics.results.len());
+     export::derivative::validate_document(doc,&serde_json::to_value(mechanics).unwrap()).unwrap();
+     let mut altered_runner=output.runner_result.clone();altered_runner.checksums[0].algorithm="forged".into();assert!(build_result_export_document_with_evidence(&request(),&altered_runner,mechanics,proof).is_err());
+     let mut changed=mechanics.clone();changed.results[0].value+=1.0;assert!(build_result_export_document_with_evidence(&request(),&output.runner_result,&changed,proof).is_err());
+     let mut fake=proof.clone();fake.solve_payload["model"]["unknown_authored_metadata"]=serde_json::json!("same-id-substitution");assert!(build_result_export_document_with_evidence(&request(),&output.runner_result,mechanics,&fake).is_err());
+     let serialized=serde_json::to_value(&output).unwrap();assert!(serialized.get("result_envelope_document").is_none());assert!(serialized.get("qualified_preview_evidence").is_none());assert!(serialized.get("canonical_export_unavailability").is_none());
+   }
+ }
+ #[test]fn typed_legacy_caller_has_explicit_canonical_unavailability_without_raw_changes(){
+   let model:Value=serde_json::from_str(PREVIEW_MODEL_FIXTURE).unwrap();let typed:LinearStaticPreviewRequest=serde_json::from_value(serde_json::json!({"model":model,"materials":[]})).unwrap();let output=run_preview_in_memory(request(),typed);assert_eq!(output.runner_result.job.state,JobStateKind::Completed);assert!(output.runner_result.diagnostics.is_empty());assert!(output.result_envelope_document.is_none());assert_eq!(output.canonical_export_unavailability.as_deref(),Some("EXACT_SOLVED_MODEL_EVIDENCE_UNAVAILABLE"));
+ }
 }

@@ -1,0 +1,24 @@
+{
+  "status": "ACCEPTED_FOR_CLEAN_REGISTERED_SWEEP_AND_NATIVE_VERIFICATION",
+  "base": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "source_manifest_sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+  "review_return_sha256": "c96b89eac4086df8e53bd1a6ef818e5c095218fe0e861eb11be0b9650cd6c28c",
+  "review_manifest_sha256": "79a3ac78ed81f3be900e0fd6d00e26b1a705bc1fd09063b4db1fd2617eed1a96",
+  "root_review": "Full return read and every review manifest entry hash checked.100percent36source/all1718candidate coverage calibrated for data and binary artifacts. No actionable findings.",
+  "preserved_failures": {
+    "stress_neutral_preview_schema": 911,
+    "legacy_current_admission": 9,
+    "scope": "Unchanged existing noncanonical preview failures and legacy admission restrictions remain open; bounded introduced/activated issues repaired. Neither passed nor waived."
+  },
+  "cross_manager_acceptance": "Canonical nonphysical semantics agree with accepted engineering unavailable disclosures and prototype discrete non-governing displays. Engineering111exact checks and six-layout UI evidence remain accepted design-only snapshots.",
+  "gates_open": [
+    "Full clean DEC025",
+    "Fresh actual native file-backed and GUI witness",
+    "Actual additive closeout review",
+    "Affected local and hostedCI",
+    "Scoped PR merge"
+  ],
+  "no_formal_promotions": true,
+  "upstream_revalidated": "origin/main remains12f5; original Step0 basis8f27 and ParentReceipt139 unchanged",
+  "minor_preparation_probe": "One shell glob ACTIVATION* failed because no matching file; replaced with rg file inventory, no source effect."
+}

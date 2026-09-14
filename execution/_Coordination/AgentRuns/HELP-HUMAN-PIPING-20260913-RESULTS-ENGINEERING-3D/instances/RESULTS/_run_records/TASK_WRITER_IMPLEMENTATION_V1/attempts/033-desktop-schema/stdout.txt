@@ -1,0 +1,2 @@
+current-absent.document.json errors 1
+current-enriched.document.json errors 1

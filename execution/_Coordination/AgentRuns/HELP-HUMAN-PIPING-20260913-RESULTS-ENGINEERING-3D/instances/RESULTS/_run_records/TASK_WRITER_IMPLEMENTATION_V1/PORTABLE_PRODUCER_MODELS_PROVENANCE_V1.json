@@ -1,0 +1,37 @@
+[
+  {
+    "case_id": "straight-full",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/straight-full.model.json",
+    "sha256": "8e1798ecbc1b2ddbf24a7b364718c8aad77a42b195798925f61e6f5e72d74de5"
+  },
+  {
+    "case_id": "curved-tip-weight-full",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/curved-tip-weight-full.model.json",
+    "sha256": "118b6a8512503906772f477d673a60de80b783f201ef1fa0224a110a7a3a7290"
+  },
+  {
+    "case_id": "curved-pressure-full",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/curved-pressure-full.model.json",
+    "sha256": "375f9fe0895441be1d9a7b546af82b7e899d6ff41d2c329f3b352867e75c2c39"
+  },
+  {
+    "case_id": "blocked",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/baseline_outputs_v1/blocked.model.json",
+    "sha256": "b72a2a3a1f50acb8effc1cd39f8c1e758132e6b632dce325ed2f00fd9b2e9263"
+  },
+  {
+    "case_id": "gap-chain-five-active",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs_attempt_02/gap-chain-five-active.model.json",
+    "sha256": "220d5fb0a311c7aa01f067e63520b714a43529b0511f2496fae817de9a9f1bfc"
+  },
+  {
+    "case_id": "gap-chain-two-active-control",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs_attempt_02/gap-chain-two-active-control.model.json",
+    "sha256": "2dce3bbcc576dbd89c43482d37b52a13bafcb33315f5d2d58b55fabe9968e350"
+  },
+  {
+    "case_id": "gap-chain-five-inactive-control",
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs_attempt_02/gap-chain-five-inactive-control.model.json",
+    "sha256": "c865ec5517a8cd36b758d007a5af20636e71083f49be84458fa7ac0071b2a2f0"
+  }
+]

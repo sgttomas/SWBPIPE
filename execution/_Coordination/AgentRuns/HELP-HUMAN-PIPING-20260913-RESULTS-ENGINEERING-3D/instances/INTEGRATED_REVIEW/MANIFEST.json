@@ -1,0 +1,31 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "base": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "source_inventory_sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+  "candidate_inventory_sha256": "428b19f0f6e74355a61678f62c1c95bccfcfaf8c796ef39e72abebfe05a0bbeb",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "CONTEXT_AND_ADDITIVE_REVIEW_V1.json",
+      "sha256": "f9bee14cb2afec5ffc17fc570bd554c49241d9a70b47a1638341f77517a59fcf",
+      "bytes": 8205
+    },
+    {
+      "path": "COVERAGE_V1.json",
+      "sha256": "f3b6d57e6abda8b26aa00309955fcd8ec4ece9a6ece78b1d1f3b4e3736d35e1b",
+      "bytes": 831813
+    },
+    {
+      "path": "GENERATED_DATA_REVIEW_V1.json",
+      "sha256": "6a430f574a64629549e156768e6e5b365622a1eb3c87d2e7049a6ebeacba0229",
+      "bytes": 52145
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "c96b89eac4086df8e53bd1a6ef818e5c095218fe0e861eb11be0b9650cd6c28c",
+      "bytes": 7288
+    }
+  ],
+  "self_hash_scope": "Manifest excludes itself; parent records its hash.",
+  "handoff": "Frozen candidate plus enumerated native/gate preparation reviewed. Root owns sweep/native and later additive closeout review."
+}

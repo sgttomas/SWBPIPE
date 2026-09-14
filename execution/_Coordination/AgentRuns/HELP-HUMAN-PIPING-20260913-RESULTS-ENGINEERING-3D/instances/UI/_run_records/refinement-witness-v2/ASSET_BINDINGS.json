@@ -1,0 +1,15 @@
+{
+  "pre": {
+    "index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "workspace.js": "d4b76578959dac477597758553bc4054088674584f7a06a4cb9214d513ddd3b7",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+  },
+  "post": {
+    "index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "workspace.js": "d4b76578959dac477597758553bc4054088674584f7a06a4cb9214d513ddd3b7",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2"
+  },
+  "unchanged": true
+}

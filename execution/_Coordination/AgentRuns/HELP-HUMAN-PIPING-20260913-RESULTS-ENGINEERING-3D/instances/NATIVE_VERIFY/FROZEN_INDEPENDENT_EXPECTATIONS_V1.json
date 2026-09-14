@@ -1,0 +1,135 @@
+{
+  "status": "FROZEN_PRE_ADAPTER_STATIC_EXPECTATIONS; no runtime verdict",
+  "basis": "independent Euler-Bernoulli hollow circular cantilever algebra using sealed synthetic dimensions, not extracted corpus equations",
+  "inputs": {
+    "L_m": 3.2,
+    "root_global_position_m": [
+      0,
+      2.4,
+      0
+    ],
+    "tip_global_position_m": [
+      3.2,
+      2.4,
+      0
+    ],
+    "OD_m": 0.168,
+    "wall_m": 0.007,
+    "E_Pa": 200000000000,
+    "G_Pa": 77000000000,
+    "direction": "global_y positive",
+    "local_x": "global X",
+    "local_y": "global Z",
+    "local_z": "negative global Y",
+    "root_restraints": [
+      "UX",
+      "UY",
+      "UZ",
+      "RX",
+      "RY",
+      "RZ"
+    ],
+    "single_case": "load:WF",
+    "provenance": "invented_synthetic_workflow_input"
+  },
+  "I_m4": 1.1493591335983794e-05,
+  "formulae": {
+    "I": "pi*(OD^4-(OD-2*t)^4)/64",
+    "tip_Uy_mm": "F*L^3/(3*E*I)*1000",
+    "tip_Rz_rad": "F*L^2/(2*E*I)",
+    "root_global_Ry_N": "-F",
+    "root_global_Mz_Nm": "-F*L"
+  },
+  "publication_absolute_allowance_declared_units": 5.001e-07,
+  "identity_allowance": "exact equality",
+  "values": {
+    "350N": [
+      {
+        "source_row_id": "result:disp:node-WF-TIP:uy",
+        "expected": 1.663071716046058,
+        "unit": "mm",
+        "dimension": "length"
+      },
+      {
+        "source_row_id": "result:disp:node-WF-TIP:rz",
+        "expected": 0.0007795648668965897,
+        "unit": "rad",
+        "dimension": "angle"
+      },
+      {
+        "source_row_id": "result:reaction:support-WF-ROOT",
+        "expected": 350,
+        "unit": "N",
+        "dimension": "force",
+        "boundary": "direct support resultant only"
+      },
+      {
+        "source_row_id": "result:force:pipe-WF:shear-z",
+        "expected": 350,
+        "unit": "N",
+        "dimension": "force",
+        "frame": "element_local",
+        "location": "end_i"
+      },
+      {
+        "source_row_id": "result:moment:pipe-WF:bending-y",
+        "expected": -1120.0,
+        "unit": "N*m",
+        "dimension": "moment",
+        "frame": "element_local",
+        "location": "end_i"
+      }
+    ],
+    "500N": [
+      {
+        "source_row_id": "result:disp:node-WF-TIP:uy",
+        "expected": 2.375816737208654,
+        "unit": "mm",
+        "dimension": "length"
+      },
+      {
+        "source_row_id": "result:disp:node-WF-TIP:rz",
+        "expected": 0.0011136640955665567,
+        "unit": "rad",
+        "dimension": "angle"
+      },
+      {
+        "source_row_id": "result:reaction:support-WF-ROOT",
+        "expected": 500,
+        "unit": "N",
+        "dimension": "force",
+        "boundary": "direct support resultant only"
+      },
+      {
+        "source_row_id": "result:force:pipe-WF:shear-z",
+        "expected": 500,
+        "unit": "N",
+        "dimension": "force",
+        "frame": "element_local",
+        "location": "end_i"
+      },
+      {
+        "source_row_id": "result:moment:pipe-WF:bending-y",
+        "expected": -1600.0,
+        "unit": "N*m",
+        "dimension": "moment",
+        "frame": "element_local",
+        "location": "end_i"
+      }
+    ]
+  },
+  "hash_rules": [
+    "Freeze actual authored model raw bytes and qualified model-content digest before each native solve and adapter.",
+    "Undo350 equals authored350 exactly; Redo500 and equivalent reviewed typed agent intent equal human500 exactly.",
+    "Do not compare metadata-distinct fresh GUI documents to embedded fixture hashes.",
+    "Model-content, raw request, raw received mechanics, legacy dimension-enriched and new derivative scopes remain distinct.",
+    "Unavailable original producer bytes remain unavailable; never reconstruct them as an original-byte witness."
+  ],
+  "semantic_assertions": [
+    "Rotations remain rad/angle and never ratio.",
+    "Only true ratio rows may enter ratio governing behavior.",
+    "Mode/count/state/flag evidence is distinctly typed or individually disclosed, not a physical solved quantity.",
+    "Free-DOF work residual is diagnostic N*m and current displays never call it moment or ratio.",
+    "Every actual received row is exported preserving original value/unit, kind/frame/location/basis or accounted individually in disclosure; unknown contradictory units/components fail safely."
+  ]
+}

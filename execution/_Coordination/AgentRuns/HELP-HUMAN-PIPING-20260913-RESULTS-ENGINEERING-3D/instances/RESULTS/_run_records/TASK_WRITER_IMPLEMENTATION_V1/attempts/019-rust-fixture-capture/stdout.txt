@@ -1,0 +1,9 @@
+
+running 4 tests
+test guarded_serializer_numeric_keys_unicode_negative_zero_and_unsafe_int ... ok
+test integer_values_unknown_disclosures_and_accounting_tamper ... ok
+test all28_raw_annotations_are_exact_and_canonical_projection_is_strict ... ok
+test all60_independent_semantics_metadata_and_missing_cases ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.40s
+

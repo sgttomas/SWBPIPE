@@ -1,0 +1,73 @@
+{
+  "run_id": "run:headless-preview:p5-blocked",
+  "job": {
+    "job_id": "job:p5-blocked",
+    "state": "COMPLETED",
+    "current_step": 3,
+    "total_steps": 3,
+    "cancellation_supported": true,
+    "cancellation_requested": false
+  },
+  "analysis_status": [
+    "HUMAN_REVIEW_REQUIRED",
+    "MODEL_INCOMPLETE",
+    "RULE_INPUTS_INCOMPLETE"
+  ],
+  "result_envelope_ref": {
+    "schema_ref": "schemas/results.schema.yaml",
+    "envelope_ref": {
+      "ref_type": "result_envelope",
+      "ref_id": "result-envelope:run:headless-preview:p5-blocked"
+    },
+    "compatibility": "schema_first_json_result_envelope"
+  },
+  "result_refs": [],
+  "audit_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "audit-manifest:run:headless-preview:p5-blocked"
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "runner_request",
+        "ref_id": "p5-blocked"
+      },
+      "value": "88dd5982531c4570e2a806f1ba393e73e9f6566fc926bbfcf745a56f9f7dd3c6"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:p5-blocked"
+      },
+      "value": "4f29ae3d2cbd06d43c458983eb421a1f62298122d5b19ebd5716c9833cbee70f"
+    }
+  ],
+  "diagnostics": [],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "P5 invented complete-envelope schema witness",
+    "source_location": "instances/P5/schema_witness",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  }
+}

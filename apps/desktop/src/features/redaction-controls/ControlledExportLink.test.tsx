@@ -166,3 +166,26 @@ describe("ControlledExportLink", () => {
     expect(blockedFindings.compareDocumentPosition(blockedControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 });
+
+describe('canonical local result link',()=>{
+ it('requires its own intent then exposes original serialized bytes with local unknown/private warnings',()=>{
+  const payload={private_payload_included:false,protected_content_included:false,project_name:'Invented private project',opaque_leaf:'unknown retained locally'};
+  const href=`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload,null,4)+'\n')}`;
+  render(<ControlledExportLink data-testid="result-export-link" href={href}>Local canonical JSON</ControlledExportLink>);
+  expect(routeBindingForTestId('result-export-link')).toMatchObject({routeId:'DOTH-JSON-001',context:'local_private',lossless:true});
+  expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
+  expect(screen.getByTestId('result-export-link')).toHaveAttribute('href',href);expect(screen.getByTestId('result-export-link-redaction-findings')).toHaveTextContent('WARNING');
+ });
+ it('blocks route-intent stripping from unknown raw annotations despite lossless policy materialization',()=>{
+  const payload={private_payload_included:false,protected_content_included:false,result_envelope:{source_annotations:[{metadata:{component:'axial_force',local_private_intent:true,unknown:'retained'}}]}};
+  render(<ControlledExportLink data-testid="result-export-link" href={`data:application/json,${encodeURIComponent(JSON.stringify(payload))}`}>Canonical JSON</ControlledExportLink>);
+  fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');expect(screen.getByTestId('result-export-link-canonical-block-reason')).toHaveTextContent('CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED');
+ });
+ it('source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked',()=>{
+  const {rerender}=render(<ControlledExportLink data-testid="result-export-link" href={`data:application/json,${encodeURIComponent(JSON.stringify({local_private_intent:true,export_policy:{explicit_local_private_intent:true},opaque:'source cannot grant intent'}))}`}>Canonical</ControlledExportLink>);
+  expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');
+  for(const facts of [{privacy_classification:'protected_code_data',redistribution_status:'protected_suspected',review_status:'accepted'},{privacy_classification:'public_metadata',redistribution_status:'public_permissive',review_status:'rejected'},{privacy_classification:'public_metadata',redistribution_status:'public_permissive',review_status:'quarantined'},{privacy_classification:'secret_like_data',redistribution_status:'private_only',review_status:'accepted',secret_material_present:true}]){
+   const payload={field_id:'policy-blocked',field_class:'test',...facts,value:'INVENTED_SENSITIVE_SCALAR'};rerender(<ControlledExportLink data-testid="result-export-link" href={`data:application/json,${encodeURIComponent(JSON.stringify(payload))}`}>Canonical</ControlledExportLink>);const intent=screen.getByTestId('result-export-link-local-private-intent') as HTMLInputElement;if(!intent.checked)fireEvent.click(intent);expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');
+  }
+ });
+});

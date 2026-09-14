@@ -1,0 +1,39 @@
+{
+  "status": "PROPOSED_ONLY_NO_RUNTIME_LEASE",
+  "route": "Current run_preview_in_memory with product fixed cap4; genuine inputs only, no low-level cap1 substitution",
+  "source_basis": "core/product_physics/src/lib.rs two_node_nonlinear_preview_request and existing NonlinearSupportInput fields; core/solver/nonlinear_integration policy remains unchanged",
+  "candidate_family": "Small connected 5/6-node straight or bending chain, exact existing gap/one_way/lift_off/friction support schemas, source-qualified initial states and declared loads; interacting support states can exceed four iterations",
+  "bounded_probe_grid": {
+    "nodes": [
+      5,
+      6
+    ],
+    "load_directions": [
+      "global_x",
+      "global_y"
+    ],
+    "signed_loads_N": [
+      -1000,
+      -100,
+      100,
+      1000
+    ],
+    "gap_mm": [
+      0,
+      0.01,
+      0.05,
+      0.1
+    ],
+    "initial_states": [
+      "active",
+      "inactive"
+    ],
+    "one_way_sense": [
+      "positive_reaction",
+      "negative_reaction"
+    ]
+  },
+  "selection_contract": "First actual emitted NONLINEAR_SUPPORT_NONCONVERGENCE or LOOP_NOT_CONVERGED with unchanged cap4, source-bound MODEL_INCOMPLETE, transport diagnostics, and no attached canonical solved document; save exact model/request/raw output plus numerical/states. Preserve all other statuses as nonqualifying observations.",
+  "stop_rule": "Do not change physics/policy or fabricate a failed status if bounded grid never qualifies; report remaining witness hold to root.",
+  "future_harness_scope": "new immutable fresh_p5_driver_v2 in own evidence lane, preserving v1 hash/log/output; compiled scratch external root lease only"
+}

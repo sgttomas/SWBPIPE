@@ -1,0 +1,13 @@
+
+> @openpipestress/desktop@0.1.0 test
+> vitest run src/features/result-export/ResultExportPanel.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/redaction-controls/ControlledExportLink.test.tsx
+
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  21:04:11
+   Duration  3.21s (transform 258ms, setup 204ms, import 313ms, tests 4.31s, environment 596ms)
+

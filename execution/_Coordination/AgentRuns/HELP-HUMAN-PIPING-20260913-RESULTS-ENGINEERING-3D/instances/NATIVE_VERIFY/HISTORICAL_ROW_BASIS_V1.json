@@ -1,0 +1,1389 @@
+{
+  "historical_only": true,
+  "not_fresh_native_evidence": true,
+  "original_snapshot_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/FINAL_V2/_run_records/gui-solved350.json",
+  "original_snapshot_sha256": "ef5c744473e302d2e4011caa01813cabeb56443f5996d2449b95bc7d4a8b215b",
+  "exact_raw_received_mechanics_string_sha256": "38ae861abda5e1eb9b1f071a223c517a37b67470bd61498f7ea3bde6060b16ab",
+  "hash_scope": "UTF-8 exact retained SQLite mechanics_result_json carrier string; no canonical label asserted",
+  "rows": [
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "solver:linear_static_preview",
+      "id": "result:solver-mode:linear-solve-basis",
+      "kind": "linear_solver_mode_basis",
+      "metadata": {
+        "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=8; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=1051.469644; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+        "component": "linear_solver_mode",
+        "coordinate_system": "reduced_system",
+        "location": "load:WF",
+        "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+      },
+      "unit": "mode_code",
+      "value": 1,
+      "expected_dimension_semantics": "distinct_mode_evidence_or_disclosure",
+      "row_digest": "134cc48040a492858913dd63fe774f27397e857728fcba694e73884cf01696c6",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "62d3830c0a60daf3ebc42e358ef4babe8cfaec35938be57730343a4443bb0901",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP",
+      "kind": "displacement_magnitude",
+      "unit": "mm",
+      "value": 1.663072,
+      "expected_dimension_semantics": "length",
+      "row_digest": "a7f49b3188ad2ce24f1b9d7a51a83d090ca404ada6f799180fcd285e38ec2787",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "1e3eefb424f40ad54b0b8feda8974d6ad34215f88877da1afff03735f6b632fc",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "345c8a32c5269fa7d319595810fa165a724d7e0b7a3021b8d880dae10d0224b8",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "495d7ff862196ef3668a90c5720f21758cd116e73ac3d45d9255c4d27cb1700d",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "ff21171ea58c8fb9e2c76d4517fc7511658c628e803cea41378043ccdd61df22",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "50f1f56a7e4357da2e81545029c64db7524967365e7b33f8cb011c956e1fd1c9",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-ROOT",
+      "id": "result:disp:node-WF-ROOT:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "eb09fae7a62719a4f1c91daa09751218611ef3296cffd5305c1c8116cb4ee717",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:ux",
+      "kind": "global_nodal_displacement_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "f6e1c072a9d87f31fa2076544ac65f0e292d7eab9378f4fabb144884f86f64e8",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:uy",
+      "kind": "global_nodal_displacement_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 1.663072,
+      "expected_dimension_semantics": "length",
+      "row_digest": "b0f4bf7cca1c87e53ac970fb5f3acf4d391cc114cd04503aac423f710833e0c0",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:uz",
+      "kind": "global_nodal_displacement_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_displacement_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+      },
+      "unit": "mm",
+      "value": 0,
+      "expected_dimension_semantics": "length",
+      "row_digest": "4b30718ca7fa2d43595969c51b1c6cfbc9721df376e619c216bf3e30843b32a9",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:rx",
+      "kind": "global_nodal_rotation_x",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_x",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+      },
+      "unit": "rad",
+      "value": 0,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "4555815d0d7ad68fd2318d58f1506811c4c30a56c75710bf08d4d74fafb100d7",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:ry",
+      "kind": "global_nodal_rotation_y",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_y",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+      },
+      "unit": "rad",
+      "value": 0,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "a157c74c8f7f8413e642de22cbcf73fd715cf3e0067c43376d8c797cbf4d585c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "node:WF-TIP",
+      "id": "result:disp:node-WF-TIP:rz",
+      "kind": "global_nodal_rotation_z",
+      "metadata": {
+        "basis": "solved_from_global_linear_system",
+        "component": "nodal_rotation_z",
+        "coordinate_system": "global",
+        "location": "node",
+        "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+      },
+      "unit": "rad",
+      "value": 0.00078,
+      "expected_dimension_semantics": "angle",
+      "row_digest": "235df4279e735df84bea782851a40a11d0399594a4fefb6ec421ff4cd5d5e4d7",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "support:WF-ROOT",
+      "id": "result:reaction:support-WF-ROOT",
+      "kind": "reaction_resultant",
+      "unit": "N",
+      "value": 350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "ab112b435693fc22a29e98fc080a6252864e0e33d691a23529e5aa446928b0c4",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "a98b5ab78fc5869e0799f899758ff01edf80671bcd4e469bc2f359c387426d24",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:axial:end-j",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "5839bb70fb58d1ef5e732218ad208b90fee7aa268aac19fad32a0a6dc22aaab2",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "afd74163d5d875aa16fc064e6900c597fcf6765bc4c3af10930abff12fc74983",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:shear-y:end-j",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "c07e9b19e3ce229da1dffe5acf2d9109b30311be17a1fb3cb0233e5ca554b05c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N",
+      "value": 350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "a50632f9b08876a3ca12b7953437b14ab7d0787c653221f3ea972db05bd9ecf2",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:shear-z:end-j",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N",
+      "value": -350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "2036204863078474ec1ede5a7eb8f39364f2a7f7a199a34299e30add3fd17469",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "c3286b317a436418a2eb2951b109bf8c16e2b37affc3a626f943cc2a00aa0b3b",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:torsion:end-j",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "47f79888e5cf6fe3426562320a90ca29390a2f3f2c092030f290d0519d15dbea",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": -1120,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "e9fa75adcce8e6044d63126e1a0716c8ddcfca5db6714ba86c865cc09e39c196",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:bending-y:end-j",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "3f1480ab35027bc25144b0d5cb4fe739bec189317261240bb23a0edb8bb1c2ca",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "3aeb8023c5b8ca4c810b194913d859cc931e7ebe39976ae201f606265d50096e",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:bending-z:end-j",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "f7de799cf8d0261d34777d9e874afb2b4b92deb3bfe7274005ef2e827417ae35",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-1:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "664be3f7d991763e57bcb7c05ad830d35ec2c5c4a914b96631cc64f797ac4878",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-1:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "9a46d24bb13c5df7199fd08ed515a41ae3596dd32113ae6de8cc4d2f896336e2",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-1:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": -350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "be7660d9567224bfc5409f95fa6c36fb6a5e6330cbd3111683c29d74df0e7ae2",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-1:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "0a5652397c91aa9f074307d4c4fd9f01268b1c5df34627dc7b3de97963380a03",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-1:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 840,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "280c2aebd8b448952de17c3c16a19f53e2cd33aac0f0fe889ef99ce47514e451",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-1:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "0cb55f01bf2aeb96534ade027393031f2fd47ec0fa2986ee81303f763af2aaf3",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:midspan:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "1e0c8045835dfa0f56d7e680437079da55714ce6a48aafdce1ca1605da834d22",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:midspan:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "49a864b075ab560a589a23c194e89002eb4b5a58e3b1e5a0253a43a34a140ade",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:midspan:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": -350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "2a710374e7aefceeb089df6372e21caa997aa42caeffc13356b7fe3029573d8f",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:midspan:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "6925a3ec3bb2a7d9f27e8d6cab0628544d22f2ee1600f18e8018c3d3ade2d4e1",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:midspan:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 560,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "0a37a7476b43d2a4003ecb984ae891277cf2ffde11fe2086fdb1e41e99fff343",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:midspan:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "eb269df8d2752aedd5cb6d60e470c4e707afb93a20adec5a7f60a6ff6281f76a",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-3:axial",
+      "kind": "element_local_axial_force",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_force",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "d51675d939c2f10f4c46574b724dfe7826629587ac1dca0cd44205c01db66c0e",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-3:shear-y",
+      "kind": "element_local_shear_force_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": 0,
+      "expected_dimension_semantics": "force",
+      "row_digest": "409495d833c8c3910b78d8d9e248dae3305211d3f8ce692a7304c55ecb3c974d",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:force:pipe-WF:quarter-3:shear-z",
+      "kind": "element_local_shear_force_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "shear_force_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N",
+      "value": -350,
+      "expected_dimension_semantics": "force",
+      "row_digest": "2a7ede537eaca26773248ddd57ca3ad78126a975ea412d909e7320cafc8d6bf4",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-3:torsion",
+      "kind": "element_local_torsional_moment",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_moment",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "1901dbd1d313285bbd82c7be3ffb906d90c37e0b197d537dfda80238217bbb5e",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-3:bending-y",
+      "kind": "element_local_bending_moment_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 280,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "f851d998856eefe074543311e631b1a4017ee884da55c65f8c74e5eed72d0d73",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:moment:pipe-WF:quarter-3:bending-z",
+      "kind": "element_local_bending_moment_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_moment_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "N*m",
+      "value": 0,
+      "expected_dimension_semantics": "moment",
+      "row_digest": "27eef7de745ad42daa3bc51dbbb0bcdc9063dba7fd73aaceae8674d1340a0a22",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-i:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "85ea6d9d4236e53d97e914328b6ad9f4e2a38e821ceddb42c6b238c5831df75c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-i:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 8.185431,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "9459cf312581181331a8d5c2dda825532225badcf4fb5fdb4f91da3d134da68d",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-i:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "99868271e16de3c16038ff5b707f5c6ca2018313708f754ccd77a19090dc9478",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-i:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_i",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "64b313e77d157143b1956e16be026b85445304384c28c6385356a81f189f8580",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-j:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "58d1d533da55cb921a00305316ba9833da78aad53773b029d43aae03b025243a",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-j:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "30d1fa40df159a60fa5d044d5dfa9025e75ac9c3344e44bb49aa1b42b42e46ad",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-j:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "9a1cb6594577eb287d2c79d85f752001f212b60966df50a8efd002720c2d20e6",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:end-j:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_local_element_stiffness",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "end_j",
+        "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "7e5716a4874a7528ef2172ed04154e43bac1c45b092cd0995b0a684b7285b41c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-1:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "a165add790d25cc4ed3304eb61f534d829365356a958aa5840bfcd7108dd5865",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-1:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 6.139073,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "1f7a2c1deee1acb05a5c335f17587863a1c04c033767deebe6535869662b4af5",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-1:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "49e37d69f2abcd64ebed4c6b015cccaefa3e5d94824140a45b703afb7e4a815c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-1:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_1",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "774fa6843c7616db91e61f51648c4f8d16981f56179e7b2510fc923d4d22e250",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:midspan:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "9e64ad76ca5d635939087528339ac373feb7479804e240df281ff321395f9ffd",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:midspan:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 4.092716,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "be342b0e3226971ab704a1160f2c7d3f7029230b85670ebe59aa04dd84ba7beb",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:midspan:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "589a3077e437c96a2dc972fff41fc3e0332faf9b97be45d28977cde80ddcdd8a",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:midspan:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "midspan",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "a1cffb3b97f546c6815f16837f69a4e8063196058385043f5cb04117bfa2d337",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-3:axial-normal",
+      "kind": "element_local_axial_normal_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "axial_normal_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "93a7e9ddcbc9c723372d352c60ecbaa933e28defb6bf81814306abb1ccca4d7e",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-3:bending-normal-y",
+      "kind": "element_local_bending_normal_stress_y",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_y",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 2.046358,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "1cbb83439273a610f115df1fa99aa5fd0ddca835b98fd4975ce9f87c2501eb7c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-3:bending-normal-z",
+      "kind": "element_local_bending_normal_stress_z",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "bending_normal_stress_z",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "22affab48780e73d67be81849bf9be70f8f16aa58dbd925df7d65f6c7b89d5aa",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF:quarter-3:torsional-shear",
+      "kind": "element_local_torsional_shear_stress",
+      "metadata": {
+        "basis": "recovered_from_open_mechanics_stress_components",
+        "component": "torsional_shear_stress",
+        "coordinate_system": "element_local",
+        "location": "quarter_3",
+        "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+      },
+      "unit": "MPa",
+      "value": 0,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "c16897c1d7be35f8bef9aacb24e8bc7070f85d6107815d7adda762ff7dc2820c",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    },
+    {
+      "basis_ref": {
+        "ref_id": "load:WF",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "pipe:WF",
+      "id": "result:stress:pipe-WF",
+      "kind": "open_formula_stress_summary",
+      "unit": "MPa",
+      "value": 8.185431,
+      "expected_dimension_semantics": "stress",
+      "row_digest": "5853f8e42d501b8ee76f5f8705f13a786f82e4fd9a0226b73660f6c429a77a1f",
+      "row_digest_scope": "evidence-only Python sorted compact JSON of parsed historical row; not original producer bytes nor qualified JCS"
+    }
+  ]
+}

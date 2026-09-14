@@ -1,0 +1,226 @@
+{
+  "status": "CHANGES_REQUIRED",
+  "configurations": [
+    {
+      "key": "1024x768-comfortable",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "1024x768-compact",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "1280x800-comfortable",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "1280x800-compact",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "1440x920-comfortable",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    },
+    {
+      "key": "1440x920-compact",
+      "cases": [
+        {
+          "name": "palette-discovery",
+          "status": "PASS"
+        },
+        {
+          "name": "mixed-route-atomic-history",
+          "status": "PASS"
+        },
+        {
+          "name": "operation-guard-stale-busy-cancelled",
+          "status": "PASS"
+        },
+        {
+          "name": "selection-component-support-property",
+          "status": "PASS"
+        },
+        {
+          "name": "current-invalidation-historical-and-named-solve-states",
+          "status": "PASS"
+        },
+        {
+          "name": "view-and-keyboard-dock-preserve-model",
+          "status": "PASS"
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "network": [],
+  "sourceUnchanged": true,
+  "findings": [
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1024x768-comfortable",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    },
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1024x768-compact",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    },
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1280x800-comfortable",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    },
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1280x800-compact",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    },
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1440x920-comfortable",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    },
+    {
+      "id": "UI-W1",
+      "severity": "P2",
+      "key": "1440x920-compact",
+      "summary": "Required non-governing discrete evidence is absent from prototype results; witness cannot exercise count/flag/state/mode classification.",
+      "reproduction": "Run simulated Current; inspect all 7 result rows and source fields; only translation, rotation, force, moment, stress, ratio, diagnostic exist."
+    }
+  ]
+}

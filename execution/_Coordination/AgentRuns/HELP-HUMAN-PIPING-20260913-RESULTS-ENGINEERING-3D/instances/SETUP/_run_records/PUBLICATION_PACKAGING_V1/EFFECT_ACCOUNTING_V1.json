@@ -1,0 +1,16 @@
+{
+  "source_import_files": 1142,
+  "relocated_files": 16,
+  "additional_frozen_results_context": [],
+  "held_additional_integration_cases": [],
+  "original_source_unchanged": true,
+  "no_source_product_writes": true,
+  "no_git_mutation_or_runtime": true,
+  "ignored_paths": [],
+  "snapshot_utc": "2026-09-14T03:25:51.495516+00:00",
+  "reference_risks": [
+    "Root acceptance/manifest/review/native pointers may retain original paths; published readers MUST use explicit locator and original base. Frozen documents intentionally not rewritten.",
+    "Potential current integration controls listed as held require root disposition, never moved speculatively.",
+    "Final staged/committed exhaustive inventory and self-check remain root gates."
+  ]
+}

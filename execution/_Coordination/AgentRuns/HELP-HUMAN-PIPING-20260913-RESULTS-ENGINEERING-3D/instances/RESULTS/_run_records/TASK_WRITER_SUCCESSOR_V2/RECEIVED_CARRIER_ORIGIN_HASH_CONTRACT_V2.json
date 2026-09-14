@@ -1,0 +1,56 @@
+{
+  "status": "CANDIDATE_PRE_EFFECT",
+  "immutable_legacy_freeze": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/IMMUTABLE_LEGACY_BINDER_SOURCE_FREEZE_V1.json",
+    "sha256": "df1bf79b128aa2ff5f8a1dc3a5559dbcea0b6274fb1cba8e2f7ddd7bae662270"
+  },
+  "routes": [
+    {
+      "route": "runPreviewMechanics browser/direct/nativeinvoke",
+      "source": "apps/desktop/src/services/previewService.ts:41-53",
+      "returned_carrier": "immutable bindSourceResultDimensions result",
+      "authentic_producer_available": false,
+      "scope": "received_current_legacy_enriched_carrier"
+    },
+    {
+      "route": "App native background terminal.result",
+      "source": "apps/desktop/src/App.tsx:729-756",
+      "returned_carrier": "received dimension-absent carrier before buildAnalysisRunPreview",
+      "authentic_producer_available": false,
+      "scope": "received_current_dimension_absent_carrier"
+    },
+    {
+      "route": "headless model-aware solve",
+      "source": "existing bounded headless source route proposed private skipped evidence carrier",
+      "returned_carrier": "same solve exact Value + attested original MechanicsEnvelope",
+      "authentic_producer_available": true,
+      "scope": "attested_headless_producer_carrier"
+    }
+  ],
+  "qualification": [
+    "Current manifest exact model/content plus analysisrun and received result linkage required; shape alone never authenticates producer",
+    "all rows absent dimension or every row exact immutable legacy-compatible dimension; mixed/tampered declarations block",
+    "no stripping dimensions, reconstructing producer rows, rehashing stored preview/analysis attachments or guessing source from project id",
+    "missing authentic producer checksum explicit null/unavailable; received carrier checksum always exact supplied carrier",
+    "source/target row pointers resolve payload scopes; target and source identities/value/unit must match exactly",
+    "current native terminal is received carrier despite dimension absence; no origin claim from transport shape"
+  ],
+  "legacy_admission_oracle": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json",
+    "sha256": "4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda"
+  },
+  "admission_totals": {
+    "accepts_with_preserved_legacy_dimension_different_from_new_semantics": 4,
+    "accepts_with_legacy_dimension_equal_new_semantics": 47,
+    "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED": 9
+  },
+  "late_DEL14_decision": "Nine binder-throwing signatures cannot establish Current through existing creation. Preserve wrapper and all seven functions; headless completeness does not close Current-record/native acceptance. Later scoped DEL14 route decision required. Simple existing native lifecycle remains acceptance gate.",
+  "source_model_contract": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/SOURCE_MODEL_QUALIFICATION_CONTRACT_V1.json",
+    "sha256": "2da7873de1a49d390ef8dfb0d10cc5bccf0595c4d6ec1d1f906f56ca0bee17cd"
+  },
+  "model_identity": "exact payload.project.id must equal actual mechanics.model_ref; request.model_ref may alias, disclose separately with separate request digest",
+  "binding": "Only solve route parsing same exact retained Value into typed PreviewModel can mint qualified source evidence; substitutions/mismatch fail, same project id alone fails",
+  "legacy_hashes": "Historical wasm and buildAnalysisRunPreview localeCompare hashes preserve independently; do not assert arbitrary Unicode equivalence",
+  "witness_policy": "received value/unit preserved, no numeric conversion; observed legacy dimension retained even where mathematical semantics/target disagree"
+}

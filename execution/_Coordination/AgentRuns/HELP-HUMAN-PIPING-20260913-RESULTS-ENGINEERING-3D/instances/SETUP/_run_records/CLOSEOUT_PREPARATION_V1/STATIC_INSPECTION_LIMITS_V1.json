@@ -1,0 +1,8 @@
+{
+  "commands_not_run": "No tests, validators, builds, browser/native, network or Git mutation.",
+  "retained_static_lookup_error": {
+    "exit": 2,
+    "command": "rg selected root paths including tools/release/run_evidence_sweep.py",
+    "cause": "Sweep runner is project-relative, not root tools/release. Corrected static lookup projects/chirality-piping/tools/release/run_evidence_sweep.py succeeded. No execution attempted."
+  }
+}

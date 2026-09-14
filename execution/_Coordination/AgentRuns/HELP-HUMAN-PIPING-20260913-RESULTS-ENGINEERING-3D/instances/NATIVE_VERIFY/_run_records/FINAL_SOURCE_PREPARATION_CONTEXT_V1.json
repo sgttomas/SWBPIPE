@@ -1,0 +1,155 @@
+{
+  "parent": "/root",
+  "executor": "/root/native_results_witness",
+  "role": "TASK Type2",
+  "configured_model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "mechanism": "delegated-harness-native",
+  "role_scope": "instruction-asserted",
+  "phase": "static final-source preparation; no lease/runtime",
+  "source_base": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7",
+  "source_freeze_sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+  "all_integrated_source_manifest_paths_match": [
+    "core/reporting/result_export/Cargo.toml",
+    "core/reporting/result_export/src/derivative.rs",
+    "core/reporting/result_export/src/lib.rs",
+    "core/reporting/result_export/src/semantic_contract.rs",
+    "core/reporting/result_export/tests/derivative_contract.rs",
+    "core/runner/headless/src/bin/openpipestress-runner.rs",
+    "core/runner/headless/src/lib.rs",
+    "core/runner/headless/src/result_envelope_binding.rs",
+    "apps/desktop/src/App.tsx",
+    "apps/desktop/src/features/handoff/HandoffPanel.test.tsx",
+    "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+    "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+    "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "apps/desktop/src/features/report/reportPackageRequest.ts",
+    "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+    "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "apps/desktop/src/features/results/ResultsPanel.test.tsx",
+    "apps/desktop/src/features/results/ResultsPanel.tsx",
+    "apps/desktop/src/features/results/resultInterpretation.ts",
+    "apps/desktop/src/features/results/resultSemantics.test.ts",
+    "apps/desktop/src/features/results/resultSemantics.ts",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "fixtures/results/invented/result_export_v0_2.json",
+    "fixtures/results/invented/result_export_v0_2_rejections.json",
+    "fixtures/results/semantic_contract_v0_2.json",
+    "schemas/results.schema.yaml",
+    "schemas/results.v0.1.schema.yaml",
+    "schemas/results.v0.2.schema.yaml",
+    "tests/test_result_export_v0_2.py",
+    "tests/test_results_schema.py"
+  ],
+  "new_read_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FINAL_SOURCE_PREPARATION_V1.md",
+      "sha256": "8f081f85f403e3fa5d7fb3a5aa13339d0039febd4ce53743fd5268716d553199",
+      "bytes": 2687
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_FORMAT_CLARIFICATION_V1.md",
+      "sha256": "945d993444049625c62ea651c920126539b904ae5f6045866b38dcde4ed734f0",
+      "bytes": 1694
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULT_LOCAL_DOWNLOAD_REPAIR_V1.md",
+      "sha256": "cbcb121dddc3d6769fda570fee46f49ca48f72a894b4e1b0f41716d3721321b8",
+      "bytes": 3986
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V1.json",
+      "sha256": "953a05ab4bfb008bc853be6c3ee7b2af3957c77617c8fc95cdae374ef58cd74f",
+      "bytes": 17399
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/SETUP/_run_records/PUBLICATION_PACKAGING_V1/HISTORICAL_ORIGIN_PUBLICATION_LOCATOR_V1.json",
+      "sha256": "857ec78891156946ab024957ccc74b1c17cfb291e474c2b13c929ed8e3ec53b0",
+      "bytes": 16720
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/RETURN_IMPLEMENTATION_V1.md",
+      "sha256": "5b0106e428aaeedb28762e21eeac291c8fb4126b97a43ddf9bdf04208b766742",
+      "bytes": 2986
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/RETURN.md",
+      "sha256": "01c46320ea379ec342138d4abdd4c4e48da1578c34df7028e6d5f006cee036f7",
+      "bytes": 15153
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "bytes": 6587
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "bytes": 28410
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "bytes": 8382
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "bytes": 24506
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "sha256": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "bytes": 8496
+    }
+  ],
+  "historical_locator_sha256": "857ec78891156946ab024957ccc74b1c17cfb291e474c2b13c929ed8e3ec53b0",
+  "relocated_prior_native_origins_byte_exact": [
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTEXT_ORIGINS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTEXT_ORIGINS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTEXT_ORIGINS_V1.json",
+      "sha256": "1f1a471c22d0ca7103ab22e03fc488ff940031d6b9500eb9c6e9c85b9ad43308",
+      "bytes": 19059,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "sha256": "187be88501fd5993e68a08e56aa210d654a04051c89c5122b7200983df599c25",
+      "bytes": 8810,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_COMMAND_STATUS_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_COMMAND_STATUS_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PREPARATION_COMMAND_STATUS_V1.json",
+      "sha256": "086334048cf567219bddded0fa5364bd68be6712ce6596e6bde274a449c3faf1",
+      "bytes": 998,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    },
+    {
+      "historical_lane": "INTEGRATION",
+      "historical_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PROPOSED_RUNTIME_LEASE_V1.json",
+      "old_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PROPOSED_RUNTIME_LEASE_V1.json",
+      "published_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROPOSED_RUNTIME_LEASE_V1.json",
+      "sha256": "24b5fcbf806e8da4ca5122841a18f8c3dbb264813e3a1ecc1a574e9da72f1099",
+      "bytes": 2555,
+      "manifest_resolution": "Resolve original embedded paths against historical lane/package base; use this mapping, not relocated manifest parent, for published lookup."
+    }
+  ],
+  "independent_expectations_unchanged_sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+  "historical_old_manifests_unchanged": true,
+  "single_canonical_encoding": "JSON; supported legacy0.1/new0.2 versions, additional formats TBD",
+  "legacy_stress_preview_schema": "explicit FAIL911 original issues; no canonical conformance claim"
+}

@@ -1,0 +1,89 @@
+{
+  "parent_message": "root read release for accepted V4 static preparation only; ROOT_LEASE_RESULTS_IMPLEMENTATION_01 remains exclusive to manager/writer",
+  "index": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/CONSOLIDATED_CANDIDATE_INDEX_V4.json",
+    "sha256": "fc87130ed6c98acf4913a24c0f21d141b655a6ebc9d553c35b20debf168953b2"
+  },
+  "root_acceptance": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RESULTS_CONTRACT_ACCEPTANCE_V1.json",
+    "sha256": "d6fb96c2dfcebcde9e058b83cfee49fce7827a6cee2675e32eb077a875a8045b",
+    "status": "ACCEPTED_RESULTS_V4_CONTRACT_FOR_BOUNDED_PRODUCT_IMPLEMENTATION"
+  },
+  "derivative_package": true,
+  "selected_origins": [
+    {
+      "selection": "schema_v0_2",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/CANDIDATE_RESULTS_V0_2_SCHEMA_V4.json",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "bytes": 40806,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/CANDIDATE_RESULTS_V0_2_SCHEMA_V4.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "field_type_hash_contract",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/FIELD_TYPE_HASH_CONTRACT_V4.json",
+      "sha256": "3f4ea29ff3f1a490c59abea823a0f840b1ef61ced637ea0d4b0d7fbfb5e807f2",
+      "bytes": 25074,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/FIELD_TYPE_HASH_CONTRACT_V4.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "received_carrier_origin_hash_contract",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/RECEIVED_CARRIER_ORIGIN_HASH_CONTRACT_V2.json",
+      "sha256": "70982aee3c606eadd29484e866ab0cd6954f179a54a8c23f8dabdaad102d4756",
+      "bytes": 4249,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/RECEIVED_CARRIER_ORIGIN_HASH_CONTRACT_V2.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "original_source_model_binding_contract",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/SOURCE_MODEL_QUALIFICATION_CONTRACT_V1.json",
+      "sha256": "2da7873de1a49d390ef8dfb0d10cc5bccf0595c4d6ec1d1f906f56ca0bee17cd",
+      "bytes": 3226,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/SOURCE_MODEL_QUALIFICATION_CONTRACT_V1.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "raw_annotation_canonical_metadata_contract",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/RAW_ANNOTATION_CANONICAL_METADATA_CONTRACT_FROZEN_V4.json",
+      "sha256": "c611f71027c8e3343045e38ef01d7adb95959da8ce53dc505ae7ce7bc653fa1d",
+      "bytes": 3809,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_CANDIDATE_ANNOTATION_REPAIR_V4/RAW_ANNOTATION_CANONICAL_METADATA_CONTRACT_FROZEN_V4.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "immutable_legacy_binder_freeze",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/IMMUTABLE_LEGACY_BINDER_SOURCE_FREEZE_V1.json",
+      "sha256": "df1bf79b128aa2ff5f8a1dc3a5559dbcea0b6274fb1cba8e2f7ddd7bae662270",
+      "bytes": 3092,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/IMMUTABLE_LEGACY_BINDER_SOURCE_FREEZE_V1.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "original_full74consumer_ledger",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/DETAILED_CONSUMER_VERSION_DISPOSITIONS_V1.json",
+      "sha256": "7454c57f6c837d7fa953f946c3dab0c6db36bf1a96d32d48b36053093214c9f3",
+      "bytes": 50932,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/DETAILED_CONSUMER_VERSION_DISPOSITIONS_V1.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "actual_child_reactivation_brief",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "sha256": "6e40048976d72c1d848965b0512a42d70ec2120d401228396fce861ce50773cd",
+      "bytes": 8004,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_ADDITIVE_CONTRACT_BRIEF_V2.md",
+      "operation": "read-only selective consultation; no implementation effect"
+    },
+    {
+      "selection": "supported_source_table",
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/SUPPORTED_SOURCE_SEMANTICS_V2.json",
+      "sha256": "22a142045d37501eca86a93cb089577b218d40c85e4d5d20b9e6f8fc6ae6c13c",
+      "bytes": 204727,
+      "actual_absolute_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_SUCCESSOR_V2/SUPPORTED_SOURCE_SEMANTICS_V2.json",
+      "operation": "read-only selective consultation; no implementation effect"
+    }
+  ],
+  "not_final_product_source_freeze": true,
+  "no_runtime_release": true
+}

@@ -1,0 +1,61 @@
+{
+  "reviewer": "/root/results_contract_review",
+  "continuation": true,
+  "method": "Read-only source and JSON contract/hash inspection. No product code imported or executed; no test/build/runtime/browser/native/network/delegation.",
+  "table_rows": 60,
+  "unique_kinds": 47,
+  "oracle_full_key_differences": [],
+  "metadata_fixtures": 60,
+  "metadata_exact_value_unit_source_annotation_and_semantic_field_differences": [],
+  "missing_policy_groups": {
+    "review_incomplete": 19,
+    "physical_incomplete": 6,
+    "optional_quantity_without_canonical_metadata": 20,
+    "retain_annotation_and_disposition": 15
+  },
+  "controls_read_only_comparison": {
+    "gap-chain-two-active-control": {
+      "rows": 145,
+      "attached_library_equal": true,
+      "loop_diagnostics": [
+        {
+          "id": "diagnostic:nonlinear:load-G-TIP:loop",
+          "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "severity": "info",
+          "message": "sparse_interactive nonlinear support active-set preview completed 3 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "load:G-TIP",
+            "DEC-046"
+          ]
+        }
+      ]
+    },
+    "gap-chain-five-inactive-control": {
+      "rows": 330,
+      "attached_library_equal": true,
+      "loop_diagnostics": [
+        {
+          "id": "diagnostic:nonlinear:load-G-TIP:loop",
+          "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+          "severity": "info",
+          "message": "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+          "source": "core/product_physics",
+          "affected_refs": [
+            "load:G-TIP",
+            "DEC-046"
+          ]
+        }
+      ]
+    }
+  },
+  "accepted_candidate_hash_failures": [],
+  "historical_nonselected_pin_failures": "Two auxiliary superseded manifests pin obsolete TASK_WRITER/RETURN_V2.md bytes; accepted MANIFEST_FINAL_PHASE1 97-entry freeze passes. See HASH_BACKCHECK_V2.json.",
+  "continuation_brief_sha256": "8058f66e9ef5c67f21a7bcc4ba609622d18c33d7d259c843bf8762ee800c32d7",
+  "source_heads": {
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+  },
+  "display_recovery": "Oversized displays were followed by compact/chunked per-column reads. A display KeyError for absent negative_component_fixture was resolved by optional-key grouping. These were inspection/display issues, not product runtime failures.",
+  "read_coverage_limit": "All affected schema/field/table/metadata/origin/negative policy content reviewed; unchanged original 74-consumer ledger and 2991-row baseline rely on prior complete review plus preserved final freeze. Runtime evidence is attributed manager capture, not independent rerun."
+}

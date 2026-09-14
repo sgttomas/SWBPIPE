@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "support:NL-FRIC-110",
+      "id": "result:nonlinear-support:support-NL-FRIC-110:ux-reaction",
+      "kind": "nonlinear_support_final_reaction",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sticking",
+        "component": "nonlinear_support_final_reaction",
+        "coordinate_system": "solver_iteration",
+        "location": "ux",
+        "sign_convention": "positive value follows the global frame DOF reaction sign convention"
+      },
+      "unit": "N",
+      "value": -100.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

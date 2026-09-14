@@ -1,0 +1,1051 @@
+{
+  "status": "Portable authored raw-annotation cases from independent source-grounded expectations",
+  "cases": [
+    {
+      "case_id": "supported-source-043-component-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-component-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-coordinate_system-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-coordinate_system-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-location-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-location-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-basis-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-basis-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-sign_convention-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-sign_convention-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": ""
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": ""
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-043-unknown_member",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
+          "unrecognized_source_payload": {
+            "supplementary": "\ud800\udc00",
+            "nested": [
+              1,
+              false,
+              null
+            ],
+            "a_numeric_key": {
+              "10": "ten",
+              "2": "two"
+            }
+          }
+        }
+      },
+      "expected": {
+        "row_disposition": "exported_review",
+        "reason_code": null,
+        "annotation_metadata": {
+          "component": "variable_spring_hanger_stiffness",
+          "coordinate_system": "support_local_preview",
+          "location": "node:N-140:UZ stiffness",
+          "basis": "support_family=variable_spring_hanger;user_entered_dof=UZ;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+          "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied",
+          "unrecognized_source_payload": {
+            "supplementary": "\ud800\udc00",
+            "nested": [
+              1,
+              false,
+              null
+            ],
+            "a_numeric_key": {
+              "10": "ten",
+              "2": "two"
+            }
+          }
+        },
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-043-empty_object",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": {}
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "annotation_metadata": {},
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-043-json_array",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": [
+          "raw annotation",
+          {
+            "unrecognized": 1
+          }
+        ]
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "annotation_metadata": [
+          "raw annotation",
+          {
+            "unrecognized": 1
+          }
+        ],
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-043-explicit_null",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-043",
+      "received_row": {
+        "id": "result:spring-hanger:support-SH-140:stiffness",
+        "kind": "spring_hanger_user_input_review",
+        "value": 42000.0,
+        "unit": "N/m",
+        "entity_ref": "support:SH-140",
+        "metadata": null
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "review_metadata_incomplete",
+        "annotation_metadata": null,
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-009-component-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-component-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-coordinate_system-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-coordinate_system-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-location-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-location-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-basis-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-basis-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-sign_convention-missing",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness"
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness"
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-sign_convention-empty",
+      "status": "AUTHORED_SYNTHETIC_NEGATIVE_FROM_HASHED_ORIGINAL_ROW_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": ""
+        }
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "quantity_or_review_export": false,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": ""
+        },
+        "annotation_exact_json": true,
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row, including exact partial/empty metadata. No producer authentication inferred.",
+        "canonical_metadata": null,
+        "current_origin_limit": "Separate Current proof required; missing/empty review component can additionally fail unchanged legacy creation and does not waive Current gate."
+      }
+    },
+    {
+      "case_id": "supported-source-009-unknown_member",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector",
+          "unrecognized_source_payload": {
+            "supplementary": "\ud800\udc00",
+            "nested": [
+              1,
+              false,
+              null
+            ],
+            "a_numeric_key": {
+              "10": "ten",
+              "2": "two"
+            }
+          }
+        }
+      },
+      "expected": {
+        "row_disposition": "exported_quantity",
+        "reason_code": null,
+        "annotation_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector",
+          "unrecognized_source_payload": {
+            "supplementary": "\ud800\udc00",
+            "nested": [
+              1,
+              false,
+              null
+            ],
+            "a_numeric_key": {
+              "10": "ten",
+              "2": "two"
+            }
+          }
+        },
+        "annotation_exact_json": true,
+        "canonical_metadata": {
+          "component": "axial_force",
+          "coordinate_system": "element_local",
+          "location": "end_i",
+          "basis": "recovered_from_local_element_stiffness",
+          "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+        },
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-009-empty_object",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": {}
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "annotation_metadata": {},
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-009-json_array",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": [
+          "raw annotation",
+          {
+            "unrecognized": 1
+          }
+        ]
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "annotation_metadata": [
+          "raw annotation",
+          {
+            "unrecognized": 1
+          }
+        ],
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    },
+    {
+      "case_id": "supported-source-009-explicit_null",
+      "status": "AUTHORED_SYNTHETIC_SOURCE_ANNOTATION_PRESERVATION_CASE_NOT_NEW_PRODUCER_OUTPUT",
+      "source_signature_id": "supported-source-009",
+      "received_row": {
+        "id": "result:force:pipe-P-100:axial",
+        "kind": "element_local_axial_force",
+        "value": -26341.85294,
+        "unit": "N",
+        "entity_ref": "pipe:P-100",
+        "basis_ref": {
+          "ref_type": "load_case",
+          "ref_id": "load:L-100"
+        },
+        "metadata": null
+      },
+      "expected": {
+        "row_disposition": "disclosed",
+        "reason_code": "physical_metadata_incomplete",
+        "annotation_metadata": null,
+        "annotation_exact_json": true,
+        "canonical_metadata": null,
+        "canonical_metadata_policy": "Project only the five known complete finite canonical fields with exact received values; unknown members remain solely in complete raw annotation. This projection modifies no received payload.",
+        "raw_value_unit_unchanged": true,
+        "source_row_hash_scope": "Complete supplied received row exact; unknown annotation data participates in received/source/derivative digests.",
+        "qualification_limit": "Preservation/semantic fixture only; no authentic producer or Current proof minted."
+      }
+    }
+  ]
+}

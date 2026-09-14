@@ -1,0 +1,14 @@
+{
+  "probes": [
+    {
+      "path": "apps/desktop/src/features/history/HistoricalRunContext.test.tsx",
+      "outcome": "absent; attempt026 matched eight existing requested files, did not execute Historical test",
+      "actual": "apps/desktop/src/features/results/HistoricalRunContext.test.tsx"
+    },
+    {
+      "path": "core/results/result_envelope/src/lib.rs",
+      "outcome": "rg IO error absent",
+      "actual": "core/reporting/result_export/src/lib.rs"
+    }
+  ]
+}

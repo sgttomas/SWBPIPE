@@ -1,0 +1,2827 @@
+{
+  "deliverable_id": "DEL-08-04",
+  "export_format_status": {
+    "additional_formats": "TBD",
+    "baseline_format": "schema_first_json_result_envelope",
+    "external_adapter_formats": "TBD",
+    "local_fea_package_format": "TBD",
+    "public_transport_protocol": "TBD"
+  },
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "package_id": "PKG-08",
+  "result_envelope": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "diagnostics": [
+      {
+        "affected_object": {
+          "ref_id": "diagnostic:nonlinear:load-L-100:support-NL-FRIC-110:state",
+          "ref_type": "preview_diagnostic"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_SUPPORT_STATE_REVIEW",
+        "message": "nonlinear support support:NL-FRIC-110 ended in sticking state for load case load:L-100; sparse_interactive preview loop evidence only",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "solve diagnostic metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/product_physics",
+          "source_name": "core/product_physics"
+        },
+        "remediation": "Review the carried solve diagnostic before relying on this exported result envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/product_physics",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "diagnostic:nonlinear:load-L-100:loop",
+          "ref_type": "preview_diagnostic"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_SUPPORT_LOOP_CONVERGED",
+        "message": "sparse_interactive nonlinear support active-set preview completed 1 iteration(s); final residual count 0; accepted active-set-count policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; accepted free-DOF force/moment residual policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; accepted free-DOF work residual policy_ref=DEC-046-CV-B-product-preview-free-dof-work-residual-v1; accepted general-energy residual policy_ref=DEC-046-CV-B-product-preview-general-energy-residual-v1; accepted displacement/reaction-delta policy_ref=DEC-046-CV-B-product-preview-displacement-reaction-delta-threshold-v1 for emitted product-preview delta rows; timing/RSS/hardware sparse evidence remains observational, not thresholded",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "solve diagnostic metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/product_physics",
+          "source_name": "core/product_physics"
+        },
+        "remediation": "Review the carried solve diagnostic before relying on this exported result envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/product_physics",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "diagnostic:physics:rule-inputs-missing",
+          "ref_type": "preview_diagnostic"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "RULE_CHECK_INPUTS_MISSING",
+        "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "solve diagnostic metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/product_physics",
+          "source_name": "core/product_physics"
+        },
+        "remediation": "Review the carried solve diagnostic before relying on this exported result envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "core/product_physics",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:solver-mode:linear-solve-basis",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:solver-mode:linear-solve-basis kind=linear_solver_mode_basis unit=mode_code is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:iteration-count",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:iteration-count kind=nonlinear_support_active_set_iteration_count unit=count is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:final-residual-count",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:final-residual-count kind=nonlinear_support_active_set_final_residual_count unit=count is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:converged-flag",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:converged-flag kind=nonlinear_support_active_set_converged_flag unit=boolean is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:free-dof-force-residual",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:free-dof-force-residual kind=nonlinear_support_observed_free_dof_force_residual unit=N is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:free-dof-moment-residual",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:free-dof-moment-residual kind=nonlinear_support_observed_free_dof_moment_residual unit=N*m is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:free-dof-work-residual",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:free-dof-work-residual kind=nonlinear_support_free_dof_work_residual unit=N*m is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result:nonlinear-support:support-NL-FRIC-110:state-code",
+          "ref_type": "preview_result"
+        },
+        "class": "UNIT_WARNING",
+        "code": "HEADLESS_RUNNER_ENVELOPE_VOCABULARY_BOUNDARY_ROW",
+        "message": "result row not exported: id=result:nonlinear-support:support-NL-FRIC-110:state-code kind=nonlinear_support_active_set_state_code unit=state_code is outside the enumerated DEL-08-04 export mapping table; disclosed without coercion. The DEL-08-04 vocabulary-extension need is a reported follow-on for HELP_HUMAN.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "vocabulary-boundary disclosure metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/runner/headless/src/result_envelope_binding.rs",
+          "source_name": "OpenPipeStress headless result-envelope producer"
+        },
+        "remediation": "Consume this row from the carried mechanics envelope; do not infer a result family or dimension for it from this export.",
+        "severity": "info",
+        "source": {
+          "ref_id": "core/runner/headless",
+          "ref_type": "result_envelope_producer"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "Active nonlinear support states are represented as prescribed frame DOFs in the current linearized iteration.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "The governed assembled-loop convergence residual is the nonlinear-support classifier state-change count; force/displacement/work residual axes are reported for callers to bind to explicit evidence policies.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "Friction support normal reactions are either explicit input evidence or derived from the same linearized iterate through a named support-normal DOF supplied by the caller.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "A friction support remains sliding only when its current post-force contact, motion, applied-force, and reported-force evidence is admissible; an inconsistent trial returns to the exact sticking candidate on the next iteration.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "A support classified sliding applies a bounded +/- mu*N tangential force opposing the observed motion, using the current iterate's normal-reaction evidence; a sliding state seeded before any solved iterate has one explicit nonconvergent warm-start iteration so the bounded force is tried without treating the seed as physical history.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "Explicit user-stiffness macro-elements are assembled with frame elements when supplied by the caller.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_ASSUMPTION",
+        "message": "Explicit curved-bend macro-element global stiffness slots supplied by the caller are assembled beside frame and user-stiffness elements in every linearized iteration.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "info",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "DEC-053 sparse interactive mode uses direct reduced profile-entry sparse solves as the default linearized active-set path; dense scrutiny remains an explicit parity/review mode.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "Sparse timing, allocator/RSS memory, hardware normalization, true condition-number, and CI evidence are observational R4 closure evidence, not release-performance thresholds.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "DEC-046 threshold authority exists only where callers supply explicit controls and policy references; unmeasured classes and broader release/external thresholds remain out of scope.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "User-stiffness and curved-bend macro-elements consume caller-supplied stiffness values only; pressure-thrust load generation, vendor defaults, and compliance checks are outside this loop.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "The bounded sliding friction force is a same-iterate affine Coulomb coupling, not a path-dependent or load-step friction history model; its magnitude is not itself a convergence residual axis.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      },
+      {
+        "affected_object": {
+          "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "result_envelope"
+        },
+        "class": "NONLINEAR_WARNING",
+        "code": "NONLINEAR_ASSEMBLED_LOOP_LIMITATION",
+        "message": "The result is mechanics decision-support evidence; acceptance and professional judgment remain with the responsible engineer.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "assembled-loop context metadata only",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project",
+          "source_location": "core/solver/nonlinear_integration",
+          "source_name": "open_pipe_stress_nonlinear_integration"
+        },
+        "remediation": "Review the assembled active-set loop context before relying on the nonlinear result rows of this envelope.",
+        "severity": "warning",
+        "source": {
+          "ref_id": "open_pipe_stress_nonlinear_integration",
+          "ref_type": "solver_component"
+        }
+      }
+    ],
+    "downstream_use": {
+      "additional_export_formats": "TBD",
+      "governed_downstream_tooling": true,
+      "headless_automation": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "review": true
+    },
+    "envelope_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+    "load_basis_refs": [
+      {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "invented-nonconverged-candidate-0",
+      "ref_type": "model"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "instances/P5/schema_witness",
+      "source_name": "P5 invented complete-envelope schema witness"
+    },
+    "reproducibility": {
+      "audit_manifest_ref": {
+        "ref_id": "audit-manifest:run:headless-preview:p5-nonconverged-candidate-0",
+        "ref_type": "audit_manifest"
+      },
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "p5-nonconverged-candidate-0",
+          "ref_type": "runner_request"
+        },
+        "value": "d2908d6f39422a4a5880e63184adbe570f2f75c545ee4c3d7475a0ce9dd6850e"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "ref_id": "result-envelope:run:headless-preview:p5-nonconverged-candidate-0",
+            "ref_type": "result_envelope"
+          },
+          "value": "000e9fac94818d77f27dbd862d25f793c76e2fb7ddb9e645e243dd8ef2745ac8"
+        }
+      ]
+    },
+    "result_sets": [
+      {
+        "basis_ref": {
+          "ref_id": "run:headless-preview:p5-nonconverged-candidate-0",
+          "ref_type": "analysis_run"
+        },
+        "set_id": "result-set:run:headless-preview:p5-nonconverged-candidate-0:mechanics",
+        "set_type": "mechanics",
+        "values": [
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "reaction",
+            "magnitude": 1000.0,
+            "metadata": {
+              "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; explicit_user_entered_normal_reaction; no_catalog_or_default_normal_force",
+              "component": "friction_normal_reaction_input",
+              "coordinate_system": "solver_iteration",
+              "location": "normal",
+              "sign_convention": "positive value is an explicit contact normal reaction supplied by the user or caller"
+            },
+            "object_ref": {
+              "ref_id": "support:NL-FRIC-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:nonlinear-support:support-NL-FRIC-110:friction-normal-reaction",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sticking",
+              "component": "nonlinear_support_final_displacement",
+              "coordinate_system": "solver_iteration",
+              "location": "ux",
+              "sign_convention": "positive value follows the global frame DOF sign convention"
+            },
+            "object_ref": {
+              "ref_id": "support:NL-FRIC-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:nonlinear-support:support-NL-FRIC-110:ux-displacement",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "reaction",
+            "magnitude": -100.0,
+            "metadata": {
+              "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; final_state=sticking",
+              "component": "nonlinear_support_final_reaction",
+              "coordinate_system": "solver_iteration",
+              "location": "ux",
+              "sign_convention": "positive value follows the global frame DOF reaction sign convention"
+            },
+            "object_ref": {
+              "ref_id": "support:NL-FRIC-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:nonlinear-support:support-NL-FRIC-110:ux-reaction",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_x",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:ux",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_y",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:uy",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_z",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:uz",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_x",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:rx",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_y",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:ry",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_z",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-100:rz",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_x",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:ux",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_y",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:uy",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "length",
+            "family": "displacement",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_displacement_z",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:uz",
+            "unit": "mm"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_x",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:rx",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_y",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:ry",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "angle",
+            "family": "rotation",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "solved_from_global_linear_system",
+              "component": "nodal_rotation_z",
+              "coordinate_system": "global",
+              "location": "node",
+              "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+            },
+            "object_ref": {
+              "ref_id": "node:N-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:disp:node-N-110:rz",
+            "unit": "rad"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "reaction",
+            "magnitude": 0.0,
+            "object_ref": {
+              "ref_id": "support:S-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:reaction:support-S-100",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "reaction",
+            "magnitude": 100.0,
+            "object_ref": {
+              "ref_id": "support:NL-FRIC-110",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:reaction:support-NL-FRIC-110",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_force",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:axial",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_force",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:axial:end-j",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_y",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:shear-y",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_y",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:shear-y:end-j",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_z",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:shear-z",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_z",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:shear-z:end-j",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_moment",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:torsion",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_moment",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:torsion:end-j",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_y",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:bending-y",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_y",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:bending-y:end-j",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:bending-z",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:bending-z:end-j",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_force",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-1:axial",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-1:shear-y",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-1:shear-z",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_moment",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-1:torsion",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-1:bending-y",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-1:bending-z",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_force",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:midspan:axial",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_y",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:midspan:shear-y",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_z",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:midspan:shear-z",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_moment",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:midspan:torsion",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_y",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:midspan:bending-y",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:midspan:bending-z",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_force",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-3:axial",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-3:shear-y",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "force",
+            "family": "force",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "shear_force_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:force:pipe-P-100:quarter-3:shear-z",
+            "unit": "N"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_moment",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-3:torsion",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-3:bending-y",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "moment",
+            "family": "moment",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_moment_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:moment:pipe-P-100:quarter-3:bending-z",
+            "unit": "N*m"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_normal_stress",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-i:axial-normal",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_normal_stress_y",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-i:bending-normal-y",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-i:bending-normal-z",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_shear_stress",
+              "coordinate_system": "element_local",
+              "location": "end_i",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-i:torsional-shear",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "axial_normal_stress",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-j:axial-normal",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_normal_stress_y",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-j:bending-normal-y",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-j:bending-normal-z",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_local_element_stiffness",
+              "component": "torsional_shear_stress",
+              "coordinate_system": "element_local",
+              "location": "end_j",
+              "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:end-j:torsional-shear",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "axial_normal_stress",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-1:axial-normal",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-1:bending-normal-y",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-1:bending-normal-z",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "torsional_shear_stress",
+              "coordinate_system": "element_local",
+              "location": "quarter_1",
+              "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-1:torsional-shear",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "axial_normal_stress",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:midspan:axial-normal",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_y",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:midspan:bending-normal-y",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:midspan:bending-normal-z",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "torsional_shear_stress",
+              "coordinate_system": "element_local",
+              "location": "midspan",
+              "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:midspan:torsional-shear",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "axial_normal_stress",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-3:axial-normal",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_y",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-3:bending-normal-y",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "bending_normal_stress_z",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-3:bending-normal-z",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "metadata": {
+              "basis": "recovered_from_open_mechanics_stress_components",
+              "component": "torsional_shear_stress",
+              "coordinate_system": "element_local",
+              "location": "quarter_3",
+              "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+            },
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100:quarter-3:torsional-shear",
+            "unit": "MPa"
+          },
+          {
+            "basis_ref": {
+              "ref_id": "load:L-100",
+              "ref_type": "load_case"
+            },
+            "dimension": "stress",
+            "family": "stress",
+            "magnitude": 0.0,
+            "object_ref": {
+              "ref_id": "pipe:P-100",
+              "ref_type": "preview_entity"
+            },
+            "provenance": {
+              "contributor": "OpenPipeStress",
+              "contributor_certification": "invented non-engineering example",
+              "redistribution_status": "invented_non_engineering_example",
+              "review_status": "accepted",
+              "source_license": "project invented",
+              "source_location": "instances/P5/schema_witness",
+              "source_name": "P5 invented complete-envelope schema witness"
+            },
+            "result_id": "result:stress:pipe-P-100",
+            "unit": "MPa"
+          }
+        ]
+      }
+    ],
+    "rule_pack_refs": [],
+    "run_ref": {
+      "ref_id": "run:headless-preview:p5-nonconverged-candidate-0",
+      "ref_type": "analysis_run"
+    },
+    "schema_version": "0.1.0",
+    "solver_version": {
+      "solver_build_ref": "headless_preview_producer; solver_component=open_pipe_stress_product_physics@0.1.0; nonlinear_component=open_pipe_stress_nonlinear_integration@0.1.0",
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "schema_version": "0.1.0",
+  "scope_item": "SOW-046"
+}

@@ -1,0 +1,7 @@
+[
+  {
+    "phase": "static source-restoration comparison",
+    "error": "Initial witness comparison splice included duplicate newline at result array end; exact full diff showed only allowed additions. Corrected local comparison endpoint from newline+}]; to }];, source untouched.",
+    "result": "Exact restored V3 bytes equal V2; comparison assertion passes. No browser failure/repair."
+  }
+]

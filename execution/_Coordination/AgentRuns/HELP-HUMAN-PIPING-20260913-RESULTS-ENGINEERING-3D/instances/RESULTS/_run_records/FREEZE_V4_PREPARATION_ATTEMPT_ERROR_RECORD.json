@@ -1,0 +1,5 @@
+{
+  "scope": "Evidence JSON preparation only; no build/test/source effect",
+  "attempt_01": "Python parse failed before execution: IndentationError unexpected indent line41; exit1; no files written",
+  "retry": "Same bounded evidence freeze with indentation corrected"
+}

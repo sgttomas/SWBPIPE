@@ -1,0 +1,27 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      "entity_ref": "nonlinear_supports",
+      "id": "result:nonlinear-support:final-residual-count",
+      "kind": "nonlinear_support_active_set_final_residual_count",
+      "metadata": {
+        "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; residual_is_changed_support_count",
+        "component": "active_set_final_residual_count",
+        "coordinate_system": "solver_iteration",
+        "location": "load_case",
+        "sign_convention": "zero means no nonlinear support state changed in the final iteration"
+      },
+      "unit": "count",
+      "value": 0.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

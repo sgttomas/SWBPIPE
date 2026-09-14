@@ -1,0 +1,20 @@
+{
+  "lease": "ROOT_LEASE_ENV_PREP_01",
+  "status": "ACTIVE",
+  "time_utc": "2026-09-14T02:25:58.495087+00:00",
+  "executor": "/root HELP_HUMAN",
+  "scope": "Sequential offline npm ci, integration then RESULTS; no source edit, build/test/browser/native",
+  "commands": [
+    [
+      "npm",
+      "ci",
+      "--offline",
+      "--no-audit",
+      "--no-fund"
+    ]
+  ],
+  "lanes": [
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913"
+  ]
+}

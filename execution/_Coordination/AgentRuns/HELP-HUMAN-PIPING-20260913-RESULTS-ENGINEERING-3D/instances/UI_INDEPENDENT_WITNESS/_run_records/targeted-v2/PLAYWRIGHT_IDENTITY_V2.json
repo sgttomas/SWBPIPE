@@ -1,0 +1,8 @@
+{
+  "importPath": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/index.mjs",
+  "sha256": "a0f5715ea22354f922791a9c53dc012d5d5c067ff9cc4cd35ffb7cd272071a9f",
+  "packagePath": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json",
+  "packageSHA256": "ca170ec143a88ed3043ac953eb3b2377b2b97304104f4e1e23316684ce2c35af",
+  "packageVersion": "1.62.1",
+  "qualification": "Exact installed import used by targeted script; actual browser version and Node process supplied in TARGETED_REPORT."
+}

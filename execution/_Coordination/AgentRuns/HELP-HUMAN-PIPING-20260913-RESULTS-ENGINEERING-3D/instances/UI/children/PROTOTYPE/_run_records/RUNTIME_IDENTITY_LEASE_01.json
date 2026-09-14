@@ -1,0 +1,18 @@
+{
+  "node": {
+    "path": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "version": "v24.19.0",
+    "versionEvidence": "04-witness-launch-failure.json actual stderr",
+    "sha256": "27db838bb204ef7c21df2931f5656e4c8fb32e6e947f363a402b49714d32b5b1"
+  },
+  "playwright": {
+    "path": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright/package.json",
+    "version": "1.62.1",
+    "sha256": "ca170ec143a88ed3043ac953eb3b2377b2b97304104f4e1e23316684ce2c35af"
+  },
+  "browser": {
+    "status": "not launched",
+    "expectedExecutable": "/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1234/chrome-headless-shell-mac-arm64/chrome-headless-shell",
+    "actualVersion": null
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "execution_status": "Static preparation commands only; actual functions.exec/exec_command invocation text and exits remain in parent-visible child tool-event transcript, which root must preserve as durable full command provenance",
+  "root_resolution": {
+    "argv": [
+      "git",
+      "rev-parse",
+      "--show-toplevel"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+    "exit_code": 0
+  },
+  "failed_attempts": [
+    {
+      "command": "rg --files projects/chirality-piping/core/reporting/result_export projects/chirality-piping/core/runner/headless/result_envelope_binding projects/chirality-piping/apps/desktop/scripts",
+      "exit_code": 2,
+      "finding": "brief surface was a module name, not folder; actual path core/runner/headless/src/result_envelope_binding.rs discovered, no runtime/product finding"
+    }
+  ],
+  "generated_scripts_executed": false,
+  "builds_tests_native_browser_app_package_git_mutations_executed": false
+}

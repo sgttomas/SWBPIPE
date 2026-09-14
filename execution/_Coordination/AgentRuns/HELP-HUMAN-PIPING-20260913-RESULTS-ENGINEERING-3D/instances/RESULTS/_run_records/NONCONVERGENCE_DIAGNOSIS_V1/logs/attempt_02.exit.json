@@ -1,0 +1,7 @@
+{
+  "lease": "ROOT_LEASE_RESULTS_GAP_02",
+  "actual_exit_code": 0,
+  "elapsed_seconds": 0.826421125,
+  "product_nonconvergence_is_not_success": true,
+  "runtime_result": "EXPECTED_WITNESS_VALIDATION_COMPLETED"
+}

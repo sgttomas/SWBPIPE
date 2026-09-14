@@ -1,0 +1,48 @@
+{
+  "status": "PROPOSED_NOT_GRANTED",
+  "holder": "/root/native_results_witness",
+  "parent": "/root",
+  "requires": [
+    "root exact final source/contract freeze",
+    "final source/DEC025 execution release",
+    "exclusive build/WASM/dist/browser/native GUI lease; other writers/builders idle",
+    "exact supported native export formats/route supplied and expected contract frozen before adapter"
+  ],
+  "exclusive_surfaces": [
+    "projects/chirality-piping/apps/desktop/dist/**",
+    "projects/chirality-piping/apps/desktop/public/*-engine/**",
+    "projects/chirality-piping/apps/desktop/src-tauri/target/**",
+    "one isolated app bundle process/GUI",
+    "fresh isolated app identifier file-backed SQLite store only"
+  ],
+  "source_edits": "never authorized",
+  "build_cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop",
+  "build_command": [
+    "env",
+    "CARGO_NET_OFFLINE=true",
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app",
+    "--ci",
+    "--no-sign",
+    "--config",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json"
+  ],
+  "binary": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "selftest_args": [
+    "--self-test-saved-edited-load"
+  ],
+  "gui_launch_command": [
+    "open",
+    "-n",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app"
+  ],
+  "isolated_store": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.results-engineering-3d-20260913/openpipestress-projects.sqlite3",
+  "canonical_export_adapter_command": "pending root route and exact candidate API; no invented executable claimed",
+  "runtime_effect_bounds": "ordinary dependencies/build only if root grants; no install/download implicitly granted; no ordinary app store, daemon, private Codex internals, protected inputs, formal or Git effects",
+  "release_condition": "all isolated processes genuinely quit, final source/binary/store/inventory bindings sealed and delivered"
+}

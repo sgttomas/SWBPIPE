@@ -1,0 +1,18 @@
+{
+  "parent": "/root HELP_HUMAN Agent0",
+  "child": "/root/integrated_review",
+  "role": "TASK Type2",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "mechanism": "delegated-harness-native actual collaboration.spawn_agent",
+  "fork_turns": "none",
+  "non_delegation": "instruction asserted",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_V1.md",
+  "brief_sha256": "4ee71022e9aaa243fbc5020eae5067487fba09cdec179c9d95bfa6506d9874ea",
+  "source_freeze": "SOURCE_INTEGRATION_V1.json",
+  "publication_locator_sha256": "857ec78891156946ab024957ccc74b1c17cfb291e474c2b13c929ed8e3ec53b0",
+  "root_locator_verification": "All16 destinations bytes/hash match; old publication paths absent. Unchanged original isolated lane remains source of historical base.",
+  "runtime_lease": "Root EARLY_DIST_V1 only; all implementation/manager/native/UI runtimes idle.",
+  "status": "review running; all product source frozen",
+  "timestamp_utc": "2026-09-14T03:29:02.526310+00:00"
+}

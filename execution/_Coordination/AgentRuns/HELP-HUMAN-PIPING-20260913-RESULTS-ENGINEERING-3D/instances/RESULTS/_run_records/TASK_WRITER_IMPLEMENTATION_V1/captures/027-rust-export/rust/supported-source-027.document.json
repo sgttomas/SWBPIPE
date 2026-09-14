@@ -1,0 +1,278 @@
+{
+  "deliverable_id": "DEL-08-04",
+  "export_format_status": {
+    "additional_formats": "TBD",
+    "baseline_format": "schema_first_json_result_envelope",
+    "external_adapter_formats": "TBD",
+    "local_fea_package_format": "TBD",
+    "public_transport_protocol": "TBD"
+  },
+  "objectives": [
+    "OBJ-007",
+    "OBJ-009"
+  ],
+  "package_id": "PKG-08",
+  "result_envelope": {
+    "analysis_status": [
+      "MECHANICS_SOLVED",
+      "HUMAN_REVIEW_REQUIRED"
+    ],
+    "diagnostics": [
+      {
+        "affected_object": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "result_envelope"
+        },
+        "class": "ASSUMPTION_WARNING",
+        "code": "TP_PHYS_015A_RESULT_BOUNDARY_EVIDENCE",
+        "message": "Invented validation-local result envelope records canonical payload solve-result evidence.",
+        "provenance": {
+          "contributor": "OpenPipeStress",
+          "contributor_certification": "invented non-engineering example",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "accepted",
+          "source_license": "project invented",
+          "source_location": "validation/benchmarks/invented",
+          "source_name": "invented mechanics fixture"
+        },
+        "remediation": "Use adjacent export and runner contracts before relying on serialized runtime behavior.",
+        "severity": "info",
+        "source": {
+          "ref_id": "DEL-09-01",
+          "ref_type": "mechanics_benchmark"
+        }
+      }
+    ],
+    "downstream_use": {
+      "additional_export_formats": "TBD",
+      "governed_downstream_tooling": true,
+      "headless_automation": true,
+      "regression_comparison": true,
+      "report_consumption": true,
+      "review": true
+    },
+    "envelope_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+    "load_basis_refs": [
+      {
+        "ref_id": "LC-TP-PHYS-014",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:synthetic-semantic-contract",
+      "ref_type": "model_payload"
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "accepted",
+      "source_license": "project invented",
+      "source_location": "validation/benchmarks/invented",
+      "source_name": "invented mechanics fixture"
+    },
+    "reproducibility": {
+      "audit_manifest_ref": {
+        "ref_id": "TASK_RUN_2026-05-17_TP-RESULT-017",
+        "ref_type": "task_run_record"
+      },
+      "derivative_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "MECH-TP-PHYS-015-CANONICAL-SOLVE-RESULT-ENVELOPE",
+          "ref_type": "derivative_document"
+        },
+        "payload_scope": "derivative_document_excludes_own_hash",
+        "value": "064fd7bd8604ebea68355f7cda86a6e5f7092856d6e3bf067a18ef73f3f230e7"
+      },
+      "derivative_hash_excludes": "result_envelope.reproducibility.derivative_hash",
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "ref_id": "project:synthetic-semantic-contract",
+          "ref_type": "model_payload"
+        },
+        "value": "898dd90cab0da56e55b787fdd9b185dc7941aa91dfbee96e4011228bca89ac55"
+      },
+      "raw_source_hashes": [],
+      "request_hash": null,
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "ref_id": "analysis-run",
+            "ref_type": "payload"
+          },
+          "value": "analysis-run-hash"
+        }
+      ],
+      "source_origin_bindings": [
+        {
+          "actual_model_ref": {
+            "ref_id": "project:synthetic-semantic-contract",
+            "ref_type": "model_payload"
+          },
+          "authentic_producer_available": false,
+          "mechanics_run_ref": {
+            "ref_id": "run:synthetic-semantic-contract",
+            "ref_type": "mechanics_run"
+          },
+          "origin_class": "received_current_dimension_absent",
+          "origin_id": "synthetic-fixture-unattested",
+          "origin_limit": "Unattested synthetic test projection",
+          "original_producer_checksum": null,
+          "qualification_ref": {
+            "ref_id": "not-authentic-Current",
+            "ref_type": "synthetic_fixture"
+          },
+          "received_carrier_checksum": {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "ref_id": "fixture-only",
+              "ref_type": "synthetic_received_carrier"
+            },
+            "payload_scope": "received_current_dimension_absent_carrier",
+            "value": "291700f1cd134aa656a521fd1d85d68d6eee21ea5482933e9b03f8f62ce3727f"
+          },
+          "request_alias_disclosure": null,
+          "request_model_ref": null,
+          "request_run_ref": null
+        }
+      ]
+    },
+    "result_sets": [
+      {
+        "basis_ref": {
+          "ref_id": "LC-TP-PHYS-014",
+          "ref_type": "load_case"
+        },
+        "set_id": "result-set:tp-phys-015:mechanics",
+        "set_type": "mechanics",
+        "values": []
+      }
+    ],
+    "review_evidence": [],
+    "row_accounting": [
+      {
+        "disposition": "disclosed",
+        "original_producer_row_checksum": null,
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "ce38ad83673453961584e6fe4f1499e0e6ed035f45273ed255337686a8cb6653"
+        },
+        "source_field_path": "/results/0",
+        "source_kind": "nonlinear_support_observed_free_dof_moment_residual",
+        "source_result_id": "result:nonlinear-support:free-dof-moment-residual",
+        "source_row_index": 0,
+        "target_field_path": "/result_envelope/row_disclosures/0",
+        "target_ref": {
+          "ref_id": "result:nonlinear-support:free-dof-moment-residual",
+          "ref_type": "row_disclosure"
+        }
+      }
+    ],
+    "row_disclosures": [
+      {
+        "declared_semantic_dimension": "moment",
+        "message": "nonlinear_support_observed_free_dof_moment_residual: diagnostic_evidence_not_physical_quantity; source value/unit and annotation retained; non-governing evidence",
+        "object_ref": {
+          "ref_id": "nonlinear_supports",
+          "ref_type": "preview_entity"
+        },
+        "original_producer_row_checksum": null,
+        "reason_code": "diagnostic_evidence_not_physical_quantity",
+        "received_carrier_row_checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_ref": {
+            "ref_id": "fixture-only",
+            "ref_type": "synthetic_received_carrier"
+          },
+          "payload_scope": "received_current_dimension_absent_row",
+          "value": "ce38ad83673453961584e6fe4f1499e0e6ed035f45273ed255337686a8cb6653"
+        },
+        "semantic_category": "diagnostic_observation",
+        "source_annotation_ref": {
+          "ref_id": "source-annotation:0",
+          "ref_type": "source_annotation"
+        },
+        "source_dimension": null,
+        "source_dimension_present": false,
+        "source_field_path": "/results/0",
+        "source_kind": "nonlinear_support_observed_free_dof_moment_residual",
+        "source_physical_semantic_dimension": "moment",
+        "source_result_id": "result:nonlinear-support:free-dof-moment-residual",
+        "source_row_index": 0,
+        "source_unit": "N*m",
+        "source_value": 0.0
+      }
+    ],
+    "rule_pack_refs": [],
+    "run_ref": {
+      "ref_id": "RUN-TP-PHYS-015A-CANONICAL-SOLVE-RESULT-ENVELOPE",
+      "ref_type": "analysis_run"
+    },
+    "schema_version": "0.2.0",
+    "solver_version": {
+      "solver_build_ref": "validation-local-cargo-test",
+      "solver_name": "open_pipe_stress_validation_mechanics_benchmark",
+      "solver_version": "0.1.0"
+    },
+    "source_annotations": [
+      {
+        "annotation_id": "source-annotation:0",
+        "basis_ref": {
+          "ref_id": "load:L-100",
+          "ref_type": "load_case"
+        },
+        "derivative_target_dimension": "moment",
+        "metadata": {
+          "basis": "sparse_interactive_active_set_loop; policy_ref=DEC-046-CV-B-product-preview-active-set-count-v1; threshold_policy_ref=DEC-046-CV-B-product-preview-free-dof-force-moment-residual-v1; threshold_policy_status=accepted; residual_basis=free_dof_force_moment_equilibrium; force_threshold=0 N; moment_threshold=0 N*m; product_preview_only",
+          "component": "observed_free_dof_moment_residual",
+          "coordinate_system": "solver_iteration",
+          "location": "final_iteration",
+          "sign_convention": "nonnegative max absolute rotational free-DOF equilibrium residual in the final linearized solve"
+        },
+        "observed_carrier_dimension": {
+          "present": false,
+          "value": null
+        },
+        "source_origin_ref": {
+          "ref_id": "synthetic-fixture-unattested",
+          "ref_type": "source_origin_binding"
+        },
+        "source_physical_semantic_dimension": "moment",
+        "source_result_id": "result:nonlinear-support:free-dof-moment-residual",
+        "source_result_refs": [],
+        "source_row_index": 0
+      }
+    ],
+    "unit_preservation_witnesses": [],
+    "unit_system_ref": {
+      "ref_id": "PKG09-FIXTURE-UNITS-EXPLICIT-N-M-RAD-K",
+      "ref_type": "unit_system"
+    },
+    "unit_witness_policy": "preserve_received_value_and_unit_with_independent_semantic_dimension"
+  },
+  "schema_version": "0.2.0",
+  "scope_item": "SOW-046"
+}

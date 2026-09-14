@@ -1,0 +1,23 @@
+{
+  "status": "SOURCE_PREPARED_NO_RUNTIME_YET",
+  "origin": "Root visual feedback, relayed in current conversation",
+  "scope": "Plain action/property wording and visible palette numbering only; no operation/state/CSS/engineering semantics change",
+  "preserved_child_manifest": "e866442bd86d8e5ada5ebcc5673f48fcd7e11a5c4a9b3ebd1a3f35f3ff55da22",
+  "predecessor_assets": {
+    "index.html": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709",
+    "workspace.js": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4"
+  },
+  "successor_assets": {
+    "index.html": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+    "workspace.js": "d4b76578959dac477597758553bc4054088674584f7a06a4cb9214d513ddd3b7",
+    "capabilities.js": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+    "workspace.css": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4"
+  },
+  "changes": [
+    "Hide normative vocabulary numbers in visible command tabs; retain ROADMAP and exact data/intent mappings",
+    "Pipe properties / Pipe / Property / Wall thickness replace internal identifier wording in ordinary property form",
+    "Accessible search name uses engineering commands"
+  ]
+}

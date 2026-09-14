@@ -1,0 +1,7 @@
+{
+  "source": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+  "selected_path": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+  "tree_entry": "100644 blob 61dbbca25b9be766383aa1e5a743a021ce4d63d1\tprojects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+  "sha256": "82806c43b654a51771f6c4b7eed60ccc620dab6a34cc9f6e5de7949abba9724b",
+  "read_method": "git show HEAD:projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md"
+}

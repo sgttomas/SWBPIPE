@@ -1,0 +1,33 @@
+
+running 4 tests
+test guarded_serializer_numeric_keys_unicode_negative_zero_and_unsafe_int ... ok
+test integer_values_unknown_disclosures_and_accounting_tamper ... FAILED
+test all28_raw_annotations_are_exact_and_canonical_projection_is_strict ... FAILED
+test all60_independent_semantics_metadata_and_missing_cases ... FAILED
+
+failures:
+
+---- integer_values_unknown_disclosures_and_accounting_tamper stdout ----
+
+thread 'integer_values_unknown_disclosures_and_accounting_tamper' (54402471) panicked at tests/derivative_contract.rs:29:155:
+called `Result::unwrap()` on an `Err` value: "TARGET_ACCOUNTING_CARDINALITY"
+
+---- all28_raw_annotations_are_exact_and_canonical_projection_is_strict stdout ----
+
+thread 'all28_raw_annotations_are_exact_and_canonical_projection_is_strict' (54402468) panicked at tests/derivative_contract.rs:26:110:
+"supported-source-043-component-missing" TARGET_ACCOUNTING_CARDINALITY
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- all60_independent_semantics_metadata_and_missing_cases stdout ----
+
+thread 'all60_independent_semantics_metadata_and_missing_cases' (54402469) panicked at tests/derivative_contract.rs:15:89:
+"supported-source-000" TARGET_ACCOUNTING_CARDINALITY
+
+
+failures:
+    all28_raw_annotations_are_exact_and_canonical_projection_is_strict
+    all60_independent_semantics_metadata_and_missing_cases
+    integer_values_unknown_disclosures_and_accounting_tamper
+
+test result: FAILED. 1 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+

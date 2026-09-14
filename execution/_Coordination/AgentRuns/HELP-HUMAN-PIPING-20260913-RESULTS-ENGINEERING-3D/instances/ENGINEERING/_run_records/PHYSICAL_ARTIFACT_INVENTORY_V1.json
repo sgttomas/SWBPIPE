@@ -1,0 +1,103 @@
+{
+  "kind": "Complete physical own-scope inventory including files outside candidate manifests",
+  "files": [
+    {
+      "path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "bytes": 3405,
+      "sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc"
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V1.json",
+      "bytes": 1869,
+      "sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110"
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V2.json",
+      "bytes": 2590,
+      "sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610"
+    },
+    {
+      "path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "bytes": 2135,
+      "sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca"
+    },
+    {
+      "path": "CONSUMER_MAP_V1.json",
+      "bytes": 30755,
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6"
+    },
+    {
+      "path": "RETURN.md",
+      "bytes": 5688,
+      "sha256": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b"
+    },
+    {
+      "path": "UI_BACKFILL_V1.md",
+      "bytes": 4607,
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae"
+    },
+    {
+      "path": "_run_records/CONTEXT_ORIGINS_V1.json",
+      "bytes": 51871,
+      "sha256": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9"
+    },
+    {
+      "path": "_run_records/DELIVERABLE_CONTEXT_EXCERPTS_V1.md",
+      "bytes": 32554,
+      "sha256": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9"
+    },
+    {
+      "path": "_run_records/DEPENDENCY_APPLICABILITY_V1.json",
+      "bytes": 22472,
+      "sha256": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c"
+    },
+    {
+      "path": "_run_records/ENGINEERING_CHOICE_RATIONALE_V1.md",
+      "bytes": 4591,
+      "sha256": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e"
+    },
+    {
+      "path": "_run_records/READ_FAILURES_V1.json",
+      "bytes": 1191,
+      "sha256": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58"
+    },
+    {
+      "path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "bytes": 5077,
+      "sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c"
+    },
+    {
+      "path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "bytes": 4808,
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817"
+    },
+    {
+      "path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "bytes": 4244,
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34"
+    },
+    {
+      "path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "bytes": 4820,
+      "sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d"
+    },
+    {
+      "path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "bytes": 15655,
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4"
+    },
+    {
+      "path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "bytes": 15601,
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710"
+    },
+    {
+      "path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "bytes": 14268,
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c"
+    }
+  ],
+  "bytes_in_list": 228201,
+  "ignored_artifact_boundary": "rglob enumerates all physical files regardless Git ignored state; no build/raw trace corpus artifacts present",
+  "manifest_and_inventory_self_excluded": true
+}

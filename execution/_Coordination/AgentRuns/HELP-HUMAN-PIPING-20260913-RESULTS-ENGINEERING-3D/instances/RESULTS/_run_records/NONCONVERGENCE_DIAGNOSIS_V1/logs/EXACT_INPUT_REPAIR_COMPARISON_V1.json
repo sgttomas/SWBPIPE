@@ -1,0 +1,93 @@
+[
+  {
+    "file": "CASE_INPUTS_V1.json",
+    "byte_identical": true
+  },
+  {
+    "file": "gap-chain-five-active.model.json",
+    "exact_only_changes": [
+      {
+        "pointer": "/supports/1/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/3/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/5/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/7/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/9/family",
+        "old": "guide",
+        "new": "anchor"
+      }
+    ]
+  },
+  {
+    "file": "gap-chain-five-active.request.json",
+    "byte_identical": true
+  },
+  {
+    "file": "gap-chain-five-inactive-control.model.json",
+    "exact_only_changes": [
+      {
+        "pointer": "/supports/1/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/3/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/5/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/7/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/9/family",
+        "old": "guide",
+        "new": "anchor"
+      }
+    ]
+  },
+  {
+    "file": "gap-chain-five-inactive-control.request.json",
+    "byte_identical": true
+  },
+  {
+    "file": "gap-chain-two-active-control.model.json",
+    "exact_only_changes": [
+      {
+        "pointer": "/supports/1/family",
+        "old": "guide",
+        "new": "anchor"
+      },
+      {
+        "pointer": "/supports/3/family",
+        "old": "guide",
+        "new": "anchor"
+      }
+    ]
+  },
+  {
+    "file": "gap-chain-two-active-control.request.json",
+    "byte_identical": true
+  }
+]

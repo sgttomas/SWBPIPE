@@ -1,0 +1,35 @@
+{
+  "lease": "ROOT_LEASE_ENV_PREP_01",
+  "status": "RELEASED",
+  "time_utc": "2026-09-14T02:26:03.567095+00:00",
+  "runs": [
+    {
+      "lane": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+      "command": [
+        "npm",
+        "ci",
+        "--offline",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.739,
+      "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+    },
+    {
+      "lane": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913",
+      "command": [
+        "npm",
+        "ci",
+        "--offline",
+        "--no-audit",
+        "--no-fund"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 2.332,
+      "package_lock_sha256": "0dd1616e1ef3c596d5cdaa8e56994f26127c20943bfde066f26c9f924c65d732"
+    }
+  ],
+  "passed": true,
+  "source_effect": false
+}

@@ -1,0 +1,16 @@
+{
+  "instruction_ref": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_LOCAL_DOWNLOAD_CONTINUATION_V1.md",
+  "root_origin_ref": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/RESULT_LOCAL_DOWNLOAD_REPAIR_V1.md",
+  "pre_effect_files": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "371934110f8f8561a492d0f18dfebcd26dc641cd001415d5a60b0a0b5473e4c7",
+      "bytes": 6668
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "93a9f2e871eb2b08500c751d4415c41f226e67de001ef2e695355355e46c4caa",
+      "bytes": 7757
+    }
+  ]
+}

@@ -1,0 +1,154 @@
+{
+  "lease": "ROOT_LEASE_UI_PROTOTYPE_01",
+  "candidateFreezeSHA256": "a3d8103ec6eb8c52e84e51ee7a42fd047e0c190f96d9a55d0b75eb64aec74263",
+  "files": [
+    {
+      "path": "README.md",
+      "preSha256": "13205488f01a8bc109a2124fc7cdf8b822a2f332aec555f00fdc40fceabc9dd0",
+      "postSha256": "13205488f01a8bc109a2124fc7cdf8b822a2f332aec555f00fdc40fceabc9dd0",
+      "bytes": 6475,
+      "unchanged": true
+    },
+    {
+      "path": "capability-map.json",
+      "preSha256": "7d32cf5ba4788ef2a2c789c8902abced7ec5ffb0a75861b4dcc6a5a31f5c497e",
+      "postSha256": "7d32cf5ba4788ef2a2c789c8902abced7ec5ffb0a75861b4dcc6a5a31f5c497e",
+      "bytes": 17258,
+      "unchanged": true
+    },
+    {
+      "path": "format_source.py",
+      "preSha256": "162c0281ce28c2e091b180693de49562e83ec305313ae8c288cfe0920fb43eb1",
+      "postSha256": "162c0281ce28c2e091b180693de49562e83ec305313ae8c288cfe0920fb43eb1",
+      "bytes": 1966,
+      "unchanged": true
+    },
+    {
+      "path": "freeze_candidate.py",
+      "preSha256": "b7040d9583bf987002784ba1a753f86972b6f94ce7e889bc186b49ca9e2c0a53",
+      "postSha256": "b7040d9583bf987002784ba1a753f86972b6f94ce7e889bc186b49ca9e2c0a53",
+      "bytes": 1625,
+      "unchanged": true
+    },
+    {
+      "path": "prepare_witness.py",
+      "preSha256": "d7676ab2ac61054681df3c8db4501e0e69d81b2a37f79947b4985bc850d1cd18",
+      "postSha256": "d7676ab2ac61054681df3c8db4501e0e69d81b2a37f79947b4985bc850d1cd18",
+      "bytes": 938,
+      "unchanged": true
+    },
+    {
+      "path": "prototype/capabilities.js",
+      "preSha256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+      "postSha256": "0a3391ae05877f66c8dcdaedf32d8e6e5a8e3067f130fa71d5c6d4186665c1b2",
+      "bytes": 16436,
+      "unchanged": true
+    },
+    {
+      "path": "prototype/index.html",
+      "preSha256": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709",
+      "postSha256": "d706104659464c555557d8be98574ba7703081529df378640ade0febfe74e709",
+      "bytes": 6582,
+      "unchanged": true
+    },
+    {
+      "path": "prototype/workspace.css",
+      "preSha256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+      "postSha256": "20ae8206d48f46f2ad670f57bb455badab22910917d90d46bd10f3381ee9f0c4",
+      "bytes": 12578,
+      "unchanged": true
+    },
+    {
+      "path": "prototype/workspace.js",
+      "preSha256": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b",
+      "postSha256": "5d0ca0cbd2267d5a0e32bce7952df174331ec1be49ad7e493706e0b5729df59b",
+      "bytes": 54889,
+      "unchanged": true
+    },
+    {
+      "path": "refine_source.py",
+      "preSha256": "27bd441e972ad7988e92c79ccaf3fd04f98d69a029ec91b7dc08e3bb00365bc8",
+      "postSha256": "27bd441e972ad7988e92c79ccaf3fd04f98d69a029ec91b7dc08e3bb00365bc8",
+      "bytes": 3327,
+      "unchanged": true
+    },
+    {
+      "path": "refine_witness.py",
+      "preSha256": "30dd47460818314ddd6b36e70f956c366444c4601e5d63edae262c16df060ba3",
+      "postSha256": "30dd47460818314ddd6b36e70f956c366444c4601e5d63edae262c16df060ba3",
+      "bytes": 1792,
+      "unchanged": true
+    },
+    {
+      "path": "state-intent-map.json",
+      "preSha256": "bec5f6e34fb0578442d4cd1f19a466376615da4962df5118eea002ac0d12bb9a",
+      "postSha256": "bec5f6e34fb0578442d4cd1f19a466376615da4962df5118eea002ac0d12bb9a",
+      "bytes": 2473,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1024x768-comfortable.svg",
+      "preSha256": "57a6b4e0c481b465636c7e6bcbc86ad11bd019dd6b2cb426790cecbd61c533d6",
+      "postSha256": "57a6b4e0c481b465636c7e6bcbc86ad11bd019dd6b2cb426790cecbd61c533d6",
+      "bytes": 20958,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1024x768-compact.svg",
+      "preSha256": "fe2d7b0034e8ea2fee181d6216a09db270d65a02c4094926417e05efd29512eb",
+      "postSha256": "fe2d7b0034e8ea2fee181d6216a09db270d65a02c4094926417e05efd29512eb",
+      "bytes": 21225,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1280x800-comfortable.svg",
+      "preSha256": "b03319506437a2f75ce475c7d1fe5f5984cd04578d9b489ba9bc124adb0ba0ad",
+      "postSha256": "b03319506437a2f75ce475c7d1fe5f5984cd04578d9b489ba9bc124adb0ba0ad",
+      "bytes": 21255,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1280x800-compact.svg",
+      "preSha256": "a609614256f266981434d2a8ab4e7cb40e9fcd555bf05c82fb63e2d81b68a1d1",
+      "postSha256": "a609614256f266981434d2a8ab4e7cb40e9fcd555bf05c82fb63e2d81b68a1d1",
+      "bytes": 21526,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1440x920-comfortable.svg",
+      "preSha256": "7fa05f09ff17d20cca074c3683e488bb972961dce14a8a292d3b092dcfcc57bb",
+      "postSha256": "7fa05f09ff17d20cca074c3683e488bb972961dce14a8a292d3b092dcfcc57bb",
+      "bytes": 21554,
+      "unchanged": true
+    },
+    {
+      "path": "wireframes/workspace-1440x920-compact.svg",
+      "preSha256": "f8a47c83cefe683663fc32b226fb4194c389874dc8b0a81db4c520b731707cb6",
+      "postSha256": "f8a47c83cefe683663fc32b226fb4194c389874dc8b0a81db4c520b731707cb6",
+      "bytes": 21549,
+      "unchanged": true
+    },
+    {
+      "path": "witness.mjs",
+      "preSha256": "0e8474088a8fabc164ba6a60a7231ae7b4e086107e5867151d4912baddc17856",
+      "postSha256": "0e8474088a8fabc164ba6a60a7231ae7b4e086107e5867151d4912baddc17856",
+      "bytes": 12217,
+      "unchanged": true
+    },
+    {
+      "path": "write_maps.py",
+      "preSha256": "1abf5ec00fdaf395a78fe5bdcbfc62787441d00e46dfa7b9e67886b76bb57139",
+      "postSha256": "1abf5ec00fdaf395a78fe5bdcbfc62787441d00e46dfa7b9e67886b76bb57139",
+      "bytes": 3830,
+      "unchanged": true
+    },
+    {
+      "path": "write_wireframes.py",
+      "preSha256": "be52fe24ac32fcd6316dc70315a0f99d5cfe2a0a896a37a5a31e744990cd3073",
+      "postSha256": "be52fe24ac32fcd6316dc70315a0f99d5cfe2a0a896a37a5a31e744990cd3073",
+      "bytes": 8565,
+      "unchanged": true
+    }
+  ],
+  "status": "syntax_checks_pass_browser_launch_blocked_no_repairs"
+}

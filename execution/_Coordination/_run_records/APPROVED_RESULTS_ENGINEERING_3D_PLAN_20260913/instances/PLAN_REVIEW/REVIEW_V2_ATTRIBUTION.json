@@ -1,0 +1,19 @@
+{
+  "parent": "/root",
+  "instance": "/root/next_plan_review",
+  "role": "TASK Type 2",
+  "configured_model": "gpt-6-astra",
+  "configured_effort": "high",
+  "fork_turns": "none",
+  "mechanism": "collaboration.spawn_agent delegated-harness-native",
+  "model_attribution": "parent-configured/tool-reported, not supplier-runtime attestation",
+  "no_writes_children": "instruction-asserted",
+  "return_source": "Exact final reviewer response supplied verbatim by parent in current message",
+  "return_sha256": "06755dd807c1c5ca6a4e67df1970ecd09ce47c6820af0b19e084534ede65d1bf",
+  "bindings": {
+    "instances/SETUP/_run_records/PLAN_REVIEW_V2_DISPATCH.json": "2814e15756768f520101de2d9a4c3a8f4f8b3aa6f4237b0e2c7bea3deb6466f0",
+    "briefs/PLAN_REVIEW_V2.md": "a8e52dda5c6e551361c866a0576a14bce656a7f84cd076b0994b8bcbf71ce39b",
+    "CANDIDATE_PLAN_V2.md": "ee0e3c6f08eeb825c5d95a7a422dfea19e763556ddb9947487452e6fe9d40cb6",
+    "CANDIDATE_PLAN_V2_MANIFEST.json": "209e807541f5297bcfd53f0806f02537f8adbf73631e485d56ea409923d0be43"
+  }
+}

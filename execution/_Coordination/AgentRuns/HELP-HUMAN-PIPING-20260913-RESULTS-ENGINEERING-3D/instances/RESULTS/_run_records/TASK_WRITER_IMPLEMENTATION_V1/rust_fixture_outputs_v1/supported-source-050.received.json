@@ -1,0 +1,25 @@
+{
+  "model_ref": "project:synthetic-semantic-contract",
+  "results": [
+    {
+      "basis_ref": null,
+      "entity_ref": "support:synthetic-source",
+      "id": "result:synthetic-supported-source-050",
+      "kind": "modulus_basis_record",
+      "metadata": {
+        "basis": "material_base_values",
+        "component": "material_modulus_basis",
+        "coordinate_system": "not_applicable",
+        "location": "load:synthetic-source-basis",
+        "sign_convention": "presence record; value1 names authoredbasis"
+      },
+      "source_result_refs": [],
+      "unit": "record",
+      "value": 1.0
+    }
+  ],
+  "run_id": "run:synthetic-semantic-contract",
+  "status": {
+    "mechanics": "MECHANICS_SOLVED"
+  }
+}

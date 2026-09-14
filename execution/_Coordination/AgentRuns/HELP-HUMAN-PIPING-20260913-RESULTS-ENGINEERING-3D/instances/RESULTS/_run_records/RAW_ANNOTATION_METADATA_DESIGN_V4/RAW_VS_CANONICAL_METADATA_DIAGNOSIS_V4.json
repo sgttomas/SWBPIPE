@@ -1,0 +1,36 @@
+{
+  "status": "CONFIRMED_READ_ONLY_SCHEMA_POLICY_CONFLICT_MINIMAL_REPAIR_PREPARED_WAIT_FULL_REVIEW",
+  "derivative_package": true,
+  "old_annotation_type": {
+    "anyOf": [
+      {
+        "$ref": "#/$defs/SourceMetadata"
+      },
+      {
+        "type": "null"
+      }
+    ]
+  },
+  "strict_source_metadata_required": [
+    "component",
+    "coordinate_system",
+    "location",
+    "basis",
+    "sign_convention"
+  ],
+  "strict_source_metadata_nonempty": true,
+  "exact_conflict": "Removing only location or basis leaves actual partial source metadata that must be copied to disclosure annotation; current SourceMetadata schema requires missing field, so no valid exact preservation exists without inventing it.",
+  "selected_minimal_direction": "Separate guarded raw annotation JSON from existing strict canonical ResultMetadata. Leave canonical enums and completeness requirement byteidentical; preserve all prior candidate schemas/fixtures.",
+  "prepared_partial_fixtures": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/RAW_ANNOTATION_METADATA_DESIGN_V4/PARTIAL_REVIEW_METADATA_FIXTURES_PREPARED_V4.json",
+    "sha256": "5439c2119cc1abcaa3759aad0eca8e0b31f3e85ca53dbb81f8b9bdc77520dd6d"
+  },
+  "proposed_fragment": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/RAW_ANNOTATION_METADATA_DESIGN_V4/ANNOTATION_ONLY_SCHEMA_FRAGMENT_PROPOSED_V4.json",
+    "sha256": "c732c901d07f80c7cb2cbb50c35d2e5918745dbf7a7bcdac226028eccd80a975"
+  },
+  "approval_state": "No consolidated candidate yet. Await reviewer complete precise return and root engineering acceptance; source release still held.",
+  "writer_restart": false,
+  "runtime_execution": false,
+  "product_source_effect": false
+}

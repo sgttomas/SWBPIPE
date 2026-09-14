@@ -1,0 +1,69 @@
+{
+  "kind": "Results manager immutable phase1 fan-in/evidence freeze",
+  "status": "READY_INDEPENDENT_CONTRACT_REVIEW_PRODUCT_EFFECT_HELD",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "root": "/root",
+  "manager": "/root/results_implementation_manager",
+  "actual_child": "/root/results_implementation_manager/results_writer",
+  "child_status": "FINISHED_IDLE_SLOT_RELEASED",
+  "lease": "ROOT_LEASE_RESULTS_BASELINE_01_RELEASED",
+  "accepted_scope_additive": "Precisely one existing App ResultExportPanel manifest proof prop and focused panel tests; no broad App/history change",
+  "files": [
+    {
+      "path": "RETURN.md",
+      "sha256": "7d31240f6916b6216e421d1ad063e8ba5d32c37233b3c500052ca3c247fffb24",
+      "bytes": 8120
+    },
+    {
+      "path": "_run_records/DAG_CURRENT_INTERFACE_APPLICABILITY_V2.json",
+      "sha256": "9e8ad51568291a04aea083731c9cfbfccfaff9eab83f0f94c30ab01aeb32ba6a",
+      "bytes": 122872
+    },
+    {
+      "path": "_run_records/ROOT_ADDITIVE_CALLER_FENCE_ACCEPTANCE_V1.json",
+      "sha256": "38b4e41cfacaaa7a76ae9317e67ec16dfcdddb982ad355d75bba7afb49dabf24",
+      "bytes": 932
+    },
+    {
+      "path": "_run_records/CHILD_PHASE1_INDEPENDENT_HASH_BACKCHECK_V1.json",
+      "sha256": "f6b15250f983a25482418c588629cf6910adbe7158b544342f1f75c0a1a3e242",
+      "bytes": 20849
+    },
+    {
+      "path": "_run_records/INDEPENDENT_ORIGINAL_SOURCE_EXPECTATIONS_V1.json",
+      "sha256": "0aaa82af57190de7ae7f692695513dbd70fd0d26d748fa15bb38cfba4f41a943",
+      "bytes": 1460683
+    },
+    {
+      "path": "_run_records/INDEPENDENT_SOURCE_MODEL_BINDING_EXPECTATIONS_V1.json",
+      "sha256": "dee5ff97346210e40312fc916ef9b98c5974f84139f31b8bf8dfb4e96a76cd49",
+      "bytes": 18223
+    },
+    {
+      "path": "_run_records/IMMUTABLE_LEGACY_BINDER_SOURCE_FREEZE_V1.json",
+      "sha256": "df1bf79b128aa2ff5f8a1dc3a5559dbcea0b6274fb1cba8e2f7ddd7bae662270",
+      "bytes": 3092
+    },
+    {
+      "path": "_run_records/INDEPENDENT_CURRENT_BASELINE_RETURN_V1.json",
+      "sha256": "c06263db1b18756fcf124ada8f86149f0ee3efd109c021c27b959ee4b493f0c1",
+      "bytes": 6340
+    },
+    {
+      "path": "_run_records/TASK_WRITER/MANIFEST_FINAL_PHASE1.json",
+      "sha256": "2cb948c8b426af93b13c376affd669e9284c73ed6fcca4f96fb103f4aae346f4",
+      "bytes": 19880
+    },
+    {
+      "path": "_run_records/PHYSICAL_ARTIFACT_INVENTORY_PHASE1_FINAL_V1.json",
+      "sha256": "10935ce3e88a7808beb11c8d840ec675a5ac697921dbd16c5dd4026497f8b32a",
+      "bytes": 42070
+    }
+  ],
+  "remaining": [
+    "independent frozen contract review/acceptance",
+    "product source release/implementation and focused tests",
+    "genuine nonconvergence producer witness",
+    "full independent source review/DEC025/native/browser/closure/root integration"
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "status": "DESIGN_CANDIDATE_COMPLETE_PENDING_ROOT_ANALYTICAL_REFUTATION_AND_ACCEPTANCE",
+  "role": "HELPS_HUMANS Type1",
+  "parent": "/root HELP_HUMAN",
+  "source_commit": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "write_scope": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/**",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "allocation_attribution": "parent-configured; not independently runtime/supplier-attested",
+  "approved_plan_sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+  "manager_brief_sha256": "81a8f876ce671d9e847621776bababcb439afa1073fa2507a5a3b2b59ae41929",
+  "selected_candidate": "CANDIDATE_MANIFEST_V2.json",
+  "derivative_package": true,
+  "accepted_upstream": "Source8f27 and actual user-approvedV3 design undertaking; source-qualified supplied approval/Step0/archive origins in _run_records",
+  "tested": "Bound source/brief/archive/plan/candidate hashes, JSON parsing and read-only source/scope inventory only",
+  "untested": "Mathematical oracle execution, independent analytical refutation, source implementation, tests/build/native/browser, effects/public activation",
+  "children_dispatched": [],
+  "handoff": "Root schedules fresh analytical refutation then freeze acceptance; public physics/migration/acceptance/dependency consequences remain held; rerun current consumer/source currency before later effect",
+  "outputs": [
+    {
+      "path": "CANDIDATE_FOR_REFUTATION_V1.md",
+      "sha256": "b28b66f2e83b855d0570f99351e45d5de9967c5d344c518f5031c73f797dbffc",
+      "bytes": 3405
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V1.json",
+      "sha256": "d3dda1d5f56443aded17672f1da709d7dc7862568185a7c0a8fee9870e58b110",
+      "bytes": 1869
+    },
+    {
+      "path": "CANDIDATE_MANIFEST_V2.json",
+      "sha256": "cd77084b55e07f83561d30120547839f0f0614c59bd52174809456b0fc7ec610",
+      "bytes": 2590
+    },
+    {
+      "path": "CONSUMER_INVENTORY_SUPPLEMENT_V1.json",
+      "sha256": "8196e749fd766d6d042dfa95f034aad29fb99642109757e598d9cc48aa0fd2ca",
+      "bytes": 2135
+    },
+    {
+      "path": "CONSUMER_MAP_V1.json",
+      "sha256": "b0fe3ea58f2a847309f88940289bb4b8f0d0d82ab6eb91bbfb0b57fbfdb570c6",
+      "bytes": 30755
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "858a09381aaa30da854814e2f65d9d5ca9b1412f79aa3bb7bdb9b56dc45ea03b",
+      "bytes": 5688
+    },
+    {
+      "path": "UI_BACKFILL_V1.md",
+      "sha256": "0be6de5972d913f3bb362b731e5adb893bbe6207331eded5dc8748076692c9ae",
+      "bytes": 4607
+    },
+    {
+      "path": "_run_records/CONTEXT_ORIGINS_V1.json",
+      "sha256": "a483bc532cb01abbafd067b2e9bc6af5947c0fe791f4ff463e25c2795d7c62e9",
+      "bytes": 51871
+    },
+    {
+      "path": "_run_records/DELIVERABLE_CONTEXT_EXCERPTS_V1.md",
+      "sha256": "12e961015c2c8567eead4a5f107c603771f728d9fef7d5215e3c1cfe7d2f8fa9",
+      "bytes": 32554
+    },
+    {
+      "path": "_run_records/DEPENDENCY_APPLICABILITY_V1.json",
+      "sha256": "e9f24720a88431a70c6bbb645cb7971c913c2d87edf74e39b11832e1d392c75c",
+      "bytes": 22472
+    },
+    {
+      "path": "_run_records/ENGINEERING_CHOICE_RATIONALE_V1.md",
+      "sha256": "e478ad3698748872111179eca3e48b9a778ecbe65d0381da3694cbabe86d544e",
+      "bytes": 4591
+    },
+    {
+      "path": "_run_records/PHYSICAL_ARTIFACT_INVENTORY_V1.json",
+      "sha256": "dc459521e26e31583fe6d56126e9dfcf3cb0971f2bf09a554c3e8fe86c7cb519",
+      "bytes": 3529
+    },
+    {
+      "path": "_run_records/READ_FAILURES_V1.json",
+      "sha256": "2feefb28404ee44c0450fae590822471278b634af94b9a4f92a5b3770b72bf58",
+      "bytes": 1191
+    },
+    {
+      "path": "briefs/OBJECTIVE_CONNECTOR_V1.md",
+      "sha256": "d4a06c616669e1f55f2c4401f8427514abb5a4c6fb20a497dca91ee8b2e8373c",
+      "bytes": 5077
+    },
+    {
+      "path": "briefs/PRESSURE_RUNTIME_V2.md",
+      "sha256": "962fe3690a71fbf7eddcf26e156991dad9db72729481a0ebaf8e835d667b4817",
+      "bytes": 4808
+    },
+    {
+      "path": "briefs/PRIVATE_PRESSURE_KERNEL_V1.md",
+      "sha256": "26e0001669ca4e05e88cec3fe1ea21071f60c68284e854df7f4ccfd321735d34",
+      "bytes": 4244
+    },
+    {
+      "path": "contracts/COMPOSITION_SUMMARY_REFINEMENT_V1.md",
+      "sha256": "2011eb138c9790fc8b3c39b619f5af26e117e48595979ce642956443b5d7336d",
+      "bytes": 4820
+    },
+    {
+      "path": "contracts/CONNECTOR_CONTRACT_V1.md",
+      "sha256": "2f7939eb1f11eeb42e537d2edb7dd4b98e71fb232eeaebfd2db77152212fc4c4",
+      "bytes": 15655
+    },
+    {
+      "path": "contracts/PRESSURE_CONTRACT_V1.md",
+      "sha256": "044232ff9c0ba8d86591611050f1d0f04a10b46c40f6831ef4013cc9e79d2710",
+      "bytes": 15601
+    },
+    {
+      "path": "verification/ANALYTICAL_ORACLES_V1.json",
+      "sha256": "6549d544accae7131127e8a87c748ea514c21b4f4c0381b5cec7c135d9c0d76c",
+      "bytes": 14268
+    }
+  ],
+  "artifact_bytes_excluding_manifest": 231730,
+  "self_referential_manifest_excluded": true
+}

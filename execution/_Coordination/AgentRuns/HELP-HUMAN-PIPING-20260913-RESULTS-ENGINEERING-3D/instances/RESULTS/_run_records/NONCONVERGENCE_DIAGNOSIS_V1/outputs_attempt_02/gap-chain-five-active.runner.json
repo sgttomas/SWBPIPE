@@ -1,0 +1,73 @@
+{
+  "run_id": "run:headless-preview:gap-witness-gap-chain-five-active",
+  "job": {
+    "job_id": "job:gap-witness-gap-chain-five-active",
+    "state": "COMPLETED",
+    "current_step": 3,
+    "total_steps": 3,
+    "cancellation_supported": true,
+    "cancellation_requested": false
+  },
+  "analysis_status": [
+    "HUMAN_REVIEW_REQUIRED",
+    "MODEL_INCOMPLETE",
+    "RULE_INPUTS_INCOMPLETE"
+  ],
+  "result_envelope_ref": {
+    "schema_ref": "schemas/results.schema.yaml",
+    "envelope_ref": {
+      "ref_type": "result_envelope",
+      "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-active"
+    },
+    "compatibility": "schema_first_json_result_envelope"
+  },
+  "result_refs": [],
+  "audit_manifest_ref": {
+    "ref_type": "audit_manifest",
+    "ref_id": "audit-manifest:run:headless-preview:gap-witness-gap-chain-five-active"
+  },
+  "checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "runner_request",
+        "ref_id": "gap-witness-gap-chain-five-active"
+      },
+      "value": "8349fad54c5be13165f33ec4028a996f8eac708e43bc28d31f18ef52e6a284b5"
+    },
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "ref_type": "result_envelope",
+        "ref_id": "result-envelope:run:headless-preview:gap-witness-gap-chain-five-active"
+      },
+      "value": "c6154f95af1b009d0dc59a808a3500c3746eb0931318bfe9ff4289673b198200"
+    }
+  ],
+  "diagnostics": [],
+  "privacy": {
+    "local_only": true,
+    "telemetry_allowed": false,
+    "private_payload_redacted": true,
+    "classification": "public_metadata"
+  },
+  "provenance": {
+    "source_name": "Invented current public-product axial gap chain",
+    "source_location": "instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/inputs",
+    "source_license": "project invented",
+    "contributor": "OpenPipeStress",
+    "contributor_certification": "invented non-engineering example",
+    "redistribution_status": "invented_non_engineering_example",
+    "review_status": "accepted"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_makes_compliance_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_approval_claim": false,
+    "software_makes_authentication_claim": false
+  }
+}

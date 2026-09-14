@@ -1,0 +1,222 @@
+{
+  "kind": "Additive ongoing phase1 orchestration/leases/evidence locator; not acceptance",
+  "parent": "/root",
+  "recorder": "/root/workflow_contact_setup TASK Sol/medium",
+  "source_base": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355",
+  "status": "ONGOING_EXECUTION",
+  "supersedes_count_only": "ROOT PHASE1 snapshot baseline ten solved/eleven cases is incorrect; exact current baseline is twelve cases/eleven solved plus one blocked. Prior root and manager snapshots preserved.",
+  "capacity": {
+    "maximum_active_including_root": 6,
+    "parent_reported_current_active": [
+      "/root",
+      "/root/results_implementation_manager",
+      "/root/results_implementation_manager/results_writer",
+      "/root/next_ui_design",
+      "/root/engineering_refutation",
+      "/root/workflow_contact_setup"
+    ],
+    "idle_or_completed": [
+      "/root/next_engineering_design frozenV3/idle",
+      "/root/next_ui_design/prototype complete",
+      "/root/results_contract_review original review finished"
+    ],
+    "qualification": "Current active count is parent observation, not independent supplier process enforcement; TASK recorder returns idle after bounded work"
+  },
+  "review_lineage": {
+    "results": "Actual fresh direct-root TASK Astra/high original review CHANGES_REQUIRED RCR-01/P1 complete supported pairs and RCR-02/P2 sparse target oracle; same manager/child active successor contract; independent backcheck/source release pending",
+    "engineering": "Actual fresh direct-root TASK Astra/xhigh original review CHANGES_REQUIRED ER-01/P2 exact-pressure component scalar review consumer; same reviewer now V3 backcheck, no second fresh reviewer invented"
+  },
+  "models": "Root dispatch/source metadata confirms parent-configured/tool-reported model/effort, not runtime supplier attestation",
+  "leases": [
+    {
+      "id": "RESULTS_BASELINE_01",
+      "state": "RELEASED",
+      "cargo_exit": 0,
+      "schema_exit": 1,
+      "result": "Expected strict schema failure, not PASS",
+      "cases": 12,
+      "solved": 11,
+      "blocked": 1,
+      "all_errors": 672,
+      "main_errors": 196,
+      "raw_rows": 2991
+    },
+    {
+      "id": "UI_PROTOTYPE_01",
+      "state": "RELEASED",
+      "exit": 1,
+      "result": "Missing requested Chromium headless1234; failure before browser launch; no product failure inferred"
+    },
+    {
+      "id": "UI_PROTOTYPE_02",
+      "state": "RELEASED",
+      "exit": 0,
+      "result": "Explicit installed1223; six configurations and three simulated journeys pass; design self-check only"
+    },
+    {
+      "id": "ENGINEERING_MATH_01",
+      "state": "RELEASED",
+      "exit": 0,
+      "result": "Amended before execution to V2 independent pure Fraction checker;111 exact assertions, no production imports"
+    },
+    {
+      "id": "RESULTS_GAP_01",
+      "state": "RELEASED",
+      "exit": 1,
+      "result": "Guide with rotational DOFs rejected; failed input driver retained"
+    },
+    {
+      "id": "RESULTS_GAP_02",
+      "state": "RELEASED",
+      "exit": 0,
+      "result": "Only nonaxial Guide-to-Anchor input repair; N5 cap4 actual nonlinear nonconvergence diagnostics and no canonical docs, public MODEL_INCOMPLETE/zero rows; N2 active/N5 inactive solved controls pass"
+    },
+    {
+      "id": "UI_REFINEMENT_01",
+      "state": "RELEASED",
+      "exit": 1,
+      "result": "Case-sensitive property-caption harness assertion failed; preserved"
+    },
+    {
+      "id": "UI_REFINEMENT_02",
+      "state": "RELEASED",
+      "exit": 0,
+      "result": "Case-normalized harness passes six targeted configurations, prototype assets unchanged"
+    }
+  ],
+  "source_outcome_refs": [
+    {
+      "lane": "INTEGRATION",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/PHASE1_DISPATCH_AND_LEASES_V1.json",
+      "sha256": "f7d7e5c41e411361deb18a14bfda6e43006200c9ff773c980043a4242b2d48f0",
+      "bytes": 6922
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/BASELINE_COUNT_CORRECTION_DISPOSITION_V1.json",
+      "sha256": "a88da6e441d0f375b043d26cd6f2b936554779dc03df4d646a49e6a3bbf2c522",
+      "bytes": 3912
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER/BASELINE_EXECUTION_V1.json",
+      "sha256": "a72ea1d7fc382c0cdd2956e54cac48c3b3a60b7bd448c4d2258df2f7d7a1b34e",
+      "bytes": 1172
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/INDEPENDENT_CURRENT_BASELINE_RETURN_V1.json",
+      "sha256": "c06263db1b18756fcf124ada8f86149f0ee3efd109c021c27b959ee4b493f0c1",
+      "bytes": 6340
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/attempt_01.exit.json",
+      "sha256": "22b824e78618e1b5060851b6aed2a9836d5b1b13f14d26ef9d079a2026890997",
+      "bytes": 203
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/attempt_02.exit.json",
+      "sha256": "4db950bdbc4902cfe6a954b735ac3b65c6987e5605a6d313bd9afae9bfef6bfc",
+      "bytes": 212
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/logs/EXACT_INPUT_REPAIR_COMPARISON_V1.json",
+      "sha256": "85bb7db670bb5867785db9e2b983559c60a9c9d61fe7cc5bd9f15c51947c21f6",
+      "bytes": 1908
+    },
+    {
+      "lane": "RESULTS",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NONCONVERGENCE_DIAGNOSIS_V1/outputs_attempt_02/WITNESS_RETURN_V1.json",
+      "sha256": "329a2292667d82323fd9e54cb6a7da682b43f49a8d7fc4a0c65c00fdcac5bc84",
+      "bytes": 1688
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/children/PROTOTYPE/_run_records/04-witness-launch-failure.json",
+      "sha256": "12ec28ab126826de58c362ec3c3abf580147b206b6c616496f6c8d3148576f16",
+      "bytes": 2119
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/children/PROTOTYPE/_run_records/06-witness-v2-terminal.json",
+      "sha256": "086fe42aecc4e510043802e7f511bdc9485409ea0d1418c1b647130403bcd184",
+      "bytes": 4463
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/children/PROTOTYPE/_run_records/witness-v2/REPORT.json",
+      "sha256": "c4aacb32333831a1370da5442ca9addae4dc67f72cf5c5f4a7807c1738b1dd1f",
+      "bytes": 172855
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/_run_records/refinement-03-runtime.json",
+      "sha256": "cc07180cb467f383dc2ec589f42045fd6bb81c5ee423a47cb6d29a7b34588b78",
+      "bytes": 1398
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/_run_records/refinement-05-runtime-v2.json",
+      "sha256": "bfce72bf46f132ee1e986109deb1cb3c18aa4afc9181813770adc65012953f70",
+      "bytes": 4299
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/_run_records/refinement-witness-v2/REPORT.json",
+      "sha256": "8045b20002336344c40f73bedc87f08d4310b90c5de9a65b33fa0464f071a720",
+      "bytes": 5381
+    },
+    {
+      "lane": "INTEGRATION",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING_REFUTATION/_run_records/MATH_EXECUTION_V2.json",
+      "sha256": "86e68b5b413d90b809f946c544d88a2a6da7b4f105055c086191aff731483925",
+      "bytes": 907
+    },
+    {
+      "lane": "INTEGRATION",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING_REFUTATION/_run_records/independent_math_v2.stdout.json",
+      "sha256": "9660e568674601cfd4c42d9e4c6091b30362d6744ea8afadc62c4bdcada03eb7",
+      "bytes": 4626
+    },
+    {
+      "lane": "INTEGRATION",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS_CONTRACT_REVIEW/RETURN.md",
+      "sha256": "665bf0e0965847f70d3be5863c39c83fffd0278a66d0d6947056147a51c4a7f1",
+      "bytes": 10701
+    },
+    {
+      "lane": "INTEGRATION",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING_REFUTATION/RETURN.md",
+      "sha256": "f6ac2eac0bb3c628d79c2458784a7fe7d5a51efbbb3dd5c46ca033e752c7adab",
+      "bytes": 7846
+    },
+    {
+      "lane": "ENGINEERING",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/CANDIDATE_MANIFEST_V3.json",
+      "sha256": "3dff84b6632aa2ba9a979eee49223d938f740fea7db3b0f4ebc4a12a72abbe3b",
+      "bytes": 3666
+    },
+    {
+      "lane": "ENGINEERING",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/MANIFEST_V2.json",
+      "sha256": "41f114dea0f99f3e82775c54387085243195553c54a1de3c255c78eadaab0cbc",
+      "bytes": 1916
+    },
+    {
+      "lane": "UI",
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/children/PROTOTYPE/MANIFEST.json",
+      "sha256": "e866442bd86d8e5ada5ebcc5673f48fcd7e11a5c4a9b3ebd1a3f35f3ff55da22",
+      "bytes": 17176
+    }
+  ],
+  "queued_work": [
+    "RESULTS successor source-covered semantic table/variants and unambiguous sparse target binding, then same independent contract backcheck and root source release",
+    "ENGINEERING frozenV3 ER-01 refinement backcheck/parent acceptance, no equation rerun if oracles unchanged",
+    "UI final prototype/manager freeze then independent design/walkthrough review and visual alignment",
+    "Later sole product writer effect and required source/native/browser/fullDEC025/local/publication gates under explicit leases"
+  ],
+  "boundaries": "All leases parent-reported released; this TASK runs no runtime/test/build/browser/network or Git mutation. No formal DAG/receipt/status acceptance and no Codex Plan-card replacement claim."
+}

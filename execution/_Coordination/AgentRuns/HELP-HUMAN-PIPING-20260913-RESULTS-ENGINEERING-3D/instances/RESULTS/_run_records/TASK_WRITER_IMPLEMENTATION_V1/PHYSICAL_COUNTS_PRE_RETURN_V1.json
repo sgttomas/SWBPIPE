@@ -1,0 +1,31 @@
+{
+  "current_evidence_pre_return_files": 873,
+  "current_evidence_pre_return_bytes": 173855611,
+  "ignored_groups": [
+    {
+      "class": "node_modules",
+      "files": 11330,
+      "bytes": 207787738
+    },
+    {
+      "class": "desktop_node_modules",
+      "files": 1,
+      "bytes": 1371
+    },
+    {
+      "class": "wasm_engine_generated",
+      "files": 4,
+      "bytes": 991809
+    },
+    {
+      "class": "self_weight_generated",
+      "files": 4,
+      "bytes": 692975
+    },
+    {
+      "class": "external_runtime_target",
+      "files": 8924,
+      "bytes": 1208417458
+    }
+  ]
+}

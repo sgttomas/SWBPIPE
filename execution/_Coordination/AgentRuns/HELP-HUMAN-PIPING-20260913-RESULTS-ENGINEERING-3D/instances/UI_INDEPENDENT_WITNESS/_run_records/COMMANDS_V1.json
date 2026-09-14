@@ -1,0 +1,59 @@
+{
+  "tool": "functions.exec \u2192 tools.exec_command / tools.write_stdin; tools.view_image for local QA",
+  "preparation": [
+    {
+      "command": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node --check /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/independent-witness-v1.mjs",
+      "exit": 0,
+      "browserExecution": false
+    },
+    {
+      "command": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node --check /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/independent-pointer-parity-v1.mjs",
+      "exit": 0,
+      "browserExecution": false
+    }
+  ],
+  "actualBrowser": {
+    "lease": "ROOT_LEASE_UI_INDEPENDENT_01",
+    "command": "/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/independent-witness-v1.mjs > /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/browser-v1.stdout.txt 2> /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI_INDEPENDENT_WITNESS/_run_records/browser-v1.stderr.txt",
+    "processSession": 90402,
+    "exit": 0,
+    "stdout": "_run_records/browser-v1.stdout.txt",
+    "stderr": "_run_records/browser-v1.stderr.txt",
+    "finallyClosed": true
+  },
+  "readOnlySourceQualification": [
+    {
+      "command": "git rev-parse HEAD",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913",
+      "exit": 0,
+      "stdout": "8f27fa3d8ec5e128e61fd3ac4076e74d7955f355"
+    },
+    {
+      "command": "git status --short",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-3d-design-20260913",
+      "exit": 0,
+      "stdout": "?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/"
+    }
+  ],
+  "authorEvidenceHandling": "Author scripts were not inspected semantically, copied or executed as acceptance methods. Raw file bytes, including scripts named in upstream MANIFEST, were read only to independently hash/rebind all139 manifest entries. Independently authored script/assertions are separate.",
+  "supplement": {
+    "status": "PREPARED_NOT_EXECUTED_LEASE_NOT_GRANTED",
+    "rootDisposition": "Finish first immutable return; await isolated discrete-row successor then targeted pointer-to-typed plus discrete witness; no active browser."
+  },
+  "visualQA": {
+    "tool": "tools.view_image",
+    "contactSheets": [
+      "route",
+      "property",
+      "current",
+      "historical"
+    ],
+    "originalImages": [
+      "1024x768-comfortable-route",
+      "1024x768-comfortable-property",
+      "1024x768-compact-historical",
+      "1440x920-comfortable-current"
+    ],
+    "result": "No essential-control clipping or overlap observed; long forms/dock use internal scroll. Small model annotations not certified for accessibility/readability."
+  }
+}

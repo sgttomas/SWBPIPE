@@ -1,0 +1,265 @@
+{
+  "curved_pressure_full_document.json": {
+    "offending_values": {
+      "component": [
+        "nodal_displacement_x",
+        "nodal_displacement_y",
+        "nodal_displacement_z",
+        "nodal_rotation_x",
+        "nodal_rotation_y",
+        "nodal_rotation_z",
+        "user_entered_component_stress_multiplier"
+      ],
+      "basis": [
+        "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness"
+      ],
+      "coordinate_system": [
+        "component_review"
+      ],
+      "location": [
+        "pipe:P-100:end_j"
+      ]
+    },
+    "status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": {
+      "audit_manifest_ref": {
+        "ref_id": "audit-manifest:run:headless-preview:p5-curved-pressure-full",
+        "ref_type": "audit_manifest"
+      },
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "p5-curved-pressure-full",
+          "ref_type": "runner_request"
+        },
+        "value": "f5935ded323ef291814a1e5d6aea0663df00115adf8b7fd6fb69f8414504f067"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "ref_id": "result-envelope:run:headless-preview:p5-curved-pressure-full",
+            "ref_type": "result_envelope"
+          },
+          "value": "22043e353267c809347a428599295c355ec952fc1a9b0b674deaf997d1c765bc"
+        }
+      ]
+    }
+  },
+  "curved_tip_weight_full_document.json": {
+    "offending_values": {
+      "component": [
+        "nodal_displacement_x",
+        "nodal_displacement_y",
+        "nodal_displacement_z",
+        "nodal_rotation_x",
+        "nodal_rotation_y",
+        "nodal_rotation_z",
+        "user_entered_component_stress_multiplier"
+      ],
+      "basis": [
+        "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=2;source=invented_user_entered_preview_no_code_table;solver_consumption=curved_bend_macro_element;flexibility_realization=assembled_curved_bend_macro_element_stiffness"
+      ],
+      "coordinate_system": [
+        "component_review"
+      ],
+      "location": [
+        "pipe:P-100:end_j"
+      ]
+    },
+    "status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": {
+      "audit_manifest_ref": {
+        "ref_id": "audit-manifest:run:headless-preview:p5-curved-tip-weight-full",
+        "ref_type": "audit_manifest"
+      },
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "p5-curved-tip-weight-full",
+          "ref_type": "runner_request"
+        },
+        "value": "7a099348c7cdc52affb9f084c6f44fa414e8f4802ddcf7c4d6e30a548ea11bef"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "ref_id": "result-envelope:run:headless-preview:p5-curved-tip-weight-full",
+            "ref_type": "result_envelope"
+          },
+          "value": "f05f3f981ddb5082e0de5e19fe91042bf6a9a5feb62b6ac67211ef5edbdafd65"
+        }
+      ]
+    }
+  },
+  "straight_full_document.json": {
+    "offending_values": {
+      "component": [
+        "constant_effort_support_constant_load",
+        "expansion_joint_pressure_thrust",
+        "nodal_displacement_x",
+        "nodal_displacement_y",
+        "nodal_displacement_z",
+        "nodal_rotation_x",
+        "nodal_rotation_y",
+        "nodal_rotation_z",
+        "user_entered_component_stress_multiplier",
+        "variable_spring_hanger_cold_load",
+        "variable_spring_hanger_hot_load",
+        "variable_spring_hanger_installed_load"
+      ],
+      "basis": [
+        "component_family=bend;component_side=through;user_entered_sif=1.15;user_entered_flexibility=1.08;source=invented_user_entered_preview_no_code_table;solver_consumption=mechanics_geometry_only",
+        "component_family=branch;component_side=branch;user_entered_sif=1.31;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "component_family=branch;component_side=header;user_entered_sif=1.22;user_entered_flexibility=1.05;source=invented_user_entered_branch_modifiers_no_code_table;solver_consumption=mechanics_geometry_only",
+        "component_family=expansion_joint;pressure_thrust_generation=load_side_user_effective_area;effective_area=0.018;source=invented_user_entered_expansion_joint_preview_geometry;pressure_thrust=load_side_pressure_thrust_user_review_required;solver_consumption=mechanics_geometry_and_user_flexibility",
+        "support_family=constant_effort_support;field=constant-load;source=invented_user_entered_constant_effort_values_no_catalog;manufacturer=invented_user_entered_constant_effort_reference_no_catalog;load_side_review=review_only_constant_load_not_combined_as_load_effect;mechanics_consumption=load_side_review_only_no_global_solve_consumption;dec_ref=DEC-049",
+        "support_family=variable_spring_hanger;field=cold-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "support_family=variable_spring_hanger;field=hot-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+        "support_family=variable_spring_hanger;field=installed-load;source=invented_user_entered_spring_hanger_values_no_catalog;manufacturer=invented_user_entered_variable_hanger_reference_no_catalog;load_side_review=invented_review_only_hot_cold_load_metadata;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049"
+      ],
+      "coordinate_system": [
+        "component_review",
+        "support_local_preview"
+      ],
+      "location": [
+        "node:N-120:constant-load",
+        "node:N-140:cold-load",
+        "node:N-140:hot-load",
+        "node:N-140:installed-load",
+        "pipe:P-100:end_j",
+        "pipe:P-110:end_i",
+        "pipe:P-110:end_j",
+        "pipe:P-120:end_i",
+        "pipe:P-130"
+      ]
+    },
+    "status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": {
+      "audit_manifest_ref": {
+        "ref_id": "audit-manifest:run:headless-preview:p5-straight-full",
+        "ref_type": "audit_manifest"
+      },
+      "deterministic_ordering": true,
+      "model_hash": {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "ref_id": "p5-straight-full",
+          "ref_type": "runner_request"
+        },
+        "value": "30edb484fbc97e63bb301aaa95df55d0b5b85cfc0f0ef3924a1109ab0ee0f707"
+      },
+      "run_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "ref_id": "result-envelope:run:headless-preview:p5-straight-full",
+            "ref_type": "result_envelope"
+          },
+          "value": "f09edd36ff0acced0d41d281fa1e26ce23d50ee9a53011afbb2371ab276a787d"
+        }
+      ]
+    }
+  },
+  "initial-solved500.json": {
+    "status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:preview-linear-static-001"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "15a55a5e4e488861a8869f5d1aa98f6a7eb18612195fefdb8b93f6f09555daee"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:preview-linear-static-001"
+        },
+        "payload_scope": "result_envelope",
+        "value": "21191209deeab9182fe55620b2955cd23d7d22e807767177f8b2cb7729fe748c"
+      }
+    ],
+    "missing_requirements": [
+      "'created_at' is a required property",
+      "'diagnostics' is a required property",
+      "'environment_refs' is a required property",
+      "'library_refs' is a required property",
+      "'provenance' is a required property",
+      "'rule_pack_refs' is a required property",
+      "'settings_ref' is a required property",
+      "'solver_version' is a required property",
+      "'unit_system_ref' is a required property"
+    ]
+  },
+  "blocked-native.json": {
+    "status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MODEL_INCOMPLETE",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:preview-linear-static-blocked"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "15b1510f48bb1913089ef2fc9236bd72b5f847fe29abcd2e0eab8d6b0f1bb1d8"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:preview-linear-static-blocked"
+        },
+        "payload_scope": "result_envelope",
+        "value": "9193b8b18e2012d947231dc97b35dc396f908cde37af0cf194dce08486133027"
+      }
+    ],
+    "missing_requirements": [
+      "'created_at' is a required property",
+      "'diagnostics' is a required property",
+      "'environment_refs' is a required property",
+      "'library_refs' is a required property",
+      "'provenance' is a required property",
+      "'rule_pack_refs' is a required property",
+      "'settings_ref' is a required property",
+      "'solver_version' is a required property",
+      "'unit_system_ref' is a required property"
+    ]
+  }
+}

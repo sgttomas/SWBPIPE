@@ -1,3 +1,4 @@
+import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, Terminal } from "lucide-react";
 import type { AnalysisRunEnvelope, Diagnostic, MechanicsResult, ObjectRef, PreviewModel, SolveJobAuditState } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
@@ -100,7 +101,7 @@ function RunnerLine({ label, value, testId }: { label: string; value: string; te
   );
 }
 
-function buildHeadlessRunnerPacket({
+export function buildHeadlessRunnerPacket({
   model,
   result,
   analysisRun,
@@ -130,6 +131,7 @@ function buildHeadlessRunnerPacket({
     sourceLocation: "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx"
   });
   const unitPreservationWitnesses = headlessUnitPreservationWitnesses(model, result);
+  for(const item of result?.results ?? []) if(!unitPreservationWitnesses.some(w=>w.source_result_ref.ref_id===item.id)) diagnostics.push(runnerDiagnostic({code:"RUNNER_RECEIVED_DIMENSION_WITNESS_UNAVAILABLE",severity:"warning",message:`${item.id}: received dimension declaration unavailable; numerical source evidence remains referenced.`,affected_refs:[item.id]}));
   const checksums = run?.hashes.map(checksumRef) ?? [
     {
       algorithm: "TBD",
@@ -258,12 +260,12 @@ function runnerDiagnosticClass(item: Diagnostic): string {
 
 function headlessUnitPreservationWitnesses(model: PreviewModel, result: MechanicsResult | null) {
   return (result?.results ?? [])
-    .filter((item) => Number.isFinite(item.value))
+    .filter((item) => Number.isFinite(item.value) && typeof item.dimension === "string" && Boolean(item.dimension))
     .slice()
     .sort((left, right) => left.id.localeCompare(right.id))
     .map((item) => {
-      const family = resultFamily(item);
-      const dimension = resultDimension(family, item.kind);
+      const family = semanticFamily(item);
+      const dimension = item.dimension!; // reference-only received declaration
       return {
         witness_id: `headless-runner-unit:${safeFileToken(item.id)}`,
         source_result_ref: reference("result_value", item.id),
@@ -280,7 +282,7 @@ function headlessUnitPreservationWitnesses(model: PreviewModel, result: Mechanic
           unit: item.unit,
           dimension
         },
-        target_quantity_policy: "headless_runner_handoff_preserves_source_value_unit_and_dimension",
+        target_quantity_policy: "headless_runner_handoff_preserves_received_value_unit_and_declared_dimension",
         export_unit_policy: "preserve_source_result_unit_and_dimension",
         conversion_performed: false,
         unit_system_ref: reference("UnitSystem", `${model.project.id}:units`),
@@ -295,27 +297,6 @@ function headlessUnitPreservationWitnesses(model: PreviewModel, result: Mechanic
     });
 }
 
-function resultFamily(item: MechanicsResult["results"][number]): string {
-  const kind = item.kind.toLowerCase();
-  const id = item.id.toLowerCase();
-  if (kind.includes("displacement") || id.includes("disp")) return "displacement";
-  if (kind.includes("reaction") || id.includes("reaction")) return "reaction";
-  if (kind.includes("force") || id.includes("force")) return "force";
-  if (kind.includes("moment") || id.includes("moment")) return "moment";
-  if (kind.includes("stress") || id.includes("stress")) return "stress";
-  if (kind.includes("ratio") || id.includes("ratio")) return "ratio";
-  return "ratio";
-}
-
-function resultDimension(family: string, kind: string): string {
-  if (family === "displacement") return "length";
-  if (family === "reaction" || family === "force") return "force";
-  if (family === "moment") return "moment";
-  if (family === "stress") return "stress";
-  if (family === "ratio") return "dimensionless";
-  if (kind.toLowerCase().includes("rotation")) return "angle";
-  return "TBD";
-}
 
 function jobState(
   solveJob: SolveJobAuditState
