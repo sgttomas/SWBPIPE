@@ -1,0 +1,38 @@
+{
+  "status": "ROOT_HANDOFF_READY_BOUNDED_FOCUS_ACCEPTED_RUNTIME_RELEASED",
+  "derivative_package": true,
+  "child_return": {
+    "path": "RETURN_V1.json",
+    "sha256": "1d32a4a42c50c6a66ea869686baeb5adef034c88a1e0142df3b98ace619662d5"
+  },
+  "selected_child_manifest": {
+    "path": "MANIFEST_V2.json",
+    "sha256": "f5f9246022be49f2c756dd54c279f7b6deba27dc8aca45f6f58cfd3cc0246965"
+  },
+  "preserved_predecessor_manifest": {
+    "path": "MANIFEST_V1.json",
+    "sha256": "c11e4a640418cdeb8cdd7640929ab3a4973b11dbb2280c1ba52cb38c7240dd64"
+  },
+  "manager_final_backcheck": {
+    "path": "MANAGER_FINAL_BACKCHECK_V1.json",
+    "sha256": "43955dee7d498d092228b4d8da3c200d8d2829b0b8496bd255aff08217dc0056"
+  },
+  "source": [
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "bytes": 16211
+    }
+  ],
+  "transfer_patch": {
+    "path": "source_delta_v3.patch",
+    "sha256": "18b0499606ea40f71cf33aa73abb5cf11b06d5b0b239b0fc69e2ba604ddddbf2"
+  },
+  "remaining": "Root affected-source review/import/clean commit -> actual nativeV2 FIRST -> full DEC025_V5 same source; both mandatory -> final governed acceptance/CI/PR/authorized merge.",
+  "utc": "2026-09-14T06:08:18.207597+00:00"
+}

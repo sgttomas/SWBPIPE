@@ -1,0 +1,30 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/assert_analytical_rows.py",
+      "--snapshot",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-stable.json",
+      "--force",
+      "350"
+    ],
+    "exit_code": 0,
+    "stdout": "analytical-350-final.stdout.json",
+    "stderr": "analytical-350-final.stderr",
+    "purpose": "sealed materialization of same frozen independent350 check"
+  },
+  {
+    "argv": [
+      "python3",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/assert_analytical_rows.py",
+      "--snapshot",
+      "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-freshsolve500.json",
+      "--force",
+      "500"
+    ],
+    "exit_code": 0,
+    "stdout": "analytical-fresh500-final.stdout.json",
+    "stderr": "analytical-fresh500-final.stderr",
+    "purpose": "new post-normal-reopen fresh500 solve independently verified"
+  }
+]

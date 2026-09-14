@@ -1,0 +1,130 @@
+{
+  "status": "RETROSPECTIVE_EXACT_FAILURE_LEDGER_SUPPLEMENT",
+  "core_success_command_records": [
+    "COMMAND_NATIVE_BUILD_V1.json",
+    "COMMAND_NATIVE_SELFTEST_V1.json",
+    "COMMAND_NATIVE_ABNORMAL_RECOVERY_V1.json",
+    "COMMAND_FINAL_ANALYTICAL_BINDING_V1.json",
+    "COMMAND_NATIVE_COPY_LINK_MARKER_V1.json",
+    "COMMAND_CAPTURED_PAYLOAD_VERIFY_V1.json",
+    "COMMAND_ACTUAL_SCHEMA_VALIDATION_V1.json"
+  ],
+  "failed_and_resolved_attempts": [
+    {
+      "api": "nvapp.click(261)",
+      "outcome": "invalid element ID after an intervening full AX tree changed numbering",
+      "resolution": "observed enabled Apply coordinate clicked; explicit native receipt verified"
+    },
+    {
+      "command": "python3 snapshot_store.py --store <declared exact isolated store> --output gui-authored350.sqlite3 --project project:blank-local-20260914t051915z",
+      "exit": 1,
+      "exception": "sqlite3.OperationalError unable to open database file",
+      "effect": "empty own gui-authored350.sqlite3 preserved"
+    },
+    {
+      "command": "same prepared snapshot_store.py same output retry",
+      "exit": 1,
+      "exception": "AssertionError not output.exists",
+      "effect": "no overwrite"
+    },
+    {
+      "command": "python3 scoped store sqlite3 mode=ro SELECT via Path.as_uri",
+      "exit": 1,
+      "exception": "unable to open database file"
+    },
+    {
+      "command": "python3 scoped store sqlite3 plain absolute path SELECT project_id only",
+      "exit": 0,
+      "effect": "no mutation statement; connection closed"
+    },
+    {
+      "command": "python3 scoped store explicit file:/ URI mode=ro SELECT project_id only",
+      "exit": 0,
+      "effect": "initial success; premature percent-URI diagnosis later retracted"
+    },
+    {
+      "command": "python3 snapshot_store_v2.py --output gui-authored350-v2.sqlite3 --project exact fresh project",
+      "exit": 0,
+      "effect": "genuine online backup succeeded for authored350 only"
+    },
+    {
+      "command": "python3 snapshot_store_v2.py --output gui-solved350.sqlite3 --project exact fresh project",
+      "exit": 1,
+      "exception": "unable to open database file",
+      "effect": "empty output preserved"
+    },
+    {
+      "command": "python3 assert_analytical_rows.py --snapshot gui-solved350.json --force350",
+      "exit": 1,
+      "exception": "FileNotFoundError absent failed snapshot JSON"
+    },
+    {
+      "command": "python3 snapshot_store_v2.py --output gui-solved350-v2.sqlite3 --project exact fresh project",
+      "exit": 1,
+      "exception": "unable to open database file",
+      "effect": "empty output preserved"
+    },
+    {
+      "command": "python3 explicit file:/ mode=ro SELECT project_id,length(mechanics_result_json)",
+      "exit": 1,
+      "exception": "unable to open database file",
+      "effect": "no sidecars observed; stopped live URI retries"
+    },
+    {
+      "command": "python3 stable exact standalone SQLite byte read plus offline copy mode=ro integrity_check",
+      "exit": 1,
+      "exception": "unable to open database file on offline copy",
+      "effect": "valid standalone raw copy preserved"
+    },
+    {
+      "command": "python3 offline same copy mode=ro&immutable=1 integrity_check and SELECT",
+      "exit": 0,
+      "effect": "integrity ok; source/copy bytes equality, no sidecars; stable standalone capture route accepted by parent"
+    },
+    {
+      "api": "native setValue Proposal batch JSON then Queue imported batch for review",
+      "outcome": "macOS smart quotes, JSON Parse error Unterminated string",
+      "resolution": "failure AX preserved; exact text paste restores ASCII JSON; native validated/apply succeeded"
+    },
+    {
+      "command": "extra strict comparison to signature-level expected_example_canonical_metadata",
+      "exit": 1,
+      "exception": "AssertionError at metadata example",
+      "resolution": "44 mismatches are generic end-i signature examples versus actual end-j/stations; frozen per-row source_metadata exact_finite_copy policy PASS, no expectation file changed"
+    }
+  ],
+  "actual_download_interaction_failures": [
+    {
+      "api": "click actual observed enabled Local result JSON [83,582] then getAXState",
+      "outcome": "noWindowsAvailable"
+    },
+    {
+      "api": "getApp exact isolated identifier",
+      "outcome": "timeoutReached"
+    },
+    {
+      "api": "isolated getScreenshot",
+      "outcome": "timeoutReached"
+    },
+    {
+      "api": "genuine super+q attempt",
+      "outcome": "timeoutReached"
+    }
+  ],
+  "narrow_download_observation": [
+    {
+      "command": "resolved Downloads glob openpipestress-preview-results-* metadata only within screenshotmtime[-10,+120]s",
+      "exit": 130,
+      "outcome": "scandir stalled; scoped keyboard interrupt; no metadata or content received"
+    },
+    {
+      "command": "timeout-bounded exact expected filename stat",
+      "exit": 1,
+      "outcome": "FileNotFoundError expected synthetic filename absent; no unrelated file read"
+    }
+  ],
+  "source_edits": false,
+  "git_mutations": false,
+  "ordinary_store_touched": false,
+  "clipboard_fallback": "one harmless marker-first native observed Copy Link, prefix asserted before persistence; no unrelated pre-existing clipboard read"
+}

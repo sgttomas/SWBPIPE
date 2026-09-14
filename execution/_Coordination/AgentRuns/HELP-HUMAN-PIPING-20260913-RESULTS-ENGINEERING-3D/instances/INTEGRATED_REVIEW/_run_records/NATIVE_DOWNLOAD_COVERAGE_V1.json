@@ -1,0 +1,209 @@
+{
+  "status": "PASS_NO_ACTIONABLE_AFFECTED_SOURCE_FINDINGS",
+  "derivative_package": true,
+  "source_commit_before_repair": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_DOWNLOAD_REPAIR_V1.md",
+      "sha256": "8789b87b830f178b0a859513efc25ae4dbcb0ebde8f28adab8d709cb70cff948",
+      "bytes": 7129
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_VERIFICATION_ORDER_ADDENDUM_V1.md",
+      "sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+      "bytes": 2329
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V5.json",
+      "sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+      "bytes": 20838
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/DIAGNOSIS_V1.md",
+      "sha256": "ae9633325639727146a9054d5f148e8013c2467a9e4bcb9ba51620ce794ff717",
+      "bytes": 8836
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/AMENDMENT_V2.md",
+      "sha256": "f1430766e1b6ca5670173ec9dde648d41025dec3387d259e25fd7b5b0d385f7f",
+      "bytes": 7776
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/PRE_EFFECT_EXPECTATION_FREEZE_V1.json",
+      "sha256": "d69f606f5a5fefab407c86b4c2fdbe69802f973441162087481e9d76b2d52dfd",
+      "bytes": 5373
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/STATIC_SOURCE_AND_COMMAND_FREEZE_V2.json",
+      "sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada",
+      "bytes": 18470
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/STATIC_SOURCE_AND_COMMAND_FREEZE_V3.json",
+      "sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+      "bytes": 19892
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/source_delta_v3.patch",
+      "sha256": "18b0499606ea40f71cf33aa73abb5cf11b06d5b0b239b0fc69e2ba604ddddbf2",
+      "bytes": 18190
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/RETURN_V1.json",
+      "sha256": "1d32a4a42c50c6a66ea869686baeb5adef034c88a1e0142df3b98ace619662d5",
+      "bytes": 16781
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/MANIFEST_V2.json",
+      "sha256": "f5f9246022be49f2c756dd54c279f7b6deba27dc8aca45f6f58cfd3cc0246965",
+      "bytes": 9307
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/MANAGER_FINAL_BACKCHECK_V1.json",
+      "sha256": "43955dee7d498d092228b4d8da3c200d8d2829b0b8496bd255aff08217dc0056",
+      "bytes": 3431
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/MANAGER_FINAL_FAN_IN_V1.json",
+      "sha256": "77431b0c17a605661bbf70c0125cfc94839c8c22ed2753af0f6e8ed0dbe96a98",
+      "bytes": 1468
+    }
+  ],
+  "actual_integration_and_writer_source45_verified": true,
+  "previous43_unchanged": true,
+  "affected_sources": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "bytes": 16211
+    }
+  ],
+  "entire_patch_reproduced_from_original_final_bytes": true,
+  "manual_coverage": "Every affected lib.rs hunk; all new helper production logic and tests; final fixture-only correction. All other lib.rs bytes original.",
+  "locked_primary_source_hashes_verified": [
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/navigation.rs",
+      "sha256": "1898665e051edf10124178aa596b02dd121b33e1ccf7bb48b54d859d46e73aae",
+      "bytes": 3357
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/download.rs",
+      "sha256": "3b67113c3d13a2082992d284a1e995e07c06a9b892b3ed2dae9b7370daa0f6c0",
+      "bytes": 3987
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/class/wry_download_delegate.rs",
+      "sha256": "d52460df67678eccb4c5d409c9d24a81d5c63ff04eee6a76e5558c9ccd341756",
+      "bytes": 2354
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/mod.rs",
+      "sha256": "686ef932c341c2a5a7317419f7be36af557c4fe262ee7de2f819d01510299cad",
+      "bytes": 51287
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/mod.rs",
+      "sha256": "954cf212cb79d6b566c10b76d2ff2da05bc637cfc9f666c2f03d4e3dddf35f1c",
+      "bytes": 81201
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/webview_window.rs",
+      "sha256": "00993e28209fe87fdeea148213f7572bcf2eecb4738bae69a711d4493b35b60e",
+      "bytes": 92619
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/app.rs",
+      "sha256": "d2bbeff336c5699ca74b1455ed7575b48ad3315e2266b9871e8355cfab6e61c1",
+      "bytes": 86863
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.1/src/lib.rs",
+      "sha256": "508c0eba506999840acd328fa429624bf91fcf3f88abfe4bd7e2dc3fb2ce87bd",
+      "bytes": 166891
+    }
+  ],
+  "assessment": {
+    "bootstrap": "config_mut before run changes only resolved unique main.create on macOS; automatic Tauri creation filters create before user setup. Same resolved config is cloned into from_config+hook once; existing menu/invoke/store behavior preserved. Nonmac auto-creation unchanged. Tests compare full production/portable isolated-equivalent config including omittedcreate defaults; actual window witness pending.",
+    "callback": "Locked runtime-wry parses URL before callback. Existing Wry preselects Downloads or cwd fallback and collision suffix. Application resolves Downloads each Requested and prevents fallback admission. Finished does not authorize/download or attest a file.",
+    "route": "Exact nonempty canonical JSON data prefix and lowercase ASCII alphanumeric single-hyphen filename family; positive non-leading-zero collision suffix. Reject other media/routes/names. No decode/reencode, body parsing or destination mutation.",
+    "filesystem": "Absolute existing directory root; direct lexical child of platform or canonical Downloads; explicit dot/traversal/trailing separator denied; canonical parent equality and no existing final entry or check error. Symlinked platform root accepted per root policy; nested alias denied even with canonical equality. No concurrent replacement/atomic/durability or deliberate user-redirection guarantee.",
+    "tests": "Original001 compile success but7PASS1FAIL; positive fixture used /var alias instead of canonical/private/var. V3 canonicalizes only that positive fixture; production and nested-alias negative unchanged. Actual003 helper8PASS80filtered, actual002 three existing frontend suites18PASS. No nonmac runtime/native file delivery inferred."
+  },
+  "commands": [
+    {
+      "attempt": "attempt001",
+      "command": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt001/command.json",
+        "sha256": "06d3fa86bb1f237e29e37a4cbf63ac2a699d573c3a04c994978fb439dd1dad4b",
+        "bytes": 851
+      },
+      "result": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt001/result.json",
+        "sha256": "d3560469d46811ca1754515e204531b96df7910a4f243f660481329787cf8473",
+        "bytes": 1235
+      },
+      "exit_code": 101,
+      "source_freeze_sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada"
+    },
+    {
+      "attempt": "attempt003",
+      "command": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt003/command.json",
+        "sha256": "1aba36d653322b4ebb52f5cfdb0b2bf9274930991bebac5eb4d6e8c1b693c510",
+        "bytes": 867
+      },
+      "result": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt003/result.json",
+        "sha256": "ccdb11c3ee8bdc0f881d5cf0156731769f0031034c2010c1f17b2f1ba0ea83b1",
+        "bytes": 1247
+      },
+      "exit_code": 0,
+      "source_freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70"
+    },
+    {
+      "attempt": "attempt002",
+      "command": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt002/command.json",
+        "sha256": "26a04d6d49a90e89da47d9e7979ce24bc2f06de5f908cbdfef55006658409557",
+        "bytes": 810
+      },
+      "result": {
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1/attempt002/result.json",
+        "sha256": "4d356f338e0365b65b31f065050f219d36e47cc2b1ebffa2d4079c95a7ac9d34",
+        "bytes": 1188
+      },
+      "exit_code": 0,
+      "source_freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70"
+    }
+  ],
+  "packet_verification": {
+    "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1",
+    "manifest_entries": 45,
+    "manifested_bytes": 1101107,
+    "physical_total": 48,
+    "exact_hashes_lengths_inventory": true,
+    "extras": "Selected manifest itself plus two explicit final manager records",
+    "current_snapshot": "native_result_download.v3.rs; unversioned snapshot is historicalV1",
+    "manager_probe_error": "Initial checker assumed unversioned helper current; preserved/corrected snapshot selection only."
+  },
+  "external_test_binary_hash_verified": true,
+  "native_and_full_sweep": "Pending. Helper source checks do not establish original href/file bytes, actual window creation, actual suggested name/collision behavior, responsiveness, or resolved CUA timeout mechanism.",
+  "order_addendum": "Focused+review+cleancommit -> actual isolated nativeV2 -> mandatory clean fullDEC025_V5 same source after lease release; rehash native artifacts after sweep. No required gate waived.",
+  "reviewer_preparation_notes": [
+    "In-memory patch reconstruction initially added unnecessary blank separator; exact concatenation matches.",
+    "First seal inventory assertion encountered two newly sealed additive manager records; no review writes occurred before correction. Both records are now checked."
+  ],
+  "findings": [],
+  "reviewer_runtime_git_network_delegation": false,
+  "remaining": [
+    "Root acceptance and clean candidate commit",
+    "Fresh nativeV2 build/selftest/350-repeat350-500 exact files, collision, responsiveness and normal quit/reopen",
+    "Complete clean registeredDEC025_V5 on same source with native artifact rehash",
+    "Actual metadata and final acceptance/handoff review; governance/CI/publication"
+  ]
+}

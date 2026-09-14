@@ -1,0 +1,145 @@
+{
+  "accepted_source_commit": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "all43_source_paths_unchanged": true,
+  "binary_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "binary_sha256": "7ed5163a7277be7aa7683c6d697bbdf178a94408f9a73a97fab5da1095d88d46",
+  "bundle_dist_file_inventory": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/Info.plist",
+      "sha256": "fde9379559563d64ff6e1b73f707cf01699221d4cf8fc7fa3b82aa815fbc3dad",
+      "bytes": 1106
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+      "sha256": "7ed5163a7277be7aa7683c6d697bbdf178a94408f9a73a97fab5da1095d88d46",
+      "bytes": 19895584
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/Resources/icon.icns",
+      "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e",
+      "bytes": 77148
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/index-BbqXWFNO.css",
+      "sha256": "f1b3bc415ae58d738ddb318ea05d6bfaa18dc42ba919dd58914d3a17657aee72",
+      "bytes": 58611
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/index-x_FGiFi0.js",
+      "sha256": "198b611c1d5479251723ab6805bbb1733542eb3ecc6918396386ac0b2ff6d6dc",
+      "bytes": 1183083
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_agent_proposal-Bm57LVt-.js",
+      "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c",
+      "bytes": 1820
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_demo_rule_pack-dhX9tvT1.js",
+      "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a",
+      "bytes": 10858
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_design_knowledge-H12r-oKQ.js",
+      "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040",
+      "bytes": 1660
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_mechanics_result-CleTy2JL.js",
+      "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d",
+      "bytes": 502608
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/invented_preview_model-pJA3_nB8.js",
+      "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a",
+      "bytes": 12670
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-7OC5HNn7.js",
+      "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76",
+      "bytes": 3613
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-icons-Fcg__Luf.js",
+      "sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c",
+      "bytes": 18788
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-react-BT_8sX57.js",
+      "sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4",
+      "bytes": 188744
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-tauri-DlQNAQKj.js",
+      "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73",
+      "bytes": 91
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/assets/vendor-three-DC4iGhup.js",
+      "sha256": "3d965cf58a28a9e737a33c5bea71debec18f024efe9c82fa9e35499b1b748e7f",
+      "bytes": 526268
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/index.html",
+      "sha256": "2987f340c169a9e7783e2b4dd2ad52b1a2ef2050896bf905479fa5156ceaf5b9",
+      "bytes": 1158
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "bytes": 1688
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "bytes": 6961
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "4987390a5f66240fde6d70e15639526690bbf352a4d7de712239784b924b6c96",
+      "bytes": 683958
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "bytes": 520
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+      "bytes": 3744
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+      "bytes": 13172
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "e409c312d7e56ab7e5e108a47349591bf070d7df0bfb434396c0c8d80a233712",
+      "bytes": 973620
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+      "bytes": 1261
+    }
+  ],
+  "plist": {
+    "CFBundleDevelopmentRegion": "English",
+    "CFBundleDisplayName": "SWBPIPE Results Engineering 3D Witness 20260913",
+    "CFBundleExecutable": "openpipestress-desktop",
+    "CFBundleIdentifier": "org.openpipestress.technical-preview.results-engineering-3d-20260913",
+    "CFBundleInfoDictionaryVersion": "6.0",
+    "CFBundleName": "SWBPIPE Results Engineering 3D Witness 20260913",
+    "CFBundlePackageType": "APPL",
+    "CFBundleShortVersionString": "0.1.0",
+    "CFBundleVersion": "0.1.0",
+    "CSResourcesFileMapped": true,
+    "LSMinimumSystemVersion": "10.13",
+    "CFBundleIconFile": "icon.icns",
+    "LSRequiresCarbon": true,
+    "NSHighResolutionCapable": true
+  },
+  "build_command_record": "COMMAND_NATIVE_BUILD_V1.json"
+}

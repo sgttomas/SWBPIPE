@@ -1,0 +1,12 @@
+{
+  "source": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.results-engineering-3d-20260913/openpipestress-projects.sqlite3",
+  "method": "ordinary stable exact byte read, no SQLite source connection; immutable=1 read of offline copy",
+  "sidecars": [],
+  "source_copy_recheck_equal": true,
+  "source_sha256": "b2e042249b0e81998edf56bde73a69be4f1b6947ad5d939c576d4c3974deaca0",
+  "snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-stable.sqlite3",
+  "copy_integrity": "ok",
+  "source_journal_mode_inferred": false,
+  "source_uri_failure_persists": true,
+  "prior_URI_diagnosis_retracted": true
+}

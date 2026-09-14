@@ -1,0 +1,10 @@
+{
+  "scope": "only exact expected synthetic filename stat; no content read",
+  "expected_filename": "openpipestress-preview-results-run-preview-linear-static-001.json",
+  "prefix_glob_attempt": "stalled scandir; scoped interrupt exit130, no metadata received",
+  "download_success_claim": false,
+  "stat_exit": 1,
+  "stat_stdout": "",
+  "stat_stderr": "Traceback (most recent call last):\n  File \"<string>\", line 1, in <module>\n  File \"/Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py\", line 1222, in stat\n    return self._accessor.stat(self)\nFileNotFoundError: [Errno 2] No such file or directory: '/Users/ryan/Downloads/openpipestress-preview-results-run-preview-linear-static-001.json'\n",
+  "timeout": false
+}

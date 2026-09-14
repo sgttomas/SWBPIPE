@@ -1,0 +1,60 @@
+{
+  "status": "PROPOSED_PRE_EFFECT_FREEZE_REQUIRES_PARENT_ADOPTION",
+  "source_basis": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "parent": "/root",
+  "executor": "/root/native_export_diagnosis",
+  "checks": [
+    {
+      "id": "NEXP-01",
+      "surface": "Window bootstrap",
+      "expectation": "Exactly one existing main window from original config with all title/label/size/menu/dev/prod/isolation attributes retained; no unrelated window effects."
+    },
+    {
+      "id": "NEXP-02",
+      "surface": "Native route",
+      "expectation": "Existing canonical result data URL and safe JSON filename family admitted; unrelated/network downloads do not gain authorization. Actual macOS event proves suggested filename and data URL handling; no blocking dialog in callback."
+    },
+    {
+      "id": "NEXP-03",
+      "surface": "Exact bytes",
+      "expectation": "Downloaded file contains exactly the UTF-8 bytes from the already-screened canonical href, with no pretty printing, trailing-newline change, BOM, wrapper, field insertion or rehash. Unit-level unusual whitespace/Unicode/escape fidelity plus actual file source/hash verification required. An adapter-generated object or event callback is not the actual file."
+    },
+    {
+      "id": "NEXP-04",
+      "surface": "Privacy and intent",
+      "expectation": "Own unchecked checkbox prevents href/download; another route/source-embedded intent grants none. Existing unknown/private warnings remain; protected/rejected/quarantined/secret and canonical materialization changes remain blocked. No new document policy or metadata rule."
+    },
+    {
+      "id": "NEXP-05",
+      "surface": "Current binding",
+      "expectation": "350N Current canonical export succeeds only with exact model/result/run/input-manifest bindings; same-ID edit invalidates export before async rebuild; missing/stale/blocked/nonconverged and Historical remain excluded. Reopen preserves Historical rather than minting Current."
+    },
+    {
+      "id": "NEXP-06",
+      "surface": "Native positive",
+      "expectation": "Fresh isolated actual GUI350 and edited500 exports yield real nonempty JSON files; strict full-document schema/version/hash/source-row/accounting checks and frozen independent analytical witnesses pass. Numerical allowance remains 0.5e-6 + 1e-10 in declared units; identity/hash exact."
+    },
+    {
+      "id": "NEXP-07",
+      "surface": "Download destination",
+      "expectation": "Observe actual resulting synthetic filename/path and file bytes; repeat download does not overwrite prior file under native collision behavior. Do not infer file path from macOS Finished(path=None). If download fails, no success claim or copied-link substitute."
+    },
+    {
+      "id": "NEXP-08",
+      "surface": "Native lifecycle",
+      "expectation": "After click main app remains visible/responsive, editing/saving/reopening work and genuine normal quit/relaunch is observed; distinguish CUA/provider failure and OS/app failure using independent evidence if needed."
+    },
+    {
+      "id": "NEXP-09",
+      "surface": "Unchanged contracts",
+      "expectation": "No schema/version/format/operation kind/project-store migration/transport serialization/public protocol change; report package and other route policies unchanged. Existing no-new-wire boundary preserved by native hook; alternative IPC requires explicit parent reconciliation."
+    },
+    {
+      "id": "NEXP-10",
+      "surface": "Qualification",
+      "expectation": "Targeted checks then fresh independent affected-source review, full clean registered DEC025 five-surface sweep, fresh source-bound native build/self-test/GUI acceptance on exact candidate; no stale-source pass reuse."
+    }
+  ],
+  "implementation_performed": false,
+  "tests_run_by_diagnoser": false
+}

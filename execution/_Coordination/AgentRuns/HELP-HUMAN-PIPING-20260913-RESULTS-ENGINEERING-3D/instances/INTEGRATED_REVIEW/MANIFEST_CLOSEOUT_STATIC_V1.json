@@ -1,0 +1,19 @@
+{
+  "status": "STATIC_REVIEW_COMPLETE_FINAL_CLOSEOUT_HELD",
+  "derivative_package": true,
+  "source43_manifest_sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+  "files": [
+    {
+      "path": "RETURN_CLOSEOUT_STATIC_V1.md",
+      "sha256": "450b879699f28453f3542066b73c555dde6af7481d1ae25e41979dc51068ab26",
+      "bytes": 2106
+    },
+    {
+      "path": "_run_records/CLOSEOUT_STATIC_COVERAGE_V1.json",
+      "sha256": "dc70ca8ae5da53ffbfd3236f6001b2ef5d2648523e512895e80465524f4968e7",
+      "bytes": 6690
+    }
+  ],
+  "self_hash_scope": "Self excluded; detached hash reported",
+  "final_closeout_pass": false
+}

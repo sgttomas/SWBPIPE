@@ -1,0 +1,9 @@
+{
+  "source": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.results-engineering-3d-20260913/openpipestress-projects.sqlite3",
+  "method": "quiescent completed Save exact standalone SQLite byte read; offline-copy immutable read",
+  "sidecars": [],
+  "double_read_equal": true,
+  "source_sha256": "5ad99682cb66a0fc12e6aa30735e0afd05b2370593dab372c54d1a4f43c89b55",
+  "copy_integrity": "ok",
+  "project_id": "project:blank-local-20260914t051915z"
+}

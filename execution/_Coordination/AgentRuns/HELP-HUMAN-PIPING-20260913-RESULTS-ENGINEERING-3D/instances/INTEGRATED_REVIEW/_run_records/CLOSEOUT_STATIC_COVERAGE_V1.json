@@ -1,0 +1,109 @@
+{
+  "status": "STATIC_PREPARATION_REVIEW_COMPLETE_FINAL_CLOSEOUT_HELD",
+  "derivative_package": true,
+  "source_commit": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "inputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_CLOSEOUT_V1.md",
+      "sha256": "7b63e1bd84057101ecfb7103e4a3819df8b5bf14c3c89833f1a06196acb3ac48",
+      "bytes": 3365
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/closeout-finalization-v3/MANIFEST_V3.json",
+      "sha256": "c1cfff36068f3a37594c19622a8e74cb11fc4b02c43827e19b79f69e88eafe0f",
+      "bytes": 694
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/closeout-finalization-v3/CONDITIONAL_CLOSEOUT_V3.patch",
+      "sha256": "b9108532a7bda52f2b3f78d474b3f2435b0c857633826e8d2bd773d4d14e6677",
+      "bytes": 27908
+    },
+    {
+      "path": "/tmp/chirality-results-engineering-3d-20260913/closeout-finalization-v3/INPUT_DELTA_MAP_V3.json",
+      "sha256": "6c45e2c00f3ef3a5c19bd9800b8050423d7820d4f9208d10ce01285ffae2ec26",
+      "bytes": 11351
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V4.json",
+      "sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+      "bytes": 19920
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V4/RETURN.json",
+      "sha256": "841a6285a9abf2cec1086c55043f4a3e9494e02571336c9487704fcd5682cc01",
+      "bytes": 914
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V4/sweep/SWEEP_20260914T050204Z_0a687ed5ff21.json",
+      "sha256": "31dc9a0c33d4c00f099b05c07b490d447cc04e33813e5d029f645fc6511f8a77",
+      "bytes": 3933
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RAW_EVIDENCE_WHITESPACE_DISPOSITION_V1.json",
+      "sha256": "ac2a2924b25c4edca63de9372d694879e37328083cad220a6acf87a9fa469c27",
+      "bytes": 11456
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FRESH_NATIVE_BUILD_BINDING_V1.json",
+      "sha256": "9b44c962bf6ba020d35107298d3e2abdd90c91f5a6d1e05730b0102e4c52d691",
+      "bytes": 6779
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_NATIVE_SELFTEST_V1.json",
+      "sha256": "1a8a0478351b21bc82d8ec94bb3ff5c3015e43388f94bedc7a16325447cbe397",
+      "bytes": 547
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/native-selftest-v1.json",
+      "sha256": "3821bc35b5ac117d57f1fd6f2f26f75c751a3d806a423e39bcb63e79069943c7",
+      "bytes": 5371
+    }
+  ],
+  "source43_unchanged": true,
+  "conditional_draft": {
+    "all19_original_hashes_verified": true,
+    "complete19_file_patch_manually_reviewed": true,
+    "scope": "16 MEMORY additions, two STATUS residual/history updates, Receipt140 only",
+    "no_actionable_static_finding": true,
+    "not_applied_or_accepted": true,
+    "final_source_date_acceptance_sweep_native_pointers_remain_placeholders": true,
+    "residuals_preserved": [
+      "PDU-033",
+      "whole canonical analysis/current-record compatibility",
+      "legacy Current-admission",
+      "stress-preview schema follow-on",
+      "target numerical conversions",
+      "pressure/connector runtime unactivated",
+      "production UI and personal owner visual alignment separate"
+    ]
+  },
+  "complete_sweep": {
+    "DEC025_V4": "exit0/all five registered surfaces pass on clean 0a687ed5; full command/log/summary hash and length bindings verified",
+    "counts": "Rust38 crates, Python1014, desktop869, source browser30, distribution3; production build pass",
+    "no_substitution_for_native": true
+  },
+  "raw_whitespace": {
+    "five_raw_files_hashes_lengths_verified": true,
+    "preserved_original_check_exit": 2,
+    "reason": "Verbatim error contexts and logs retain exact captured whitespace; no test/CI waiver or raw rewrite"
+  },
+  "completed_native_only": {
+    "binary_and24_bundle_dist_hashes_verified": true,
+    "native_selftest": "exit0, file-backed saved-edited-load test, fifteen analytical witness values within declared tolerance",
+    "selftest_limits": "Separate from actual GUI/export/quit-reopen; missing native analysis builder/input manifest remains explicitly absent in its payload",
+    "live_store_or_gui_diagnosis_performed_by_reviewer": false
+  },
+  "root_reported_blocker": {
+    "attribution": "Parent HELP_HUMAN message, not independent native runtime by reviewer",
+    "observation": "Enabled Local result JSON click followed by CUA noWindowsAvailable; selection/screenshot/normal-quit timeouts while isolated process alive. No successful download/file/href capture observed. Exact-PID SIGTERM recovery and reopen succeeded; Historical350 integrity observable.",
+    "disposition": "Final acceptance and closeout held. Fresh independent native-export diagnosis active; no defect cause inferred here."
+  },
+  "remaining": [
+    "Sealed native failure/diagnosis disposition",
+    "Any separately authorized repair and affected independent review/verification",
+    "Actual root-applied nineteen-file metadata with exact pointers/source",
+    "Final acceptance and handoff",
+    "Final closeout review"
+  ],
+  "effects": "Only authorized additive review evidence writes; no source, Git, runtime, browser, native, network or delegation effects by reviewer"
+}

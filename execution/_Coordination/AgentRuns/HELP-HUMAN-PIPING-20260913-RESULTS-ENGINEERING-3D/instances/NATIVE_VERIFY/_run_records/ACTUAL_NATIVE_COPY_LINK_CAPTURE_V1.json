@@ -1,0 +1,16 @@
+{
+  "status": "CAPTURED_ACTUAL_NATIVE_HREF_PAYLOAD_ONLY",
+  "marker_set_before_copy": true,
+  "observed_action": "exact native contextmenu WKMenuItemIdentifierCopyLink",
+  "prefix": "data:application/json;charset=utf-8,",
+  "prefix_asserted_before_any_persistence": true,
+  "actual_href_sha256": "d804d4d950c87768e05275a2a042c7c6339dc638204c4bce64bb6c3cef0141f2",
+  "actual_href_bytes": 419442,
+  "percent_decoded_payload_raw_sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+  "payload_raw_bytes": 308766,
+  "canonical_raw_copy": "actual-native-canonical500.json",
+  "canonical_encoding": "JSON",
+  "anchor_activation_in_this_phase": false,
+  "file_download_success": false,
+  "prior_native_click_failure_preserved": true
+}

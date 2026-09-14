@@ -1,0 +1,20 @@
+{
+  "status": "45_SOURCE_CANDIDATE_ACCEPTED_FOR_NATIVE_AND_COMPLETE_SWEEP",
+  "source_commit_before_repair": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "source_inventory_sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+  "independent_review_return_sha256": "29355216c8fd33b9684d416ce15d05235d25bb6e00c27f47c0ecfe10a85cc94c",
+  "independent_review_manifest_sha256": "4ec0701461acb9f91527cfcd9c596f1267d5a376397025f007b890cd1ed422fc",
+  "manager_fan_in_sha256": "77431b0c17a605661bbf70c0125cfc94839c8c22ed2753af0f6e8ed0dbe96a98",
+  "root_backcheck": "Read complete affected source and independent review; exact two-file import, prior43 equality, all48 packet files/1115313 bytes rehashed. Eight native helper and eighteen existing frontend tests pass. Initial positive fixture failure and manager historical snapshot selection correction preserved. No product guard weakening.",
+  "receipt_precommit_return_sha256": "528097c84e89f0bb75d943f60df915c0c8e740188b9bff085688619455773dd7",
+  "order_addendum_sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+  "native_prior": "V1 partial payload/lifecycle pass with unresolved actual file delivery; no copied-link file success",
+  "open_gates": [
+    "Clean source commit and fresh native actual file V2",
+    "Complete same-source DEC025_V5",
+    "Final deliverable/receipt/handoff acceptance and independent review",
+    "Affected governance/practitioner/self-check/receipt and actual-head CI",
+    "Scoped PR and authorized merge"
+  ],
+  "formal_state": "No decomposition/DAG/lifecycle/release change"
+}

@@ -1,0 +1,302 @@
+Window: "SWBPIPE Results Engineering 3D Witness 20260913", App: SWBPIPE Results Engineering 3D Witness 20260913.
+0 standard window SWBPIPE Results Engineering 3D Witness 20260913, Secondary Actions: Raise
+	1 scroll area
+		2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+			3 container
+				4 heading OpenPipeStress, Value: 1
+					5 text OpenPipeStress
+				6 text Blank Local Model
+				7 container Local project controls
+					8 summary Units, Value: off
+						9 text Units
+					10 button Create local
+					11 button New blank
+					12 button Open local
+					13 button List local
+					14 button Save local
+				15 container (collapsed) Project summary, Secondary Actions: Expand
+					16 summary Saved current project model snapshot without external file copies. Details, Value: off
+						17 text Saved current project model snapshot without external file copies.
+						18 text Details
+				19 container Workspace tasks
+					20 toggle button Model, Value: off
+					21 toggle button Loads, Value: off
+					22 toggle button Analyze, Value: off
+					23 toggle button Results, Value: off
+					24 toggle button Rules, Value: off
+					25 toggle button Report, Value: off
+				26 container Editing tools
+					27 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+					28 container Human toolkit
+						29 button (collapsed) Toolkit, Secondary Actions: Expand
+					30 button (disabled) Undo model edit
+					31 button Redo model edit
+					32 toggle button Review, Help: Validate and apply queued changes, Value: on
+				33 container Modeling workspace
+					34 button (expanded) Collapse model tree, Secondary Actions: Collapse
+					35 container Model tree
+						36 text MODEL
+						37 container Layout grid mode
+							38 toggle button Tree, Value: on
+							39 toggle button Grid, Value: off
+						40 container Model tree filtering
+							41 container
+								42 text Filter model
+								43 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+									44 text Name, ID, type, or group
+							45 text 7  of  7  model entities visible
+							46 button (disabled) Clear model tree filter
+						47 toggle button Blank Local Model, Value: on
+						48 heading Materials, Value: 3
+							49 text Materials
+						50 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+						51 heading Nodes, Value: 3
+							52 text Nodes
+						53 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+						54 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+						55 heading Pipes, Value: 3
+							56 text Pipes
+						57 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+						58 heading Supports, Value: 3
+							59 text Supports
+						60 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: off
+						61 heading Load Cases, Value: 3
+							62 text Load Cases
+						63 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: off
+					64 text 3D Centerline
+					65 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+						66 summary Deformation · unavailable, Value: off
+							67 text Deformation · unavailable
+					68 container Viewport display toggles
+						69 toggle button Labels, Help: Show or hide entity labels, Value: on
+						70 toggle button Loads, Help: Show or hide load arrows, Value: on
+						71 toggle button Grid, Help: Show or hide the ground grid, Value: on
+					72 text Selected:  project:blank-local-20260914t051915z
+					73 container
+						74 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+						75 container Viewport entity selection
+							76 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+							77 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+							78 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+							79 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: off
+						80 container Orientation gizmo
+						81 container View controls
+							82 toggle button Front, Value: off
+							83 toggle button Top, Value: off
+							84 toggle button Iso, Value: on
+						85 text 1 m
+					86 container Command and selection bar
+						87 container Object creation tools
+							88 toggle button Node, Help: Arm node creation, Value: off
+							89 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+							90 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+							91 toggle button Component, Help: Arm component-symbol insertion, Value: off
+							92 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+						93 text Select
+						94 summary Selection & navigation, Value: off
+							95 text Selection & navigation
+					96 button (expanded) Collapse inspector, Secondary Actions: Collapse
+					97 container Property inspector
+						98 heading project:blank-local-20260914t051915z, Value: 2
+							99 text project:blank-local-20260914t051915z
+						100 summary All properties, Value: off
+							101 text All properties
+						102 container Editor operation intent
+							103 text Select a model entity to edit its properties.
+						104 summary Sources and units, Value: off
+							105 text Sources and units
+						106 summary New support configuration, Value: off
+							107 text New support configuration
+						108 summary New section, Value: off
+							109 text New section
+						110 summary New material, Value: off
+							111 text New material
+						112 summary New support, Value: off
+							113 text New support
+						114 summary New component, Value: off
+							115 text New component
+				116 container Workspace sections
+					117 container
+						118 heading Review changes, Value: 2
+							119 text Review changes
+						120 button Close
+					121 container Operation Apply section
+						122 container Editing and review tools
+							123 toggle button Review changes, Value: off
+							124 toggle button Geometry, Value: off
+							125 toggle button Supports, Value: off
+							126 toggle button Self weight, Value: off
+							127 toggle button Agent, Value: on
+							128 toggle button Details, Value: off
+						129 container Design agent workbench
+							130 text DESIGN AGENT
+							131 text Packaged A12/R3 human pass not recorded; journey evidence incomplete; R3 exit review not started.
+							132 container Agent focus
+								133 container project: project:blank-local-20260914t051915z
+									134 text Selection
+									135 text project: project:blank-local-20260914t051915z
+								136 container model
+									137 text Target
+									138 text model
+								139 container 0 queued / 1 applied
+									140 text Queue
+									141 text 0 queued / 1 applied
+								142 container human_review_required_no_software_approval_claim
+									143 text Boundary
+									144 text human_review_required_no_software_approval_claim
+							145 container Agent actions
+								146 button Run
+								147 button (disabled) Propose, Help: Run mechanics before generating a review proposal.
+								148 button Review
+								149 button Inspect
+							150 text No active proposal
+							151 text review_only_local_preview accepted_model_state_mutated=false
+						152 container Offline proposal intake
+							153 heading Review an imported proposal, Value: 3
+								154 text Review an imported proposal
+							155 text Paste or open an operation batch. All changes are reviewed together before you choose to apply them.
+							156 text Author attribution is supplied by the file and is not verified identity. This workflow has no connected agent provider.
+							157 container
+								158 text Proposal file
+								159 file upload button no file selected
+							160 container
+								161 text Proposal batch JSON
+								162 text entry area (settable) Proposal batch JSON, Value: {
+  "batch_id": "batch:native-results-engineering-agent-load-01”,
+  "operations": [
+    {
+      "operation_id": "op:native-results-engineering-agent-load-01”,
+      "operation_kind": “modify”,
+      "operation_status": “proposed”,
+      "author_type": “agent”,
+      "target": {
+        "object_type": “Load”,
+        "ref": "load:WF”
+      },
+      "change": {
+        "change_id": "change:native-results-engineering-agent-load-01”,
+        "change_kind": “update_load”,
+        "field_label": "Tip force”,
+        "field_path": "primitive_loads.0.magnitude.value”,
+        "before": “350”,
+        "after": “500”,
+        "unit": “N”,
+        "dimension": “force”,
+        "source_note": “invented_synthetic_workflow_input”
+      },
+      "validation": {
+        "schema_validation": “not_run”,
+        "constraint_validation": “not_run”,
+        "unit_validation": “not_run”,
+        "diff_preview_status": “not_generated”,
+        "application_status": “not_applied”
+      },
+      "audit_boundary": {
+        "mutation_route": “structured_operations_only”,
+        "direct_model_mutation_allowed": false,
+        "requires_user_acceptance": true,
+        "mutates_accepted_model_state": false
+      },
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_compliance_claim": false,
+        "software_makes_certification_claim": false,
+        "software_makes_sealing_claim": false,
+        "software_makes_approval_claim": false,
+        "software_makes_authentication_claim": false
+      },
+      "rationale": "Invented synthetic results-engineering actual native GUI350 snapshot load edit for explicit local review”,
+      "source": {
+        "source_ref": "native-witness:actual-results-engineering-gui350-snapshot”,
+        "source_channel": “offline_invented_native_witness”,
+        "source_role": “agent_native_workflow_verify”
+      }
+    }
+  ]
+}
+
+									163 container (settable)
+										164 text (settable) {
+										165 text (settable)   "batch_id": "batch:native-results-engineering-agent-load-01”,
+										166 text (settable)   "operations": [
+										167 text (settable)     {
+										168 text (settable)       "operation_id": "op:native-results-engineering-agent-load-01”,
+										169 text (settable)       "operation_kind": “modify”,
+										170 text (settable)       "operation_status": “proposed”,
+										171 text (settable)       "author_type": “agent”,
+										172 text (settable)       "target": {
+										173 text (settable)         "object_type": “Load”,
+										174 text (settable)         "ref": "load:WF”
+										175 text (settable)       },
+										176 text (settable)       "change": {
+										177 text (settable)         "change_id": "change:native-results-engineering-agent-load-01”,
+										178 text (settable)         "change_kind": “update_load”,
+										179 text (settable)         "field_label": "Tip force”,
+										180 text (settable)         "field_path": "primitive_loads.0.magnitude.value”,
+										181 text (settable)         "before": “350”,
+										182 text (settable)         "after": “500”,
+										183 text (settable)         "unit": “N”,
+										184 text (settable)         "dimension": “force”,
+										185 text (settable)         "source_note": “invented_synthetic_workflow_input”
+										186 text (settable)       },
+										187 text (settable)       "validation": {
+										188 text (settable)         "schema_validation": “not_run”,
+										189 text (settable)         "constraint_validation": “not_run”,
+										190 text (settable)         "unit_validation": “not_run”,
+										191 text (settable)         "diff_preview_status": “not_generated”,
+										192 text (settable)         "application_status": “not_applied”
+										193 text (settable)       },
+										194 text (settable)       "audit_boundary": {
+										195 text (settable)         "mutation_route": “structured_operations_only”,
+										196 text (settable)         "direct_model_mutation_allowed": false,
+										197 text (settable)         "requires_user_acceptance": true,
+										198 text (settable)         "mutates_accepted_model_state": false
+										199 text (settable)       },
+										200 text (settable)       "professional_boundary": {
+										201 text (settable)         "human_review_required": true,
+										202 text (settable)         "software_makes_compliance_claim": false,
+										203 text (settable)         "software_makes_certification_claim": false,
+										204 text (settable)         "software_makes_sealing_claim": false,
+										205 text (settable)         "software_makes_approval_claim": false,
+										206 text (settable)         "software_makes_authentication_claim": false
+										207 text (settable)       },
+										208 text (settable)       "rationale": "Invented synthetic results-engineering actual native GUI350 snapshot load edit for explicit local review”,
+										209 text (settable)       "source": {
+										210 text (settable)         "source_ref": "native-witness:actual-results-engineering-gui350-snapshot”,
+										211 text (settable)         "source_channel": “offline_invented_native_witness”,
+										212 text (settable)         "source_role": “agent_native_workflow_verify”
+										213 text (settable)       }
+										214 text (settable)     }
+										215 text (settable)   ]
+										216 text (settable) }
+							217 button Queue imported batch for review
+							218 text JSON Parse error: Unterminated string
+							219 summary Offline authoring reference, Value: off
+								220 text Offline authoring reference
+				221 container Workspace status
+					222 container Analysis statuses
+						223 summary Mechanics model incomplete, Value: off
+							224 text Mechanics
+							225 text model incomplete
+						226 summary Rule check Inputs needed, Value: off
+							227 text Rule check
+							228 text Inputs needed
+						229 summary Professional Review required, Value: off
+							230 text Professional
+							231 text Review required
+					232 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+					233 button (collapsed) ⚑ 5 Issues, Secondary Actions: Expand
+				234 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+	235 close button
+	236 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	237 minimize button
+	238 text SWBPIPE Results Engineering 3D Witness 20260913
+239 menu bar
+	240 SWBPIPE Results Engineering 3D Witness 20260913
+	241 File
+	242 Edit
+	243 View
+	244 Insert
+	245 Analyze
+
+The focused UI element is 217 button Queue imported batch for review

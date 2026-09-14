@@ -1,0 +1,38 @@
+{
+  "id": "003",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "--lib",
+    "native_result_download::tests",
+    "--",
+    "--nocapture"
+  ],
+  "env": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target"
+  },
+  "scope": "targeted same helper suite after preserved positive canonical-root test spelling correction",
+  "started_utc": "2026-09-14T06:04:10.249626+00:00",
+  "source_freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+  "runner_sha256": "cf8683767e10fbb9ded40b8c7e0e3e64f36980378f46cc1a406825049283e892",
+  "exit_code": 0,
+  "finished_utc": "2026-09-14T06:04:14.117247+00:00",
+  "outputs": [
+    {
+      "path": "stdout.txt",
+      "sha256": "e4caf4676e99c6aae4193252d988bd9093b2db81a0d24206cd744c4d8254e40b",
+      "bytes": 1002
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "7ed7abec91c8cbf6f4492747c8b6ca66a79d3e4e05364c2d17bf60c03b30b9ac",
+      "bytes": 414
+    }
+  ]
+}

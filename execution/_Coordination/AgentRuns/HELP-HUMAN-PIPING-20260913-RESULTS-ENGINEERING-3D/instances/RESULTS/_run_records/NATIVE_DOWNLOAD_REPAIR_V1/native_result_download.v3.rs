@@ -1,0 +1,263 @@
+//! Narrow macOS download admission. WebKit owns the write; this is not a file
+//! witness, a privacy decision, or authentication of the original frontend href.
+use std::{fs, io, path::{Component, Path, PathBuf}};
+use tauri::{utils::config::{Config, WindowConfig}, webview::DownloadEvent};
+
+const RESULT_URL_PREFIX: &str = "data:application/json;charset=utf-8,";
+const RESULT_FILE_PREFIX: &str = "openpipestress-preview-results-";
+
+/// Disable only the auto-created main window, before Tauri's setup sequence.
+/// The manual builder consumes the same resolved configuration, including defaults.
+pub(super) fn prepare_main_window(
+    config: &mut Config,
+    is_macos: bool,
+) -> Result<Option<WindowConfig>, &'static str> {
+    if !is_macos {
+        return Ok(None);
+    }
+    let indices: Vec<_> = config.app.windows.iter().enumerate()
+        .filter_map(|(index, window)| (window.label == "main").then_some(index))
+        .collect();
+    if indices.len() != 1 {
+        return Err("exactly one main window is required");
+    }
+    let window = &mut config.app.windows[indices[0]];
+    window.create = false;
+    Ok(Some(window.clone()))
+}
+
+pub(super) fn handle_download<E>(
+    event: DownloadEvent<'_>,
+    downloads: impl FnOnce() -> Result<PathBuf, E>,
+) -> bool {
+    match event {
+        DownloadEvent::Requested { url, destination } => {
+            let Ok(root) = downloads() else { return false; };
+            allow_requested(url.as_str(), destination, &root, &HostFilesystem)
+        }
+        // Finished may have no path on macOS. Its return value is ignored by
+        // Tauri and must never be interpreted as proof of successful delivery.
+        DownloadEvent::Finished { .. } => false,
+        _ => false,
+    }
+}
+
+fn result_filename(name: &str) -> bool {
+    let Some(stem) = name.strip_suffix(".json") else { return false; };
+    let Some(token_and_collision) = stem.strip_prefix(RESULT_FILE_PREFIX) else { return false; };
+    let token = if let Some((token, suffix)) = token_and_collision.split_once(" (") {
+        let Some(number) = suffix.strip_suffix(')') else { return false; };
+        if number.is_empty() || number.starts_with('0') || !number.bytes().all(|b| b.is_ascii_digit()) {
+            return false;
+        }
+        token
+    } else {
+        token_and_collision
+    };
+    !token.is_empty() && token.split('-').all(|part| {
+        !part.is_empty() && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
+    })
+}
+
+trait Filesystem {
+    fn directory(&self, path: &Path) -> io::Result<bool>;
+    fn canonical(&self, path: &Path) -> io::Result<PathBuf>;
+    fn entry_exists(&self, path: &Path) -> io::Result<bool>;
+}
+
+struct HostFilesystem;
+impl Filesystem for HostFilesystem {
+    fn directory(&self, path: &Path) -> io::Result<bool> { fs::metadata(path).map(|m| m.is_dir()) }
+    fn canonical(&self, path: &Path) -> io::Result<PathBuf> { fs::canonicalize(path) }
+    fn entry_exists(&self, path: &Path) -> io::Result<bool> {
+        match fs::symlink_metadata(path) {
+            Ok(_) => Ok(true),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
+            Err(error) => Err(error),
+        }
+    }
+}
+
+fn immediate_child(path: &Path, root: &Path) -> bool {
+    let Ok(relative) = path.strip_prefix(root) else { return false; };
+    let mut components = relative.components();
+    matches!(components.next(), Some(Component::Normal(_))) && components.next().is_none()
+}
+
+fn allow_requested(url: &str, destination: &Path, root: &Path, filesystem: &impl Filesystem) -> bool {
+    if !url.strip_prefix(RESULT_URL_PREFIX).is_some_and(|body| !body.is_empty()) {
+        return false;
+    }
+    // Path::components normalizes interior '.', so inspect the received lexical
+    // spelling too. Never repair a destination or fall back to another directory.
+    let bytes = destination.as_os_str().as_encoded_bytes();
+    if !destination.is_absolute() || !root.is_absolute()
+        || bytes.last().is_some_and(|b| *b == b'/' || *b == b'\\')
+        || bytes.split(|b| *b == b'/' || *b == b'\\').any(|part| part == b"." || part == b"..")
+        || destination.components().any(|c| matches!(c, Component::CurDir | Component::ParentDir))
+    { return false; }
+    let Some(name) = destination.file_name().and_then(|n| n.to_str()) else { return false; };
+    if !result_filename(name) || !matches!(filesystem.directory(root), Ok(true)) { return false; }
+    let Ok(canonical_root) = filesystem.canonical(root) else { return false; };
+    // A platform-provided symlinked Downloads root is legitimate. Accept its
+    // lexical immediate child or the canonical root's immediate child.
+    if !immediate_child(destination, root) && !immediate_child(destination, &canonical_root) { return false; }
+    let Some(parent) = destination.parent() else { return false; };
+    let Ok(canonical_parent) = filesystem.canonical(parent) else { return false; };
+    canonical_parent == canonical_root && matches!(filesystem.entry_exists(destination), Ok(false))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::{json, Value};
+    use std::{cell::Cell, sync::atomic::{AtomicU64, Ordering}, time::{SystemTime, UNIX_EPOCH}};
+
+    const URL: &str = "data:application/json;charset=utf-8,%7B%22value%22%3A350%7D";
+    const NAME: &str = "openpipestress-preview-results-run-350.json";
+    static NEXT: AtomicU64 = AtomicU64::new(0);
+    struct Scratch(PathBuf);
+    impl Scratch {
+        fn new() -> Self {
+            let path = std::env::temp_dir().join(format!("openpipestress-download-test-{}-{}-{}",
+                std::process::id(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(), NEXT.fetch_add(1, Ordering::Relaxed)));
+            fs::create_dir(&path).unwrap(); Self(path)
+        }
+        fn directory(&self, name: &str) -> PathBuf { let path = self.0.join(name); fs::create_dir(&path).unwrap(); path }
+    }
+    impl Drop for Scratch { fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); } }
+
+    #[test]
+    fn admits_only_exact_result_route_and_safe_filename_family() {
+        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+        for name in [NAME, "openpipestress-preview-results-run-350 (1).json", "openpipestress-preview-results-run-350 (12).json"] {
+            assert!(allow_requested(URL, &root.join(name), &root, &HostFilesystem), "{name}");
+        }
+        for name in ["openpipestress-preview-results-.json", "openpipestress-preview-results--run.json", "openpipestress-preview-results-run--350.json", "openpipestress-preview-results-run-.json", "openpipestress-preview-results-RUN.json", "openpipestress-preview-results-rún.json", "openpipestress-preview-results-run.JSON", "openpipestress-preview-results-run (0).json", "openpipestress-preview-results-run (01).json", "openpipestress-preview-results-run (-1).json", "openpipestress-preview-results-run (+1).json", "openpipestress-preview-results-run ( 1).json", "openpipestress-preview-results-run (1 ).json", "openpipestress-preview-results-run(1).json", "openpipestress-preview-results-run  (1).json", "openpipestress-preview-results-run (1) (2).json", "openpipestress-preview-results-run%20x.json", "openpipestress-preview-results-run.x.json", "openpipestress-report-run.json", "preview-results-run.json"] {
+            assert!(!allow_requested(URL, &root.join(name), &root, &HostFilesystem), "{name}");
+        }
+        for url in ["data:application/json;charset=utf-8,", "data:application/json,{}", "data:application/json;charset=UTF-8,{}", "data:application/json;charset=utf-8;base64,e30=", "https://example.test/results.json", "blob:results"] {
+            assert!(!allow_requested(url, &root.join(NAME), &root, &HostFilesystem), "{url}");
+        }
+    }
+
+    #[test]
+    fn leaves_helper_received_url_and_destination_unchanged_without_attesting_href_or_file() {
+        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+        // This is Tauri's already-parsed callback URL. No original href or file
+        // bytes are asserted. The guard does not parse JSON or rebuild this URL.
+        for received in [
+            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%C3%A9%20%25%22%7D",
+            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%5Cn%5Ct%5C%5C%22%7D",
+            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%2525%252525%2520%22%7D",
+        ] {
+            let mut destination = root.join(NAME);
+            let original_destination = destination.clone();
+            let url: tauri::Url = received.parse().unwrap();
+            let original_url = url.to_string();
+            let called = Cell::new(0);
+            assert!(handle_download(DownloadEvent::Requested { url: url.clone(), destination: &mut destination }, || {
+                called.set(called.get() + 1); Ok::<_, ()>(root.clone())
+            }));
+            assert_eq!(called.get(), 1); assert_eq!(destination, original_destination);
+            assert_eq!(url.as_str(), original_url); assert!(!destination.exists());
+        }
+    }
+
+    #[test]
+    fn rejects_missing_platform_root_and_finished_is_not_delivery_evidence() {
+        let mut destination = PathBuf::from("/Downloads").join(NAME);
+        assert!(!handle_download(DownloadEvent::Requested { url: URL.parse().unwrap(), destination: &mut destination }, || Err::<PathBuf, _>("unavailable")));
+        let called = Cell::new(false);
+        assert!(!handle_download(DownloadEvent::Finished { url: URL.parse().unwrap(), path: None, success: true }, || {
+            called.set(true); Ok::<_, ()>(PathBuf::from("/Downloads"))
+        }));
+        assert!(!called.get());
+    }
+
+    #[test]
+    fn rejects_fallback_nested_traversal_missing_roots_and_every_existing_final_entry() {
+        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+        let sibling = scratch.directory("Downloads-other"); let nested = root.join("nested"); fs::create_dir(&nested).unwrap();
+        for destination in [PathBuf::from(NAME), scratch.0.join(NAME), sibling.join(NAME), nested.join(NAME), root.join(".").join(NAME), root.join("..").join(NAME), PathBuf::from(format!("{}/{NAME}/", root.display()))] {
+            assert!(!allow_requested(URL, &destination, &root, &HostFilesystem), "{}", destination.display());
+        }
+        assert!(!allow_requested(URL, &root.join(NAME), Path::new("Downloads"), &HostFilesystem));
+        assert!(!allow_requested(URL, &root.join(NAME), &scratch.0.join("missing"), &HostFilesystem));
+        let file_root = scratch.0.join("file-root"); fs::write(&file_root, b"existing").unwrap();
+        assert!(!allow_requested(URL, &file_root.join(NAME), &file_root, &HostFilesystem));
+        let final_path = root.join(NAME); fs::write(&final_path, b"existing").unwrap();
+        assert!(!allow_requested(URL, &final_path, &root, &HostFilesystem)); fs::remove_file(&final_path).unwrap();
+        fs::create_dir(&final_path).unwrap(); assert!(!allow_requested(URL, &final_path, &root, &HostFilesystem));
+    }
+
+    #[cfg(unix)]
+    #[test]
+    fn allows_platform_downloads_symlink_root_but_rejects_final_symlinks_and_escape() {
+        use std::os::unix::fs::symlink;
+        let scratch = Scratch::new(); let root = scratch.directory("actual-downloads"); let platform_root = scratch.0.join("Downloads"); symlink(&root, &platform_root).unwrap();
+        assert!(allow_requested(URL, &platform_root.join(NAME), &platform_root, &HostFilesystem));
+        let canonical_root = fs::canonicalize(&root).unwrap();
+        assert!(allow_requested(URL, &canonical_root.join(NAME), &platform_root, &HostFilesystem));
+        let nested_alias = root.join("back-to-downloads"); symlink(&root, &nested_alias).unwrap();
+        assert_eq!(fs::canonicalize(&nested_alias).unwrap(), fs::canonicalize(&root).unwrap());
+        assert!(!allow_requested(URL, &nested_alias.join(NAME), &platform_root, &HostFilesystem));
+        let outside = scratch.directory("outside"); symlink(&outside, root.join("escape")).unwrap();
+        assert!(!allow_requested(URL, &root.join("escape").join(NAME), &platform_root, &HostFilesystem));
+        let final_path = root.join(NAME); symlink(outside.join("missing"), &final_path).unwrap();
+        assert!(!allow_requested(URL, &final_path, &platform_root, &HostFilesystem));
+        fs::remove_file(&final_path).unwrap(); fs::write(outside.join("existing"), b"existing").unwrap(); symlink(outside.join("existing"), &final_path).unwrap();
+        assert!(!allow_requested(URL, &final_path, &platform_root, &HostFilesystem));
+    }
+
+    struct FailingFilesystem { stage: u8, canonical_calls: Cell<u8> }
+    impl Filesystem for FailingFilesystem {
+        fn directory(&self, _: &Path) -> io::Result<bool> { if self.stage == 0 { Err(io::ErrorKind::PermissionDenied.into()) } else { Ok(true) } }
+        fn canonical(&self, path: &Path) -> io::Result<PathBuf> {
+            let call = self.canonical_calls.get() + 1; self.canonical_calls.set(call);
+            if self.stage == call { Err(io::ErrorKind::PermissionDenied.into()) } else { Ok(path.to_path_buf()) }
+        }
+        fn entry_exists(&self, _: &Path) -> io::Result<bool> { Err(io::ErrorKind::PermissionDenied.into()) }
+    }
+    #[test]
+    fn every_filesystem_error_fails_closed() {
+        for stage in 0..4 {
+            let filesystem = FailingFilesystem { stage, canonical_calls: Cell::new(0) };
+            assert!(!allow_requested(URL, &Path::new("/Downloads").join(NAME), Path::new("/Downloads"), &filesystem));
+        }
+    }
+
+    fn production_config() -> Config { serde_json::from_str(include_str!("../tauri.conf.json")).unwrap() }
+    fn assert_only_main_create_changes(mut config: Config) {
+        let mut expected = serde_json::to_value(&config).unwrap();
+        let original: Value = expected.clone();
+        let main_index = config.app.windows.iter().position(|w| w.label == "main").unwrap();
+        assert!(config.app.windows[main_index].create);
+        expected["app"]["windows"][main_index]["create"] = json!(false);
+        let selected = prepare_main_window(&mut config, true).unwrap().unwrap();
+        assert_eq!(serde_json::to_value(&config).unwrap(), expected);
+        assert_eq!(serde_json::to_value(selected).unwrap(), expected["app"]["windows"][main_index]);
+        assert_eq!(original["app"]["windows"][main_index]["create"], json!(true));
+    }
+    #[test]
+    fn production_and_isolated_resolved_configs_preserve_all_fields_except_main_create() {
+        assert_only_main_create_changes(production_config());
+        // Portable overlay-equivalent settings, without evidence-lane paths.
+        let mut raw: Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+        raw["productName"] = json!("Isolated native download witness");
+        raw["identifier"] = json!("org.openpipestress.technical-preview.native-download-test");
+        raw["app"]["windows"] = json!([{ "title": "Isolated native download witness", "width": 1440, "height": 920, "minWidth": 1024, "minHeight": 768 }]);
+        let mut config: Config = serde_json::from_value(raw).unwrap();
+        let mut nonmain = config.app.windows[0].clone(); nonmain.label = "secondary".into(); nonmain.title = "Unaffected secondary".into(); config.app.windows.push(nonmain);
+        assert_only_main_create_changes(config);
+    }
+    #[test]
+    fn nonmac_auto_window_and_invalid_main_configuration_are_unchanged() {
+        let mut config = production_config(); let original = serde_json::to_value(&config).unwrap();
+        assert!(prepare_main_window(&mut config, false).unwrap().is_none()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+        config.app.windows.clear(); let original = serde_json::to_value(&config).unwrap();
+        assert!(prepare_main_window(&mut config, true).is_err()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+        config = production_config(); config.app.windows.push(config.app.windows[0].clone()); let original = serde_json::to_value(&config).unwrap();
+        assert!(prepare_main_window(&mut config, true).is_err()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+    }
+}

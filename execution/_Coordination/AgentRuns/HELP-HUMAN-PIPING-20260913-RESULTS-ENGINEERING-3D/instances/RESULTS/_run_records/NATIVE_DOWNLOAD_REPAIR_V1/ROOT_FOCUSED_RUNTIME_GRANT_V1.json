@@ -1,0 +1,16 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_DOWNLOAD_FOCUSED_V1",
+  "holder": "/root/results_implementation_manager/results_writer",
+  "manager": "/root/results_implementation_manager",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "freeze_sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada",
+  "approved": "Exact proposed command001 native helper library tests then002 three existing Vitest suites, plus named version identity probes. Serial exclusive test/build runtime, external target only. No browser/native app, network or Git.",
+  "source": {
+    "lib": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+    "helper": "a50359291da443b05f6e99abc5f191ce724f282572ffb6c9b2bdab6ac28334a6",
+    "prior43": "unchanged"
+  },
+  "return": "Exact exit/selected tests/failed commands/hash backcheck; stop and return concrete failure for targeted repair if needed, no blind reruns. Release explicitly when commands close.",
+  "order_addendum_sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba"
+}

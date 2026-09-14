@@ -1,5 +1,6 @@
 mod atomic_report_package_save;
 mod model_document_migration;
+mod native_result_download;
 mod report_package_bridge;
 
 use model_document_migration::{
@@ -4053,7 +4054,13 @@ pub fn run_packaged_saved_edited_load_self_test() -> Result<Value, String> {
 }
 
 pub fn run() {
-    tauri::Builder::default()
+    let mut context = tauri::generate_context!();
+    let main_window = native_result_download::prepare_main_window(
+        context.config_mut(),
+        cfg!(target_os = "macos"),
+    )
+    .expect("invalid main window configuration");
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
         .manage(SolveJobRegistry::default())
         .menu(|handle| build_app_menu(handle))
@@ -4096,8 +4103,23 @@ pub fn run() {
             delete_local_library,
             render_calculation_report,
             save_report_package
-        ])
-        .run(tauri::generate_context!())
+        ]);
+    #[cfg(target_os = "macos")]
+    let builder = builder.setup(move |app| {
+        let config = main_window.as_ref().expect("macOS main window configuration");
+        tauri::WebviewWindowBuilder::from_config(app, config)?
+            .on_download(|webview, event| {
+                native_result_download::handle_download(event, || {
+                    webview.app_handle().path().download_dir()
+                })
+            })
+            .build()?;
+        Ok(())
+    });
+    #[cfg(not(target_os = "macos"))]
+    let _ = main_window;
+    builder
+        .run(context)
         .expect("error while running OpenPipeStress technical preview");
 }
 

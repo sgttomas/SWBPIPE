@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "actual_agent500_equals_actual_human500_model_json": true,
+  "actual_reviewed_batch_before": "sha256:9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4",
+  "actual_reviewed_batch_after": "sha256:d9a667e4ed8c90ca312e9f39651e84f01ed8aa83b2cf746181ec67467aa2dbe9",
+  "agent_author": "file metadata supplied, not verified identity; no connected provider",
+  "first_input_failure": "CUA setValue caused native smart quotes, JSON Parse error preserved; exact text paste then valid batch succeeded",
+  "seam": "actual native import -> validate temporary state discarded -> explicit Apply entire batch -> tauri_backend_apply"
+}

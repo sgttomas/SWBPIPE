@@ -1,0 +1,28 @@
+{
+  "status": "EXCLUSIVE_NATIVE_EXECUTION_RELEASED",
+  "issued_utc": "2026-09-14T05:16:22.060235+00:00",
+  "holder": "/root/native_results_witness",
+  "parent": "/root",
+  "role": "TASK Type2; delegated-harness-native; instruction-asserted; no delegation",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "accepted_source_commit": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "source_inventory_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V4.json",
+  "source_inventory_sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+  "source_count": 43,
+  "source43_rehashed_unchanged": true,
+  "review_return_sha256": "0c5a90a6538fd14072c448eaf3830f8162e1c6e14b534c3609ae584fb9b1e710",
+  "complete_registered_sweep": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V4/sweep/SWEEP_20260914T050204Z_0a687ed5ff21.json",
+    "sha256": "31dc9a0c33d4c00f099b05c07b490d447cc04e33813e5d029f645fc6511f8a77",
+    "return_sha256": "841a6285a9abf2cec1086c55043f4a3e9494e02571336c9487704fcd5682cc01",
+    "all_five_surfaces": "pass",
+    "clean_at_start": true
+  },
+  "authority": "Approved plan V3 plus standing session Git/engineering authority; existing NATIVE_VERIFY_V1 and NATIVE_FORMAT_CLARIFICATION_V1 remain the bounded acceptance contract. This release updates source freeze and grants the prepared actual native phase.",
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V1; all other tests/builds/browser/native runtime idle until actual native holder releases. Root static evidence/closeout preparation may proceed.",
+  "allowed": "Execute prepared isolated offline macOS app build, existing file-backed self-test, actual GUI lifecycle and actual native export capture under declared NATIVE_VERIFY and isolated synthetic app/store scope. Verify all43 and unchanged implementation bytes before runtime. No product source edits.",
+  "capture_boundary": "Obtain actual native Local result JSON href/download after own explicit intent. Context-menu Copy Link fallback may read clipboard only after first replacing it with a harmless synthetic marker and actual observed copy; do not persist unrelated clipboard. No manufactured adapter substitute or private Codex access.",
+  "artifact_boundary": "Keep one necessary raw copy and modest screenshots; do not publish binaries/compiled targets or optional large traces. Hash and inventory any local-only generated effects. Preserve actual failures.",
+  "remaining": "Native acceptance, final metadata/review/affected governance checks, actual-head hosted CI and scoped PR merge; this is no whole-project closure."
+}

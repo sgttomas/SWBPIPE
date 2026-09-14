@@ -1,0 +1,6 @@
+{
+  "authorization": "root one marker-first Copy Link attempt",
+  "marker": "NATIVE_RESULTS_ENGINEERING_3D_20260913_SAFE_COPY_LINK_MARKER",
+  "read_before_copy": false,
+  "planned": "observed native contextmenu CopyLink then assert data:application/json prefix before any persistence"
+}

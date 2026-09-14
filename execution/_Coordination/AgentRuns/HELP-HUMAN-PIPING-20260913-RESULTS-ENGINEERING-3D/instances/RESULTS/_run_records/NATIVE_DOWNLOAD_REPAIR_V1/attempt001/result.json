@@ -1,0 +1,38 @@
+{
+  "id": "001",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+  "argv": [
+    "/Users/ryan/.cargo/bin/cargo",
+    "test",
+    "--locked",
+    "--offline",
+    "--manifest-path",
+    "apps/desktop/src-tauri/Cargo.toml",
+    "--lib",
+    "native_result_download::tests",
+    "--",
+    "--nocapture"
+  ],
+  "env": {
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target"
+  },
+  "scope": "compile native library; select only helper unit tests; no native GUI launch",
+  "started_utc": "2026-09-14T06:02:34.084837+00:00",
+  "source_freeze_sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada",
+  "runner_sha256": "dcf9e726985f9e79eff371a386d4236f6b979ee8c068e29fcd0e1ec52dfc18d8",
+  "exit_code": 101,
+  "finished_utc": "2026-09-14T06:03:09.868204+00:00",
+  "outputs": [
+    {
+      "path": "stdout.txt",
+      "sha256": "cfa9a47267d929bb29b9b8fe7673ca0c05cf79cabeb5f2d8a2056744e8558b4d",
+      "bytes": 1144
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "e73d6077e21c30288edec376f360944369c15cc50ab5d509db19ee1b7f8f231e",
+      "bytes": 14001
+    }
+  ]
+}

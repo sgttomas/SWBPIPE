@@ -1,0 +1,92 @@
+{
+  "status": "FROZEN_ADOPTED_PRE_EFFECT_EXPECTATIONS_NO_RUNTIME",
+  "accepted_root_origin_sha256": "8789b87b830f178b0a859513efc25ae4dbcb0ebde8f28adab8d709cb70cff948",
+  "adopted_NEXP_ids": [
+    "NEXP-01",
+    "NEXP-02",
+    "NEXP-03",
+    "NEXP-04",
+    "NEXP-05",
+    "NEXP-06",
+    "NEXP-07",
+    "NEXP-08",
+    "NEXP-09",
+    "NEXP-10"
+  ],
+  "bootstrap": {
+    "resolved_config_source": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f"
+    },
+    "isolated_overlay_source": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "json": {
+        "productName": "SWBPIPE Results Engineering 3D Witness 20260913",
+        "identifier": "org.openpipestress.technical-preview.results-engineering-3d-20260913",
+        "app": {
+          "windows": [
+            {
+              "title": "SWBPIPE Results Engineering 3D Witness 20260913",
+              "width": 1440,
+              "height": 920,
+              "minWidth": 1024,
+              "minHeight": 768
+            }
+          ]
+        }
+      }
+    },
+    "positive": "production+isolated resolved Config differs only unique main.create=false before run; same resolved WindowConfig cloned for exactlyone from_config+on_download build; all label/title/size/minsizes/menu/URL/identifier/store attributes retained",
+    "negative": "absent/ambiguous main explicitly errors without mutation; nonmac no mutation/manual creation/callback",
+    "maintained_test_policy": "actual baseconfig include_str relativepath; standalone portable isolation variant preserving fullconfiguration fields, no dated AgentRuns fixture dependencies"
+  },
+  "route": {
+    "prefix": "data:application/json;charset=utf-8,",
+    "body": "nonempty only; treat callback-received URL as alreadyparsed upstream; no decode/reencode/JSONparse/metadata insertion/URLdestination rewrite",
+    "basename": "openpipestress-preview-results-<lowercase ASCII alphanumeric single-hyphen groups>.json",
+    "collision_suffix": "optional (N) precededbysingle space immediatelybefore.json; Npositive decimal noleadingzeros",
+    "reject": [
+      "empty token/body",
+      "uppercase/nonASCIItoken",
+      "leading/trailing/repeatedhyphen",
+      "separator/dot/traversal",
+      "noncanonical MIME/prefix",
+      "network/blob/file/other export families",
+      "uppercase extension",
+      "zero/leadingzero/negative/signed/nondecimal/badspace suffix"
+    ],
+    "unusual_body_fidelity": "Unicode/whitespace/percentescapes/repeatedescapes retained byte-for-byte in borrowed receivedURL and originaldestination; helper screen only, not original href/file/semantic/privacy attestation",
+    "Finished": "false/no resolver/no new authorization; pathNone notfileevidence"
+  },
+  "destination": {
+    "resolver": "app.path().download_dir() at every Requested, no cache/alternate/cwd fallback or mkdir",
+    "root": "existing absolute directory metadata follows allowed platformroot symlink; canonicalexistingroot succeeds",
+    "candidate": "absolute normal safe file basename; raw encoded path split rejects explicit dot and traversal evenPath.components normalization; existing canonical parent exactlycanonicalDownloads and one lexical immediatechild of platformroot orcanonicalroot; outside/sibling/nested rejected",
+    "entry": "symlink_metadata must reportNotFound; any existingfile/directory/symlink/dangling/othererror denied",
+    "positive_symlink_root": "platformroot itself may symlinktoexistingdirectory; bothdirectplatformrootchild anddirectcanonicalrootchild accepted undercanonicalparent equality",
+    "check_errors": "resolver/rootmetadata/canonicalroot/canonicalparent/finalmetadata errors deny",
+    "claims_excluded": [
+      "no resistance to concurrent filesystem replacement",
+      "no atomic/durability claim",
+      "no guarantee deliberatelyredirectedDownloads outside repository"
+    ]
+  },
+  "focused_test_matrix": [
+    "base/collisionpositive+malformedroute/token/suffix negatives",
+    "exact unusual receivedbody and destination unchanged",
+    "resolvererror/relative/missing/file root; parent/outside/sibling/nested/dot/traversal/fallback rejects",
+    "existingfinal file/directory/symlink/dangling rejects; injectedcheck errors",
+    "symlinkplatformroot positive and escapingnestedparent negative",
+    "fullConfigvalue equality exceptcreate production/portableisolated plusomittedcreate/nodeuplicates/mainmissingambiguous/nonmac",
+    "FinishedpathNone cannotauthorize"
+  ],
+  "frozen_existing_boundaries": [
+    "all43acceptedpaths",
+    "configs/overlay/locks/manifests/dependencies",
+    "frontend ownintent/screening/exacthref",
+    "Current/Historical/model/semantics/privacy/persistence/transport"
+  ],
+  "runtime": "HELD pending explicit rootlease after source freeze",
+  "prior_native_state": "V1partial; CUAclick mechanismunresolved; missingmacOScallback sourceproven. No actualfile or hangrepairclaim from source/unitchecks."
+}

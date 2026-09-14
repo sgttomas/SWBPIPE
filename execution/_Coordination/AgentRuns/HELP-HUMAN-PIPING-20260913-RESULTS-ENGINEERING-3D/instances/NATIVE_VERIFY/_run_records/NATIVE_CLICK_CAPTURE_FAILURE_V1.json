@@ -1,0 +1,13 @@
+{
+  "status": "ACTUAL_NATIVE_CLICK_CAPTURE_BLOCKED",
+  "observed_preclick": "enabled focused Local result JSON after local privacy intent; canonical encoding JSON, additional formats TBD",
+  "action": "CUA click screenshot-observed anchor [83,582]",
+  "postclick": "getAXState noWindowsAvailable; exact bundle getApp/screenshot/genuine super+q timeoutReached",
+  "actual_user_facing_download_outcome": "not observed; no file-save or dialog or navigation claim",
+  "actual_href_capture": "not achieved; no clipboard read or Copy Link performed",
+  "isolated_process": "PID48112 exact bound executable remains running",
+  "source_payload_identity": "not claimed from actual export",
+  "schema_validation": "not run because no actual exported payload",
+  "independent_native_rows": "five350N analytical checks PASS on exact saved standalone SQLite copy",
+  "capture_fallback": "not used because native link inaccessible; no adapter substitute"
+}

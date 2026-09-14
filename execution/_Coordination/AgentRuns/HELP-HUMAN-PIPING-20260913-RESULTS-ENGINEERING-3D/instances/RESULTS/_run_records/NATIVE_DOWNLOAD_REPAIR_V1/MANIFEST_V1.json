@@ -1,0 +1,241 @@
+{
+  "status": "IMMUTABLE_DERIVATIVE_EVIDENCE_PACKET",
+  "source_phase": "native_download_repair_v1",
+  "physical_files": 42,
+  "physical_bytes": 1091030,
+  "manifest_self_excluded": true,
+  "files": [
+    {
+      "path": "ACTUAL_DISPATCH_V1.json",
+      "sha256": "4fd61b555662a1266ba6c367ccc7407c4b2a9565128cbb58ffb20e90a2a42028",
+      "bytes": 629
+    },
+    {
+      "path": "CANONICAL_ROOT_TEST_FAILURE_EXPLANATION_V1.json",
+      "sha256": "371011ce4c4f4ec9a64a4639b950ddb7eb2ec6a7a6e792ac28a65a1cc5a03d65",
+      "bytes": 527
+    },
+    {
+      "path": "FINAL_SOURCE_FENCE_AUDIT_V1.json",
+      "sha256": "1b8739afa54efea8e231afde446345d7a89c7bf65eb4f117971cd8339655121b",
+      "bytes": 22009
+    },
+    {
+      "path": "MANAGER_PRE_DISPATCH_BASELINE_V1.json",
+      "sha256": "7f9498b6fe2e53e9c219894bebf3996c1a23c7aeb6008363a99e0866853298b7",
+      "bytes": 15586
+    },
+    {
+      "path": "PRE_EFFECT_EXPECTATION_FREEZE_V1.json",
+      "sha256": "d69f606f5a5fefab407c86b4c2fdbe69802f973441162087481e9d76b2d52dfd",
+      "bytes": 5373
+    },
+    {
+      "path": "RETURN_V1.json",
+      "sha256": "1d32a4a42c50c6a66ea869686baeb5adef034c88a1e0142df3b98ace619662d5",
+      "bytes": 16781
+    },
+    {
+      "path": "ROOT_FOCUSED_RUNTIME_GRANT_V1.json",
+      "sha256": "eb6fe8dc17d4d773e36a5e876fc83ca10f299dcc14eda8eec9f876cef80e3e6a",
+      "bytes": 1047
+    },
+    {
+      "path": "ROOT_ORIGIN_BRIEF_V1.md",
+      "sha256": "8789b87b830f178b0a859513efc25ae4dbcb0ebde8f28adab8d709cb70cff948",
+      "bytes": 7129
+    },
+    {
+      "path": "ROOT_VERIFICATION_ORDER_ADDENDUM_V1.md",
+      "sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+      "bytes": 2329
+    },
+    {
+      "path": "RUNNER_AND_STATIC_READ_RECEIPT_V1.json",
+      "sha256": "3ac79643c98728fae8c526f435421e719dd101f358646907d7e2d8ef518db6c8",
+      "bytes": 597
+    },
+    {
+      "path": "RUNTIME_RELEASE_RECEIPT_V1.json",
+      "sha256": "a5b86fcda3e89462655ce950600602c1bd2fa5135ac63e7d74d39854198a177a",
+      "bytes": 471
+    },
+    {
+      "path": "STATIC_SOURCE_AND_COMMAND_FREEZE_V1.json",
+      "sha256": "d5cb67857dc5e55bbc732dcd3db5031328b432f88848a769cd1c952963b24430",
+      "bytes": 17940
+    },
+    {
+      "path": "STATIC_SOURCE_AND_COMMAND_FREEZE_V2.json",
+      "sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada",
+      "bytes": 18470
+    },
+    {
+      "path": "STATIC_SOURCE_AND_COMMAND_FREEZE_V3.json",
+      "sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+      "bytes": 19892
+    },
+    {
+      "path": "TASK_WRITER_CONTINUATION_V1.md",
+      "sha256": "6c15625fdddfc17817a8e7e7dc35cdf32b409e408228a9a778653a5749cf4160",
+      "bytes": 4892
+    },
+    {
+      "path": "V3_TARGETED_EXECUTION_MANAGER_RELAY_V1.json",
+      "sha256": "788e870d55bdf8e7c0524d8a6b19e46aa7ed0c6418932cfe01de4e3c6d0ad0b3",
+      "bytes": 550
+    },
+    {
+      "path": "attempt001/command.json",
+      "sha256": "06d3fa86bb1f237e29e37a4cbf63ac2a699d573c3a04c994978fb439dd1dad4b",
+      "bytes": 851
+    },
+    {
+      "path": "attempt001/result.json",
+      "sha256": "d3560469d46811ca1754515e204531b96df7910a4f243f660481329787cf8473",
+      "bytes": 1235
+    },
+    {
+      "path": "attempt001/stderr.txt",
+      "sha256": "e73d6077e21c30288edec376f360944369c15cc50ab5d509db19ee1b7f8f231e",
+      "bytes": 14001
+    },
+    {
+      "path": "attempt001/stdout.txt",
+      "sha256": "cfa9a47267d929bb29b9b8fe7673ca0c05cf79cabeb5f2d8a2056744e8558b4d",
+      "bytes": 1144
+    },
+    {
+      "path": "attempt002/command.json",
+      "sha256": "26a04d6d49a90e89da47d9e7979ce24bc2f06de5f908cbdfef55006658409557",
+      "bytes": 810
+    },
+    {
+      "path": "attempt002/result.json",
+      "sha256": "4d356f338e0365b65b31f065050f219d36e47cc2b1ebffa2d4079c95a7ac9d34",
+      "bytes": 1188
+    },
+    {
+      "path": "attempt002/stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "attempt002/stdout.txt",
+      "sha256": "51b5d773505c92d89a083a59d479f0bf90b50c6957707ad818a700a7b2f1ef64",
+      "bytes": 3678
+    },
+    {
+      "path": "attempt003/command.json",
+      "sha256": "1aba36d653322b4ebb52f5cfdb0b2bf9274930991bebac5eb4d6e8c1b693c510",
+      "bytes": 867
+    },
+    {
+      "path": "attempt003/result.json",
+      "sha256": "ccdb11c3ee8bdc0f881d5cf0156731769f0031034c2010c1f17b2f1ba0ea83b1",
+      "bytes": 1247
+    },
+    {
+      "path": "attempt003/stderr.txt",
+      "sha256": "7ed7abec91c8cbf6f4492747c8b6ca66a79d3e4e05364c2d17bf60c03b30b9ac",
+      "bytes": 414
+    },
+    {
+      "path": "attempt003/stdout.txt",
+      "sha256": "e4caf4676e99c6aae4193252d988bd9093b2db81a0d24206cd744c4d8254e40b",
+      "bytes": 1002
+    },
+    {
+      "path": "execute_frozen_command_v1.py",
+      "sha256": "c80af5a1df7a8eb57512f0ba929fe5d760511f1ac8cce9c3c8679abcfd848d4a",
+      "bytes": 1626
+    },
+    {
+      "path": "execute_frozen_command_v2.py",
+      "sha256": "dcf9e726985f9e79eff371a386d4236f6b979ee8c068e29fcd0e1ec52dfc18d8",
+      "bytes": 1626
+    },
+    {
+      "path": "execute_frozen_command_v3.py",
+      "sha256": "cf8683767e10fbb9ded40b8c7e0e3e64f36980378f46cc1a406825049283e892",
+      "bytes": 1626
+    },
+    {
+      "path": "lib.original.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "bytes": 273741
+    },
+    {
+      "path": "lib.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "lib.v2.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "native_result_download.rs",
+      "sha256": "5da11d3bbdc592e497147b1181b2e85f7450c0116224c950bce7a9fd080090d8",
+      "bytes": 15263
+    },
+    {
+      "path": "native_result_download.v2.rs",
+      "sha256": "a50359291da443b05f6e99abc5f191ce724f282572ffb6c9b2bdab6ac28334a6",
+      "bytes": 16138
+    },
+    {
+      "path": "native_result_download.v3.rs",
+      "sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "bytes": 16211
+    },
+    {
+      "path": "source_delta_v1.patch",
+      "sha256": "51d481f83cfd8ffd75bc5fee8f2ca9845a23771e27cb7a18b2e84751656c4fdb",
+      "bytes": 17232
+    },
+    {
+      "path": "source_delta_v2.patch",
+      "sha256": "d8bee457218fab6559ac07d8aa7786c09c6f6e2f73b0fbd0414aff3d276fa2fd",
+      "bytes": 18116
+    },
+    {
+      "path": "source_delta_v3.patch",
+      "sha256": "18b0499606ea40f71cf33aa73abb5cf11b06d5b0b239b0fc69e2ba604ddddbf2",
+      "bytes": 18190
+    },
+    {
+      "path": "version_commands_v1.json",
+      "sha256": "c086fa52b107ac44d6b1406259df43e66c3fcc9baa50b5018faf69c1e800fe34",
+      "bytes": 618
+    },
+    {
+      "path": "version_results_v1.json",
+      "sha256": "34d1800291f3393b7445e42950dd1e7e39ad4716ff08df09bb6a3c559b180e84",
+      "bytes": 870
+    }
+  ],
+  "return": {
+    "path": "RETURN_V1.json",
+    "sha256": "1d32a4a42c50c6a66ea869686baeb5adef034c88a1e0142df3b98ace619662d5",
+    "bytes": 16781
+  },
+  "source": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "bytes": 16211
+    }
+  ],
+  "external_target_excluded": "external target generated by focused native-library test compile, excluded from source/evidence transport; not a native app binary witness",
+  "all43_unchanged": true,
+  "runtime_released": true,
+  "accepted_upstream_basis": "ROOT native download brief and precise granted focused freeze; no closure authority",
+  "writer_idle": true
+}

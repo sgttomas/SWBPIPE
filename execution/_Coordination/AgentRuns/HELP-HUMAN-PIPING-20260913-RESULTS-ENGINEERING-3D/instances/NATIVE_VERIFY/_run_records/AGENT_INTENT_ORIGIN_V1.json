@@ -1,0 +1,7 @@
+{
+  "template_schema_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-WORKFLOW-CONTACT/instances/NATIVE_VERIFY/FINAL_V2/_run_records/agent-load-batch-source-bound.json",
+  "template_sha256": "436a01f515e7f1329f9cbabdcfae253245579c91c695dfa178c8b295f9b0316e",
+  "actual_baseline_snapshot": "gui-authored350-v2.json",
+  "expected_delta": "only primitive_loads.0.magnitude.value350to500",
+  "attribution": "file supplied agent author metadata, instruction asserted; no connected provider or authenticated identity"
+}

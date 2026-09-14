@@ -1,0 +1,20 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_DOWNLOAD_FOCUSED_V1",
+  "status": "RELEASED",
+  "utc": "2026-09-14T06:05:24.229703+00:00",
+  "child_report": "All granted processes closed; no further runtime planned",
+  "actual_child_reported_results": {
+    "attempt001_exit": 101,
+    "attempt001_pass": 7,
+    "attempt001_fail": 1,
+    "attempt003_exit": 0,
+    "attempt003_pass": 8,
+    "attempt003_filtered": 80,
+    "attempt002_exit": 0,
+    "attempt002_files": 3,
+    "attempt002_pass": 18
+  },
+  "root_notified": true,
+  "no_app_browser_network_git": true,
+  "qualification": "Manager final artifact/hash verification follows without runtime."
+}

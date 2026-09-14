@@ -1,0 +1,33 @@
+{
+  "id": "002",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop",
+  "argv": [
+    "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+    "../../node_modules/vitest/vitest.mjs",
+    "run",
+    "src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "src/features/result-export/resultExportAdapter.test.ts",
+    "src/features/result-export/ResultExportPanel.test.tsx",
+    "--reporter",
+    "verbose"
+  ],
+  "env": {},
+  "scope": "three existing focused desktop suites; no browser",
+  "started_utc": "2026-09-14T06:04:22.641455+00:00",
+  "source_freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+  "runner_sha256": "cf8683767e10fbb9ded40b8c7e0e3e64f36980378f46cc1a406825049283e892",
+  "exit_code": 0,
+  "finished_utc": "2026-09-14T06:04:26.248161+00:00",
+  "outputs": [
+    {
+      "path": "stdout.txt",
+      "sha256": "51b5d773505c92d89a083a59d479f0bf90b50c6957707ad818a700a7b2f1ef64",
+      "bytes": 3678
+    },
+    {
+      "path": "stderr.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}

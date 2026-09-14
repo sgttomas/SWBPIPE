@@ -1,0 +1,901 @@
+{
+  "status": "SEALED_NATIVE_RETURN_V1_WITH_DOWNLOAD_BLOCKER",
+  "created_utc": "2026-09-14T05:43:14.079660+00:00",
+  "executor": "TASK Type 2 /root/native_results_witness",
+  "configured": "gpt-5.6-sol / high",
+  "parent": "HELP_HUMAN /root",
+  "declared_scope": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY",
+  "source": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "physical_inventory": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_INDEPENDENT_EXPECTATIONS_V1.json",
+      "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+      "bytes": 4272,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_NATIVE_ROW_CONTRACT_V1.json",
+      "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+      "bytes": 135238,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/HISTORICAL_ROW_BASIS_V1.json",
+      "sha256": "f84aa76102b485eaec2352bbc86fb3c08c8315d552905ae87bf631070e316f39",
+      "bytes": 63288,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/METHOD_V1.md",
+      "sha256": "355481ec51110b57e4a7c2f27835bd64dc3e2ada5a1945d2c8a73bf955e474d6",
+      "bytes": 3299,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/NATIVE_RETURN_V1.md",
+      "sha256": "1740bb05d440253e6acb7c43ffaa7a0f15c3ac6952bee1083f30938142036391",
+      "bytes": 3019,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_CONTRACT_ADDENDUM_V1.md",
+      "sha256": "b1e34b80472b51b86d804df302e7bd2aea0741740bbac612d635aaa8e473df05",
+      "bytes": 1914,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_MANIFEST_V1.json",
+      "sha256": "817431ed3a462b52c317a5f3f3e59c841abe506f2fb2e65ee0971817340c2cd2",
+      "bytes": 3187,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_MANIFEST_V2.json",
+      "sha256": "ddc091dcafb247b9d42f342c43582f0d99168356a276eed40d800ada4ff1cc99",
+      "bytes": 4873,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/PREPARATION_RETURN_V1.md",
+      "sha256": "6d6f88039ac65b335fe0ca4c2c7b37ef092167b9c82c6338c8fd21442d515269",
+      "bytes": 2352,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/SYNTHETIC_MODEL_ORIGIN_V1.json",
+      "sha256": "3f76a0fc2f72dfb6940c4a80ee387f316b2bab8b6b14644efcf35c8487a97e69",
+      "bytes": 1006,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/SYNTHETIC_RETAINED_AUTHORED350_MODEL.json",
+      "sha256": "2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+      "bytes": 2689,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/ACTUAL_CAPTURE_FROZEN_ROW_SEMANTIC_PROOF_V1.json",
+      "sha256": "badea5ffb86e4a81c03d8d53ace3b1105ead5458c2c0ba1f1a86b744896997c2",
+      "bytes": 20525,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/ACTUAL_NATIVE_COPY_LINK_CAPTURE_V1.json",
+      "sha256": "6720ced5ef3b342bcc593306e14e704842a58a8a0724a0be194caa1339f5c435",
+      "bytes": 752,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/ACTUAL_SCHEMA_RESULT_V1.json",
+      "sha256": "1e335b897d47cb5e5b2be2c726ad4a0d4611c549bd2159933a2b0511cffeafe8",
+      "bytes": 428,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/AGENT_INTENT_ORIGIN_V1.json",
+      "sha256": "53bfb97b68b74f2fe4b0366539cd09266043ee8877c433b6a1c2ef53bf9e718e",
+      "bytes": 638,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CAPTURED_PAYLOAD_VERIFY_RESULT_V1.json",
+      "sha256": "d2b13a76c628060877b5a8e31937022af3d85f1e63edee12fb9e7d87200d7085",
+      "bytes": 738,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_ACTUAL_SCHEMA_VALIDATION_V1.json",
+      "sha256": "65cf09e31162bba5905666009e6037c04cfd6122f1b4cfa5d2c08b302665c2c9",
+      "bytes": 432,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_CAPTURED_PAYLOAD_VERIFY_V1.json",
+      "sha256": "6ac52a1f9a865f6cc0fa97eed1b3799d2ff499172778d785a4e040b65cdfe207",
+      "bytes": 720,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_FINAL_ANALYTICAL_BINDING_V1.json",
+      "sha256": "4ac4a14dccfbe79620632537aee695344546d1ca695e80f347b7d0b313bfe319",
+      "bytes": 1592,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_NATIVE_ABNORMAL_RECOVERY_V1.json",
+      "sha256": "405c40ca92db37350b569c6fe6075b624f3f6b58945d5483075cfd81b823faaa",
+      "bytes": 837,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_NATIVE_BUILD_V1.json",
+      "sha256": "0570062e92e4e764cc223694b8b7f47b2a2b894cd3e73e571c8cff2da86c725e",
+      "bytes": 942,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_NATIVE_COPY_LINK_MARKER_V1.json",
+      "sha256": "afdcdcd7ba8176bd3835c04503ef10dba1e69c00eb50a5afcc4c5a0796c6e5f6",
+      "bytes": 287,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/COMMAND_NATIVE_SELFTEST_V1.json",
+      "sha256": "1a8a0478351b21bc82d8ec94bb3ff5c3015e43388f94bedc7a16325447cbe397",
+      "bytes": 547,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTEXT_ORIGINS_V1.json",
+      "sha256": "1f1a471c22d0ca7103ab22e03fc488ff940031d6b9500eb9c6e9c85b9ad43308",
+      "bytes": 19059,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/CONTRACT_SELECTED_ORIGINS_V1.json",
+      "sha256": "187be88501fd5993e68a08e56aa210d654a04051c89c5122b7200983df599c25",
+      "bytes": 8810,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_CAPTURE_ROUTE_PREPARATION_V1.md",
+      "sha256": "21be5f5afb51dbdb87a95fe05ce96e8457686c4a2e8b9093b7c72e26e0ef37cf",
+      "bytes": 4023,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_NATIVE_CAPTURE_QUIT_BINDING_V2.json",
+      "sha256": "f812192a648d13a324fd102ce244dac3f24bdc0cfb1d2444040fc8a00d5365cf",
+      "bytes": 452,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_NATIVE_QUIT_V1.json",
+      "sha256": "70f35321ea72c8a1be3090dcebbc28f7726bbdeb03b54fd68d347e3689573819",
+      "bytes": 124,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_SOURCE_BINARY_RUNTIME_BINDING_V1.json",
+      "sha256": "595b9ceb237d2354a4d463349d0fc7e59c1627d8022e5f510c14df13b096f0f6",
+      "bytes": 606,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_SOURCE_PREPARATION_CONTEXT_V1.json",
+      "sha256": "542c8104c8889e90861692abae09a0aa040ef9d5516b943935ec7bbec2c171c0",
+      "bytes": 11384,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FINAL_SOURCE_PREPARATION_MANIFEST_V1.json",
+      "sha256": "a5e443fad9641c21d6d08994884d4b8dfdf52e9998f14764b5307a990cf833ef",
+      "bytes": 1413,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FRESH_GUI350_SOURCE_PROOF_V1.json",
+      "sha256": "b565c469135e1161b05623911a6892fad78600fca35e20aa4134d297c9798598",
+      "bytes": 805,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FRESH_NATIVE_BUILD_BINDING_V1.json",
+      "sha256": "9b44c962bf6ba020d35107298d3e2abdd90c91f5a6d1e05730b0102e4c52d691",
+      "bytes": 6779,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FROZEN_SEMANTIC_COMPARISON_FAILURE_V1.json",
+      "sha256": "5ac64670b2742fd05ea27bc8130971658fa3c1268af598da2cc83438b2581d48",
+      "bytes": 40108,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/GUI_AGENT_HUMAN_EQUALITY_V1.json",
+      "sha256": "28f505fd729ec420102501bd9ea015cc63b758be43b92fae02771faa2dc50068",
+      "bytes": 658,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/GUI_HISTORY_AND_HISTORICAL350_PROOF_V1.json",
+      "sha256": "ae5a18bd8cdbedfd59ffe60ec942886f3b152361a622ff7a507e6a9e75b0e558",
+      "bytes": 859,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/GUI_NORMAL_LIFECYCLE500_PROOF_V1.json",
+      "sha256": "a801dd5f7c86dc2e802d8397fd3224361b848c61a7b1e7318760ccaeeff95b9e",
+      "bytes": 1088,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/LOCAL_GENERATED_RUNTIME_EFFECT_INVENTORY_V1.json",
+      "sha256": "3510450e804360d05fcee19a2c1f0e8df0490861bcc5c47bd415fbdb5257558a",
+      "bytes": 1941,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NARROW_NATIVE350_DOWNLOAD_OBSERVATION_V1.json",
+      "sha256": "86c86d1607dfea6ef272d9e3a48686d0172be0d43d2aed321692f344c062c29b",
+      "bytes": 790,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_ABNORMAL_RECOVERY_RESULT_V1.json",
+      "sha256": "95a405cd958f86c08e3277f86f8b1a4accdd8e37142ed09d540bbdfde20cbf63",
+      "bytes": 964,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_CLICK_CAPTURE_FAILURE_V1.json",
+      "sha256": "3b951d29e36e755a2b4662056616b8fd630c8619a3be601aaf3ad8bc38c7c5e8",
+      "bytes": 943,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_RETURN_V1.json",
+      "sha256": "724ed916ede86856f41def54c7ad704ed9f86983c280c055d782c40f4c882b3f",
+      "bytes": 6878,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_RUNTIME_BINDING_V1.json",
+      "sha256": "c442743a1784b41f224b8f8df3e3d1237d6008127cb4e3a81600a5f646d352e2",
+      "bytes": 19609,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NORMAL_QUIT500_RESULT_V1.json",
+      "sha256": "5043b429a8c44aecc8109886e2e04a2a8085c23da97f26530adce89b989b77a8",
+      "bytes": 181,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PREPARATION_COMMAND_STATUS_V1.json",
+      "sha256": "086334048cf567219bddded0fa5364bd68be6712ce6596e6bde274a449c3faf1",
+      "bytes": 998,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROCESS_BEFORE_FINAL_QUIT_V1.json",
+      "sha256": "3b35ed4bd405b415944e16ca0d142611ed98d5c843baaacb9c2d4605f0db3593",
+      "bytes": 591,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROCESS_BEFORE_NORMAL_QUIT500_V1.json",
+      "sha256": "d22b34f6314335054c6e91f1a9ceab114288f7ad87a9918148a6dbac2fb0942e",
+      "bytes": 675,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROPOSED_RUNTIME_LEASE_FINAL_V1.json",
+      "sha256": "7585b4e2a74b5c1da6798fdf2d7e3ec3966e0fd679744beaa0779fdc4e35e8ee",
+      "bytes": 3613,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/PROPOSED_RUNTIME_LEASE_V1.json",
+      "sha256": "24b5fcbf806e8da4ca5122841a18f8c3dbb264813e3a1ecc1a574e9da72f1099",
+      "bytes": 2555,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/RUNTIME_COMMAND_FAILURE_LEDGER_V1.json",
+      "sha256": "26b5343c9241bd6a4f80efca18b80a8db3259b229c3f919a7378fd9bae1e2664",
+      "bytes": 5243,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/STABLE_STORE_CAPTURE_350_V1.json",
+      "sha256": "37b1f2ab184524fe72b7429b1d38f3b9b1bd235f00e2be6ab063b0e279339ae8",
+      "bytes": 751,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/STORE_CAPTURE_ROUTE_FAILURE_V1.json",
+      "sha256": "03d321cab783e4aaa0ba0e494fdd0fb2ed75c3d9f7482c41281a6d551ac01b5c",
+      "bytes": 509,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/actual-native-canonical500.json",
+      "sha256": "95089143ece82358d9e0b20d5eb6c50b403cf63a887fd1964c621435eb1f76e1",
+      "bytes": 308766,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/actual-schema-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/actual-schema-v1.stdout.json",
+      "sha256": "ac4a0df8fe6e02980284f319f8c59acabf1a2c9e4a32345737e0a7d7bd14b614",
+      "bytes": 1199,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/agent-load-batch-fresh-source-bound.json",
+      "sha256": "dd83514ba9a8750845973385c06dc2ab2f7f1d7db101bbd627f5d903b5a8f4f4",
+      "bytes": 1902,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/analytical-350-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/analytical-350-final.stdout.json",
+      "sha256": "c4df3f18155cab10df90333e9e84f42593403a24635b908db578237f52dc01d8",
+      "bytes": 863,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/analytical-fresh500-final.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/analytical-fresh500-final.stdout.json",
+      "sha256": "74f56d23b98fd3ccf722d88a0e3468e8816761bc3717261fde01ef8a87a7c673",
+      "bytes": 863,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/capture_stable_store.py",
+      "sha256": "a2951df179a119ceb49c8ea5c9efb02e8862cb03ef6958991a727d307cc8e77e",
+      "bytes": 1251,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/captured-payload-verifier-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/captured-payload-verifier-v1.stdout",
+      "sha256": "2a148f5f60d66d8351f595e2ec74ccc61a013ce27d539d6623ed1dfa3f5e1931",
+      "bytes": 561,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-350-load-review-ax.txt",
+      "sha256": "dbed5efb801d2a0f4094d4ad0350c0e390de2f5f199472cc8d01baeb23e58aec",
+      "bytes": 11558,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-agent-smartquotes-failure-ax.txt",
+      "sha256": "3be151418d79727781b10cffea6e1c47f1ee60fcf0a14931f11d3fb684740187",
+      "bytes": 14988,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-agent500-applied-ax.txt",
+      "sha256": "58c7d5add91cf1f805f5abb71d0c69025377fcce255c2684c788458bf951c2b1",
+      "bytes": 10507,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-agent500.capture.json",
+      "sha256": "8ffe115a09006021d109cafae9934bf51c6885c71454ebd9bd87a73a84ea8274",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-agent500.json",
+      "sha256": "420211028e47880248ee41e42646528f5dfa3e110668c29ddefb3c6631f29e41",
+      "bytes": 19878,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-agent500.sqlite3",
+      "sha256": "ed015c0d4769c62597b105ab45eb71bbf3087b403f7a2eda99e0f53a4b491779",
+      "bytes": 233472,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-authored350-v2.json",
+      "sha256": "15170eddbd73dd5bcedb62558b3f8348531c72416447fe786fa219501e39bd1a",
+      "bytes": 16873,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-authored350-v2.sqlite3",
+      "sha256": "bf6dc95450b466dc0b394ba3f967f3e47eeab0eaf5d50baa0a855eec4aa88764",
+      "bytes": 86016,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-authored350-v2.sqlite3-shm",
+      "sha256": "fd4c9fda9cd3f9ae7c962b0ddf37232294d55580e1aa165aa06129b8549389eb",
+      "bytes": 32768,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-authored350-v2.sqlite3-wal",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-authored350.sqlite3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-canonical-copylink500-menu-ax.txt",
+      "sha256": "6fb6c70e422ea63729b63f13fac699ec554806b22cf36614f4d60a8ca7b618aa",
+      "bytes": 664,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-canonical-link350-before.png",
+      "sha256": "9c2c38feefa4031ecf41e87016c462730a66bea09f3e3c072aacbfdf3fc27a1c",
+      "bytes": 162432,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-captured500-source.capture.json",
+      "sha256": "ee74acf882160dfdf4e0a3130e28b63e615ca25b90f0c38c0833b42bf680f1c0",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-captured500-source.json",
+      "sha256": "a7ce46de397c7af21cd185b7f42dae1f1604673e7d03ca84ca33f16b9067de9a",
+      "bytes": 95557,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-captured500-source.sqlite3",
+      "sha256": "96163eaec7d09964b2f962271a6f6f91c9a0e0f43d0d52688b0ceaabf8464eb1",
+      "bytes": 348160,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-copylink500-after-ax.txt",
+      "sha256": "aa92fa5e4060aac316c1b95613845e2c6f7784b4a567716d8fd1fae289910ede",
+      "bytes": 59773,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-export-blocked350.png",
+      "sha256": "efb3aea211f3c0f5f83637916c91a3678afcf1fbe77ec034a51eed0b7dab8587",
+      "bytes": 231930,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-freshsolve500-current-export-status-ax.txt",
+      "sha256": "80753d1add7f293f61c208cf6991c9e442f3cba34de98167a20721c7999827b9",
+      "bytes": 59570,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-freshsolve500.capture.json",
+      "sha256": "22cb980e8aa462fa74119e7a68cfd8c6ca2c55cc31d228ca9ca18f6a862f231b",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-freshsolve500.json",
+      "sha256": "2da6b31448f53e1c4533b6bd0ee79bf74556af4ea3b74401b9280493e504f6ba",
+      "bytes": 95557,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-freshsolve500.sqlite3",
+      "sha256": "60f0d9592a817da39d993f679ec922675ab0d73db1fa64f759a4132f4e0d4aba",
+      "bytes": 331776,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-historical500-export-gate-ax.txt",
+      "sha256": "da75a7d514a0f124a7f3439331a51f777a186d06d1b45a4b9729a97f0e16f7e3",
+      "bytes": 7177,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-historical500-export-gate.png",
+      "sha256": "ae3496c722fd823d2ca2e45eb55f79c25cb82e4edc9eea0e4eccea156147fdd9",
+      "bytes": 185173,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-human500.capture.json",
+      "sha256": "b8dd91a869c1eeafedccca9d161de5fe780863a6957f7d2cb108137452c86305",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-human500.json",
+      "sha256": "c69522b852a49cf1d5f5889728083558a3af5d229bcdf8f9243652042b6e131c",
+      "bytes": 18365,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-human500.sqlite3",
+      "sha256": "f100ffe4c002674b307e9b1bef947f08d2d05044f755a9d82e2d2d53b88b68c9",
+      "bytes": 233472,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-new-blank-ax.txt",
+      "sha256": "a830ab1faa86d536a763b8419ef7ca3e3514c1b93e6f9f0c944718da4e64b035",
+      "bytes": 1009,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-normal-reopen500-historical-ax.txt",
+      "sha256": "843d69982e2e7178c49e34c1561295f33618fa4abd5985dd6909bc9876f8bd0c",
+      "bytes": 30249,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-normal-reopen500-unchanged-save.capture.json",
+      "sha256": "ea385baec2f6964f46fdf70f6b3acbacb1fa27bad15d9ba88c4d671ba3f3bb20",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-normal-reopen500-unchanged-save.json",
+      "sha256": "6d8a32993c0f8f05f0ef0f54825aa680ba351457d5897d33b8293ae9660aa28f",
+      "bytes": 95557,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-normal-reopen500-unchanged-save.sqlite3",
+      "sha256": "5ad99682cb66a0fc12e6aa30735e0afd05b2370593dab372c54d1a4f43c89b55",
+      "bytes": 315392,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-pipe-route-review-ax.txt",
+      "sha256": "0f99386f9aa9dc41565a5d7ddff452c14650b9f5f8a16baf017f4679cebe5f44",
+      "bytes": 224,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-recovered350-historical-ax.txt",
+      "sha256": "466ce80d44f3659a17d16ec28d8e9eb487873c7bc1c05233cb61d3f6ce43358e",
+      "bytes": 30243,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-recovered350-unchanged-save.capture.json",
+      "sha256": "8411d315262749e2e812270bb1178121a1ec7b3ef09f4fe83833dcb723a7b9a1",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-recovered350-unchanged-save.json",
+      "sha256": "4616af97d863e0e799b4d2d988984050e76f2d2d201049f61f780da1f91afddf",
+      "bytes": 92547,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-recovered350-unchanged-save.sqlite3",
+      "sha256": "c399e654bed3db528ec99c33d2b8b022e8e5e233e2fc2213ca4d44c6d7ffd5ea",
+      "bytes": 221184,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-redo500.capture.json",
+      "sha256": "c295ea674bbc71291a7c07d82844d5801455ce7338594495ca4f2a8c6537f03f",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-redo500.json",
+      "sha256": "eac717ed052949e262c27908d0d733f9851aeafb9db4c94ae0ac90978df72838",
+      "bytes": 18365,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-redo500.sqlite3",
+      "sha256": "e73ae38a5a81b076988763e9076c23ee628c92956d566e0574e8a2cdce1f8f02",
+      "bytes": 233472,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-ax.txt",
+      "sha256": "0116d3d888f2f139a4ebbf4fb7e7ffb5c25daf58ba4633920cd071f5c9ebd9fc",
+      "bytes": 7071,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-stable.json",
+      "sha256": "ac9efe5df97fc6c7e27835e95d1ea5477d77091305c67cf09008b369aa594737",
+      "bytes": 92547,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-stable.sqlite3",
+      "sha256": "b2e042249b0e81998edf56bde73a69be4f1b6947ad5d939c576d4c3974deaca0",
+      "bytes": 204800,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350-v2.sqlite3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved350.sqlite3",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved500-current-ax.txt",
+      "sha256": "60146e1a8f441196620b9b8ea3077f87df30c25af474c76d915832dad4f5deea",
+      "bytes": 11309,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved500.capture.json",
+      "sha256": "69f5b1830c62add827a875b1cd0557e0eda9a4560d0aebb40dd3129c18396e48",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved500.json",
+      "sha256": "df50eac40fcd76931850ad2df5da1785aa99354f445fbd71bb5ff57a9b38bca1",
+      "bytes": 95557,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved500.sqlite3",
+      "sha256": "9d7aaf6336d146871e6e2e6d66e7612ef77387b312c0f56b0b0164c965e56195",
+      "bytes": 299008,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-undo350.capture.json",
+      "sha256": "88a328a1df91affbf6000f179e1e682e2d7da927e3a014925892071d0902cef2",
+      "bytes": 478,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-undo350.json",
+      "sha256": "8966a8e685ac1f1c41c86ec9aba615e2032341da50f4c1a2a58eb15130692c59",
+      "bytes": 18365,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-undo350.sqlite3",
+      "sha256": "3c52147ed489df63f5315bb47f71a1c9838b0f57f75e78252d05bfcd551bfc6a",
+      "bytes": 233472,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/native-build-v1.stderr",
+      "sha256": "44ede2c3f7567036a5cecb8aa30a57e55970ee6c9e5d5bdcb66335ac8f2354cc",
+      "bytes": 14884,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/native-build-v1.stdout",
+      "sha256": "3559cdc666f63450022b7bcfc1185635e4e2886c4e5883a1edcab8d443af4b71",
+      "bytes": 2398,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/native-selftest-v1.json",
+      "sha256": "3821bc35b5ac117d57f1fd6f2f26f75c751a3d806a423e39bcb63e79069943c7",
+      "bytes": 5371,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/native-selftest-v1.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/snapshot_store_v2.py",
+      "sha256": "07f6b3782f721e0d615cc1cf30c7dd8248343de6d25968d329173362ede21a3c",
+      "bytes": 912,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/validate_actual_captured_schema.py",
+      "sha256": "455f7c291520f9a946ad40a2786bae158ec14581dd9f7e6d01b87379147b94fe",
+      "bytes": 997,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/verify_captured_result.mjs",
+      "sha256": "189012e1cacda97ec2477d7ec2830199a047ea6fdfc1a0e86c1755e6ede7a7a5",
+      "bytes": 5005,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/assert_analytical_rows.py",
+      "sha256": "188d9b6fc1d48c068f610ddc02603b17d45210086443e78765ed7832939a3649",
+      "bytes": 1008,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/snapshot_store.py",
+      "sha256": "405937ef85e30cd85c808f3ebff017630c23376aeeadafacf4a2e15e85c543da",
+      "bytes": 908,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "bytes": 379,
+      "ignored": false,
+      "publication": "bounded evidence only; no compiled app/target binary"
+    }
+  ],
+  "physical_files": 125,
+  "physical_bytes": 5003590,
+  "ignored_files": 0,
+  "manifest_self_excluded": true,
+  "one_canonical_raw_payload_copy": "_run_records/actual-native-canonical500.json",
+  "canonical_payload_identity_scope": "actual native Copy Link href decoded without activation, not file-download success",
+  "derivative_package": true,
+  "accepted_upstream": "ROOT NATIVE_RELEASE_V1 / SOURCE_INTEGRATION_V4 / RESULTS acceptance and contract index; exact origins retained in preparation/context manifests",
+  "closure_verdict": "payload/source/lifecycle PASS; actual native download interaction blocker",
+  "remaining_blockers": [
+    "native file-download interaction requires root disposition/repair and fresh witness"
+  ],
+  "runtime_lease_released": "ROOT_LEASE_NATIVE_RESULT_V1 upon sealed delivery; all isolated processes closed",
+  "local_only_generated_effects": "_run_records/LOCAL_GENERATED_RUNTIME_EFFECT_INVENTORY_V1.json",
+  "publication_locator": "../../SETUP/_run_records/PUBLICATION_PACKAGING_V1/HISTORICAL_ORIGIN_PUBLICATION_LOCATOR_V1.json exact historical moved origin files retained byte-for-byte"
+}

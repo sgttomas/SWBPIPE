@@ -1,0 +1,57 @@
+{
+  "status": "ACCEPTED_BOUNDED_NATIVE_DOWNLOAD_REPAIR_FOCUSED_SOURCE45",
+  "verified_selected_manifest": "MANIFEST_V2.json",
+  "verified_manifest_sha256": "f5f9246022be49f2c756dd54c279f7b6deba27dc8aca45f6f58cfd3cc0246965",
+  "verified_manifest_files": 45,
+  "verified_manifest_bytes": 1101107,
+  "manifest_errors": 0,
+  "accepted43_unchanged": true,
+  "lib_outside_module_and_run_byte_identical": true,
+  "existing_invoke_handler_exactly_preserved": true,
+  "production_guard_v2_v3_byte_identical": true,
+  "test_binary_external_hash_verified": true,
+  "winning_source_tools_inputs_verified": true,
+  "primary_config_lock_manifest_origins_rehashed": 17,
+  "actual_serial_results": [
+    {
+      "attempt": "attempt001",
+      "exit": 101,
+      "command_sha256": "06d3fa86bb1f237e29e37a4cbf63ac2a699d573c3a04c994978fb439dd1dad4b",
+      "result_sha256": "d3560469d46811ca1754515e204531b96df7910a4f243f660481329787cf8473",
+      "freeze_sha256": "903072be9911135de146bdc2f7f96f960fa833c8b500e81b3633ef43bca4cada",
+      "actual_start": "2026-09-14T06:02:34.084837+00:00",
+      "actual_finish": "2026-09-14T06:03:09.868204+00:00"
+    },
+    {
+      "attempt": "attempt003",
+      "exit": 0,
+      "command_sha256": "1aba36d653322b4ebb52f5cfdb0b2bf9274930991bebac5eb4d6e8c1b693c510",
+      "result_sha256": "ccdb11c3ee8bdc0f881d5cf0156731769f0031034c2010c1f17b2f1ba0ea83b1",
+      "freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+      "actual_start": "2026-09-14T06:04:10.249626+00:00",
+      "actual_finish": "2026-09-14T06:04:14.117247+00:00"
+    },
+    {
+      "attempt": "attempt002",
+      "exit": 0,
+      "command_sha256": "26a04d6d49a90e89da47d9e7979ce24bc2f06de5f908cbdfef55006658409557",
+      "result_sha256": "4d356f338e0365b65b31f065050f219d36e47cc2b1ebffa2d4079c95a7ac9d34",
+      "freeze_sha256": "cf7b9be8ee269bd5406ee8db8833abf37a4b3b77c3aaaf6561e977104e423c70",
+      "actual_start": "2026-09-14T06:04:22.641455+00:00",
+      "actual_finish": "2026-09-14T06:04:26.248161+00:00"
+    }
+  ],
+  "selected_tests": {
+    "native_helper_pass": 8,
+    "unrelated_native_filtered": 80,
+    "frontend_files_pass": 3,
+    "frontend_tests_pass": 18
+  },
+  "original_failed001_retained": true,
+  "source_delivery_scope": "two native source paths only; no frontend/config/locks/policy/schema/model/solver/transport change",
+  "snapshot_selection": "Unversioned evidence native_result_download.rs is historical staticV1. Current final maintained helper matches native_result_download.v3.rs, V3 freeze, source_delta_v3.patch and RETURN_V1 source pins. Failed initial manager checker assumed unversioned helper current; corrected version selection only, no source/runtime rerun.",
+  "native_claim_limit": "No actual file/download delivery/window creation/responsiveness/hang resolution claimed. Callback already-parsed received URL distinct from original href/file bytes. Original V1 PARTIAL/unresolved CUA retained.",
+  "manifest_history": "V1 preserved; V2 incorporates two manager receipts and oldV1. These final manager backcheck/fan-in are additive postV2 evidence, not claimed listed by original45-file manifest.",
+  "remaining": "Root affected-source review/import/clean commit -> actual nativeV2 FIRST -> full DEC025_V5 same source; both mandatory -> final governed acceptance/CI/PR/authorized merge.",
+  "runtime_lease": "ROOT_LEASE_NATIVE_DOWNLOAD_FOCUSED_V1 RELEASED; child idle."
+}

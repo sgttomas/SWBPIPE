@@ -1,0 +1,14 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_DOWNLOAD_FOCUSED_V1",
+  "holder": "/root/results_implementation_manager/results_writer",
+  "released": true,
+  "released_after_command002_utc": "2026-09-14T06:04:26.248161+00:00",
+  "processes": "all granted command processes closed; no app/browser/nativeGUI process started",
+  "commands_order": [
+    "version probes",
+    "001 preserved FAIL",
+    "003 exact witness correction PASS",
+    "002 PASS"
+  ],
+  "no_further_runtime": true
+}

@@ -1,0 +1,45 @@
+{
+  "status": "inventory_only",
+  "effects": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target",
+      "exists": true,
+      "physical_file_count": 3510,
+      "bytes": 1140056882,
+      "publication": "local only; no compiled target/app binary publication"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/dist",
+      "exists": true,
+      "physical_file_count": 21,
+      "bytes": 4194896,
+      "publication": "local only; no compiled target/app binary publication"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/public/wasm-engine",
+      "exists": true,
+      "physical_file_count": 4,
+      "bytes": 991797,
+      "publication": "local only; no compiled target/app binary publication"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/public/mechanics-engine",
+      "exists": false,
+      "physical_file_count": 0,
+      "bytes": 0,
+      "publication": "local only; no compiled target/app binary publication"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/public/report-engine",
+      "exists": false,
+      "physical_file_count": 0,
+      "bytes": 0,
+      "publication": "local only; no compiled target/app binary publication"
+    }
+  ],
+  "isolated_store": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.results-engineering-3d-20260913/openpipestress-projects.sqlite3",
+  "ordinary_store_touched": false,
+  "source_edits": false,
+  "git_mutations": false,
+  "shared_runtime_lease": "ROOT_LEASE_NATIVE_RESULT_V1"
+}

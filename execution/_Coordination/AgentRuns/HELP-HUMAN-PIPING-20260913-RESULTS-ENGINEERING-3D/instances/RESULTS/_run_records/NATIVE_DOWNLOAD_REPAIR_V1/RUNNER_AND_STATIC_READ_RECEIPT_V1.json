@@ -1,0 +1,9 @@
+{
+  "runner": "execute_frozen_command_v1.py",
+  "sha256": "c80af5a1df7a8eb57512f0ba929fe5d760511f1ac8cce9c3c8679abcfd848d4a",
+  "invocation": "python3 execute_frozen_command_v1.py 001, then 002; only after explicit root runtime lease",
+  "static_probe_failure": "tauri-utils-2.8.3/src/config.rs absent, rg exit2; rg inventory resolved installed tauri-utils-2.9.1/src/config.rs",
+  "actual_config_api_sha256": "dc7bb8f3e47bf771b5ee865da0ef451bb5ab138664ceb1f6b6370413cffe988d",
+  "order_addendum_sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+  "runtime": "NOT_RUN"
+}

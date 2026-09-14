@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "human_edit_only_model_delta": "load_cases[0].primitive_loads[0].magnitude.value350to500",
+  "human_edit_seam": "native Load Cases magnitude editor queued/reviewed/applied tauri_backend_apply",
+  "undo_restores_exact_authored350_model_json": true,
+  "redo_restores_exact_human500_model_json": true,
+  "unchanged_historical350_save_preserves_raw_fields": [
+    "model_json",
+    "mechanics_result_json",
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "model_migration_ledger_json",
+    "proposal_json",
+    "selected_review_target_json"
+  ],
+  "normal_quit_at350": false,
+  "abnormal_recovery_distinct": true,
+  "model350_raw_sha256": "9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4",
+  "model500_raw_sha256": "d9a667e4ed8c90ca312e9f39651e84f01ed8aa83b2cf746181ec67467aa2dbe9"
+}

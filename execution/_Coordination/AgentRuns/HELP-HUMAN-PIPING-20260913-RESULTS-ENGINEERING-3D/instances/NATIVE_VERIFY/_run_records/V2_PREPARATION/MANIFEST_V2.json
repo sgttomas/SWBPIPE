@@ -1,0 +1,31 @@
+{
+  "status": "PREPARATION_READY_RUNTIME_NOT_GRANTED",
+  "kind": "immutable derivative addendum",
+  "parent": "/root",
+  "executor": "/root/native_results_witness",
+  "configured_model": "gpt-5.6-sol",
+  "effort": "high",
+  "runtime_performed": false,
+  "source_effect": false,
+  "delegation": false,
+  "v1_preserved": true,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_PREPARATION/CONTEXT_V2.json",
+      "sha256": "36660ba74182bf70d14615a2910efc2b0df3de681ad560d973be7b7c37800241",
+      "bytes": 8223
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_PREPARATION/METHOD_EXPECTATIONS_V2.md",
+      "sha256": "49f0c6e0557b1037aad1a717c8617aaff54e23aaeda776e74f42716d128d5a84",
+      "bytes": 8792
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_PREPARATION/PROPOSED_LEASE_V2.json",
+      "sha256": "90a974e4707020c5315e275c186c23e589bc0c6743ca19cae2c26011303f3cb6",
+      "bytes": 2868
+    }
+  ],
+  "self_excluded": true,
+  "handoff": "Await exact reviewed clean candidate, successful complete DEC025_V5 and explicit exclusive native release; no preparation blocker."
+}

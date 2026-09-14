@@ -1,0 +1,25 @@
+{
+  "status": "PASS_NO_ACTIONABLE_AFFECTED_SOURCE_FINDINGS",
+  "derivative_package": true,
+  "source45_manifest_sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+  "source_patch_sha256": "18b0499606ea40f71cf33aa73abb5cf11b06d5b0b239b0fc69e2ba604ddddbf2",
+  "files": [
+    {
+      "path": "RETURN_NATIVE_DOWNLOAD_V1.md",
+      "sha256": "29355216c8fd33b9684d416ce15d05235d25bb6e00c27f47c0ecfe10a85cc94c",
+      "bytes": 3499
+    },
+    {
+      "path": "_run_records/NATIVE_DOWNLOAD_COVERAGE_V1.json",
+      "sha256": "b903b59e4bd69f3584cca7ffcca5c0e86fee696d4473e2a92aef0f9eda8fb741",
+      "bytes": 14771
+    }
+  ],
+  "self_hash_scope": "Self excluded; detached hash reported",
+  "remaining": [
+    "Root acceptance and clean candidate commit",
+    "Fresh nativeV2 build/selftest/350-repeat350-500 exact files, collision, responsiveness and normal quit/reopen",
+    "Complete clean registeredDEC025_V5 on same source with native artifact rehash",
+    "Actual metadata and final acceptance/handoff review; governance/CI/publication"
+  ]
+}

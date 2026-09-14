@@ -1,0 +1,40 @@
+{
+  "status": "PASS_RAW_SOURCE_NUMERICS_ONLY",
+  "checks": [
+    {
+      "row_id": "result:disp:node-WF-TIP:uy",
+      "value": 1.663072,
+      "expected": 1.663071716046058,
+      "unit": "mm",
+      "error": 2.8395394213731606e-07
+    },
+    {
+      "row_id": "result:disp:node-WF-TIP:rz",
+      "value": 0.00078,
+      "expected": 0.0007795648668965897,
+      "unit": "rad",
+      "error": 4.351331034102568e-07
+    },
+    {
+      "row_id": "result:reaction:support-WF-ROOT",
+      "value": 350,
+      "expected": 350,
+      "unit": "N",
+      "error": 0
+    },
+    {
+      "row_id": "result:force:pipe-WF:shear-z",
+      "value": 350,
+      "expected": 350,
+      "unit": "N",
+      "error": 0
+    },
+    {
+      "row_id": "result:moment:pipe-WF:bending-y",
+      "value": -1120,
+      "expected": -1120.0,
+      "unit": "N*m",
+      "error": 0.0
+    }
+  ]
+}

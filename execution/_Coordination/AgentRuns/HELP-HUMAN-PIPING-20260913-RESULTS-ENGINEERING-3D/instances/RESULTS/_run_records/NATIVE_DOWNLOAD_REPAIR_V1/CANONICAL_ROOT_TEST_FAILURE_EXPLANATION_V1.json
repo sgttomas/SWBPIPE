@@ -1,0 +1,10 @@
+{
+  "scope": "postfailure read-only environment/filesystem explanation; exact transient Rust scratch pathname was not emitted and was cleaned by Drop",
+  "TMPDIR": "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/",
+  "TMPDIR_canonical": "/private/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T",
+  "var_is_symlink": true,
+  "var_readlink": "private/var",
+  "var_canonical": "/private/var",
+  "actual_failure": "attempt001/stderr.txt positive root.join(NAME) assertion, helper line200",
+  "production_guard_changed": false
+}

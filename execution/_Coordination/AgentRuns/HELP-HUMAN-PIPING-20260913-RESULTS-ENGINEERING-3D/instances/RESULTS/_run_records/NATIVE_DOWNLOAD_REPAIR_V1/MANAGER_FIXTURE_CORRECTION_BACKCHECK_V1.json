@@ -1,0 +1,17 @@
+{
+  "status": "EXACT_POSITIVE_WITNESS_TEST_ONLY_CORRECTION_VERIFIED",
+  "production_guard_byte_identical_v2_v3": true,
+  "lib_byte_identical_v2_v3": true,
+  "all43_unchanged": true,
+  "nested_alias_negative_lexical_path_unchanged": true,
+  "helper_v2_reconstructed_from_preserved_patch_sha256": "a50359291da443b05f6e99abc5f191ce724f282572ffb6c9b2bdab6ac28334a6",
+  "helper_v3_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+  "actual_physical_delta": {
+    "old_statement": "        assert!(allow_requested(URL, &root.join(NAME), &platform_root, &HostFilesystem));\n",
+    "new_local_binding_and_statement": "        let canonical_root = fs::canonicalize(&root).unwrap();\n        assert!(allow_requested(URL, &canonical_root.join(NAME), &platform_root, &HostFilesystem));\n",
+    "old_lines": 1,
+    "new_lines": 2
+  },
+  "checker_correction": "Initial static checker incorrectly assumed correction was exactly one physical line; actual equivalent local canonical_root binding adds one line. Reconstructed patch proves this is the only changed witness; no source/runtime repeat. Failed check preserved in manager tool output.",
+  "actual001_failure": "preserved actual7pass1fail/exit101; actual transient Rust scratch path not emitted/captured; subsequent environment /var versus /private/var explanation is scoped separately."
+}

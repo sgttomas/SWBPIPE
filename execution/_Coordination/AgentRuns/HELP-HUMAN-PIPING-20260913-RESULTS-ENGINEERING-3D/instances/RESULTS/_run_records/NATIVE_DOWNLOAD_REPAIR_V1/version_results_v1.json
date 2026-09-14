@@ -1,0 +1,32 @@
+[
+  {
+    "argv": [
+      "/Users/ryan/.cargo/bin/cargo",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "exit_code": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/ryan/.cargo/bin/rustc",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "exit_code": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "exit_code": 0,
+    "stdout": "v24.18.0\n",
+    "stderr": ""
+  }
+]

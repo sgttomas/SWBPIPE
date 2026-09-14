@@ -1,0 +1,127 @@
+{
+  "kind": "immutable static derivative method preparation",
+  "phase": "STATIC_ONLY_NO_RUNTIME_LEASE",
+  "executor": "/root/native_results_witness",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "configured_model": "gpt-5.6-sol",
+  "reasoning_effort": "high",
+  "delegation_class": "delegated-harness-native",
+  "role_scope_enforcement": "instruction-asserted",
+  "delegation_performed": false,
+  "source_basis": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "candidate_v2_pending": true,
+  "recorded_utc": "2026-09-14T05:54:43.594747+00:00",
+  "repository_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_PREPARATION",
+  "runtime_performed": false,
+  "source_effects": false,
+  "origins": [
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_DOWNLOAD_REPAIR_V1.md",
+      "sha256": "8789b87b830f178b0a859513efc25ae4dbcb0ebde8f28adab8d709cb70cff948",
+      "bytes": 7129
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/DIAGNOSIS_V1.md",
+      "sha256": "ae9633325639727146a9054d5f148e8013c2467a9e4bcb9ba51620ce794ff717",
+      "bytes": 8836
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/AMENDMENT_V2.md",
+      "sha256": "f1430766e1b6ca5670173ec9dde648d41025dec3387d259e25fd7b5b0d385f7f",
+      "bytes": 7776
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/_run_records/FROZEN_REPAIR_EXPECTATIONS_V1.json",
+      "sha256": "b1955811e6d51c50dbf6250ca8795af8cdba391d5962116384847e7f663fdc8c",
+      "bytes": 3790
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V4.json",
+      "sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+      "bytes": 19920
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/NATIVE_PHYSICAL_MANIFEST_V1.json",
+      "sha256": "bbb796887c476dc7225ddd5cf8ee1411cddc2d73b168446d933334f843ab2b81",
+      "bytes": 53191
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_RETURN_V1.json",
+      "sha256": "724ed916ede86856f41def54c7ad704ed9f86983c280c055d782c40f4c882b3f",
+      "bytes": 6878
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "bytes": 273741
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f",
+      "bytes": 736
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "bytes": 379
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_INDEPENDENT_EXPECTATIONS_V1.json",
+      "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f",
+      "bytes": 4272
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_NATIVE_ROW_CONTRACT_V1.json",
+      "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+      "bytes": 135238
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/verify_captured_result.mjs",
+      "sha256": "189012e1cacda97ec2477d7ec2830199a047ea6fdfc1a0e86c1755e6ede7a7a5",
+      "bytes": 5005
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/validate_actual_captured_schema.py",
+      "sha256": "455f7c291520f9a946ad40a2786bae158ec14581dd9f7e6d01b87379147b94fe",
+      "bytes": 997
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/capture_stable_store.py",
+      "sha256": "a2951df179a119ceb49c8ea5c9efb02e8862cb03ef6958991a727d307cc8e77e",
+      "bytes": 1251
+    },
+    {
+      "origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/ACTUAL_CAPTURE_FROZEN_ROW_SEMANTIC_PROOF_V1.json",
+      "sha256": "badea5ffb86e4a81c03d8d53ace3b1105ead5458c2c0ba1f1a86b744896997c2",
+      "bytes": 20525
+    },
+    {
+      "origin": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/download.rs",
+      "sha256": "3b67113c3d13a2082992d284a1e995e07c06a9b892b3ed2dae9b7370daa0f6c0",
+      "bytes": 3987
+    },
+    {
+      "origin": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/webview_window.rs",
+      "sha256": "00993e28209fe87fdeea148213f7572bcf2eecb4738bae69a711d4493b35b60e",
+      "bytes": 92619
+    }
+  ],
+  "v1_preservation": "No V1 file modified; exact sealed manifest and return hashes verified. V1 is historical valid partial qualification only."
+}

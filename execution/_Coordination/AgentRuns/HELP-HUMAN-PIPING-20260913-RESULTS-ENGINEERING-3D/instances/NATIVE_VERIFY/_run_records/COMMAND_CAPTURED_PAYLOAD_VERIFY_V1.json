@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "node",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/verify_captured_result.mjs",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/actual-native-canonical500.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-captured500-source.json",
+    "projects/chirality-piping/apps/desktop/dist/wasm-engine"
+  ],
+  "scope": "independent actual capturedpayload checker, no product adapter"
+}

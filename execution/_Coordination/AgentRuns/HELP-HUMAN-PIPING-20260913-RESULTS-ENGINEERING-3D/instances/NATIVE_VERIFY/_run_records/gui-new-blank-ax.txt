@@ -1,0 +1,13 @@
+The following is a diff from the previous accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 48-86, 99-119
+~				6 text Blank Local Model
+~					16 summary Created blank local model document without fixture entities or external file copies. Details, Value: off
+~						17 text Created blank local model document without fixture entities or external file copies.
+~							45 text 1  of  1  model entities visible
+~						47 toggle button Blank Local Model, Value: on
+~					95 text Selected:  project:blank-local-20260914t051915z
+~						138 heading project:blank-local-20260914t051915z, Value: 2
+~							139 text project:blank-local-20260914t051915z
+~						158 summary Mechanics model incomplete, Value: off
+~							160 text model incomplete
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

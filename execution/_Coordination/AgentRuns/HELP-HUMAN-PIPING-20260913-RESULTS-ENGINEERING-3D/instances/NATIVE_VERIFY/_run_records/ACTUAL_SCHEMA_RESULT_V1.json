@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/validate_actual_captured_schema.py"
+  ],
+  "exit_code": 0,
+  "stdout": "actual-schema-v1.stdout.json",
+  "stderr": "actual-schema-v1.stderr"
+}

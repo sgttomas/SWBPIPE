@@ -1,0 +1,27 @@
+{
+  "status": "PASS_ACTUAL_CAPTURE_STRICT_VERSIONED_SCHEMA",
+  "actual_schema_version": "0.2.0",
+  "dispatcher_and_current_validate": true,
+  "legacy_branch_rejects_current": true,
+  "schemas": [
+    {
+      "schema": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.schema.yaml",
+      "schema_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "errors": 0,
+      "expected_valid": true
+    },
+    {
+      "schema": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.v0.2.schema.yaml",
+      "schema_sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "errors": 0,
+      "expected_valid": true
+    },
+    {
+      "schema": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/schemas/results.v0.1.schema.yaml",
+      "schema_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "errors": 414,
+      "expected_valid": false
+    }
+  ],
+  "source_row_hash_verification": "separate captured-payload-verifier-v1.stdout"
+}

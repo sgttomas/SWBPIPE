@@ -1,0 +1,8 @@
+{
+  "prepared_route": "Path.as_uri file:/// percent-encoded mode=ro failed unable to open database file",
+  "empty_failed_backup_preserved": "gui-authored350.sqlite3",
+  "retry_refused_overwrite": true,
+  "scoped_read_checks": "header and stat readable; plain-path SELECT succeeds, no mutation statement executed; explicit file:/ absolute unescaped URI mode=ro SELECT succeeds",
+  "additive_route": "snapshot_store_v2.py",
+  "meaning": "independent preparation URI error, not native Save or source failure"
+}

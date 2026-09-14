@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app",
+    "--ci",
+    "--no-sign",
+    "--config",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop",
+  "env_overrides": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "started_unix": 1789363036.22457,
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V1",
+  "source_binding": "NATIVE_RUNTIME_BINDING_V1.json",
+  "exit_code": 0,
+  "finished_unix": 1789363130.368157,
+  "stdout_sha256": "3559cdc666f63450022b7bcfc1185635e4e2886c4e5883a1edcab8d443af4b71",
+  "stderr_sha256": "44ede2c3f7567036a5cecb8aa30a57e55970ee6c9e5d5bdcb66335ac8f2354cc"
+}

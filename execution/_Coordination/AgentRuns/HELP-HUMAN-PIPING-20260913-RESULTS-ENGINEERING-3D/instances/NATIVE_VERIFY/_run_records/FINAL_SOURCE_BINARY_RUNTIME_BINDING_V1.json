@@ -1,0 +1,11 @@
+{
+  "status": "PASS_FINAL_SOURCE_AND_BOUND_BINARY_UNCHANGED",
+  "head": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "all43_sha256_equal": true,
+  "bundle_dist_inventory_sha256_equal": true,
+  "binary_sha256": "7ed5163a7277be7aa7683c6d697bbdf178a94408f9a73a97fab5da1095d88d46",
+  "source_inventory_sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+  "native_final_quit_record": "70f35321ea72c8a1be3090dcebbc28f7726bbdeb03b54fd68d347e3689573819",
+  "producer_original_bytes": "unavailable, not reconstructed",
+  "actual_canonical_export_capture": "BLOCKED separately recorded"
+}

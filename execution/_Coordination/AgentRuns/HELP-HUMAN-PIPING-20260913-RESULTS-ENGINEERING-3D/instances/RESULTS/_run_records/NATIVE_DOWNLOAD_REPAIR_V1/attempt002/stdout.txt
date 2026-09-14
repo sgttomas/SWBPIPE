@@ -1,0 +1,27 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > uses fixed route contexts 1ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > ignores source intent and requires wrapper-owned intent for known private values 22ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > binds the native package to downstream-tool control without local-private fallback 2ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > requires the Parser CSV link's own intent and exposes no side effect before it 28ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > renders sanitized per-item evidence before allowed and blocked exposure controls 6ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > requires its own intent then exposes original serialized bytes with local unknown/private warnings 2ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > blocks route-intent stripping from unknown raw annotations despite lossless policy materialization 2ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked 4ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > binds current payload/carrier and preserves old hashes and observed declarations 488ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > dimension-absent received carrier remains distinct from authentic producer 351ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions 125ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects checksum scope/type/algorithm/canonicalization/ref tampering 210ms
+ ✓ src/features/result-export/ResultExportPanel.test.tsx > only makes Current proof-bound JSON downloadable and invalidates it on same-id edit 1465ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > all60 semantic expectations and all28 exact annotations agree before any origin claim 45ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > canonical authority orders numeric-looking/Unicode keys and normalizes negative zero 0ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unsupported, hidden, sparse, extra, unsafe, malformed and cyclic JSON 1ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unknown/mixed versions preserving0.1 versus0.2 reader dispatch 0ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > rejects ghost references, orphan witnesses and semantic tampering despite recomputed derivative digest 1432ms
+
+ Test Files  3 passed (3)
+      Tests  18 passed (18)
+   Start at  00:04:22
+   Duration  3.33s (transform 266ms, setup 321ms, import 342ms, tests 4.19s, environment 1.15s)
+

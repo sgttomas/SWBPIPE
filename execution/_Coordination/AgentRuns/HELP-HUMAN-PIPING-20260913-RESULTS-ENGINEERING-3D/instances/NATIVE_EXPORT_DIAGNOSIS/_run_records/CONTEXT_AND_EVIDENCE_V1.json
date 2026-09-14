@@ -1,0 +1,170 @@
+{
+  "kind": "read-only derivative diagnosis evidence",
+  "executor": "/root/native_export_diagnosis",
+  "parent": "/root",
+  "role": "TASK Type2",
+  "mechanism": "delegated-harness-native",
+  "role_enforcement": "instruction-asserted",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "recorded_utc": "2026-09-14T05:34:35.179647+00:00",
+  "accepted_source_commit_from_parent_and_native_binding": "0a687ed5ff21755c2962ecd75b30f1f83b231aa3",
+  "actions": "Selective source/evidence reads; one official docs web read; only own diagnosis records written. No tests/build/app/process/Git mutation/delegation.",
+  "context_and_evidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_EXPORT_DIAGNOSIS_V1.md",
+      "sha256": "569824464c7c6caf9735aad589e7e5d05d25986f29003cc8be54c4222a2e4ded",
+      "bytes": 3832
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+      "bytes": 20468
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/LOCAL_DOWNLOAD_ACCEPTANCE_BASIS_V1.json",
+      "sha256": "307eaad71d8db6180851782cb292d9b363b2134b354ed5c7e33fdabdd1856173",
+      "bytes": 7144
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V4.json",
+      "sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+      "bytes": 19920
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_CLICK_CAPTURE_FAILURE_V1.json",
+      "sha256": "3b951d29e36e755a2b4662056616b8fd630c8619a3be601aaf3ad8bc38c7c5e8",
+      "bytes": 943
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_ABNORMAL_RECOVERY_RESULT_V1.json",
+      "sha256": "95a405cd958f86c08e3277f86f8b1a4accdd8e37142ed09d540bbdfde20cbf63",
+      "bytes": 964
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/FRESH_NATIVE_BUILD_BINDING_V1.json",
+      "sha256": "9b44c962bf6ba020d35107298d3e2abdd90c91f5a6d1e05730b0102e4c52d691",
+      "bytes": 6779
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_RUNTIME_BINDING_V1.json",
+      "sha256": "c442743a1784b41f224b8f8df3e3d1237d6008127cb4e3a81600a5f646d352e2",
+      "bytes": 19609
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_NATIVE_ROW_CONTRACT_V1.json",
+      "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+      "bytes": 135238
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "bytes": 6587
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "bytes": 2295
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "bytes": 8382
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "bytes": 11097
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.ts",
+      "sha256": "a649f2a056a2e015d6c9617fc417ade909774fde962cee0140f78beec6aa2454",
+      "bytes": 4031
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "c3069d59045c427bbfabc7ce1450d5828e1d1c67632da4cb00675822c07d4109",
+      "bytes": 273741
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f",
+      "bytes": 736
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/Cargo.toml",
+      "sha256": "7e48badcd16c2a4501453550774350d3f39c06009f639c4c8fe9c38f919008ba",
+      "bytes": 1520
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "bytes": 122833
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/navigation.rs",
+      "sha256": "1898665e051edf10124178aa596b02dd121b33e1ccf7bb48b54d859d46e73aae",
+      "bytes": 3357
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/download.rs",
+      "sha256": "3b67113c3d13a2082992d284a1e995e07c06a9b892b3ed2dae9b7370daa0f6c0",
+      "bytes": 3987
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/class/wry_download_delegate.rs",
+      "sha256": "d52460df67678eccb4c5d409c9d24a81d5c63ff04eee6a76e5558c9ccd341756",
+      "bytes": 2354
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/mod.rs",
+      "sha256": "686ef932c341c2a5a7317419f7be36af557c4fe262ee7de2f819d01510299cad",
+      "bytes": 51287
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/mod.rs",
+      "sha256": "954cf212cb79d6b566c10b76d2ff2da05bc637cfc9f666c2f03d4e3dddf35f1c",
+      "bytes": 81201
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/webview_window.rs",
+      "sha256": "00993e28209fe87fdeea148213f7572bcf2eecb4738bae69a711d4493b35b60e",
+      "bytes": 92619
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/app.rs",
+      "sha256": "d2bbeff336c5699ca74b1455ed7575b48ad3315e2266b9871e8355cfab6e61c1",
+      "bytes": 86863
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.1/src/lib.rs",
+      "sha256": "508c0eba506999840acd328fa429624bf91fcf3f88abfe4bd7e2dc3fb2ce87bd",
+      "bytes": 166891
+    }
+  ],
+  "external_primary_source": {
+    "url": "https://docs.rs/tauri/2.11.1/tauri/webview/struct.WebviewWindowBuilder.html#method.on_download",
+    "used_for": "Confirm versioned public builder hook; installed matching primary source is detailed behavioral basis."
+  },
+  "read_limitations": [
+    "Broad initial filename inventory and some aggregate record reads truncated; no conclusions based on unseen truncated bytes.",
+    "One attempted native binding read used wrong relative path and failed; corrected read and hash are recorded.",
+    "Online Wry source URL unavailable; used installed locked primary source."
+  ]
+}

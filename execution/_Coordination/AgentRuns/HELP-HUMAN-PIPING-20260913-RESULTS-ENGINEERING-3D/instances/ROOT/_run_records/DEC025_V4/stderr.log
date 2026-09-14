@@ -1,0 +1,180 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_viewport_editor-7c1250652a58cb8b)
+   Doc-tests open_pipe_stress_viewport_editor
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_library_import_document-971432d65e15a783)
+     Running tests/provenance_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/provenance_parity-61d57708c31a4cf8)
+   Doc-tests open_pipe_stress_library_import_document
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_load_case_algebra-bbc3a6c879549004)
+   Doc-tests open_pipe_stress_load_case_algebra
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_primitive_loads-472542c6d9490d78)
+   Doc-tests open_pipe_stress_primitive_loads
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_self_weight_wasm-4cf71ba3703751dd)
+   Doc-tests open_pipe_stress_self_weight_wasm
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_stress_recovery-2aadcfed411417cd)
+   Doc-tests open_pipe_stress_stress_recovery
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_user_loads-0ee7a3c8cea95c8c)
+   Doc-tests open_pipe_stress_user_loads
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_operation_applier-cc00f834758059ab)
+     Running tests/canonical_hash_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/canonical_hash_parity-5baff030016eb79c)
+     Running tests/contract_corpus.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/contract_corpus-008861147ce7721d)
+     Running tests/support_authoring_conflicts.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/support_authoring_conflicts-676bb33b32ad5f4f)
+   Doc-tests open_pipe_stress_operation_applier
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_product_physics-d5c36f882fe55455)
+   Doc-tests open_pipe_stress_product_physics
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_audit_manifest-052cdfa51fc1d2bf)
+   Doc-tests open_pipe_stress_audit_manifest
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_pdf_emitter-1fa0db5212fd8e0c)
+     Running tests/emit.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/emit-e1710a2d00496a22)
+   Doc-tests open_pipe_stress_pdf_emitter
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_protected_content_linter-bd484528d3aef39f)
+     Running unittests src/bin/protected_content_lint_cli.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/protected_content_lint_cli-2d7901eca0927c53)
+   Doc-tests open_pipe_stress_protected_content_linter
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_generator-b251d2ae4b34c368)
+   Doc-tests open_pipe_stress_report_generator
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_package-e283d16802e870c5)
+     Running tests/container.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/container-6311eac97bee5ff2)
+   Doc-tests open_pipe_stress_report_package
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_renderer-e6f07091779014ec)
+     Running tests/render.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/render-989a0f803abbb358)
+   Doc-tests open_pipe_stress_report_renderer
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_report_sections-6f7d32bcbd75f619)
+   Doc-tests open_pipe_stress_report_sections
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_result_export-22f0283eb5caaa2a)
+     Running tests/derivative_contract.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/derivative_contract-84c0d71b8764b401)
+   Doc-tests open_pipe_stress_result_export
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_completeness_checker-f405177abbefa97f)
+   Doc-tests open_pipe_stress_completeness_checker
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_expression_evaluator-f6b33d657c3dcb14)
+     Running tests/conformance_corpus.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/conformance_corpus-b3042cd24b9d8e03)
+   Doc-tests open_pipe_stress_expression_evaluator
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_check_runner-ba9405503b1768b7)
+     Running tests/acceptability_relation_run.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/acceptability_relation_run-0b94d3fd78f95784)
+     Running tests/invented_demo_run.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/invented_demo_run-0880079e622ffb3e)
+   Doc-tests open_pipe_stress_rule_check_runner
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_pack_document-460b05f81ee67124)
+     Running tests/corpus_parity.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/corpus_parity-785a06e2550c4442)
+     Running tests/invented_demo_document.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/invented_demo_document-0ffd9d351dfff1a0)
+   Doc-tests open_pipe_stress_rule_pack_document
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_rule_pack_lifecycle-c9f94b9c9b2f8ccd)
+   Doc-tests open_pipe_stress_rule_pack_lifecycle
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/validation/benchmarks/mechanics/src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_headless_runner-84e23e909f2d5b44)
+     Running unittests src/bin/headless_preview_runner.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/headless_preview_runner-83dca7874aff4473)
+     Running unittests src/bin/openpipestress-runner.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/openpipestress_runner-bff94261382449b1)
+   Doc-tests open_pipe_stress_headless_runner
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_canonical_json-560f760bec692761)
+   Doc-tests open_pipe_stress_canonical_json
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_curved_bend-03e5b9f862fb9d76)
+   Doc-tests open_pipe_stress_curved_bend
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_solver_diagnostics-75f60a476f0c50fd)
+   Doc-tests open_pipe_stress_solver_diagnostics
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_frame_kernel-df02854d48d3f9db)
+   Doc-tests open_pipe_stress_frame_kernel
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_linear_supports-450a7dd8d594f216)
+   Doc-tests open_pipe_stress_linear_supports
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_integration-0caa68e7dcedd237)
+   Doc-tests open_pipe_stress_nonlinear_integration
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_supports-e94961f44ff954b8)
+   Doc-tests open_pipe_stress_nonlinear_supports
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_solver_performance_harness-03124509abd0e3b0)
+   Doc-tests open_pipe_stress_solver_performance_harness
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_sparse_direct-9432a65460bfafb0)
+   Doc-tests open_pipe_stress_sparse_direct
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_straight_pipe-e540fbc6d971b3a5)
+   Doc-tests open_pipe_stress_straight_pipe
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.01s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_units-54ad2436ab8ad22c)
+   Doc-tests open_pipe_stress_units
+warning: unused imports: `EquivalentStaticMechanicsBasis` and `prepare_equivalent_static_loads`
+  --> src/lib.rs:19:44
+   |
+19 |     generate_wind_equivalent_static_loads, prepare_equivalent_static_loads, prepare_loads,
+   |                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+...
+22 |     EquivalentStaticMechanicsBasis, LoadDimension, LoadDirection, LoadExtent, LoadQuantity,
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `open_pipe_stress_mechanics_benchmarks` (lib) generated 1 warning (run `cargo fix --lib -p open_pipe_stress_mechanics_benchmarks` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_mechanics_benchmarks-401cb2e0c575bda6)
+   Doc-tests open_pipe_stress_mechanics_benchmarks
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.00s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_nonlinear_benchmarks-f5305d485e4b6a8c)
+   Doc-tests open_pipe_stress_nonlinear_benchmarks
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_physics_audit_regression-6f225694d42d9ac2)
+   Doc-tests open_pipe_stress_physics_audit_regression
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.02s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/root-integration-target/debug/deps/open_pipe_stress_stress_benchmarks-c333f5b42fc325e2)
+   Doc-tests open_pipe_stress_stress_benchmarks
+[WebServer] (node:44419) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:44421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:44588) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+[WebServer] (node:45303) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+(node:45305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:45305) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

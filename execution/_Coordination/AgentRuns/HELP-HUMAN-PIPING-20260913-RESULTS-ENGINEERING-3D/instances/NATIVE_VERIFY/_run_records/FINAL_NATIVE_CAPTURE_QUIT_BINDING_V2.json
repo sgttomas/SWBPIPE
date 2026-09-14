@@ -1,0 +1,12 @@
+{
+  "status": "PASS_POST_CAPTURE_GENUINE_QUIT_AND_SOURCE43_BINARY_UNCHANGED",
+  "action": "CUA super+q after exact current native Copy Link capture",
+  "exact_executable_absent": true,
+  "source43_unchanged": true,
+  "bound_binary_and_bundle_dist_unchanged": true,
+  "original_click_failure_preserved": true,
+  "actual_payload_source_verify_exit": 0,
+  "actual_schema_verify_exit": 0,
+  "anchor_activations_total": 1,
+  "copy_link_attempts_total": 1
+}

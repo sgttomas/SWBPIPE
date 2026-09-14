@@ -1,0 +1,17 @@
+{
+  "status": "PASS_FRESH_AUTHORED350_MODEL_BYTES_UNCHANGED_BY_SOLVE",
+  "project_id": "project:blank-local-20260914t051915z",
+  "model_json_raw_sha256": "9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4",
+  "authored350_equals_solved350_model_json": true,
+  "model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "hash_status": "computed_local_preview",
+    "payload_ref": "project:blank-local-20260914t051915z",
+    "payload_scope": "model_payload",
+    "value": "sha256:9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4"
+  },
+  "native350_numerics": "assert_analytical_rows.py exit0 five independent witnesses",
+  "fixture_injection": false,
+  "source": "native saved exact standalone SQLite bytes with no sidecars and copy integrity ok"
+}

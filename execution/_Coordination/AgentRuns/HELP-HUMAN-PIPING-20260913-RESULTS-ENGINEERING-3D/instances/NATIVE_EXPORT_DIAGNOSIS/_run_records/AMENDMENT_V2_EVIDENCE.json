@@ -1,0 +1,52 @@
+{
+  "kind": "additive static backcheck",
+  "recorded_utc": "2026-09-14T05:40:14.145763+00:00",
+  "parent": "/root",
+  "executor": "/root/native_export_diagnosis",
+  "model": "gpt-6-astra",
+  "effort": "high",
+  "originals_preserved": true,
+  "runtime_or_source_effects": false,
+  "artifacts_and_read_basis": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json",
+      "sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+      "bytes": 379
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/docs/PLAN.md",
+      "sha256": "0b769c63bf3f74091681596707a2d92e87aba7d4d6b76ca6a125e1f6ec7e2716",
+      "bytes": 17916
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs",
+      "sha256": "9130f8bc06ea1437127de2e4ef59b6265ecd250f83f580f5d1c27500f7a46b0b",
+      "bytes": 26174
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/lib.rs",
+      "sha256": "dd9d3eeec873339b8fcdd0aa1719e3a875c440462f449a0dc8833685d95996d2",
+      "bytes": 42734
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/path/desktop.rs",
+      "sha256": "11bb4f74c6053cc0eca33a54da00a4a31aff85c5164e7260cd573b5efec18ebc",
+      "bytes": 11499
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/app.rs",
+      "sha256": "d2bbeff336c5699ca74b1455ed7575b48ad3315e2266b9871e8355cfab6e61c1",
+      "bytes": 86863
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/download.rs",
+      "sha256": "3b67113c3d13a2082992d284a1e995e07c06a9b892b3ed2dae9b7370daa0f6c0",
+      "bytes": 3987
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/AMENDMENT_V2.md",
+      "sha256": "f1430766e1b6ca5670173ec9dde648d41025dec3387d259e25fd7b5b0d385f7f",
+      "bytes": 7776
+    }
+  ]
+}

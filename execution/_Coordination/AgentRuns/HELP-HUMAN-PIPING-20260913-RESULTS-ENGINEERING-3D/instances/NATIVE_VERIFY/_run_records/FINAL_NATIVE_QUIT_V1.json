@@ -1,0 +1,6 @@
+{
+  "status": "PASS_GENUINE_GUI_QUIT",
+  "action": "CUA super+q",
+  "prior_pid": 49438,
+  "exact_executable_absent": true
+}

@@ -1,0 +1,18 @@
+{
+  "status": "NO_ACTIONABLE_CHANGED_TEXT_FINDINGS_FINAL_CLOSEOUT_HELD",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "RETURN_CLOSEOUT_V4_BACKCHECK_V1.md",
+      "sha256": "f793dde921fa07d6b111d345e95f7c33f5e7eb5fad15e951d221f4ada5f8d31f",
+      "bytes": 1366
+    },
+    {
+      "path": "_run_records/CLOSEOUT_V4_CHANGED_TEXT_BACKCHECK_V1.json",
+      "sha256": "8c3f2bb894633f4ea122fc73065f7c4c2b2169a4986a359704a4c05f9306836c",
+      "bytes": 3295
+    }
+  ],
+  "self_hash_scope": "Self excluded; detached hash reported",
+  "final_closeout_pass": false
+}

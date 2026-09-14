@@ -1,0 +1,8 @@
+{
+  "status": "PASS_GENUINE_GUI_QUIT",
+  "action": "CUA super+q",
+  "prior_pid": 48946,
+  "ps_exit": 1,
+  "exact_executable_absent": true,
+  "abnormal350_recovery_distinct": true
+}

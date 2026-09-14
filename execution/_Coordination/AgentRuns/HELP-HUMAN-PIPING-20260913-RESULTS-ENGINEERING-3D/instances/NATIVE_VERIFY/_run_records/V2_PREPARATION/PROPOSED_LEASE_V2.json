@@ -1,0 +1,58 @@
+{
+  "status": "PROPOSED_NOT_GRANTED",
+  "executor": "/root/native_results_witness",
+  "parent": "/root",
+  "configured_model": "gpt-5.6-sol",
+  "effort": "high",
+  "lease_required": "exclusive native/build/browser/test runtime from root after review and DEC025_V5",
+  "source_candidate": "pending exact root release",
+  "no_runtime_before_release": true,
+  "planned_phases": [
+    "rebind cumulative45 and old43 equality",
+    "fresh isolated offline macOS build and packaged file-backed self-test",
+    "same isolated saved-store Historical then real350 click/repeat and real500 click",
+    "strict schema plus independent exact href/file,67row/hash and analytical checks",
+    "responsive Save/normal quit/reopen/Historical/freshsolve",
+    "final source/binary/store binding, compact return and explicit lease release"
+  ],
+  "build_argv": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app",
+    "--ci",
+    "--no-sign",
+    "--config",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json"
+  ],
+  "build_cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop",
+  "build_env": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "source_write_authority": false,
+  "evidence_write_scope": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY",
+  "downloads_scope": "During granted runtime only: platform-resolved directory, exact synthetic base and suffix1..8 metadata probes; actual newly observed files only; no unrelated enumeration or mutation",
+  "max_real_file_bytes": 2097152,
+  "download_activations": 3,
+  "clipboard_capture": "actual canonical link only, harmless marker first, nonempty exact data JSON prefix guard before persistence",
+  "store_scope": "/Users/ryan/Library/Application Support/org.openpipestress.technical-preview.results-engineering-3d-20260913/openpipestress-projects.sqlite3",
+  "store_capture": "completed Save, quiescent no-sidecar stable standalone double-read/copy, offline immutable query/integrity; no transaction guarantee",
+  "publication_exclusions": [
+    "app bundles/executables",
+    "compiled targets",
+    "large optional traces",
+    "duplicate full href strings",
+    "duplicate identical repeated-download payload"
+  ],
+  "blocks": [
+    "missing exact candidate/review/sweep/release",
+    "source mismatch",
+    "unobserved or failed actual file delivery",
+    "repeated CUA/app failure",
+    "file suffix outside bounded probes",
+    "schema/row/hash/numeric mismatch"
+  ]
+}

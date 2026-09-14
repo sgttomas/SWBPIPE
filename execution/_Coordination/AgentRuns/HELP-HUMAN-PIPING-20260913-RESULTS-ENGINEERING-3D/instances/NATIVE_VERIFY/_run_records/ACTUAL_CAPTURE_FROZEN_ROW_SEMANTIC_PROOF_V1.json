@@ -1,0 +1,577 @@
+{
+  "status": "PASS_ALL67_FROZEN_PRE_ADAPTER_SEMANTICS_AND_PER_ROW_METADATA_POLICY",
+  "frozen_expectations_sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627",
+  "checks": [
+    {
+      "source_row_id": "result:solver-mode:linear-solve-basis",
+      "signature_id": "supported-source-000",
+      "disposition": "disclosed",
+      "target_dimension": null,
+      "family": null,
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT",
+      "signature_id": "supported-source-001",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP",
+      "signature_id": "supported-source-001",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:ux",
+      "signature_id": "supported-source-002",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:uy",
+      "signature_id": "supported-source-003",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:uz",
+      "signature_id": "supported-source-004",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:rx",
+      "signature_id": "supported-source-005",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:ry",
+      "signature_id": "supported-source-006",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-ROOT:rz",
+      "signature_id": "supported-source-007",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:ux",
+      "signature_id": "supported-source-002",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:uy",
+      "signature_id": "supported-source-003",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:uz",
+      "signature_id": "supported-source-004",
+      "disposition": "exported_quantity",
+      "target_dimension": "length",
+      "family": "displacement",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:rx",
+      "signature_id": "supported-source-005",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:ry",
+      "signature_id": "supported-source-006",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:disp:node-WF-TIP:rz",
+      "signature_id": "supported-source-007",
+      "disposition": "exported_quantity",
+      "target_dimension": "angle",
+      "family": "rotation",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:reaction:support-WF-ROOT",
+      "signature_id": "supported-source-008",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "reaction",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:axial",
+      "signature_id": "supported-source-009",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:axial:end-j",
+      "signature_id": "supported-source-009",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-y",
+      "signature_id": "supported-source-010",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-y:end-j",
+      "signature_id": "supported-source-010",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-z",
+      "signature_id": "supported-source-011",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:shear-z:end-j",
+      "signature_id": "supported-source-011",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:torsion",
+      "signature_id": "supported-source-012",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:torsion:end-j",
+      "signature_id": "supported-source-012",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-y",
+      "signature_id": "supported-source-013",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-y:end-j",
+      "signature_id": "supported-source-013",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-z",
+      "signature_id": "supported-source-014",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:bending-z:end-j",
+      "signature_id": "supported-source-014",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:axial",
+      "signature_id": "supported-source-009",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:shear-y",
+      "signature_id": "supported-source-010",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-1:shear-z",
+      "signature_id": "supported-source-011",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:torsion",
+      "signature_id": "supported-source-012",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:bending-y",
+      "signature_id": "supported-source-013",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-1:bending-z",
+      "signature_id": "supported-source-014",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:axial",
+      "signature_id": "supported-source-009",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:shear-y",
+      "signature_id": "supported-source-010",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:midspan:shear-z",
+      "signature_id": "supported-source-011",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:torsion",
+      "signature_id": "supported-source-012",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:bending-y",
+      "signature_id": "supported-source-013",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:midspan:bending-z",
+      "signature_id": "supported-source-014",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:axial",
+      "signature_id": "supported-source-009",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:shear-y",
+      "signature_id": "supported-source-010",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:force:pipe-WF:quarter-3:shear-z",
+      "signature_id": "supported-source-011",
+      "disposition": "exported_quantity",
+      "target_dimension": "force",
+      "family": "force",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:torsion",
+      "signature_id": "supported-source-012",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:bending-y",
+      "signature_id": "supported-source-013",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:moment:pipe-WF:quarter-3:bending-z",
+      "signature_id": "supported-source-014",
+      "disposition": "exported_quantity",
+      "target_dimension": "moment",
+      "family": "moment",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:axial-normal",
+      "signature_id": "supported-source-015",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:bending-normal-y",
+      "signature_id": "supported-source-016",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:bending-normal-z",
+      "signature_id": "supported-source-017",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-i:torsional-shear",
+      "signature_id": "supported-source-018",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:axial-normal",
+      "signature_id": "supported-source-015",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:bending-normal-y",
+      "signature_id": "supported-source-016",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:bending-normal-z",
+      "signature_id": "supported-source-017",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:end-j:torsional-shear",
+      "signature_id": "supported-source-018",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:axial-normal",
+      "signature_id": "supported-source-015",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:bending-normal-y",
+      "signature_id": "supported-source-016",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:bending-normal-z",
+      "signature_id": "supported-source-017",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-1:torsional-shear",
+      "signature_id": "supported-source-018",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:axial-normal",
+      "signature_id": "supported-source-015",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:bending-normal-y",
+      "signature_id": "supported-source-016",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:bending-normal-z",
+      "signature_id": "supported-source-017",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:midspan:torsional-shear",
+      "signature_id": "supported-source-018",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:axial-normal",
+      "signature_id": "supported-source-015",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:bending-normal-y",
+      "signature_id": "supported-source-016",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:bending-normal-z",
+      "signature_id": "supported-source-017",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF:quarter-3:torsional-shear",
+      "signature_id": "supported-source-018",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    },
+    {
+      "source_row_id": "result:stress:pipe-WF",
+      "signature_id": "supported-source-020",
+      "disposition": "exported_quantity",
+      "target_dimension": "stress",
+      "family": "stress",
+      "metadata_matches_frozen_per_row_policy": true
+    }
+  ],
+  "signature_example_literal_failure_preserved": true,
+  "example_mismatch_count": 44,
+  "example_interpretation_correction": "expected_example_canonical_metadata is signature end-i example; policy exact_finite_copy applies to already frozen source_metadata for each row, preserving end-j/station location and signs",
+  "frozen_expectations_modified": false,
+  "66_value_unit_witnesses": "preserve received numbers/units with independent semantic dimension; no original dimension attestation",
+  "original_declaration_witness_claim": false,
+  "model_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "payload_ref": {
+      "ref_type": "model_payload",
+      "ref_id": "project:blank-local-20260914t051915z"
+    },
+    "value": "d9a667e4ed8c90ca312e9f39651e84f01ed8aa83b2cf746181ec67467aa2dbe9"
+  },
+  "derivative_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "payload_scope": "derivative_document_excludes_own_hash",
+    "payload_ref": {
+      "ref_type": "derivative_document",
+      "ref_id": "result-envelope:run:preview-linear-static-001"
+    },
+    "value": "a88e901f3fe7d467ce3fe78879ba5b7a963352f7fc28b06373090cdff0699431"
+  },
+  "received_carrier_hash": {
+    "algorithm": "sha256",
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "payload_scope": "received_current_dimension_absent_carrier",
+    "payload_ref": {
+      "ref_type": "received_current_carrier",
+      "ref_id": "run:preview-linear-static-001"
+    },
+    "value": "94d25c21877e8b43a31a7fc7ad088dca71375525016cc0c5b0251a107c3f4a25"
+  }
+}

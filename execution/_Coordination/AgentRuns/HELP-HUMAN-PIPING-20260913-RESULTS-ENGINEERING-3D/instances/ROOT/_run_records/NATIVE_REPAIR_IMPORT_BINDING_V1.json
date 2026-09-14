@@ -1,0 +1,12 @@
+{
+  "source": "RESULTS isolated worktree immutable native repair packet",
+  "destination": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_DOWNLOAD_REPAIR_V1",
+  "physical_files": 48,
+  "physical_bytes": 1115313,
+  "selected_manifest_sha256": "f5f9246022be49f2c756dd54c279f7b6deba27dc8aca45f6f58cfd3cc0246965",
+  "manager_fan_in_sha256": "77431b0c17a605661bbf70c0125cfc94839c8c22ed2753af0f6e8ed0dbe96a98",
+  "all_entries_and_additions_exact": true,
+  "source_inventory": "SOURCE_INTEGRATION_V5.json",
+  "final_snapshot": "native_result_download.v3.rs; unversioned evidence helper is historicalV1; source_delta_v3.patch is final transfer",
+  "runtime": "released"
+}

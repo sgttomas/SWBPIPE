@@ -1,0 +1,20 @@
+{
+  "status": "DIAGNOSIS_COMPLETE_NATIVE_ACCEPTANCE_OPEN",
+  "artifacts": [
+    {
+      "path": "instances/NATIVE_EXPORT_DIAGNOSIS/DIAGNOSIS_V1.md",
+      "sha256": "ae9633325639727146a9054d5f148e8013c2467a9e4bcb9ba51620ce794ff717",
+      "bytes": 8836
+    },
+    {
+      "path": "instances/NATIVE_EXPORT_DIAGNOSIS/_run_records/CONTEXT_AND_EVIDENCE_V1.json",
+      "sha256": "d3b694b585e7fb17e0756480cc87d6dc90c4c455e0f164d9f723559d75fa31ef",
+      "bytes": 9958
+    },
+    {
+      "path": "instances/NATIVE_EXPORT_DIAGNOSIS/_run_records/FROZEN_REPAIR_EXPECTATIONS_V1.json",
+      "sha256": "b1955811e6d51c50dbf6250ca8795af8cdba391d5962116384847e7f663fdc8c",
+      "bytes": 3790
+    }
+  ]
+}

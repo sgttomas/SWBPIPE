@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "normal_quit_reopen": "genuineGUI super+q, exactpriorPID/executable absent, freshCUA launch and Openlocal",
+  "historical_findings": [
+    "HISTORICAL_INPUT_MANIFEST_MISSING"
+  ],
+  "no_false_hash_mismatch": true,
+  "historical_overlay": "unavailable",
+  "historical_comparison": "not generated",
+  "historical_canonical_export": "empty Current-proof prompt, no actual localresult link offered",
+  "unchanged_historical_save_exact_fields": [
+    "model_json",
+    "mechanics_result_json",
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "model_migration_ledger_json",
+    "proposal_json",
+    "selected_review_target_json"
+  ],
+  "freshsolve_restores_Current": true,
+  "same500_model_json": true,
+  "same500_mechanics_result_json": true,
+  "same500_model_hash_json": true,
+  "raw_carrier_dimension_key_count": 0,
+  "raw_rows": 67,
+  "actual_UI_canonical_summary": "66quantityrows,2diagnostics,66unitwitnesses,conversionfalse; detailed statuses not captured",
+  "canonical_href_or_download": "not captured; separatelyfailed"
+}
