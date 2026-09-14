@@ -1,0 +1,25 @@
+{
+  "derivative_package": true,
+  "purpose": "Publication placement only: three completed native/diagnostic raw records move byte-identically into their structural run-record location or completed context archive. Resolve immutable historical manifest references using this exact path/hash locator; no source or governance rule changed.",
+  "trigger": "SELF_CHECK_PRE_NATIVE_V1 exit0: baseline4 REVIEW plus these3 placement findings; original diagnostic/native failures and their raw bytes are preserved.",
+  "entries": [
+    {
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/_run_records/AMENDMENT_V2_EVIDENCE.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/_run_records/RESULTS_ENGINEERING_3D_COMPLETED_CONTEXT_20260913/INTEGRATION/instances/NATIVE_EXPORT_DIAGNOSIS/_run_records/AMENDMENT_V2_EVIDENCE.json",
+      "sha256": "07f00f80e25351b4742ce2a18f43600593136dc6d76099b1c5ed601fad86eb84",
+      "bytes": 2517
+    },
+    {
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/RETURN_V2.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/_run_records/RETURN_V2.json",
+      "sha256": "a952283b759130d71e50fca7cfdff2a29794547b49615a06c79df52dfabd01ea",
+      "bytes": 2927
+    },
+    {
+      "historical_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/NATIVE_PHYSICAL_MANIFEST_V1.json",
+      "published_repo_relative_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/NATIVE_PHYSICAL_MANIFEST_V1.json",
+      "sha256": "bbb796887c476dc7225ddd5cf8ee1411cddc2d73b168446d933334f843ab2b81",
+      "bytes": 53191
+    }
+  ]
+}

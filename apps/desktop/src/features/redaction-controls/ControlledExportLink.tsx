@@ -1,8 +1,15 @@
-import { useMemo, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
 import {
   controlRouteExport,
   type RedactionExportContext
 } from "./redactionExportControls";
+
+import {
+  isNativeResultSaveRuntime,
+  saveNativeResultJson,
+  type NativeResultSaveError,
+  type NativeResultSaveReceipt
+} from "../result-export/nativeResultSave";
 
 type RouteBinding = {
   routeId: string;
@@ -55,10 +62,11 @@ export function routeBindingForTestId(testId: string): RouteBinding {
 type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href: string;
   children: ReactNode;
+  nativeCurrentBinding?: object | null;
   "data-testid"?: string;
 };
 
-export function ControlledExportLink({ href, children, ...anchorProps }: Props) {
+export function ControlledExportLink({ href, children, nativeCurrentBinding, ...anchorProps }: Props) {
   const testId = String(anchorProps["data-testid"] ?? "controlled-export-link");
   const binding = routeBindingForTestId(testId);
   const [explicitIntent, setExplicitIntent] = useState(false);
@@ -101,6 +109,62 @@ export function ControlledExportLink({ href, children, ...anchorProps }: Props) 
     ? href // original serialized canonical document; never rehash a redacted derivative
     : encodeDataHref(controlledPayload, decoded.mediaType, decoded.isJson);
 
+  const nativeCanonical = Boolean(binding.exactCanonicalPayload && isNativeResultSaveRuntime());
+  const nativeName = typeof anchorProps.download === "string" ? anchorProps.download : null;
+  const nativeReady = Boolean(controlledHref && nativeName && nativeCurrentBinding && controlled.summary.local_first);
+  const generation = useRef(0);
+  const identity = useRef<unknown[]>([]);
+  const nextIdentity = [href, nativeName, nativeCurrentBinding, explicitIntent, exposureBlocked];
+  if (nextIdentity.some((value, index) => value !== identity.current[index])) {
+    identity.current = nextIdentity;
+    generation.current += 1;
+  }
+  const mounted = useRef(true);
+  const inFlight = useRef(false);
+  const [busy, setBusy] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<{
+    generation: number;
+    outcome: "pending" | "saved" | "error";
+    receipt?: NativeResultSaveReceipt;
+    error?: NativeResultSaveError;
+  } | null>(null);
+  useEffect(() => {
+    mounted.current = true;
+    return () => { mounted.current = false; generation.current += 1; };
+  }, []);
+  const visibleStatus = saveStatus?.generation === generation.current ? saveStatus : null;
+  const saveNative = () => {
+    if (inFlight.current || !nativeReady || !explicitIntent || !controlledHref || !nativeName || !controlled.summary.local_first) return;
+    inFlight.current = true;
+    const capturedGeneration = generation.current;
+    const request = {
+      href: controlledHref,
+      file_name: nativeName,
+      screening: {
+        route_id: binding.routeId,
+        export_context: binding.context,
+        explicit_local_private_intent: explicitIntent,
+        blocked: controlled.blocked,
+        materialization_withheld: controlled.summary.materialization_withheld,
+        lossless_required: binding.lossless === true,
+        exact_payload_match: exactPayload,
+        blocking_count: controlled.summary.blocking_count
+      },
+      local_first: controlled.summary.local_first
+    };
+    setBusy(true);
+    setSaveStatus({ generation: capturedGeneration, outcome: "pending" });
+    saveNativeResultJson(request).then(receipt => {
+      if (mounted.current && generation.current === capturedGeneration) setSaveStatus({ generation: capturedGeneration, outcome: "saved", receipt });
+    }).catch((error: NativeResultSaveError) => {
+      if (mounted.current && generation.current === capturedGeneration) setSaveStatus({ generation: capturedGeneration, outcome: "error", error });
+    }).finally(() => {
+      // Stale UI generations do not release the real in-flight guard early.
+      inFlight.current = false;
+      if (mounted.current) setBusy(false);
+    });
+  };
+
   return (
     <span
       className="controlled-export-control"
@@ -140,7 +204,25 @@ export function ControlledExportLink({ href, children, ...anchorProps }: Props) 
           )
           .join("\n")}
       </pre>
-      {controlledHref ? (
+      {nativeCanonical ? (
+        <>
+          <button
+            type="button"
+            className={anchorProps.className}
+            title={anchorProps.title}
+            aria-label={anchorProps["aria-label"]}
+            data-testid={testId}
+            disabled={!nativeReady || busy}
+            aria-disabled={!nativeReady || busy}
+            onClick={saveNative}
+          >{children}</button>
+          <span role="status" data-testid={`${testId}-native-save-status`}>
+            {visibleStatus?.outcome === "pending" ? "Saving local result JSON…" :
+              visibleStatus?.outcome === "saved" ? `Saved ${visibleStatus.receipt!.file_name} (${visibleStatus.receipt!.byte_count} bytes).` :
+              visibleStatus?.outcome === "error" ? `Save failed (${visibleStatus.error!.stage}); cleanup=${visibleStatus.error!.cleanup}${visibleStatus.error!.partial_file_name ? `; partial file=${visibleStatus.error!.partial_file_name}` : ""}.` : busy ? "Previous authorized save is still pending." : ""}
+          </span>
+        </>
+      ) : controlledHref ? (
         <a {...anchorProps} href={controlledHref}>
           {children}
         </a>

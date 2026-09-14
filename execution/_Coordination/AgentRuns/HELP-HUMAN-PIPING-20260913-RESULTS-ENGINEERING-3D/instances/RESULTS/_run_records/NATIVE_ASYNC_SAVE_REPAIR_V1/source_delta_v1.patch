@@ -1,0 +1,1033 @@
+--- a/apps/desktop/src-tauri/src/lib.rs
++++ b/apps/desktop/src-tauri/src/lib.rs
+@@ -4053,16 +4053,28 @@
+     result
+ }
+ 
++#[tauri::command]
++async fn save_local_result_json(
++    app: AppHandle,
++    admission: tauri::State<'_, native_result_download::SaveAdmission>,
++    request: native_result_download::SaveRequest,
++) -> Result<native_result_download::SaveReceipt, native_result_download::SaveError> {
++    // The worker owns admission until completion/drop, independently of the
++    // awaiting command or frontend component lifetime.
++    let permit = admission.admit()?;
++    tauri::async_runtime::spawn_blocking(move || {
++        let _permit = permit;
++        native_result_download::save_request(request, || app.path().download_dir())
++    })
++    .await
++    .map_err(|_| native_result_download::SaveError::worker())?
++}
++
+ pub fn run() {
+-    let mut context = tauri::generate_context!();
+-    let main_window = native_result_download::prepare_main_window(
+-        context.config_mut(),
+-        cfg!(target_os = "macos"),
+-    )
+-    .expect("invalid main window configuration");
+-    let builder = tauri::Builder::default()
++    tauri::Builder::default()
+         .plugin(tauri_plugin_dialog::init())
+         .manage(SolveJobRegistry::default())
++        .manage(native_result_download::SaveAdmission::default())
+         .menu(|handle| build_app_menu(handle))
+         .on_menu_event(|app, event| {
+             dispatch_native_menu_command(app, &event.id().0);
+@@ -4102,24 +4114,10 @@
+             list_local_libraries,
+             delete_local_library,
+             render_calculation_report,
+-            save_report_package
+-        ]);
+-    #[cfg(target_os = "macos")]
+-    let builder = builder.setup(move |app| {
+-        let config = main_window.as_ref().expect("macOS main window configuration");
+-        tauri::WebviewWindowBuilder::from_config(app, config)?
+-            .on_download(|webview, event| {
+-                native_result_download::handle_download(event, || {
+-                    webview.app_handle().path().download_dir()
+-                })
+-            })
+-            .build()?;
+-        Ok(())
+-    });
+-    #[cfg(not(target_os = "macos"))]
+-    let _ = main_window;
+-    builder
+-        .run(context)
++            save_report_package,
++            save_local_result_json
++        ])
++        .run(tauri::generate_context!())
+         .expect("error while running OpenPipeStress technical preview");
+ }
+ 
+--- a/apps/desktop/src-tauri/src/native_result_download.rs
++++ b/apps/desktop/src-tauri/src/native_result_download.rs
+@@ -1,263 +1,312 @@
+-//! Narrow macOS download admission. WebKit owns the write; this is not a file
+-//! witness, a privacy decision, or authentication of the original frontend href.
+-use std::{fs, io, path::{Component, Path, PathBuf}};
+-use tauri::{utils::config::{Config, WindowConfig}, webview::DownloadEvent};
+-
+-const RESULT_URL_PREFIX: &str = "data:application/json;charset=utf-8,";
+-const RESULT_FILE_PREFIX: &str = "openpipestress-preview-results-";
+-
+-/// Disable only the auto-created main window, before Tauri's setup sequence.
+-/// The manual builder consumes the same resolved configuration, including defaults.
+-pub(super) fn prepare_main_window(
+-    config: &mut Config,
+-    is_macos: bool,
+-) -> Result<Option<WindowConfig>, &'static str> {
+-    if !is_macos {
+-        return Ok(None);
+-    }
+-    let indices: Vec<_> = config.app.windows.iter().enumerate()
+-        .filter_map(|(index, window)| (window.label == "main").then_some(index))
+-        .collect();
+-    if indices.len() != 1 {
+-        return Err("exactly one main window is required");
+-    }
+-    let window = &mut config.app.windows[indices[0]];
+-    window.create = false;
+-    Ok(Some(window.clone()))
+-}
+-
+-pub(super) fn handle_download<E>(
+-    event: DownloadEvent<'_>,
+-    downloads: impl FnOnce() -> Result<PathBuf, E>,
+-) -> bool {
+-    match event {
+-        DownloadEvent::Requested { url, destination } => {
+-            let Ok(root) = downloads() else { return false; };
+-            allow_requested(url.as_str(), destination, &root, &HostFilesystem)
+-        }
+-        // Finished may have no path on macOS. Its return value is ignored by
+-        // Tauri and must never be interpreted as proof of successful delivery.
+-        DownloadEvent::Finished { .. } => false,
+-        _ => false,
+-    }
+-}
+-
+-fn result_filename(name: &str) -> bool {
+-    let Some(stem) = name.strip_suffix(".json") else { return false; };
+-    let Some(token_and_collision) = stem.strip_prefix(RESULT_FILE_PREFIX) else { return false; };
+-    let token = if let Some((token, suffix)) = token_and_collision.split_once(" (") {
+-        let Some(number) = suffix.strip_suffix(')') else { return false; };
+-        if number.is_empty() || number.starts_with('0') || !number.bytes().all(|b| b.is_ascii_digit()) {
+-            return false;
+-        }
+-        token
+-    } else {
+-        token_and_collision
+-    };
+-    !token.is_empty() && token.split('-').all(|part| {
+-        !part.is_empty() && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit())
+-    })
+-}
+-
+-trait Filesystem {
+-    fn directory(&self, path: &Path) -> io::Result<bool>;
+-    fn canonical(&self, path: &Path) -> io::Result<PathBuf>;
+-    fn entry_exists(&self, path: &Path) -> io::Result<bool>;
+-}
+-
+-struct HostFilesystem;
+-impl Filesystem for HostFilesystem {
++//! Private exact-byte local result saving. Admission evidence is defense in depth,
++//! not caller authentication. Filesystem containment is non-adversarial best effort.
++use serde::{Deserialize, Serialize};
++use std::{
++    fs::{self, File, OpenOptions},
++    io::{self, Write},
++    path::{Path, PathBuf},
++    sync::{atomic::{AtomicBool, Ordering}, Arc},
++};
++
++const PREFIX: &str = "data:application/json;charset=utf-8,";
++const FILE_PREFIX: &str = "openpipestress-preview-results-";
++
++#[derive(Clone, Debug, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub(super) struct SaveRequest {
++    pub href: String,
++    pub file_name: String,
++    pub screening: Screening,
++    pub local_first: LocalFirstEvidence,
++}
++#[derive(Clone, Debug, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub(super) struct Screening {
++    pub route_id: String,
++    pub export_context: String,
++    pub explicit_local_private_intent: bool,
++    pub blocked: bool,
++    pub materialization_withheld: bool,
++    pub lossless_required: bool,
++    pub exact_payload_match: bool,
++    pub blocking_count: usize,
++}
++#[derive(Clone, Debug, Deserialize, Serialize)]
++#[serde(deny_unknown_fields)]
++pub(super) struct LocalFirstEvidence {
++    pub route_id: String,
++    pub export_context: String,
++    pub storage_context: String,
++    pub action: String,
++    pub reason_code: String,
++    pub blocked: bool,
++    pub metadata_only: bool,
++    pub explicit_local_private_intent: bool,
++}
++#[derive(Debug, Serialize)]
++pub(super) struct SaveReceipt {
++    pub outcome: &'static str,
++    pub file_name: String,
++    pub byte_count: usize,
++    pub replaced_existing: bool,
++    pub durability: &'static str,
++    pub path_containment: &'static str,
++}
++#[derive(Debug, Serialize)]
++pub(super) struct SaveError {
++    pub code: &'static str,
++    pub stage: &'static str,
++    pub message: &'static str,
++    pub partial_file_name: Option<String>,
++    pub cleanup: &'static str,
++}
++fn failure(code: &'static str, stage: &'static str) -> SaveError {
++    SaveError { code, stage, message: "Local result save did not complete.", partial_file_name: None, cleanup: "not_needed" }
++}
++impl SaveError {
++    pub(super) fn worker() -> Self {
++        Self { cleanup: "unknown", ..failure("WORKER_FAILED", "worker") }
++    }
++}
++
++#[derive(Default)]
++pub(super) struct SaveAdmission(Arc<AtomicBool>);
++#[derive(Debug)]
++pub(super) struct SavePermit(Arc<AtomicBool>);
++impl SaveAdmission {
++    pub(super) fn admit(&self) -> Result<SavePermit, SaveError> {
++        self.0.compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
++            .map(|_| SavePermit(self.0.clone()))
++            .map_err(|_| failure("SAVE_BUSY", "busy"))
++    }
++}
++impl Drop for SavePermit {
++    fn drop(&mut self) { self.0.store(false, Ordering::Release); }
++}
++
++fn valid_name(name: &str) -> bool {
++    let Some(token) = name.strip_prefix(FILE_PREFIX).and_then(|v| v.strip_suffix(".json")) else { return false; };
++    !token.is_empty() && token.split('-').all(|part| !part.is_empty()
++        && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()))
++}
++fn validate(request: &SaveRequest) -> Result<(), SaveError> {
++    let s = &request.screening;
++    let l = &request.local_first;
++    if s.route_id != "DOTH-JSON-001" || s.export_context != "local_private"
++        || !s.explicit_local_private_intent || s.blocked || s.materialization_withheld
++        || !s.lossless_required || !s.exact_payload_match || s.blocking_count != 0
++        || l.route_id != s.route_id || l.export_context != s.export_context
++        || l.storage_context != "local_private" || l.action != "include_metadata_only"
++        || l.reason_code != "PRIVATE_LOCAL_METADATA_ALLOWED" || l.blocked
++        || !l.metadata_only || !l.explicit_local_private_intent
++    { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); }
++    if !valid_name(&request.file_name) { return Err(failure("INVALID_FILE_NAME", "request")); }
++    Ok(())
++}
++fn decode(href: &str) -> Result<Vec<u8>, SaveError> {
++    let body = href.strip_prefix(PREFIX).filter(|body| !body.is_empty())
++        .ok_or_else(|| failure("INVALID_DATA_PREFIX", "decode"))?;
++    let mut decoded = Vec::with_capacity(body.len());
++    let bytes = body.as_bytes();
++    let mut index = 0;
++    while index < bytes.len() {
++        if bytes[index] == b'%' {
++            let hex = |b: u8| (b as char).to_digit(16).map(|v| v as u8);
++            let pair = bytes.get(index + 1).and_then(|a| hex(*a)).zip(bytes.get(index + 2).and_then(|b| hex(*b)))
++                .ok_or_else(|| failure("INVALID_PERCENT_ESCAPE", "decode"))?;
++            decoded.push(pair.0 * 16 + pair.1); index += 3;
++        } else { decoded.push(bytes[index]); index += 1; }
++    }
++    let text = std::str::from_utf8(&decoded).map_err(|_| failure("INVALID_UTF8", "decode"))?;
++    serde_json::from_str::<serde_json::Value>(text).map_err(|_| failure("INVALID_JSON", "decode"))?;
++    Ok(decoded)
++}
++
++trait OwnedWrite: Write { fn identity(&self) -> io::Result<(u64, u64)>; }
++#[cfg(unix)]
++fn identity(metadata: fs::Metadata) -> io::Result<(u64, u64)> {
++    use std::os::unix::fs::MetadataExt;
++    Ok((metadata.dev(), metadata.ino()))
++}
++#[cfg(not(unix))]
++fn identity(_: fs::Metadata) -> io::Result<(u64, u64)> { Err(io::ErrorKind::Unsupported.into()) }
++impl OwnedWrite for File {
++    fn identity(&self) -> io::Result<(u64, u64)> { identity(self.metadata()?) }
++}
++trait SaveIo {
+     fn directory(&self, path: &Path) -> io::Result<bool> { fs::metadata(path).map(|m| m.is_dir()) }
+     fn canonical(&self, path: &Path) -> io::Result<PathBuf> { fs::canonicalize(path) }
+-    fn entry_exists(&self, path: &Path) -> io::Result<bool> {
+-        match fs::symlink_metadata(path) {
+-            Ok(_) => Ok(true),
+-            Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(false),
+-            Err(error) => Err(error),
+-        }
+-    }
+-}
+-
+-fn immediate_child(path: &Path, root: &Path) -> bool {
+-    let Ok(relative) = path.strip_prefix(root) else { return false; };
+-    let mut components = relative.components();
+-    matches!(components.next(), Some(Component::Normal(_))) && components.next().is_none()
+-}
+-
+-fn allow_requested(url: &str, destination: &Path, root: &Path, filesystem: &impl Filesystem) -> bool {
+-    if !url.strip_prefix(RESULT_URL_PREFIX).is_some_and(|body| !body.is_empty()) {
+-        return false;
+-    }
+-    // Path::components normalizes interior '.', so inspect the received lexical
+-    // spelling too. Never repair a destination or fall back to another directory.
+-    let bytes = destination.as_os_str().as_encoded_bytes();
+-    if !destination.is_absolute() || !root.is_absolute()
+-        || bytes.last().is_some_and(|b| *b == b'/' || *b == b'\\')
+-        || bytes.split(|b| *b == b'/' || *b == b'\\').any(|part| part == b"." || part == b"..")
+-        || destination.components().any(|c| matches!(c, Component::CurDir | Component::ParentDir))
+-    { return false; }
+-    let Some(name) = destination.file_name().and_then(|n| n.to_str()) else { return false; };
+-    if !result_filename(name) || !matches!(filesystem.directory(root), Ok(true)) { return false; }
+-    let Ok(canonical_root) = filesystem.canonical(root) else { return false; };
+-    // A platform-provided symlinked Downloads root is legitimate. Accept its
+-    // lexical immediate child or the canonical root's immediate child.
+-    if !immediate_child(destination, root) && !immediate_child(destination, &canonical_root) { return false; }
+-    let Some(parent) = destination.parent() else { return false; };
+-    let Ok(canonical_parent) = filesystem.canonical(parent) else { return false; };
+-    canonical_parent == canonical_root && matches!(filesystem.entry_exists(destination), Ok(false))
++    fn open(&self, path: &Path) -> io::Result<Box<dyn OwnedWrite>>;
++    fn path_identity(&self, path: &Path) -> io::Result<(u64, u64)> { identity(fs::symlink_metadata(path)?) }
++    fn remove(&self, path: &Path) -> io::Result<()> { fs::remove_file(path) }
++}
++struct HostIo;
++impl SaveIo for HostIo {
++    fn open(&self, path: &Path) -> io::Result<Box<dyn OwnedWrite>> {
++        OpenOptions::new().write(true).create_new(true).open(path).map(|f| Box::new(f) as Box<dyn OwnedWrite>)
++    }
++}
++fn cleanup(error: &mut SaveError, path: &Path, owned: Option<(u64, u64)>, io: &impl SaveIo) {
++    error.partial_file_name = path.file_name().and_then(|v| v.to_str()).map(str::to_owned);
++    error.cleanup = match owned {
++        Some(owned) if io.path_identity(path).ok() == Some(owned) => {
++            if io.remove(path).is_ok() { "removed" } else { "failed" }
++        }
++        _ => "retained",
++    };
++}
++fn save_bytes(root: &Path, basename: &str, bytes: &[u8], start: usize, io: &impl SaveIo) -> Result<SaveReceipt, SaveError> {
++    if !root.is_absolute() || !matches!(io.directory(root), Ok(true)) {
++        return Err(failure("DOWNLOADS_UNAVAILABLE", "downloads"));
++    }
++    let canonical_root = io.canonical(root).map_err(|_| failure("DOWNLOADS_CANONICAL_FAILED", "containment"))?;
++    let stem = basename.strip_suffix(".json").ok_or_else(|| failure("INVALID_FILE_NAME", "request"))?;
++    let mut counter = start;
++    loop {
++        let file_name = if counter == 0 { basename.to_owned() } else { format!("{stem} ({counter}).json") };
++        let destination = root.join(&file_name);
++        if destination.parent().and_then(|p| io.canonical(p).ok()).as_ref() != Some(&canonical_root) {
++            return Err(failure("PATH_CONTAINMENT_FAILED", "containment"));
++        }
++        let mut file = match io.open(&destination) {
++            Ok(file) => file,
++            Err(error) if error.kind() == io::ErrorKind::AlreadyExists => {
++                counter = counter.checked_add(1).ok_or_else(|| failure("COLLISION_OVERFLOW", "open"))?;
++                continue;
++            }
++            Err(_) => return Err(failure("CREATE_NEW_FAILED", "open")),
++        };
++        let owned = file.identity().ok();
++        if file.write_all(bytes).is_err() {
++            let mut error = failure("WRITE_FAILED", "write"); cleanup(&mut error, &destination, owned, io); return Err(error);
++        }
++        if file.flush().is_err() {
++            let mut error = failure("FLUSH_FAILED", "flush"); cleanup(&mut error, &destination, owned, io); return Err(error);
++        }
++        return Ok(SaveReceipt { outcome: "saved", file_name, byte_count: bytes.len(), replaced_existing: false,
++            durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" });
++    }
++}
++
++pub(super) fn save_request<E>(request: SaveRequest, downloads: impl FnOnce() -> Result<PathBuf, E>) -> Result<SaveReceipt, SaveError> {
++    validate(&request)?;
++    let bytes = decode(&request.href)?;
++    let root = downloads().map_err(|_| failure("DOWNLOADS_RESOLVER_FAILED", "downloads"))?;
++    save_bytes(&root, &request.file_name, &bytes, 0, &HostIo)
+ }
+ 
+ #[cfg(test)]
+ mod tests {
+     use super::*;
+-    use serde_json::{json, Value};
+-    use std::{cell::Cell, sync::atomic::{AtomicU64, Ordering}, time::{SystemTime, UNIX_EPOCH}};
+-
+-    const URL: &str = "data:application/json;charset=utf-8,%7B%22value%22%3A350%7D";
++    use serde_json::json;
++    use std::{cell::Cell, sync::atomic::AtomicU64, time::{SystemTime, UNIX_EPOCH}};
+     const NAME: &str = "openpipestress-preview-results-run-350.json";
+     static NEXT: AtomicU64 = AtomicU64::new(0);
+     struct Scratch(PathBuf);
+-    impl Scratch {
+-        fn new() -> Self {
+-            let path = std::env::temp_dir().join(format!("openpipestress-download-test-{}-{}-{}",
+-                std::process::id(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(), NEXT.fetch_add(1, Ordering::Relaxed)));
+-            fs::create_dir(&path).unwrap(); Self(path)
+-        }
+-        fn directory(&self, name: &str) -> PathBuf { let path = self.0.join(name); fs::create_dir(&path).unwrap(); path }
+-    }
++    impl Scratch { fn new() -> Self { let p = std::env::temp_dir().join(format!("ops-result-save-{}-{}-{}", std::process::id(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(), NEXT.fetch_add(1, Ordering::Relaxed))); fs::create_dir(&p).unwrap(); Self(p) } }
+     impl Drop for Scratch { fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); } }
+-
+-    #[test]
+-    fn admits_only_exact_result_route_and_safe_filename_family() {
+-        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+-        for name in [NAME, "openpipestress-preview-results-run-350 (1).json", "openpipestress-preview-results-run-350 (12).json"] {
+-            assert!(allow_requested(URL, &root.join(name), &root, &HostFilesystem), "{name}");
+-        }
+-        for name in ["openpipestress-preview-results-.json", "openpipestress-preview-results--run.json", "openpipestress-preview-results-run--350.json", "openpipestress-preview-results-run-.json", "openpipestress-preview-results-RUN.json", "openpipestress-preview-results-rún.json", "openpipestress-preview-results-run.JSON", "openpipestress-preview-results-run (0).json", "openpipestress-preview-results-run (01).json", "openpipestress-preview-results-run (-1).json", "openpipestress-preview-results-run (+1).json", "openpipestress-preview-results-run ( 1).json", "openpipestress-preview-results-run (1 ).json", "openpipestress-preview-results-run(1).json", "openpipestress-preview-results-run  (1).json", "openpipestress-preview-results-run (1) (2).json", "openpipestress-preview-results-run%20x.json", "openpipestress-preview-results-run.x.json", "openpipestress-report-run.json", "preview-results-run.json"] {
+-            assert!(!allow_requested(URL, &root.join(name), &root, &HostFilesystem), "{name}");
+-        }
+-        for url in ["data:application/json;charset=utf-8,", "data:application/json,{}", "data:application/json;charset=UTF-8,{}", "data:application/json;charset=utf-8;base64,e30=", "https://example.test/results.json", "blob:results"] {
+-            assert!(!allow_requested(url, &root.join(NAME), &root, &HostFilesystem), "{url}");
+-        }
+-    }
+-
+-    #[test]
+-    fn leaves_helper_received_url_and_destination_unchanged_without_attesting_href_or_file() {
+-        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+-        // This is Tauri's already-parsed callback URL. No original href or file
+-        // bytes are asserted. The guard does not parse JSON or rebuild this URL.
+-        for received in [
+-            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%C3%A9%20%25%22%7D",
+-            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%5Cn%5Ct%5C%5C%22%7D",
+-            "data:application/json;charset=utf-8,%7B%22text%22%3A%22%2525%252525%2520%22%7D",
+-        ] {
+-            let mut destination = root.join(NAME);
+-            let original_destination = destination.clone();
+-            let url: tauri::Url = received.parse().unwrap();
+-            let original_url = url.to_string();
+-            let called = Cell::new(0);
+-            assert!(handle_download(DownloadEvent::Requested { url: url.clone(), destination: &mut destination }, || {
+-                called.set(called.get() + 1); Ok::<_, ()>(root.clone())
+-            }));
+-            assert_eq!(called.get(), 1); assert_eq!(destination, original_destination);
+-            assert_eq!(url.as_str(), original_url); assert!(!destination.exists());
+-        }
+-    }
+-
+-    #[test]
+-    fn rejects_missing_platform_root_and_finished_is_not_delivery_evidence() {
+-        let mut destination = PathBuf::from("/Downloads").join(NAME);
+-        assert!(!handle_download(DownloadEvent::Requested { url: URL.parse().unwrap(), destination: &mut destination }, || Err::<PathBuf, _>("unavailable")));
+-        let called = Cell::new(false);
+-        assert!(!handle_download(DownloadEvent::Finished { url: URL.parse().unwrap(), path: None, success: true }, || {
+-            called.set(true); Ok::<_, ()>(PathBuf::from("/Downloads"))
+-        }));
+-        assert!(!called.get());
+-    }
+-
+-    #[test]
+-    fn rejects_fallback_nested_traversal_missing_roots_and_every_existing_final_entry() {
+-        let scratch = Scratch::new(); let root = scratch.directory("Downloads");
+-        let sibling = scratch.directory("Downloads-other"); let nested = root.join("nested"); fs::create_dir(&nested).unwrap();
+-        for destination in [PathBuf::from(NAME), scratch.0.join(NAME), sibling.join(NAME), nested.join(NAME), root.join(".").join(NAME), root.join("..").join(NAME), PathBuf::from(format!("{}/{NAME}/", root.display()))] {
+-            assert!(!allow_requested(URL, &destination, &root, &HostFilesystem), "{}", destination.display());
+-        }
+-        assert!(!allow_requested(URL, &root.join(NAME), Path::new("Downloads"), &HostFilesystem));
+-        assert!(!allow_requested(URL, &root.join(NAME), &scratch.0.join("missing"), &HostFilesystem));
+-        let file_root = scratch.0.join("file-root"); fs::write(&file_root, b"existing").unwrap();
+-        assert!(!allow_requested(URL, &file_root.join(NAME), &file_root, &HostFilesystem));
+-        let final_path = root.join(NAME); fs::write(&final_path, b"existing").unwrap();
+-        assert!(!allow_requested(URL, &final_path, &root, &HostFilesystem)); fs::remove_file(&final_path).unwrap();
+-        fs::create_dir(&final_path).unwrap(); assert!(!allow_requested(URL, &final_path, &root, &HostFilesystem));
+-    }
+-
+-    #[cfg(unix)]
+-    #[test]
+-    fn allows_platform_downloads_symlink_root_but_rejects_final_symlinks_and_escape() {
+-        use std::os::unix::fs::symlink;
+-        let scratch = Scratch::new(); let root = scratch.directory("actual-downloads"); let platform_root = scratch.0.join("Downloads"); symlink(&root, &platform_root).unwrap();
+-        assert!(allow_requested(URL, &platform_root.join(NAME), &platform_root, &HostFilesystem));
+-        let canonical_root = fs::canonicalize(&root).unwrap();
+-        assert!(allow_requested(URL, &canonical_root.join(NAME), &platform_root, &HostFilesystem));
+-        let nested_alias = root.join("back-to-downloads"); symlink(&root, &nested_alias).unwrap();
+-        assert_eq!(fs::canonicalize(&nested_alias).unwrap(), fs::canonicalize(&root).unwrap());
+-        assert!(!allow_requested(URL, &nested_alias.join(NAME), &platform_root, &HostFilesystem));
+-        let outside = scratch.directory("outside"); symlink(&outside, root.join("escape")).unwrap();
+-        assert!(!allow_requested(URL, &root.join("escape").join(NAME), &platform_root, &HostFilesystem));
+-        let final_path = root.join(NAME); symlink(outside.join("missing"), &final_path).unwrap();
+-        assert!(!allow_requested(URL, &final_path, &platform_root, &HostFilesystem));
+-        fs::remove_file(&final_path).unwrap(); fs::write(outside.join("existing"), b"existing").unwrap(); symlink(outside.join("existing"), &final_path).unwrap();
+-        assert!(!allow_requested(URL, &final_path, &platform_root, &HostFilesystem));
+-    }
+-
+-    struct FailingFilesystem { stage: u8, canonical_calls: Cell<u8> }
+-    impl Filesystem for FailingFilesystem {
+-        fn directory(&self, _: &Path) -> io::Result<bool> { if self.stage == 0 { Err(io::ErrorKind::PermissionDenied.into()) } else { Ok(true) } }
+-        fn canonical(&self, path: &Path) -> io::Result<PathBuf> {
+-            let call = self.canonical_calls.get() + 1; self.canonical_calls.set(call);
+-            if self.stage == call { Err(io::ErrorKind::PermissionDenied.into()) } else { Ok(path.to_path_buf()) }
+-        }
+-        fn entry_exists(&self, _: &Path) -> io::Result<bool> { Err(io::ErrorKind::PermissionDenied.into()) }
+-    }
+-    #[test]
+-    fn every_filesystem_error_fails_closed() {
+-        for stage in 0..4 {
+-            let filesystem = FailingFilesystem { stage, canonical_calls: Cell::new(0) };
+-            assert!(!allow_requested(URL, &Path::new("/Downloads").join(NAME), Path::new("/Downloads"), &filesystem));
+-        }
+-    }
+-
+-    fn production_config() -> Config { serde_json::from_str(include_str!("../tauri.conf.json")).unwrap() }
+-    fn assert_only_main_create_changes(mut config: Config) {
+-        let mut expected = serde_json::to_value(&config).unwrap();
+-        let original: Value = expected.clone();
+-        let main_index = config.app.windows.iter().position(|w| w.label == "main").unwrap();
+-        assert!(config.app.windows[main_index].create);
+-        expected["app"]["windows"][main_index]["create"] = json!(false);
+-        let selected = prepare_main_window(&mut config, true).unwrap().unwrap();
+-        assert_eq!(serde_json::to_value(&config).unwrap(), expected);
+-        assert_eq!(serde_json::to_value(selected).unwrap(), expected["app"]["windows"][main_index]);
+-        assert_eq!(original["app"]["windows"][main_index]["create"], json!(true));
+-    }
+-    #[test]
+-    fn production_and_isolated_resolved_configs_preserve_all_fields_except_main_create() {
+-        assert_only_main_create_changes(production_config());
+-        // Portable overlay-equivalent settings, without evidence-lane paths.
+-        let mut raw: Value = serde_json::from_str(include_str!("../tauri.conf.json")).unwrap();
+-        raw["productName"] = json!("Isolated native download witness");
+-        raw["identifier"] = json!("org.openpipestress.technical-preview.native-download-test");
+-        raw["app"]["windows"] = json!([{ "title": "Isolated native download witness", "width": 1440, "height": 920, "minWidth": 1024, "minHeight": 768 }]);
+-        let mut config: Config = serde_json::from_value(raw).unwrap();
+-        let mut nonmain = config.app.windows[0].clone(); nonmain.label = "secondary".into(); nonmain.title = "Unaffected secondary".into(); config.app.windows.push(nonmain);
+-        assert_only_main_create_changes(config);
+-    }
+-    #[test]
+-    fn nonmac_auto_window_and_invalid_main_configuration_are_unchanged() {
+-        let mut config = production_config(); let original = serde_json::to_value(&config).unwrap();
+-        assert!(prepare_main_window(&mut config, false).unwrap().is_none()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+-        config.app.windows.clear(); let original = serde_json::to_value(&config).unwrap();
+-        assert!(prepare_main_window(&mut config, true).is_err()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+-        config = production_config(); config.app.windows.push(config.app.windows[0].clone()); let original = serde_json::to_value(&config).unwrap();
+-        assert!(prepare_main_window(&mut config, true).is_err()); assert_eq!(serde_json::to_value(&config).unwrap(), original);
+-    }
+-}
++    fn percent(text: &str) -> String { text.as_bytes().iter().map(|b| format!("%{b:02X}")).collect() }
++    fn request(text: &str) -> SaveRequest {
++        serde_json::from_value(json!({"href":format!("{PREFIX}{}",percent(text)),"file_name":NAME,
++            "screening":{"route_id":"DOTH-JSON-001","export_context":"local_private","explicit_local_private_intent":true,"blocked":false,"materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},
++            "local_first":{"route_id":"DOTH-JSON-001","export_context":"local_private","storage_context":"local_private","action":"include_metadata_only","reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}})).unwrap()
++    }
++    #[test]
++    fn contradictory_route_intent_evidence_and_unknown_fields_never_resolve_or_write() {
++        for mutation in 0..17 {
++            let mut r = request("{}");
++            match mutation {
++                0 => r.screening.route_id = "other".into(), 1 => r.screening.export_context = "public_report".into(),
++                2 => r.screening.explicit_local_private_intent = false, 3 => r.screening.blocked = true,
++                4 => r.screening.materialization_withheld = true, 5 => r.screening.lossless_required = false,
++                6 => r.screening.exact_payload_match = false, 7 => r.screening.blocking_count = 1,
++                8 => r.local_first.route_id = "other".into(), 9 => r.local_first.export_context = "public_report".into(),
++                10 => r.local_first.storage_context = "remote".into(), 11 => r.local_first.action = "block_storage".into(),
++                12 => r.local_first.reason_code = "SAFE_PUBLIC_METADATA".into(), 13 => r.local_first.blocked = true,
++                14 => r.local_first.metadata_only = false, 15 => r.local_first.explicit_local_private_intent = false,
++                _ => r.file_name = "../outside.json".into(),
++            }
++            assert_eq!(save_request(r, || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().stage, "request");
++        }
++        let valid = serde_json::to_value(request("{}")).unwrap();
++        let mut encoded = valid.clone(); encoded["directory"] = json!("/tmp");
++        assert!(serde_json::from_value::<SaveRequest>(encoded).is_err());
++        let mut encoded = valid["screening"].clone(); encoded["unexpected"] = json!(true);
++        assert!(serde_json::from_value::<Screening>(encoded).is_err());
++        let mut encoded = valid["local_first"].clone(); encoded["unexpected"] = json!(true);
++        assert!(serde_json::from_value::<LocalFirstEvidence>(encoded).is_err());
++    }
++    #[test]
++    fn strict_prefix_percent_utf8_json_and_unsuffixed_names() {
++        for href in ["data:application/json,{}", "data:application/json;charset=utf-8,", "data:application/json;charset=UTF-8,{}", "data:application/json;charset=utf-8;base64,e30=", "data:application/json;charset=utf-8,%", "data:application/json;charset=utf-8,%0G", "data:application/json;charset=utf-8,%FF", "data:application/json;charset=utf-8,{oops}"] {
++            assert!(decode(href).is_err(), "{href}");
++        }
++        assert_eq!(decode("data:application/json;charset=utf-8,%22a+b%2525%22").unwrap(), b"\"a+b%25\"");
++        for name in ["openpipestress-preview-results-.json", "openpipestress-preview-results-run--350.json", "openpipestress-preview-results-RUN.json", "openpipestress-preview-results-rún.json", "openpipestress-preview-results-run (1).json", "openpipestress-preview-results-run.JSON", "/outside.json", "../outside.json", "other.json"] { assert!(!valid_name(name), "{name}"); }
++    }
++    #[test]
++    fn actual_files_preserve_exact_escaped_unicode_numbers_and_multi_megabyte_bytes() {
++        let s = Scratch::new();
++        let texts = ["{\n \"text\":\"é ☃ + %25 %2525 \\n\\t\\\\\", \"number\":1.2300e+02, \"negative\":-0.0\n}".to_owned(), format!("{{\"large\":\"{}\"}}", "é+%".repeat(600_000))];
++        for text in texts { let receipt = save_request(request(&text), || Ok::<_, ()>(s.0.clone())).unwrap(); assert_eq!(fs::read(s.0.join(receipt.file_name)).unwrap(), text.as_bytes()); assert_eq!(receipt.byte_count,text.len()); assert!(!receipt.replaced_existing); assert_eq!(receipt.durability,"not_guaranteed"); }
++    }
++    #[test]
++    fn repeated_save_file_directory_and_symlink_collisions_preserve_existing_entries() {
++        let s = Scratch::new(); fs::write(s.0.join(NAME), b"old bytes").unwrap();
++        let stem = NAME.strip_suffix(".json").unwrap(); fs::create_dir(s.0.join(format!("{stem} (1).json"))).unwrap();
++        #[cfg(unix)] { std::os::unix::fs::symlink(s.0.join("missing"),s.0.join(format!("{stem} (2).json"))).unwrap(); }
++        let first = save_request(request("{\"value\":350}"),|| Ok::<_, ()>(s.0.clone())).unwrap();
++        let first_bytes = fs::read(s.0.join(&first.file_name)).unwrap(); let second = save_request(request("{\"value\":500}"),|| Ok::<_, ()>(s.0.clone())).unwrap();
++        assert_ne!(first.file_name,second.file_name); assert_eq!(fs::read(s.0.join(NAME)).unwrap(),b"old bytes"); assert_eq!(fs::read(s.0.join(first.file_name)).unwrap(),first_bytes);
++        assert!(s.0.join(format!("{stem} (1).json")).is_dir());
++        #[cfg(unix)] assert!(fs::symlink_metadata(s.0.join(format!("{stem} (2).json"))).unwrap().file_type().is_symlink());
++    }
++    #[test]
++    fn downloads_errors_fail_without_fallback_and_platform_symlink_root_is_allowed() {
++        assert_eq!(save_request(request("{}"),|| Err::<PathBuf,_>(())).unwrap_err().stage,"downloads");
++        let s = Scratch::new(); fs::write(s.0.join("file"),b"x").unwrap();
++        for root in [PathBuf::from("relative"),s.0.join("missing"),s.0.join("file")] { assert!(save_request(request("{}"),||Ok::<_,()>(root)).is_err()); }
++        #[cfg(unix)] { let target=s.0.join("actual");fs::create_dir(&target).unwrap();let root=s.0.join("Downloads");std::os::unix::fs::symlink(&target,&root).unwrap();let receipt=save_request(request("{}"),||Ok::<_,()>(root)).unwrap();assert_eq!(fs::read(target.join(receipt.file_name)).unwrap(),b"{}"); }
++    }
++    struct FaultIo { mode: &'static str, calls: Cell<usize> }
++    struct FaultFile { file: File, mode: &'static str, written: bool }
++    impl Write for FaultFile {
++        fn write(&mut self,b:&[u8])->io::Result<usize>{ if self.mode=="write" { if self.written{return Err(io::ErrorKind::Other.into());}self.written=true;self.file.write(&b[..b.len().min(2)]) } else {self.file.write(b)} }
++        fn flush(&mut self)->io::Result<()> {if self.mode=="flush"{Err(io::ErrorKind::Other.into())}else{self.file.flush()}}
++    }
++    impl OwnedWrite for FaultFile {fn identity(&self)->io::Result<(u64,u64)>{if self.mode=="identity"{Err(io::ErrorKind::Other.into())}else{self.file.identity()}}}
++    impl SaveIo for FaultIo {
++        fn directory(&self,p:&Path)->io::Result<bool>{if self.mode=="directory"{Err(io::ErrorKind::PermissionDenied.into())}else{HostIo.directory(p)}}
++        fn canonical(&self,p:&Path)->io::Result<PathBuf>{if self.mode=="canonical"{Err(io::ErrorKind::PermissionDenied.into())}else if self.mode=="parent"&&self.calls.replace(self.calls.get()+1)>0{Ok(PathBuf::from("/outside"))}else{HostIo.canonical(p)}}
++        fn open(&self,p:&Path)->io::Result<Box<dyn OwnedWrite>> {
++            if self.mode=="open"{return Err(io::ErrorKind::PermissionDenied.into());}
++            if self.mode=="overflow"{return Err(io::ErrorKind::AlreadyExists.into());}
++            if self.mode=="race" && self.calls.replace(self.calls.get()+1)==0 {fs::write(p,b"raced bytes")?;}
++            let file=OpenOptions::new().write(true).create_new(true).open(p)?;
++            Ok(Box::new(FaultFile{file,mode:if self.mode=="cleanup"||self.mode=="identity"{"write"}else{self.mode},written:false}))
++        }
++        fn path_identity(&self,p:&Path)->io::Result<(u64,u64)>{if self.mode=="identity"{Err(io::ErrorKind::Other.into())}else{HostIo.path_identity(p)}}
++        fn remove(&self,p:&Path)->io::Result<()>{if self.mode=="cleanup"{Err(io::ErrorKind::PermissionDenied.into())}else{HostIo.remove(p)}}
++    }
++    #[test]
++    fn actual_create_new_race_retries_only_already_exists_and_checked_overflow_fails() {
++        let s=Scratch::new(); let io=FaultIo{mode:"race",calls:Cell::new(0)};
++        let receipt=save_bytes(&s.0,NAME,b"{}",0,&io).unwrap(); assert!(receipt.file_name.contains(" (1)")); assert_eq!(fs::read(s.0.join(NAME)).unwrap(),b"raced bytes");
++        let io=FaultIo{mode:"overflow",calls:Cell::new(0)};assert_eq!(save_bytes(&s.0,NAME,b"{}",usize::MAX,&io).unwrap_err().code,"COLLISION_OVERFLOW");
++    }
++    #[test]
++    fn partial_write_flush_and_cleanup_failures_preserve_primary_error_and_owned_cleanup_status() {
++        for (mode,code,cleanup_status) in [("write","WRITE_FAILED","removed"),("flush","FLUSH_FAILED","removed"),("cleanup","WRITE_FAILED","failed"),("identity","WRITE_FAILED","retained")] {
++            let s=Scratch::new();let io=FaultIo{mode,calls:Cell::new(0)};let error=save_bytes(&s.0,NAME,b"{\"value\":350}",0,&io).unwrap_err();let cleanup_status=if cfg!(unix){cleanup_status}else{"retained"};assert_eq!(error.code,code);assert_eq!(error.cleanup,cleanup_status);assert_eq!(error.partial_file_name.as_deref(),Some(NAME));assert_eq!(s.0.join(NAME).exists(),cleanup_status!="removed");
++        }
++        for mode in ["directory","canonical","parent","open"] {let s=Scratch::new();let io=FaultIo{mode,calls:Cell::new(0)};let error=save_bytes(&s.0,NAME,b"{}",0,&io).unwrap_err();assert_eq!(error.cleanup,"not_needed");assert!(!s.0.join(NAME).exists());}
++    }
++    #[test]
++    fn admission_is_owned_until_actual_worker_guard_drops_even_if_requester_is_gone() {
++        let admission=SaveAdmission::default();let permit=admission.admit().unwrap(); assert_eq!(admission.admit().unwrap_err().code,"SAVE_BUSY");
++        let (send,receive)=std::sync::mpsc::channel();let (done_send,done_receive)=std::sync::mpsc::channel();
++        let worker=std::thread::spawn(move||{let _permit=permit;receive.recv().unwrap();done_send.send(()).unwrap();});
++        assert!(admission.admit().is_err());send.send(()).unwrap();done_receive.recv().unwrap();worker.join().unwrap();assert!(admission.admit().is_ok());
++        let permit=admission.admit().unwrap();let worker=std::thread::spawn(move||{let _permit=permit;panic!("injected worker panic");});assert!(worker.join().is_err());assert!(admission.admit().is_ok());assert_eq!(SaveError::worker().cleanup,"unknown");
++    }
++}
+--- a/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx
++++ b/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx
+@@ -1,8 +1,15 @@
+-import { useMemo, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
++import { useEffect, useMemo, useRef, useState, type AnchorHTMLAttributes, type ReactNode } from "react";
+ import {
+   controlRouteExport,
+   type RedactionExportContext
+ } from "./redactionExportControls";
++
++import {
++  isNativeResultSaveRuntime,
++  saveNativeResultJson,
++  type NativeResultSaveError,
++  type NativeResultSaveReceipt
++} from "../result-export/nativeResultSave";
+ 
+ type RouteBinding = {
+   routeId: string;
+@@ -55,10 +62,11 @@
+ type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
+   href: string;
+   children: ReactNode;
++  nativeCurrentBinding?: object | null;
+   "data-testid"?: string;
+ };
+ 
+-export function ControlledExportLink({ href, children, ...anchorProps }: Props) {
++export function ControlledExportLink({ href, children, nativeCurrentBinding, ...anchorProps }: Props) {
+   const testId = String(anchorProps["data-testid"] ?? "controlled-export-link");
+   const binding = routeBindingForTestId(testId);
+   const [explicitIntent, setExplicitIntent] = useState(false);
+@@ -101,6 +109,62 @@
+     ? href // original serialized canonical document; never rehash a redacted derivative
+     : encodeDataHref(controlledPayload, decoded.mediaType, decoded.isJson);
+ 
++  const nativeCanonical = Boolean(binding.exactCanonicalPayload && isNativeResultSaveRuntime());
++  const nativeName = typeof anchorProps.download === "string" ? anchorProps.download : null;
++  const nativeReady = Boolean(controlledHref && nativeName && nativeCurrentBinding && controlled.summary.local_first);
++  const generation = useRef(0);
++  const identity = useRef<unknown[]>([]);
++  const nextIdentity = [href, nativeName, nativeCurrentBinding, explicitIntent, exposureBlocked];
++  if (nextIdentity.some((value, index) => value !== identity.current[index])) {
++    identity.current = nextIdentity;
++    generation.current += 1;
++  }
++  const mounted = useRef(true);
++  const inFlight = useRef(false);
++  const [busy, setBusy] = useState(false);
++  const [saveStatus, setSaveStatus] = useState<{
++    generation: number;
++    outcome: "pending" | "saved" | "error";
++    receipt?: NativeResultSaveReceipt;
++    error?: NativeResultSaveError;
++  } | null>(null);
++  useEffect(() => {
++    mounted.current = true;
++    return () => { mounted.current = false; generation.current += 1; };
++  }, []);
++  const visibleStatus = saveStatus?.generation === generation.current ? saveStatus : null;
++  const saveNative = () => {
++    if (inFlight.current || !nativeReady || !explicitIntent || !controlledHref || !nativeName || !controlled.summary.local_first) return;
++    inFlight.current = true;
++    const capturedGeneration = generation.current;
++    const request = {
++      href: controlledHref,
++      file_name: nativeName,
++      screening: {
++        route_id: binding.routeId,
++        export_context: binding.context,
++        explicit_local_private_intent: explicitIntent,
++        blocked: controlled.blocked,
++        materialization_withheld: controlled.summary.materialization_withheld,
++        lossless_required: binding.lossless === true,
++        exact_payload_match: exactPayload,
++        blocking_count: controlled.summary.blocking_count
++      },
++      local_first: controlled.summary.local_first
++    };
++    setBusy(true);
++    setSaveStatus({ generation: capturedGeneration, outcome: "pending" });
++    saveNativeResultJson(request).then(receipt => {
++      if (mounted.current && generation.current === capturedGeneration) setSaveStatus({ generation: capturedGeneration, outcome: "saved", receipt });
++    }).catch((error: NativeResultSaveError) => {
++      if (mounted.current && generation.current === capturedGeneration) setSaveStatus({ generation: capturedGeneration, outcome: "error", error });
++    }).finally(() => {
++      // Stale UI generations do not release the real in-flight guard early.
++      inFlight.current = false;
++      if (mounted.current) setBusy(false);
++    });
++  };
++
+   return (
+     <span
+       className="controlled-export-control"
+@@ -140,7 +204,25 @@
+           )
+           .join("\n")}
+       </pre>
+-      {controlledHref ? (
++      {nativeCanonical ? (
++        <>
++          <button
++            type="button"
++            className={anchorProps.className}
++            title={anchorProps.title}
++            aria-label={anchorProps["aria-label"]}
++            data-testid={testId}
++            disabled={!nativeReady || busy}
++            aria-disabled={!nativeReady || busy}
++            onClick={saveNative}
++          >{children}</button>
++          <span role="status" data-testid={`${testId}-native-save-status`}>
++            {visibleStatus?.outcome === "pending" ? "Saving local result JSON…" :
++              visibleStatus?.outcome === "saved" ? `Saved ${visibleStatus.receipt!.file_name} (${visibleStatus.receipt!.byte_count} bytes).` :
++              visibleStatus?.outcome === "error" ? `Save failed (${visibleStatus.error!.stage}); cleanup=${visibleStatus.error!.cleanup}${visibleStatus.error!.partial_file_name ? `; partial file=${visibleStatus.error!.partial_file_name}` : ""}.` : busy ? "Previous authorized save is still pending." : ""}
++          </span>
++        </>
++      ) : controlledHref ? (
+         <a {...anchorProps} href={controlledHref}>
+           {children}
+         </a>
+--- a/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx
++++ b/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx
+@@ -1,6 +1,10 @@
+-import { fireEvent, render, screen } from "@testing-library/react";
+-import { describe, expect, it } from "vitest";
++import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
++import { afterEach, describe, expect, it, vi } from "vitest";
+ import { ControlledExportLink, routeBindingForTestId } from "./ControlledExportLink";
++
++import { isNativeResultSaveRuntime, saveNativeResultJson } from "../result-export/nativeResultSave";
++vi.mock("../result-export/nativeResultSave", () => ({ isNativeResultSaveRuntime: vi.fn(() => false), saveNativeResultJson: vi.fn() }));
++afterEach(() => { vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false); vi.mocked(saveNativeResultJson).mockReset(); });
+ 
+ describe("ControlledExportLink", () => {
+   it("uses fixed route contexts", () => {
+@@ -189,3 +193,49 @@
+   }
+  });
+ });
++
++
++describe("native canonical save control", () => {
++ const name="openpipestress-preview-results-run-350.json";
++ const payload={private_payload_included:false,protected_content_included:false,project_name:"Invented local project",opaque_leaf:"unknown retained locally"};
++ const href=`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload,null,4)+"\n")}`;
++ const receipt={outcome:"saved" as const,file_name:name,byte_count:href.length,replaced_existing:false as const,durability:"not_guaranteed" as const,path_containment:"best_effort_non_adversarial" as const};
++ it("native has no href/download/anchor handlers and synchronous busy blocks duplicate activation",async()=>{
++  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
++  let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
++  const anchorClick=vi.fn(),anchorKey=vi.fn(),token={};
++  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={token} onClick={anchorClick} onKeyDown={anchorKey}>Save native</ControlledExportLink>);
++  const button=screen.getByRole("button",{name:"Save native"});expect(button).toBeDisabled();expect(button).not.toHaveAttribute("href");expect(button).not.toHaveAttribute("download");expect(button).toHaveAttribute("type","button");
++  fireEvent.click(button);expect(saveNativeResultJson).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(button).toBeEnabled();
++  act(()=>{fireEvent.click(button);fireEvent.click(button);fireEvent.keyDown(button,{key:"Enter"});});
++  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(anchorClick).not.toHaveBeenCalled();expect(anchorKey).not.toHaveBeenCalled();expect(button).toBeDisabled();expect(screen.getByRole("status")).toHaveTextContent("Saving");
++  expect(saveNativeResultJson).toHaveBeenCalledWith({href,file_name:name,screening:{route_id:"DOTH-JSON-001",export_context:"local_private",explicit_local_private_intent:true,blocked:false,materialization_withheld:false,lossless_required:true,exact_payload_match:true,blocking_count:0},local_first:{route_id:"DOTH-JSON-001",export_context:"local_private",storage_context:"local_private",action:"include_metadata_only",reason_code:"PRIVATE_LOCAL_METADATA_ALLOWED",blocked:false,metadata_only:true,explicit_local_private_intent:true}});
++  expect(screen.getByTestId("result-export-link-redaction-findings")).toHaveTextContent("WARNING");
++  await act(async()=>{finish(receipt);});expect(screen.getByRole("status")).toHaveTextContent(`Saved ${name}`);expect(button).toBeEnabled();
++ });
++ it("rejected IPC is an error with conservative partial status and never an HTML fallback",async()=>{
++  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);vi.mocked(saveNativeResultJson).mockRejectedValue({code:"WRITE_FAILED",stage:"write",message:"failure",partial_file_name:name,cleanup:"retained"});
++  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={{}}>Save native</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button",{name:"Save native"}));await waitFor(()=>expect(screen.getByRole("status")).toHaveTextContent("Save failed (write); cleanup=retained"));expect(screen.getByRole("status")).toHaveTextContent(name);expect(screen.queryByRole("link")).toBeNull();expect(screen.getByRole("button")).not.toHaveAttribute("href");
++ });
++ it("href/name/binding/intent changes invalidate old completion without releasing in-flight admission",async()=>{
++  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
++  for(const change of ["href","name","binding","intent"]){
++   let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));const token={};
++   const view=render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={token}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button",{name:"Save"}));
++   if(change==="intent")fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));else view.rerender(<ControlledExportLink data-testid="result-export-link" href={change==="href"?href+"%20":href} download={change==="name"?"openpipestress-preview-results-run-500.json":name} nativeCurrentBinding={change==="binding"?{}:token}>Save</ControlledExportLink>);
++   expect(screen.getByRole("button")).toBeDisabled();const calls=vi.mocked(saveNativeResultJson).mock.calls.length;fireEvent.click(screen.getByRole("button"));expect(saveNativeResultJson).toHaveBeenCalledTimes(calls);
++   await act(async()=>{finish(receipt);});expect(screen.getByRole("status")).not.toHaveTextContent("Saved");view.unmount();
++  }
++ });
++ it("unmount suppresses completion and missing Current binding cannot invoke",async()=>{
++  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
++  const view=render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={{}}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button"));view.unmount();await act(async()=>{finish(receipt);});expect(screen.queryByRole("status")).toBeNull();
++  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(screen.getByRole("button")).toBeDisabled();
++ });
++ it("blocked/protected/rejected/quarantined/secret and intent-stripped native materialization never invoke",()=>{
++  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
++  for(const facts of [{privacy_classification:"protected_code_data",redistribution_status:"protected_suspected",review_status:"accepted"},{privacy_classification:"public_metadata",redistribution_status:"public_permissive",review_status:"rejected"},{privacy_classification:"public_metadata",redistribution_status:"public_permissive",review_status:"quarantined"},{privacy_classification:"secret_like_data",redistribution_status:"private_only",review_status:"accepted",secret_material_present:true},{local_private_intent:true}]){
++   const data={field_id:"blocked",field_class:"test",...facts,value:"INVENTED_SENSITIVE"};const view=render(<ControlledExportLink data-testid="result-export-link" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data))}`} download={name} nativeCurrentBinding={{}}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(screen.getByRole("button")).toBeDisabled();fireEvent.click(screen.getByRole("button"));expect(saveNativeResultJson).not.toHaveBeenCalled();expect(screen.queryByRole("link")).toBeNull();view.unmount();
++  }
++ });
++});
+--- a/apps/desktop/src/features/result-export/ResultExportPanel.tsx
++++ b/apps/desktop/src/features/result-export/ResultExportPanel.tsx
+@@ -37,6 +37,7 @@
+         <ControlledExportLink
+               className="report-export-link"
+               data-testid="result-export-link"
++              nativeCurrentBinding={binding}
+               download={`openpipestress-preview-results-${safeFileToken(currentPacket.result_envelope.run_ref.ref_id)}.json`}
+               href={jsonDataHref(currentPacket)}
+             >
+--- a/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
++++ b/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx
+@@ -1,5 +1,5 @@
+-import {fireEvent,render,screen,waitFor} from '@testing-library/react';
+-import {it,expect} from 'vitest';
++import {act,fireEvent,render,screen,waitFor} from '@testing-library/react';
++import {afterEach,it,expect,vi} from 'vitest';
+ import modelJson from '../../../../../fixtures/product_preview/invented_preview_model.json';
+ import resultJson from '../../../../../fixtures/product_preview/invented_mechanics_result.json';
+ import type {PreviewModel,MechanicsResult} from '../../types';
+@@ -14,3 +14,33 @@
+  const link=await screen.findByTestId('result-export-link',{}, {timeout:20000});expect(link.getAttribute('href')).toBeNull();fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));const packet=JSON.parse(decodeURIComponent(screen.getByTestId('result-export-link').getAttribute('href')!.split(',')[1]));expect(packet.schema_version).toBe('0.2.0');expect(packet.export_format_status.additional_formats).toBe('TBD');const payload=structuredClone(packet);delete payload.result_envelope.reproducibility.derivative_hash;expect(packet.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
+  const changed=structuredClone(model);(changed as any).unknown_metadata='edited';view.rerender(<ResultExportPanel {...props} model={changed}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty').textContent).toContain('MISMATCH'));
+ });
++
++
++import {invoke} from '@tauri-apps/api/core';
++vi.mock('@tauri-apps/api/core',()=>({invoke:vi.fn()}));
++afterEach(()=>{delete (window as any).__TAURI_INTERNALS__;vi.mocked(invoke).mockReset();});
++async function currentProps(){
++ const model=structuredClone(modelJson) as PreviewModel,result=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);
++ const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.1.0',solver_build_ref:'local_preview',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
++ const analysisRun=await buildAnalysisRunPreview(result,{inputManifest});return {model,result,analysisRun,inputManifest};
++}
++it('native caller retains actual Current proof and exact browser serialized href, then suppresses stale edit completion',async()=>{
++ const props=await currentProps(),view=render(<ResultExportPanel {...props}/>);
++ await screen.findByTestId('result-export-link',{}, {timeout:20000});fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
++ const originalHref=screen.getByTestId('result-export-link').getAttribute('href')!,originalName=screen.getByTestId('result-export-link').getAttribute('download')!;
++ (window as any).__TAURI_INTERNALS__={};view.rerender(<ResultExportPanel {...props}/>);
++ const button=screen.getByTestId('result-export-link');expect(button.tagName).toBe('BUTTON');expect(button).not.toHaveAttribute('href');expect(button).not.toHaveAttribute('download');
++ let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(button);
++ expect(invoke).toHaveBeenCalledTimes(1);const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;expect(request.href).toBe(originalHref);expect(request.file_name).toBe(originalName);expect(request.screening.exact_payload_match).toBe(true);
++ const doc=JSON.parse(decodeURIComponent(request.href.slice(request.href.indexOf(',')+1)));expect(doc.schema_version).toBe('0.2.0');expect(doc.result_envelope.model_ref.ref_id).toBe(props.model.project.id);expect(doc.result_envelope.run_ref.ref_id).toBe(props.result.run_id);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(props.result.results.map(row=>row.id));
++ const payload=structuredClone(doc);delete payload.result_envelope.reproducibility.derivative_hash;expect(doc.result_envelope.reproducibility.derivative_hash.value).toBe(await resultDigest(payload));
++ const changed=structuredClone(props.model);(changed as any).unknown_metadata='same-id edited';view.rerender(<ResultExportPanel {...props} model={changed}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();
++ await act(async()=>{finish({outcome:'saved',file_name:originalName,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('MISMATCH'));
++});
++it('Historical or absent Current manifest cannot expose native caller and invalidates an admitted pending completion',async()=>{
++ (window as any).__TAURI_INTERNALS__={};const props=await currentProps();const view=render(<ResultExportPanel {...props}/>);await screen.findByTestId('result-export-link',{}, {timeout:20000});fireEvent.click(screen.getByTestId('result-export-link-local-private-intent'));
++ let finish!:(value:unknown)=>void;vi.mocked(invoke).mockImplementation((()=>new Promise<unknown>(resolve=>{finish=resolve;})) as typeof invoke);fireEvent.click(screen.getByTestId('result-export-link'));const request=(vi.mocked(invoke).mock.calls[0][1] as any).request;
++ // Historical restored records have no Current input-manifest proof. Do not
++ // manufacture it from the stored result or analysis-run record.
++ view.rerender(<ResultExportPanel {...props} inputManifest={null}/>);expect(screen.queryByTestId('result-export-link')).toBeNull();await act(async()=>{finish({outcome:'saved',file_name:request.file_name,byte_count:123,replaced_existing:false,durability:'not_guaranteed',path_containment:'best_effort_non_adversarial'});});await waitFor(()=>expect(screen.getByTestId('result-export-empty')).toHaveTextContent('CURRENT_INPUT_MANIFEST_UNAVAILABLE'));expect(screen.queryByRole('button',{name:'Local result JSON'})).toBeNull();expect(screen.queryByTestId('result-export-link-native-save-status')).toBeNull();
++});
+--- /dev/null
++++ b/apps/desktop/src/features/result-export/nativeResultSave.ts
+@@ -0,0 +1,97 @@
++import { invoke } from "@tauri-apps/api/core";
++import { isTauriRuntime } from "../../services/nativeMenu";
++import type { LocalFirstRouteEvidence } from "../redaction-controls/redactionExportControls";
++
++export const isNativeResultSaveRuntime = isTauriRuntime;
++export type NativeResultSaveRequest = {
++  href: string;
++  file_name: string;
++  screening: {
++    route_id: string;
++    export_context: string;
++    explicit_local_private_intent: boolean;
++    blocked: boolean;
++    materialization_withheld: boolean;
++    lossless_required: boolean;
++    exact_payload_match: boolean;
++    blocking_count: number;
++  };
++  local_first: LocalFirstRouteEvidence;
++};
++export type NativeResultSaveReceipt = {
++  outcome: "saved";
++  file_name: string;
++  byte_count: number;
++  replaced_existing: false;
++  durability: "not_guaranteed";
++  path_containment: "best_effort_non_adversarial";
++};
++export type NativeResultSaveError = {
++  code: string;
++  stage: string;
++  message: string;
++  partial_file_name: string | null;
++  cleanup: "not_needed" | "removed" | "retained" | "failed" | "unknown";
++};
++const fileName = /^openpipestress-preview-results-[a-z0-9]+(?:-[a-z0-9]+)*(?: \([1-9][0-9]*\))?\.json$/;
++const cleanups = ["not_needed", "removed", "retained", "failed", "unknown"];
++function object(value: unknown): value is Record<string, unknown> {
++  return value !== null && typeof value === "object" && !Array.isArray(value);
++}
++function failure(code: string, stage: string, cleanup: NativeResultSaveError["cleanup"]): NativeResultSaveError {
++  return { code, stage, cleanup, message: "Local result save did not complete.", partial_file_name: null };
++}
++function normalizeError(error: unknown): NativeResultSaveError {
++  let value = error;
++  if (typeof value === "string") {
++    try { value = JSON.parse(value); } catch { return failure("IPC_REJECTED", "invoke", "unknown"); }
++  }
++  if (object(value) && typeof value.code === "string" && /^[A-Z_]+$/.test(value.code)
++    && typeof value.stage === "string" && ["request", "decode", "downloads", "containment", "open", "write", "flush", "busy", "worker"].includes(value.stage)
++    && typeof value.cleanup === "string" && cleanups.includes(value.cleanup)
++    && (value.partial_file_name === null || (typeof value.partial_file_name === "string" && fileName.test(value.partial_file_name)))) {
++    return { code: value.code, stage: value.stage, message: "Local result save did not complete.",
++      partial_file_name: value.partial_file_name as string | null, cleanup: value.cleanup as NativeResultSaveError["cleanup"] };
++  }
++  return failure("IPC_REJECTED", "invoke", "unknown");
++}
++function admitted(request: NativeResultSaveRequest): boolean {
++  if (!object(request) || !object(request.screening) || !object(request.local_first)) return false;
++  const s = request.screening, l = request.local_first;
++  return Object.keys(request).sort().join(",") === "file_name,href,local_first,screening"
++    && Object.keys(s).sort().join(",") === "blocked,blocking_count,exact_payload_match,explicit_local_private_intent,export_context,lossless_required,materialization_withheld,route_id"
++    && Object.keys(l).sort().join(",") === "action,blocked,explicit_local_private_intent,export_context,metadata_only,reason_code,route_id,storage_context"
++    && typeof request.href === "string" && request.href.startsWith("data:application/json;charset=utf-8,") && request.href.length > "data:application/json;charset=utf-8,".length
++    && typeof request.file_name === "string" && /^openpipestress-preview-results-[a-z0-9]+(?:-[a-z0-9]+)*\.json$/.test(request.file_name)
++    && s.route_id === "DOTH-JSON-001" && s.export_context === "local_private" && s.explicit_local_private_intent === true
++    && s.blocked === false && s.materialization_withheld === false && s.lossless_required === true && s.exact_payload_match === true && s.blocking_count === 0
++    && l.route_id === s.route_id && l.export_context === s.export_context && l.storage_context === "local_private"
++    && l.action === "include_metadata_only" && l.reason_code === "PRIVATE_LOCAL_METADATA_ALLOWED"
++    && l.blocked === false && l.metadata_only === true && l.explicit_local_private_intent === true;
++}
++function sameRequestedFamily(value: string, basename: string): boolean {
++  const stem = basename.slice(0, -5);
++  if (value === basename) return true;
++  const suffix = value.startsWith(`${stem} (`) && value.endsWith(").json") ? value.slice(stem.length + 2, -6) : "";
++  return /^[1-9][0-9]*$/.test(suffix);
++}
++function receipt(value: unknown, request: NativeResultSaveRequest): value is NativeResultSaveReceipt {
++  return object(value) && Object.keys(value).sort().join(",") === "byte_count,durability,file_name,outcome,path_containment,replaced_existing"
++    && value.outcome === "saved" && typeof value.file_name === "string" && fileName.test(value.file_name) && sameRequestedFamily(value.file_name, request.file_name)
++    && typeof value.byte_count === "number" && Number.isSafeInteger(value.byte_count) && value.byte_count > 0
++    && value.replaced_existing === false && value.durability === "not_guaranteed"
++    && value.path_containment === "best_effort_non_adversarial";
++}
++
++// Forward the screened string unchanged. Decoding and exact-byte writes belong
++// only to the private native boundary; neither policy projection nor this service
++// reconstructs the canonical document.
++export async function saveNativeResultJson(request: NativeResultSaveRequest): Promise<NativeResultSaveReceipt> {
++  if (!isTauriRuntime()) throw failure("NATIVE_RUNTIME_REQUIRED", "invoke", "not_needed");
++  if (!admitted(request)) throw failure("REQUEST_EVIDENCE_DENIED", "request", "not_needed");
++  let value: unknown;
++  try { value = await invoke<unknown>("save_local_result_json", { request }); }
++  catch (error) { throw normalizeError(error); }
++  if (!receipt(value, request)) throw failure("INVALID_SAVE_RECEIPT", "worker", "unknown");
++  return value;
++}
+--- /dev/null
++++ b/apps/desktop/src/features/result-export/nativeResultSave.test.ts
+@@ -0,0 +1,55 @@
++import { afterEach, describe, expect, it, vi } from "vitest";
++import { invoke } from "@tauri-apps/api/core";
++import { saveNativeResultJson, type NativeResultSaveRequest } from "./nativeResultSave";
++vi.mock("@tauri-apps/api/core", () => ({ invoke: vi.fn() }));
++afterEach(() => { delete (window as any).__TAURI_INTERNALS__; vi.mocked(invoke).mockReset(); });
++const request: NativeResultSaveRequest = {
++  href: "data:application/json;charset=utf-8,%7B%22text%22%3A%22%C3%A9%2B%2525%5Cn%22%7D",
++  file_name: "openpipestress-preview-results-run-350.json",
++  screening: { route_id: "DOTH-JSON-001", export_context: "local_private", explicit_local_private_intent: true,
++    blocked: false, materialization_withheld: false, lossless_required: true, exact_payload_match: true, blocking_count: 0 },
++  local_first: { route_id: "DOTH-JSON-001", export_context: "local_private", storage_context: "local_private",
++    action: "include_metadata_only", reason_code: "PRIVATE_LOCAL_METADATA_ALLOWED", blocked: false, metadata_only: true, explicit_local_private_intent: true }
++};
++const receipt = { outcome: "saved", file_name: "openpipestress-preview-results-run-350 (1).json", byte_count: 27,
++  replaced_existing: false, durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" };
++describe("private native result service", () => {
++  it("forwards the original screened request/href unchanged and accepts only typed completion", async () => {
++    (window as any).__TAURI_INTERNALS__ = {}; vi.mocked(invoke).mockResolvedValue(receipt);
++    expect(await saveNativeResultJson(request)).toEqual(receipt);
++    expect(invoke).toHaveBeenCalledExactlyOnceWith("save_local_result_json", { request });
++    expect((vi.mocked(invoke).mock.calls[0][1] as { request: NativeResultSaveRequest }).request).toBe(request);
++  });
++  it("does not invoke outside native runtime", async () => {
++    await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "NATIVE_RUNTIME_REQUIRED", cleanup: "not_needed" });
++    expect(invoke).not.toHaveBeenCalled();
++  });
++  it("rejects missing, forged and contradictory success receipts", async () => {
++    (window as any).__TAURI_INTERNALS__ = {};
++    for (const value of [null, {}, { ...receipt, outcome: "pending" }, { ...receipt, byte_count: 0 }, { ...receipt, byte_count: 1.5 }, { ...receipt, replaced_existing: true }, { ...receipt, durability: "guaranteed" }, { ...receipt, file_name: "../outside.json" }, { ...receipt, href: request.href }, { ...receipt, file_name: "openpipestress-preview-results-unrelated.json" }, { ...receipt, file_name: "openpipestress-preview-results-unrelated (1).json" }]) {
++      vi.mocked(invoke).mockResolvedValue(value);
++      await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "INVALID_SAVE_RECEIPT", cleanup: "unknown" });
++    }
++  });
++  it("denied contradictory request evidence and path injection never invoke", async () => {
++    (window as any).__TAURI_INTERNALS__ = {};
++    const requests = [
++      { ...request, file_name: "../outside.json" }, { ...request, file_name: "openpipestress-preview-results-run-350 (1).json" },
++      ...Object.entries({ route_id: "other", export_context: "public_report", explicit_local_private_intent: false, blocked: true, materialization_withheld: true, lossless_required: false, exact_payload_match: false, blocking_count: 1 }).map(([key, value]) => ({ ...request, screening: { ...request.screening, [key]: value } })),
++      ...Object.entries({ route_id: "other", export_context: "public_report", storage_context: "remote", action: "block_storage", reason_code: "SAFE_PUBLIC_METADATA", blocked: true, metadata_only: false, explicit_local_private_intent: false }).map(([key, value]) => ({ ...request, local_first: { ...request.local_first, [key]: value } })),
++      { ...request, directory: "/tmp" }, { ...request, screening: { ...request.screening, unexpected: true } }
++    ];
++    for (const denied of requests) await expect(saveNativeResultJson(denied as NativeResultSaveRequest)).rejects.toMatchObject({ code: "REQUEST_EVIDENCE_DENIED", stage: "request", cleanup: "not_needed" });
++    expect(invoke).not.toHaveBeenCalled();
++  });
++  it("keeps native primary error and cleanup status without echoing payload", async () => {
++    (window as any).__TAURI_INTERNALS__ = {};
++    const error = { code: "WRITE_FAILED", stage: "write", message: "INVENTED_PRIVATE_PAYLOAD", partial_file_name: request.file_name, cleanup: "failed" };
++    vi.mocked(invoke).mockRejectedValue(error);
++    await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "WRITE_FAILED", stage: "write", cleanup: "failed", partial_file_name: request.file_name, message: "Local result save did not complete." });
++    vi.mocked(invoke).mockRejectedValue(JSON.stringify({ ...error, cleanup: "retained" }));
++    await expect(saveNativeResultJson(request)).rejects.toMatchObject({ cleanup: "retained" });
++    vi.mocked(invoke).mockRejectedValue("transport rejected with opaque private text");
++    await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "IPC_REJECTED", cleanup: "unknown", partial_file_name: null });
++  });
++});

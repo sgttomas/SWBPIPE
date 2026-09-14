@@ -1,0 +1,49 @@
+{
+  "utc": "2026-09-14T06:42:42.750796+00:00",
+  "status": "MANAGER_ACCEPTED_BOUNDED_SOURCE47_FOCUSED_PASS_ROOT_HANDOFF_READY",
+  "parent": "/root",
+  "manager": "/root/results_implementation_manager",
+  "writer": "same sole TASK results_writer; completed/idle",
+  "selected_child_packet_pins": {
+    "RETURN_V1.json": "65fd6cf8e3950725c71e6b8421d4d75aed458b6d9181f5fd6cb151111a03be6d",
+    "MANIFEST_V1.json": "3a128246fb070d24803ca7a7d97c1d621cdab7734dd1551c8b375c233aca9ad0",
+    "FINAL_SOURCE_FENCE_AUDIT_V1.json": "82ba5d55ba70ebe64d2b21417224ae4c25d2706fb8ed29699f8c86005d7ef656",
+    "source_delta_v1.patch": "23c5abb70670047620d4157a5c9cfa30be267c851a73e0b301f1f7ac2ef21ae2",
+    "SOURCE_AND_COMMAND_FREEZE_V2.json": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+    "MANAGER_RUNTIME_RELEASE_V1.json": "f8b61b0abfd29050a2ab2988be656693e0a64ae25aa2434cb766c03104d807c8",
+    "MANAGER_FOCUSED_RUNTIME_START_V1.json": "903d1398a6a52ad2ec0840620a07c7de19c744ac164dfb818ffdd3fece48d744"
+  },
+  "independent_backcheck": {
+    "manifest_artifacts": 35,
+    "manifest_artifact_bytes": 562494,
+    "all_artifact_hashes_sizes_and_physical_completeness": "PASS self-excluded manifest only; this manager receipt is additive post-seal",
+    "source": "8 final source hashes match winning freeze and child audit;39 accepted predecessors unchanged",
+    "tool_input_origin_and_command_raw_output_bindings": "PASS",
+    "actual_serial_exits": [
+      0,
+      0,
+      0
+    ],
+    "actual_rust": "8 PASS/80 filtered; caught injected worker panic retained",
+    "actual_frontend": "30 PASS/4 files; empty stderr",
+    "actual_build": "TypeScript/Vite PASS; chunk warning retained",
+    "generated_desktop_dist": "21 files/4199630 bytes hashes verified; not actual native binary/file witness",
+    "narrow_scope_byte_proof": "Reuses independently checked unchanged final source hashes and manager start receipt: original native run except1 command/state, lib unrelated prefix/tests, Panel exactly1 binding prop, original Controlled policy/decoder/encoder preserved",
+    "dated_evidence_test_runtime_dependencies": "No AgentRuns/_run_records path dependencies in new focused source/tests"
+  },
+  "runtime": "EXPLICITLY_RELEASED no manager/writer runtime outstanding",
+  "derivative_status": "Evidence package derived from accepted source45/root sealed repair; not authority substitute or readiness promotion",
+  "closure": "Bounded implementation/focused fan-in complete; whole tranche remains open",
+  "root_remaining": [
+    "Complete independent affected8-path review and integrate/clean committed source47",
+    "Actual source-bound native button350/repeat350/500 files, exact hash/schema/row/unit/numerical and responsive normal lifecycle witness first",
+    "Mandatory registered full final-source DEC025 after native closes; revisit affected evidence for any source change",
+    "Final audit/practitioner/governance/selfcheck/actual-head CI/PR/authorized merge"
+  ],
+  "limits": [
+    "Frontend evidence is defense in depth, not authentication",
+    "Containment/owned cleanup non-adversarial best effort; create_new does not imply hostile-race or durability guarantees",
+    "Temporary native helper files/UI mocked completion do not establish actual GUI native result delivery",
+    "Previous native failures preserved; underlying OS cause/stall resolution unproven by focused tests"
+  ]
+}

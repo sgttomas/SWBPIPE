@@ -1,0 +1,9 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_ASYNC_SAVE_FOCUSED_V1",
+  "executor": "/root/results_implementation_manager/results_writer",
+  "released": true,
+  "released_utc": "2026-09-14T06:40:03.973738+00:00",
+  "all_granted_command_processes_closed": true,
+  "no_app_browser_nativeGUI_network_Git": true,
+  "no_further_runtime": true
+}

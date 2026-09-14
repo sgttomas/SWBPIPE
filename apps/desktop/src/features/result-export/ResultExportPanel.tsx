@@ -37,6 +37,7 @@ export function ResultExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="result-export-link"
+              nativeCurrentBinding={binding}
               download={`openpipestress-preview-results-${safeFileToken(currentPacket.result_envelope.run_ref.ref_id)}.json`}
               href={jsonDataHref(currentPacket)}
             >

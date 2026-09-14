@@ -1,0 +1,86 @@
+{
+  "kind": "derivative native verification partial/failure return",
+  "status": "PARTIAL_BUILD_SELFTEST_CURRENT350_PASS_ACTUAL_DELIVERY_BLOCKED",
+  "parent": "/root",
+  "executor": "/root/native_results_witness",
+  "role": "TASK Type2",
+  "configured_model": "gpt-5.6-sol",
+  "effort": "high",
+  "delegation_class": "delegated-harness-native",
+  "role_scope": "instruction-asserted",
+  "delegation_performed": false,
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V2",
+  "source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "source_inventory_sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+  "build_exit": 0,
+  "binary_sha256": "1e04c5b9882558c073d992e23cc45f02fea08a04241805c4b777f7d3319c740c",
+  "packaged_file_backed_selftest_status": "PASS",
+  "gui_reused_v1_authoring_history": "Explicit unchanged-source43 reuse only; no connected provider/authenticated agent identity or fresh lifecycle claim",
+  "gui_v2_observed": [
+    "single isolated resolved-config main window at tauri://localhost",
+    "retained500 Historical67 rows with HISTORICAL_INPUT_MANIFEST_MISSING and exclusion text",
+    "native runtime history empty after reopen; reviewed human500->350 magnitude applied via tauri_backend_apply",
+    "exact original350 model bytes and fresh backend350/input-manifest binding",
+    "completed Save stable standalone isolated store capture",
+    "own canonical checkbox off/on and screenshot-focused Local result JSON",
+    "marker-first observed CopyLink exact data JSON prefix and decoded payload hash, no fullhref/payload persisted",
+    "one actual350 activation returns CUA noWindowsAvailable",
+    "exact synthetic base/suffix1..8 postclick metadata all absent"
+  ],
+  "actual_href": {
+    "method": "Observed native Copy Link; harmless marker before capture; exact prefix guard",
+    "href_sha256": "6037018a29eeef3b9062d30845f4fb3f1f4e23086688531bce8e582ddc9751c9",
+    "href_bytes": 419430,
+    "prefix": "data:application/json;charset=utf-8,",
+    "decoded_payload_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+    "decoded_payload_bytes": 308754,
+    "schema_version": "0.2.0",
+    "full_href_persisted": false,
+    "decoded_payload_persisted": false,
+    "file_delivery_claim": false,
+    "captured_unix": 1789366646.3489668
+  },
+  "actual_download": {
+    "activations": 1,
+    "real_file_observed": false,
+    "save_dialog_observed": false,
+    "navigation_observed": false,
+    "postclick_responsiveness_observed": false,
+    "copy_link_is_file_delivery": false
+  },
+  "process_sample": {
+    "exit": 0,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt",
+    "sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757",
+    "interpretation": "Fresh Astra diagnosis root-reported; no independent mechanism conclusion by this verifier"
+  },
+  "recovery": {
+    "exact_pid": 55097,
+    "signals": [
+      "SIGTERM"
+    ],
+    "sigkill_needed": false,
+    "process_absent": true,
+    "normal_quit_witness": false
+  },
+  "failure_records": [
+    "HREF_VERSION_ASSERTION_FAILURE_V2.json",
+    "NATIVE_FIRST_CLICK_FAILURE_V2.json",
+    "NATIVE_SCOPED_RECOVERY_V2.json"
+  ],
+  "unexecuted": [
+    "repeat350 collision delivery",
+    "real500 delivery",
+    "downloaded-file equality/schema/67-row/numeric validation",
+    "V2 responsive edit/Save after click",
+    "V2 genuine normal quit/reopen/Historical/freshsolve"
+  ],
+  "prior_v1_qualification": "V1 payload/schema67row/hash/analytical and normal500 lifecycle remain exact historical evidence for source43; not actual repaired-shell delivery or fresh V2 success",
+  "fullDEC025_V5": "required root-owned later gate; not performed/waived here",
+  "closure_verdict": "native delivery remains blocked; parent owns fresh diagnosis/different path and affected review/reruns",
+  "runtime_lease_released": true,
+  "source_config_lock_git_effects": false,
+  "v1_wholesale_preserved": true,
+  "publication": "own compact evidence only; app/targets/dist/WASM compiled artifacts remain local and hash-bound outside publication",
+  "final_binding_sha256": "f856b3ca0d070774fe58e4b3f5249b65603f349f1ac9c7a6801570c3e01b409a"
+}

@@ -1,0 +1,9 @@
+{
+  "failed_command": "initial scoped pbpaste/guard capture",
+  "exit_code": 1,
+  "prefix_guard": "passed",
+  "failure": "preliminary schema_version literal assertion used 0.2 instead of actual preserved contract 0.2.0",
+  "original_expected": "0.2",
+  "observed": "0.2.0",
+  "disposition": "checker literal error; separate strict schema validation remains mandatory; no native delivery attempted yet"
+}

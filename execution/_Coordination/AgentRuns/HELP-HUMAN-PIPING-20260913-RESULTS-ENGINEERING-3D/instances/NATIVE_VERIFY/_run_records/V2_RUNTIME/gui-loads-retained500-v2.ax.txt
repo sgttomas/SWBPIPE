@@ -1,0 +1,127 @@
+The following is a diff from the previous accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913" with ~ and + representing changed and added elements, respectively. Removed elements are summarized by ID range.
+Removed element IDs: 202-623
+~					21 toggle button Loads, Value: on
+~					23 toggle button Results, Value: off
+~						193 heading Load Cases, Value: 2
+~							194 text Load Cases
+~					196 container Load Cases section
+~						197 container Load case manager
+~							198 text LOAD CASES
+~								200 text 1  load cases;  1  primitive loads;  0  combinations; unit posture=single_unit_system_preview; saved_project_mutated=false
+~							201 container Create load case
++								202 text load:L-300
++								203 text new empty load case; primitives=0; unit=none
++								204 container
++									205 text ID
++									206 text field (settable) New load case id, Value: load:L-300
++								207 container
++									208 text Label
++									209 text field (settable) New load case label, Value: User load case
++								210 container
++									211 text Kind
++									212 text field (settable) New load case kind, Value: primitive_user_load
++								213 container
++									214 text Status
++									215 text field (settable) New load case status, Value: draft
++								216 container
++									217 text Provenance
++									218 text field (settable) New load case provenance, Value: user_entered_local_preview
++								219 button Queue case, Help: Queue load-case creation operation
++								220 text op:load-manager-create-load:L-300; before=not_present; after=load:L-300; unit=none; dimensionless; primitive_loads=0; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							221 container Create primitive load
++								222 text load:L-100-F300
++								223 text concentrated_force ; target= node:N-100 ; unit= N
++								224 container
++									225 text Type
++									226 pop up button Primitive load category, Value: concentrated_force
++								227 container
++									228 text Case
++									229 pop up button Primitive load case, Value: Select load case
++								230 container
++									231 text ID
++									232 text field (settable) New primitive load id, Value: load:L-100-F300
++								233 container
++									234 text Node
++									235 pop up button Concentrated force target node, Value: Select node
++								236 container
++									237 text Dir
++									238 pop up button Primitive load direction, Value: global_y
++								239 container
++									240 text Magnitude unit
++									241 pop up button Primitive load unit, Value: N (DEC-018 canonical)
++								242 container
++									243 text Magnitude ( N, DEC-018 canonical )
++									244 text field (settable) Primitive load magnitude, Value: 250
++								245 container
++									246 text Provenance
++									247 text field (settable) Primitive load provenance, Value: user_entered_local_preview
++								248 button (disabled) Queue load, Help: Queue primitive load operation
++								249 text complete case/id/target/direction/nonzero magnitude/provenance to queue a primitive load
++							250 container Create combination
++								251 text combination:C-300
++								252 text basis=mechanics; term=load:WF x 1
++								253 container
++									254 text ID
++									255 text field (settable) New combination id, Value: combination:C-300
++								256 container
++									257 text Label
++									258 text field (settable) New combination label, Value: User mechanics combination
++								259 container
++									260 text Basis
++									261 pop up button New combination basis, Value: mechanics
++								262 container
++									263 text Load
++									264 pop up button New combination initial load case, Value: load:WF
++								265 container
++									266 text Factor
++									267 text field (settable) New combination factor, Value: 1
++								268 container
++									269 text Provenance
++									270 text field (settable) New combination provenance, Value: user_entered_local_preview
++								271 container
++									272 text Rationale
++									273 text field (settable) New combination rationale, Value: user_entered_combination_create_preview_change
++								274 button Queue combo, Help: Queue combination creation operation
++								275 text op:load-manager-create-combination:C-300; before=not_present; after=combination:C-300; term=load:WF x 1; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							276 button Synthetic tip force load:WF; primitive_user_load; preview_only; primitives=1 invented_synthetic_workflow_input
++							277 container Load case metadata editor
++								278 text load:WF
++								279 text field= status ; current= preview_only ; path= status
++								280 container
++									281 text Field
++									282 pop up button Load case metadata field, Value: Status
++								283 container
++									284 text Value
++									285 pop up button Load case metadata value, Value: preview_only
++								286 container
++									287 text Rationale
++									288 text field (settable) Load case metadata rationale, Value: user_entered_load_case_metadata_preview_change
++								289 button (disabled) Queue metadata, Help: Queue load-case metadata operation
++								290 text current=preview_only; no changed status queued
++								291 container
++									292 text Delete rationale
++									293 text field (settable) Load case delete rationale, Value: user_entered_load_case_delete_preview_change
++								294 button Queue delete case, Help: Queue load-case delete operation
++								295 text op:load-manager-load:WF-delete; before=load:WF; Synthetic tip force; primitive_user_load; preview_only; primitives=1; after=not_present; unit=none; dimensionless; unit_validation=not_required_dimensionless; direct_model_mutation_allowed=false; professional_approval=false
++							296 button concentrated_force; 500 N load:WF-FY; node:node:WF-TIP; global_y; dimension=force
++							297 container Primitive load magnitude editor
++								298 text load:WF-FY
++								299 text load:WF ; path=primitive_loads. 0 .magnitude.value
++								300 container
++									301 text Magnitude unit
++									302 pop up button Selected primitive load unit, Value: N (DEC-018 canonical)
++								303 container
++									304 text Magnitude ( N, DEC-018 canonical )
++									305 text field (settable) Primitive load magnitude, Value: 500
++								306 container
++									307 text Rationale
++									308 text field (settable) Load case edit rationale, Value: user_entered_load_case_preview_change
++								309 button (disabled) Queue magnitude, Help: Queue load-magnitude operation
++								310 text current=500 N; no changed magnitude queued
++								311 container
++									312 text Delete rationale
++									313 text field (settable) Primitive load delete rationale, Value: user_entered_primitive_load_delete_preview_change
++									314 button Queue delete, Help: Queue primitive-load delete operation
++								315 text op:load-manager-load:WF-load:WF-FY-delete; before=load:WF-FY; concentrated_force; node:node:WF-TIP; global_y; 500 N; force; after=not_present; unit=N; force; unit_validation=dec018_catalog_dimension_match; direct_model_mutation_allowed=false; professional_approval=false
++							316 text Load edits are queued as structured operations, applied only after user action, and remain local-session changes until saved. This panel does not add rule-code combinations, protected standards content, or professional approval.
+The focused UI element is 2 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

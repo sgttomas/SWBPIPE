@@ -1,0 +1,65 @@
+{
+  "phase": "PRE_EFFECT_FROZEN",
+  "parent": "/root/results_implementation_manager",
+  "executor": "/root/results_implementation_manager/results_writer",
+  "model": "gpt-5.6-sol",
+  "effort": "high",
+  "Type2": "no delegation, instruction-asserted",
+  "fence": [
+    "apps/desktop/src-tauri/src/lib.rs",
+    "apps/desktop/src-tauri/src/native_result_download.rs",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+    "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+    "apps/desktop/src/features/result-export/nativeResultSave.ts",
+    "apps/desktop/src/features/result-export/nativeResultSave.test.ts"
+  ],
+  "all45_pre_effect_exact": true,
+  "origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md",
+      "sha256": "733af9ec4f25fd7447459665bb999cc1686f038302917a9bc5f3e352404331c6"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+      "sha256": "8562ae00ea1f4c9c9b37cb1cd067e5b93dab65b48c35ce484eeeb9943d4d31f3"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt",
+      "sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757"
+    }
+  ],
+  "continuation_sha256": "3071be8d4fe921a44c422477c3c2c0f09d8a74b529427a87b04d274a447e6c68",
+  "private_DTO_error_contract": "exact manager continuation; deny_unknown_fields; no caller directory; original screened href; receipt only complete write/flush; primary error plus conservative cleanup",
+  "expectations": {
+    "native_request": [
+      "exact route/context/owned intent and contradictory evidence deny before write",
+      "strict nonempty exact prefix, percent once/no plus conversion,UTF8/JSON syntax; unsuffixed filename family/path denial",
+      "exact original decoded bytes including Unicode/controls/plus/percent/double-percent/number formatting/>2MB",
+      "platform missing/relative/file/error denied; configured symlink root accepted, canonical immediate parent best effort",
+      "create_new existing file/directory/dangling symlink/repeated-save/raced collision preserve prior bytes; AlreadyExists only retries; checked suffix overflow",
+      "partial-write/flush/open/owned identity/cleanup failure stay errors with primary error/cleanup separate",
+      "single native admission synchronously acquired; worker-owned RAII persists until actual completion/drop; busy no queue; worker panic unknown cleanup"
+    ],
+    "UI": [
+      "only admitted canonical native branch button typebutton, no anchor href/download/anchor handlers, browser original anchor/unrelated routes unchanged",
+      "original screened href/name/evidence forwarded unchanged; strict receipt/rejection validate; no fallback navigation",
+      "own intent initially false; permitted local unknown/private warnings retained; blocked/protected/rejected/quarantined/secret/intent-stripped materialization denied",
+      "synchronous UI guard rejects same-tick repeated activation; pending/saved/error honest",
+      "href/name/retained Current binding/intent changes and unmount invalidate visible old completions; immutable already-authorized bytes may finish; actual guard not released stale",
+      "actual Current proof, edits/Historical/missing manifest invalidate panel caller; adapter/serializer unchanged"
+    ],
+    "bootstrap": [
+      "remove custom download hook/manual config window creation",
+      "default auto-window configuration unchanged; register only private command/admission state",
+      "all unrelated39 accepted sources/config/locks/contracts exact unchanged"
+    ]
+  },
+  "runtime": "pregranted only after final source/command freeze and manager coordination notification",
+  "prior_native": "V2 main-thread sample WebKit sandbox extension issuance downstream of Rust callback; OS cause unproven; no real files/repair claim",
+  "static_failed_probes": [
+    "ROOT_ORIGIN_BRIEF_V1.md absent in own successor evidence; read actual integration brief",
+    "guessed features/local-first glob absent; corrected actual redactionExportControls LocalFirstRouteEvidence; guessed localFirstPolicyService absent"
+  ]
+}

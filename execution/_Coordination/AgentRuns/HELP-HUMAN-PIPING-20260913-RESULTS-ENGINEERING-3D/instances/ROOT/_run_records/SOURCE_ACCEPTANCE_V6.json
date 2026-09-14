@@ -1,0 +1,20 @@
+{
+  "status": "ACCEPTED_SOURCE47_FOR_NATIVE_QUALIFICATION",
+  "accepted_utc": "2026-09-14T06:50:02.116081+00:00",
+  "actor": "HELP_HUMAN Agent0 /root",
+  "source_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+  "source_manifest_sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551",
+  "review_return": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_NATIVE_ASYNC_SAVE_V1.md",
+  "review_sha256": "2a22083aba6d9f7180c6c361fc76c32397ccc60c0fe1a87d439963c187f098b0",
+  "verdict": "PASS independent complete8 replacement and cumulative47/prior39 binding; focused Rust8/frontend30/build PASS",
+  "engineering_decision": "Replace failed WebKit path with bounded private async exact-text Downloads save; no public operation/model/persistence schema or dependency change. Prior failures remain preserved.",
+  "runtime": "all leases released; actual native qualification not yet started",
+  "remaining": [
+    "clean source commit",
+    "fresh native button350/repeat350/500 files and responsive lifecycle",
+    "full clean registered final-source DEC025",
+    "final metadata/review/practitioner/self-check/governance/receipt/actual-head CI and authorized merge"
+  ],
+  "derivative_package": true,
+  "whole_tranche_closed": false
+}

@@ -1,0 +1,37 @@
+
+> @openpipestress/desktop@0.1.0 tauri
+> tauri build --bundles app --ci --no-sign --config /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/tauri-isolated-overlay.json
+
+
+> @openpipestress/desktop@0.1.0 build:wasm
+> node scripts/build-wasm-engine.mjs
+
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/wasm-engine.tmp-54407
+[build-wasm-engine] OK — wasm operation engine generated at public/wasm-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+[build-wasm-engine] cargo build --offline --target wasm32-unknown-unknown --features wasm --release
+[build-wasm-engine] wasm-bindgen --target web --out-dir public/self-weight-engine.tmp-54407
+[build-wasm-engine] OK — wasm operation engine generated at public/self-weight-engine (wasm-bindgen 0.2.123; artifacts are intentionally not committed)
+
+> @openpipestress/desktop@0.1.0 build
+> tsc -b && vite build
+
+vite v7.3.3 building client environment for production...
+transforming...
+✓ 1703 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                        1.16 kB │ gzip:   0.56 kB
+dist/assets/index-BbqXWFNO.css                        58.61 kB │ gzip:  10.62 kB
+dist/assets/vendor-tauri-DlQNAQKj.js                   0.09 kB │ gzip:   0.11 kB
+dist/assets/invented_design_knowledge-H12r-oKQ.js      1.66 kB │ gzip:   0.76 kB
+dist/assets/invented_agent_proposal-Bm57LVt-.js        1.82 kB │ gzip:   0.85 kB
+dist/assets/vendor-7OC5HNn7.js                         3.61 kB │ gzip:   1.58 kB
+dist/assets/invented_demo_rule_pack-dhX9tvT1.js       10.86 kB │ gzip:   2.59 kB
+dist/assets/invented_preview_model-pJA3_nB8.js        12.67 kB │ gzip:   3.05 kB
+dist/assets/vendor-icons-Fcg__Luf.js                  18.79 kB │ gzip:   6.19 kB
+dist/assets/vendor-react-BT_8sX57.js                 188.74 kB │ gzip:  59.01 kB
+dist/assets/invented_mechanics_result-CleTy2JL.js    502.61 kB │ gzip:  22.14 kB
+dist/assets/vendor-three-DC4iGhup.js                 526.27 kB │ gzip: 135.07 kB
+dist/assets/index-x_FGiFi0.js                      1,183.08 kB │ gzip: 282.38 kB
+✓ built in 1.77s

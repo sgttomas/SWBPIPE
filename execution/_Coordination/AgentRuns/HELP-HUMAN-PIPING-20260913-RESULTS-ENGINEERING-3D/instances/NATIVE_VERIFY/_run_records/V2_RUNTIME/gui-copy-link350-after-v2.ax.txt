@@ -1,0 +1,186 @@
+Window: "SWBPIPE Results Engineering 3D Witness 20260913", App: SWBPIPE Results Engineering 3D Witness 20260913.
+1 standard window SWBPIPE Results Engineering 3D Witness 20260913, Secondary Actions: Raise
+	2 container
+		3 scroll area
+			4 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost
+				5 container
+					6 heading OpenPipeStress, Value: 1
+						7 text OpenPipeStress
+					8 text Blank Local Model
+					9 container Local project controls
+						10 summary Units, Value: off
+							11 text Units
+						12 button Create local
+						13 button New blank
+						14 button Open local
+						15 button List local
+						16 button Save local
+					17 container (collapsed) Project summary, Secondary Actions: Expand
+						18 summary Saved current project model snapshot without external file copies. Details, Value: off
+							19 text Saved current project model snapshot without external file copies.
+							20 text Details
+					21 container Workspace tasks
+						22 toggle button Model, Value: off
+						23 toggle button Loads, Value: off
+						24 toggle button Analyze, Value: off
+						25 toggle button Results, Value: off
+						26 toggle button Rules, Value: off
+						27 toggle button Report, Value: off
+					28 container Editing tools
+						29 toggle button Select, Help: Select geometry; cancel the active creation tool, Value: on
+						30 container Human toolkit
+							31 button (collapsed) Toolkit, Secondary Actions: Expand
+						32 button Undo model edit
+						33 button (disabled) Redo model edit
+						34 toggle button Review, Help: Validate and apply queued changes, Value: off
+					35 container Modeling workspace
+						36 button (expanded) Collapse model tree, Secondary Actions: Collapse
+						37 container Model tree
+							38 text MODEL
+							39 container Layout grid mode
+								40 toggle button Tree, Value: on
+								41 toggle button Grid, Value: off
+							42 container Model tree filtering
+								43 container
+									44 text Filter model
+									45 search text field (settable) Filter model tree, Placeholder: Name, ID, type, or group
+										46 text Name, ID, type, or group
+								47 text 7  of  7  model entities visible
+								48 button (disabled) Clear model tree filter
+							49 toggle button Blank Local Model, Value: off
+							50 heading Materials, Value: 3
+								51 text Materials
+							52 toggle button Invented workflow material material:WF, Help: Invented workflow material (material:WF), Value: off
+							53 heading Nodes, Value: 3
+								54 text Nodes
+							55 toggle button Root node:WF-ROOT, Help: Root (node:WF-ROOT), Value: off
+							56 toggle button Tip node:WF-TIP, Help: Tip (node:WF-TIP), Value: off
+							57 heading Pipes, Value: 3
+								58 text Pipes
+							59 toggle button Cantilever pipe:WF, Help: Cantilever (pipe:WF), Value: off
+							60 heading Supports, Value: 3
+								61 text Supports
+							62 toggle button Root anchor support:WF-ROOT, Help: Root anchor (support:WF-ROOT), Value: off
+							63 heading Load Cases, Value: 3
+								64 text Load Cases
+							65 toggle button Synthetic tip force load:WF, Help: Synthetic tip force (load:WF), Value: on
+						66 text 3D Centerline
+						67 container (collapsed) Viewport deformation overlay status, Secondary Actions: Expand
+							68 summary Deformation · normalized, Value: off
+								69 text Deformation · normalized
+						70 container Viewport display toggles
+							71 toggle button Labels, Help: Show or hide entity labels, Value: on
+							72 toggle button Loads, Help: Show or hide load arrows, Value: on
+							73 toggle button Grid, Help: Show or hide the ground grid, Value: on
+						74 text Selected:  load:WF
+						75 container
+							76 container Three.js pipe centerline viewport, Help: Click a part to select it; drag to orbit, scroll to zoom
+							77 container Viewport entity selection
+								78 toggle button Select Root in viewport, Help: Root (node:WF-ROOT), Value: off
+								79 toggle button Select Tip in viewport, Help: Tip (node:WF-TIP), Value: off
+								80 toggle button Select Cantilever in viewport, Help: Cantilever (pipe:WF), Value: off
+								81 toggle button Select Root anchor in viewport, Help: Root anchor (support:WF-ROOT), Value: off
+							82 container Orientation gizmo
+							83 container View controls
+								84 toggle button Front, Value: off
+								85 toggle button Top, Value: off
+								86 toggle button Iso, Value: on
+							87 text 1 m
+						88 container Command and selection bar
+							89 container Object creation tools
+								90 toggle button Node, Help: Arm node creation, Value: off
+								91 toggle button Pipe, Help: Arm pipe-run creation, Value: off
+								92 toggle button Support, Help: Arm support creation in the Inspector, Value: off
+								93 toggle button Component, Help: Arm component-symbol insertion, Value: off
+								94 toggle button Load, Help: Arm load creation in the Load Cases panel, Value: off
+							95 text Select
+							96 summary Selection & navigation, Value: off
+								97 text Selection & navigation
+						98 button (expanded) Collapse inspector, Secondary Actions: Collapse
+						99 container Property inspector
+							100 heading Synthetic tip force, Value: 2
+								101 text Synthetic tip force
+							102 summary All properties, Value: off
+								103 text All properties
+							104 container Editor operation intent
+								105 heading Edit name, Value: 3
+									106 text  Edit  name
+								107 container
+									108 text Property
+									109 pop up button Property to edit, Value: Name
+								110 container Current value
+									111 text CURRENT  NAME
+									112 text Synthetic tip force
+								113 container
+									114 text New  name
+									115 text field (settable) New name, Value: Synthetic tip force
+								116 button (disabled) Queue change, Help: Add this change to the review queue
+								117 button (disabled) Validate, Help: Validate without applying
+								118 button (disabled) Apply, Help: Apply this exact displayed intent through the operation service
+								119 summary Operation details, Value: off
+									120 text Operation details
+								121 text Validate to check this change before applying it.
+							122 summary Sources and units, Value: off
+								123 text Sources and units
+							124 summary New section, Value: off
+								125 text New section
+							126 summary New material, Value: off
+								127 text New material
+							128 summary New support, Value: off
+								129 text New support
+							130 summary New component, Value: off
+								131 text New component
+					132 container Workspace sections
+						133 container
+							134 heading Exports, Value: 2
+								135 text Exports
+							136 button Close
+					137 container Workspace status
+						138 container Analysis statuses
+							139 summary Mechanics mechanics solved, Value: off
+								140 text Mechanics
+								141 text mechanics solved
+							142 summary Rule check Inputs needed, Value: off
+								143 text Rule check
+								144 text Inputs needed
+							145 summary Professional Review required, Value: off
+								146 text Professional
+								147 text Review required
+							148 summary Value: off, Solve proof seam=tauri backend job; project=project:blank-local-20260914t051915z; result model=project:blank-local-20260914t051915z; identity=match; rows=67; generation=8; job=backend-solve-job-1; model sha256=sha256:9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4; input manifest sha256=0b663c4aaf4b8c09da9133e5db43edc29e3d474d82f59d84451b1fdb4e5a614e
+								149 text Solve proof
+								150 text seam=tauri backend job; project=project:blank-local-20260914t051915z; result model=project:blank-local-20260914t051915z; identity=match; rows=67; generation=8; job=backend-solve-job-1; model sha256=sha256:9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4; input manifest sha256=0b663c4aaf4b8c09da9133e5db43edc29e3d474d82f59d84451b1fdb4e5a614e
+						151 button (collapsed) Local · no network · no telemetry SQLite + FTS5, Secondary Actions: Expand
+						152 button (collapsed) ⚑ 7 Issues, Secondary Actions: Expand
+					153 text Technical preview — not a released product. Acceptance and professional judgment remain with the responsible engineer.
+		154 menu
+			155 Open Link, ID: WKMenuItemIdentifierOpenLink
+			156 Open Link in New Window, ID: WKMenuItemIdentifierOpenLinkInNewWindow
+			157 Download Linked File, ID: WKMenuItemIdentifierDownloadLinkedFile
+			158 (selected) Copy Link, ID: WKMenuItemIdentifierCopyLink
+			159 Share…, ID: WKMenuItemIdentifierShareMenu
+			160 Services
+				161 menu
+					162 Add to Music as a Spoken Track
+					163 Open
+					164 Open man Page in Terminal
+					165 Search man Page Index in Terminal
+					166 Search With Google
+					167 Show in Finder
+					168 Show Info in Finder
+	169 close button
+	170 full screen button Help: this button also has an action to zoom the window, Secondary Actions: zoom the window
+	171 minimize button
+	172 text SWBPIPE Results Engineering 3D Witness 20260913
+173 menu bar
+	174 SWBPIPE Results Engineering 3D Witness 20260913
+	175 File
+	176 Edit
+	177 View
+	178 Insert
+	179 Analyze
+
+Selected text: ```
+Local result JSON
+```
+
+Note: Pay special attention to the content selected by the user. If the user asks a question or refers to the content they are looking at on-screen, they might be referring to the selected content (but they might be referring to something else that's visible, too).

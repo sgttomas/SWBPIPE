@@ -1,0 +1,46 @@
+{
+  "status": "DIAGNOSIS_COMPLETE_NATIVE_ACCEPTANCE_OPEN",
+  "role": "TASK Type2",
+  "executor": "/root/native_export_runtime_diagnosis",
+  "parent": "/root",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "high",
+  "delegation": "delegated-harness-native",
+  "scope_enforcement": "instruction-asserted",
+  "accepted_source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "all45_actual_manifest_commit_hashes_match": true,
+  "sample_sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757",
+  "sample_conclusion": "All 2548 main-thread samples wait inside __mac_syscall from WebKit sandbox-extension issuance during Wry download destination completion; downstream of Rust admission callback. Underlying policy/kernel cause unproven.",
+  "recommended_repair": "Admitted native button preserving original screened href in memory; bounded private async exact-text save command; one blocking worker; platform Downloads/create_new collisions; remove unused custom download/window bootstrap; browser anchor unchanged.",
+  "parent_steering": "Root explicitly accepted private local caller accommodation and required button to prevent context-menu/keyboard WKDownload bypass; incorporated.",
+  "prohibited_effects_performed": false,
+  "actual_runtime_actions": [],
+  "tests_or_builds_run": [],
+  "git_mutations": [],
+  "derivative_package": true,
+  "closure": "bounded diagnosis complete; native file delivery and final-source DEC025 remain required",
+  "reruns": [
+    "focused source/request/bytes/collision/error/stale-busy/native-only tests",
+    "fresh independent complete affected-source review",
+    "source-bound isolated native build/selftest actual350/repeat350/500 files and responsive lifecycle",
+    "complete final-source DEC025 after native PASS"
+  ],
+  "uncertainties": [
+    "Underlying sandbox/TCC/kernel policy source of syscall wait is unknown",
+    "Direct native filesystem save is not yet qualified; host errors may remain",
+    "No actual file bytes from this V2 attempt",
+    "Current WebKit online source is corroboration only, not installed binary source"
+  ],
+  "outputs": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+      "sha256": "8562ae00ea1f4c9c9b37cb1cd067e5b93dab65b48c35ce484eeeb9943d4d31f3",
+      "bytes": 10470
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/_run_records/CONTEXT_AND_EVIDENCE_V2.json",
+      "sha256": "e19770f20a09e63661ba296a28c90463183d3a06bcfe1e83ccf1c96dd682e9f6",
+      "bytes": 25657
+    }
+  ]
+}

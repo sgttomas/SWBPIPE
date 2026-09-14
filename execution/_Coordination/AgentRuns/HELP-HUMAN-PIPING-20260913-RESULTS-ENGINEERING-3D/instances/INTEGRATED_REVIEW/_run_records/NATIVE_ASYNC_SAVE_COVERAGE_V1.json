@@ -1,0 +1,183 @@
+{
+  "status": "PASS_BOUNDED_SOURCE47_STATIC_REVIEW_NATIVE_AND_FULL_SWEEP_PENDING",
+  "created_utc": "2026-09-14T06:49:11.850766+00:00",
+  "role": {
+    "agent": "/root/integrated_review",
+    "parent": "/root",
+    "shell": "TASK Type2",
+    "model": "gpt-6-astra",
+    "effort": "high",
+    "delegation": "none",
+    "enforcement": "instruction-asserted"
+  },
+  "root_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md",
+    "sha256": "733af9ec4f25fd7447459665bb999cc1686f038302917a9bc5f3e352404331c6"
+  },
+  "accepted_predecessor": {
+    "source45_manifest_sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+    "source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+    "review_return_sha256": "29355216c8fd33b9684d416ce15d05235d25bb6e00c27f47c0ecfe10a85cc94c",
+    "reuse": "Prior source conclusions reused only for unchanged39; entire replacement8 reviewed afresh."
+  },
+  "integration_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json",
+    "sha256": "2ce7d8a21cd0001bb10f2cfed3b4c2800285fb2058c965e35a26f2098bbf2551"
+  },
+  "freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+  "whole_patch_sha256": "23c5abb70670047620d4157a5c9cfa30be267c851a73e0b301f1f7ac2ef21ae2",
+  "source": [
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23",
+      "bytes": 274569,
+      "old_sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "749dd03a591d6360105c08c44587c50e3fcbd80af36603fa6de2a4c0f4f26cf1",
+      "bytes": 19811,
+      "old_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "19d58e46a9243fd0d4e04a0e7443939a10faa0f90e8406bcf5508f0e70dbc0ad",
+      "bytes": 12346,
+      "old_sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "afd69e9d3479455cd8adcd59cd9083d4a0ff2611bdb2b904b88cc5cd260308d1",
+      "bytes": 18753,
+      "old_sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "1da429abbce5dcf250a7b82564bc60ab8fcae67c726fb831b932afdd7f22025c",
+      "bytes": 6632,
+      "old_sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "55e92399edd0829db06b4f8a8b86420824b1590327de1871bd24f7d5ff71c6d7",
+      "bytes": 6914,
+      "old_sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "sha256": "7c3495bf5d859e8ee045fac99d614bf427ef3988513cc0d5ba7706eb95593146",
+      "bytes": 5896,
+      "old_sha256": null
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "sha256": "f979dcd339251b60a7ad5400353592eca5c2239b05b9a486a92864c0f19e5fa2",
+      "bytes": 5148,
+      "old_sha256": null
+    }
+  ],
+  "binding_checks": {
+    "all47_integration_and_writer_bytes_equal_manifest": true,
+    "prior39_exact": true,
+    "six_prior_original_snapshots_equal_accepted45": true,
+    "complete_eight_file_patch_reconstructed_in_memory": true,
+    "no_git_or_runtime_used": true
+  },
+  "semantic_coverage": [
+    "Full lib diff: private async command admits one Arc/AtomicBool permit before spawning; worker captures permit and AppHandle, await maps join failure; old WKDownload/manual window hook removed. Independently restored run() equals prehook original after removing only new state and handler registration. All other lib code/tests unchanged.",
+    "Full native helper and eight tests: deny_unknown_fields and exact bounded route/intent/evidence/name checks; one strict prefix/percent/UTF8 decode, optional JSON syntax check without reserialization, exact write bytes. Platform Downloads existing absolute directory and canonical parent, symlinked root permitted, safe unsuffixed input and positive generated collisions, create_new retry only AlreadyExists with checked overflow. Complete write_all/flush required; owned inode/dev conservative cleanup preserves primary error and reports removed/failed/retained. Nonunix cleanup retention is explicit. No durability or adversarial-race guarantee.",
+    "Full ControlledExportLink and all test additions: existing policy, own initially false intent, lossless/exact decoded equivalence and unknown/private local allowance retained. Native canonical branch has button and no href/download/spread anchor activation handlers; no error fallback. Original screened href forwarded. Ref busy guard admits one click synchronously; identity includes href/name/Current binding/intent/exposure. Unmount and changed generation suppress completion while actual in-flight admission remains held.",
+    "Full Panel/test diff: sole production addition passes existing exact-props binding token. Serializer/model/result/analysis/input proof unchanged; same-id edit or Historical/missing Current proof unmounts caller. Tests compare actual browser serialized href to invoked native request and verify proof/digest/rows, then suppress edited or Historical completion.",
+    "Full new native service/tests: existing native runtime detector; exact request evidence shapes deny contradictory/path-injected requests; passes same request object/href to private command. Receipt requires exact typed fields, positive safe byte count, requested basename or its positive collision family, no overwrite or durability promise. Error normalization withholds arbitrary payload text. Receipt is command completion evidence, not independent on-disk/hash authentication; mocked receipt counts are not file witnesses."
+  ],
+  "actionable_findings": [],
+  "primary_source": [
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/async_runtime.rs",
+      "sha256": "ccee9dc653f37366a4060d64c6b447ccb98c08300316298be3afc7a98b1301af"
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-2.11.1/src/webview/mod.rs",
+      "sha256": "954cf212cb79d6b566c10b76d2ff2da05bc637cfc9f666c2f03d4e3dddf35f1c"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/tauri.conf.json",
+      "sha256": "6c32e0c86cf0068c994537bc68d5132a02e7f331761a063ac413e411907e0e1f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/build.rs",
+      "sha256": "487059eaf8a947b80f20a9aacac038a5047b2ad69d2401b827376c67d6fe847f"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/services/nativeMenu.ts",
+      "sha256": "2eb5f618319d49cf0cafbaf56d762d25c57afbbc4593901e3b68ab11ef9c3720"
+    }
+  ],
+  "primary_conclusion": "Locked Tauri spawn_blocking uses dedicated blocking executor/Tokio handle and Future maps join errors. Local custom-command trust remains existing boundary; remote origins require explicit ACL. No capability, URL or config expansion. Default configured window creation restored; base config is unchanged.",
+  "packet": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_ASYNC_SAVE_REPAIR_V1",
+    "manifest_sha256": "3a128246fb070d24803ca7a7d97c1d621cdab7734dd1551c8b375c233aca9ad0",
+    "manager_fanin_sha256": "df50a4e9aa6d29c32ce558f8598ae60c4afa0007f72dd6a82b4f171215cd3a05",
+    "return_sha256": "65fd6cf8e3950725c71e6b8421d4d75aed458b6d9181f5fd6cb151111a03be6d",
+    "manifest_entries_checked": 35,
+    "all_physical_files_checked_in_both_worktrees": 37,
+    "physical_bytes": 574548,
+    "frozen_inputs_rehashed": 9,
+    "tool_origins_rehashed": 4,
+    "all_three_commands_freeze_argv_cwd_env_and_raw_hashes_checked": true
+  },
+  "actual_focused": [
+    {
+      "attempt": "001",
+      "result_sha256": "6c75b9b66f69a8b46d8f3165a83be0dfdc1308c18a33ecf2542d77231edd5a5b",
+      "exit": 0,
+      "scope": "8 native helper tests PASS,80 unrelated filtered; injected/caught worker panic in stderr is intentional tested failure path"
+    },
+    {
+      "attempt": "002",
+      "result_sha256": "8db831c8a720897b3a1de350e16b0dfc40837731602a0c78270ce97075764173",
+      "exit": 0,
+      "scope": "30 tests PASS in4 selected Vitest files; empty stderr; mock IPC/UI does not prove native file delivery"
+    },
+    {
+      "attempt": "003",
+      "result_sha256": "de1521ff362e9948f81c1bdbf9cd4065bd06b191cdbeffe2ea26b5ab48793a40",
+      "exit": 0,
+      "scope": "desktop TypeScript/Vite build PASS; retained >500kB chunk warning; no native binary/GUI witness"
+    }
+  ],
+  "freeze_correction": "V2 corrects static substring test count before runtime; same source/commands; actual counts govern. No failed focused execution in this packet.",
+  "failure_basis": {
+    "diagnosis_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+    "sha256": "8562ae00ea1f4c9c9b37cb1cd067e5b93dab65b48c35ce484eeeb9943d4d31f3",
+    "disposition": "Historical native V1/V2 download failures remain failures. V2 sample supports main-thread WebKit sandbox-extension issuance stall downstream of Rust hook; underlying macOS cause and repair success remain unproven by static/focused review."
+  },
+  "closeout_v5": {
+    "external_path": "/tmp/chirality-results-engineering-3d-20260913/closeout-finalization-v5",
+    "manifest_sha256": "0479889801e1992cd07d1169ff84deee800a3bc2ae837c9ea696ab12a9ec0c90",
+    "patch_sha256": "e5f3cdf96696a38373a9fb923c616d0405500637395610cb6d38e63365828487",
+    "four_manifest_entries_verified": true,
+    "nineteen_originals_unchanged": true,
+    "receipt140_exact_v4": true,
+    "changed_lines": 3,
+    "assessment": "Only DEL08-04 and DEL12-02 replace hook prose with admitted button/private async exact-byte Downloads worker; DEL17-06 wording clarified. All placeholders unchanged. Existing911 frozen-fixture and legacy/whole-analysis residuals remain. Conditional and unapplied; actual native delivery/final-source acceptance pending."
+  },
+  "publication_relocation": {
+    "locator_sha256": "627a03b190517e975eba58d93b78e1e83a8b517929b04bbb1836eadd3f49e032",
+    "three_old_locations_absent_and_new_hashes_lengths_exact": true,
+    "historical_failures_and_manifests_not_rewritten": true
+  },
+  "closure": {
+    "derivative_package": true,
+    "authoritative_truth_substitute": false,
+    "bounded_static_review_complete": true,
+    "final_acceptance": false,
+    "remaining": [
+      "Root accepts/commits exact reviewed source47.",
+      "Early actual source-bound native350/repeat350/500 saved files with independent byte/schema/row/unit/numerical evidence and responsive normal lifecycle.",
+      "Mandatory final-source full DEC025 after native runtime closes; source changes require affected re-review/reruns.",
+      "Root applies actual closeout pointers only after required gates; final static metadata/acceptance handoff review still held."
+    ]
+  },
+  "effects": "Reads/hashes/in-memory diffs and this own additive review packet only; no source/config/governance/Git/build/test/browser/native effects or delegation."
+}

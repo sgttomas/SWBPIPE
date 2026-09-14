@@ -1,0 +1,22 @@
+{
+  "source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "all45_source_exact": true,
+  "all_bound_compiled_files_exact": true,
+  "v1_all_manifest_files_exact": true,
+  "v1_sealed_manifest_sha256": "bbb796887c476dc7225ddd5cf8ee1411cddc2d73b168446d933334f843ab2b81",
+  "overlay_sha256": "6e28ac39fda82aa10c310837d0669ad4c8bff896acb546644c9ca67155853b15",
+  "binary_sha256": "1e04c5b9882558c073d992e23cc45f02fea08a04241805c4b777f7d3319c740c",
+  "pid55097_absent": true,
+  "gui350_model_bytes_equal_v1": true,
+  "original350_model_sha256": "9997b567d915f0bac9140412db91989e6a2e063a65589790a6215208fa9c20e4",
+  "original350_input_manifest_sha256": "0b663c4aaf4b8c09da9133e5db43edc29e3d474d82f59d84451b1fdb4e5a614e",
+  "original350_manifest_evidence": "fresh actual backend solve AX record",
+  "fresh_store_capture": "completed Save stable standalone no-sidecar/double-read/copy/integrity; no online transactional/original producer-byte claim",
+  "schema_version_checker_correction": {
+    "initial_literal": "0.2",
+    "frozen_const": "0.2.0",
+    "actual_href_version": "0.2.0",
+    "separate_actual_file_schema_validation": "not executed; no actual file"
+  },
+  "utc": "2026-09-14T06:22:50.518471+00:00"
+}

@@ -1,0 +1,22 @@
+{
+  "lease": "ROOT_LEASE_NATIVE_RESULT_V2",
+  "status": "GRANTED",
+  "holder": "TASK Type2 /root/native_results_witness",
+  "parent": "HELP_HUMAN /root",
+  "configured_model": "gpt-5.6-sol",
+  "effort": "high",
+  "delegation": "delegated-harness-native instruction-asserted; no delegation",
+  "source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "source45_inventory_sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+  "source_review_return_sha256": "29355216c8fd33b9684d416ce15d05235d25bb6e00c27f47c0ecfe10a85cc94c",
+  "focused": "8 helper/18 frontend PASS, failed001 retained",
+  "clean_preflight": "git status --porcelain empty after source commit; this new lease/evidence are subsequent run output, source and config must remain unchanged",
+  "method_manifest_sha256": "3fd4e7b69f1cb9525a5f8d4ba66ce0e6259f60ae8bac43b3dcade39e37bf0312",
+  "method_sha256": "49f0c6e0557b1037aad1a717c8617aaff54e23aaeda776e74f42716d128d5a84",
+  "order_addendum_sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+  "allowed": "Execute all proposed V2 phases/commands with exact frozen existing isolated overlay, pinned Node24/cargo/offline build, packaged self-test, real350/repeat350/500 downloads, exact synthetic path probes and actual file capture, schemas/source/hash/analytical checks, responsive normal quit/reopen. Reuse V1 authoring/history explicitly only by unchanged source43. This is exclusive build/test/browser/native runtime until released; no other runtime active.",
+  "scope": "Existing NATIVE_VERIFY evidence directory and declared isolated native bundle/store/test scratch; no source/config/lock/Git edits. Platform Downloads exact synthetic basename and suffix1..8 metadata only, inspect only new regular matching synthetic files with stable metadata and bound size; no unrelated enumeration or mutation.",
+  "gates": "Native precedes full complete DEC025_V5; both mandatory. Final sweep revision may advance for evidence only; all45 source/config/binary bindings must be compared explicitly, never infer a fresh witness for changed bytes.",
+  "failure": "Stop blind retries on a failed click; preserve exact evidence and report promptly. Exact process observation/recovery requires identified executable and root disposition, no unrelated process effects. No CopyLink/download callback substitute for real files.",
+  "release": "Normal quit exact app/process absence, source/binary/config hash backcheck, compact sealed return with all failures and explicit runtime release. No speculative final success."
+}

@@ -1,0 +1,13 @@
+
+running 8 tests
+test native_result_download::tests::strict_prefix_percent_utf8_json_and_unsuffixed_names ... ok
+test native_result_download::tests::admission_is_owned_until_actual_worker_guard_drops_even_if_requester_is_gone ... ok
+test native_result_download::tests::contradictory_route_intent_evidence_and_unknown_fields_never_resolve_or_write ... ok
+test native_result_download::tests::actual_create_new_race_retries_only_already_exists_and_checked_overflow_fails ... ok
+test native_result_download::tests::downloads_errors_fail_without_fallback_and_platform_symlink_root_is_allowed ... ok
+test native_result_download::tests::repeated_save_file_directory_and_symlink_collisions_preserve_existing_entries ... ok
+test native_result_download::tests::partial_write_flush_and_cleanup_failures_preserve_primary_error_and_owned_cleanup_status ... ok
+test native_result_download::tests::actual_files_preserve_exact_escaped_unicode_numbers_and_multi_megabyte_bytes ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 80 filtered out; finished in 0.36s
+

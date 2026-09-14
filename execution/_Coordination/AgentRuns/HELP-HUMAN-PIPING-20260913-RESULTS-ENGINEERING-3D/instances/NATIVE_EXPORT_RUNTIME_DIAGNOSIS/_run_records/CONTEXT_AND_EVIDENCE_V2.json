@@ -1,0 +1,466 @@
+{
+  "role": "TASK Type2",
+  "executor": "/root/native_export_runtime_diagnosis",
+  "parent": "/root",
+  "configured_model": "gpt-6-astra",
+  "configured_reasoning": "high",
+  "delegation": "delegated-harness-native",
+  "enforcement": "instruction-asserted",
+  "brief_sha256": "74611556d0e0868f1b45dd76e90408e2743f662ba9f1837e66aac6e6cb325271",
+  "source_commit": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "context_and_evidence": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_EXPORT_RUNTIME_DIAGNOSIS_V2.md",
+      "sha256": "74611556d0e0868f1b45dd76e90408e2743f662ba9f1837e66aac6e6cb325271",
+      "bytes": 4300
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/_run_records/APPROVED_RESULTS_ENGINEERING_3D_PLAN_20260913/CANDIDATE_PLAN_V3.md",
+      "sha256": "74589c9e83f3cccbe5b0dc46a2d13cd412d5fd91ec4fea62026bdb7bd67e3536",
+      "bytes": 20468
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/DIAGNOSIS_V1.md",
+      "sha256": "ae9633325639727146a9054d5f148e8013c2467a9e4bcb9ba51620ce794ff717",
+      "bytes": 8836
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_DIAGNOSIS/AMENDMENT_V2.md",
+      "sha256": "f1430766e1b6ca5670173ec9dde648d41025dec3387d259e25fd7b5b0d385f7f",
+      "bytes": 7776
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_DOWNLOAD_REPAIR_V1.md",
+      "sha256": "8789b87b830f178b0a859513efc25ae4dbcb0ebde8f28adab8d709cb70cff948",
+      "bytes": 7129
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_VERIFICATION_ORDER_ADDENDUM_V1.md",
+      "sha256": "81a0ec4e84dafc32557e35c471b6e5b809da53693e81ec8be2595ab61f27f9ba",
+      "bytes": 2329
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V5.json",
+      "sha256": "a72f652f5fd0aee76ffe6dea6882a4b3c6641f3ebb2316d1f5b9035141215537",
+      "bytes": 20838
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt",
+      "sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757",
+      "bytes": 226205
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/COMMAND_EXACT_PROCESS_SAMPLE_V2.json",
+      "sha256": "b3a35dba68f84ef5666e560f977fac0548395938e1714fd03bd5ac4837ac5cf7",
+      "bytes": 2836
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_FIRST_CLICK_FAILURE_V2.json",
+      "sha256": "a9a99d3fceb6b388a0c8f0be640e4491436b7204216583026410ee4f7b9c6233",
+      "bytes": 425
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/DOWNLOAD_POSTCLICK350_V2.json",
+      "sha256": "0c5b0b126e2a193aa530f706aa85edf581a7329453c15be085f80a50ed9ea612",
+      "bytes": 1455
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "bytes": 274557
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "bytes": 16211
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "bytes": 122833
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "bytes": 6587
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "bytes": 8382
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src/services/reportPackageSaveService.ts",
+      "sha256": "a649f2a056a2e015d6c9617fc417ade909774fde962cee0140f78beec6aa2454",
+      "bytes": 4031
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/src/atomic_report_package_save.rs",
+      "sha256": "9130f8bc06ea1437127de2e4ef59b6265ecd250f83f580f5d1c27500f7a46b0b",
+      "bytes": 26174
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wry-0.55.1/src/wkwebview/download.rs",
+      "sha256": "3b67113c3d13a2082992d284a1e995e07c06a9b892b3ed2dae9b7370daa0f6c0",
+      "bytes": 3987
+    },
+    {
+      "path": "/Users/ryan/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/tauri-runtime-wry-2.11.1/src/lib.rs",
+      "sha256": "508c0eba506999840acd328fa429624bf91fcf3f88abfe4bd7e2dc3fb2ce87bd",
+      "bytes": 166891
+    }
+  ],
+  "source45_checks": [
+    {
+      "path": "core/reporting/result_export/Cargo.toml",
+      "manifest_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "actual_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "commit_sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "match": true
+    },
+    {
+      "path": "core/reporting/result_export/src/derivative.rs",
+      "manifest_sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "actual_sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "commit_sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "match": true
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "manifest_sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "actual_sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "commit_sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "match": true
+    },
+    {
+      "path": "core/reporting/result_export/src/semantic_contract.rs",
+      "manifest_sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "actual_sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "commit_sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "match": true
+    },
+    {
+      "path": "core/reporting/result_export/tests/derivative_contract.rs",
+      "manifest_sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "actual_sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "commit_sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "match": true
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "manifest_sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "actual_sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "commit_sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "match": true
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "manifest_sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "actual_sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "commit_sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "match": true
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "manifest_sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "actual_sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "commit_sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "manifest_sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "actual_sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "commit_sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.test.tsx",
+      "manifest_sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec",
+      "actual_sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec",
+      "commit_sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "manifest_sha256": "4ddc2b6d251668db132c4e82d343176289f931b5b5aea2111df3a7e14c9cd9d4",
+      "actual_sha256": "4ddc2b6d251668db132c4e82d343176289f931b5b5aea2111df3a7e14c9cd9d4",
+      "commit_sha256": "4ddc2b6d251668db132c4e82d343176289f931b5b5aea2111df3a7e14c9cd9d4",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+      "manifest_sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246",
+      "actual_sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246",
+      "commit_sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "manifest_sha256": "6af26ef4b505aae85a519a1db54d808b6bce94d9c9946fc8bc711c94fcfb753f",
+      "actual_sha256": "6af26ef4b505aae85a519a1db54d808b6bce94d9c9946fc8bc711c94fcfb753f",
+      "commit_sha256": "6af26ef4b505aae85a519a1db54d808b6bce94d9c9946fc8bc711c94fcfb753f",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "manifest_sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "actual_sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "commit_sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "manifest_sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "actual_sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "commit_sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "manifest_sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "actual_sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "commit_sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "manifest_sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "actual_sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "commit_sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "manifest_sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "actual_sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "commit_sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "manifest_sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "actual_sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "commit_sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "manifest_sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "actual_sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "commit_sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "manifest_sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "actual_sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "commit_sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "manifest_sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "actual_sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "commit_sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "manifest_sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "actual_sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "commit_sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "manifest_sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "actual_sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "commit_sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.test.ts",
+      "manifest_sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60",
+      "actual_sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60",
+      "commit_sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.ts",
+      "manifest_sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "actual_sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "commit_sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "manifest_sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "actual_sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "commit_sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "manifest_sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "actual_sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "commit_sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "match": true
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2.json",
+      "manifest_sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+      "actual_sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+      "commit_sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+      "match": true
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2_rejections.json",
+      "manifest_sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+      "actual_sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+      "commit_sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+      "match": true
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "manifest_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "actual_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "commit_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "match": true
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "manifest_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "actual_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "commit_sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "match": true
+    },
+    {
+      "path": "schemas/results.v0.1.schema.yaml",
+      "manifest_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "actual_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "commit_sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "match": true
+    },
+    {
+      "path": "schemas/results.v0.2.schema.yaml",
+      "manifest_sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "actual_sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "commit_sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "match": true
+    },
+    {
+      "path": "tests/test_result_export_v0_2.py",
+      "manifest_sha256": "dd4d2bbf9de28bf099ea589ae4dc54c641a19dc48f3b8a1887e071da26efe89c",
+      "actual_sha256": "dd4d2bbf9de28bf099ea589ae4dc54c641a19dc48f3b8a1887e071da26efe89c",
+      "commit_sha256": "dd4d2bbf9de28bf099ea589ae4dc54c641a19dc48f3b8a1887e071da26efe89c",
+      "match": true
+    },
+    {
+      "path": "tests/test_results_schema.py",
+      "manifest_sha256": "b42e2cec2f07736c3d2e2732e6b794e68075b72150ed6a4541f139ee54f993ae",
+      "actual_sha256": "b42e2cec2f07736c3d2e2732e6b794e68075b72150ed6a4541f139ee54f993ae",
+      "commit_sha256": "b42e2cec2f07736c3d2e2732e6b794e68075b72150ed6a4541f139ee54f993ae",
+      "match": true
+    },
+    {
+      "path": "core/reporting/report_package/Cargo.lock",
+      "manifest_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "actual_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "commit_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "match": true
+    },
+    {
+      "path": "validation/benchmarks/mechanics/Cargo.lock",
+      "manifest_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "actual_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "commit_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "match": true
+    },
+    {
+      "path": "validation/benchmarks/stress/Cargo.lock",
+      "manifest_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "actual_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "commit_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "manifest_sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "actual_sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "commit_sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "manifest_sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "actual_sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "commit_sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "manifest_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "actual_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "commit_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "manifest_sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+      "actual_sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+      "commit_sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "manifest_sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "actual_sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "commit_sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6",
+      "match": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_result_download.rs",
+      "manifest_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "actual_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "commit_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5",
+      "match": true
+    }
+  ],
+  "all45_match": true,
+  "runtime_effects": false,
+  "source_effects": false,
+  "git_mutations": false,
+  "build_or_test_execution": false,
+  "web_attempt": {
+    "url": "https://docs.rs/wry/0.55.1/src/wry/wkwebview/download.rs.html",
+    "result": "tool internal error; no online content used; exact installed Cargo primary source read instead"
+  },
+  "web_corroboration": [
+    {
+      "url": "https://raw.githubusercontent.com/WebKit/WebKit/main/Source/WebKit/UIProcess/API/Cocoa/WKDownload.mm",
+      "lines": "106-131",
+      "status": "Read through web tool; current unpinned source, not installed macOS source identity; corroboration only"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/WebKit/WebKit/main/Source/WebKit/UIProcess/Downloads/DownloadProxy.cpp",
+      "lines": "168-188",
+      "status": "Read through web tool; current unpinned source, not installed macOS source identity; corroboration only"
+    }
+  ]
+}

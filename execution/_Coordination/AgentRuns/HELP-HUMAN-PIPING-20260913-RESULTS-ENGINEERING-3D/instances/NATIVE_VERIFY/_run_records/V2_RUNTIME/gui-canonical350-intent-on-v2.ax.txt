@@ -1,0 +1,2 @@
+There has been no change in the accessibility tree for Window: "SWBPIPE Results Engineering 3D Witness 20260913".
+The focused UI element is 3 HTML content Description: OpenPipeStress Technical Preview, URL: tauri://localhost

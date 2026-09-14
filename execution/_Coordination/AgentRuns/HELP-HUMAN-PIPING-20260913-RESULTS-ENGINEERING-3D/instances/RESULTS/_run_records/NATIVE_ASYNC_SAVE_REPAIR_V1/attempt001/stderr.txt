@@ -1,0 +1,7 @@
+   Compiling openpipestress-desktop v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop/src-tauri)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.47s
+     Running unittests src/lib.rs (/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target/debug/deps/openpipestress_desktop_lib-d422b1f67cdccfa2)
+
+thread '<unnamed>' (54769212) panicked at src/native_result_download.rs:310:103:
+injected worker panic
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace

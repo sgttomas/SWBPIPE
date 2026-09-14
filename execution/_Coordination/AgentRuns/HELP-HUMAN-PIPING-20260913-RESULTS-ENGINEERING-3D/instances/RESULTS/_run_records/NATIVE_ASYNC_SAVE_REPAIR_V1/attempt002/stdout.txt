@@ -1,0 +1,39 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop
+
+ ✓ src/features/result-export/nativeResultSave.test.ts > private native result service > forwards the original screened request/href unchanged and accepts only typed completion 2ms
+ ✓ src/features/result-export/nativeResultSave.test.ts > private native result service > does not invoke outside native runtime 1ms
+ ✓ src/features/result-export/nativeResultSave.test.ts > private native result service > rejects missing, forged and contradictory success receipts 1ms
+ ✓ src/features/result-export/nativeResultSave.test.ts > private native result service > denied contradictory request evidence and path injection never invoke 1ms
+ ✓ src/features/result-export/nativeResultSave.test.ts > private native result service > keeps native primary error and cleanup status without echoing payload 0ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > uses fixed route contexts 1ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > ignores source intent and requires wrapper-owned intent for known private values 22ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > binds the native package to downstream-tool control without local-private fallback 2ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > requires the Parser CSV link's own intent and exposes no side effect before it 27ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > renders sanitized per-item evidence before allowed and blocked exposure controls 5ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > requires its own intent then exposes original serialized bytes with local unknown/private warnings 3ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > blocks route-intent stripping from unknown raw annotations despite lossless policy materialization 2ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked 4ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > native has no href/download/anchor handlers and synchronous busy blocks duplicate activation 12ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > rejected IPC is an error with conservative partial status and never an HTML fallback 10ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > href/name/binding/intent changes invalidate old completion without releasing in-flight admission 21ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > unmount suppresses completion and missing Current binding cannot invoke 6ms
+ ✓ src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > blocked/protected/rejected/quarantined/secret and intent-stripped native materialization never invoke 11ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > binds current payload/carrier and preserves old hashes and observed declarations 478ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > dimension-absent received carrier remains distinct from authentic producer 346ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions 127ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects checksum scope/type/algorithm/canonicalization/ref tampering 211ms
+ ✓ src/features/result-export/ResultExportPanel.test.tsx > only makes Current proof-bound JSON downloadable and invalidates it on same-id edit 1463ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > all60 semantic expectations and all28 exact annotations agree before any origin claim 46ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > canonical authority orders numeric-looking/Unicode keys and normalizes negative zero 0ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unsupported, hidden, sparse, extra, unsafe, malformed and cyclic JSON 0ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unknown/mixed versions preserving0.1 versus0.2 reader dispatch 0ms
+ ✓ src/features/result-export/resultExportAdapter.test.ts > rejects ghost references, orphan witnesses and semantic tampering despite recomputed derivative digest 1463ms
+ ✓ src/features/result-export/ResultExportPanel.test.tsx > native caller retains actual Current proof and exact browser serialized href, then suppresses stale edit completion 1397ms
+ ✓ src/features/result-export/ResultExportPanel.test.tsx > Historical or absent Current manifest cannot expose native caller and invalidates an admitted pending completion 1173ms
+
+ Test Files  4 passed (4)
+      Tests  30 passed (30)
+   Start at  00:39:41
+   Duration  4.77s (transform 417ms, setup 410ms, import 482ms, tests 6.84s, environment 1.46s)
+

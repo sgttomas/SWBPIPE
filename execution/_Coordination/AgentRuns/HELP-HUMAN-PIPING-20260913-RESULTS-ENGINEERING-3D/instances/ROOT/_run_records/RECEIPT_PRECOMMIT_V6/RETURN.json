@@ -1,0 +1,28 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 1.610534292,
+  "finished_utc": "2026-09-14T06:44:19.535191+00:00",
+  "files": [
+    {
+      "path": "EXIT.json",
+      "bytes": 109,
+      "sha256": "c92fafbeb62a376fb9127e704c9ab3302a5e25ba7caa8d9a861883e84c386419"
+    },
+    {
+      "path": "stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "stdout.log",
+      "bytes": 195,
+      "sha256": "6c5b20b1c1d44d55526341d49653254174cc232550ae62e003cbe4cc3cc66c7e"
+    },
+    {
+      "path": "COMMAND.json",
+      "bytes": 3815,
+      "sha256": "b58e1b1bac1d32109f699c56cc8f279c74776d00e4ae518428c6cfd5fe406ee1"
+    }
+  ],
+  "status_after": " M projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs\n M projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx\n M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx\n?? projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts\n?? projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_EXPORT_RUNTIME_DIAGNOSIS_V2.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_ASYNC_SAVE_REPAIR_V1/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/NATIVE_RELEASE_V2.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json\n"
+}

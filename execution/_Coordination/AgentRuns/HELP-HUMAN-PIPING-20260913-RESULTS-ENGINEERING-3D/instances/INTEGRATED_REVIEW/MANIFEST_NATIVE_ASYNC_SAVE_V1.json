@@ -1,0 +1,18 @@
+{
+  "status": "PASS_BOUNDED_SOURCE47_STATIC_REVIEW_NATIVE_AND_FULL_SWEEP_PENDING",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "_run_records/NATIVE_ASYNC_SAVE_COVERAGE_V1.json",
+      "sha256": "c44d4d70459f660cc02cb668f83302a9dd1c084d1228a749dd50b5de1e48d7ae",
+      "bytes": 12143
+    },
+    {
+      "path": "RETURN_NATIVE_ASYNC_SAVE_V1.md",
+      "sha256": "2a22083aba6d9f7180c6c361fc76c32397ccc60c0fe1a87d439963c187f098b0",
+      "bytes": 3026
+    }
+  ],
+  "self_excluded": true,
+  "prior_packets_immutable": true
+}

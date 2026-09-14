@@ -1,0 +1,7 @@
+{
+  "root": "/Users/ryan/Downloads",
+  "resolved": "/Users/ryan/Downloads",
+  "method": "Foundation NSSearchPathForDirectoriesInDomains(NSDownloadsDirectory,NSUserDomainMask,true)",
+  "utc_unix": 1789366619.570594,
+  "unrelated_enumeration": false
+}

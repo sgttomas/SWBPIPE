@@ -1,0 +1,9 @@
+{
+  "argv": [
+    "pbcopy"
+  ],
+  "marker": "NATIVE_RESULT_V2_350_SAFE_COPY_LINK_MARKER",
+  "exit_code": 0,
+  "set_before_copy_link": true,
+  "previous_clipboard_read": false
+}

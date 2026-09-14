@@ -1,0 +1,43 @@
+{
+  "authorization": "root exact-process read-only diagnosis under ROOT_LEASE_NATIVE_RESULT_V2",
+  "argv": [
+    "/usr/bin/sample",
+    "55097",
+    "3",
+    "-file",
+    "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt"
+  ],
+  "ps_argv": [
+    "ps",
+    "-p",
+    "55097",
+    "-o",
+    "pid=,ppid=,stat=,etime=,%cpu=,command="
+  ],
+  "ps_before": "55097     1 S    04:08   0.0 /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "started_unix": 1789366748.057767,
+  "pid": 55097,
+  "expected_executable": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "binary_sha256": "1e04c5b9882558c073d992e23cc45f02fea08a04241805c4b777f7d3319c740c",
+  "exit_code": 0,
+  "finished_unix": 1789366751.73299,
+  "ps_after": "55097     1 S    04:11   0.0 /Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/SWBPIPE Results Engineering 3D Witness 20260913.app/Contents/MacOS/openpipestress-desktop",
+  "sample_exists": true,
+  "artifacts": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt",
+      "sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757",
+      "bytes": 226205
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/native-process-sample-v2.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/native-process-sample-v2.stderr",
+      "sha256": "b84251e77a4d7f92ff2f4a15e80478d49a50a60d785f6980636170244750ada4",
+      "bytes": 438
+    }
+  ]
+}

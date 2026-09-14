@@ -1,0 +1,13 @@
+{
+  "method": "Observed native Copy Link; harmless marker before capture; exact prefix guard",
+  "href_sha256": "6037018a29eeef3b9062d30845f4fb3f1f4e23086688531bce8e582ddc9751c9",
+  "href_bytes": 419430,
+  "prefix": "data:application/json;charset=utf-8,",
+  "decoded_payload_sha256": "f00a703a02e493e5cfe6c3ced380ff2bdb52c77c966f922563ea48e965a84433",
+  "decoded_payload_bytes": 308754,
+  "schema_version": "0.2.0",
+  "full_href_persisted": false,
+  "decoded_payload_persisted": false,
+  "file_delivery_claim": false,
+  "captured_unix": 1789366646.3489668
+}

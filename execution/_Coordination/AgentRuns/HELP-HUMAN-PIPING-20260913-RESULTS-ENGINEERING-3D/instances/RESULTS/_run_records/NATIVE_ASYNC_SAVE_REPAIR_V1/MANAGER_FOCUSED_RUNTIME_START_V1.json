@@ -1,0 +1,15 @@
+{
+  "utc": "2026-09-14T06:38:53.980957+00:00",
+  "lease": "ROOT_LEASE_NATIVE_ASYNC_SAVE_FOCUSED_V1",
+  "root_pregrant_sha256": "733af9ec4f25fd7447459665bb999cc1686f038302917a9bc5f3e352404331c6",
+  "source_command_freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+  "runner_sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe",
+  "manager_read_only_check": "PASS exact8+39/tool/input/patch hashes; original native run bootstrap restored except one command/state; unrelated lib prefix/tests unchanged; Panel exactly one binding prop; Controlled decoder/policy assembly bytes unchanged",
+  "runtime_status": "start coordinated now; child commands not invoked by this verification",
+  "serial_order": [
+    "001 locked offline Rust helper tests",
+    "002 four pinned Vitest suites",
+    "003 existing pinned offline build:desktop"
+  ],
+  "writer": "same sole TASK results_writer; no browser/native/network/Git"
+}

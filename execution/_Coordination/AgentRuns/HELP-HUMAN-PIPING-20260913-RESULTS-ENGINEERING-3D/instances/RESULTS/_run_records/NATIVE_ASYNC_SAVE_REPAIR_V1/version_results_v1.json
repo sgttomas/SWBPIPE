@@ -1,0 +1,70 @@
+[
+  {
+    "argv": [
+      "/Users/ryan/.cargo/bin/cargo",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "env": {
+      "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+      "npm_config_offline": "true",
+      "npm_config_update_notifier": "false"
+    },
+    "exit_code": 0,
+    "stdout": "cargo 1.97.1 (c980f4866 2026-06-30)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/ryan/.cargo/bin/rustc",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "env": {
+      "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+      "npm_config_offline": "true",
+      "npm_config_update_notifier": "false"
+    },
+    "exit_code": 0,
+    "stdout": "rustc 1.97.1 (8bab26f4f 2026-07-14)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "env": {
+      "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+      "npm_config_offline": "true",
+      "npm_config_update_notifier": "false"
+    },
+    "exit_code": 0,
+    "stdout": "v24.18.0\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "/Users/ryan/.local/share/mise/installs/node/24/bin/npm",
+      "--version"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+    "env": {
+      "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+      "CARGO_NET_OFFLINE": "true",
+      "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+      "npm_config_offline": "true",
+      "npm_config_update_notifier": "false"
+    },
+    "exit_code": 0,
+    "stdout": "11.16.0\n",
+    "stderr": ""
+  }
+]

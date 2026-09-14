@@ -1,0 +1,11 @@
+{
+  "phase": "first actual350 Local result JSON click",
+  "observed_control": "screenshot focused enabled link at82,582",
+  "intent": "own checkbox observed selected",
+  "failure": "CUA Computer Use server error -10005: noWindowsAvailable",
+  "tool_wall_seconds": 14.3302,
+  "postclick_ax_observed": false,
+  "native_file_status": "pending exact metadata probes",
+  "blind_retries": false,
+  "utc_unix": 1789366696.1017861
+}

@@ -1,0 +1,26 @@
+{
+  "id": "002",
+  "argv": [
+    "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+    "../../node_modules/vitest/vitest.mjs",
+    "run",
+    "src/features/redaction-controls/ControlledExportLink.test.tsx",
+    "src/features/result-export/ResultExportPanel.test.tsx",
+    "src/features/result-export/resultExportAdapter.test.ts",
+    "src/features/result-export/nativeResultSave.test.ts",
+    "--reporter",
+    "verbose"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop",
+  "env": {
+    "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+    "npm_config_offline": "true",
+    "npm_config_update_notifier": "false"
+  },
+  "scope": "only four named Vitest suites; no browser",
+  "started_utc": "2026-09-14T06:39:41.183425+00:00",
+  "source_freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+  "runner_sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe"
+}

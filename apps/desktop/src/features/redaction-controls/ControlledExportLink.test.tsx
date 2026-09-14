@@ -1,6 +1,10 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { ControlledExportLink, routeBindingForTestId } from "./ControlledExportLink";
+
+import { isNativeResultSaveRuntime, saveNativeResultJson } from "../result-export/nativeResultSave";
+vi.mock("../result-export/nativeResultSave", () => ({ isNativeResultSaveRuntime: vi.fn(() => false), saveNativeResultJson: vi.fn() }));
+afterEach(() => { vi.mocked(isNativeResultSaveRuntime).mockReturnValue(false); vi.mocked(saveNativeResultJson).mockReset(); });
 
 describe("ControlledExportLink", () => {
   it("uses fixed route contexts", () => {
@@ -186,6 +190,52 @@ describe('canonical local result link',()=>{
   expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');
   for(const facts of [{privacy_classification:'protected_code_data',redistribution_status:'protected_suspected',review_status:'accepted'},{privacy_classification:'public_metadata',redistribution_status:'public_permissive',review_status:'rejected'},{privacy_classification:'public_metadata',redistribution_status:'public_permissive',review_status:'quarantined'},{privacy_classification:'secret_like_data',redistribution_status:'private_only',review_status:'accepted',secret_material_present:true}]){
    const payload={field_id:'policy-blocked',field_class:'test',...facts,value:'INVENTED_SENSITIVE_SCALAR'};rerender(<ControlledExportLink data-testid="result-export-link" href={`data:application/json,${encodeURIComponent(JSON.stringify(payload))}`}>Canonical</ControlledExportLink>);const intent=screen.getByTestId('result-export-link-local-private-intent') as HTMLInputElement;if(!intent.checked)fireEvent.click(intent);expect(screen.getByTestId('result-export-link')).not.toHaveAttribute('href');
+  }
+ });
+});
+
+
+describe("native canonical save control", () => {
+ const name="openpipestress-preview-results-run-350.json";
+ const payload={private_payload_included:false,protected_content_included:false,project_name:"Invented local project",opaque_leaf:"unknown retained locally"};
+ const href=`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(payload,null,4)+"\n")}`;
+ const receipt={outcome:"saved" as const,file_name:name,byte_count:href.length,replaced_existing:false as const,durability:"not_guaranteed" as const,path_containment:"best_effort_non_adversarial" as const};
+ it("native has no href/download/anchor handlers and synchronous busy blocks duplicate activation",async()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
+  let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+  const anchorClick=vi.fn(),anchorKey=vi.fn(),token={};
+  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={token} onClick={anchorClick} onKeyDown={anchorKey}>Save native</ControlledExportLink>);
+  const button=screen.getByRole("button",{name:"Save native"});expect(button).toBeDisabled();expect(button).not.toHaveAttribute("href");expect(button).not.toHaveAttribute("download");expect(button).toHaveAttribute("type","button");
+  fireEvent.click(button);expect(saveNativeResultJson).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(button).toBeEnabled();
+  act(()=>{fireEvent.click(button);fireEvent.click(button);fireEvent.keyDown(button,{key:"Enter"});});
+  expect(saveNativeResultJson).toHaveBeenCalledTimes(1);expect(anchorClick).not.toHaveBeenCalled();expect(anchorKey).not.toHaveBeenCalled();expect(button).toBeDisabled();expect(screen.getByRole("status")).toHaveTextContent("Saving");
+  expect(saveNativeResultJson).toHaveBeenCalledWith({href,file_name:name,screening:{route_id:"DOTH-JSON-001",export_context:"local_private",explicit_local_private_intent:true,blocked:false,materialization_withheld:false,lossless_required:true,exact_payload_match:true,blocking_count:0},local_first:{route_id:"DOTH-JSON-001",export_context:"local_private",storage_context:"local_private",action:"include_metadata_only",reason_code:"PRIVATE_LOCAL_METADATA_ALLOWED",blocked:false,metadata_only:true,explicit_local_private_intent:true}});
+  expect(screen.getByTestId("result-export-link-redaction-findings")).toHaveTextContent("WARNING");
+  await act(async()=>{finish(receipt);});expect(screen.getByRole("status")).toHaveTextContent(`Saved ${name}`);expect(button).toBeEnabled();
+ });
+ it("rejected IPC is an error with conservative partial status and never an HTML fallback",async()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);vi.mocked(saveNativeResultJson).mockRejectedValue({code:"WRITE_FAILED",stage:"write",message:"failure",partial_file_name:name,cleanup:"retained"});
+  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={{}}>Save native</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button",{name:"Save native"}));await waitFor(()=>expect(screen.getByRole("status")).toHaveTextContent("Save failed (write); cleanup=retained"));expect(screen.getByRole("status")).toHaveTextContent(name);expect(screen.queryByRole("link")).toBeNull();expect(screen.getByRole("button")).not.toHaveAttribute("href");
+ });
+ it("href/name/binding/intent changes invalidate old completion without releasing in-flight admission",async()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
+  for(const change of ["href","name","binding","intent"]){
+   let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));const token={};
+   const view=render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={token}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button",{name:"Save"}));
+   if(change==="intent")fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));else view.rerender(<ControlledExportLink data-testid="result-export-link" href={change==="href"?href+"%20":href} download={change==="name"?"openpipestress-preview-results-run-500.json":name} nativeCurrentBinding={change==="binding"?{}:token}>Save</ControlledExportLink>);
+   expect(screen.getByRole("button")).toBeDisabled();const calls=vi.mocked(saveNativeResultJson).mock.calls.length;fireEvent.click(screen.getByRole("button"));expect(saveNativeResultJson).toHaveBeenCalledTimes(calls);
+   await act(async()=>{finish(receipt);});expect(screen.getByRole("status")).not.toHaveTextContent("Saved");view.unmount();
+  }
+ });
+ it("unmount suppresses completion and missing Current binding cannot invoke",async()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);let finish!:(value:typeof receipt)=>void;vi.mocked(saveNativeResultJson).mockImplementation(()=>new Promise(resolve=>{finish=resolve;}));
+  const view=render(<ControlledExportLink data-testid="result-export-link" href={href} download={name} nativeCurrentBinding={{}}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));fireEvent.click(screen.getByRole("button"));view.unmount();await act(async()=>{finish(receipt);});expect(screen.queryByRole("status")).toBeNull();
+  render(<ControlledExportLink data-testid="result-export-link" href={href} download={name}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(screen.getByRole("button")).toBeDisabled();
+ });
+ it("blocked/protected/rejected/quarantined/secret and intent-stripped native materialization never invoke",()=>{
+  vi.mocked(isNativeResultSaveRuntime).mockReturnValue(true);
+  for(const facts of [{privacy_classification:"protected_code_data",redistribution_status:"protected_suspected",review_status:"accepted"},{privacy_classification:"public_metadata",redistribution_status:"public_permissive",review_status:"rejected"},{privacy_classification:"public_metadata",redistribution_status:"public_permissive",review_status:"quarantined"},{privacy_classification:"secret_like_data",redistribution_status:"private_only",review_status:"accepted",secret_material_present:true},{local_private_intent:true}]){
+   const data={field_id:"blocked",field_class:"test",...facts,value:"INVENTED_SENSITIVE"};const view=render(<ControlledExportLink data-testid="result-export-link" href={`data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(data))}`} download={name} nativeCurrentBinding={{}}>Save</ControlledExportLink>);fireEvent.click(screen.getByTestId("result-export-link-local-private-intent"));expect(screen.getByRole("button")).toBeDisabled();fireEvent.click(screen.getByRole("button"));expect(saveNativeResultJson).not.toHaveBeenCalled();expect(screen.queryByRole("link")).toBeNull();view.unmount();
   }
  });
 });

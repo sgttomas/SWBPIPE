@@ -1,0 +1,21 @@
+{
+  "label": "SELF_CHECK_PRE_NATIVE_V1",
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913",
+  "argv": [
+    "/var/folders/96/1_3ww0012pv5ptwwsd1990yw0000gn/T/chirality-piping-preparation-20260907-h4k9dmnq/venv/bin/python",
+    "tools/practitioner_harness/harness.py",
+    "self-check"
+  ],
+  "head": "2635a93d58eab53443e88cd70ea4101cf2b02882",
+  "status_before": " M projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs\n M projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx\n M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.test.tsx\n M projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx\n?? projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts\n?? projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_EXPORT_RUNTIME_DIAGNOSIS_V2.md\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V3_PREPARATION/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/NATIVE_ASYNC_SAVE_REPAIR_V1/\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/NATIVE_RELEASE_V2.json\n?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V6.json\n",
+  "env": {
+    "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+    "CARGO_NET_OFFLINE": "true",
+    "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/root-integration-target",
+    "PLAYWRIGHT_WORKERS": "1",
+    "CI": "true",
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+    "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/Users/ryan/Library/Caches/ms-playwright/chromium_headless_shell-1223/chrome-headless-shell-mac-arm64/chrome-headless-shell"
+  },
+  "started_utc": "2026-09-14T06:44:27.923370+00:00"
+}

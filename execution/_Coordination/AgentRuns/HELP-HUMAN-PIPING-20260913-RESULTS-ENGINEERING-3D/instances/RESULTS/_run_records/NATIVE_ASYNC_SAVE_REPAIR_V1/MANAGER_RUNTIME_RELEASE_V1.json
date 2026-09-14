@@ -1,0 +1,68 @@
+{
+  "utc": "2026-09-14T06:40:39.826010+00:00",
+  "lease": "ROOT_LEASE_NATIVE_ASYNC_SAVE_FOCUSED_V1",
+  "status": "RELEASED_ALL_GRANTED_COMMANDS_CLOSED",
+  "writer": "same sole TASK results_writer",
+  "actual_commands": [
+    {
+      "id": "001",
+      "exit_code": 0,
+      "started_utc": "2026-09-14T06:39:18.330231+00:00",
+      "finished_utc": "2026-09-14T06:39:23.679713+00:00",
+      "result_sha256": "6c75b9b66f69a8b46d8f3165a83be0dfdc1308c18a33ecf2542d77231edd5a5b",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "db15c32922c54e6201d69700c086238a06a00fbe19dd966b9690991a77b5e526",
+          "bytes": 1064
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "23cd06486982a2fd7b2525fb426e3888756f71304da1701411fa45071cb5811a",
+          "bytes": 596
+        }
+      ]
+    },
+    {
+      "id": "002",
+      "exit_code": 0,
+      "started_utc": "2026-09-14T06:39:41.183425+00:00",
+      "finished_utc": "2026-09-14T06:39:46.249487+00:00",
+      "result_sha256": "8db831c8a720897b3a1de350e16b0dfc40837731602a0c78270ce97075764173",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "77c6b0a0dfd9bf8668013a509e25b93f739f80912e0c844b7106f9df90b3f75d",
+          "bytes": 5822
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "id": "003",
+      "exit_code": 0,
+      "started_utc": "2026-09-14T06:39:57.765562+00:00",
+      "finished_utc": "2026-09-14T06:40:03.973738+00:00",
+      "result_sha256": "de1521ff362e9948f81c1bdbf9cd4065bd06b191cdbeffe2ea26b5ab48793a40",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "19a4d131d87ec17b355a3acbf396720a176e1d079de0a26c3e0b7f0fc5f9bc95",
+          "bytes": 1398
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "ccb6bf354a0674eeb1e49df9a880a000b75240079fdb849282bb899d81eeb58c",
+          "bytes": 332
+        }
+      ]
+    }
+  ],
+  "expected_deliberate_panic": "Rust worker panic injected/caught by passing admission test; raw stderr retained",
+  "claims": "focused tests/build pass only; actual GUI native file delivery/stall resolution remains open",
+  "next_runtime": "none by manager/writer; root owns affected review/native/full sweep"
+}

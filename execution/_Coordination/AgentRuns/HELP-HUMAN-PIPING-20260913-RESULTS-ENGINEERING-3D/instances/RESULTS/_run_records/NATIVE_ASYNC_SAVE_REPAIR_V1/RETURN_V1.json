@@ -1,0 +1,358 @@
+{
+  "status": "PASS_BOUNDED_NATIVE_ASYNC_SAVE_IMPLEMENTATION",
+  "created_utc": "2026-09-14T06:41:20.223362+00:00",
+  "executor": "/root/results_implementation_manager/results_writer",
+  "parent": "/root/results_implementation_manager",
+  "configured_model": "gpt-5.6-sol",
+  "configured_effort": "high",
+  "Type2": "no delegation; instruction-asserted delegated-harness-native scope",
+  "accepted_upstream": [
+    {
+      "path": "TASK_WRITER_CONTINUATION_V1.md",
+      "sha256": "3071be8d4fe921a44c422477c3c2c0f09d8a74b529427a87b04d274a447e6c68",
+      "bytes": 9080
+    },
+    {
+      "path": "ACTUAL_DISPATCH_V1.json",
+      "sha256": "c53d00f4332dcbbfbea352012c10c661d1d55c68b8bb44ba896c269e868a2244",
+      "bytes": 750
+    },
+    {
+      "path": "MANAGER_PRE_EFFECT_SOURCE45_CHECK_V1.json",
+      "sha256": "d2771256d4a110a8f488da8ae8efb53c7e86a7bda20dd560b18e26407d87c182",
+      "bytes": 8781
+    },
+    {
+      "path": "MANAGER_FOCUSED_RUNTIME_START_V1.json",
+      "sha256": "903d1398a6a52ad2ec0840620a07c7de19c744ac164dfb818ffdd3fece48d744",
+      "bytes": 967
+    }
+  ],
+  "root_brief_and_diagnosis_origins": [
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/NATIVE_ASYNC_SAVE_REPAIR_V1.md",
+      "sha256": "733af9ec4f25fd7447459665bb999cc1686f038302917a9bc5f3e352404331c6"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_EXPORT_RUNTIME_DIAGNOSIS/DIAGNOSIS_V2.md",
+      "sha256": "8562ae00ea1f4c9c9b37cb1cd067e5b93dab65b48c35ce484eeeb9943d4d31f3"
+    },
+    {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/V2_RUNTIME/NATIVE_PROCESS_SAMPLE_V2.txt",
+      "sha256": "0ed15dfc391544638075abf2d15bbdaa0be0c9a0815afbc8282df703b12d3757"
+    }
+  ],
+  "derivative_package": true,
+  "authoritative_truth_substitute": false,
+  "source": [
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23",
+      "bytes": 274569,
+      "old_sha256": "4b396c72e0fbeff7408809576d4415079d6e1719b62bf2747bce668a53e3ded6"
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/native_result_download.rs",
+      "sha256": "749dd03a591d6360105c08c44587c50e3fcbd80af36603fa6de2a4c0f4f26cf1",
+      "bytes": 19811,
+      "old_sha256": "aa5bd74057439868f38b98c9bfced5919e282f09f422063c7ebde8569d9fa0f5"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "19d58e46a9243fd0d4e04a0e7443939a10faa0f90e8406bcf5508f0e70dbc0ad",
+      "bytes": 12346,
+      "old_sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f"
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "afd69e9d3479455cd8adcd59cd9083d4a0ff2611bdb2b904b88cc5cd260308d1",
+      "bytes": 18753,
+      "old_sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "1da429abbce5dcf250a7b82564bc60ab8fcae67c726fb831b932afdd7f22025c",
+      "bytes": 6632,
+      "old_sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "55e92399edd0829db06b4f8a8b86420824b1590327de1871bd24f7d5ff71c6d7",
+      "bytes": 6914,
+      "old_sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a"
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "sha256": "7c3495bf5d859e8ee045fac99d614bf427ef3988513cc0d5ba7706eb95593146",
+      "bytes": 5896,
+      "old_sha256": null
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "sha256": "f979dcd339251b60a7ad5400353592eca5c2239b05b9a486a92864c0f19e5fa2",
+      "bytes": 5148,
+      "old_sha256": null
+    }
+  ],
+  "cumulative_source_paths": 47,
+  "other39_exact_unchanged": true,
+  "source_audit": {
+    "path": "FINAL_SOURCE_FENCE_AUDIT_V1.json",
+    "sha256": "82ba5d55ba70ebe64d2b21417224ae4c25d2706fb8ed29699f8c86005d7ef656",
+    "bytes": 20709
+  },
+  "transfer_patch": {
+    "path": "source_delta_v1.patch",
+    "sha256": "23c5abb70670047620d4157a5c9cfa30be267c851a73e0b301f1f7ac2ef21ae2",
+    "bytes": 70748
+  },
+  "pre_effect_expectations": {
+    "path": "PRE_EFFECT_EXPECTATIONS_V1.json",
+    "sha256": "74f2180287d79867f6b0bff278c2de59669de859e4654cb8a068c95b6f286b81",
+    "bytes": 4864
+  },
+  "winning_source_command_freeze": {
+    "path": "SOURCE_AND_COMMAND_FREEZE_V2.json",
+    "sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+    "bytes": 28998
+  },
+  "runner": {
+    "path": "execute_frozen_command_v2.py",
+    "sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe",
+    "bytes": 1619
+  },
+  "attempts": [
+    {
+      "id": "001",
+      "argv": [
+        "/Users/ryan/.cargo/bin/cargo",
+        "test",
+        "--locked",
+        "--offline",
+        "--manifest-path",
+        "apps/desktop/src-tauri/Cargo.toml",
+        "--lib",
+        "native_result_download::tests",
+        "--",
+        "--nocapture"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+      "env": {
+        "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+        "npm_config_offline": "true",
+        "npm_config_update_notifier": "false"
+      },
+      "scope": "only bounded helper tests, native library compile, no GUI",
+      "started_utc": "2026-09-14T06:39:18.330231+00:00",
+      "source_freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+      "runner_sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe",
+      "exit_code": 0,
+      "finished_utc": "2026-09-14T06:39:23.679713+00:00",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "db15c32922c54e6201d69700c086238a06a00fbe19dd966b9690991a77b5e526",
+          "bytes": 1064
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "23cd06486982a2fd7b2525fb426e3888756f71304da1701411fa45071cb5811a",
+          "bytes": 596
+        }
+      ],
+      "receipt": {
+        "path": "attempt001/result.json",
+        "sha256": "6c75b9b66f69a8b46d8f3165a83be0dfdc1308c18a33ecf2542d77231edd5a5b",
+        "bytes": 2187
+      },
+      "status": "PASS",
+      "test_output_lines": [
+        "test native_result_download::tests::strict_prefix_percent_utf8_json_and_unsuffixed_names ... ok",
+        "test native_result_download::tests::admission_is_owned_until_actual_worker_guard_drops_even_if_requester_is_gone ... ok",
+        "test native_result_download::tests::contradictory_route_intent_evidence_and_unknown_fields_never_resolve_or_write ... ok",
+        "test native_result_download::tests::actual_create_new_race_retries_only_already_exists_and_checked_overflow_fails ... ok",
+        "test native_result_download::tests::downloads_errors_fail_without_fallback_and_platform_symlink_root_is_allowed ... ok",
+        "test native_result_download::tests::repeated_save_file_directory_and_symlink_collisions_preserve_existing_entries ... ok",
+        "test native_result_download::tests::partial_write_flush_and_cleanup_failures_preserve_primary_error_and_owned_cleanup_status ... ok",
+        "test native_result_download::tests::actual_files_preserve_exact_escaped_unicode_numbers_and_multi_megabyte_bytes ... ok",
+        "test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 80 filtered out; finished in 0.36s"
+      ]
+    },
+    {
+      "id": "002",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/node/24/bin/node",
+        "../../node_modules/vitest/vitest.mjs",
+        "run",
+        "src/features/redaction-controls/ControlledExportLink.test.tsx",
+        "src/features/result-export/ResultExportPanel.test.tsx",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "src/features/result-export/nativeResultSave.test.ts",
+        "--reporter",
+        "verbose"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/apps/desktop",
+      "env": {
+        "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+        "npm_config_offline": "true",
+        "npm_config_update_notifier": "false"
+      },
+      "scope": "only four named Vitest suites; no browser",
+      "started_utc": "2026-09-14T06:39:41.183425+00:00",
+      "source_freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+      "runner_sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe",
+      "exit_code": 0,
+      "finished_utc": "2026-09-14T06:39:46.249487+00:00",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "77c6b0a0dfd9bf8668013a509e25b93f739f80912e0c844b7106f9df90b3f75d",
+          "bytes": 5822
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "bytes": 0
+        }
+      ],
+      "receipt": {
+        "path": "attempt002/result.json",
+        "sha256": "8db831c8a720897b3a1de350e16b0dfc40837731602a0c78270ce97075764173",
+        "bytes": 2360
+      },
+      "status": "PASS",
+      "test_output_lines": [
+        " \u2713 src/features/result-export/nativeResultSave.test.ts > private native result service > forwards the original screened request/href unchanged and accepts only typed completion 2ms",
+        " \u2713 src/features/result-export/nativeResultSave.test.ts > private native result service > does not invoke outside native runtime 1ms",
+        " \u2713 src/features/result-export/nativeResultSave.test.ts > private native result service > rejects missing, forged and contradictory success receipts 1ms",
+        " \u2713 src/features/result-export/nativeResultSave.test.ts > private native result service > denied contradictory request evidence and path injection never invoke 1ms",
+        " \u2713 src/features/result-export/nativeResultSave.test.ts > private native result service > keeps native primary error and cleanup status without echoing payload 0ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > uses fixed route contexts 1ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > ignores source intent and requires wrapper-owned intent for known private values 22ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > binds the native package to downstream-tool control without local-private fallback 2ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > requires the Parser CSV link's own intent and exposes no side effect before it 27ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > ControlledExportLink > renders sanitized per-item evidence before allowed and blocked exposure controls 5ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > requires its own intent then exposes original serialized bytes with local unknown/private warnings 3ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > blocks route-intent stripping from unknown raw annotations despite lossless policy materialization 2ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > canonical local result link > source intent cannot grant access and policy-blocked protected/rejected/quarantined/secret facts remain blocked 4ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > native has no href/download/anchor handlers and synchronous busy blocks duplicate activation 12ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > rejected IPC is an error with conservative partial status and never an HTML fallback 10ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > href/name/binding/intent changes invalidate old completion without releasing in-flight admission 21ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > unmount suppresses completion and missing Current binding cannot invoke 6ms",
+        " \u2713 src/features/redaction-controls/ControlledExportLink.test.tsx > native canonical save control > blocked/protected/rejected/quarantined/secret and intent-stripped native materialization never invoke 11ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > binds current payload/carrier and preserves old hashes and observed declarations 478ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > dimension-absent received carrier remains distinct from authentic producer 346ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions 127ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects checksum scope/type/algorithm/canonicalization/ref tampering 211ms",
+        " \u2713 src/features/result-export/ResultExportPanel.test.tsx > only makes Current proof-bound JSON downloadable and invalidates it on same-id edit 1463ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > all60 semantic expectations and all28 exact annotations agree before any origin claim 46ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > canonical authority orders numeric-looking/Unicode keys and normalizes negative zero 0ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unsupported, hidden, sparse, extra, unsafe, malformed and cyclic JSON 0ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > portable independent projection fixtures and strict serializer > rejects unknown/mixed versions preserving0.1 versus0.2 reader dispatch 0ms",
+        " \u2713 src/features/result-export/resultExportAdapter.test.ts > rejects ghost references, orphan witnesses and semantic tampering despite recomputed derivative digest 1463ms",
+        " \u2713 src/features/result-export/ResultExportPanel.test.tsx > native caller retains actual Current proof and exact browser serialized href, then suppresses stale edit completion 1397ms",
+        " \u2713 src/features/result-export/ResultExportPanel.test.tsx > Historical or absent Current manifest cannot expose native caller and invalidates an admitted pending completion 1173ms",
+        " Test Files  4 passed (4)",
+        "      Tests  30 passed (30)"
+      ]
+    },
+    {
+      "id": "003",
+      "argv": [
+        "/Users/ryan/.local/share/mise/installs/node/24/bin/npm",
+        "run",
+        "build:desktop"
+      ],
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping",
+      "env": {
+        "PATH": "/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/System/Cryptexes/App/usr/bin:/usr/bin:/bin:/usr/sbin:/sbin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/appleinternal/bin:/pkg/env/global/bin:/Library/Apple/usr/bin:/Users/ryan/.codex/tmp/arg0/codex-arg0pi93ey:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/override:/Users/ryan/.local/share/mise/installs/node/24/bin:/Users/ryan/.local/share/mise/installs/python/3.13/bin:/Users/ryan/.cargo/bin:/Users/ryan/.local/bin:/Users/ryan/.cache/codex-runtimes/codex-primary-runtime/dependencies/bin/fallback:/Applications/ChatGPT.app/Contents/Resources",
+        "CARGO_NET_OFFLINE": "true",
+        "CARGO_TARGET_DIR": "/tmp/chirality-results-engineering-3d-20260913/results-native-download-repair-target",
+        "npm_config_offline": "true",
+        "npm_config_update_notifier": "false"
+      },
+      "scope": "existing desktop TypeScript/Vite production build only; no WASM build/native app",
+      "started_utc": "2026-09-14T06:39:57.765562+00:00",
+      "source_freeze_sha256": "fd12aa5e1b4d58066d0dfadf0309f6bd8b6cf481dfb457dfd9f4a6115b1c587b",
+      "runner_sha256": "bdcac6fcfb4278d67118c82cb74d09107cedc10b7b9b46ef82fa9283c71853fe",
+      "exit_code": 0,
+      "finished_utc": "2026-09-14T06:40:03.973738+00:00",
+      "outputs": [
+        {
+          "path": "stdout.txt",
+          "sha256": "19a4d131d87ec17b355a3acbf396720a176e1d079de0a26c3e0b7f0fc5f9bc95",
+          "bytes": 1398
+        },
+        {
+          "path": "stderr.txt",
+          "sha256": "ccb6bf354a0674eeb1e49df9a880a000b75240079fdb849282bb899d81eeb58c",
+          "bytes": 332
+        }
+      ],
+      "receipt": {
+        "path": "attempt003/result.json",
+        "sha256": "de1521ff362e9948f81c1bdbf9cd4065bd06b191cdbeffe2ea26b5ab48793a40",
+        "bytes": 2080
+      },
+      "status": "PASS",
+      "test_output_lines": [
+        "\u2713 1704 modules transformed.",
+        "\u2713 built in 1.78s"
+      ]
+    }
+  ],
+  "versions": {
+    "path": "version_results_v1.json",
+    "sha256": "02afb1804e7a0cde837f0453e64b7a94b1da7c221741899e6f7f19afb37d5c22",
+    "bytes": 5749
+  },
+  "generated_outputs": {
+    "path": "GENERATED_DESKTOP_BUILD_OUTPUTS_V1.json",
+    "sha256": "f06b70d22799df9f662c21331a21635841872291127dfd34821676678849a1dc",
+    "bytes": 6663
+  },
+  "runtime_release": {
+    "path": "RUNTIME_RELEASE_V1.json",
+    "sha256": "d619be63e68157170e128e7cd773ada20b7000f321f54dc4eeebb9a8720c731e",
+    "bytes": 326
+  },
+  "implementation": [
+    "private save_local_result_json command: request/evidence unknown fields rejected, route/intent/local-first consistency checked, original href strictly decoded once and UTF8/JSON syntax checked without rebuilding",
+    "platform Downloads existing absolute directory and canonical parent checks; generated safe basename/collision suffix; create_new/AlreadyExists-only retries; exact decoded bytes write_all/flush before saved receipt",
+    "partial write/flush stays typed failure; Unix created-file identity best-effort cleanup preserves primary stage/code and reports removed/retained/failed; worker failure reports unknown cleanup; no payload echo",
+    "one managed synchronous admission owns RAII guard inside actual blocking worker until completion/drop; busy denies without queue; command/UI cancellation does not release worker guard",
+    "native canonical qualified route is button with no href/download/anchor handlers or fallback; browser original anchor and unrelated routes unchanged",
+    "strict private service DTO admission and same-request-basename/collision receipt qualification; original screened request string forwarded unchanged",
+    "retained Current binding token + href/name/owned intent/generation invalidates visible stale completion; synchronous UI in-flight guard stays held until actual promise settlement; pending/saved/error/partial cleanup disclosed",
+    "original automatic configured window bootstrap restored; old unused WKDownload hook/manual-window policy entirely removed"
+  ],
+  "qualification": {
+    "native": "8 PASS/80filtered; actual portable temp-file exact bytes including >2MB, repeated/collision file/dir/dangling/race/overflow, resolver/containment/open/partialwrite/flush/ownedcleanup, admission and caught worker panic",
+    "desktop": "30 PASS/four named files; native no-link/handlers/busy/stale/unmount/privacy, DTO/receipt/IPC, actual Current proof/browser original href/native request parity, edit/manifest exclusion; unchanged shared adapter regressions",
+    "build": "existing pinned npm run build:desktop PASS, TypeScript and Vite; chunk-size warning retained",
+    "failed_attempts": "none; expected injected worker-thread panic logged/caught with suitePASS",
+    "evidence_only_freeze_correction": "V2 corrected static count regex that had included split( substring; no source/command change; actual selected counts8/30 govern"
+  },
+  "limits": [
+    "frontend route evidence is defense in depth, not independent caller authentication",
+    "create_new prevents final overwrite/following existing entry; canonical checks/owned cleanup only non-adversarial best effort, no hostile-race guarantee",
+    "write_all/flush saved receipt does not guarantee durability",
+    "native helper actual temporary files and UI mocked command receipt do not establish actual GUI native result delivery",
+    "no original native V1/V2 failure reclassified; V2 sample locates WebKit sandbox-extension stall, OS cause remains unproven; no actual hang repaired claim",
+    "no schema/model/units/physics/binder/public transport/persistence/config/dependency/lock changes or readiness promotion"
+  ],
+  "closure_verdict": "BOUNDED_WRITER_IMPLEMENTATION_AND_FOCUS_CLOSED_PENDING_ROOT_REVIEW_NATIVE_AND_FULL_QUALIFICATION",
+  "rerun_requirements": "independent full8-path/source47 review, root integrate/clean commit, actual native350/repeat350/500 exact file bytes/lifecycle first, then mandatory full registered final-source DEC025 against same source; source changes revisit affected evidence",
+  "remaining_root_owned": [
+    "complete independent affected-source review/integration/clean committed candidate",
+    "isolated native build/selftest/actual button350/repeat350 collision/500 files with source-schema-row-unit-hash parity/responsiveness/normalquit/reopen",
+    "mandatory complete final-source registered DEC025 after native processes close",
+    "final audit/practitioner/governance/selfcheck/actual-headCI/PR/authorizedmerge"
+  ],
+  "runtime_released": true,
+  "writer_idle": true
+}
