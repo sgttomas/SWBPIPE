@@ -1,0 +1,138 @@
+{
+  "status": "READ_ONLY_PREPARATION_NOT_IMPLEMENTED_NOT_EXECUTED",
+  "integration_basis_reported_by_root": "0306db0b481def374ebfdddea3e0f92f0ea8a626",
+  "fence": [
+    "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts"
+  ],
+  "confirmed_contradictions": [
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 631,
+      "test_or_helper": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "assertion": "expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"33\");",
+      "semantic_or_policy_related": true,
+      "disposition": "reviewed complete result/report/export block; preserve except four confirmed contradictions",
+      "confirmed_contradiction": {
+        "old": "\"33\"",
+        "replacement": "\"29\"",
+        "basis": "frozen exact source physical family classification: 29 reactions, four review deltas belong to other"
+      }
+    },
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 633,
+      "test_or_helper": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "assertion": "expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"33 of 830 results match filter\");",
+      "semantic_or_policy_related": true,
+      "disposition": "reviewed complete result/report/export block; preserve except four confirmed contradictions",
+      "confirmed_contradiction": {
+        "old": "\"33 of 830 results match filter\"",
+        "replacement": "\"29 of 830 results match filter\"",
+        "basis": "frozen exact source physical family classification: 29 reactions, four review deltas belong to other"
+      }
+    },
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 634,
+      "test_or_helper": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "assertion": "expect(page.getByTestId(\"result-page-summary\")).toContainText(\n    \"Showing 1 to 33 of 33 matching results; page 1 of 1\"\n  );",
+      "semantic_or_policy_related": true,
+      "disposition": "reviewed complete result/report/export block; preserve except four confirmed contradictions",
+      "confirmed_contradiction": {
+        "old": "\"Showing 1 to 33 of 33 matching results; page 1 of 1\"",
+        "replacement": "\"Showing 1 to 29 of 29 matching results; page 1 of 1\"",
+        "basis": "frozen exact source physical family classification: 29 reactions, four review deltas belong to other"
+      }
+    },
+    {
+      "file": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+      "line": 729,
+      "test_or_helper": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+      "assertion": "expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=830\");",
+      "semantic_or_policy_related": true,
+      "disposition": "reviewed complete result/report/export block; preserve except four confirmed contradictions",
+      "confirmed_contradiction": {
+        "old": "\"count=830\"",
+        "replacement": "\"count=828\"",
+        "basis": "two exact diagnostic_work rows are retained but legacy moment declaration is incompatible with semantic TBD"
+      }
+    }
+  ],
+  "bounded_delta": "Exactly four stale literal corrections. No added, deleted, weakened or otherwise altered assertions; all other source/stress policy assertions preserved.",
+  "family_counts": {
+    "other": 52,
+    "reaction": 29,
+    "displacement": 66,
+    "rotation": 45,
+    "force": 180,
+    "moment": 180,
+    "stress": 278
+  },
+  "all_rows": 830,
+  "pipe_P_120_text_filter": 170,
+  "reaction_page": "Showing 1 to 29 of 29 matching results; page 1 of 1",
+  "stress_neutral": {
+    "rows_retained": 830,
+    "witnesses": 828,
+    "validation": "blocked",
+    "withheld_rows": [
+      {
+        "id": "result:nonlinear-support:free-dof-work-residual",
+        "kind": "nonlinear_support_free_dof_work_residual",
+        "unit": "N*m",
+        "component": "free_dof_work_residual",
+        "signature_id": "supported-source-028",
+        "category": "diagnostic_work",
+        "physical_family": "other",
+        "canonical_disposition": "disclosed",
+        "source_physical_semantic_dimension": null,
+        "derivative_target_dimension": null,
+        "received_dimension": "moment",
+        "stress_neutral_dimension": "TBD",
+        "stress_neutral_witness_eligible": false,
+        "received_reference_witness_eligible": true
+      },
+      {
+        "id": "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual",
+        "kind": "nonlinear_support_free_dof_work_residual",
+        "unit": "N*m",
+        "component": "free_dof_work_residual",
+        "signature_id": "supported-source-028",
+        "category": "diagnostic_work",
+        "physical_family": "other",
+        "canonical_disposition": "disclosed",
+        "source_physical_semantic_dimension": null,
+        "derivative_target_dimension": null,
+        "received_dimension": "moment",
+        "stress_neutral_dimension": "TBD",
+        "stress_neutral_witness_eligible": false,
+        "received_reference_witness_eligible": true
+      }
+    ],
+    "existing_JSON_redaction_policy": "unchanged",
+    "existing_CSV_href_policy": "unchanged"
+  },
+  "preserved": {
+    "headless_received_declaration_witnesses": 830,
+    "handoff_received_declaration_witnesses": 830,
+    "native_package_result_quantity_witnesses": 832,
+    "native_explanation": "830 exact value/unit rows plus two actual summary quantities, not canonical physical quantities",
+    "source_unit_lists": "MPa,N,N*m,mm,rad unchanged; diagnostic N*m retained without energy-unit expansion",
+    "report_lint_targets": 44,
+    "report_lint_conversion_witness_targets": 2,
+    "PCF_conversion_witnesses": 23,
+    "CAEPIPE_MBF_conversion_witnesses": 15,
+    "external_harness_witnesses": 3,
+    "review_geometry_witnesses": 75,
+    "native_project_unit_declarations": 6,
+    "native_model_quantity_witnesses": 50,
+    "adapter_framework_witnesses": 1,
+    "adapter_SDK_witnesses": 5,
+    "authored_units_and_rule_library_dimensions": "unchanged; authored quantities and private rule AST are not new product result meaning",
+    "privacy": "Every current redacted payload assertion, absent protected report DOM, explicit private intent, browser desktop-only seam and no-conversion safeguard retained verbatim"
+  },
+  "not_added": "No canonical encoding, model, solver policy, headless/handoff/API feature or readiness promotion; no dated AgentRuns dependency in proposed maintained test.",
+  "static_product_defect_found": null,
+  "qualification_limits": "Earlier qualified fixture is declaration compatibility evidence, not actual fresh browser carrier or byte identity. Default source physical families independently agree in maintained raw fixture. Actual first Chromium failure separately confirms reaction expected33/actual29; remaining full sweep output still awaited; no E2E pass claimed.",
+  "next_execution": "Wait actual root DEC025_V3 return, sealed one-file writer extension and exclusive runtime grant; then existing sole TASK writer may apply and run exact root-approved focused E2E only."
+}

@@ -1,0 +1,274 @@
+{
+  "status": "EXACT_AUTHORIZED_SOURCE_DELTA_VERIFIED_RUNTIME_PENDING",
+  "accepted42": [
+    {
+      "path": "core/reporting/result_export/Cargo.toml",
+      "sha256": "1fcbed32019b21118382bb935fc8ae61fc876b1ee28063f9fcf36a05d6da9bd4",
+      "unchanged": true
+    },
+    {
+      "path": "core/reporting/result_export/src/derivative.rs",
+      "sha256": "b261a0e68bf0a938287dad029b9daf2c63fd2e8d69276b0b52aef0e9c290ff57",
+      "unchanged": true
+    },
+    {
+      "path": "core/reporting/result_export/src/lib.rs",
+      "sha256": "853b7daf1af0c23c893ffe30a44e799344c2e1a71d9f04bc9b91fcc2c00664b2",
+      "unchanged": true
+    },
+    {
+      "path": "core/reporting/result_export/src/semantic_contract.rs",
+      "sha256": "865b82d0d465b3e33965d371e4fd0a8904fca01f10bc3953c3504dd4f8d901e7",
+      "unchanged": true
+    },
+    {
+      "path": "core/reporting/result_export/tests/derivative_contract.rs",
+      "sha256": "2ff8c8ac03b429a9209c08cf6dcc886526228c6a0752cb2256c501787d84af1c",
+      "unchanged": true
+    },
+    {
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee",
+      "unchanged": true
+    },
+    {
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2",
+      "unchanged": true
+    },
+    {
+      "path": "core/runner/headless/src/result_envelope_binding.rs",
+      "sha256": "6d741832aabe729a40cc9e28aaa9ce8627d5bba4f9ca903c3059438dc0dd7042",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.test.tsx",
+      "sha256": "7c7dca7b537bec06fb3578f035b8dda23cfe57ef59a1d327c4ebb11dc9bb55ec",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/handoff/HandoffPanel.tsx",
+      "sha256": "4ddc2b6d251668db132c4e82d343176289f931b5b5aea2111df3a7e14c9cd9d4",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.test.tsx",
+      "sha256": "2836956026ffae46b7ac56044b865c3cbcf97e754b32e159560d8cc8fa4e6246",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/headless-runner/HeadlessRunnerPanel.tsx",
+      "sha256": "6af26ef4b505aae85a519a1db54d808b6bce94d9c9946fc8bc711c94fcfb753f",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "sha256": "6979f7cb892cffa3708601f295333dbe14a8f476ebbdc14856464a8beee0b755",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "sha256": "b1910ba30091846f445c16dcac6a5769921b8834f1343f4b90f1a92866ce859f",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/report/reportPackageRequest.ts",
+      "sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.test.tsx",
+      "sha256": "fc7bc77c5f44a228751ec3727634e65bc1381aaf4b28ff138b0fdb102032176a",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/ResultExportPanel.tsx",
+      "sha256": "65047f0d31518644328b083880a34efe4ce2a004a05646a182144aa7bafb9078",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.test.tsx",
+      "sha256": "b4461511113772805aa23db6bc5068aa1d238641b79552022b3174804d0b49c1",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/ResultsPanel.tsx",
+      "sha256": "b02dfad09e1a7ffe52e2dd3adf3ec9d3b3066903a5a1eec9a16de52b7e1d3352",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultInterpretation.ts",
+      "sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.test.ts",
+      "sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/results/resultSemantics.ts",
+      "sha256": "919db707aa002a9464258fcc63f5129d3d356fad85c7570bd67067f967021d1f",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "unchanged": true
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2.json",
+      "sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2",
+      "unchanged": true
+    },
+    {
+      "path": "fixtures/results/invented/result_export_v0_2_rejections.json",
+      "sha256": "3966e319dc0c5d1f0ca75093a2f9f8c20bd23ca053290a6deeb55ad691df6ecb",
+      "unchanged": true
+    },
+    {
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+      "unchanged": true
+    },
+    {
+      "path": "schemas/results.schema.yaml",
+      "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01",
+      "unchanged": true
+    },
+    {
+      "path": "schemas/results.v0.1.schema.yaml",
+      "sha256": "a79c4c1425bd96d5fb96c4a92a64bbcfc1c040a12762c53029d6cc7d4145c1a0",
+      "unchanged": true
+    },
+    {
+      "path": "schemas/results.v0.2.schema.yaml",
+      "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_result_export_v0_2.py",
+      "sha256": "dd4d2bbf9de28bf099ea589ae4dc54c641a19dc48f3b8a1887e071da26efe89c",
+      "unchanged": true
+    },
+    {
+      "path": "tests/test_results_schema.py",
+      "sha256": "b42e2cec2f07736c3d2e2732e6b794e68075b72150ed6a4541f139ee54f993ae",
+      "unchanged": true
+    },
+    {
+      "path": "core/reporting/report_package/Cargo.lock",
+      "sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "unchanged": true
+    },
+    {
+      "path": "validation/benchmarks/mechanics/Cargo.lock",
+      "sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "unchanged": true
+    },
+    {
+      "path": "validation/benchmarks/stress/Cargo.lock",
+      "sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/features/display-units/rendererIntegration.test.tsx",
+      "sha256": "6f11925d91634d9acabca672dcb086501aa7c10608a65cc70f36dfb19a053cda",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src/App.test.tsx",
+      "sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/src-tauri/Cargo.lock",
+      "sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "unchanged": true
+    }
+  ],
+  "other6_e2e": [
+    {
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/e2e/linear-authoring.spec.ts",
+      "sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/e2e/report-package-dist.spec.ts",
+      "sha256": "9756610e047201bc5b68165c23eea1076d4b7f478362e7377a6cfe9c5b7f9217",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/e2e/toolkit-batch-dist.spec.ts",
+      "sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/e2e/wasm-engine-dist.spec.ts",
+      "sha256": "94b3477e83d958d0763f0d7ffed3101bc80a9d93dda05e2b0bd5d54a7a9fa4ec",
+      "unchanged": true
+    },
+    {
+      "path": "apps/desktop/e2e/workspace-layout.spec.ts",
+      "sha256": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2",
+      "unchanged": true
+    }
+  ],
+  "r2_original_sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711",
+  "r2_new_sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+  "matches_frozen_proposed_bytes": true,
+  "source_changes": [
+    {
+      "line": 631,
+      "old": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"33\");",
+      "new": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"29\");"
+    },
+    {
+      "line": 633,
+      "old": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"33 of 830 results match filter\");",
+      "new": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"29 of 830 results match filter\");"
+    },
+    {
+      "line": 635,
+      "old": "    \"Showing 1 to 33 of 33 matching results; page 1 of 1\"",
+      "new": "    \"Showing 1 to 29 of 29 matching results; page 1 of 1\""
+    },
+    {
+      "line": 729,
+      "old": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=830\");",
+      "new": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=828\");"
+    }
+  ],
+  "actual_unchanged_expect_statement_count": 733,
+  "test_runtime_verdict": "not established by this read-only static check"
+}

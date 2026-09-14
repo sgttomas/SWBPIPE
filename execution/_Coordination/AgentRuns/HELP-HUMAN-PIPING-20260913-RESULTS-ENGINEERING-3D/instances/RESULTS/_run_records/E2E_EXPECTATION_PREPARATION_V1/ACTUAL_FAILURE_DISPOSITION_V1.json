@@ -1,0 +1,12 @@
+{
+  "origin_path": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/apps/desktop/test-results/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+  "sha256": "8cf41776d1341ac5f1da095dccd324caa271f8e728b0f69988b2a892d2dacc83",
+  "surface": "chromium-desktop",
+  "test": "R2 desktop preview smoke covers solve, results, report, and viewport overlay",
+  "assertion_line": 631,
+  "expected_old": "33",
+  "actual": "29",
+  "verdict": "actual browser failure agrees with independent frozen source oracle",
+  "not_observed_yet": "Later stress-neutral 828 expectation is source-derived preparation, not a claim that failed browser reached that assertion.",
+  "full_sweep_status": "still running when parent relayed this first failure; no runtime release"
+}

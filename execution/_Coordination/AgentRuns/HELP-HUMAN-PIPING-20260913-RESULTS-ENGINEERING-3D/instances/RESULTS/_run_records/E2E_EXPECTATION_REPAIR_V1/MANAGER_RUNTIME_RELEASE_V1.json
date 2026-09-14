@@ -1,0 +1,17 @@
+{
+  "lease": "ROOT_LEASE_E2E_EXPECTATION_REPAIR_01",
+  "status": "RELEASED",
+  "utc": "2026-09-14T04:48:21.863025+00:00",
+  "child_report": "No executor active; no further runtime planned",
+  "actual_reported_results": {
+    "offline_WASM006_exit": 0,
+    "focused007_exit": 1,
+    "focused007_scope": "No tests found; no browser test selected",
+    "focused008_exit": 0,
+    "focused008_passed": 2,
+    "desktop_seconds": 33.3,
+    "compact_seconds": 30.6
+  },
+  "root_notified": true,
+  "qualification": "Reported actual child completion; manager artifact hash/evidence verification follows without runtime."
+}

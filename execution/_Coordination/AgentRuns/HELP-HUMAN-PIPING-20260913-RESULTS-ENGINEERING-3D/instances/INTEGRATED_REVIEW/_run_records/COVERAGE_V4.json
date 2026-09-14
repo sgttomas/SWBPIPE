@@ -1,0 +1,249 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "derivative_package": true,
+  "review_basis": "0306db0b481def374ebfdddea3e0f92f0ea8a626",
+  "inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/INTEGRATED_REVIEW_V4.md",
+      "sha256": "00e86d1e910819cc8476fe8b8137b83d33554e802952a59536bd3e35a8f5ac02",
+      "bytes": 2573
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/briefs/E2E_EXPECTATION_REPAIR_V1.md",
+      "sha256": "f04e0c8930f2157c6fb7a53352a3d83f7840f8228b2b271a9dc01a9b39e17491",
+      "bytes": 2794
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_INTEGRATION_V4.json",
+      "sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+      "bytes": 19920
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/E2E_REPAIR_IMPORT_BINDING_V1.json",
+      "sha256": "ab173b09dfe6d62bc4da39c7569c11adf2d1c97a9536bb9449c79611d39fc4b6",
+      "bytes": 37583
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_PREPARATION_V1/MANIFEST.json",
+      "sha256": "6b98e7d5dd47ee11986e5f08f3d3b50b2b70021e024b3d13b685ce36b71ad471",
+      "bytes": 3293
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_REPAIR_V1/MANIFEST.json",
+      "sha256": "0aba49a3d61dd24252885bf2522cd40b68dc3745c7a9cc3b87c8a74ad15cde75",
+      "bytes": 10359
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_REPAIR_V1/MANAGER_FINAL_BACKCHECK_V1.json",
+      "sha256": "c74893ea75b9516c544de9afe30311e726071d37b5d223ca76b1adf2667a07df",
+      "bytes": 4839
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_REPAIR_V1/MANAGER_FINAL_FAN_IN_V1.json",
+      "sha256": "7ba792f8fe6b6dbb0fde80f4e8463e7d3c336099d459e3f5b2536d89f9b08e21",
+      "bytes": 1170
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V3/RETURN.json",
+      "sha256": "2ecb1d533ca8fe7837ca1a223eec167ceae070e427be08a991b78d4374735602",
+      "bytes": 912
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V3_BROWSER_TRACE_DISPOSITION_V1.json",
+      "sha256": "cad13f5873b377efd2123a492d22c885ca9f5c30cf5cef988fe94fe72daadbe7",
+      "bytes": 1993
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/E2E_REPAIR_RELEASE_V1.json",
+      "sha256": "ce283a6f9d98ee86c6a1ce101521e5036ac76ec1760e95030676024e6ee1cec6",
+      "bytes": 2364
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/RECEIPT_PRECOMMIT_V4/RETURN.json",
+      "sha256": "3142c26e813e6640ce773ccd262f2078eb43ede9117bd1b5d50e02438f019787",
+      "bytes": 1881
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SELF_CHECK_PRE_SWEEP_V3/RETURN.json",
+      "sha256": "a883a1c4e5f281cc94f43f064aae48b36b5a769283a1d8533bdebb433761bf08",
+      "bytes": 4610
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/SOURCE_ACCEPTANCE_V3.json",
+      "sha256": "65ce368f373780177f6852ea5b43b4efb64c06de21f1a4d07623297e59c337c5",
+      "bytes": 1935
+    }
+  ],
+  "source43_verified": true,
+  "previous42_unchanged": true,
+  "changed_source": {
+    "path": "projects/chirality-piping/apps/desktop/e2e/r2-smoke.spec.ts",
+    "sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+    "bytes": 103809
+  },
+  "exact_four_literal_changes": [
+    {
+      "line": 631,
+      "before": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"33\");",
+      "after": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"29\");"
+    },
+    {
+      "line": 633,
+      "before": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"33 of 830 results match filter\");",
+      "after": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"29 of 830 results match filter\");"
+    },
+    {
+      "line": 635,
+      "before": "    \"Showing 1 to 33 of 33 matching results; page 1 of 1\"",
+      "after": "    \"Showing 1 to 29 of 29 matching results; page 1 of 1\""
+    },
+    {
+      "line": 729,
+      "before": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=830\");",
+      "after": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=828\");"
+    }
+  ],
+  "proposal_patch_sha256": "68c59b3d3b38ccc736c317407e8bd35459ddb02647a96db5491f222975aaf149",
+  "e2e_inventory": {
+    "files": 7,
+    "assertions": 733,
+    "semantic_policy_assertions": 358,
+    "all_733_statements_verified_against_snapshots": true,
+    "other6_current_files_unchanged": true,
+    "all_assertion_counts_retained": true,
+    "manual_review": "Every changed line and surrounding source block; unchanged assertions are hash-bound to complete lexical inventory, not claimed newly manually re-reviewed individually."
+  },
+  "source_oracles": {
+    "rows_independently_checked": 1660,
+    "scope": "830 maintained raw plus 830 earlier qualified fixture rows; not fresh App/browser captures",
+    "reaction": 29,
+    "total": 830,
+    "stress_witnesses": 828,
+    "withheld": "Two diagnostic_work nonlinear_support_free_dof_work_residual rows, N*m/legacy moment versus semantic TBD; physical/target dimension unavailable",
+    "preserved_reference_scopes": "Headless/handoff 830 received declarations; native 832 includes two existing summaries; pipe filter170. No physical reclassification or numerical source edit."
+  },
+  "physical_binding": {
+    "imports": 60,
+    "bytes": 448778,
+    "all_origin_and_published_hashes_lengths_verified": true,
+    "manifest_entries": 57,
+    "additive_manager_records": 2,
+    "manifest_separate": 1,
+    "no_missing_or_undeclared_files": true
+  },
+  "commands": [
+    {
+      "attempt": "001-node",
+      "command_sha256": "e6534be6926deb5d17baf1f5b44eb93a3a00b8d43d1aac7e37936e20ba4c62c5",
+      "result_sha256": "b5afc85bfba10cee2b7959a0c53a466a58fb422cbed362725cefdc79f3899998",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "002-cargo",
+      "command_sha256": "c144f839dfce6cae982c4a4abf91331349f23a35fc73dcd8b96740a3de03b6a3",
+      "result_sha256": "2e45b856be2b66a579427cbffeb9623827e4be69c15fb17c2c1306a7b622e8a3",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "003-rustc",
+      "command_sha256": "9cb1e33c46ec6c753747ebe5a8f29a615912feb0b34db8a52d9fa22e1fd95a34",
+      "result_sha256": "2a6b6533c3e39d02e2ad78a500f44f77c3899e253db9bf93d9f98f241bf9540a",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "004-bindgen",
+      "command_sha256": "691dd89c12f0657f653afecb2f4c34f1c2ed6592b4d172adcbf556fb2a2ac9e7",
+      "result_sha256": "34ba5940ca0609768f12552930eb56bdac8f9b8732d961eb397a65cb9dabda78",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "005-playwright",
+      "command_sha256": "454c9ca0726ef9f3dd5ce82845b70c59a261bf6ca49ccb4dbb6ab46107ef2591",
+      "result_sha256": "f72cf2b19173334dd895c53cb1aa694b4d601e51cb26ff9465310823686d55cb",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "006-offline-wasm",
+      "command_sha256": "4e2ede099a0cb95b66d388651cf0ae537c0462bf19d47d2bf206d9a2b2b02f44",
+      "result_sha256": "b2688febaa594c04afe2107d5bbfad6127fa124fbc81a3ef7f7b977238f2fadb",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "007-r2-both-viewports",
+      "command_sha256": "43ddd829b93b44e26be24791d063b90dd26af99d1232d7515951fe8939fa946a",
+      "result_sha256": "9ff555d77aee68ffe758d9ad0f3bef03e00a1f6ebaac3c83d11d987aab2db539",
+      "exit_code": 1,
+      "source_config_input_hashes_verified": 64
+    },
+    {
+      "attempt": "008-r2-both-viewports",
+      "command_sha256": "59eae13731ef9de27a85475b9ee993c01ba9caf3fb6da2747ebb808d5077a702",
+      "result_sha256": "1d3b748fc1d3b8e2838f4897856cba82034db81a66f13a965a45e69363c5b0c4",
+      "exit_code": 0,
+      "source_config_input_hashes_verified": 64
+    }
+  ],
+  "focused_008": "Two full existing R2 journeys passed, chromium-desktop33.3s/chromium-compact30.6s, one worker; offline006WASM passed. Exact current source bytes in prepared command hashes.",
+  "selection_failure_007": "Actual exit1/no tests selected; no browser assertions executed. Only grep anchors and fresh output path changed for008; source and full accepted assertion contract unchanged.",
+  "generated_asset_limit": "Eight hashes checked against writer assets; sampled after008 dispatch, emission mtimes before launch. No prelaunch generated-hash claim; external compiled scratch is separate.",
+  "full_failed_sweep": "DEC025_V3 actual exit1 on clean0306: Rust38, Python1014, desktop869 pass; source browser28pass/2fail reaction33expected/29actual. Distribution and production not_run. Focused pass does not replace full sweep.",
+  "trace_nonpublication": {
+    "files": 2,
+    "bytes": 176282525,
+    "all_hashes_lengths_verified": true,
+    "historical_paths_resolve_via_locator": true,
+    "optional_local_raw_only": true,
+    "full_command_logs_summary_both_error_contexts_published": true
+  },
+  "root_gate_checks": {
+    "receipt_precommit_v4": "exit0, frozen through Receipt44",
+    "selfcheck_pre_sweep_v3": "exit0; post-placement baseline0BLOCK4REVIEW112WARN14INFO1NA; historical previous8REVIEW preserved",
+    "source_acceptance_v3": "42-source acceptance for complete sweep, never full closure"
+  },
+  "previous_review_control_files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN.md",
+      "sha256": "c96b89eac4086df8e53bd1a6ef818e5c095218fe0e861eb11be0b9650cd6c28c",
+      "bytes": 7288
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/MANIFEST.json",
+      "sha256": "79a3ac78ed81f3be900e0fd6d00e26b1a705bc1fd09063b4db1fd2617eed1a96",
+      "bytes": 1193
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_V2.md",
+      "sha256": "c63a8b60b2bc020fb9734e15be1d924c3c18cb4f2b7848064dce69e9b25df937",
+      "bytes": 3859
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/MANIFEST_V2.json",
+      "sha256": "eab67fda19a673ec524ccd9c20c22747b5f2babd00a1027257c68d2a9fefb87a",
+      "bytes": 931
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/RETURN_V3.md",
+      "sha256": "bdaee516e4ad6d407d3491edc326bead335162363d7a7122d83f176d30852ea4",
+      "bytes": 5192
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/INTEGRATED_REVIEW/MANIFEST_V3.json",
+      "sha256": "aa75e2be485ce3162462174d6c82e194262f2723d2dc94bfcb0859045067ccf8",
+      "bytes": 1147
+    }
+  ],
+  "reviewer_effects": "Static filesystem reads/hashes only; no Git, tests, builds, browser, native, network or delegation. Only minimal additive review records written.",
+  "findings": [],
+  "remaining": [
+    "Root clean cumulative43 commit",
+    "Complete registered sweep including source browser, distribution and production",
+    "Native lifecycle and acceptance",
+    "Final deliverable/receipt/handoff review and publication"
+  ]
+}

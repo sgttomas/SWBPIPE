@@ -1,0 +1,7 @@
+
+Running 2 tests using 1 worker
+
+  ✓  1 [chromium-desktop] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (33.3s)
+  ✓  2 [chromium-compact] › e2e/r2-smoke.spec.ts:265:1 › R2 desktop preview smoke covers solve, results, report, and viewport overlay (30.6s)
+
+  2 passed (1.1m)

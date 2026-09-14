@@ -1,0 +1,26 @@
+{
+  "status": "PASS_NO_ACTIONABLE_FINDINGS",
+  "derivative_package": true,
+  "review_basis": "0306db0b481def374ebfdddea3e0f92f0ea8a626",
+  "source43_manifest_sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+  "previous_review_manifest_sha256": "aa75e2be485ce3162462174d6c82e194262f2723d2dc94bfcb0859045067ccf8",
+  "files": [
+    {
+      "path": "RETURN_V4.md",
+      "sha256": "0c5a90a6538fd14072c448eaf3830f8162e1c6e14b534c3609ae584fb9b1e710",
+      "bytes": 3541
+    },
+    {
+      "path": "_run_records/COVERAGE_V4.json",
+      "sha256": "718592ab4a385f26c2c507f2a95ca91e735d897955756e85a973a159298ce711",
+      "bytes": 13200
+    }
+  ],
+  "self_hash_scope": "Self excluded; detached hash reported",
+  "remaining": [
+    "Root clean cumulative43 commit",
+    "Complete registered sweep including source browser, distribution and production",
+    "Native lifecycle and acceptance",
+    "Final deliverable/receipt/handoff review and publication"
+  ]
+}

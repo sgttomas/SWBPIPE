@@ -1,0 +1,32 @@
+{
+  "origins_rehashed": 22,
+  "origin_hash_errors": 0,
+  "all_E2E_lines": 2705,
+  "expect_assertions": 733,
+  "semantic_policy_assertions": 358,
+  "proposed_exact_four_line_changes": [
+    {
+      "line": 631,
+      "old": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"33\");",
+      "new": "  await expect(page.getByTestId(\"result-family-count-reaction\")).toContainText(\"29\");"
+    },
+    {
+      "line": 633,
+      "old": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"33 of 830 results match filter\");",
+      "new": "  await expect(page.getByTestId(\"result-filter-summary\")).toContainText(\"29 of 830 results match filter\");"
+    },
+    {
+      "line": 635,
+      "old": "    \"Showing 1 to 33 of 33 matching results; page 1 of 1\"",
+      "new": "    \"Showing 1 to 29 of 29 matching results; page 1 of 1\""
+    },
+    {
+      "line": 729,
+      "old": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=830\");",
+      "new": "  await expect(stressNeutralExport.getByTestId(\"stress-neutral-unit-witnesses\")).toContainText(\"count=828\");"
+    }
+  ],
+  "production_test_source_edits": 0,
+  "test_build_browser_native_git_operations": 0,
+  "writer_dispatches": 0
+}

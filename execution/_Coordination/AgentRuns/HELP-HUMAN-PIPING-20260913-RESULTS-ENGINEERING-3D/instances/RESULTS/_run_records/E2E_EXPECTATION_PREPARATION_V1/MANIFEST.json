@@ -1,0 +1,99 @@
+{
+  "status": "PREPARATION_COMPLETE_RUNTIME_HELD",
+  "derivative_package": true,
+  "files": [
+    {
+      "path": "ACTUAL_CHROMIUM_FIRST_FAILURE_ERROR_CONTEXT_V1.md",
+      "sha256": "8cf41776d1341ac5f1da095dccd324caa271f8e728b0f69988b2a892d2dacc83",
+      "bytes": 15678
+    },
+    {
+      "path": "ACTUAL_FAILURE_DISPOSITION_V1.json",
+      "sha256": "16295daae3dd3f282f2c66a5957313716a1b8b11d9ae7cebf16451aa2836b376",
+      "bytes": 848
+    },
+    {
+      "path": "BACKCHECK_V1.json",
+      "sha256": "b666578c2d285e2b05f3836d08d1d161051d2ace04b3c5b41bdb60315f98b41f",
+      "bytes": 1302
+    },
+    {
+      "path": "COMPLETE_E2E_ASSERTION_INVENTORY_V1.json",
+      "sha256": "2a76cf385ba0d7cdc732a5e61616d51726c898e3957225fca95abccd5d20a97e",
+      "bytes": 383744
+    },
+    {
+      "path": "ORIGIN_MANIFEST_V1.json",
+      "sha256": "fd6227d418a19b03dd5fbd597a27233fa3b586980cabd4db14bc776719d8841e",
+      "bytes": 7902
+    },
+    {
+      "path": "RECOMMENDED_ASSERTION_CONTRACT_V1.json",
+      "sha256": "d1b86e77598bc1cea80a653a940636b28a6e17097611351d0151ff0da4dad091",
+      "bytes": 7282
+    },
+    {
+      "path": "RECOMMENDED_ONE_FILE_DELTA_V1.patch",
+      "sha256": "68c59b3d3b38ccc736c317407e8bd35459ddb02647a96db5491f222975aaf149",
+      "bytes": 1719
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "b1971e28bdb20ca938ab392df541c999661ebc48c7cee4d99ccdc2f1ad9ad2eb",
+      "bytes": 3939
+    },
+    {
+      "path": "SOURCE_DERIVED_ROW_ORACLE_V1.json",
+      "sha256": "4620b0e33c790beb0c75283e0836dde7034ff6366bd3044fbfc4a29215da9570",
+      "bytes": 1129014
+    },
+    {
+      "path": "prepare_evidence.py",
+      "sha256": "3b8c63fcad7aeb95088a7b119de101e9ff3148a56f1eb061b53393f0a8249c03",
+      "bytes": 14810
+    },
+    {
+      "path": "r2-smoke.spec.ts.proposed",
+      "sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+      "bytes": 103809
+    },
+    {
+      "path": "source_snapshots/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10",
+      "bytes": 23422
+    },
+    {
+      "path": "source_snapshots/linear-authoring.spec.ts",
+      "sha256": "e00418a11ab26f8efbe14293632f1a41e6164ffbf14e8b01eb64b433eef79ad4",
+      "bytes": 16660
+    },
+    {
+      "path": "source_snapshots/r2-smoke.spec.ts",
+      "sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711",
+      "bytes": 103809
+    },
+    {
+      "path": "source_snapshots/report-package-dist.spec.ts",
+      "sha256": "9756610e047201bc5b68165c23eea1076d4b7f478362e7377a6cfe9c5b7f9217",
+      "bytes": 1448
+    },
+    {
+      "path": "source_snapshots/toolkit-batch-dist.spec.ts",
+      "sha256": "013cb61f256f37e581e962919f87c1b90a488c0527fd650d8fa48bdffb2f24b5",
+      "bytes": 3565
+    },
+    {
+      "path": "source_snapshots/wasm-engine-dist.spec.ts",
+      "sha256": "94b3477e83d958d0763f0d7ffed3101bc80a9d93dda05e2b0bd5d54a7a9fa4ec",
+      "bytes": 1392
+    },
+    {
+      "path": "source_snapshots/workspace-layout.spec.ts",
+      "sha256": "352146f61649af1721574537177aa6a90742b4a10f1057d4cc75e2d1a3e93fa2",
+      "bytes": 3639
+    }
+  ],
+  "file_count": 18,
+  "total_bytes": 1823982,
+  "remaining_blocker": "Root full sweep return and later sealed one-file execution release"
+}

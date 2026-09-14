@@ -1,0 +1,37 @@
+{
+  "runtime_complete": true,
+  "lease": "ROOT_LEASE_E2E_EXPECTATION_REPAIR_01",
+  "lease_release_announced_to_parent_immediately": true,
+  "actual_attempts": {
+    "001..005": "all version prerequisites exited0",
+    "006": "offline WASM build exit0, operation_applier and self_weight_wasm",
+    "007": "exit1 No tests found due anchored full-title grep; zero browser tests/no assertion failure; originaloutputs preserved",
+    "008": "exit0 two full R2journeys chromium-desktop33.3s and chromium-compact30.6s,1worker,cachedChromium"
+  },
+  "no_other_runtime": true,
+  "root_original_full_sweep": {
+    "commit": "0306db0b481def374ebfdddea3e0f92f0ea8a626",
+    "actual_exit": 1,
+    "counts": {
+      "Rust_crates": 38,
+      "Python_pass": 1014,
+      "desktop_pass": 869,
+      "source_browser_pass": 28,
+      "source_browser_fail": 2,
+      "production": "not_run"
+    },
+    "status": "FAIL retained, not replaced by focused PASS"
+  },
+  "qualification_limits": [
+    "Only one named existing R2 smoke in two configured devserver viewports ran; no fullbrowser/sweep/production/native qualification",
+    "Generated asset hashes sampled after final browser dispatch, no falsely claimed prelaunch generatedhash timing; pinned builder/source/config/package/tool/browserhashes recorded before eachcommand",
+    "Local source-byte qualification on originalisolatedlane, not a clean committed candidate; root owns import/review/commit/fullrerun"
+  ],
+  "remaining_root_owned": [
+    "independent additive review/import",
+    "clean cumulative43 candidate commit",
+    "complete registered sweep including production surfaces",
+    "native/dependency/lifecycle/simple acceptance",
+    "governed closure/publication"
+  ]
+}

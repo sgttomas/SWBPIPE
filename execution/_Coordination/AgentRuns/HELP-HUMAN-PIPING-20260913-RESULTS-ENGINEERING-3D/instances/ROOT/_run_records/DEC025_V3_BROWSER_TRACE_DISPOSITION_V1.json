@@ -1,0 +1,21 @@
+{
+  "derivative_package": true,
+  "created_utc": "2026-09-14T04:44:15.589769+00:00",
+  "purpose": "Explicit nonpublication inventory for2 large optional browser traces; exact raw files preserved. Earlier E2E_REPAIR_RELEASE_V1 records their original record location; use this locator after relocation. No source/error evidence or failure status changes.",
+  "entries": [
+    {
+      "historical_run_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "preserved_local_raw_path": "/tmp/chirality-results-engineering-3d-20260913/preserved-browser-traces-v3/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact.zip",
+      "sha256": "8af2e4505438b29f77c2fe4d768464cea3f6529d5bd71a662c8a72e15ebd47d7",
+      "bytes": 90906966,
+      "publication": "Not committed; large optional browser trace. Complete error context, full stdout/stderr, exact commands and registered summary are committed. Raw file remains available locally."
+    },
+    {
+      "historical_run_record_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip",
+      "preserved_local_raw_path": "/tmp/chirality-results-engineering-3d-20260913/preserved-browser-traces-v3/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop.zip",
+      "sha256": "735e191ff2d07497a48e474bf9a2642fb282b8375e9091027d689d3ba96c7f4c",
+      "bytes": 85375559,
+      "publication": "Not committed; large optional browser trace. Complete error context, full stdout/stderr, exact commands and registered summary are committed. Raw file remains available locally."
+    }
+  ]
+}

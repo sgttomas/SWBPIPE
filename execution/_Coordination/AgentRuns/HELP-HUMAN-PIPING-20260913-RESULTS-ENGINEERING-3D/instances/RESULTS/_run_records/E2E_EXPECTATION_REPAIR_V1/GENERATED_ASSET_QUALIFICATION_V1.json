@@ -1,0 +1,62 @@
+{
+  "timing": "Hashes sampled after browser008 dispatch, not falsely represented as prepared pre-invocation hashes. All generatedfilesmtime precedes008, emitted by pinned offline006 builder;008 invokes existingdevserver no build/mutator. Original006 builder source and manifest/source42 hashes recorded beforebuild. Root may independently require stronger prelaunch generated-input capture in subsequent fullsweep.",
+  "assets": [
+    {
+      "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.d.ts",
+      "sha256": "921a9815caa3ef339125bded358d31bd934a938b3568d2e97b57c50936c886f8",
+      "bytes": 3744,
+      "mtime_utc": "2026-09-14T04:45:47.316266+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "sha256": "9adb5aad30e34c3c991e5a241a8b08671e219cb37d435b494875f965a3e98fc7",
+      "bytes": 13172,
+      "mtime_utc": "2026-09-14T04:45:47.316187+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "4bd3f4d18c3a5162a7d72be9d604ee085377503044393629e99cbd6133fb545a",
+      "bytes": 973632,
+      "mtime_utc": "2026-09-14T04:45:47.316001+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+      "sha256": "ed1c5209decc8fd307407d2b6c2637f7bb233101fb94c309fd7fdf171d30bb1f",
+      "bytes": 1261,
+      "mtime_utc": "2026-09-14T04:45:47.316337+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+      "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01",
+      "bytes": 1688,
+      "mtime_utc": "2026-09-14T04:46:00.151402+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+      "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3",
+      "bytes": 6961,
+      "mtime_utc": "2026-09-14T04:46:00.151316+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+      "sha256": "d721cbff02e452ea3680ed722a0c78edf84c050daee385af482bef1c684ad03b",
+      "bytes": 683806,
+      "mtime_utc": "2026-09-14T04:46:00.151130+00:00",
+      "mtime_before_browser_command_preparation": true
+    },
+    {
+      "path": "apps/desktop/public/self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+      "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b",
+      "bytes": 520,
+      "mtime_utc": "2026-09-14T04:46:00.151486+00:00",
+      "mtime_before_browser_command_preparation": true
+    }
+  ],
+  "external_compiled_scratch": "/tmp/chirality-results-engineering-3d-20260913/results-e2e-expectation-repair-target"
+}

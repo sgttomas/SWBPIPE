@@ -1,0 +1,14 @@
+{
+  "actual_attempt": "007-r2-both-viewports",
+  "actual_exit": 1,
+  "failure": "No tests found: anchored grep was applied to complete Playwright title (includes file/suite title), not standalone test name. Neither browser test executed; no assertion failed.",
+  "command_only_correction": "Remove anchors; use exact unique full testname phrase with same spec/two existing projects/oneworker/cachedbrowser/output newdirectory. No product/test/config assertion changes.",
+  "test_bytes_sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc",
+  "complete_affected_assertion_contract": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_PREPARATION_V1/RECOMMENDED_ASSERTION_CONTRACT_V1.json",
+    "sha256": "d1b86e77598bc1cea80a653a940636b28a6e17097611351d0151ff0da4dad091",
+    "status": "FROZEN exact4literals approved, all other733assertions preserved; no new literal inference"
+  },
+  "selection_uniqueness": 1,
+  "retry_scope": "same approved R2 two viewports only"
+}

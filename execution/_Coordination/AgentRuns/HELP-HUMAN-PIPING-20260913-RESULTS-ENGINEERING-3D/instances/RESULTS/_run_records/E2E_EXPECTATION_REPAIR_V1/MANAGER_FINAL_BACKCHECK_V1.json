@@ -1,0 +1,94 @@
+{
+  "status": "ACCEPTED_BOUNDED_EXACT_FOUR_LITERAL_REPAIR",
+  "child_return_sha256": "385e07a69ac4a0c933b467a64af3230ccd1a5ec6276ef82bba7eae635f2a65b6",
+  "child_manifest_sha256": "0aba49a3d61dd24252885bf2522cd40b68dc3745c7a9cc3b87c8a74ad15cde75",
+  "verified_manifest_files": 57,
+  "verified_manifest_bytes": 432410,
+  "manifest_hash_size_errors": 0,
+  "unlisted_before_manager_fan_in": [
+    "MANIFEST.json"
+  ],
+  "accepted42_unchanged": true,
+  "other6_e2e_unchanged": true,
+  "r2_frozen_proposal_byte_equality": true,
+  "all_expect_assertions": 733,
+  "runtime_results": [
+    {
+      "attempt": "001-node",
+      "command_sha256": "e6534be6926deb5d17baf1f5b44eb93a3a00b8d43d1aac7e37936e20ba4c62c5",
+      "result_sha256": "b5afc85bfba10cee2b7959a0c53a466a58fb422cbed362725cefdc79f3899998",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "002-cargo",
+      "command_sha256": "c144f839dfce6cae982c4a4abf91331349f23a35fc73dcd8b96740a3de03b6a3",
+      "result_sha256": "2e45b856be2b66a579427cbffeb9623827e4be69c15fb17c2c1306a7b622e8a3",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "003-rustc",
+      "command_sha256": "9cb1e33c46ec6c753747ebe5a8f29a615912feb0b34db8a52d9fa22e1fd95a34",
+      "result_sha256": "2a6b6533c3e39d02e2ad78a500f44f77c3899e253db9bf93d9f98f241bf9540a",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "004-bindgen",
+      "command_sha256": "691dd89c12f0657f653afecb2f4c34f1c2ed6592b4d172adcbf556fb2a2ac9e7",
+      "result_sha256": "34ba5940ca0609768f12552930eb56bdac8f9b8732d961eb397a65cb9dabda78",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "005-playwright",
+      "command_sha256": "454c9ca0726ef9f3dd5ce82845b70c59a261bf6ca49ccb4dbb6ab46107ef2591",
+      "result_sha256": "f72cf2b19173334dd895c53cb1aa694b4d601e51cb26ff9465310823686d55cb",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "006-offline-wasm",
+      "command_sha256": "4e2ede099a0cb95b66d388651cf0ae537c0462bf19d47d2bf206d9a2b2b02f44",
+      "result_sha256": "b2688febaa594c04afe2107d5bbfad6127fa124fbc81a3ef7f7b977238f2fadb",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "007-r2-both-viewports",
+      "command_sha256": "43ddd829b93b44e26be24791d063b90dd26af99d1232d7515951fe8939fa946a",
+      "result_sha256": "9ff555d77aee68ffe758d9ad0f3bef03e00a1f6ebaac3c83d11d987aab2db539",
+      "exit_code": 1,
+      "source_config_input_hashes_rechecked": 64
+    },
+    {
+      "attempt": "008-r2-both-viewports",
+      "command_sha256": "59eae13731ef9de27a85475b9ee993c01ba9caf3fb6da2747ebb808d5077a702",
+      "result_sha256": "1d3b748fc1d3b8e2838f4897856cba82034db81a66f13a965a45e69363c5b0c4",
+      "exit_code": 0,
+      "source_config_input_hashes_rechecked": 64
+    }
+  ],
+  "selection_retry_command_deltas": [
+    {
+      "index": 5,
+      "before": "^R2 desktop preview smoke covers solve, results, report, and viewport overlay$",
+      "after": "R2 desktop preview smoke covers solve, results, report, and viewport overlay"
+    },
+    {
+      "index": 13,
+      "before": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_REPAIR_V1/browser_artifacts_v1",
+      "after": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_REPAIR_V1/browser_artifacts_v2"
+    }
+  ],
+  "actual_two_viewport_full_R2_pass": true,
+  "cached_browser_hash_rechecked": true,
+  "first_static_checker_failure": {
+    "exit": 1,
+    "reason": "Checker initially looked for No tests found in stderr; actual Playwright emits it in preserved stdout. Corrected static channel assertion only; no test/runtime/source rerun. Original tool failure preserved in manager turn output."
+  },
+  "root_original_full_sweep": "FAIL/exit1 preserved; production not_run; no focused PASS substitution",
+  "output_timing": "Commands and source/config/package/tool/browser inputs prepared before invocation; stdout/stderr/exits captured after execution. Generated8asset hashes sampled after008 dispatch, with earlier emission mtimes; no prelaunch generatedhash attestation. External scratch recorded separately, not immutable source.",
+  "closure": "Runtime released; child idle; root independent additive review/import/clean cumulative43/full registered sweep/production/native/governed closure remain."
+}

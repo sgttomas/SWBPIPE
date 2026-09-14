@@ -1,0 +1,27 @@
+{
+  "status": "ROOT_HANDOFF_READY_RUNTIME_RELEASED",
+  "derivative_package": true,
+  "child_return": {
+    "path": "RETURN.md",
+    "sha256": "385e07a69ac4a0c933b467a64af3230ccd1a5ec6276ef82bba7eae635f2a65b6"
+  },
+  "child_manifest": {
+    "path": "MANIFEST.json",
+    "sha256": "0aba49a3d61dd24252885bf2522cd40b68dc3745c7a9cc3b87c8a74ad15cde75"
+  },
+  "manager_additive_backcheck": {
+    "path": "MANAGER_FINAL_BACKCHECK_V1.json",
+    "sha256": "c74893ea75b9516c544de9afe30311e726071d37b5d223ca76b1adf2667a07df"
+  },
+  "source": {
+    "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+    "sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc"
+  },
+  "patch": {
+    "path": "R2_SMOKE_TRANSFER_V1.patch",
+    "sha256": "68c59b3d3b38ccc736c317407e8bd35459ddb02647a96db5491f222975aaf149"
+  },
+  "additive_manifest_disposition": "Child frozen57-file manifest remains unmodified. This manager backcheck and final fan-in are additive post-freeze evidence, not claimed listed by original child manifest.",
+  "remaining": "Root independent delta review/import/Git/full registered sweep/production/native/closure",
+  "utc": "2026-09-14T04:51:14.198746+00:00"
+}

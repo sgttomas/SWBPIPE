@@ -1,0 +1,38 @@
+{
+  "scope": "Exactly1 E2E test/4 literals",
+  "source_original_sha256": "12c97e5022ef6fe770fb581b4177e046d68c85c38f048ca7ceeee775e433b711",
+  "preparation_origin": "/Users/ryan/.codex/worktrees/8728/chirality-results-integrity-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_PREPARATION_V1",
+  "preparation_published": "/Users/ryan/.codex/worktrees/8728/chirality-results-engineering-3d-20260913/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/E2E_EXPECTATION_PREPARATION_V1",
+  "manifest_sha256": "6b98e7d5dd47ee11986e5f08f3d3b50b2b70021e024b3d13b685ce36b71ad471",
+  "root_sweep_return_sha256": "2ecb1d533ca8fe7837ca1a223eec167ceae070e427be08a991b78d4374735602",
+  "failed_contexts": [
+    {
+      "path": "DEC025_V3_BROWSER_FAILURES/.last-run.json",
+      "bytes": 145,
+      "sha256": "f87fbca8fe126b6eca6c5779010cfefa3074ce9709cf5db93cae72d7379f546f"
+    },
+    {
+      "path": "DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/trace.zip",
+      "bytes": 90906966,
+      "sha256": "8af2e4505438b29f77c2fe4d768464cea3f6529d5bd71a662c8a72e15ebd47d7"
+    },
+    {
+      "path": "DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-compact/error-context.md",
+      "bytes": 15678,
+      "sha256": "fef831768e004d719137ac97132f570109f4c81cfc680d85478cce37d6a39c74"
+    },
+    {
+      "path": "DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/trace.zip",
+      "bytes": 85375559,
+      "sha256": "735e191ff2d07497a48e474bf9a2642fb282b8375e9091027d689d3ba96c7f4c"
+    },
+    {
+      "path": "DEC025_V3_BROWSER_FAILURES/r2-smoke-R2-desktop-previe-4ab18-report-and-viewport-overlay-chromium-desktop/error-context.md",
+      "bytes": 15678,
+      "sha256": "8cf41776d1341ac5f1da095dccd324caa271f8e728b0f69988b2a892d2dacc83"
+    }
+  ],
+  "release_brief_sha256": "f04e0c8930f2157c6fb7a53352a3d83f7840f8228b2b271a9dc01a9b39e17491",
+  "lease": "ROOT_LEASE_E2E_EXPECTATION_REPAIR_01",
+  "closure": "FullV3failed; no complete sweep acceptance; actual28sourcebrowser passes and2failure contexts retained."
+}

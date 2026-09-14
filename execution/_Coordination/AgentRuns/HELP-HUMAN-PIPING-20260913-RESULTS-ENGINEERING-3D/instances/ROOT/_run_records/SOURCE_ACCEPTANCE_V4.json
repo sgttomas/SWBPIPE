@@ -1,0 +1,21 @@
+{
+  "status": "43_SOURCE_CANDIDATE_ACCEPTED_FOR_COMPLETE_SWEEP",
+  "accepted_utc": "2026-09-14T05:01:22.705689+00:00",
+  "reviewed_base": "0306db0b481def374ebfdddea3e0f92f0ea8a626",
+  "source_inventory_sha256": "fdb6204457ff9ac7f43e9f4863ed04655005ec7c5b397894d449232816a8b801",
+  "independent_review_return_sha256": "0c5a90a6538fd14072c448eaf3830f8162e1c6e14b534c3609ae584fb9b1e710",
+  "independent_review_manifest_sha256": "cb3c9436583b61dd64f08e1b647a0d81e54e39de8639941cca5303eec66953b3",
+  "root_acceptance": "Read complete V4 review and manager return; rehashed all57 child entries plus manifest and two manager additions, all43 source files and original local handoff. Exact four E2E literals only; previous42 unchanged. No relaxed product contract.",
+  "focused_result": "Offline WASM and both full R2 browser journeys pass. Original no-selection007 and DEC025_V3 failures preserved; generated asset hashes sampled after dispatch.",
+  "receipt": "PrecommitV4 validator exit0; frozen-through44 boundary and versioned receipt grammar validated.",
+  "remote_main": "12f5b1a5adeb151b1762a7972507c370ac8a1ff7; task branch not published.",
+  "minor_read_error": "A read-only handoff check first used the integration checkout, where the local-only file is absent. Corrected to its explicit original checkout, exact original SHA verified; no effects.",
+  "runtime": "ROOT_LEASE_DEC025_V4 exclusive; reviewers/managers/writers idle and no repository writes during sweep.",
+  "open_gates": [
+    "Complete clean registered DEC025",
+    "Fresh native capture/lifecycle",
+    "Final deliverable/receipt/handoff review",
+    "Affected local and actual-head hosted CI",
+    "Scoped PR merge"
+  ]
+}

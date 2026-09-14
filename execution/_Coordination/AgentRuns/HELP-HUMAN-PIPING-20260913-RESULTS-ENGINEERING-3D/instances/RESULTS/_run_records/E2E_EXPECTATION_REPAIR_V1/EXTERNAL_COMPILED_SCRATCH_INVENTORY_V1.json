@@ -1,0 +1,9 @@
+{
+  "path": "/tmp/chirality-results-engineering-3d-20260913/results-e2e-expectation-repair-target",
+  "files": 644,
+  "directories": 155,
+  "bytes": 172847969,
+  "scope": "namespaced external generated compiled scratch, not product source or packet files, not a tracked lock repair",
+  "generator": "006-offline-wasm pinned existing builder",
+  "generated_public_assets": "GENERATED_ASSET_QUALIFICATION_V1.json pins8files/1684784bytes; sampledafter008dispatch, emissionmtimebeforelaunch explicit"
+}
