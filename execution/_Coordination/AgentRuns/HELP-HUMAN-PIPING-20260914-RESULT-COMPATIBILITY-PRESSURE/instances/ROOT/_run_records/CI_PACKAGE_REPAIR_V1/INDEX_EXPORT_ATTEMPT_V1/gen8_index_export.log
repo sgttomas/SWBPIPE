@@ -1,0 +1,53 @@
+E                                                                        [100%]
+==================================== ERRORS ====================================
+_______ ERROR at setup of test_live_gen8_semantic_portability_invariants _______
+
+    @pytest.fixture(scope="module")
+    def live_self_check():
+        """One shared live self-check for every test in this module. The report is
+        read-only and the tree cannot change mid-run, so per-test re-runs (each a
+        full repo scan) would assert against byte-identical reports."""
+>       return cmd_self_check.run_self_check(LIVE_REPO)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tools/practitioner_harness/test_live_baseline.py:55: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/practitioner_harness/cmd_self_check.py:474: in run_self_check
+    _add_bridge_receipt_findings(report, repo_root)
+tools/practitioner_harness/cmd_self_check.py:1129: in _add_bridge_receipt_findings
+    briefs, refusal = cmd_bridge_status._brief_records(repo_root)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/practitioner_harness/cmd_bridge_status.py:432: in _brief_records
+    fence, _findings, refusal = brief_adoption.verify_adoption(path, repo_root)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/practitioner_harness/brief_adoption.py:456: in verify_adoption
+    clean = _check_committedness(fence, resolved, repo_root, findings)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/practitioner_harness/brief_adoption.py:330: in _check_committedness
+    tracked = _run_git(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+repo_root = PosixPath('/private/tmp/piping-foundation-f13-index-export-20260915-v1')
+args = ('ls-files', '--error-unmatch', '--', 'docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.md')
+
+    def _run_git(repo_root: Path, *args: str) -> subprocess.CompletedProcess:
+        """Run git for the committed-ness checks. A missing git binary or a git
+        hard failure (exit >1, e.g. 'not a git repository') is an operational
+        error — committed-adoption verification cannot proceed without git truth."""
+        try:
+            proc = subprocess.run(
+                ["git", "-C", str(repo_root), *args],
+                capture_output=True, text=True, check=False)
+        except OSError as exc:
+            raise HarnessOperationalError(
+                f"git unavailable for committed-adoption verification: {exc}") from exc
+        if proc.returncode not in (0, 1):
+>           raise HarnessOperationalError(
+                "git failed during committed-adoption verification (git "
+                f"{' '.join(args)} -> exit {proc.returncode}): {proc.stderr.strip()}")
+E           harness_common.HarnessOperationalError: git failed during committed-adoption verification (git ls-files --error-unmatch -- docs/governance_harness/briefs/TRB-chirality-app-dev-DEL-03-01-2026-07-03.md -> exit 128): fatal: not a git repository (or any of the parent directories): .git
+
+tools/practitioner_harness/brief_adoption.py:294: HarnessOperationalError
+=========================== short test summary info ============================
+ERROR tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants
+1 error in 2.32s

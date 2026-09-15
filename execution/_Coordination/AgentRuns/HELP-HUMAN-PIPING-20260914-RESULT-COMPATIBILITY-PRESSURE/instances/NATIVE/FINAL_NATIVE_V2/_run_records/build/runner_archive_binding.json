@@ -1,0 +1,25 @@
+{
+  "archive_command": [
+    "git",
+    "archive",
+    "--format=tar",
+    "--output=/private/tmp/piping-foundation-native-final-20260915/build/candidate-project.tar",
+    "HEAD",
+    "projects/chirality-piping"
+  ],
+  "archive_sha256": "8c286c475220308f669552b97464b29e29703ed9f0df733d2cd6d99a973597fa",
+  "generated_lockfile": {
+    "bytes": 10169,
+    "maintained_source_lock_claimed": false,
+    "path": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+    "sha256": "c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470"
+  },
+  "runner": {
+    "bytes": 5517808,
+    "path": "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner",
+    "sha256": "e429b201b7f07a1d0e31ee5176ed5931880f50ae98a45f29bbde062efea96492"
+  },
+  "runner_build_mode": "temporary exact-commit archive; cargo build --offline; not maintained --locked",
+  "source_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "temporary_project_root": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project"
+}

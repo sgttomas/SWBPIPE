@@ -1,0 +1,72 @@
+{
+  "schema": "root-f13-evidence-packaging-diagnosis-v1",
+  "created_utc": "2026-09-15T09:15:24.072287+00:00",
+  "candidate": "c5f90373e7bc889dc8a98c21a08fc2833e3c6cc8",
+  "ci_run": "https://github.com/sgttomas/chirality/actions/runs/34950639133",
+  "failed_test": "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants",
+  "failure_log_sha256": "2b2f41a1b666a8bbaa280f666932a1dfb566908af3c560d1f4060b0b485edc76",
+  "cause": "Project .gitignore build/ pattern omitted six historical native build-provenance text records. The local filesystem validator could see the hash-bound target; CI did not receive it.",
+  "policy_audit": {
+    "historical_overrides": 123,
+    "control_exceptions": 41,
+    "missing_from_git_index_before": [
+      {
+        "kind": "historical_role_overrides",
+        "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/bound_bundle_manifest.json",
+        "sha256": "57bf22986ba74ae74bf6523bb893d9f8f3fec296564473106b86b2d510e07b62",
+        "entry_type": "historical_role_override",
+        "role": "EVIDENCE",
+        "reason": "Immutable completed run evidence preserves machine-local paths actually observed or used during execution; historical evidence, not live executable direction.",
+        "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_DISPOSITION_V1.json"
+      }
+    ]
+  },
+  "repair": "Explicitly add these six exact existing historical records to Git. Preserve raw bytes, policy/ignore rules, all77maintained sources, nativeV4, lifecycle and previous acceptance.",
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/bound_bundle_manifest.json",
+      "sha256": "57bf22986ba74ae74bf6523bb893d9f8f3fec296564473106b86b2d510e07b62",
+      "bytes": 6356
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/tauri.early-native-v1.conf.json",
+      "sha256": "6f7239d235c0fa4e51e19ba1d20b45d76ec3a717a4a4fa6dc0497b8d32f51339",
+      "bytes": 293
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/build/build_binding.json",
+      "sha256": "1505ef1df9a41cf8c804d146b10c64f00326d6d032807bb63f27ddaa40b991f6",
+      "bytes": 7370
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/build/runner_archive_binding.json",
+      "sha256": "ca780f1abeea715dde64736366627f008fe198f4e2bfec944327bc7a9fe92cd4",
+      "bytes": 1128
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/build/build_binding.json",
+      "sha256": "83e4a376ac9baa2ab975eb0d8b2da2299848bef830d0f94c91e57d6a2081b7e7",
+      "bytes": 6684
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/build/checked_json_path.txt",
+      "sha256": "a154fa172db429b24e289182d58adbc3f21ace2a07cdf032c8bf843271e3fb91",
+      "bytes": 108
+    }
+  ],
+  "excluded_regenerable_cache": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/__pycache__/verify_delivered_artifacts_v2.cpython-313.pyc"
+  ],
+  "authority": "User-approved foundation evidence/closeout scope and standing Git authority; HELP_HUMAN bounded disposition. OwnerCaseSelection=NONE.",
+  "rejected_alternatives": [
+    "Do not remove the policy entry or weaken the portability gate.",
+    "Do not change broad build/ ignore behavior or add generated binaries/caches."
+  ],
+  "validation_required": [
+    "Index-only fresh export GEN8/path validation and full policy-target membership/hash audit",
+    "Independent read-only additive review",
+    "Mandatory receipt and final committed-range checks",
+    "Required CI on repaired actual PR head"
+  ],
+  "status": "READY_FOR_TRACKED_EVIDENCE_VALIDATION"
+}

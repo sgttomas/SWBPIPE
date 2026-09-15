@@ -1,0 +1,110 @@
+{
+  "schema": "f13-index-export-check-v1",
+  "started_utc": "2026-09-15T09:21:44.644080+00:00",
+  "finished_utc": "2026-09-15T09:22:08.217186+00:00",
+  "parent_commit": "c5f90373e7bc889dc8a98c21a08fc2833e3c6cc8",
+  "staged_tree": "87379b465ff7f5694f2096819d0ad758cf9d846f",
+  "witness_basis": "Fresh export of the complete Git index through checkout-index, with every exported blob independently matched to its Git index object. This is not a clean committed checkout or a product-runtime rerun.",
+  "export": "/private/tmp/piping-foundation-f13-index-export-20260915-v1",
+  "tracked_file_count": 80964,
+  "ordered_lf_path_list_sha256": "9f3f78fa9b97f24a6e4b35c27df0f21a2f7a53384ac45f455e01f44701a6a0af",
+  "initial_export_blob_mismatches": [],
+  "postcheck_file_membership_unchanged": true,
+  "head_and_staged_tree_unchanged": true,
+  "audits": {
+    "historical_policy_targets": {
+      "checked": 123,
+      "mismatches": []
+    },
+    "control_policy_targets": {
+      "checked": 41,
+      "mismatches": []
+    },
+    "native_v4_evidence": {
+      "checked": 406,
+      "mismatches": []
+    },
+    "maintained_source_and_tests": {
+      "checked": 77,
+      "mismatches": []
+    },
+    "six_repaired_historical_records": {
+      "checked": 6,
+      "mismatches": []
+    }
+  },
+  "input_bindings": [
+    {
+      "path": "projects/chirality-piping/validation/portability_policy.json",
+      "sha256": "d1c20889e3a866139707799e610e47828b62a53c1ae4d41385262ee9a66ef5c4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/EVIDENCE_MANIFEST_V4.json",
+      "sha256": "e04ba928e8163197b74f00d76ccc6c64816fbacfcd13248093cb8d6b121039a2"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json",
+      "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/DIAGNOSIS_V1.json",
+      "sha256": "060c7d659e51fadcd585094aadc890d224c0594c5cc98c95142f115f6e3d2958"
+    }
+  ],
+  "environment": {
+    "python": "Python 3.13.14",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CHIRALITY_SKIP_LIVE_TESTS": "absent",
+    "pytest_cacheprovider": "disabled"
+  },
+  "results": [
+    {
+      "name": "gen8_index_export",
+      "cwd": "/private/tmp/piping-foundation-f13-index-export-20260915-v1",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants"
+      ],
+      "exit_code": 1,
+      "duration_seconds": 2.487,
+      "log": "gen8_index_export.log",
+      "sha256": "ec7c9e1fa1704459947bf8716cbd4331d5acb0d06ee7edd7371a90fa76951f15"
+    },
+    {
+      "name": "path_anchors_index_export",
+      "cwd": "/private/tmp/piping-foundation-f13-index-export-20260915-v1",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_path_anchors.py",
+        "--json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 5.509,
+      "log": "path_anchors_index_export.log",
+      "sha256": "cfd0d0f685d095ec6791bcf5bd7e00476c84ae1909a461447f87fc9f5351d325"
+    },
+    {
+      "name": "precommit_receipt_integration",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        ".",
+        "--validation-commit",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 1.899,
+      "log": "precommit_receipt_integration.log",
+      "sha256": "6d9e68656876c5256e15d52b56bb4b0ee6b5a88b6372d2fe4d4333c16143e8a5"
+    }
+  ],
+  "status": "FAIL_F13_INDEX_EXPORT",
+  "remaining": "Independent additive review; scoped repair commit; final actual-range checks; required hosted CI on the repaired PR candidate."
+}

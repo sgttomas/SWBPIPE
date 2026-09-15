@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "OpenPipeStress Foundation Early 20260914",
+  "identifier": "org.openpipestress.foundation-early-20260914",
+  "app": {
+    "windows": [
+      {
+        "title": "OpenPipeStress Foundation Early 20260914"
+      }
+    ]
+  }
+}

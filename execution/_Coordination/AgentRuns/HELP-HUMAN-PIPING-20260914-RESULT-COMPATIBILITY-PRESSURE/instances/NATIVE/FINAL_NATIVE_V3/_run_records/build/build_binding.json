@@ -1,0 +1,169 @@
+{
+  "archive": {
+    "bytes": 1146245120,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project.tar",
+    "sha256": "c0b7219a9f92de0b4883fb1135cbd443d008a97ce68c09fa45558729a4a0aff3"
+  },
+  "bundle": {
+    "file_count": 3,
+    "files": [
+      {
+        "bytes": 1077,
+        "path": "Contents/Info.plist",
+        "sha256": "eee9b66333c0a6e3b8b829482a1305b357b86860e8678495bde94315847a69f1"
+      },
+      {
+        "bytes": 20025824,
+        "path": "Contents/MacOS/openpipestress-desktop",
+        "sha256": "614f54ea0f26820f22f4458c8638433e186a97be42022bb6d08ccea78eb0c117"
+      },
+      {
+        "bytes": 77148,
+        "path": "Contents/Resources/icon.icns",
+        "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+      }
+    ],
+    "manifest_sha256": "846c2a21452de7d1ac47bad2e676cf571757f6588043273316d6c4121dfeaa97",
+    "root": "/private/tmp/piping-foundation-native-repaired-20260915/bound/OpenPipeStress Foundation Repaired 20260915.app"
+  },
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "checked_json": {
+    "bytes": 621296,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "dist": {
+    "file_count": 21,
+    "files": [
+      {
+        "bytes": 58611,
+        "path": "assets/index-BbqXWFNO.css",
+        "sha256": "f1b3bc415ae58d738ddb318ea05d6bfaa18dc42ba919dd58914d3a17657aee72"
+      },
+      {
+        "bytes": 1231186,
+        "path": "assets/index-DR5VE3yp.js",
+        "sha256": "53890f89beb5788e13f85db5478d8cf92193ceda87fd1cbce8f5fbe3cf0eafe4"
+      },
+      {
+        "bytes": 1820,
+        "path": "assets/invented_agent_proposal-Bm57LVt-.js",
+        "sha256": "181148caaab83efcd8c916cfd819b2bde82a0e0581ec096b5119ef37164c542c"
+      },
+      {
+        "bytes": 10858,
+        "path": "assets/invented_demo_rule_pack-dhX9tvT1.js",
+        "sha256": "2171fad960204d286467275400ac5d710059b09936dbebde262fe03dc4047a0a"
+      },
+      {
+        "bytes": 1660,
+        "path": "assets/invented_design_knowledge-H12r-oKQ.js",
+        "sha256": "ddb6693d09d218a01bc3f31f80680e4bb11e988a851c6e9fe55ba1b10be16040"
+      },
+      {
+        "bytes": 502608,
+        "path": "assets/invented_mechanics_result-CleTy2JL.js",
+        "sha256": "493050a50b346dd1c53de6481da58d3c33d3302c0308f17b49e60584a233be4d"
+      },
+      {
+        "bytes": 12670,
+        "path": "assets/invented_preview_model-pJA3_nB8.js",
+        "sha256": "f21511f5742daf6276173a5b9bcd440d6c3283cacfe83f50a2f857b1a882605a"
+      },
+      {
+        "bytes": 3613,
+        "path": "assets/vendor-7OC5HNn7.js",
+        "sha256": "3d45cc5c629e739f535e3d840a5a5a8302cdde5c8b93ad5aa5a6f28cb16fda76"
+      },
+      {
+        "bytes": 18788,
+        "path": "assets/vendor-icons-Fcg__Luf.js",
+        "sha256": "539e3ba3bc1867cf0866cb7025b4296e9ba7ff8a931b3f18dba5808ca5ca2d1c"
+      },
+      {
+        "bytes": 188744,
+        "path": "assets/vendor-react-BT_8sX57.js",
+        "sha256": "74d9d8d27c20049b7abe2af905e64d58a1fb669b716184346b1de608884cdfe4"
+      },
+      {
+        "bytes": 91,
+        "path": "assets/vendor-tauri-DlQNAQKj.js",
+        "sha256": "ce6c2d2158f4a2b727d1886ef0b5f05bcb63e4d86bde10e05598707dde9b6e73"
+      },
+      {
+        "bytes": 526268,
+        "path": "assets/vendor-three-DC4iGhup.js",
+        "sha256": "3d965cf58a28a9e737a33c5bea71debec18f024efe9c82fa9e35499b1b748e7f"
+      },
+      {
+        "bytes": 1158,
+        "path": "index.html",
+        "sha256": "9447e7031b3685e0ca364f32af4b1136424652985eb8b3506e32e2e9c1d5c07f"
+      },
+      {
+        "bytes": 1688,
+        "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.d.ts",
+        "sha256": "634546fac35bc42da31bf903e52a5799429422f44291d901495675bb4da4cc01"
+      },
+      {
+        "bytes": 6961,
+        "path": "self-weight-engine/open_pipe_stress_self_weight_wasm.js",
+        "sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+      },
+      {
+        "bytes": 683807,
+        "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm",
+        "sha256": "2df6b2481bdb14b046feb4ff023ad83dd177b12ff40cc62578db7b3955257ec0"
+      },
+      {
+        "bytes": 520,
+        "path": "self-weight-engine/open_pipe_stress_self_weight_wasm_bg.wasm.d.ts",
+        "sha256": "dd78c7c8fa07894717b89a9bcda4d781200ca7a4d02a8dc153b7763290085c7b"
+      },
+      {
+        "bytes": 4253,
+        "path": "wasm-engine/open_pipe_stress_operation_applier.d.ts",
+        "sha256": "af2b07abf12dac915fb0e90124135d578eb7c2b473ec402dbe285900608cb8a8"
+      },
+      {
+        "bytes": 14773,
+        "path": "wasm-engine/open_pipe_stress_operation_applier.js",
+        "sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595"
+      },
+      {
+        "bytes": 1000111,
+        "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+        "sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+      },
+      {
+        "bytes": 1467,
+        "path": "wasm-engine/open_pipe_stress_operation_applier_bg.wasm.d.ts",
+        "sha256": "37a68fc929d21e62fad7683b94f26b7233691df567956908f345c257c8a3ae16"
+      }
+    ],
+    "manifest_sha256": "b7ce619fe21f52e7972ed2e195fd117a5c96d963200192aaf1071d36222e4b6a",
+    "root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist"
+  },
+  "executable": {
+    "bytes": 20025824,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/bound/OpenPipeStress Foundation Repaired 20260915.app/Contents/MacOS/openpipestress-desktop",
+    "sha256": "614f54ea0f26820f22f4458c8638433e186a97be42022bb6d08ccea78eb0c117"
+  },
+  "generated_lock": {
+    "bytes": 10169,
+    "maintained_source_lock_claimed": false,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+    "sha256": "c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470"
+  },
+  "info_plist": {
+    "CFBundleDisplayName": "OpenPipeStress Foundation Repaired 20260915",
+    "CFBundleIdentifier": "org.openpipestress.foundation-repaired-20260915",
+    "CFBundleName": "OpenPipeStress Foundation Repaired 20260915"
+  },
+  "runner": {
+    "bytes": 5517520,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+    "sha256": "f8020aee734edf1a3ddd8ade0cb756e63442df97066440e9636a97775adb7897"
+  },
+  "schema": "final-native-v3-build-binding-v1"
+}
