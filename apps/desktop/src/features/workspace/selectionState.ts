@@ -112,8 +112,11 @@ export function applyDisplayedRange(
   const start = Math.min(anchorIndex, hitIndex);
   const end = Math.max(anchorIndex, hitIndex);
   const orderedKeys = current.orderedKeys.filter((key) => entityRefFromKey(key)?.type !== "project");
+  const membership = new Set(orderedKeys);
   for (const key of displayedOrder.slice(start, end + 1)) {
-    if (!orderedKeys.includes(key)) orderedKeys.push(key);
+    if (membership.has(key)) continue;
+    membership.add(key);
+    orderedKeys.push(key);
   }
   return replaceSelection(current, orderedKeys, hitKey, anchor);
 }
@@ -129,10 +132,13 @@ export function setSelectionFocus(
 export function pruneSelection(
   current: OrderedSelectionState,
   validKeys: ReadonlySet<EntityKey>,
-  project: EntityRef
+  _project: EntityRef
 ): OrderedSelectionState {
   const kept = current.orderedKeys.filter((key) => validKeys.has(key));
-  if (kept.length === 0) return projectSelection(project, current);
+  if (kept.length === 0) {
+    const empty = replaceSelection(current, [], null, null);
+    return empty.focusKey && !validKeys.has(empty.focusKey) ? setSelectionFocus(empty, null) : empty;
+  }
   const primaryKey = current.primaryKey && kept.includes(current.primaryKey)
     ? current.primaryKey
     : kept.at(-1) ?? null;

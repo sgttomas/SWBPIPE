@@ -54,7 +54,12 @@ export type ModelIndex = Readonly<{
   }>;
 }>;
 
-const INDEX_CACHE = new WeakMap<PreviewModel, Map<string, ModelIndex>>();
+type CachedModelIndex = Readonly<{ generation: string; index: ModelIndex }>;
+
+// Undo/redo may revisit the same model object under many publication generations.
+// Keep only the latest generation for each identity so retained history cannot also
+// retain one complete 10k index per visit.
+const INDEX_CACHE = new WeakMap<PreviewModel, CachedModelIndex>();
 const CHUNK_SIZE = 128;
 
 export function modelIndexFor(
@@ -63,15 +68,10 @@ export function modelIndexFor(
   modelRevision: number
 ): ModelIndex {
   const generation = `${sessionGeneration}:${modelRevision}`;
-  let generations = INDEX_CACHE.get(model);
-  if (!generations) {
-    generations = new Map();
-    INDEX_CACHE.set(model, generations);
-  }
-  const existing = generations.get(generation);
-  if (existing) return existing;
+  const existing = INDEX_CACHE.get(model);
+  if (existing?.generation === generation) return existing.index;
   const created = buildModelIndex(model, sessionGeneration, modelRevision);
-  generations.set(generation, created);
+  INDEX_CACHE.set(model, Object.freeze({ generation, index: created }));
   return created;
 }
 
@@ -139,9 +139,20 @@ export function buildModelIndex(
     add({ type: "section", id: section.id }, section.name || section.id, section);
   }
 
-  const nodesById = new Map(model.nodes.map((node) => [node.id, node] as const));
+  const nodeIdCounts = new Map<string, number>();
+  for (const node of model.nodes) nodeIdCounts.set(node.id, (nodeIdCounts.get(node.id) ?? 0) + 1);
+  const duplicateNodeIds = new Set(
+    [...nodeIdCounts].filter(([, count]) => count > 1).map(([id]) => id)
+  );
+  const nodesById = new Map(
+    model.nodes.filter((node) => !duplicateNodeIds.has(node.id)).map((node) => [node.id, node] as const)
+  );
   for (const node of model.nodes) {
-    const issue = finiteVec(node.position) ? null : `Node ${node.id} has a non-finite authored coordinate.`;
+    const issue = duplicateNodeIds.has(node.id)
+      ? `Node ${node.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`
+      : finiteVec(node.position)
+        ? null
+        : `Node ${node.id} has a non-finite authored coordinate.`;
     const bounds = issue ? null : pointBounds(node.position);
     add({ type: "node", id: node.id }, node.label || node.id, node, bounds, issue ? null : node.position, issue);
   }
@@ -150,7 +161,9 @@ export function buildModelIndex(
     const from = nodesById.get(pipe.from)?.position;
     const to = nodesById.get(pipe.to)?.position;
     let issue: string | null = null;
-    if (!from || !to) issue = `Pipe ${pipe.id} references a missing endpoint.`;
+    if (duplicateNodeIds.has(pipe.from) || duplicateNodeIds.has(pipe.to)) {
+      issue = `Pipe ${pipe.id} references an ambiguous duplicate node endpoint.`;
+    } else if (!from || !to) issue = `Pipe ${pipe.id} references a missing endpoint.`;
     else if (!finiteVec(from) || !finiteVec(to)) issue = `Pipe ${pipe.id} has a non-finite endpoint.`;
     else if (!finiteNumber(distanceSquared(from, to)) || distanceSquared(from, to) <= 0) {
       issue = `Pipe ${pipe.id} has an unrepresentable or zero authored span.`;
@@ -177,7 +190,9 @@ export function buildModelIndex(
 
   for (const support of model.supports) {
     const position = nodesById.get(support.node)?.position;
-    const issue = !position
+    const issue = duplicateNodeIds.has(support.node)
+      ? `Support ${support.id} references an ambiguous duplicate node.`
+      : !position
       ? `Support ${support.id} references a missing node.`
       : !finiteVec(position)
         ? `Support ${support.id} is anchored to a non-finite node.`
@@ -194,7 +209,9 @@ export function buildModelIndex(
 
   for (const component of model.components) {
     const position = nodesById.get(component.node)?.position;
-    const issue = !position
+    const issue = duplicateNodeIds.has(component.node)
+      ? `Component ${component.id} references an ambiguous duplicate node.`
+      : !position
       ? `Component ${component.id} references a missing node.`
       : !finiteVec(position)
         ? `Component ${component.id} is anchored to a non-finite node.`

@@ -27,6 +27,7 @@ import {
   X
 } from "lucide-react";
 import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
+import { DormantSection } from "./features/workspace/dormantSection";
 import type React from "react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
@@ -57,11 +58,13 @@ import {
   applySelection,
   emptySelection,
   primarySelection,
+  pruneSelection,
   sameSelection,
   singletonSelection,
   type OrderedSelectionState,
   type SelectionModifiers
 } from "./features/workspace/selectionState";
+import { publishUiModelAssignmentStarted } from "./features/workspace/uiDiagnostics";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { intentKey, OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -512,7 +515,18 @@ function AppSession() {
   const [orderedSelection, setOrderedSelection] = useState<OrderedSelectionState>(() => emptySelection());
   const orderedSelectionRef = useRef<OrderedSelectionState>(orderedSelection);
   const [projectSessionGeneration, setProjectSessionGeneration] = useState(0);
+  const projectSessionGenerationRef = useRef(0);
   const [uiModelRevision, setUiModelRevision] = useState(0);
+  const uiModelRevisionRef = useRef(0);
+  const modelPublicationGenerationRef = useRef(0);
+  const [modelAssignment, setModelAssignment] = useState<{
+    status: "started" | "committed";
+    generation: number;
+    indexGeneration: string;
+    identityHash: string;
+    startedAt: number;
+    committedAt: number | null;
+  } | null>(null);
   const [result, setResult] = useState<MechanicsResult | null>(null);
   const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
   const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
@@ -569,6 +583,16 @@ function AppSession() {
   // core (model tree | 3D viewport | inspector) owns the surface; workspace
   // sections are summoned from the View menu and dismissed back to the viewport.
   const [activeSection, setActiveSection] = useState<WorkspaceSectionId | null>(null);
+  const [activatedExpensiveSections, setActivatedExpensiveSections] = useState<ReadonlySet<WorkspaceSectionId>>(
+    () => new Set()
+  );
+  useEffect(() => {
+    if (!activeSection || !EXPENSIVE_LIFECYCLE_SECTIONS.has(activeSection)) return;
+    setActivatedExpensiveSections((current) => {
+      if (current.has(activeSection)) return current;
+      return new Set([...current, activeSection]);
+    });
+  }, [activeSection]);
   const [toolkitFocus, setToolkitFocus] = useState<{ testId: string; elementId?: string } | null>(null);
   useLayoutEffect(() => {
     if (!toolkitFocus) return;
@@ -651,7 +675,7 @@ function AppSession() {
     Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]).then(
       ([loadedModel, loadedKnowledge, loadedStorageCapability]) => {
         if (!active) return;
-        setProjectSessionGeneration((generation) => generation + 1);
+        advanceProjectSession();
         commitModel(loadedModel);
         setKnowledge(loadedKnowledge);
         setSelection(defaultSelection(loadedModel));
@@ -681,10 +705,25 @@ function AppSession() {
   }, [model]);
 
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
+    const assignmentStartedAt = performance.now();
+    const modelPublicationGeneration = modelPublicationGenerationRef.current + 1;
+    publishUiModelAssignmentStarted(modelPublicationGeneration, assignmentStartedAt);
+    const nextUiModelRevision = uiModelRevisionRef.current + 1;
+    const indexGeneration = `${projectSessionGenerationRef.current}:${nextUiModelRevision}`;
+    const identityHash = uiModelIdentityHash(nextModel);
+    setModelAssignment({
+      status: "started",
+      generation: modelPublicationGeneration,
+      indexGeneration,
+      identityHash,
+      startedAt: assignmentStartedAt,
+      committedAt: null
+    });
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
     setDirectDraftCommitToken(directDraftToken);
-    setUiModelRevision((revision) => revision + 1);
+    uiModelRevisionRef.current = nextUiModelRevision;
+    setUiModelRevision(nextUiModelRevision);
     currentModel.current = nextModel;
     setHistoricalRun(null);
     operationRequest.current.sequence += 1;
@@ -692,12 +731,26 @@ function AppSession() {
     directDraftReviews.current.clear();
     setOperationBusy(false);
     commitModelAfterSolveInvalidation(solveRunGate.current, modelRevision, () => {
+      modelPublicationGenerationRef.current = modelPublicationGeneration;
       activeSolveJob.current = null;
       setRunning(false);
       setSolveProof(null);
       setModelHash(null);
+      setModelAssignment({
+        status: "committed",
+        generation: modelPublicationGeneration,
+        indexGeneration,
+        identityHash,
+        startedAt: assignmentStartedAt,
+        committedAt: performance.now()
+      });
       setModel(nextModel);
     });
+  }
+
+  function advanceProjectSession(): void {
+    const nextGeneration = ++projectSessionGenerationRef.current;
+    setProjectSessionGeneration(nextGeneration);
   }
 
   // Warm up the operation engine and report its honest route/readiness.
@@ -1496,7 +1549,19 @@ function AppSession() {
     returnedModelHash: ModelHashEvidence | null
   ) {
     commitModel(envelope.model);
-    setSelection(defaultSelection(envelope.model));
+    const normalizedIndex = modelIndexFor(
+      envelope.model,
+      projectSessionGenerationRef.current,
+      uiModelRevisionRef.current
+    );
+    commitSelectionState(
+      pruneSelection(
+        orderedSelectionRef.current,
+        new Set(normalizedIndex.entities.keys()),
+        { type: "project", id: envelope.model.project.id }
+      ),
+      envelope.model
+    );
     setUndoStack([]);
     setRedoStack([]);
     setAppliedOperations([]);
@@ -1636,7 +1701,7 @@ function AppSession() {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
       };
-      setProjectSessionGeneration((generation) => generation + 1);
+      advanceProjectSession();
       commitModel(created.model);
       epoch = requestEpochRef.current;
       setSelection(defaultSelection(created.model));
@@ -1694,7 +1759,7 @@ function AppSession() {
       }
       const restoredHistory = await buildHistoricalRunContext(opened);
       if (!stillCurrent()) return;
-      setProjectSessionGeneration((generation) => generation + 1);
+      advanceProjectSession();
       commitModel(opened.model);
       epoch = requestEpochRef.current;
       setSelection(defaultSelection(opened.model));
@@ -2216,7 +2281,9 @@ function AppSession() {
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
               armedCreationTool={armedCreationTool}
+              assignment={modelAssignment}
               model={model}
+              modelIdentityHash={modelAssignment?.identityHash ?? null}
               modelIndex={activeModelIndex ?? undefined}
               modelCommitToken={directDraftCommitToken}
               onAddDraft={handleAddDraftReview}
@@ -2523,6 +2590,8 @@ function AppSession() {
               aria-label="Report section"
               data-testid="workspace-section-report"
             >
+              {activeSection === "report" || activatedExpensiveSections.has("report") ? (
+              <DormantSection active={activeSection === "report"} sessionGeneration={projectSessionGeneration}>
               <RenderedReportPanel
                 model={model}
                 result={currentSolvedResult}
@@ -2549,6 +2618,7 @@ function AppSession() {
                 storageCapability={storageCapability}
               />
               <ReportLintPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
+              </DormantSection>) : null}
             </section>
 
             <section
@@ -2556,6 +2626,8 @@ function AppSession() {
               aria-label="Project section"
               data-testid="workspace-section-project"
             >
+              {activeSection === "project" || activatedExpensiveSections.has("project") ? (
+              <DormantSection active={activeSection === "project"} sessionGeneration={projectSessionGeneration}>
               <ProjectStorageAuditPanel
                 model={model}
                 storageCapability={storageCapability}
@@ -2581,6 +2653,7 @@ function AppSession() {
                 modelDocumentMigration={modelDocumentMigration}
                 modelMigrationLedger={modelMigrationLedger}
               />
+              </DormantSection>) : null}
             </section>
 
             <section
@@ -2588,6 +2661,8 @@ function AppSession() {
               aria-label="Exports section"
               data-testid="workspace-section-exports"
             >
+              {activeSection === "exports" || activatedExpensiveSections.has("exports") ? (
+              <DormantSection active={activeSection === "exports"} sessionGeneration={projectSessionGeneration}>
               <ResultExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} inputManifest={inputManifest} />
               <StressNeutralExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
               <PcfExportPanel model={model} result={currentSolvedResult} analysisRun={analysisRun} />
@@ -2634,6 +2709,7 @@ function AppSession() {
                 storageCapability={storageCapability}
               />
               <RedactionExportControlsPanel model={model} />
+              </DormantSection>) : null}
             </section>
 
             <section
@@ -2641,6 +2717,8 @@ function AppSession() {
               aria-label="Audit and boundaries section"
               data-testid="workspace-section-evidence"
             >
+              {activeSection === "evidence" || activatedExpensiveSections.has("evidence") ? (
+              <DormantSection active={activeSection === "evidence"} sessionGeneration={projectSessionGeneration}>
               <RunAuditPanel model={model} result={result} analysisRun={analysisRun} />
               <ValidationEvidencePanel model={model} />
               <BuildReadinessPanel model={model} />
@@ -2648,6 +2726,7 @@ function AppSession() {
               <SecretPrivateLibraryPanel model={model} storageCapability={storageCapability} />
               <SecurityThreatModelPanel model={model} storageCapability={storageCapability} />
               <AccessibilityBaselinePanel model={model} />
+              </DormantSection>) : null}
             </section>
           </div>
         </section>
@@ -2697,9 +2776,30 @@ function AppSession() {
   );
 }
 
-// Inactive sections stay mounted (form drafts, queue previews, and audit
-// state survive navigation) and are hidden with CSS only; display:none also
-// removes them from the accessibility tree in a real browser.
+const EXPENSIVE_LIFECYCLE_SECTIONS: ReadonlySet<WorkspaceSectionId> = new Set([
+  "report",
+  "project",
+  "exports",
+  "evidence"
+]);
+
+function uiModelIdentityHash(model: PreviewModel): string {
+  const text = JSON.stringify(model);
+  let first = 0x811c9dc5;
+  let second = 0x9e3779b9;
+  for (let index = 0; index < text.length; index += 1) {
+    const unit = text.charCodeAt(index);
+    first = Math.imul(first ^ unit, 0x01000193);
+    second = Math.imul(second ^ unit, 0x85ebca6b);
+  }
+  return `ui-model-fnv32x2:${(first >>> 0).toString(16).padStart(8, "0")}${
+    (second >>> 0).toString(16).padStart(8, "0")
+  }:${text.length}`;
+}
+
+// Once activated, sections stay mounted so form drafts and queue previews
+// survive navigation; expensive sections defer their first model scan until
+// the user opens them. CSS removes inactive sections from the accessibility tree.
 function dockSectionClass(sectionId: WorkspaceSectionId, activeSection: WorkspaceSectionId | null): string {
   return sectionId === activeSection ? "workspace-dock-section" : "workspace-dock-section inactive";
 }

@@ -264,7 +264,7 @@ export function prioritizedLabelKeys(index: ModelIndex, input: LabelPriorityInpu
   const output: EntityKey[] = [];
   const seen = new Set<EntityKey>();
   const include = (key: EntityKey | null | undefined) => {
-    if (!key || seen.has(key) || hidden.has(key)) return;
+    if (output.length >= limit || !key || seen.has(key) || hidden.has(key)) return;
     const entity = index.entities.get(key);
     if (!entity?.anchor || entity.geometryIssue) return;
     seen.add(key);
@@ -273,12 +273,39 @@ export function prioritizedLabelKeys(index: ModelIndex, input: LabelPriorityInpu
 
   include(input.primaryKey);
   include(input.hoverKey);
-  for (const key of input.selectedKeys ?? []) include(key);
-  for (const key of input.diagnosticKeys ?? []) include(key);
+  for (const key of input.selectedKeys ?? []) {
+    if (output.length >= limit) break;
+    include(key);
+  }
+  for (const key of input.diagnosticKeys ?? []) {
+    if (output.length >= limit) break;
+    include(key);
+  }
 
   const cameraTarget = input.cameraTarget ?? boundsCenter(index.geometryBounds);
-  const context = [...index.visibilityEligibleKeys]
-    .filter((key) => !seen.has(key) && !hidden.has(key) && Boolean(index.entities.get(key)?.anchor))
+  const context = input.cameraTarget
+    ? sortedLabelContext(index, cameraTarget)
+    : defaultLabelContext(index);
+  for (const key of context) {
+    if (output.length >= limit) break;
+    include(key);
+  }
+  return Object.freeze(output.slice(0, limit));
+}
+
+const DEFAULT_LABEL_CONTEXT = new WeakMap<ModelIndex, readonly EntityKey[]>();
+
+function defaultLabelContext(index: ModelIndex): readonly EntityKey[] {
+  const cached = DEFAULT_LABEL_CONTEXT.get(index);
+  if (cached) return cached;
+  const sorted = Object.freeze(sortedLabelContext(index, boundsCenter(index.geometryBounds)));
+  DEFAULT_LABEL_CONTEXT.set(index, sorted);
+  return sorted;
+}
+
+function sortedLabelContext(index: ModelIndex, cameraTarget: Readonly<Vec3>): EntityKey[] {
+  return [...index.visibilityEligibleKeys]
+    .filter((key) => Boolean(index.entities.get(key)?.anchor))
     .sort((left, right) => {
       const leftAnchor = index.entities.get(left)?.anchor;
       const rightAnchor = index.entities.get(right)?.anchor;
@@ -286,11 +313,6 @@ export function prioritizedLabelKeys(index: ModelIndex, input: LabelPriorityInpu
       const distanceDelta = distanceSquared(leftAnchor, cameraTarget) - distanceSquared(rightAnchor, cameraTarget);
       return distanceDelta || left.localeCompare(right);
     });
-  for (const key of context) {
-    if (output.length >= limit) break;
-    include(key);
-  }
-  return Object.freeze(output.slice(0, limit));
 }
 
 export function localBounds(authored: Bounds3, origin: Readonly<Vec3>): Bounds3 {

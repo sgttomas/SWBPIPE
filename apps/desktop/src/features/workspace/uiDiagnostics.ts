@@ -1,170 +1,352 @@
 import * as THREE from "three";
-import type { Vec3 } from "../../types";
-import type { EntityKey } from "./selectionState";
+import type { EntityRef, Vec3 } from "../../types";
 
-export const UI_DIAGNOSTICS_VERSION = 1 as const;
+export const UI_DIAGNOSTICS_SCHEMA = "openpipestress.ui-diagnostics/v1" as const;
+
+type Unavailable = Readonly<{ status: "unavailable" }>;
+type FrozenRef = Readonly<Pick<EntityRef, "type" | "id">>;
+
+export type UiRendererInfo = Readonly<{
+  geometries: number;
+  textures: number;
+  calls: number;
+  triangles: number;
+  points: number;
+  lines: number;
+}>;
+
+export type UiOwnedResourceCounts = Readonly<{
+  pipeMeshes: number;
+  nodeMeshes: number;
+  supportMeshes: number;
+  componentMeshes: number;
+  geometries: number;
+  materials: number;
+  textures: number;
+  instanceMatrices: number;
+  instanceColors: number;
+  controls: number;
+  eventBindings: number;
+  resizeObservers: number;
+}>;
 
 export type UiDiagnosticsSnapshot = Readonly<{
-  version: typeof UI_DIAGNOSTICS_VERSION;
-  sessionGeneration: number;
-  modelGeneration: string;
-  assignmentStartedAt: number | null;
-  mainFrameSubmissionSequence: number;
-  mainFrameSubmittedAt: number | null;
-  nextPaintOpportunityAt: number | null;
-  selectionKeys: readonly EntityKey[];
-  primaryKey: EntityKey | null;
-  boxSelectionMode: boolean;
-  entityFilter: "all" | "pipes" | "nodes" | "supports" | "components";
-  camera: Readonly<{
-    position: readonly [number, number, number];
-    target: readonly [number, number, number];
-    up: readonly [number, number, number];
+  schema: typeof UI_DIAGNOSTICS_SCHEMA;
+  snapshotSequence: number;
+  capturedAt: number;
+  model: Readonly<{
+    projectId: string | null;
+    generation: number | null;
+    indexGeneration: string | null;
+    projectSessionGeneration: number | null;
+    identityHash: string | null;
+    assignment: Readonly<{
+      status: "idle" | "started" | "committed";
+      generation: number | null;
+      startedAt: number | null;
+      committedAt: number | null;
+    }>;
   }>;
-  renderOrigin: readonly [number, number, number];
-  rendererInfo: Readonly<{
-    geometries: number;
-    textures: number;
-    calls: number;
-    triangles: number;
-    points: number;
-    lines: number;
-  }>;
-  pendingAppOwnedRafCount: number;
+  tree: Readonly<{
+    generation: number;
+    publicationSequence: number;
+    query: string;
+    visibleCount: number;
+    publishedAt: number;
+  }> | Unavailable;
+  viewport: Readonly<{
+    generation: number;
+    canvas: Readonly<{
+      cssLeft: number;
+      cssTop: number;
+      cssWidth: number;
+      cssHeight: number;
+      dpr: number;
+      bufferWidth: number;
+      bufferHeight: number;
+    }>;
+    camera: Readonly<{
+      sequence: number;
+      kind: "perspective";
+      position: readonly [number, number, number];
+      target: readonly [number, number, number];
+      up: readonly [number, number, number];
+      fovDegrees: number;
+      near: number;
+      far: number;
+      aspect: number;
+      localRenderOrigin: readonly [number, number, number];
+    }>;
+    mainRender: Readonly<{
+      submissionSequence: number;
+      generation: number;
+      reason: string;
+      submittedAt: number | null;
+      nextPaintOpportunity: Readonly<{
+        submissionSequence: number;
+        generation: number;
+        at: number;
+      }> | null;
+    }>;
+    selection: Readonly<{
+      actionSequence: number;
+      generation: number;
+      inputKind: string;
+      pointerDownAt: number | null;
+      orderedRefs: readonly FrozenRef[];
+      primaryRef: FrozenRef | null;
+      publishedAt: number;
+      renderSubmissionSequence: number;
+    }>;
+    inspector: Readonly<{
+      generation: number;
+      ref: FrozenRef | null;
+      publicationSequence: number;
+      publishedAt: number;
+    }>;
+    filter: Readonly<{
+      actionSequence: number;
+      generation: number;
+      query: string;
+      visibleCount: number;
+      publishedAt: number;
+      renderSubmissionSequence: number;
+    }> | Unavailable;
+    box: Readonly<{
+      actionSequence: number;
+      generation: number;
+      direction: "left-to-right" | "right-to-left" | null;
+      filter: string;
+      orderedRefs: readonly FrozenRef[];
+      primaryRef: FrozenRef | null;
+      publishedAt: number | null;
+      renderSubmissionSequence: number;
+    }> | Unavailable;
+    labels: Readonly<{ enabled: boolean; renderedCount: number; budget: number }>;
+    geometry: Readonly<{ mode: "schematic" | "actual-od"; odGeneration: number; odStatus: string }>;
+    resources: Readonly<{
+      rendererInfo: UiRendererInfo;
+      ownedPendingRafCount: number;
+      owned: Readonly<{
+        generation: number;
+        live: UiOwnedResourceCounts;
+        created: UiOwnedResourceCounts;
+        disposed: UiOwnedResourceCounts;
+      }>;
+      context: Readonly<{
+        generation: number;
+        canvasConnected: boolean;
+        lostCount: number;
+        restoredCount: number;
+      }>;
+    }>;
+  }> | Unavailable;
 }>;
+
+export type UiDiagnosticsPublication = Omit<UiDiagnosticsSnapshot, "schema" | "snapshotSequence" | "capturedAt">;
 
 export type UiProjectionContext = Readonly<{
-  generation: string;
+  modelGeneration: number;
+  cameraSequence: number;
   renderOrigin: Readonly<Vec3>;
   viewProjectionMatrix: readonly number[];
-  canvasRect: Readonly<{ left: number; top: number; width: number; height: number }>;
+  canvasCss: Readonly<{ left: number; top: number; width: number; height: number }>;
+  canvasDevice: Readonly<{ width: number; height: number }>;
 }>;
 
-export type UiProjectionResult =
+export type ProjectionRequest = Readonly<{
+  modelGeneration: number;
+  cameraSequence: number;
+  authoredPoint: Readonly<Vec3>;
+}>;
+
+export type ProjectionResult =
   | Readonly<{
-      state: "available";
-      generation: string;
-      cssX: number;
-      cssY: number;
-      inFrustum: boolean;
-      renderOrigin: readonly [number, number, number];
+      status: "available";
+      modelGeneration: number;
+      cameraSequence: number;
+      canvasCss: Readonly<{ width: number; height: number }>;
+      canvasDevice: Readonly<{ width: number; height: number }>;
+      localPoint: Readonly<Vec3>;
+      clip: Readonly<{ x: number; y: number; z: number; w: number }>;
+      ndc: Readonly<Vec3>;
+      canvasCssPoint: Readonly<{ x: number; y: number }>;
+      insideClosedNdc: boolean;
+      insideCanvasCss: boolean;
     }>
-  | Readonly<{ state: "unavailable"; generation: string | null; reason: "non_finite" | "stale_generation" | "no_projection" }>;
+  | Readonly<{
+      status: "stale";
+      requested: Readonly<{ modelGeneration: number; cameraSequence: number }>;
+      current: Readonly<{ modelGeneration: number | null; cameraSequence: number | null }>;
+    }>
+  | Readonly<{
+      status: "invalid";
+      reason: "NON_FINITE_AUTHORED_POINT" | "NON_FINITE_PROJECTION" | "ZERO_CLIP_W" |
+        "NO_CURRENT_MODEL" | "NO_CURRENT_CAMERA";
+    }>;
 
-export type UiDiagnosticsObserver = (snapshot: UiDiagnosticsSnapshot) => void;
+export type UiDiagnosticsGlobal = Readonly<{
+  schema: typeof UI_DIAGNOSTICS_SCHEMA;
+  readCurrent(): UiDiagnosticsSnapshot;
+  projectAuthoredPoint(request: ProjectionRequest): ProjectionResult;
+}>;
 
-let observer: UiDiagnosticsObserver | null = null;
-let currentSnapshot: UiDiagnosticsSnapshot | null = null;
+let demanded = false;
+let snapshotSequence = 0;
+let currentSnapshot: UiDiagnosticsSnapshot = idleSnapshot();
 let currentProjection: UiProjectionContext | null = null;
 
-export function installUiDiagnosticsObserver(observerToInstall: UiDiagnosticsObserver | null): () => void {
-  observer = observerToInstall;
-  if (!observer) {
-    currentSnapshot = null;
-    currentProjection = null;
-  }
-  return () => {
-    if (observer === observerToInstall) {
-      observer = null;
-      currentSnapshot = null;
-      currentProjection = null;
-    }
-  };
-}
-
 export function hasUiDiagnosticsObserver(): boolean {
-  return observer !== null;
+  return demanded;
 }
 
-/** The factory is deliberately lazy so normal product rendering allocates and samples nothing. */
+/** Publish assignment entry without exposing the pending model or changing projection. */
+export function publishUiModelAssignmentStarted(generation: number, startedAt: number): void {
+  if (!demanded) return;
+  currentSnapshot = deepFreeze({
+    ...currentSnapshot,
+    snapshotSequence: ++snapshotSequence,
+    capturedAt: performance.now(),
+    model: {
+      ...currentSnapshot.model,
+      assignment: {
+        status: "started",
+        generation,
+        startedAt,
+        committedAt: null
+      }
+    }
+  });
+}
+
+/** Factories stay lazy until VERIFY first reads the fixed read-only global. */
 export function publishUiDiagnostics(
-  snapshotFactory: () => UiDiagnosticsSnapshot,
+  snapshotFactory: () => UiDiagnosticsPublication,
   projectionFactory?: () => UiProjectionContext
 ): void {
-  if (!observer) return;
-  const snapshot = freezeSnapshot(snapshotFactory());
-  currentSnapshot = snapshot;
-  currentProjection = projectionFactory ? freezeProjection(projectionFactory()) : null;
-  observer(snapshot);
+  if (!demanded) return;
+  currentSnapshot = deepFreeze({
+    ...snapshotFactory(),
+    schema: UI_DIAGNOSTICS_SCHEMA,
+    snapshotSequence: ++snapshotSequence,
+    capturedAt: performance.now()
+  });
+  currentProjection = projectionFactory ? deepFreeze(projectionFactory()) : null;
 }
 
-export function currentUiDiagnosticsSnapshot(): UiDiagnosticsSnapshot | null {
-  return currentSnapshot;
+function readCurrent(): UiDiagnosticsSnapshot {
+  demanded = true;
+  return deepFreeze(structuredClone(currentSnapshot));
 }
 
-export function projectAuthoredAnchor(
-  authored: Readonly<Vec3>,
-  expectedGeneration: string
-): UiProjectionResult {
+function projectAuthoredPoint(request: ProjectionRequest): ProjectionResult {
+  demanded = true;
+  const modelGeneration = currentSnapshot.model.generation;
+  if (modelGeneration === null) return invalid("NO_CURRENT_MODEL");
   const projection = currentProjection;
-  if (!projection) return Object.freeze({ state: "unavailable", generation: null, reason: "no_projection" });
-  if (projection.generation !== expectedGeneration) {
-    return Object.freeze({ state: "unavailable", generation: projection.generation, reason: "stale_generation" });
+  if (!projection) return invalid("NO_CURRENT_CAMERA");
+  if (request.modelGeneration !== projection.modelGeneration || request.cameraSequence !== projection.cameraSequence) {
+    return deepFreeze({
+      status: "stale",
+      requested: { modelGeneration: request.modelGeneration, cameraSequence: request.cameraSequence },
+      current: { modelGeneration: projection.modelGeneration, cameraSequence: projection.cameraSequence }
+    });
   }
-  if (!finiteVec(authored) || !finiteVec(projection.renderOrigin) ||
-    projection.viewProjectionMatrix.length !== 16 ||
-    projection.viewProjectionMatrix.some((value) => !Number.isFinite(value)) ||
-    !finiteRect(projection.canvasRect)) {
-    return Object.freeze({ state: "unavailable", generation: projection.generation, reason: "non_finite" });
+  if (!finiteVec(request.authoredPoint)) return invalid("NON_FINITE_AUTHORED_POINT");
+  if (!finiteVec(projection.renderOrigin) || projection.viewProjectionMatrix.length !== 16 ||
+      projection.viewProjectionMatrix.some((value) => !Number.isFinite(value)) ||
+      !finiteCanvas(projection.canvasCss, projection.canvasDevice)) {
+    return invalid("NON_FINITE_PROJECTION");
   }
-
-  const local = new THREE.Vector3(
-    authored.x - projection.renderOrigin.x,
-    authored.y - projection.renderOrigin.y,
-    authored.z - projection.renderOrigin.z
-  );
-  const clip = local.applyMatrix4(new THREE.Matrix4().fromArray([...projection.viewProjectionMatrix]));
-  if (![clip.x, clip.y, clip.z].every(Number.isFinite)) {
-    return Object.freeze({ state: "unavailable", generation: projection.generation, reason: "non_finite" });
+  const localPoint = {
+    x: request.authoredPoint.x - projection.renderOrigin.x,
+    y: request.authoredPoint.y - projection.renderOrigin.y,
+    z: request.authoredPoint.z - projection.renderOrigin.z
+  };
+  const clipVector = new THREE.Vector4(localPoint.x, localPoint.y, localPoint.z, 1)
+    .applyMatrix4(new THREE.Matrix4().fromArray([...projection.viewProjectionMatrix]));
+  if (![clipVector.x, clipVector.y, clipVector.z, clipVector.w].every(Number.isFinite)) {
+    return invalid("NON_FINITE_PROJECTION");
   }
-  return Object.freeze({
-    state: "available",
-    generation: projection.generation,
-    cssX: projection.canvasRect.left + (clip.x * 0.5 + 0.5) * projection.canvasRect.width,
-    cssY: projection.canvasRect.top + (-clip.y * 0.5 + 0.5) * projection.canvasRect.height,
-    inFrustum: clip.x >= -1 && clip.x <= 1 && clip.y >= -1 && clip.y <= 1 && clip.z >= -1 && clip.z <= 1,
-    renderOrigin: freezeTuple(vecTuple(projection.renderOrigin))
+  if (clipVector.w === 0) return invalid("ZERO_CLIP_W");
+  const ndc = { x: clipVector.x / clipVector.w, y: clipVector.y / clipVector.w, z: clipVector.z / clipVector.w };
+  if (!finiteVec(ndc)) return invalid("NON_FINITE_PROJECTION");
+  const canvasCssPoint = {
+    x: (ndc.x * 0.5 + 0.5) * projection.canvasCss.width,
+    y: (-ndc.y * 0.5 + 0.5) * projection.canvasCss.height
+  };
+  return deepFreeze({
+    status: "available",
+    modelGeneration: projection.modelGeneration,
+    cameraSequence: projection.cameraSequence,
+    canvasCss: { width: projection.canvasCss.width, height: projection.canvasCss.height },
+    canvasDevice: { ...projection.canvasDevice },
+    localPoint,
+    clip: { x: clipVector.x, y: clipVector.y, z: clipVector.z, w: clipVector.w },
+    ndc,
+    canvasCssPoint,
+    insideClosedNdc: ndc.x >= -1 && ndc.x <= 1 && ndc.y >= -1 && ndc.y <= 1 && ndc.z >= -1 && ndc.z <= 1,
+    insideCanvasCss: canvasCssPoint.x >= 0 && canvasCssPoint.x <= projection.canvasCss.width &&
+      canvasCssPoint.y >= 0 && canvasCssPoint.y <= projection.canvasCss.height
   });
 }
 
-function freezeSnapshot(snapshot: UiDiagnosticsSnapshot): UiDiagnosticsSnapshot {
-  return Object.freeze({
-    ...snapshot,
-    version: UI_DIAGNOSTICS_VERSION,
-    selectionKeys: Object.freeze([...snapshot.selectionKeys]),
-    camera: Object.freeze({
-      position: freezeTuple(snapshot.camera.position),
-      target: freezeTuple(snapshot.camera.target),
-      up: freezeTuple(snapshot.camera.up)
-    }),
-    renderOrigin: freezeTuple(snapshot.renderOrigin),
-    rendererInfo: Object.freeze({ ...snapshot.rendererInfo })
+function idleSnapshot(): UiDiagnosticsSnapshot {
+  return deepFreeze({
+    schema: UI_DIAGNOSTICS_SCHEMA,
+    snapshotSequence: 0,
+    capturedAt: performance.now(),
+    model: {
+      projectId: null,
+      generation: null,
+      indexGeneration: null,
+      projectSessionGeneration: null,
+      identityHash: null,
+      assignment: { status: "idle", generation: null, startedAt: null, committedAt: null }
+    },
+    tree: { status: "unavailable" },
+    viewport: { status: "unavailable" }
   });
 }
 
-function freezeProjection(projection: UiProjectionContext): UiProjectionContext {
-  return Object.freeze({
-    generation: projection.generation,
-    renderOrigin: Object.freeze({ ...projection.renderOrigin }),
-    viewProjectionMatrix: Object.freeze([...projection.viewProjectionMatrix]),
-    canvasRect: Object.freeze({ ...projection.canvasRect })
-  });
-}
-
-function vecTuple(value: Readonly<Vec3>): [number, number, number] {
-  return [value.x, value.y, value.z];
-}
-
-function freezeTuple(value: readonly [number, number, number]): readonly [number, number, number] {
-  return Object.freeze([value[0], value[1], value[2]]) as readonly [number, number, number];
+function invalid(reason: Extract<ProjectionResult, { status: "invalid" }>["reason"]): ProjectionResult {
+  return deepFreeze({ status: "invalid", reason });
 }
 
 function finiteVec(value: Readonly<Vec3>): boolean {
   return Number.isFinite(value.x) && Number.isFinite(value.y) && Number.isFinite(value.z);
 }
 
-function finiteRect(rect: UiProjectionContext["canvasRect"]): boolean {
-  return Number.isFinite(rect.left) && Number.isFinite(rect.top) &&
-    Number.isFinite(rect.width) && rect.width > 0 &&
-    Number.isFinite(rect.height) && rect.height > 0;
+function finiteCanvas(
+  css: UiProjectionContext["canvasCss"],
+  device: UiProjectionContext["canvasDevice"]
+): boolean {
+  return [css.left, css.top, css.width, css.height, device.width, device.height].every(Number.isFinite) &&
+    css.width > 0 && css.height > 0 && device.width > 0 && device.height > 0;
+}
+
+function deepFreeze<T>(value: T): T {
+  if (!value || (typeof value !== "object" && typeof value !== "function") || Object.isFrozen(value)) return value;
+  for (const nested of Object.values(value as Record<string, unknown>)) deepFreeze(nested);
+  return Object.freeze(value);
+}
+
+const diagnosticsGlobal: UiDiagnosticsGlobal = deepFreeze({
+  schema: UI_DIAGNOSTICS_SCHEMA,
+  readCurrent,
+  projectAuthoredPoint
+});
+
+if (!Object.prototype.hasOwnProperty.call(globalThis, "__openPipeStressUiDiagnosticsV1")) {
+  Object.defineProperty(globalThis, "__openPipeStressUiDiagnosticsV1", {
+    value: diagnosticsGlobal,
+    writable: false,
+    configurable: false,
+    enumerable: false
+  });
+}
+
+declare global {
+  // Test-only/internal read-only production surface frozen by OBSERVABILITY_ATTACHMENT_V1.
+  var __openPipeStressUiDiagnosticsV1: UiDiagnosticsGlobal;
 }

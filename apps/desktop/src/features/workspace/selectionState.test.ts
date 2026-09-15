@@ -6,6 +6,7 @@ import {
   entityKey,
   entityRefFromKey,
   projectSelection,
+  pruneSelection,
   setSelectionFocus
 } from "./selectionState";
 
@@ -51,5 +52,26 @@ describe("ordered typed selection", () => {
     const ranged = applyDisplayedRange(anchored, refs[3], order);
     expect(ranged.orderedKeys).toEqual(order.slice(1));
     expect(ranged.primaryKey).toBe(entityKey(refs[3]));
+  });
+
+  it("publishes one selection revision for a full displayed range", () => {
+    const refs = Array.from({ length: 10_000 }, (_, index) => ({
+      type: "node" as const,
+      id: `n:${index}`
+    }));
+    const order = refs.map(entityKey);
+    const anchored = applySelection(emptySelection(), refs[0]);
+    const ranged = applyDisplayedRange(anchored, refs.at(-1)!, order);
+    expect(ranged.orderedKeys).toHaveLength(10_000);
+    expect(ranged.preparationEpoch).toBe(anchored.preparationEpoch + 1);
+    expect(ranged.primaryKey).toBe(order.at(-1));
+  });
+
+  it("preserves empty membership when every stale reference is pruned", () => {
+    const project = { type: "project" as const, id: "p" };
+    const selected = applySelection(projectSelection(project), { type: "node", id: "gone" });
+    const pruned = pruneSelection(selected, new Set(), project);
+    expect(pruned.orderedKeys).toEqual([]);
+    expect(pruned.primaryKey).toBeNull();
   });
 });

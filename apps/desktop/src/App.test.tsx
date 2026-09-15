@@ -16577,6 +16577,7 @@ describe("workflow current and historical result boundaries", () => {
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("not started; result rows=0");
     expect(buildDeformationOverlay(envelope.model, null).nodePositions.size).toBe(0);
     expect(within(screen.getByTestId("historical-run-context")).getByTestId("result-unit-policy")).toHaveTextContent(`${envelope.mechanics_result!.results.length} rows`);
+    act(() => nativeMenuCommand("view.section.report"));
     expect(screen.getByTestId("rendered-report-render")).toBeDisabled();
     expect(screen.queryByTestId("status-pill-solve-proof")).not.toBeInTheDocument();
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();

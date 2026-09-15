@@ -1,71 +1,190 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
-  UI_DIAGNOSTICS_VERSION,
-  currentUiDiagnosticsSnapshot,
-  installUiDiagnosticsObserver,
-  projectAuthoredAnchor,
+  UI_DIAGNOSTICS_SCHEMA,
   publishUiDiagnostics,
-  type UiDiagnosticsSnapshot
+  publishUiModelAssignmentStarted,
+  type UiDiagnosticsPublication
 } from "./uiDiagnostics";
 
-const snapshot = (): UiDiagnosticsSnapshot => ({
-  version: UI_DIAGNOSTICS_VERSION,
-  sessionGeneration: 2,
-  modelGeneration: "2:4",
-  assignmentStartedAt: 1,
-  mainFrameSubmissionSequence: 3,
-  mainFrameSubmittedAt: 10,
-  nextPaintOpportunityAt: 11,
-  selectionKeys: [JSON.stringify(["node", "n"]) as never],
-  primaryKey: JSON.stringify(["node", "n"]) as never,
-  boxSelectionMode: false,
-  entityFilter: "all",
-  camera: { position: [0, 0, 10], target: [0, 0, 0], up: [0, 1, 0] },
-  renderOrigin: [1_000_000_000, 0, 0],
-  rendererInfo: { geometries: 2, textures: 0, calls: 1, triangles: 4, points: 0, lines: 0 },
-  pendingAppOwnedRafCount: 0
+const publication = (): UiDiagnosticsPublication => ({
+  model: {
+    projectId: "project:p",
+    generation: 4,
+    indexGeneration: "2:4",
+    projectSessionGeneration: 2,
+    identityHash: "sha256:test",
+    assignment: { status: "committed", generation: 4, startedAt: 1, committedAt: 2 }
+  },
+  tree: { generation: 4, publicationSequence: 1, query: "", visibleCount: 3, publishedAt: 3 },
+  viewport: {
+    generation: 4,
+    canvas: {
+      cssLeft: 10, cssTop: 20, cssWidth: 200, cssHeight: 100,
+      dpr: 2, bufferWidth: 400, bufferHeight: 200
+    },
+    camera: {
+      sequence: 3,
+      kind: "perspective",
+      position: [1_000_000_000, 0, 10],
+      target: [1_000_000_000, 0, 0],
+      up: [0, 1, 0],
+      fovDegrees: 42,
+      near: 0.1,
+      far: 1_000,
+      aspect: 2,
+      localRenderOrigin: [1_000_000_000, 0, 0]
+    },
+    mainRender: {
+      submissionSequence: 7,
+      generation: 4,
+      reason: "model-assignment",
+      submittedAt: 10,
+      nextPaintOpportunity: { submissionSequence: 7, generation: 4, at: 11 }
+    },
+    selection: {
+      actionSequence: 1,
+      generation: 4,
+      inputKind: "pointer",
+      pointerDownAt: 8,
+      orderedRefs: [{ type: "node", id: "n" }],
+      primaryRef: { type: "node", id: "n" },
+      publishedAt: 9,
+      renderSubmissionSequence: 7
+    },
+    inspector: { generation: 4, ref: { type: "node", id: "n" }, publicationSequence: 1, publishedAt: 9 },
+    filter: { actionSequence: 0, generation: 4, query: "", visibleCount: 3, publishedAt: 3, renderSubmissionSequence: 7 },
+    box: {
+      actionSequence: 0,
+      generation: 4,
+      direction: null,
+      filter: "all",
+      orderedRefs: [],
+      primaryRef: null,
+      publishedAt: null,
+      renderSubmissionSequence: 0
+    },
+    labels: { enabled: true, renderedCount: 3, budget: 80 },
+    geometry: { mode: "schematic", odGeneration: 0, odStatus: "not-requested" },
+    resources: {
+      rendererInfo: { geometries: 2, textures: 0, calls: 1, triangles: 4, points: 0, lines: 0 },
+      ownedPendingRafCount: 0,
+      owned: {
+        generation: 1,
+        live: ownedCounts({ geometries: 2, materials: 2, controls: 1, eventBindings: 7, resizeObservers: 1 }),
+        created: ownedCounts({ geometries: 2, materials: 2, controls: 1, eventBindings: 7, resizeObservers: 1 }),
+        disposed: ownedCounts()
+      },
+      context: { generation: 1, canvasConnected: true, lostCount: 0, restoredCount: 0 }
+    }
+  }
 });
 
-afterEach(() => installUiDiagnosticsObserver(null));
+function ownedCounts(overrides: Partial<Record<string, number>> = {}) {
+  return {
+    pipeMeshes: 0,
+    nodeMeshes: 0,
+    supportMeshes: 0,
+    componentMeshes: 0,
+    geometries: 0,
+    materials: 0,
+    textures: 0,
+    instanceMatrices: 0,
+    instanceColors: 0,
+    controls: 0,
+    eventBindings: 0,
+    resizeObservers: 0,
+    ...overrides
+  };
+}
 
-describe("UI diagnostics", () => {
-  it("does not allocate or sample when no observer is installed", () => {
-    const factory = vi.fn(snapshot);
+describe("UI diagnostics attachment", () => {
+  it("installs the exact immutable global without sampling before first demand", () => {
+    const factory = vi.fn(publication);
     publishUiDiagnostics(factory);
     expect(factory).not.toHaveBeenCalled();
-    expect(currentUiDiagnosticsSnapshot()).toBeNull();
+    const descriptor = Object.getOwnPropertyDescriptor(globalThis, "__openPipeStressUiDiagnosticsV1");
+    expect(descriptor).toMatchObject({ writable: false, configurable: false });
+    expect(Object.keys(globalThis.__openPipeStressUiDiagnosticsV1).sort()).toEqual([
+      "projectAuthoredPoint", "readCurrent", "schema"
+    ]);
+    expect(globalThis.__openPipeStressUiDiagnosticsV1.schema).toBe(UI_DIAGNOSTICS_SCHEMA);
+    expect(Object.isFrozen(globalThis.__openPipeStressUiDiagnosticsV1)).toBe(true);
   });
 
-  it("replaces a frozen bounded current snapshot", () => {
-    const observer = vi.fn();
-    installUiDiagnosticsObserver(observer);
-    publishUiDiagnostics(snapshot);
-    const first = currentUiDiagnosticsSnapshot();
-    publishUiDiagnostics(() => ({ ...snapshot(), mainFrameSubmissionSequence: 4 }));
-    expect(observer).toHaveBeenCalledTimes(2);
-    expect(currentUiDiagnosticsSnapshot()?.mainFrameSubmissionSequence).toBe(4);
-    expect(Object.isFrozen(first)).toBe(true);
-    expect(Object.isFrozen(first?.selectionKeys)).toBe(true);
-    expect(Object.values(currentUiDiagnosticsSnapshot() ?? {}).some((value) => typeof value === "function")).toBe(false);
-  });
+  it("returns a recursively frozen idle snapshot, then replaces one bounded current snapshot", () => {
+    const idle = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
+    expect(idle.model.generation).toBeNull();
+    expect(idle.model.assignment.status).toBe("idle");
+    expect(Object.isFrozen(idle)).toBe(true);
+    expect(Object.isFrozen(idle.model.assignment)).toBe(true);
 
-  it("projects large authored anchors through a copied local-origin matrix and rejects stale generations", () => {
-    installUiDiagnosticsObserver(vi.fn());
-    publishUiDiagnostics(snapshot, () => ({
-      generation: "2:4",
+    publishUiModelAssignmentStarted(4, 0.5);
+    const assigning = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
+    expect(assigning.model.generation).toBeNull();
+    expect(assigning.model.assignment).toEqual({
+      status: "started",
+      generation: 4,
+      startedAt: 0.5,
+      committedAt: null
+    });
+    expect(assigning.viewport).toEqual({ status: "unavailable" });
+
+    publishUiDiagnostics(publication, () => ({
+      modelGeneration: 4,
+      cameraSequence: 3,
       renderOrigin: { x: 1_000_000_000, y: 0, z: 0 },
       viewProjectionMatrix: [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-      canvasRect: { left: 10, top: 20, width: 200, height: 100 }
+      canvasCss: { left: 10, top: 20, width: 200, height: 100 },
+      canvasDevice: { width: 400, height: 200 }
     }));
-    expect(projectAuthoredAnchor({ x: 1_000_000_000, y: 0, z: 0 }, "2:4")).toMatchObject({
-      state: "available",
-      cssX: 110,
-      cssY: 70,
-      inFrustum: true
+    const current = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
+    expect(current.model.generation).toBe(4);
+    expect("status" in current.viewport ? current.viewport.status : "available").toBe("available");
+    expect(Object.isFrozen(current.viewport)).toBe(true);
+    expect(Object.values(current).some((value) => typeof value === "function")).toBe(false);
+  });
+
+  it("projects exact large-offset literals and returns exact stale and invalid unions", () => {
+    const api = globalThis.__openPipeStressUiDiagnosticsV1;
+    expect(api.projectAuthoredPoint({
+      modelGeneration: 4,
+      cameraSequence: 3,
+      authoredPoint: { x: 1_000_000_000, y: 0, z: 0 }
+    })).toEqual({
+      status: "available",
+      modelGeneration: 4,
+      cameraSequence: 3,
+      canvasCss: { width: 200, height: 100 },
+      canvasDevice: { width: 400, height: 200 },
+      localPoint: { x: 0, y: 0, z: 0 },
+      clip: { x: 0, y: 0, z: 0, w: 1 },
+      ndc: { x: 0, y: 0, z: 0 },
+      canvasCssPoint: { x: 100, y: 50 },
+      insideClosedNdc: true,
+      insideCanvasCss: true
     });
-    expect(projectAuthoredAnchor({ x: 1_000_000_000, y: 0, z: 0 }, "older")).toMatchObject({
-      state: "unavailable",
-      reason: "stale_generation"
+    expect(api.projectAuthoredPoint({
+      modelGeneration: 3,
+      cameraSequence: 3,
+      authoredPoint: { x: 0, y: 0, z: 0 }
+    })).toEqual({
+      status: "stale",
+      requested: { modelGeneration: 3, cameraSequence: 3 },
+      current: { modelGeneration: 4, cameraSequence: 3 }
     });
+    expect(api.projectAuthoredPoint({
+      modelGeneration: 4,
+      cameraSequence: 2,
+      authoredPoint: { x: 1_000_000_000, y: 0, z: 0 }
+    })).toEqual({
+      status: "stale",
+      requested: { modelGeneration: 4, cameraSequence: 2 },
+      current: { modelGeneration: 4, cameraSequence: 3 }
+    });
+    expect(api.projectAuthoredPoint({
+      modelGeneration: 4,
+      cameraSequence: 3,
+      authoredPoint: { x: Number.NaN, y: 0, z: 0 }
+    })).toEqual({ status: "invalid", reason: "NON_FINITE_AUTHORED_POINT" });
   });
 });

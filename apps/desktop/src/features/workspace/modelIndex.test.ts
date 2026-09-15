@@ -40,6 +40,17 @@ describe("shared model index", () => {
     expect(modelIndexFor(model, 2, 8)).not.toBe(modelIndexFor(model, 2, 7));
   });
 
+  it("retains only the latest generation for a revisited model identity", () => {
+    const model = fixture();
+    const first = modelIndexFor(model, 4, 1);
+    const second = modelIndexFor(model, 4, 2);
+    const revisited = modelIndexFor(model, 4, 1);
+    expect(second.generation).toBe("4:2");
+    expect(revisited.generation).toBe("4:1");
+    expect(revisited).not.toBe(first);
+    expect(modelIndexFor(model, 4, 1)).toBe(revisited);
+  });
+
   it("keeps duplicate raw ids distinct by typed tuple key", () => {
     const index = buildModelIndex(fixture(), 1, 1);
     expect(index.entities.get(entityKey({ type: "node", id: "same" }))?.label).toBe("Node");
@@ -57,5 +68,22 @@ describe("shared model index", () => {
     expect(index.sectionBindings.get(pipeKey)?.source).toBe("shared");
     expect(index.geometryBounds?.min.x).toBe(1_000_000_000);
     expect(index.invalidGeometry.get(entityKey({ type: "node", id: "bad" }))).toContain("non-finite");
+  });
+
+  it("retains duplicate same-type node records but excludes ambiguous geometry and dependants", () => {
+    const model = fixture();
+    model.nodes.push({
+      id: "same",
+      label: "Duplicate node",
+      position: { x: 5, y: 6, z: 7 },
+      provenance: "test"
+    });
+    model.supports.push({ id: "support:duplicate", label: "Ambiguous", node: "same", restraints: [], provenance: "test" });
+    const index = buildModelIndex(model, 1, 2);
+    expect(index.entities.get(entityKey({ type: "node", id: "same" }))?.record).toBe(model.nodes[0]);
+    expect(index.invalidGeometry.get(entityKey({ type: "node", id: "same" }))).toContain("duplicate same-type");
+    expect(index.invalidGeometry.get(entityKey({ type: "pipe", id: "same" }))).toContain("ambiguous duplicate");
+    expect(index.invalidGeometry.get(entityKey({ type: "support", id: "support:duplicate" }))).toContain("ambiguous duplicate");
+    expect(index.visibilityEligibleKeys.has(entityKey({ type: "node", id: "same" }))).toBe(false);
   });
 });
