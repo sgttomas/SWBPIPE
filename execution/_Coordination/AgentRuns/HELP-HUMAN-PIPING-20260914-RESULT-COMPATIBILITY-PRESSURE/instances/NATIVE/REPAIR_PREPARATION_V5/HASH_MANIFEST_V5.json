@@ -1,0 +1,61 @@
+{
+  "created_at": "2026-09-15T03:58:53.900278+00:00",
+  "excludes": [
+    "HASH_MANIFEST_V5.json"
+  ],
+  "file_count": 10,
+  "files": [
+    {
+      "bytes": 3885,
+      "path": "CHANGED_EXPECTATIONS_V5.json",
+      "sha256": "e5d662c99257659b448b00912b2eaf4b749b5e96f0fecc42208142acb78261db"
+    },
+    {
+      "bytes": 6801,
+      "path": "FINAL_NATIVE_REPAIR_SUCCESSOR_SEQUENCE_V5.md",
+      "sha256": "1c6238e5bcdfb224ea366ec5ef5ac222d15eaff41c8bb3f31553f50e88401a1d"
+    },
+    {
+      "bytes": 2898,
+      "path": "PREPARATION_RETURN_V5.md",
+      "sha256": "245284f16b26b80e4067d6a9a8facdd0b06f4c5331bda27c4f3dbe3c7e9edba8"
+    },
+    {
+      "bytes": 1010,
+      "path": "_run_records/CONTEXT_V5.json",
+      "sha256": "dc4236edadde51ed16432fbac4841bedac9803159264d1757a32b36d54e65152"
+    },
+    {
+      "bytes": 1854,
+      "path": "_run_records/INPUT_BINDINGS_V5.json",
+      "sha256": "9616172493345559a380aaf1498b33445133e56f863f90fc3546d9cca6330736"
+    },
+    {
+      "bytes": 2152,
+      "path": "malformed_historical_cases_v5.json",
+      "sha256": "da97a2c301ec873abdfeb70f7363752fce6a5ea9ab1fea4d8f290c75a94d64a7"
+    },
+    {
+      "bytes": 2597,
+      "path": "prepare_malformed_historical_row_v5.mjs",
+      "sha256": "03c9131cc61075db26ae7161b0c68ce439bdf64bc5c5b12146cec229901beff7"
+    },
+    {
+      "bytes": 3163,
+      "path": "restore_seed_and_capture_store_v5.py",
+      "sha256": "e63bc61fbb12d14478f709750b0da49d5116b19cf424f658e3d89ab754d3e110"
+    },
+    {
+      "bytes": 8115,
+      "path": "verify_f03_accounting_v5.py",
+      "sha256": "310ef4fab17726617ae970b8601bb3314e90f25b0113884a43578451e887faa1"
+    },
+    {
+      "bytes": 2765,
+      "path": "verify_malformed_unchanged_save_v5.py",
+      "sha256": "d11b92b788e5a6c7ee8887415c324d09b70897d6f9e7ef5defc8684f03ae964e"
+    }
+  ],
+  "schema": "native-repair-preparation-hash-manifest-v5",
+  "status": "PREPARED_ONLY_FINAL_REPAIRED_CANDIDATE_UNRELEASED"
+}

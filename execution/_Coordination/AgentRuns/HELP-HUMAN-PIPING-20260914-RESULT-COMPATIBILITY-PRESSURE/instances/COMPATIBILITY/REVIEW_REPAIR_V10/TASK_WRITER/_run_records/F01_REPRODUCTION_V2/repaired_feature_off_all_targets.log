@@ -1,0 +1,9 @@
+    Checking itoa v1.0.18
+    Checking memchr v2.8.2
+    Checking ryu v1.0.23
+    Checking serde_core v1.0.228
+    Checking zmij v1.0.21
+    Checking serde_json v1.0.150
+    Checking serde v1.0.228
+    Checking open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.25s

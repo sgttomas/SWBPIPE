@@ -15,20 +15,56 @@ VERSION = "0.2.0"
 PROFILE = "openpipestress_jcs_ijson_v1"
 EXPORT_PROFILE = "ops.stress_neutral.v2"
 MEMBERS = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
+SEMANTIC_CONTRACT_REF = {"object_type": "ExternalReference", "ref": "fixtures/results/semantic_contract_v0_2.json"}
+WITHHOLDING_CODES = {
+    "diagnostic_work": "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
+    "unknown_semantic": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+    "missing_semantic": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+    "contradiction": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+}
+FAMILY_DIMENSIONS = {
+    "displacement": "length", "rotation": "angle", "reaction": "force", "force": "force",
+    "moment": "moment", "stress": "stress", "ratio": "ratio", "solver_mode": "dimensionless",
+    "discrete": "dimensionless",
+}
+UNIT_DIMENSIONS = {
+    "mm": "length", "m": "length", "rad": "angle", "N": "force", "N*m": "moment",
+    "Pa": "stress", "MPa": "stress", "ratio": "ratio", "mode_code": "dimensionless",
+    "count": "dimensionless", "boolean": "dimensionless", "state_code": "dimensionless",
+}
 
 
 def _checked(payload: Any, filename: str, scope: str = "member_payload") -> dict[str, Any]:
     return {"algorithm": "sha256", "canonicalization": PROFILE, "payload_scope": scope, "payload_ref": {"object_type": "StressNeutralMember", "ref": filename}, "value": canonical_sha256_checked_v1(payload)}
 
 
+def _witness_disposition(row: Mapping[str, Any]) -> tuple[str, str | None]:
+    if row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work":
+        return "diagnostic_work", None
+    family = row.get("result_family")
+    if not isinstance(family, str) or family not in FAMILY_DIMENSIONS:
+        return "unknown_semantic", None
+    unit_dimension = UNIT_DIMENSIONS.get(row.get("unit"))
+    if unit_dimension is None:
+        return "missing_semantic", None
+    interpreted = FAMILY_DIMENSIONS[family]
+    if unit_dimension != interpreted or row.get("correlation_status") != "canonical_id_map":
+        return "contradiction", None
+    return "eligible", interpreted
+
+
 def _witnesses(rows: list[dict[str, Any]], provenance: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     witnesses, findings = [], []
     for index, row in enumerate(rows):
-        diagnostic_work = row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work"
-        if diagnostic_work:
-            findings.append({"code": "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK", "class": "unit_preservation_witness", "severity": "info", "source": {"object_type": "StressNeutralResultRow", "ref": str(row.get("result_id"))}, "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": f"unit-witness:{index}"}, "message": "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness.", "remediation": "Review diagnostic work separately from physical quantity witnesses.", "provenance": deepcopy(dict(provenance))})
+        disposition, interpreted_dimension = _witness_disposition(row)
+        if disposition != "eligible":
+            diagnostic_work = disposition == "diagnostic_work"
+            findings.append({"code": WITHHOLDING_CODES[disposition], "class": "unit_preservation_witness", "severity": "info" if diagnostic_work else "blocking", "source": {"object_type": "StressNeutralResultRow", "ref": str(row.get("result_id"))}, "affected_object": {"object_type": "StressNeutralUnitWitness", "ref": f"unit-witness:{index}"}, "message": "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness." if diagnostic_work else f"{disposition.replace('_', ' ')} prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.", "remediation": "Review diagnostic work separately from physical quantity witnesses." if diagnostic_work else "Resolve the source family, unit, dimension and correlation evidence before downstream physical interpretation.", "provenance": deepcopy(dict(provenance))})
             continue
-        witnesses.append({"witness_id": f"unit-witness:{index}", "source_row_index": index, "result_id": row.get("result_id"), "source_quantity": {"value": row.get("value"), "unit": row.get("unit"), "dimension": row.get("dimension")}, "target_quantity": {"value": row.get("value"), "unit": row.get("unit"), "dimension": row.get("dimension")}, "conversion_performed": False, "policy": "preserve_received_value_and_unit"})
+        quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension}
+        witnesses.append({"witness_id": f"unit-witness:{index}", "source_row_index": index, "result_id": row.get("result_id"), "source_quantity": quantity, "target_quantity": deepcopy(quantity), "conversion_performed": False, "policy": "preserve_received_value_and_unit"})
+    if findings:
+        findings.append({"code": "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", "class": "export_blocking", "severity": "blocking", "source": {"object_type": "ExportConsumer", "ref": "DEL-17-06"}, "affected_object": {"object_type": "StressNeutralResultRows", "ref": "stress-neutral:result-rows"}, "message": f"{len(findings)} retained rows are explicitly categorized as ineligible for unit-preservation witnesses; {len(witnesses)} rows have accepted semantic-contract interpretations and exact value/unit witnesses.", "remediation": "Review every explicit witness-withholding finding before downstream use.", "provenance": deepcopy(dict(provenance))})
     return witnesses, findings
 
 
@@ -55,16 +91,26 @@ def build_stress_neutral_export_package_v0_2(**source: Any) -> dict[str, Any]:
             raise ValueError("SN-0.2-PROFILE-IDENTITY-MISMATCH")
     legacy = build_stress_neutral_export_package(**deepcopy(source))
     witnesses, witness_findings = _witnesses(legacy["result_rows"], legacy["provenance"])
-    diagnostics = deepcopy(legacy["diagnostics"]) + witness_findings
+    diagnostics = [deepcopy(item) for item in legacy["diagnostics"] if item.get("code") not in {"SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", "SN-UNIT-DIMENSION-MISSING"}] + witness_findings
+    blocking_count = sum(item.get("severity") == "blocking" for item in diagnostics)
+    decision_basis_refs = deepcopy(legacy["unit_system_disclosure"]["decision_basis_refs"]) + [deepcopy(SEMANTIC_CONTRACT_REF), deepcopy(legacy["source_run_ref"])]
+    boundary_notes = list(legacy["manifest"]["boundary_notes"]) + ["Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged."]
+    export_profile = {**legacy["export_profile"], "profile_id": EXPORT_PROFILE, "profile_version": VERSION, "boundary_notes": boundary_notes, "source_basis_refs": deepcopy(legacy["export_profile"]["source_basis_refs"]) + [deepcopy(SEMANTIC_CONTRACT_REF), deepcopy(legacy["source_run_ref"])]}
+    validation_report = {"validation_status": "blocked" if blocking_count else "passed", "checks": [{"check_id": "stress-neutral-boundary-diagnostics", "check_status": "blocking" if blocking_count else "passed", "diagnostic_count": len(diagnostics), "blocking_count": blocking_count, "provenance": deepcopy(legacy["provenance"])}], "human_review_required": True, "provenance": deepcopy(legacy["provenance"])}
+    loss_report = deepcopy(legacy["loss_report"])
+    withholding_count = len(witness_findings) - (1 if witness_findings else 0)
+    for entry in loss_report:
+        if entry.get("category") == "exported":
+            entry["reason"] = f"All {len(legacy['result_rows'])} received numerical rows and units are retained unchanged; {len(witnesses)} rows have accepted semantic-contract dimension witnesses and {withholding_count} rows have explicit witness-withholding findings."
     package: dict[str, Any] = {
         "schema_version": VERSION, "deliverable_id": "DEL-17-06", "package_id": "PKG-17", "scope_items": ["SOW-046", "SOW-074"], "objectives": ["OBJ-007", "OBJ-017", "OBJ-018"],
         "export_id": legacy["export_id"], "package_status": "stress_neutral_export_package", "schema_conformant": True,
         "validation_ready": not any(item.get("severity") == "blocking" for item in diagnostics),
         "source_result_ref": legacy["source_result_ref"], "source_run_ref": legacy["source_run_ref"], "source_model_ref": legacy["source_model_ref"],
         "received_source_checksums": deepcopy(source.get("source_hashes", [])), "unresolved_assumption_refs": legacy["unresolved_assumption_refs"], "reproducibility_refs": legacy["reproducibility_refs"],
-        "export_profile": {**legacy["export_profile"], "profile_id": EXPORT_PROFILE, "profile_version": VERSION}, "manifest": {"manifest_id": legacy["manifest"]["manifest_id"], "export_profile_ref": {"object_type": "StressNeutralExportProfile", "ref": EXPORT_PROFILE}, "boundary_notes": legacy["manifest"]["boundary_notes"], "package_members": [], "checksums": []},
-        "csv_text": legacy["csv_text"], "result_rows": legacy["result_rows"], "unit_system_disclosure": legacy["unit_system_disclosure"], "unit_preservation_witnesses": witnesses,
-        "stable_id_map": legacy["stable_id_map"], "loss_report": legacy["loss_report"], "validation_report": legacy["validation_report"], "diagnostics": diagnostics,
+        "export_profile": export_profile, "manifest": {"manifest_id": legacy["manifest"]["manifest_id"], "export_profile_ref": {"object_type": "StressNeutralExportProfile", "ref": EXPORT_PROFILE}, "boundary_notes": boundary_notes, "package_members": [], "checksums": []},
+        "csv_text": legacy["csv_text"], "result_rows": legacy["result_rows"], "unit_system_disclosure": {**legacy["unit_system_disclosure"], "decision_basis_refs": decision_basis_refs}, "unit_preservation_witnesses": witnesses,
+        "stable_id_map": legacy["stable_id_map"], "loss_report": loss_report, "validation_report": validation_report, "diagnostics": diagnostics,
         "privacy": legacy["privacy"], "provenance": legacy["provenance"], "professional_boundary": legacy["professional_boundary"],
     }
     payloads = {"stress_neutral_results.csv": package["csv_text"], "result_rows.json": package["result_rows"], "unit_system_disclosure.json": package["unit_system_disclosure"], "unit_preservation_witnesses.json": package["unit_preservation_witnesses"], "stable_id_map.json": package["stable_id_map"], "loss_report.json": package["loss_report"], "validation_report.json": package["validation_report"], "diagnostics.json": package["diagnostics"]}
@@ -176,17 +222,29 @@ def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> N
     for witness in package.get("unit_preservation_witnesses", []):
         index = witness.get("source_row_index")
         row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
-        quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": row.get("dimension")} if row else None
+        disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+        quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
         if row is None or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
             raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
         seen_witnesses.add(witness["result_id"])
     for entry in package.get("loss_report", []):
         if entry.get("target_artifact_ref", {}).get("ref") != package.get("export_id") or entry.get("human_review_required") is not True:
             raise ValueError("SN-LOSS-REPORT-BINDING-MISMATCH")
-    diagnostic_work = {row.get("result_id") for row in rows if row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work"}
-    withheld = {item.get("source", {}).get("ref") for item in package.get("diagnostics", []) if item.get("code") == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"}
-    if diagnostic_work != withheld or diagnostic_work & seen_witnesses:
-        raise ValueError("SN-DIAGNOSTIC-WORK-FINDING-MISMATCH")
+    categories_by_code = {code: category for category, code in WITHHOLDING_CODES.items()}
+    categorized: dict[str, str] = {}
+    for item in package.get("diagnostics", []):
+        category = categories_by_code.get(item.get("code"))
+        if category is None:
+            continue
+        result_id = item.get("source", {}).get("ref")
+        expected_severity = "info" if category == "diagnostic_work" else "blocking"
+        if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+            raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+        categorized[result_id] = category
+    if set(categorized) & seen_witnesses or len(categorized) + len(seen_witnesses) != len(rows) or any(row_id not in categorized and row_id not in seen_witnesses for row_id in row_ids):
+        raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+    if SEMANTIC_CONTRACT_REF not in package.get("export_profile", {}).get("source_basis_refs", []) or SEMANTIC_CONTRACT_REF not in package.get("unit_system_disclosure", {}).get("decision_basis_refs", []):
+        raise ValueError("SN-SEMANTIC-CONTRACT-BINDING-MISSING")
     blocking_diagnostics = sum(item.get("severity") == "blocking" for item in package.get("diagnostics", []))
     checks = package.get("validation_report", {}).get("checks", [])
     checks_consistent = isinstance(checks, list) and all(isinstance(item.get("blocking_count"), int) and item["blocking_count"] >= 0 and ((item.get("check_status") == "blocking" and item["blocking_count"] > 0) or (item.get("check_status") == "passed" and item["blocking_count"] == 0)) for item in checks)

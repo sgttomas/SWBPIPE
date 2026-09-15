@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "tools/serialization/build_checked_json.py",
+    "--target-dir",
+    "/private/tmp/piping-foundation-native-final-20260915/build/checked-json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+  "elapsed_seconds": 5.750949859619141,
+  "ended_unix": 1789443175.5713868,
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "exit_code": 0,
+  "started_unix": 1789443169.820437
+}

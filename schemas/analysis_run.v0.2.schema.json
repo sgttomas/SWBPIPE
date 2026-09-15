@@ -114,6 +114,74 @@
         }
       }
     },
+    "AnalysisRunRecordChecksum": {
+      "allOf": [
+        { "$ref": "#/$defs/Checksum" },
+        {
+          "properties": {
+            "canonicalization": { "const": "openpipestress_jcs_ijson_v1" },
+            "payload_scope": { "const": "analysis_run_record" },
+            "payload_ref": {
+              "allOf": [
+                { "$ref": "#/$defs/Reference" },
+                { "properties": { "object_type": { "const": "AnalysisRun" } } }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ReceivedResultChecksum": {
+      "allOf": [
+        { "$ref": "#/$defs/Checksum" },
+        {
+          "properties": {
+            "canonicalization": { "const": "openpipestress_jcs_ijson_v1" },
+            "payload_scope": { "const": "received_result" },
+            "payload_ref": {
+              "allOf": [
+                { "$ref": "#/$defs/Reference" },
+                { "properties": { "object_type": { "const": "ResultEnvelope" } } }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ResultRowChecksum": {
+      "allOf": [
+        { "$ref": "#/$defs/Checksum" },
+        {
+          "properties": {
+            "canonicalization": { "const": "openpipestress_jcs_ijson_v1" },
+            "payload_scope": { "const": "result_row" },
+            "payload_ref": {
+              "allOf": [
+                { "$ref": "#/$defs/Reference" },
+                { "properties": { "object_type": { "const": "Result" } } }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "InputManifestChecksum": {
+      "allOf": [
+        { "$ref": "#/$defs/Checksum" },
+        {
+          "properties": {
+            "canonicalization": { "const": "rfc8785_jcs" },
+            "payload_scope": { "const": "input_manifest" },
+            "payload_ref": {
+              "allOf": [
+                { "$ref": "#/$defs/Reference" },
+                { "properties": { "object_type": { "const": "InputManifest" } } }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "SemanticContract": {
       "type": "object",
       "additionalProperties": false,
@@ -217,7 +285,7 @@
           "minItems": 1,
           "maxItems": 1,
           "items": {
-            "$ref": "#/$defs/Checksum"
+            "$ref": "#/$defs/ResultRowChecksum"
           }
         },
         "privacy_classification": {
@@ -302,9 +370,24 @@
           "type": "array",
           "minItems": 2,
           "items": {
-            "$ref": "#/$defs/Checksum"
+            "oneOf": [
+              { "$ref": "#/$defs/AnalysisRunRecordChecksum" },
+              { "$ref": "#/$defs/ReceivedResultChecksum" }
+            ]
           },
-          "maxItems": 2
+          "maxItems": 2,
+          "allOf": [
+            {
+              "contains": { "$ref": "#/$defs/AnalysisRunRecordChecksum" },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": { "$ref": "#/$defs/ReceivedResultChecksum" },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
         },
         "analysis_status": {
           "type": "array",
@@ -344,7 +427,7 @@
               "minItems": 1,
               "maxItems": 1,
               "items": {
-                "$ref": "#/$defs/Checksum"
+                "$ref": "#/$defs/InputManifestChecksum"
               }
             },
             "semantic_contract": {

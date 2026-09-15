@@ -1,0 +1,14 @@
+{
+  "schema": "compatibility-review-repair-v10-child-dispatch",
+  "dispatch_utc": "2026-09-15T03:35:03Z",
+  "status": "ACTUALLY_DISPATCHED",
+  "agent_task_name": "/root/foundation_compatibility/compatibility_writer",
+  "role": "TASK / Type 2",
+  "model_effort": "gpt-5.6-sol / high",
+  "brief": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/BRIEF.md",
+  "brief_sha256": "868a167352e543cf17d287ee66309fd126b43b82b14a1b4121b1c76c41247e84",
+  "write_scope": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/WRITE_SCOPE.json",
+  "write_scope_sha256": "0ed65fc1d3a09a0832c7953313f916b650908c9309471809f60d62240324d363",
+  "delegation_allowed": false,
+  "actual_dispatch": true
+}

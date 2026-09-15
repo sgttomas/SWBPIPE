@@ -1,0 +1,36 @@
+{
+  "schema": "root-compatibility-review-repair-build-browser-lease-v3",
+  "created_utc": "2026-09-15T03:49:15.110190+00:00",
+  "holder": "/root/foundation_compatibility with existing sole TASK writer",
+  "parent": "/root",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "previous_native_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/LEASE_RELEASE.json",
+    "sha256": "e563a6835421cce6fafecf62a139ff780b03c9361bdf88d70e3b5efc2e46ea13"
+  },
+  "source_fences": [
+    "COMPATIBILITY_REVIEW_REPAIR_V10.md",
+    "COMPATIBILITY_REVIEW_REPAIR_V11.md",
+    "COMPATIBILITY_REVIEW_REPAIR_V12.md"
+  ],
+  "worktree": "Existing compatibility checkout; derive REPO_ROOT/WORKING_ROOT per sealed briefs. Root BASE remains source-frozen until combined repair integration.",
+  "exclusive_resources": [
+    "Cargo/checked-JSON/WASM/desktop builds",
+    "browser development/distribution verification and owned servers"
+  ],
+  "allowed_checks": [
+    "Preserve actual feature-off F01 failure in an evidence-local original-crate snapshot, then prove ordinary default target build/tests and feature-enabled private CLI on repaired source; retain command outputs and source/lock binding.",
+    "Focused strict-schema, analysis/stress Python and desktop tests including all newly repaired negatives and positive legacy/830-row population cases; complete affected App suite and tsc.",
+    "Production desktop build and existing dev/dist result-compatibility tests with one worker, clean exit and owned process cleanup.",
+    "Use authentic native carriers from Root fan-in by path/hash, with extraction/composition evidence localized to this run. Maintained tests must not import dated run evidence."
+  ],
+  "efficiency": "Do not repeat already-passing unchanged focused checks unless source changes or a concrete new concern justifies it. Complete registered DEC-025 remains Root-owned after repair review.",
+  "no_native_gui_or_native_product_source_edits": true,
+  "no_git": true,
+  "return": "One complete repaired source manifest plus explicit delta from V10, focused results, actual native-carrier constructor/materialization evidence, preserved failures and explicit lease release.",
+  "upstream_native_fanin": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V2_FANIN_V1.json",
+    "sha256": "b2d8b4dc46c16e838f1af354f34f532563631a2fcb4c18a9e3fca4eb26bdb607"
+  }
+}

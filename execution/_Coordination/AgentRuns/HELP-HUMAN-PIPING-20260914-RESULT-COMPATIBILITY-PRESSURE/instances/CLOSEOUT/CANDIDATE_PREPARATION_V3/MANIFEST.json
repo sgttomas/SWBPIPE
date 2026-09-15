@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY",
+  "hash_algorithm": "sha256",
+  "self_excluded": true,
+  "files": [
+    {
+      "path": "CLOSEOUT_SEQUENCE.md",
+      "sha256": "42d7240163b17498208bb34714047845457b087db6da8381c0182625605c73b7"
+    },
+    {
+      "path": "DRAFT_POLICY_ADDITION.json",
+      "sha256": "6e17c007e0aba019579e24a9f088aaf79afdf3f51b565764341475163e0bdc5e"
+    },
+    {
+      "path": "METADATA_UPDATE_DRAFT.md",
+      "sha256": "be8ef3939e9cecfbc279feba672e2d00370c4407c5a47fb4aa2e820387f80a5c"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "32e9b1342cfae3b42012156bfe7409976826ed6e591e05a73099ef524b920594"
+    },
+    {
+      "path": "UI_HANDOFF_CORRECTIONS.md",
+      "sha256": "85e75364e1625c3d4fc9d492d5938cc4e3152228828fe39176af4f09595837dc"
+    },
+    {
+      "path": "_run_records/PORTABILITY_SCAN.json",
+      "sha256": "35ecf9321e45863a7a1699e648decacaec4a18e499b5388aca6fda6d58083e79"
+    }
+  ]
+}

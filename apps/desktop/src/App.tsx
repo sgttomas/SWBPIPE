@@ -1491,8 +1491,8 @@ function AppSession() {
     try {
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.mechanicsResult : result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.analysisRun : analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
@@ -1725,8 +1725,8 @@ function AppSession() {
     try {
       const actualRequestModelHash = await computeModelHash(requestModel);
       const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
-      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.mechanicsResult : result;
-      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.analysisRun : analysisRun;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.rawMechanicsResult as MechanicsResult | null : result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.rawAnalysisRun as AnalysisRunEnvelope | null : analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,

@@ -1,0 +1,19 @@
+{
+  "schema": "root-final-review-f02-reproduction-v1",
+  "candidate": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "method": "Read-only actual strict schema validator over independent in-memory mutations of maintained frozen fixture; no product build or canonicalizer execution.",
+  "results": [
+    {
+      "case": "duplicate_received_removes_record_checksum",
+      "observed": "INVALID_SUBSTITUTION_ADMITTED"
+    },
+    {
+      "case": "row_checksum_wrong_scope",
+      "observed": "INVALID_SUBSTITUTION_ADMITTED"
+    },
+    {
+      "case": "new_record_hash_legacy_profile",
+      "observed": "INVALID_SUBSTITUTION_ADMITTED"
+    }
+  ]
+}

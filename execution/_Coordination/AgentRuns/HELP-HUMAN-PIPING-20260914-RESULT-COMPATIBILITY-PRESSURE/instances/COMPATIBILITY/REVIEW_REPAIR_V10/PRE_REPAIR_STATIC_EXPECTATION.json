@@ -1,0 +1,21 @@
+{
+  "schema": "compatibility-review-repair-v10-pre-repair-static-expectation",
+  "created_utc": "2026-09-15T03:35:03Z",
+  "status": "STATIC_FINDING_NOT_RUNTIME_REPRODUCED",
+  "cargo_toml": {
+    "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "sha256": "29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0"
+  },
+  "auto_discovered_binary": {
+    "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs",
+    "sha256": "0a1b2cd84de09c2c83e9af987f1f291b12b977c9111af732dc53df966ebfd45c",
+    "crate_level_gate": "#![cfg(feature = \"checked-cli\")]"
+  },
+  "finding": "Cargo.toml does not declare the auto-discovered binary with required-features. Static inspection therefore predicts that an ordinary feature-off target-inclusive build can select a binary crate whose crate-level cfg removes main.",
+  "runtime_reproduction": "NOT_RUN_NATIVE_LEASE_ACTIVE",
+  "observed_e0601": false,
+  "pending_acceptance_commands": [
+    "cargo check --locked --all-targets",
+    "cargo check --locked --features checked-cli --bin openpipestress_jcs_ijson"
+  ]
+}

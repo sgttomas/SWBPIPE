@@ -1,0 +1,172 @@
+{
+  "additional_review_finding": {
+    "status": "NOT_RUNTIME_EXERCISED",
+    "summary": "Fresh review separately identified malformed scalar/array HistoricalRunContext crash risk; no malformed record was injected in this bounded execution."
+  },
+  "base_commit_declared": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "blocker": {
+    "acceptance_effect": "Required actual native stress package delivery, 828 eligible witnesses, two explicit diagnostic-work withholds, delivered bytes/receipt and downstream package verification cannot be established on this candidate.",
+    "actual_witnesses_before_throw": 0,
+    "diagnostic_work_rows": [
+      "result:nonlinear-support:free-dof-work-residual",
+      "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+    ],
+    "error_code": "SN-DIAGNOSTIC-WORK-FINDING-MISMATCH",
+    "evidence": "findings/native_stress_delivery_failure.json",
+    "expected_eligible_witnesses": 828,
+    "finding_id": "NATIVE-STRESS-DELIVERY-001",
+    "native_rows": 830,
+    "native_rows_with_dimension": 0,
+    "repair_attempted": false,
+    "summary": "The actual native 830-row ResultItem carrier contains no dimension field on any row. Stress-neutral construction emits zero preservation witnesses, then validation conflates all 830 unwitnessed rows with the two diagnostic-work rows and throws SN-DIAGNOSTIC-WORK-FINDING-MISMATCH. The component catch clears the packet and displays the misleading no-result state despite a completed solve."
+  },
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_EXECUTION_V2.md",
+    "sha256": "cb56bccdb09f15e6f645caeca84237aa791bddd3eee1090f28eb523c301beae9"
+  },
+  "build": {
+    "bundle": {
+      "files": [
+        {
+          "bytes": 1068,
+          "path": "Contents/Info.plist",
+          "sha256": "e22be50827d6200cc0942abd1d8d1f1aeeb295db1017a2a610e5d90a08a7d586"
+        },
+        {
+          "bytes": 20025824,
+          "path": "Contents/MacOS/openpipestress-desktop",
+          "sha256": "75c40f2be727eab90d62a631b15151b16114c8fb5ce66252826b59d99311879f"
+        },
+        {
+          "bytes": 77148,
+          "path": "Contents/Resources/icon.icns",
+          "sha256": "2ddf5cdbfe7c2023349d49fd45efee4debad28e72a4cf8401834aa402f3d238e"
+        }
+      ],
+      "root": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app",
+      "tree_sha256": "ba28883b04e4b17042a039c940a781b12d82973329950e48961ab41034016e03"
+    },
+    "checked_json": {
+      "bytes": 621296,
+      "path": "/private/tmp/piping-foundation-native-final-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+      "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+    },
+    "dist": {
+      "tree_sha256": "61933744307f0d635128099e69e9b9cea219f8bf297342fc432a0dbfa65d6404"
+    },
+    "maintained_locked_runner_build_claimed": false,
+    "native_executable": {
+      "bytes": 20025824,
+      "path": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app/Contents/MacOS/openpipestress-desktop",
+      "sha256": "75c40f2be727eab90d62a631b15151b16114c8fb5ce66252826b59d99311879f"
+    },
+    "runner": {
+      "bytes": 5517808,
+      "path": "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner",
+      "sha256": "e429b201b7f07a1d0e31ee5176ed5931880f50ae98a45f29bbde062efea96492"
+    },
+    "runner_dependency_resolution": {
+      "archive_command": [
+        "git",
+        "archive",
+        "--format=tar",
+        "--output=/private/tmp/piping-foundation-native-final-20260915/build/candidate-project.tar",
+        "HEAD",
+        "projects/chirality-piping"
+      ],
+      "archive_sha256": "8c286c475220308f669552b97464b29e29703ed9f0df733d2cd6d99a973597fa",
+      "generated_lockfile": {
+        "bytes": 10169,
+        "maintained_source_lock_claimed": false,
+        "path": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+        "sha256": "c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470"
+      },
+      "runner": {
+        "bytes": 5517808,
+        "path": "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner",
+        "sha256": "e429b201b7f07a1d0e31ee5176ed5931880f50ae98a45f29bbde062efea96492"
+      },
+      "runner_build_mode": "temporary exact-commit archive; cargo build --offline; not maintained --locked",
+      "source_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+      "temporary_project_root": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project"
+    },
+    "status": "PASS",
+    "wasm": {
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+    }
+  },
+  "candidate_commit_declared": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "effects": {
+    "browser_launched": false,
+    "git_modified": false,
+    "governance_modified": false,
+    "network_action": false,
+    "private_or_user_model_used": false,
+    "product_source_modified": false
+  },
+  "first_save_integrity": {
+    "analysis_record_hash": "46548ad64518e1ccfb0c7480db3e5cf6c43e41219035261507597327f2d90304",
+    "historical_visible_findings": [
+      "HISTORICAL_INPUT_MANIFEST_MISSING"
+    ],
+    "model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "project_envelope_hash": "sha256:fdd9ec7306e1c6ead7713622f4bff57c4c882d3dcb1eb33cecb12a2499de2104",
+    "received_result_hash": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c",
+    "row_count": 830,
+    "row_mismatches": [],
+    "status": "PASS",
+    "unchanged_second_save": "PASS"
+  },
+  "lease": {
+    "path": "instances/ROOT/_run_records/FINAL_NATIVE_LEASE_V2.json",
+    "sha256": "bbcc571c8c0be8840c2373a68677788466fc594f4f5f2edfb4293beb3e765596"
+  },
+  "not_executed_after_bounded_cut": [
+    "seven producer captures and all-60 constructor composition",
+    "sparse/dense native and browser distribution delivery",
+    "nine-member Python materialization",
+    "3.2 m GUI-authored 350 N to 500 N lifecycle",
+    "legacy saved-fixture backcheck"
+  ],
+  "passing_observations": [
+    "Fresh maintained beforeBuild native workflow completed against the exact frozen candidate; native executable, bound bundle, dist, WASM and checked JSON authority are hashed.",
+    "The headless runner was built offline from an exact-commit temporary archive after preserving the maintained --locked failure; archive, generated temporary lockfile and runner are hashed, with no maintained --locked claim.",
+    "First actual native create/solve/save established a Tauri backend Current run with MECHANICS_SOLVED, model identity match, and 830 rows.",
+    "Normal quit and exact-bundle reopen restored Historical with 830/830 rows. HISTORICAL_INPUT_MANIFEST_MISSING was the only visible finding; no model, envelope, received-result, analysis-record or row checksum mismatch appeared.",
+    "Independent rfc8785_jcs WASM recomputation matched the stored post-normalization model hash and the exact seven-field project-envelope hash.",
+    "Independent checked JSON validation passed strict analysis_run 0.2, the full-record self-exclusion checksum, received-result checksum and all 830 row checksums.",
+    "The migration ledger post-migration model hash matches the persisted normalized model hash; its create-time envelope evidence remains correctly scoped to the migration return.",
+    "The unchanged second native save preserved all 11 project/model/result/analysis/hash/attachment payload fields byte-for-byte; only updated_at_unix advanced.",
+    "A minimal recovery solve re-established Current solely to exercise actual native stress delivery, then the app quit normally and all owned app/build/browser/server processes were absent."
+  ],
+  "process": {
+    "evidence": "_run_records/process/final_owned_process_scan.json",
+    "final_candidate_process_gone": true,
+    "final_normal_quit": true,
+    "owned_browser_or_server_launched": false,
+    "owned_processes_absent": true
+  },
+  "release": {
+    "path": "instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V1.json",
+    "sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b"
+  },
+  "schema": "final-native-result-v2",
+  "sealed_at": "2026-09-15T03:47:27.972792+00:00",
+  "source_binding": {
+    "after_build": "PASS",
+    "after_gui": "PASS",
+    "after_gui_evidence": "_run_records/bindings/after_gui.json",
+    "before_build": "PASS",
+    "file_count": 76
+  },
+  "status": "BLOCKED_BY_NATIVE_STRESS_DELIVERY_DIMENSION_CARRIER",
+  "store": {
+    "isolated_path": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-final-20260915/openpipestress-projects.sqlite3",
+    "snapshots": [
+      "_run_records/store/after_first_save.sqlite3",
+      "_run_records/store/after_unchanged_save_v2.sqlite3"
+    ],
+    "synthetic_only": true
+  }
+}

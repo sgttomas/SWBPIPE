@@ -1,0 +1,42 @@
+{
+  "schema": "compatibility-review-repair-continuation-after-limit-v1",
+  "status": "ACTUAL_CONTINUATION_PREPARED",
+  "preserved_source_freeze": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/SOURCE_CHECKPOINT_V12.json",
+    "sha256": "62bfa83e7533041cdba07b35655af787ce491e71873dc06717510fae95357edf",
+    "source_file_count": 74,
+    "delta_from_v10_count": 12,
+    "manager_rehash_mismatches": 0
+  },
+  "interruption": {
+    "cause": "TASK writer turn ended after account usage limit was reached",
+    "timing": "during dev Playwright after source freeze and focused qualification",
+    "source_effect_after_freeze": false,
+    "observed_surviving_processes_on_resume": 0,
+    "ports_5174_5175_listeners_on_resume": 0,
+    "playwright_last_run_file": {
+      "status": "passed",
+      "failedTests": []
+    },
+    "calibration": "The last-run file alone does not establish the complete dev command, clean teardown, or dist result; delivery remains pending until the continued writer seals command evidence."
+  },
+  "continuation": {
+    "same_agent": "/root/foundation_compatibility/compatibility_writer",
+    "same_role": "TASK / Type 2",
+    "same_model_effort": "gpt-5.6-sol / high",
+    "allowed_work": [
+      "inventory and preserve any valid completed production-build or dev-delivery result",
+      "finish only missing production build, dev and dist Playwright checks",
+      "remove generated target/test/cache outputs not retained as concise evidence",
+      "seal final evidence and explicitly release build/browser lease V3"
+    ],
+    "source_writes": false,
+    "repeat_focused_or_app_or_cargo_checks": false,
+    "native_gui": false,
+    "git_actions": false
+  },
+  "lease": {
+    "path": "instances/ROOT/_run_records/COMPATIBILITY_REPAIR_BUILD_BROWSER_LEASE_V3.json",
+    "sha256": "861a43b39ff1c95f687bf1ee935a53bc4d417a104d83b10c37bd6dcde92b0a2c"
+  }
+}

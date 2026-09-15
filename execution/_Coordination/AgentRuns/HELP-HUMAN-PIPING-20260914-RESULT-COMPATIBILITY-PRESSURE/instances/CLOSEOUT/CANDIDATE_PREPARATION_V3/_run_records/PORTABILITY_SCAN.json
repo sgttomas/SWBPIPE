@@ -1,0 +1,25 @@
+{
+  "validator": "tools/validation/validate_path_anchors.py",
+  "classifier": "tools/practitioner_harness/surface_roles.py",
+  "repository_summary": {
+    "checked_file_count": 6831,
+    "finding_count": 1,
+    "semantic_invariants": {
+      "unacknowledged_control": 0,
+      "active_unclassified": 1,
+      "policy_issues": 0,
+      "acknowledged_control": 41
+    }
+  },
+  "selected_run_findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V8.json",
+      "line": 14,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+      "text": "\"canonical_repo_root\": \"/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914\",",
+      "sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact"
+    }
+  ]
+}

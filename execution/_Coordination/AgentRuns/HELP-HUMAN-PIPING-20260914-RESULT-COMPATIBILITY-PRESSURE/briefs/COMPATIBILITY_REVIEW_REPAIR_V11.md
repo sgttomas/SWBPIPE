@@ -1,0 +1,11 @@
+# WORKING_ITEMS — review repair scope addendum V11
+
+Continue the existing compatibility manager and sole TASK writer as Sol/high under the V10 review-repair brief. Type 2 does not delegate. Derive REPO_ROOT and WORKING_ROOT from the supplied checkout; RUN is WORKING_ROOT/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE. All V10 lease, evidence and no-Git constraints remain.
+
+Fresh reviewer finding F02: strict analysis0.2 checksum positions accept interchangeable generic checksums. Two received-result checksums can replace the immutable record checksum, result-row hashes accept input-manifest scope, and new checked-profile claims accept a legacy profile. Root independently reproduced these admissions through the real schema validator over the maintained fixture; see Root FINAL_REVIEW_F02_REPRODUCTION_V1.json.
+
+In addition to V10 Cargo.toml, release only schemas/analysis_run.v0.2.schema.json and tests/test_analysis_run_compatibility.py relative to WORKING_ROOT. Constrain the existing schema positions to their exact checksum scope, profile and reference object type. Require exactly one AnalysisRun record checksum and one ResultEnvelope received-result checksum, checked-profile Result row hashes, and existing InputManifest hashes with their unchanged rfc8785_jcs profile. Preserve ordering independence, the complete self-checksum projection, input-manifest version and both legacy families. This repair enforces the already approved contract; it introduces no new DTO, hash policy or serialization.
+
+Add meaningful negative duplicate/substitution/profile/reference tests and positive producer/legacy compatibility coverage through existing fixtures/producers. Preserve the failed admission evidence before repair. No builds/Cargo/product tests during the native lease; preparation only until Root releases verification. A schema-only in-memory validation can be requested from Root if needed, but do not run hidden adapter builds through test setup. Record prepared source hashes under the existing review-repair evidence scope; notify Root if producer changes appear necessary rather than expanding the fence.
+
+Root integration remains frozen for current review/native. The final reviewer must review the repaired delta and actual checks before acceptance.

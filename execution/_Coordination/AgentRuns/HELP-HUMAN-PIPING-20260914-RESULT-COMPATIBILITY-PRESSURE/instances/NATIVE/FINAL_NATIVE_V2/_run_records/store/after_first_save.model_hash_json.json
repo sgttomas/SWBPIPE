@@ -1,0 +1,8 @@
+{
+  "algorithm": "sha256",
+  "canonicalization": "rfc8785_jcs",
+  "hash_status": "computed_local_preview",
+  "payload_ref": "project:invented-loop-01",
+  "payload_scope": "model_payload",
+  "value": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2"
+}

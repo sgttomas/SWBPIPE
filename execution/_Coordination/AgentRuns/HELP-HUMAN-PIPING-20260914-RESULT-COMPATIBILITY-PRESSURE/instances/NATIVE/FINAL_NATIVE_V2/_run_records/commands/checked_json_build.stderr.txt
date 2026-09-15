@@ -1,0 +1,14 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+   Compiling itoa v1.0.18
+   Compiling memchr v2.8.2
+   Compiling ryu v1.0.23
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `release` profile [optimized] target(s) in 5.66s

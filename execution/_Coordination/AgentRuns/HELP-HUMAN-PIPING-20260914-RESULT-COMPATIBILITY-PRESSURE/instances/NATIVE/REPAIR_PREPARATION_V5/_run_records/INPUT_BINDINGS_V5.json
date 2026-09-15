@@ -1,0 +1,46 @@
+{
+  "created_at": "2026-09-15T03:58:53.896090+00:00",
+  "inputs": {
+    "brief": {
+      "bytes": 2448,
+      "path": "briefs/FINAL_NATIVE_REPAIR_PREPARATION_V5.md",
+      "sha256": "ceacfab621260f071eb80ee5397516a54a683c848b593c617c3516cc11ba5ada"
+    },
+    "raw_native": {
+      "bytes": 635899,
+      "path": "instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json",
+      "sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923"
+    },
+    "repair_v12": {
+      "bytes": 5247,
+      "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V12.md",
+      "sha256": "9f5d241512ddb398b43d53d75f024f797a983dec0b3fa962582d3aa4ddca50b2"
+    },
+    "review_return": {
+      "bytes": 15545,
+      "path": "instances/ROOT/_run_records/FINAL_REVIEW_V1/REVIEW_RETURN_V1.json",
+      "sha256": "192f01678318f675239ceea8659aa0003693aa218320da2a91a6f41910f87b5e"
+    },
+    "v2_fanin": {
+      "bytes": 2722,
+      "path": "instances/ROOT/_run_records/FINAL_NATIVE_V2_FANIN_V1.json",
+      "sha256": "b2d8b4dc46c16e838f1af354f34f532563631a2fcb4c18a9e3fca4eb26bdb607"
+    },
+    "v4_composition": {
+      "bytes": 8744,
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/compose_captured_outputs.test.ts",
+      "sha256": "061e6a11068008ad9557e40ec577822569ae26a6f97dc47b91686925d3341b6d"
+    },
+    "v4_runner": {
+      "bytes": 2970,
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/run_final_consumers.py",
+      "sha256": "1f4b4d78bfa12912d817777913289ae790f953703b00aa8adc023dbd0b2209d1"
+    },
+    "v4_verifier": {
+      "bytes": 15478,
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/verify_delivered_artifacts.py",
+      "sha256": "b7110b743318a33ca6ff22ce3488102392de74ce0a2244820b0f9dee3b90fe1b"
+    }
+  },
+  "schema": "native-repair-preparation-input-bindings-v5"
+}

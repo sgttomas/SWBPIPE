@@ -1,0 +1,12 @@
+{
+  "bound_application_preserved": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app",
+  "final_candidate_process_gone": true,
+  "final_process_evidence": "_run_records/process/final_owned_process_scan.json",
+  "lease": "exclusive native/WASM/desktop build and native/browser GUI surfaces",
+  "owned_processes_absent": true,
+  "released_at": "2026-09-15T03:47:27.972792+00:00",
+  "result_status": "BLOCKED_BY_NATIVE_STRESS_DELIVERY_DIMENSION_CARRIER",
+  "schema": "native-build-gui-lease-release-v2",
+  "state": "RELEASED",
+  "statement": "No further build, browser or GUI action will be performed for this candidate. Root may acquire the native/build/browser/GUI lease for repair and successor backcheck."
+}

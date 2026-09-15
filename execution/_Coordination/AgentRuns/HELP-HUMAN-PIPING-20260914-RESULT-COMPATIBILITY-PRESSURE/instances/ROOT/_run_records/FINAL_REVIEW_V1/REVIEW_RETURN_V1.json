@@ -1,0 +1,228 @@
+{
+  "schema": "parent-persisted-independent-review-return-v1",
+  "created_utc": "2026-09-15T03:44:40.320320+00:00",
+  "transcription": "Structured persistence of the actual reviewer final return by parent; not represented as a byte-identical tool transcript. Complete path ledger uses the reviewed immutable manifest rather than a duplicated inventory.",
+  "reviewer": {
+    "agent": "/root/foundation_final_review",
+    "parent": "/root",
+    "role": "TASK/Type2",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "mechanism": "delegated-harness-native",
+    "no_delegation": true,
+    "no_writes_git_builds_product_execution_ui_or_network": true
+  },
+  "verdict": "COMPLETE_WITH_FINDINGS",
+  "base_commit": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "brief_sha256": "54dced9b2e213cd27a98fecd0128f53976c591ecb3de6afd363c4bfdd0615eca",
+  "release_sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b",
+  "complete_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FULL_CHANGED_PATHS_V1.json",
+    "sha256": "f2e140670bf1e41b38119b4c7b82597b49d9b27dfd2e48ec6a69f8385f364bb6"
+  },
+  "coverage": {
+    "maintained_paths": [
+      "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "projects/chirality-piping/apps/desktop/src/services/hashService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts",
+      "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "projects/chirality-piping/apps/desktop/src/types.ts",
+      "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "projects/chirality-piping/core/analysis_runs/legacy.py",
+      "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "projects/chirality-piping/core/model_operations/operation_applier/tests/canonical_hash_parity.rs",
+      "projects/chirality-piping/core/product_physics/src/lib.rs",
+      "projects/chirality-piping/core/product_physics/src/pressure_exact.rs",
+      "projects/chirality-piping/core/project_persistence/service.py",
+      "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+      "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+      "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+      "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs",
+      "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "projects/chirality-piping/core/serialization/canonical_json/tests/checked_profile.rs",
+      "projects/chirality-piping/fixtures/analysis_runs/invented/analysis_run_v0_2.json",
+      "projects/chirality-piping/fixtures/analysis_runs/invented/legacy_desktop_v0_1.json",
+      "projects/chirality-piping/fixtures/analysis_runs/invented/legacy_python_v0_1.json",
+      "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json",
+      "projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json",
+      "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "projects/chirality-piping/schemas/analysis_run.v0.1.schema.json",
+      "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "projects/chirality-piping/schemas/stress_neutral_export.v0.1.schema.json",
+      "projects/chirality-piping/schemas/stress_neutral_export.v0.2.schema.json",
+      "projects/chirality-piping/tests/conftest.py",
+      "projects/chirality-piping/tests/schema_validation.py",
+      "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "projects/chirality-piping/tests/test_analysis_run_schema.py",
+      "projects/chirality-piping/tests/test_checked_canonical_json_adapter.py",
+      "projects/chirality-piping/tests/test_project_persistence_service.py",
+      "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock"
+    ],
+    "all_maintained_changed_content_reviewed": true,
+    "governed_contract_policy_paths": [
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md",
+      "projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_CONTEXT.md",
+      "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md",
+      "projects/chirality-piping/validation/portability_policy.json"
+    ],
+    "evidence_inventory_count": 483,
+    "relevant_unchanged_callers_reviewed": true,
+    "frozen_source_hashes_exact_at_final_check": true,
+    "release_context_hashes_exact_at_final_check": true,
+    "all_candidate_commit_entries_exact": true,
+    "live_ledger_exception": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DISPATCH.json",
+      "candidate_sha256": "6fcc5d673654e25e56a1b1a94b9472f1e83dddaa1049e64de1fe1646821027ea",
+      "observed_live_sha256": "5f01bddc05e02c8a49cb6ec90c91c3c089385f1b0e99736b2d884fab3fc33882",
+      "reason": "Explicitly mutable actual dispatch/repair/native status index; later additive review required."
+    }
+  },
+  "findings": [
+    {
+      "id": "F01",
+      "priority": "P2",
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs",
+      "line": 1,
+      "trigger": "Auto-discovered optional checked-cli binary is selected with its feature disabled, but its entire crate is cfg-gated, leaving no main.",
+      "remedy": "Declare the named binary and required-features=[checked-cli] in Cargo.toml; verify both feature-off and enabled builds.",
+      "evidence": "Static source finding; reviewer executed no build."
+    },
+    {
+      "id": "F02",
+      "priority": "P2",
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "line": 301,
+      "trigger": "Two generic checksums permit replacing the required record checksum with a second received checksum; row and manifest slots also accept wrong scope/profile/object type.",
+      "remedy": "Exact scoped/profile/reference checksum definitions; exactly one record and one received checksum, ordering independent; negative duplicate/substitution tests.",
+      "evidence": "Static reviewer finding plus Root actual schema-validator reproduction in FINAL_REVIEW_F02_REPRODUCTION_V1.json."
+    },
+    {
+      "id": "F03",
+      "priority": "P1",
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "line": 533,
+      "other_lines": [
+        493,
+        494,
+        495
+      ],
+      "trigger": "Native ResultItem has no raw dimension. Witness filter emits zero witnesses, and validator treats every unwitnessed row as diagnostic work, throws SN-DIAGNOSTIC-WORK-FINDING-MISMATCH and leaves export empty. Enriched browser tests mask it.",
+      "remedy": "Use accepted semantic contract for eligible native quantity witnesses, preserve raw value/unit and unchanged raw rows/hashes, disclose interpreted dimension, distinguish diagnostic work from unknown/contradictory semantics; retain required830/828/two accounting.",
+      "evidence": "Full source tracing and frozen contract sections3-4; actual native reproduction pending."
+    },
+    {
+      "id": "F04",
+      "priority": "P2",
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "line": 243,
+      "trigger": "Native persistence retains nonobject received mechanics carriers, but Historical panel dereferences status.mechanics and sends raw malformed payloads to ResultsPanel; scalar/array/incomplete evidence can crash open.",
+      "remedy": "Retain exact raw carrier for save/hashes, separately guard renderable projection, disclose malformed evidence, and cover App-open/unchanged-save behavior.",
+      "evidence": "Native preservation regression and renderer/caller source tracing."
+    }
+  ],
+  "consumed_release_context": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64"
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b"
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7"
+    },
+    {
+      "path": ".agents/skills/software-code-review/SKILL.md",
+      "sha256": "06c27b1be5cfbd9e638570918a8f837d8439c8073c40d3ef708e53874f95570a"
+    },
+    {
+      "path": "docs/SOFTWARE_WORKFLOW_PROFILE.md",
+      "sha256": "9cc54bfb649168801c2ea060acb242145f48a0e08ac893e6ca38824439f7c5b3"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/APPROVED_PLAN.md",
+      "sha256": "8dc764d047439756ae788c12dd2f19e5e827f5dd3429a857faeade620e3c121d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+      "sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/PRESSURE_ACCEPTANCE_V1.json",
+      "sha256": "0b197f78e8f971a1e44c0111beb0b8d09c3e2ef280aaf370b16da112bf326067"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADJUDICATED_SUMMARY.json",
+      "sha256": "80b513905c0dc737f16ec91d7a01afda1fc61d263b6898774291c6ee0617c75a"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_MIGRATION_INTEGRITY_REPAIR_FENCE_V1.json",
+      "sha256": "3382d193c7888bb398693734ec892a92a003b184ced43b56b19cab13a493a5d5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_RESPONSE_INTEGRITY_CLARIFICATION_V1.json",
+      "sha256": "3a4e54558b16a77270a46d90a88b0e2544eb6b315846b40bd227094e32dc0091"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/MIGRATION_DIAGNOSIS_V1/REPORT.md",
+      "sha256": "f82e8342ad5a8eaee144a4452eb43c09007cc9ea8b40594e35bcdf66c7d426fb"
+    }
+  ],
+  "pressure_review": "Entire private kernel and dormant call graph reviewed; no additional actionable defect within accepted conservative representability boundary. Not runtime solver qualification.",
+  "evidence_limits": "Historical/raw numerical evidence assessed through owning verifier records and hashes; reviewer did not recalculate every scalar or execute reported tests/native workflows.",
+  "remaining": [
+    "Repair and verify F01-F04; re-review exact repaired delta",
+    "Final native qualification on repaired candidate",
+    "Full registered post-review DEC-025 and required checks",
+    "Additive source/coordination review, final acceptance, actual-head CI and Git closeout"
+  ]
+}

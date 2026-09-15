@@ -1,0 +1,56 @@
+{
+  "entries": [
+    {
+      "classification": "evidence helper/build procedure correction",
+      "id": "RUNNER-BUILD-LOCKED-001",
+      "preserved": [
+        "_run_records/commands/runner_build.record.json",
+        "_run_records/commands/runner_build.stderr.txt"
+      ],
+      "product_defect": false,
+      "summary": "Maintained headless runner crate has no maintained Cargo.lock; initial --locked source-tree build failed before compilation. Successor used an exact-commit temporary archive and generated lockfile with explicit binding; no maintained --locked claim."
+    },
+    {
+      "classification": "evidence recorder path error",
+      "id": "RUNNER-RECORDER-PATH-001",
+      "preserved": [
+        "_run_records/failures/runner_recorder_path_attempt.json"
+      ],
+      "product_defect": false,
+      "summary": "First successor recorder invocation used a cwd-relative recorder path and did not start the build."
+    },
+    {
+      "classification": "evidence capture transient",
+      "id": "STORE-SNAPSHOT-TRANSIENT-001",
+      "preserved": [
+        "_run_records/store/after_unchanged_save_failed_zero.sqlite3"
+      ],
+      "product_defect": false,
+      "summary": "First unchanged-save SQLite backup produced a zero-byte destination after a transient open failure; successor v2 snapshot passed integrity."
+    },
+    {
+      "classification": "evidence helper projection correction",
+      "id": "ANALYSIS-HELPER-V2-ASSERTION-001",
+      "preserved": [
+        "validation/validate_stored_analysis_v2.py"
+      ],
+      "product_defect": false,
+      "summary": "V2 helper incorrectly compared the create-time migration ledger envelope digest with the later solve/save envelope. Successor v3 limits the ledger equality assertion to the persisted post-migration model and documents the temporal envelope scope."
+    },
+    {
+      "classification": "product defect",
+      "id": "NATIVE-STRESS-DELIVERY-001",
+      "preserved": [
+        "findings/native_stress_delivery_failure.json",
+        "_run_records/store/after_first_save.row.json",
+        "gui/observations.json"
+      ],
+      "product_defect": true,
+      "summary": "Actual native ResultItem rows carry no dimension field. Stress-neutral witness construction returns zero and validation throws SN-DIAGNOSTIC-WORK-FINDING-MISMATCH; the component catches the error and misleadingly renders its no-result state."
+    }
+  ],
+  "schema": "final-native-failure-ledger-v2",
+  "unexercised_review_finding": {
+    "summary": "Fresh review separately identified malformed scalar/array HistoricalRunContext crash risk. This bounded native cut did not inject malformed records and makes no runtime claim for that path."
+  }
+}

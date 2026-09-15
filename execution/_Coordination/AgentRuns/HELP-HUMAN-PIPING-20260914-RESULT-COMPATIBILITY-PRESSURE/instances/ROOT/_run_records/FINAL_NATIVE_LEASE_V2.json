@@ -1,0 +1,41 @@
+{
+  "schema": "root-exclusive-final-native-lease-v2",
+  "created_utc": "2026-09-15T03:31:05.085387+00:00",
+  "holder": "/root/foundation_native",
+  "parent": "/root",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "source_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V1.json",
+    "sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b"
+  },
+  "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_EXECUTION_V2.md",
+    "sha256": "cb56bccdb09f15e6f645caeca84237aa791bddd3eee1090f28eb523c301beae9"
+  },
+  "exclusive_resources": [
+    "native/WASM/desktop builds",
+    "product browser/native GUI and owned servers"
+  ],
+  "prior_compatibility_lease": "Released by writer and manager in V10/final manager fan-in",
+  "host_bindings": {
+    "checkout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+    "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "temporary_root": "/private/tmp/piping-foundation-native-final-20260915",
+    "product_name": "OpenPipeStress Foundation Final 20260915",
+    "bundle_identifier": "org.openpipestress.foundation-final-20260915",
+    "bound_bundle": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app",
+    "browser": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+    "checked_json_setup": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+    "checked_json_environment_variable": "OPENPIPESTRESS_CHECKED_JSON_BIN"
+  },
+  "write_scope": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/**",
+    "normal ignored build targets",
+    "/private/tmp/piping-foundation-native-final-20260915/**"
+  ],
+  "source_write": false,
+  "git_write": false,
+  "release_rule": "Seal source-stability and witness results, normal quit and clear owned browser/server processes before explicit release."
+}

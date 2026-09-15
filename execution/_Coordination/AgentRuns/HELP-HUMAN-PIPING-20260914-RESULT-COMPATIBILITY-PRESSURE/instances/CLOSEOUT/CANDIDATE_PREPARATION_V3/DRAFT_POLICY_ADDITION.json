@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "project_root": "projects/chirality-piping",
+  "status": "DRAFT_ROOT_REVIEW",
+  "basis": {
+    "brief_sha256": "16d470d76714837e5643127992993c806bef2a5336304ac92ddc01ad075f5def",
+    "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+    "final_source_release_sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b"
+  },
+  "historical_role_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V8.json",
+      "sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed compatibility V8 exact-write fence preserves the concrete integration checkout recorded during execution. FINAL_SOURCE_CHECKPOINT_V10 and FINAL_MANAGER_FANIN_V1 supersede it as the frozen source/evidence basis; it is historical evidence, not live executable direction.",
+      "authority": "HELP_HUMAN final-candidate portability disposition for HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE; application of this draft records that approval."
+    }
+  ],
+  "control_path_exceptions": []
+}

@@ -1,0 +1,22 @@
+   Compiling proc-macro2 v1.0.106
+   Compiling unicode-ident v1.0.24
+   Compiling quote v1.0.45
+   Compiling serde_core v1.0.228
+   Compiling zmij v1.0.21
+   Compiling serde_json v1.0.150
+   Compiling serde v1.0.228
+    Checking itoa v1.0.18
+    Checking memchr v2.8.2
+    Checking ryu v1.0.23
+   Compiling syn v2.0.117
+   Compiling serde_derive v1.0.228
+    Checking open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/F01_REPRODUCTION_V2/original_crate_snapshot)
+error[E0601]: `main` function not found in crate `openpipestress_jcs_ijson`
+  --> src/bin/openpipestress_jcs_ijson.rs:60:2
+   |
+60 | }
+   |  ^ consider adding a `main` function to `src/bin/openpipestress_jcs_ijson.rs`
+
+For more information about this error, try `rustc --explain E0601`.
+error: could not compile `open_pipe_stress_canonical_json` (bin "openpipestress_jcs_ijson") due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

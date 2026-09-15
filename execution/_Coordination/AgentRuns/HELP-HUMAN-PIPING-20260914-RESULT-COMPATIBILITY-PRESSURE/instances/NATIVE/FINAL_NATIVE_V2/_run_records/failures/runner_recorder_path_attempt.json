@@ -1,0 +1,10 @@
+{
+  "attempt": "runner-command-record-wrapper-path",
+  "command_context": "recorder path was relative to repo root while cwd was integration root",
+  "product_defect": false,
+  "resolution": "reissued with absolute sealed recorder path; resulting actual build captured in runner_build_v2.*",
+  "schema": "final-native-failure-v2",
+  "source_mutation": false,
+  "status": "COMMAND_NOT_STARTED",
+  "stderr": "python: cannot open relative run_recorded_command.py"
+}

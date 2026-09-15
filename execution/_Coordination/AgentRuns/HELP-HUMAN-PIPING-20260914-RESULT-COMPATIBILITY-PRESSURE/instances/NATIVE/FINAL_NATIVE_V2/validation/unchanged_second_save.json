@@ -1,0 +1,67 @@
+{
+  "failed_first_capture_preserved": "_run_records/store/after_unchanged_save_failed_zero.sqlite3",
+  "payload_fields": {
+    "analysis_run_json": {
+      "after_sha256": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87",
+      "before_sha256": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87",
+      "exact": true
+    },
+    "editor_intents_json": {
+      "after_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "before_sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "exact": true
+    },
+    "mechanics_result_json": {
+      "after_sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+      "before_sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+      "exact": true
+    },
+    "model_hash_json": {
+      "after_sha256": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4",
+      "before_sha256": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4",
+      "exact": true
+    },
+    "model_json": {
+      "after_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "before_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "exact": true
+    },
+    "model_migration_ledger_json": {
+      "after_sha256": "0f2f438fd4e72075b8bac7bd82bdf2d6475a4c22ffa2c1a5c828b61aef97dd6c",
+      "before_sha256": "0f2f438fd4e72075b8bac7bd82bdf2d6475a4c22ffa2c1a5c828b61aef97dd6c",
+      "exact": true
+    },
+    "project_envelope_hash_json": {
+      "after_sha256": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf",
+      "before_sha256": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf",
+      "exact": true
+    },
+    "project_id": {
+      "after_sha256": "4e5238d35037aeda9f42d24366df901b4857b8247706f171ad2ee9b7c9ef4ef0",
+      "before_sha256": "4e5238d35037aeda9f42d24366df901b4857b8247706f171ad2ee9b7c9ef4ef0",
+      "exact": true
+    },
+    "project_name": {
+      "after_sha256": "df839f0ac6384007b2aeff0238fd585565fcaefee2a1122c1bd4cc96aae9311a",
+      "before_sha256": "df839f0ac6384007b2aeff0238fd585565fcaefee2a1122c1bd4cc96aae9311a",
+      "exact": true
+    },
+    "proposal_json": {
+      "after_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "before_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "exact": true
+    },
+    "selected_review_target_json": {
+      "after_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "before_sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+      "exact": true
+    }
+  },
+  "status": "PASS",
+  "timestamps": {
+    "created_after": 1789443430,
+    "created_before": 1789443430,
+    "updated_after": 1789443676,
+    "updated_before": 1789443444
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "checked_file_count": 6879,
+  "finding_count": 15,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 46,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress",
+      "text": "\"root\": \"/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 51,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+      "text": "\"path\": \"/private/tmp/piping-foundation-native-final-20260915/build/checked-json/release/openpipestress_jcs_ijson\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 60,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress",
+      "text": "\"path\": \"/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app/Contents/MacOS/openpipestress-desktop\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 65,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner",
+      "text": "\"path\": \"/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 73,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project.tar",
+      "text": "\"--output=/private/tmp/piping-foundation-native-final-20260915/build/candidate-project.tar\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 81,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+      "text": "\"path\": \"/private/tmp/piping-foundation-native-final-20260915/build/candidate-project/core/runner/headless/Cargo.lock\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 86,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner",
+      "text": "\"path\": \"/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2/release/openpipestress-runner\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 91,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project",
+      "text": "\"temporary_project_root\": \"/private/tmp/piping-foundation-native-final-20260915/build/candidate-project\""
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 95,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "text": "\"path\": \"/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist/wasm-engine/open_pipe_stress_operation_applier_bg.wasm\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "line": 165,
+      "match": "/Users/ryan/Library/Application",
+      "text": "\"isolated_path\": \"/Users/ryan/Library/Application Support/org.openpipestress.foundation-final-20260915/openpipestress-projects.sqlite3\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/LEASE_RELEASE.json",
+      "line": 2,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress",
+      "text": "\"bound_application_preserved\": \"/private/tmp/piping-foundation-native-final-20260915/bound/OpenPipeStress Foundation Final 20260915.app\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_analysis.json",
+      "line": 33,
+      "match": "/private/tmp/piping-foundation-native-final-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+      "text": "\"executable\": \"/private/tmp/piping-foundation-native-final-20260915/build/checked-json/release/openpipestress_jcs_ijson\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_analysis.json",
+      "line": 137,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.row.json",
+      "text": "\"source_snapshot\": \"/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.row.json\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_model_envelope_hashes.json",
+      "line": 6,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+      "text": "\"glue_path\": \"/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_model_envelope_hashes.json",
+      "line": 8,
+      "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+      "text": "\"wasm_path\": \"/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm\","
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 0,
+    "active_unclassified": 4,
+    "policy_issues": 0,
+    "acknowledged_control": 41
+  }
+}

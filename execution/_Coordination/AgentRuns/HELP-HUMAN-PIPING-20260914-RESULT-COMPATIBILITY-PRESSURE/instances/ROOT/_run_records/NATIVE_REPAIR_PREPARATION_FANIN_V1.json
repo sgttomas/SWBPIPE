@@ -1,0 +1,21 @@
+{
+  "schema": "root-native-repair-preparation-fanin-v1",
+  "created_utc": "2026-09-15T04:00:25.043507+00:00",
+  "status": "PREPARATION_ACCEPTED; FINAL_SOURCE_AND_NATIVE_EXECUTION_UNRELEASED",
+  "manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/REPAIR_PREPARATION_V5/HASH_MANIFEST_V5.json",
+    "sha256": "0e1e674df253abf600b70459ecbc6f621e8563dfb1a4b5e1e72cb1da46be1285"
+  },
+  "return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/REPAIR_PREPARATION_V5/PREPARATION_RETURN_V5.md",
+    "sha256": "245284f16b26b80e4067d6a9a8facdd0b06f4c5331bda27c4f3dbe3c7e9edba8"
+  },
+  "all10_listed_hashes_verified": true,
+  "root_read_checks": [
+    "Portable prepared row retains baseline project/model identity and malformed raw JSON; recomputes only seven-field envelope with unchanged profile.",
+    "Disposable store seed uses exact baseline project ID, bound isolated path and closed-app/sidecar prerequisites; no user store authorized.",
+    "Final finding code and interpreted-dimension trace naming remain bound to yet-unreleased source."
+  ],
+  "runtime_claim": false,
+  "pending": "Bind actual repaired source and concrete isolated lease; independently execute final native witness."
+}

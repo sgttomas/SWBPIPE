@@ -1,0 +1,41 @@
+{
+  "schema": "root-native-v2-fanin-v1",
+  "created_utc": "2026-09-15T03:49:15.107968+00:00",
+  "candidate": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "result": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+    "sha256": "3dda1b4db37fc07aedd53c0f7a111e24c002ebfb98e9ba108ed4e9152d41de23"
+  },
+  "manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/EVIDENCE_MANIFEST.json",
+    "sha256": "dfd4d3ae9b7d32f6ec66f45b568bd954d2d8b61b255d2839c6aa741bd629c6fc"
+  },
+  "lease_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/LEASE_RELEASE.json",
+    "sha256": "e563a6835421cce6fafecf62a139ff780b03c9361bdf88d70e3b5efc2e46ea13"
+  },
+  "all47_artifact_hashes_and_lengths_checked": true,
+  "status": "ACCEPT_PARTIAL_INTEGRITY_EVIDENCE; TRANCHE_AND_FINAL_NATIVE_BLOCKED",
+  "accepted_boundary": "First-save/reopen normalization and strict analysis/hash integrity; unchanged second-save preservation. Exact numerical and count observations remain with owning native result/validation.",
+  "blocker": "Authentic dimension-absent native stress result cannot emit packet; confirms fresh review F03.",
+  "not_claimed": [
+    "All60 producers",
+    "Final native delivery",
+    "Full authored cantilever lifecycle",
+    "Legacy malformed runtime backcheck",
+    "Full native qualification",
+    "Tranche closure"
+  ],
+  "raw_native_carrier_for_repair": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json",
+    "sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923"
+  },
+  "original_model_carrier": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.model_json.json",
+    "sha256": "eafae8161b61c13e4a0c47b9bc55881c76387098a0069be9fcb654a8ffa1b333"
+  },
+  "analysis_carrier": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.analysis_run_json.json",
+    "sha256": "58848ff1450c236b8e0e491488cfd5caceebf61a310ece1f28048f58a22d94a9"
+  }
+}

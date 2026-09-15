@@ -1,0 +1,8 @@
+{
+  "checked_at_unix": 1789443907,
+  "command": "pgrep -fl openpipestress-desktop",
+  "exit_code": 1,
+  "normal_quit_ui_action": "Command-Q via cua_repl app.pressKey super+q",
+  "process_absent": true,
+  "stdout": ""
+}

@@ -1,0 +1,12 @@
+{
+  "blocker_sha256": "b7fb2b5c07c48fac7f8b02e996c77fa71e214ccaf2444da4aab1c64cbcf74406",
+  "candidate_commit_declared": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "evidence_manifest_sha256": "dfd4d3ae9b7d32f6ec66f45b568bd954d2d8b61b255d2839c6aa741bd629c6fc",
+  "evidence_tree_sha256": "bf31b12bd6dd479daa2d27a1edb07924046438c75aa708b4bb75b81d209ed8a1",
+  "lease_release_sha256": "e563a6835421cce6fafecf62a139ff780b03c9361bdf88d70e3b5efc2e46ea13",
+  "lease_released": true,
+  "result_sha256": "3dda1b4db37fc07aedd53c0f7a111e24c002ebfb98e9ba108ed4e9152d41de23",
+  "schema": "final-native-seal-v2",
+  "sealed_at": "2026-09-15T03:47:27.972792+00:00",
+  "status": "BLOCKED_BY_NATIVE_STRESS_DELIVERY_DIMENSION_CARRIER"
+}

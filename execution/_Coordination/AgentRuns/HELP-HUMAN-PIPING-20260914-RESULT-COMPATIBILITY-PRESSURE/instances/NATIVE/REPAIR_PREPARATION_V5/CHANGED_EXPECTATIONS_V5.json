@@ -1,0 +1,56 @@
+{
+  "schema": "final-native-repair-changed-expectations-v5",
+  "status": "PREPARED_ONLY_FINAL_REPAIRED_CANDIDATE_UNRELEASED",
+  "upstream": {
+    "final_native_v2_fanin_sha256": "b2d8b4dc46c16e838f1af354f34f532563631a2fcb4c18a9e3fca4eb26bdb607",
+    "final_review_return": "instances/ROOT/_run_records/FINAL_REVIEW_V1/REVIEW_RETURN_V1.json",
+    "compatibility_repair_brief_v12_sha256": "9f5d241512ddb398b43d53d75f024f797a983dec0b3fa962582d3aa4ddca50b2",
+    "v4_consumer_preparation": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4"
+  },
+  "F03": {
+    "actual_native_source": "instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json",
+    "actual_native_source_sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923",
+    "raw_rows": 830,
+    "raw_rows_with_dimension": 0,
+    "known_contract_eligible_witnesses": 828,
+    "diagnostic_work_withholds": 2,
+    "requirements": [
+      "Retain all 830 raw rows, IDs, numerical values and units without source mutation or hash change.",
+      "Derive a disclosed target dimension only from accepted semantic kind/unit/component and record its signature trace.",
+      "Emit exactly one witness for each of 828 known non-diagnostic-work rows.",
+      "Retain and explicitly withhold the two diagnostic-work rows.",
+      "Classify missing or contradictory semantics separately; never count them as diagnostic work or as witnessed.",
+      "Keep the nine package members, checksum projections and Python materialized bytes exact.",
+      "Require actual native GUI JSON and CSV delivery receipts; browser fixture delivery remains a separate claim."
+    ],
+    "v4_assessment": {
+      "composition_helper": "Calls the correct repaired product constructor and asserts raw source equality, but needs V5 supplemental category/count evidence.",
+      "independent_verifier": "Already checks semantic eligibility and rejects solver-mode mislabelling, but does not prove diagnostic-work withholding bijection or missing/contradictory separation.",
+      "successor": "verify_f03_accounting_v5.py runs after the V4 verifier and supplies those missing assertions without changing sealed V4."
+    },
+    "pending_writer_binding": "The final repair may add packet-level or witness-level dimension provenance fields. The V5 helper independently records contract path/hash/signature trace; any final wire-field name and owning validator assertion must be bound after repaired source release."
+  },
+  "F04": {
+    "cases": [
+      "scalar_string",
+      "array",
+      "incomplete_object",
+      "invalid_rows",
+      "scalar_false",
+      "scalar_zero",
+      "scalar_empty_string"
+    ],
+    "requirements": [
+      "Use a disposable copy of the fresh repaired-candidate synthetic store while the app is closed.",
+      "Recompute the existing rfc8785_jcs seven-field envelope around the exact raw malformed carrier; do not relabel profiles.",
+      "Open every case through the actual native GUI and show Historical with the final malformed-evidence finding.",
+      "Use only a safe render projection; the raw carrier remains the persistence/hash/save authority.",
+      "Never establish Current, overlays, rules, comparison, report readiness or exports from malformed evidence.",
+      "Perform one unchanged Save, quit normally, and prove every payload field including false, zero and empty string is exact."
+    ],
+    "malformed_finding_code": "PENDING_FINAL_WRITER_CODE_BINDING",
+    "pending_writer_binding": "Bind the final exact finding code and safe-projection disclosure text after compatibility releases the repaired representation."
+  },
+  "accepted_only_on_v2_source": "The earlier first-save normalization/reopen integrity pass remains accepted only for e244a2479207fa32db23e150d6cb41544ddc829f and must be rerun on the repaired candidate.",
+  "execution_release": false
+}

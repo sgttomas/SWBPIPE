@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "cargo",
+    "build",
+    "--offline",
+    "--release",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml",
+    "--bin",
+    "openpipestress-runner",
+    "--target-dir",
+    "/private/tmp/piping-foundation-native-final-20260915/build/headless-runner-v2"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-final-20260915/build/candidate-project",
+  "elapsed_seconds": 18.774526834487915,
+  "ended_unix": 1789443370.704612,
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "exit_code": 0,
+  "started_unix": 1789443351.9300852
+}

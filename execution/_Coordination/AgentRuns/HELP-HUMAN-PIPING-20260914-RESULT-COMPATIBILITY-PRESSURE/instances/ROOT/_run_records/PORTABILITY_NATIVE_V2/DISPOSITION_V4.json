@@ -1,0 +1,47 @@
+{
+  "schema": "root-portability-native-v2-disposition-v4",
+  "created_utc": "2026-09-15T04:12:58.402601+00:00",
+  "policy_path": "projects/chirality-piping/validation/portability_policy.json",
+  "before_sha256": "bba93127a865ee3afaedc8e26da092dc6ed48ac2d91106a4c0e7e0f3ddd268d5",
+  "after_sha256": "a7dc91fb940f0c2f730c4ad0391176f01b25f39ed591ebcf668728b88f5d2aae",
+  "raw_scan": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V2/before.stdout.json",
+    "sha256": "405083d4e4b0d71ed777cdc5409580cde6a05b2342bfd66bd5d6e1f4b6e5695e",
+    "exit_code": 1
+  },
+  "entries": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
+      "sha256": "3dda1b4db37fc07aedd53c0f7a111e24c002ebfb98e9ba108ed4e9152d41de23",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed native V2 result, release or validation output preserves observed machine paths. This failed/partial witness is immutable historical evidence; FINAL_NATIVE_EXECUTION_V3 governs the future repaired witness.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V2/DISPOSITION_V4.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/LEASE_RELEASE.json",
+      "sha256": "e563a6835421cce6fafecf62a139ff780b03c9361bdf88d70e3b5efc2e46ea13",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed native V2 result, release or validation output preserves observed machine paths. This failed/partial witness is immutable historical evidence; FINAL_NATIVE_EXECUTION_V3 governs the future repaired witness.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V2/DISPOSITION_V4.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_analysis.json",
+      "sha256": "55ec6ad9a76b349c36052cb8bd5465f3d006451a804c916f668b698b6af5509e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed native V2 result, release or validation output preserves observed machine paths. This failed/partial witness is immutable historical evidence; FINAL_NATIVE_EXECUTION_V3 governs the future repaired witness.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V2/DISPOSITION_V4.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/validation/after_first_save_model_envelope_hashes.json",
+      "sha256": "02e500cccc18b5734f6004ad9e853913f377058e21bbcb6b6dda64706c3d912b",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Sealed completed native V2 result, release or validation output preserves observed machine paths. This failed/partial witness is immutable historical evidence; FINAL_NATIVE_EXECUTION_V3 governs the future repaired witness.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_NATIVE_V2/DISPOSITION_V4.json"
+    }
+  ],
+  "limits": "Exact historical evidence classifications only. Source and evidence bytes unchanged. Future instructions remain portable. Additive final review required."
+}

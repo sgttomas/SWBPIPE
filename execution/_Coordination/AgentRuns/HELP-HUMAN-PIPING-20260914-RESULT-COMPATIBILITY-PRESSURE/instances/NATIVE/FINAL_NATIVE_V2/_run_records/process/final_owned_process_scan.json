@@ -1,0 +1,12 @@
+{
+  "captured_utc": "2026-09-15T03:46:41.480205+00:00",
+  "matching_processes": [],
+  "needles": [
+    "piping-foundation-native-final-20260915",
+    "OpenPipeStress Foundation Final 20260915",
+    "org.openpipestress.foundation-final-20260915"
+  ],
+  "owned_browser_or_server_launched": false,
+  "owned_processes_absent": true,
+  "schema": "final-native-owned-process-scan-v2"
+}

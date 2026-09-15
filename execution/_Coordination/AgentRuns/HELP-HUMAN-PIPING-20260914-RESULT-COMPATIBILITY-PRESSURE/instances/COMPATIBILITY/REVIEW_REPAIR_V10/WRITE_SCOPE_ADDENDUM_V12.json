@@ -1,0 +1,63 @@
+{
+  "schema": "compatibility-review-repair-v12-write-scope-addendum",
+  "status": "SEALED_EXACT_ADDITIONAL_SCOPE",
+  "governing_brief": {
+    "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V12.md",
+    "sha256": "9f5d241512ddb398b43d53d75f024f797a983dec0b3fa962582d3aa4ddca50b2"
+  },
+  "prior_addendum": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/WRITE_SCOPE_ADDENDUM_V11.json",
+    "sha256": "6604e00835319cc52fc13b9f726d7c0b5fdea3b8179baaca7eed47241fe2a306"
+  },
+  "exact_additional_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+    "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/types.ts"
+  ],
+  "optional_paths": {
+    "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json": "only if emitted 0.2 content changes",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "only raw historical preservation and guarded render integration",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "only malformed open/save and relevant lifecycle regression",
+    "projects/chirality-piping/apps/desktop/src/types.ts": "only if truthful received-carrier typing requires it"
+  },
+  "pre_v12_sha256": {
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx": "57688be08d4f803e5d57603d7537f678f64ccfd6c9e3f1a7e832c46eca32a5cb",
+    "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx": "0e4a058ed805ff8b3a2f50cefe0493ecf24d563ffc94f4d89df3e81fb0938522",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py": "7fe73d9606af0201662a2e410ced854d763d92b8e06afe792a0a9db8f5997784",
+    "projects/chirality-piping/tests/test_stress_neutral_export_package.py": "c39c3e57d60885de3c30b95257a2bf891c70a29779e237817ec9965293d053d3",
+    "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json": "e8d398aec6e4262cfe40420e55e00f39af105fa994d097ea71e54f46dda1bffe",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx": "1bcd1e85e2db890f479a0c99d1b75d7d8c0d951dcddd29e0bc9a1921033bcc4b",
+    "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx": "6f005bfaaf07fedb1232fec396208b525a8243f0d24158ea1bc9c5dd6275df77",
+    "projects/chirality-piping/apps/desktop/src/App.tsx": "ebbe8b6420c807b103c44d8120dd2d0497266803f6949b6e2e1a2e990c44c033",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx": "f2e68620bf8a199e5bbef801cac5c7fd6f19a07919aa054685a9412f2a68f108",
+    "projects/chirality-piping/apps/desktop/src/types.ts": "7de6955c2c541557d988554132a58789081727c5ef9cfc1c4d3d7b0253deb409"
+  },
+  "f03_contract": [
+    "keep raw native result rows and their hashes unchanged",
+    "derive interpreted dimension/family only from accepted semantic-contract evidence for known kind/unit/component",
+    "bind witnesses and disclosure to interpreted semantics and the exact raw row/source identity",
+    "distinguish diagnostic work from unknown, missing-semantic and contradictory cases",
+    "retain all 830 rows with 828 eligible witnesses and exactly two diagnostic-work withholdings"
+  ],
+  "f04_contract": [
+    "preserve malformed raw historical carriers, including false, zero and empty string, for hashes and unchanged saves",
+    "keep malformed evidence Historical and emit a malformed-evidence finding",
+    "provide a separately safe render projection without replacing the stored carrier",
+    "cover scalar, array, incomplete object and invalid row payloads through App open and unchanged save"
+  ],
+  "execution_held": [
+    "builds",
+    "Cargo tests",
+    "product tests",
+    "browser execution",
+    "native execution"
+  ],
+  "git_actions": false
+}

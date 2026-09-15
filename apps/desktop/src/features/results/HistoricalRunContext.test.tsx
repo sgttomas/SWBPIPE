@@ -203,4 +203,34 @@ describe("transient HistoricalRunContext integrity", () => {
     expect(JSON.stringify(context!.analysisRun)).toBe(before);
   });
 
+  it.each([
+    ["false", false],
+    ["zero", 0],
+    ["empty string", ""],
+    ["array", []],
+    ["incomplete object", { run_id: "received-incomplete" }],
+    ["invalid row", {
+      schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "received-invalid-row",
+      model_ref: "model:invalid", status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+      summary: {}, results: [{ id: "unsafe", kind: "displacement_magnitude", value: "not-a-number", unit: "mm", entity_ref: "node:unsafe" }], diagnostics: []
+    }]
+  ])("preserves a malformed %s carrier while withholding it from rendering", async (_label, carrier) => {
+    const saved = await savedEnvelope();
+    (saved as unknown as { mechanics_result: unknown }).mechanics_result = carrier;
+    const before = structuredClone(carrier);
+    const context = await buildHistoricalRunContext(saved);
+    expect(context).not.toBeNull();
+    expect(context!.designation).toBe("historical_saved_run");
+    expect(context!.findings).toContain("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+    expect(context!.mechanicsResult).toBeNull();
+    expect(context!.rawMechanicsResult).toEqual(before);
+    const expectedEnvelope = await computeProjectEnvelopeHash({
+      model: saved.model, editor_intents: saved.editor_intents ?? [], proposal: saved.proposal ?? null,
+      selected_review_target: saved.selected_review_target ?? null,
+      mechanics_result: carrier, analysis_run: saved.analysis_run, model_hash: saved.model_hash
+    } as never);
+    expect(context!.envelopePayloadHash).toBe(expectedEnvelope!.value);
+    expect((saved as unknown as { mechanics_result: unknown }).mechanics_result).toEqual(before);
+  });
+
 });

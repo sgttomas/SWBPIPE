@@ -1,4 +1,4 @@
-import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
+import { semanticFamily, semanticDimension, semanticCategory, resultSemantics } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
 import { useEffect, useState } from "react";
 import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
@@ -391,31 +391,98 @@ function strictManifestSeed(packet: any, checksums: any[]) {
   };
 }
 
+type StrictWitnessDisposition = "eligible" | "diagnostic_work" | "unknown_semantic" | "missing_semantic" | "contradiction";
+
+const WITHHOLDING_CODES: Record<Exclude<StrictWitnessDisposition, "eligible">, string> = {
+  diagnostic_work: "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
+  unknown_semantic: "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+  missing_semantic: "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+  contradiction: "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
+};
+
+function strictWitnessDisposition(source: MechanicsResult["results"][number]): { disposition: StrictWitnessDisposition; dimension: string | null } {
+  try {
+    const semantic = resultSemantics(source);
+    if (!semantic) return { disposition: "unknown_semantic", dimension: null };
+    if (semantic.category === "diagnostic_work") return { disposition: "diagnostic_work", dimension: semantic.derivative_target_dimension };
+    if (semantic.component !== null && (!source.metadata || typeof source.metadata.component !== "string" || source.metadata.component.length === 0)) {
+      return { disposition: "missing_semantic", dimension: semantic.derivative_target_dimension };
+    }
+    if (!semantic.derivative_target_dimension) return { disposition: "missing_semantic", dimension: null };
+    return { disposition: "eligible", dimension: semantic.derivative_target_dimension };
+  } catch {
+    return { disposition: "contradiction", dimension: null };
+  }
+}
+
+function strictWithholdingDiagnostic(disposition: Exclude<StrictWitnessDisposition, "eligible">, row: StressNeutralRow, rowIndex: number) {
+  const diagnosticWork = disposition === "diagnostic_work";
+  return {
+    code: WITHHOLDING_CODES[disposition], class: "unit_preservation_witness", severity: diagnosticWork ? "info" : "blocking",
+    source: reference("StressNeutralResultRow", row.result_id), affected_object: reference("StressNeutralUnitWitness", `unit-witness:${rowIndex}`),
+    message: diagnosticWork
+      ? "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness."
+      : `${disposition.replaceAll("_", " ")} prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.`,
+    remediation: diagnosticWork
+      ? "Review diagnostic work separately from physical quantity witnesses."
+      : "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
+    provenance: previewProvenance()
+  };
+}
+
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const legacy = buildStressNeutralExportPacketV01(args);
   const strictBoundaryNotes = legacy.boundary_notes.filter((note) =>
     !note.includes("does not emit canonical package member hashes")
   );
-  const withheldDiagnostics = args.result.results.flatMap((source, sourceRowIndex) => semanticCategory(source) === "diagnostic_work" ? [{
-    code: "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK", class: "unit_preservation_witness", severity: "info",
-    source: reference("StressNeutralResultRow", source.id), affected_object: reference("StressNeutralUnitWitness", `unit-witness:${sourceRowIndex}`),
-    message: "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness.", remediation: "Review diagnostic work separately from physical quantity witnesses.", provenance: previewProvenance(),
-  }] : []);
+  strictBoundaryNotes.push("Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged, and no absent raw dimension is claimed as received evidence.");
+  const dispositions = legacy.result_rows.map((row, rowIndex) => {
+    const source = args.result.results.find((candidate) => candidate.id === row.result_id);
+    const interpreted = source ? strictWitnessDisposition(source) : { disposition: "unknown_semantic" as const, dimension: null };
+    return { row, rowIndex, source, ...interpreted };
+  });
+  const strictWitnesses = dispositions.filter((item) => item.disposition === "eligible").map(({ row, rowIndex }) => ({
+    witness_id: `stress-neutral-unit:${safeFileToken(row.result_id)}`,
+    source_row_index: rowIndex,
+    result_id: row.result_id,
+    source_quantity: { value: row.value, unit: row.unit, dimension: row.dimension },
+    target_quantity: { value: row.value, unit: row.unit, dimension: row.dimension },
+    conversion_performed: false,
+    policy: "preserve_received_value_and_unit"
+  }));
+  const withheld = dispositions.filter((item): item is typeof item & { disposition: Exclude<StrictWitnessDisposition, "eligible"> } => item.disposition !== "eligible");
+  const withheldDiagnostics = withheld.map(({ disposition, row, rowIndex }) => strictWithholdingDiagnostic(disposition, row, rowIndex));
+  const aggregateWithholdingDiagnostic = withheld.length ? [{
+    code: "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", class: "export_blocking", severity: "blocking",
+    source: reference("ExportConsumer", "DEL-17-06"), affected_object: reference("StressNeutralResultRows", "stress-neutral:result-rows"),
+    message: `${withheld.length} retained rows are explicitly categorized as ineligible for unit-preservation witnesses; ${strictWitnesses.length} rows have accepted semantic-contract interpretations and exact value/unit witnesses.`,
+    remediation: "Review every explicit witness-withholding finding before downstream use.", provenance: previewProvenance()
+  }] : [];
+  const diagnostics = [
+    ...legacy.diagnostics.filter((item) => !["SN-DESKTOP-PREVIEW-HASH-TBD", "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE", "SN-UNIT-DIMENSION-MISSING"].includes(item.code)).map((item) => ({ code: item.code, class: item.class ?? "stress_neutral_export", severity: item.severity, source: item.source ?? reference("StressNeutralExportPackage", legacy.export_id), affected_object: item.affected_object ?? ("affected_ref" in item ? item.affected_ref : undefined) ?? reference("StressNeutralExportPackage", legacy.export_id), message: item.message, remediation: item.remediation ?? "Review stress-neutral handoff evidence before use.", provenance: item.provenance })),
+    ...withheldDiagnostics,
+    ...aggregateWithholdingDiagnostic
+  ];
+  const blockingCount = diagnostics.filter((item) => item.severity === "blocking").length;
+  const semanticContractRef = reference("ExternalReference", "fixtures/results/semantic_contract_v0_2.json");
+  const decisionBasisRefs = [...structuredClone(legacy.unit_system_disclosure.decision_basis_refs), semanticContractRef, legacy.source_run_ref];
   const packet: any = {
     schema_version: STRESS_NEUTRAL_EXPORT_VERSION,
     deliverable_id: "DEL-17-06", package_id: "PKG-17", scope_items: ["SOW-046", "SOW-074"], objectives: ["OBJ-007", "OBJ-017", "OBJ-018"],
     export_id: legacy.export_id, package_status: "stress_neutral_export_package", schema_conformant: true,
-    validation_ready: !legacy.diagnostics.some((item) => item.severity === "blocking"),
+    validation_ready: blockingCount === 0,
     source_result_ref: legacy.source_result_ref, source_run_ref: legacy.source_run_ref, source_model_ref: legacy.source_model_ref,
     received_source_checksums: structuredClone(args.analysisRun.analysis_run.hashes),
-    unresolved_assumption_refs: [], reproducibility_refs: [legacy.source_run_ref], export_profile: { ...legacy.export_profile, profile_id: STRESS_NEUTRAL_EXPORT_PROFILE, profile_version: STRESS_NEUTRAL_EXPORT_VERSION, boundary_notes: strictBoundaryNotes, source_basis_refs: [legacy.source_run_ref] },
+    unresolved_assumption_refs: [], reproducibility_refs: [legacy.source_run_ref], export_profile: { ...legacy.export_profile, profile_id: STRESS_NEUTRAL_EXPORT_PROFILE, profile_version: STRESS_NEUTRAL_EXPORT_VERSION, boundary_notes: strictBoundaryNotes, source_basis_refs: [legacy.source_run_ref, semanticContractRef] },
     manifest: { manifest_id: legacy.manifest.manifest_id, export_profile_ref: reference("StressNeutralExportProfile", STRESS_NEUTRAL_EXPORT_PROFILE), boundary_notes: strictBoundaryNotes, package_members: [] as any[], checksums: [] as any[] },
-    csv_text: legacy.csv_text, result_rows: legacy.result_rows, unit_system_disclosure: legacy.unit_system_disclosure,
-    unit_preservation_witnesses: legacy.unit_preservation_witnesses.map((witness) => ({ witness_id: witness.witness_id, source_row_index: legacy.result_rows.findIndex((row) => row.result_id === witness.source_result_ref.ref), result_id: witness.source_result_ref.ref, source_quantity: witness.source_quantity, target_quantity: witness.target_quantity, conversion_performed: false, policy: "preserve_received_value_and_unit" })),
+    csv_text: legacy.csv_text, result_rows: legacy.result_rows, unit_system_disclosure: { ...legacy.unit_system_disclosure, decision_basis_refs: decisionBasisRefs },
+    unit_preservation_witnesses: strictWitnesses,
     stable_id_map: legacy.stable_id_map.map(({ canonical_ref, export_ref, mapping_status, loss_category, provenance }) => ({ canonical_ref, export_ref, mapping_status, loss_category, provenance })),
-    loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
-    validation_report: { validation_status: legacy.validation_report.validation_status, checks: legacy.validation_report.checks.map((check) => ({ check_id: check.check_id, check_status: check.status, blocking_count: check.blocking ? 1 : 0, diagnostic_count: 0, provenance: previewProvenance() })), human_review_required: true, provenance: previewProvenance() },
-    diagnostics: [...legacy.diagnostics.filter((item) => item.code !== "SN-DESKTOP-PREVIEW-HASH-TBD").map((item) => ({ code: item.code, class: item.class ?? "stress_neutral_export", severity: item.severity, source: item.source ?? reference("StressNeutralExportPackage", legacy.export_id), affected_object: item.affected_object ?? ("affected_ref" in item ? item.affected_ref : undefined) ?? reference("StressNeutralExportPackage", legacy.export_id), message: item.message, remediation: item.remediation ?? "Review stress-neutral handoff evidence before use.", provenance: item.provenance })), ...withheldDiagnostics],
+    loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.category === "exported" ? `All ${legacy.result_rows.length} received numerical rows and units are retained unchanged; ${strictWitnesses.length} rows have accepted semantic-contract dimension witnesses and ${withheld.length} rows have explicit witness-withholding findings.` : entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
+    validation_report: { validation_status: blockingCount ? "blocked" : "passed", checks: legacy.validation_report.checks.map((check) => check.check_id === "unit_preservation_witness_per_row"
+      ? ({ check_id: check.check_id, check_status: withheld.length ? "blocking" : "passed", blocking_count: withheld.length, diagnostic_count: withheldDiagnostics.length, provenance: previewProvenance() })
+      : ({ check_id: check.check_id, check_status: check.status, blocking_count: check.blocking ? 1 : 0, diagnostic_count: 0, provenance: previewProvenance() })), human_review_required: true, provenance: previewProvenance() },
+    diagnostics,
     privacy: { classification: legacy.privacy.privacy_classification, commercial_tool_payload_embedded: false, local_only: true, private_payload_embedded: false, protected_payload_embedded: false, redaction_refs: [], telemetry_allowed: false },
     provenance: previewProvenance(),
     professional_boundary: { human_review_required: true, supports_review: true, supports_regression_comparison_input: true, supports_downstream_tooling: true, software_makes_release_claim: false, software_makes_external_compatibility_claim: false, software_makes_solver_validation_claim: false, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_creates_professional_reliance_record: false },
@@ -490,9 +557,21 @@ export async function validateStressNeutralExportPacket(packet: any): Promise<vo
     seenWitnesses.add(witness.result_id);
   }
   for (const entry of packet.loss_report) if (entry.target_artifact_ref?.ref !== packet.export_id || entry.human_review_required !== true) throw new Error("SN-LOSS-REPORT-BINDING-MISMATCH");
-  const diagnosticWorkIds = new Set(rows.filter((row: any) => !seenWitnesses.has(row.result_id)).map((row: any) => row.result_id));
-  const withheldIds = new Set(packet.diagnostics.filter((item: any) => item.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK").map((item: any) => item.source?.ref));
-  if (diagnosticWorkIds.size !== withheldIds.size || [...diagnosticWorkIds].some((id) => !withheldIds.has(id))) throw new Error("SN-DIAGNOSTIC-WORK-FINDING-MISMATCH");
+  const withholdingCodes = new Map(Object.entries(WITHHOLDING_CODES).map(([category, code]) => [code, category]));
+  const categorized = new Map<string, string>();
+  for (const item of packet.diagnostics) {
+    const category = withholdingCodes.get(item.code);
+    if (!category) continue;
+    const resultId = item.source?.ref;
+    const expectedSeverity = category === "diagnostic_work" ? "info" : "blocking";
+    if (typeof resultId !== "string" || !rows.some((row: any) => row.result_id === resultId)
+      || categorized.has(resultId) || item.severity !== expectedSeverity) throw new Error("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH");
+    categorized.set(resultId, category);
+  }
+  if ([...seenWitnesses].some((id) => categorized.has(id)) || seenWitnesses.size + categorized.size !== rows.length
+    || rows.some((row: any) => !seenWitnesses.has(row.result_id) && !categorized.has(row.result_id))) throw new Error("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH");
+  if (!packet.export_profile?.source_basis_refs?.some((item: any) => item?.ref === "fixtures/results/semantic_contract_v0_2.json")
+    || !packet.unit_system_disclosure?.decision_basis_refs?.some((item: any) => item?.ref === "fixtures/results/semantic_contract_v0_2.json")) throw new Error("SN-SEMANTIC-CONTRACT-BINDING-MISSING");
   const blockingDiagnostics = packet.diagnostics.filter((item: any) => item.severity === "blocking").length;
   const checks = packet.validation_report?.checks;
   const checksConsistent = Array.isArray(checks) && checks.every((check: any) => Number.isSafeInteger(check.blocking_count) && check.blocking_count >= 0

@@ -1,0 +1,21 @@
+{
+  "schema": "root-nonbuild-focused-verification-grant-v1",
+  "created_utc": "2026-09-15T03:45:55.985511+00:00",
+  "holder": "/root/foundation_compatibility with its sole TASK writer",
+  "parent": "/root",
+  "purpose": "Allow independent focused nonbuild repair checks while native GUI qualification reaches its bounded cut; retain serialization of all builds and browser/native witnesses.",
+  "supersedes": "Only blanket no-test clauses of review repair V10-V12; native retains exclusive builds/WASM/browser/native GUI/servers.",
+  "worktree": "Existing compatibility checkout, derive REPO_ROOT/WORKING_ROOT as in sealed briefs.",
+  "allowed": [
+    "Vitest over App.test.tsx, HistoricalRunContext.test.tsx and StressNeutralExportPanel.test.tsx using existing installed dependencies and already-built WASM, with one worker",
+    "Python analysis compatibility/schema and stress-neutral tests using the existing explicitly configured checked-JSON executable and already-installed Python; verify conftest does not invoke the setup builder when that environment is supplied",
+    "Read-only schema validation, no product builds"
+  ],
+  "requirements": [
+    "Before invoking, hash/bind existing checked executable and WASM and confirm no Rust/WASM source changed from V10 (Cargo target metadata only).",
+    "Set OPENPIPESTRESS_CHECKED_JSON_BIN to resolved existing executable so test setup never starts Cargo.",
+    "No npm build scripts, Cargo/rustc/wasm-bindgen, Playwright, browser/native control or web servers. F01 build reproduction and default/enabled build acceptance remain pending lease.",
+    "Use separate compatibility test output directories. Preserve failing tests and exact commands; stop if a command attempts an unapproved build.",
+    "Do not declare full qualification until F01 and final delivery/native checks pass."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "schema": "compatibility-review-repair-python-binding-v1",
+  "status": "BOUND",
+  "executable": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+  "packages": {
+    "pytest": "9.1.1",
+    "PyYAML": "6.0.3",
+    "jsonschema": "4.26.0",
+    "coverage": "7.15.3",
+    "xdist": "3.8.0",
+    "numpy": "2.5.3"
+  },
+  "checked_json_environment": {
+    "variable": "OPENPIPESTRESS_CHECKED_JSON_BIN",
+    "resolved_path": "core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "setup_behavior": "With the environment variable set, tests/conftest.py returns before importing or invoking the checked-JSON build helper.",
+  "prior_wrong_interpreter_result": "14 failed, 36 passed, 1 skipped; seven failures classified as missing-jsonschema environment failures and retained separately by the writer.",
+  "acceptance": "No required strict-schema test may remain skipped due to the Python environment."
+}

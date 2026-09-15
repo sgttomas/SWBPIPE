@@ -1,0 +1,23 @@
+{
+  "schema": "native-repair-preparation-context-v5",
+  "prepared_in_integration_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "run_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE",
+  "brief": {
+    "path": "briefs/FINAL_NATIVE_REPAIR_PREPARATION_V5.md",
+    "sha256": "ceacfab621260f071eb80ee5397516a54a683c848b593c617c3516cc11ba5ada"
+  },
+  "base_candidate_examined": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "final_repaired_candidate": "UNRELEASED",
+  "final_native_lease": "UNRELEASED",
+  "compatibility_build_browser_holder": "/root/foundation_compatibility",
+  "effects": {
+    "build": false,
+    "product_execution": false,
+    "gui_or_browser": false,
+    "git": false,
+    "network": false,
+    "product_source_edit": false,
+    "native_store": false,
+    "delegation": false
+  }
+}

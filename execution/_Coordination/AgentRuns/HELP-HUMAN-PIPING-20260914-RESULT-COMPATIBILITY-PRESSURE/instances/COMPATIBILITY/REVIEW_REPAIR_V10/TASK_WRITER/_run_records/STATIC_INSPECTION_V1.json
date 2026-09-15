@@ -1,0 +1,63 @@
+{
+  "schema": "compatibility-review-repair-v10-static-evidence-v1",
+  "created_utc": "2026-09-15T03:37:34.136323+00:00",
+  "status": "STATIC_PATCH_READY_EXECUTION_HELD",
+  "brief_sha256": "868a167352e543cf17d287ee66309fd126b43b82b14a1b4121b1c76c41247e84",
+  "scope_sha256": "0ed65fc1d3a09a0832c7953313f916b650908c9309471809f60d62240324d363",
+  "governing_root_brief_sha256": "aec01b36f60f672edff6108fc30fdc1454a397079f1f24d562941b635aaebb68",
+  "preserved_v10_checkpoint_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
+  "source": {
+    "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "pre_sha256": "29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0",
+    "post_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+    "pre_bytes": 582,
+    "post_bytes": 706
+  },
+  "static_inspection": {
+    "toml_parse": "passed",
+    "bin_targets": [
+      {
+        "name": "openpipestress_jcs_ijson",
+        "path": "src/bin/openpipestress_jcs_ijson.rs",
+        "required-features": [
+          "checked-cli"
+        ]
+      }
+    ],
+    "existing_feature_definition": {
+      "checked-cli": []
+    },
+    "library_unchanged": {
+      "path": "src/lib.rs"
+    },
+    "lock_sha256_unchanged": "dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8",
+    "binary_source_sha256_unchanged": "0a1b2cd84de09c2c83e9af987f1f291b12b977c9111af732dc53df966ebfd45c"
+  },
+  "finding_calibration": "Before this declaration Cargo auto-discovery could select the binary during an ordinary feature-off all-target build while crate-level cfg removes its main function. This is a static expectation only; E0601 was not observed in this held repair turn.",
+  "pending_verification_commands": [
+    {
+      "command": "cargo check --locked --all-targets",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "feature-off target discovery skips the private binary because its required feature is absent"
+    },
+    {
+      "command": "cargo test --locked",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "ordinary feature-off library and test acceptance"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "enabled checked profile and named CLI target acceptance"
+    },
+    {
+      "command": "cargo build --locked --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir target/checked-json",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "explicit private CLI build path used by controller setup"
+    }
+  ],
+  "executed_commands": [],
+  "held_reason": "Root/native retains the exclusive execution lease; builds, Cargo tests, browser, and native operations are prohibited for this turn.",
+  "delegation": false,
+  "git_actions": false
+}

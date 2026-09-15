@@ -1,0 +1,30 @@
+   Compiling open_pipe_stress_canonical_json v0.1.0 (/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/serialization/canonical_json)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.26s
+     Running unittests src/lib.rs (target/debug/deps/open_pipe_stress_canonical_json-8ad1f66cdaeb37fe)
+
+running 8 tests
+test tests::float_and_integer_repr_converge ... ok
+test tests::null_and_bool_scalars_render_literally ... ok
+test tests::integers_beyond_2_53_keep_exact_precision ... ok
+test tests::strings_escape_exactly_as_json_stringify ... ok
+test tests::rfc8785_appendix_b_bit_pattern_vectors ... ok
+test tests::composite_document_matches_ecmascript_rendering ... ok
+test tests::ecma_notation_branch_vectors ... ok
+test tests::objects_sort_keys_by_utf16_code_units ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/checked_profile.rs (target/debug/deps/checked_profile-a8182c9531adb80f)
+
+running 2 tests
+test rejects_duplicates_and_unsafe_integrals ... ok
+test canonicalizes_checked_boundaries ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests open_pipe_stress_canonical_json
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

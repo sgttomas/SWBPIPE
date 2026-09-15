@@ -1,0 +1,13 @@
+{
+  "schema": "root-portability-disposition-v3",
+  "created_utc": "2026-09-15T03:51:47.139021+00:00",
+  "policy_path": "projects/chirality-piping/validation/portability_policy.json",
+  "before_sha256": "ba6da2bd8a7dfef5cf11d3a42c3d128fffa3be35f368351601a38a75ca4ab396",
+  "after_sha256": "bba93127a865ee3afaedc8e26da092dc6ed48ac2d91106a4c0e7e0f3ddd268d5",
+  "accepted_draft": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CANDIDATE_PREPARATION_V3/DRAFT_POLICY_ADDITION.json",
+    "sha256": "6e17c007e0aba019579e24a9f088aaf79afdf3f51b565764341475163e0bdc5e"
+  },
+  "ruling": "One exact-hash completed V8 write fence is historical evidence. Original bytes stay unchanged; review repairs use their separately sealed portable instructions. No wildcard or future-control exclusion.",
+  "candidate_scope": "Evidence policy only; e244a247 source and frozen candidate commit unchanged; additive review required."
+}

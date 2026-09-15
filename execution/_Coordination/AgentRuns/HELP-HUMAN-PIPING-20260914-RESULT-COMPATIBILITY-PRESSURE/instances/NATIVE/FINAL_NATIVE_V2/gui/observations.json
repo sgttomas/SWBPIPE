@@ -1,0 +1,60 @@
+{
+  "application": "OpenPipeStress Foundation Final 20260915",
+  "broad_gui_sequence_started": false,
+  "bundle_identifier": "org.openpipestress.foundation-final-20260915",
+  "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "note": "The stress panel failure is the actual native producer-to-desktop consumer composition. The browser enriched carrier was not used.",
+  "observations": [
+    {
+      "input_manifest_sha256": "94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0",
+      "mechanics": "MECHANICS_SOLVED",
+      "model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "model_identity": "match",
+      "rows": 830,
+      "seam": "tauri_backend_job",
+      "stage": "first native create/solve/save",
+      "status": "PASS"
+    },
+    {
+      "current_only_capabilities_available": false,
+      "designation": "HISTORICAL SAVED RUN",
+      "rows": "830 of 830",
+      "stage": "normal quit and reopen before recovery solve",
+      "status": "PASS",
+      "visible_checksum_mismatches": [],
+      "visible_findings": [
+        "HISTORICAL_INPUT_MANIFEST_MISSING"
+      ]
+    },
+    {
+      "payload_comparison": "validation/unchanged_second_save.json",
+      "stage": "unchanged save after reopen",
+      "status": "PASS",
+      "ui_message": "Saved current project model snapshot without external file copies."
+    },
+    {
+      "mechanics": "MECHANICS_SOLVED",
+      "purpose": "establish Current for actual native stress consumer only",
+      "rows": 830,
+      "seam": "tauri_backend_job",
+      "stage": "minimal recovery solve",
+      "status": "PASS"
+    },
+    {
+      "csv_control_present": false,
+      "finding": "findings/native_stress_delivery_failure.json",
+      "package_json_control_present": false,
+      "panel_text": "Run mechanics preview to assemble a stress-neutral CSV/JSON package for local review and downstream adapter development.",
+      "results_context": "completed 830-row native solve visible",
+      "stage": "native stress-neutral consumer",
+      "status": "FAIL"
+    },
+    {
+      "evidence": "_run_records/process/after_final_quit.json",
+      "process_absent": true,
+      "stage": "final normal quit",
+      "status": "PASS"
+    }
+  ],
+  "schema": "final-native-gui-observations-v2"
+}

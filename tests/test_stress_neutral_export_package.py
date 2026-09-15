@@ -179,6 +179,7 @@ def source_payload_830() -> dict[str, object]:
 
 def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
     source = source_payload_830()
+    source_before = deepcopy(source)
     received = deepcopy(source["source_hashes"])
     package = build_stress_neutral_export_package_v0_2(**source)
     assert package["schema_version"] == "0.2.0"
@@ -186,6 +187,19 @@ def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
     assert len(package["stable_id_map"]) == 830
     assert len(package["unit_preservation_witnesses"]) == 828
     assert sum(item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK" for item in package["diagnostics"]) == 2
+    aggregate = next(item for item in package["diagnostics"] if item["code"] == "SN-DECLARED-DIMENSION-WITNESS-UNAVAILABLE")
+    assert "2 retained rows" in aggregate["message"] and "828 rows" in aggregate["message"]
+    assert not any(item["code"] == "SN-UNIT-DIMENSION-MISSING" for item in package["diagnostics"])
+    exported_reason = next(item["reason"] for item in package["loss_report"] if item["category"] == "exported")
+    assert "830 received numerical rows" in exported_reason
+    assert "828 rows have accepted semantic-contract dimension witnesses and 2 rows" in exported_reason
+    assert package["validation_ready"] is False
+    assert package["validation_report"]["validation_status"] == "blocked"
+    assert package["validation_report"]["checks"] == [{
+        "check_id": "stress-neutral-boundary-diagnostics", "check_status": "blocking",
+        "diagnostic_count": 3, "blocking_count": 1, "provenance": package["provenance"],
+    }]
+    assert source == source_before
     assert package["received_source_checksums"] == received
     members = materialized_members_v0_2(package)
     assert list(members) == ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
@@ -193,6 +207,43 @@ def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
     assert next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "manifest.json")["payload_scope"] == "manifest_seed"
     validate_stress_neutral_export_package_v0_2(package)
     validate_instance(load_json(SCHEMA_PATH), package, schema_label=str(SCHEMA_PATH), instance_label="strict stress-neutral 0.2 package")
+
+
+@pytest.mark.parametrize(
+    "change,expected_code",
+    [
+        (lambda row: row.update(result_family="other"), "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC"),
+        (lambda row: row.update(unit="unknown-unit"), "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC"),
+        (lambda row: row.update(unit="Pa"), "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"),
+    ],
+)
+def test_v02_categorizes_unknown_missing_and_contradictory_rows_separately(change, expected_code):
+    source = source_payload()
+    change(source["result_rows"][0])
+    before = deepcopy(source)
+    package = build_stress_neutral_export_package_v0_2(**source)
+    result_id = source["result_rows"][0]["result_id"]
+    findings = [item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id]
+    assert [item["code"] for item in findings] == [expected_code]
+    assert findings[0]["severity"] == "blocking"
+    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    assert source == before
+    validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_uses_accepted_semantics_without_rewriting_a_legacy_dimension_observation():
+    source = source_payload()
+    source["result_rows"][0]["dimension"] = "stress"
+    before = deepcopy(source)
+    package = build_stress_neutral_export_package_v0_2(**source)
+    result_id = source["result_rows"][0]["result_id"]
+    row = next(item for item in package["result_rows"] if item["result_id"] == result_id)
+    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == result_id)
+    assert row["dimension"] == "stress"
+    assert witness["source_quantity"]["dimension"] == "force"
+    assert witness["target_quantity"]["dimension"] == "force"
+    assert source == before
+    validate_stress_neutral_export_package_v0_2(package)
 
 
 def test_v02_rejects_member_and_package_tamper():
@@ -273,12 +324,23 @@ def rehash_v02(package):
     (lambda p: p.update(schema_conformant=False), "SCHEMA-CONFORMANCE-CLAIM"),
     (lambda p: p["privacy"].update(private_payload_embedded=True), "PRIVACY-BOUNDARY"),
     (lambda p: p["professional_boundary"].update(software_makes_approval_claim=True), "PROFESSIONAL-BOUNDARY"),
+    (lambda p: p["unit_preservation_witnesses"].pop(), "WITNESS-CATEGORY-ACCOUNTING"),
+    (lambda p: p["export_profile"]["source_basis_refs"].remove({"object_type": "ExternalReference", "ref": "fixtures/results/semantic_contract_v0_2.json"}), "SEMANTIC-CONTRACT-BINDING"),
 ])
 def test_v02_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
     package = build_stress_neutral_export_package_v0_2(**source_payload())
     mutation(package)
     rehash_v02(package)
     with pytest.raises(ValueError, match=expected):
+        validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_rejects_recomputed_explicit_category_reassignment():
+    package = build_stress_neutral_export_package_v0_2(**source_payload_830())
+    finding = next(item for item in package["diagnostics"] if item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK")
+    finding["source"]["ref"] = package["unit_preservation_witnesses"][0]["result_id"]
+    rehash_v02(package)
+    with pytest.raises(ValueError, match="WITNESS-CATEGORY-ACCOUNTING"):
         validate_stress_neutral_export_package_v0_2(package)
 
 

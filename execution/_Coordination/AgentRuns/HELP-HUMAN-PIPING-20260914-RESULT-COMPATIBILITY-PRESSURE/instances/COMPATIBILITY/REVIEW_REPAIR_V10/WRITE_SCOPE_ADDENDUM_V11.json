@@ -1,0 +1,39 @@
+{
+  "schema": "compatibility-review-repair-v11-write-scope-addendum",
+  "status": "SEALED_EXACT_ADDITIONAL_SCOPE",
+  "governing_brief": {
+    "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V11.md",
+    "sha256": "c5fa4276ef107acbe7d83e03632a2a2be3f0f8c707ceb99930fdca220500761c"
+  },
+  "prior_scope": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/WRITE_SCOPE.json",
+    "sha256": "0ed65fc1d3a09a0832c7953313f916b650908c9309471809f60d62240324d363"
+  },
+  "additional_exact_product_write_paths": [
+    "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+    "projects/chirality-piping/tests/test_analysis_run_compatibility.py"
+  ],
+  "pre_repair_sha256": {
+    "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json": "6747a3ea7866b6a35d7cb667e7265016c5b4b87a14c550cb1992f2c430106984",
+    "projects/chirality-piping/tests/test_analysis_run_compatibility.py": "c03504002add71a8a59a970c670a36a471c5387e3a209d9b0ced448b986f57c3"
+  },
+  "accepted_reproduction": {
+    "source": "BASE instances/ROOT/_run_records/FINAL_REVIEW_F02_REPRODUCTION_V1.json",
+    "sha256": "5c187c7456b2fc6d07322dca73be245b03cf684c7321424061fe8671bf22c241",
+    "observed_invalid_admissions": 3
+  },
+  "repair_contract": [
+    "require exactly one AnalysisRun record checksum and one ResultEnvelope received-result checksum",
+    "constrain Result row hashes to the checked profile and exact row scope/reference type",
+    "retain InputManifest hashes under the existing rfc8785_jcs profile",
+    "preserve ordering independence, complete self-checksum projection, input-manifest version and both legacy profiles"
+  ],
+  "execution_held": [
+    "builds",
+    "Cargo tests",
+    "product tests",
+    "browser execution",
+    "native execution"
+  ],
+  "git_actions": false
+}

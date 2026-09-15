@@ -1,0 +1,11 @@
+# Actual-candidate closeout sequence
+
+1. Await the fresh complete review and final native V2 return. Require both to bind candidate `e244a2479207fa32db23e150d6cb41544ddc829f`, the V10 source manifest and `FINAL_SOURCE_RELEASE_V1.json`; preserve all failures and do not infer PASS from activity.
+2. Confirm native/browser/build lease release and rehash the frozen 76-file final release. Any maintained source/schema/fixture/test drift invalidates the release and requires affected review and execution again.
+3. Run the complete registered DEC-025 sweep from the clean technical candidate with host capability. Preserve its canonical summary once and bind it to `e244a2479207fa32db23e150d6cb41544ddc829f`.
+4. Root records combined technical acceptance only if review, native and DEC-025 are clean. Retain the two DEL-17-06 diagnostic-work witness findings, PDU-033, pressure-runtime limits, and all formal lifecycle/dependency boundaries.
+5. Root adopts the one portability entry in `DRAFT_POLICY_ADDITION.json`, then reruns the real path-anchor validator. Handle any sealed final-native additions additively by exact path/hash; never broaden the policy.
+6. Apply the accepted metadata and UI-handoff corrections, fill immutable final acceptance/native pointers, and append Receipt-141 from the prepared template. Receipt checks point to owning evidence and do not repeat test or row counts.
+7. Freeze a separate evidence-only closeout inventory covering policy, metadata, receipt, handoff, manifests and evidence placement. Independently review that additive delta and run receipt validation, path-anchor validation, self-check, practitioner-harness tests, conflict-marker/range/whitespace checks, plus any check selected by its actual files.
+8. Commit only the reviewed evidence/metadata delta. Do not claim the earlier DEC-025 summary binds this later evidence-only commit, and repeat DEC-025 only if maintained product/build inputs changed.
+9. Inspect the final branch diff, fetch, stop on upstream ancestry divergence, push the scoped branch, open or update one PR, and require every actual required check on the exact PR head. Merge only with no unresolved blocking finding; verify the merge contains the PR head.

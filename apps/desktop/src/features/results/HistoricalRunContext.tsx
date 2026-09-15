@@ -9,6 +9,8 @@ import { ResultsPanel } from "./ResultsPanel";
 // input-manifest payload, so reopening cannot establish a current solve basis.
 export type HistoricalRunContext = {
   designation: "historical_saved_run";
+  rawMechanicsResult: unknown;
+  rawAnalysisRun: unknown;
   mechanicsResult: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
   modelHash: ModelHashEvidence | null;
@@ -17,6 +19,52 @@ export type HistoricalRunContext = {
   findings: string[];
   runId: string;
 };
+
+const RESULT_DIMENSIONS = new Set([
+  "dimensionless", "length", "angle", "force", "moment", "stress", "area", "section_modulus",
+  "second_moment_area", "ratio", "time", "temperature", "pressure", "linear_stiffness", "rotational_stiffness"
+]);
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
+/** Validate every shape ResultsPanel and its interpretation helpers can read. */
+function isRenderableMechanicsResult(value: unknown): value is MechanicsResult {
+  if (!isRecord(value) || typeof value.schema_version !== "string" || typeof value.document_kind !== "string"
+    || typeof value.run_id !== "string" || typeof value.model_ref !== "string" || !isRecord(value.status)
+    || typeof value.status.mechanics !== "string" || typeof value.status.rule_check !== "string" || !isRecord(value.summary)
+    || !Array.isArray(value.results) || !Array.isArray(value.diagnostics)) return false;
+  const rowsAreSafe = value.results.every((row) => {
+    if (!isRecord(row) || typeof row.id !== "string" || typeof row.kind !== "string"
+      || typeof row.value !== "number" || !Number.isFinite(row.value) || typeof row.unit !== "string"
+      || typeof row.entity_ref !== "string") return false;
+    if ("dimension" in row && row.dimension !== undefined
+      && (typeof row.dimension !== "string" || !RESULT_DIMENSIONS.has(row.dimension))) return false;
+    if ("basis_ref" in row && row.basis_ref !== undefined
+      && (!isRecord(row.basis_ref) || typeof row.basis_ref.ref_type !== "string" || typeof row.basis_ref.ref_id !== "string")) return false;
+    if ("source_result_refs" in row && row.source_result_refs !== undefined
+      && (!Array.isArray(row.source_result_refs) || row.source_result_refs.some((item) => typeof item !== "string"))) return false;
+    if ("metadata" in row && row.metadata !== undefined) {
+      const metadata: unknown = row.metadata;
+      if (!isRecord(metadata)
+        || ["component", "coordinate_system", "location", "basis", "sign_convention"].some((key) => typeof metadata[key] !== "string")) return false;
+    }
+    return true;
+  });
+  const diagnosticsAreSafe = value.diagnostics.every((item) => isRecord(item)
+    && typeof item.code === "string" && ["info", "warning", "error", "blocking"].includes(String(item.severity))
+    && typeof item.message === "string" && (!("id" in item) || item.id === undefined || typeof item.id === "string")
+    && (!("affected_refs" in item) || item.affected_refs === undefined
+      || (Array.isArray(item.affected_refs) && item.affected_refs.every((ref) => typeof ref === "string"))));
+  return rowsAreSafe && diagnosticsAreSafe;
+}
+
+function isHistoricalMechanicsEvidence(value: unknown): value is MechanicsResult {
+  return isRecord(value) && typeof value.run_id === "string" && typeof value.model_ref === "string"
+    && isRecord(value.status) && typeof value.status.mechanics === "string" && typeof value.status.rule_check === "string"
+    && Array.isArray(value.results) && Array.isArray(value.diagnostics);
+}
 
 function legacyDesktopJson(value: unknown): string {
   function sort(item: any): any {
@@ -188,17 +236,23 @@ async function verifyLegacyDesktopAnalysis(record: AnalysisRunEnvelope, received
 }
 
 export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): Promise<HistoricalRunContext | null> {
-  const mechanicsResult = opened.mechanics_result ?? null;
-  const analysisRun = opened.analysis_run ?? null;
-  if (!mechanicsResult && !analysisRun) return null;
+  const rawMechanicsResult: unknown = opened.mechanics_result;
+  const rawAnalysisRun: unknown = opened.analysis_run;
+  const hasReceivedMechanics = rawMechanicsResult !== null && rawMechanicsResult !== undefined;
+  const hasReceivedAnalysis = rawAnalysisRun !== null && rawAnalysisRun !== undefined;
+  if (!hasReceivedMechanics && !hasReceivedAnalysis) return null;
+  const evidenceResult = isHistoricalMechanicsEvidence(rawMechanicsResult) ? rawMechanicsResult : null;
+  const mechanicsResult = isRenderableMechanicsResult(rawMechanicsResult) ? rawMechanicsResult : null;
+  const analysisRun = rawAnalysisRun as AnalysisRunEnvelope | null;
   const findings = ["HISTORICAL_INPUT_MANIFEST_MISSING"];
+  if (hasReceivedMechanics && !mechanicsResult) findings.push("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
   const record = analysisRun && typeof analysisRun === "object" && analysisRun.analysis_run && typeof analysisRun.analysis_run === "object" ? analysisRun.analysis_run : null;
   if (analysisRun && (!record || !Array.isArray(record.hashes) || !Array.isArray(record.result_refs) || typeof record.run_id !== "string" || typeof record.model_state_ref?.ref !== "string")) findings.push("HISTORICAL_ANALYSIS_EVIDENCE_INVALID");
-  if (mechanicsResult && mechanicsResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
+  if (evidenceResult && evidenceResult.model_ref !== opened.model.project.id) findings.push("HISTORICAL_MODEL_REF_MISMATCH");
   const expectedStateRef = `state:${opened.model.project.id}:preview`;
   if (record && record.model_state_ref?.ref !== expectedStateRef) findings.push("HISTORICAL_MODEL_STATE_REF_MISMATCH");
-  if (!mechanicsResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
-  if (mechanicsResult && record && mechanicsResult.run_id !== record.run_id) findings.push("HISTORICAL_RUN_REF_MISMATCH");
+  if (!evidenceResult || !record) findings.push("HISTORICAL_RUN_EVIDENCE_INCOMPLETE");
+  if (evidenceResult && record && evidenceResult.run_id !== record.run_id) findings.push("HISTORICAL_RUN_REF_MISMATCH");
   const modelHash = opened.model_hash ?? null;
   if (!modelHash) findings.push("HISTORICAL_MODEL_HASH_MISSING");
   if (!opened.project_envelope_hash) findings.push("HISTORICAL_ENVELOPE_HASH_MISSING");
@@ -207,16 +261,16 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
   try {
     const recomputedModel = await computeModelHash(opened.model);
     if (modelHash && (modelHash.value !== recomputedModel?.value || modelHash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_MODEL_HASH_MISMATCH");
-    const recomputedEnvelope = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: opened.editor_intents ?? [], proposal: opened.proposal ?? null, selected_review_target: opened.selected_review_target ?? null, mechanics_result: mechanicsResult, analysis_run: analysisRun, model_hash: modelHash });
+    const recomputedEnvelope = await computeProjectEnvelopeHash({ model: opened.model, editor_intents: opened.editor_intents ?? [], proposal: opened.proposal ?? null, selected_review_target: opened.selected_review_target ?? null, mechanics_result: rawMechanicsResult as MechanicsResult | null, analysis_run: rawAnalysisRun as AnalysisRunEnvelope | null, model_hash: modelHash });
     envelopePayloadHash = recomputedEnvelope?.value ?? null;
     if (opened.project_envelope_hash && (opened.project_envelope_hash.value !== recomputedEnvelope?.value || opened.project_envelope_hash.payload_ref !== opened.model.project.id)) findings.push("HISTORICAL_ENVELOPE_HASH_MISMATCH");
-    if (mechanicsResult) {
+    if (evidenceResult) {
       const receivedScope = analysisRun?.schema_version === "0.2.0" ? "received_result" : "result_envelope";
       const storedResultHash = Array.isArray(record?.hashes) ? record.hashes.find((hash) => hash && typeof hash === "object" && hash.payload_scope === receivedScope) : null;
       if (!storedResultHash) findings.push("HISTORICAL_RESULT_HASH_MISSING");
-      else if (analysisRun?.schema_version === "0.2.0" && ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(mechanicsResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${mechanicsResult.run_id}`)) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
+      else if (analysisRun?.schema_version === "0.2.0" && ((typeof storedResultHash.value === "string" ? storedResultHash.value.replace(/^sha256:/, "") : null) !== await canonicalSha256HexCheckedV1(evidenceResult) || storedResultHash.payload_ref?.ref !== `result-envelope:${evidenceResult.run_id}`)) findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
       else if (analysisRun?.schema_version === "0.1.0") {
-        legacyVerification = await verifyLegacyDesktopAnalysis(analysisRun, mechanicsResult);
+        legacyVerification = await verifyLegacyDesktopAnalysis(analysisRun, evidenceResult);
         if (legacyVerification.result === "mismatch") findings.push("HISTORICAL_RESULT_HASH_MISMATCH");
         if (legacyVerification.result === "unverifiable") findings.push("HISTORICAL_RESULT_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
       }
@@ -225,15 +279,15 @@ export async function buildHistoricalRunContext(opened: LocalProjectEnvelope): P
       const verification = await verifyAnalysisRunRecord(analysisRun);
       if (verification === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
       if (verification === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE");
-    } else if (analysisRun?.schema_version === "0.1.0" && mechanicsResult) {
-      legacyVerification ??= await verifyLegacyDesktopAnalysis(analysisRun, mechanicsResult);
+    } else if (analysisRun?.schema_version === "0.1.0" && evidenceResult) {
+      legacyVerification ??= await verifyLegacyDesktopAnalysis(analysisRun, evidenceResult);
       if (legacyVerification.record === "mismatch") findings.push("HISTORICAL_ANALYSIS_HASH_MISMATCH");
       if (legacyVerification.record === "unverifiable") findings.push("HISTORICAL_ANALYSIS_HASH_UNVERIFIABLE_LEGACY_PREIMAGE");
     }
   } catch {
     findings.push("HISTORICAL_HASH_RECOMPUTE_UNAVAILABLE");
   }
-  return { designation: "historical_saved_run", mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: mechanicsResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
+  return { designation: "historical_saved_run", rawMechanicsResult, rawAnalysisRun, mechanicsResult, analysisRun, modelHash, envelopeHash: opened.project_envelope_hash ?? null, envelopePayloadHash, findings, runId: evidenceResult?.run_id ?? (typeof record?.run_id === "string" ? record.run_id : "unknown saved run") };
 }
 
 export function HistoricalRunPanel({ context }: { context: HistoricalRunContext }) {

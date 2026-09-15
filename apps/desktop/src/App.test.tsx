@@ -16592,6 +16592,43 @@ describe("workflow current and historical result boundaries", () => {
     expect(saved).not.toHaveProperty("input_manifest");
   });
 
+  it.each([
+    ["false", false],
+    ["zero", 0],
+    ["empty string", ""],
+    ["array", []],
+    ["incomplete object", { run_id: "received-incomplete" }],
+    ["invalid row", {
+      schema_version: "0.2.0", document_kind: "MechanicsResult", run_id: "received-invalid-row",
+      model_ref: "model:invalid", status: { mechanics: "MECHANICS_SOLVED", rule_check: "RULE_INPUTS_INCOMPLETE", professional_acceptance: "NOT_PROVIDED" },
+      summary: {}, results: [{ id: "unsafe", kind: "displacement_magnitude", value: "not-a-number", unit: "mm", entity_ref: "node:unsafe" }], diagnostics: []
+    }]
+  ])("opens and unchanged-saves a malformed %s received result as Historical raw evidence", async (_label, carrier) => {
+    const envelope = await workflowStoredEnvelope();
+    (envelope as unknown as { mechanics_result: unknown }).mechanics_result = carrier;
+    envelope.project_envelope_hash = null;
+    let saved: Record<string, unknown> | undefined;
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+      if (command === "open_local_project") return Promise.resolve(envelope);
+      if (command === "save_local_project") {
+        saved = args.request;
+        return Promise.resolve({ ...envelope, ...args.request });
+      }
+      return Promise.reject(new Error(`Unexpected command ${command}`));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED"));
+    expect(within(screen.getByTestId("historical-run-context")).getByTestId("results-panel")).toHaveTextContent("Run the bounded preview mechanics path");
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saved).toBeDefined());
+    expect(saved!.mechanics_result).toEqual(carrier);
+    expect(saved!.project_envelope_hash).toBeNull();
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MECHANICS_EVIDENCE_MALFORMED");
+  });
+
   it.each(["MECHANICS_BLOCKED", "MECHANICS_NONCONVERGED"])("keeps %s diagnostics while barring solved-only consumers", async (mechanics) => {
     const model = await loadPreviewModel();
     const output = structuredClone(await runPreviewMechanics(model));

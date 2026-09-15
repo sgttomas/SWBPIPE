@@ -1,0 +1,24 @@
+{
+  "schema": "compatibility-review-repair-v10-write-scope",
+  "status": "SEALED_EXACT_SCOPE",
+  "governing_brief": {
+    "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V10.md",
+    "sha256": "aec01b36f60f672edff6108fc30fdc1454a397079f1f24d562941b635aaebb68"
+  },
+  "preserved_source_checkpoint": {
+    "path": "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+    "sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832"
+  },
+  "exact_product_write_paths": [
+    "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml"
+  ],
+  "allowed_change": "Declare the named openpipestress_jcs_ijson binary target and require the existing checked-cli feature.",
+  "execution_held": [
+    "builds",
+    "Cargo tests",
+    "browser execution",
+    "native execution"
+  ],
+  "unrelated_product_writes": false,
+  "git_actions": false
+}

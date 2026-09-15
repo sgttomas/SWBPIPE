@@ -8,7 +8,8 @@
       "Stress-neutral CSV/JSON is a project-owned review and regression artifact.",
       "This package is not a vendor format, solver input deck, or target compatibility claim.",
       "Comparison semantics are diagnostic/export-only; pass/fail tolerances remain outside this package.",
-      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance."
+      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance.",
+      "Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged."
     ],
     "comparison_semantics": "diagnostic_export_only_no_pass_fail",
     "csv_columns": [
@@ -44,6 +45,14 @@
       {
         "object_type": "Deliverable",
         "ref": "DEL-17-02"
+      },
+      {
+        "object_type": "ExternalReference",
+        "ref": "fixtures/results/semantic_contract_v0_2.json"
+      },
+      {
+        "object_type": "AnalysisRun",
+        "ref": "run:invented-del-17-06"
       }
     ],
     "target_family": "stress_neutral_csv_json",
@@ -71,7 +80,7 @@
         "source_location": "core/handoff/stress_neutral/package.py",
         "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
       },
-      "reason": "Invented result rows exported to stress-neutral CSV/JSON for deterministic package testing.",
+      "reason": "All 2 received numerical rows and units are retained unchanged; 2 rows have accepted semantic-contract dimension witnesses and 0 rows have explicit witness-withholding findings.",
       "severity": "info",
       "source_basis_ref": {
         "object_type": "Deliverable",
@@ -88,7 +97,8 @@
       "Stress-neutral CSV/JSON is a project-owned review and regression artifact.",
       "This package is not a vendor format, solver input deck, or target compatibility claim.",
       "Comparison semantics are diagnostic/export-only; pass/fail tolerances remain outside this package.",
-      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance."
+      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance.",
+      "Result-row dimensions and witness eligibility are interpreted from the accepted semantic contract and bound analysis run; received numerical values, units, rows and source hashes remain unchanged."
     ],
     "checksums": [
       {
@@ -119,7 +129,7 @@
           "ref": "unit_system_disclosure.json"
         },
         "payload_scope": "member_payload",
-        "value": "a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
+        "value": "e8faa453690512e564a2ed5769d340f5588d2ee5b91c852ea7d2bd446eff32b3"
       },
       {
         "algorithm": "sha256",
@@ -149,7 +159,7 @@
           "ref": "loss_report.json"
         },
         "payload_scope": "member_payload",
-        "value": "b868ab127156fb07d254927af64b3a4b44577b679f1c19b32cad5fe18645d28f"
+        "value": "c720c6fb2cfeb516cf6d28637c68b0b54147fc41cec5b1da412a3f60006c2d4e"
       },
       {
         "algorithm": "sha256",
@@ -179,7 +189,7 @@
           "ref": "manifest.json"
         },
         "payload_scope": "manifest_seed",
-        "value": "8445bf1aaccbb78a5ee4596a8a15e26b8ece9417c77d2dbc745e89df2776778d"
+        "value": "d999663872d74cce894e79c7a6866084766c88aa78740493dfc8ffbf12e13ce5"
       }
     ],
     "export_profile_ref": {
@@ -197,7 +207,7 @@
             "ref": "manifest.json"
           },
           "payload_scope": "manifest_seed",
-          "value": "8445bf1aaccbb78a5ee4596a8a15e26b8ece9417c77d2dbc745e89df2776778d"
+          "value": "d999663872d74cce894e79c7a6866084766c88aa78740493dfc8ffbf12e13ce5"
         },
         "filename": "manifest.json"
       },
@@ -236,7 +246,7 @@
             "ref": "unit_system_disclosure.json"
           },
           "payload_scope": "member_payload",
-          "value": "a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
+          "value": "e8faa453690512e564a2ed5769d340f5588d2ee5b91c852ea7d2bd446eff32b3"
         },
         "filename": "unit_system_disclosure.json"
       },
@@ -275,7 +285,7 @@
             "ref": "loss_report.json"
           },
           "payload_scope": "member_payload",
-          "value": "b868ab127156fb07d254927af64b3a4b44577b679f1c19b32cad5fe18645d28f"
+          "value": "c720c6fb2cfeb516cf6d28637c68b0b54147fc41cec5b1da412a3f60006c2d4e"
         },
         "filename": "loss_report.json"
       },
@@ -320,7 +330,7 @@
       "ref": "stress-neutral:invented-del-17-06"
     },
     "payload_scope": "complete_package_excluding_self_checksum",
-    "value": "87d2d4240d5145def0926fe4c9a91c50cca398e26a4c8e3e6d90df8f419f2d46"
+    "value": "e1719c46eba0bcb4cc029d067c8c07e65c13a7bd690194fb092ad010e4bd60a7"
   },
   "package_id": "PKG-17",
   "package_status": "stress_neutral_export_package",
@@ -571,6 +581,14 @@
       {
         "object_type": "Deliverable",
         "ref": "DEL-02-02"
+      },
+      {
+        "object_type": "ExternalReference",
+        "ref": "fixtures/results/semantic_contract_v0_2.json"
+      },
+      {
+        "object_type": "AnalysisRun",
+        "ref": "run:invented-del-17-06"
       }
     ],
     "model_units": {},

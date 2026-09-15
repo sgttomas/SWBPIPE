@@ -1,0 +1,90 @@
+{
+  "actual_gui_observation": {
+    "csv_control_present": false,
+    "package_json_control_present": false,
+    "result_rows": 830,
+    "results_source_units": "MPa, N, N*m, mm, rad, boolean, count, m, mode_code, N*m/rad, N/m, state_code",
+    "solve_seam": "tauri_backend_job",
+    "solve_status": "completed",
+    "stress_neutral_panel_text": "Run mechanics preview to assemble a stress-neutral CSV/JSON package for local review and downstream adapter development."
+  },
+  "actual_native_result": {
+    "diagnostic_work_row_ids": [
+      "result:nonlinear-support:free-dof-work-residual",
+      "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+    ],
+    "distinct_row_keysets": [
+      [
+        "basis_ref",
+        "entity_ref",
+        "id",
+        "kind",
+        "metadata",
+        "source_result_refs",
+        "unit",
+        "value"
+      ],
+      [
+        "basis_ref",
+        "entity_ref",
+        "id",
+        "kind",
+        "metadata",
+        "unit",
+        "value"
+      ],
+      [
+        "basis_ref",
+        "entity_ref",
+        "id",
+        "kind",
+        "source_result_refs",
+        "unit",
+        "value"
+      ],
+      [
+        "basis_ref",
+        "entity_ref",
+        "id",
+        "kind",
+        "unit",
+        "value"
+      ],
+      [
+        "entity_ref",
+        "id",
+        "kind",
+        "metadata",
+        "unit",
+        "value"
+      ]
+    ],
+    "mechanics_result_json_sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+    "row_count": 830,
+    "rows_with_dimension_field": 0,
+    "rows_without_dimension_field": 830,
+    "run_id": "run:preview-linear-static-001",
+    "semantic_category_counts": {
+      "count": 4,
+      "diagnostic_observation": 12,
+      "diagnostic_work": 2,
+      "flag": 2,
+      "physical_quantity": 778,
+      "review_evidence": 26,
+      "solver_mode": 2,
+      "state": 4
+    }
+  },
+  "broad_final_sequence_started": false,
+  "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "native_executable_sha256": "75c40f2be727eab90d62a631b15151b16114c8fb5ce66252826b59d99311879f",
+  "schema": "final-native-minimal-stress-delivery-finding-v2",
+  "scope": "actual native Tauri producer to actual desktop stress-neutral consumer; no browser-enriched carrier",
+  "source_snapshot": "_run_records/store/after_first_save.row.json",
+  "source_trace": {
+    "caught_error_code": "SN-DIAGNOSTIC-WORK-FINDING-MISMATCH",
+    "component": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+    "mechanism": "The actual native result has no dimension carrier on any ResultItem. The witness filter therefore yields zero. Validation treats every unwitnessed row as diagnostic work, while withheld diagnostics correctly name only the two diagnostic_work rows, throws the code, and the effect catch clears packet/binding into misleading empty state."
+  },
+  "status": "PRODUCT_DEFECT_CONFIRMED"
+}

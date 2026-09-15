@@ -1,0 +1,34 @@
+{
+  "schema": "compatibility-review-repair-nonbuild-test-binding-v1",
+  "status": "BOUND_READY_WHEN_STATIC_PATCH_COMPLETE",
+  "grant": {
+    "path": "instances/ROOT/_run_records/COMPATIBILITY_NONBUILD_TEST_GRANT_V1.json",
+    "sha256": "5df1b6a7bd8bfd1e18abb3e82ebec605e62f5a7587491b17c09eee9615d5714a"
+  },
+  "checked_json_executable": {
+    "path": "core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "executable": true
+  },
+  "existing_wasm": {
+    "operation_wasm_sha256": "0ca035a2b3a945af7e80f8d3a2a555b1a10ce5c276bf029a30a2278e235164f7",
+    "operation_js_sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "self_weight_wasm_sha256": "018a00df408cf13a4ff1bb7fad31ff7b37d8d9d99dccb31cf4ad805f194cd699",
+    "self_weight_js_sha256": "ea2b3fd611a6478222e552b1230ceb717abd60cdd6df5ba30b4827511543f8f3"
+  },
+  "rust_source_binding": {
+    "v10_manifest_rust_paths_checked": 8,
+    "mismatches": 0,
+    "qualification": "Only canonical_json/Cargo.toml target metadata changed; no Rust or WASM source changed from V10."
+  },
+  "python_setup": {
+    "conftest_path": "tests/conftest.py",
+    "conftest_sha256": "6f46548cdf645aa98cc83a9d2f8908b530325341a34645981b8ca0ef864b33a2",
+    "behavior": "pytest_sessionstart returns before importing build_checked_json when OPENPIPESTRESS_CHECKED_JSON_BIN is nonempty"
+  },
+  "prohibited": [
+    "Cargo or rustc execution",
+    "npm build scripts or wasm-bindgen",
+    "Playwright, browser, native GUI or server execution"
+  ]
+}

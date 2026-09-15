@@ -1,0 +1,125 @@
+{
+  "schema": "compatibility-review-repair-v11-static-evidence-v2",
+  "created_utc": "2026-09-15T03:41:19.552595+00:00",
+  "status": "STATIC_PATCH_READY_EXECUTION_HELD",
+  "brief_sha256": "c5fa4276ef107acbe7d83e03632a2a2be3f0f8c707ceb99930fdca220500761c",
+  "scope_addendum_sha256": "6604e00835319cc52fc13b9f726d7c0b5fdea3b8179baaca7eed47241fe2a306",
+  "prior_scope_sha256": "0ed65fc1d3a09a0832c7953313f916b650908c9309471809f60d62240324d363",
+  "preserved_v10_checkpoint_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
+  "accepted_raw_reproduction": {
+    "path": "BASE instances/ROOT/_run_records/FINAL_REVIEW_F02_REPRODUCTION_V1.json",
+    "sha256": "5c187c7456b2fc6d07322dca73be245b03cf684c7321424061fe8671bf22c241",
+    "candidate": "e244a2479207fa32db23e150d6cb41544ddc829f",
+    "observed_invalid_admissions": [
+      "duplicate_received_removes_record_checksum",
+      "row_checksum_wrong_scope",
+      "new_record_hash_legacy_profile"
+    ]
+  },
+  "sources": [
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "pre_sha256": "29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0",
+      "post_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+      "post_bytes": 706
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "pre_sha256": "6747a3ea7866b6a35d7cb667e7265016c5b4b87a14c550cb1992f2c430106984",
+      "post_sha256": "e313d11f46499f36a57accf25c6d6ffbb8efb8da65bd12f024e59f7ac7030de4",
+      "post_bytes": 14895
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "pre_sha256": "c03504002add71a8a59a970c670a36a471c5387e3a209d9b0ced448b986f57c3",
+      "post_sha256": "d8e7aade831b38671926d189bbd9c0db24a96fe3e70e6454123ddecf3bc96a5a",
+      "post_bytes": 16499
+    }
+  ],
+  "static_inspection": {
+    "json_parse": "passed",
+    "python_ast_parse": "passed",
+    "run_checksum_inventory": {
+      "minItems": 2,
+      "maxItems": 2,
+      "order_independent": true,
+      "exactly_one_each": [
+        "AnalysisRunRecordChecksum",
+        "ReceivedResultChecksum"
+      ]
+    },
+    "position_contracts": {
+      "analysis_run_record": [
+        "openpipestress_jcs_ijson_v1",
+        "analysis_run_record",
+        "AnalysisRun"
+      ],
+      "received_result": [
+        "openpipestress_jcs_ijson_v1",
+        "received_result",
+        "ResultEnvelope"
+      ],
+      "result_row": [
+        "openpipestress_jcs_ijson_v1",
+        "result_row",
+        "Result"
+      ],
+      "input_manifest": [
+        "rfc8785_jcs",
+        "input_manifest",
+        "InputManifest"
+      ]
+    },
+    "maintained_v02_fixture_matches_all_four_positions": true,
+    "legacy_python_fixture_version": "0.1.0",
+    "legacy_desktop_fixture_version": "0.1.0",
+    "producer_change_needed": false,
+    "negative_test_cases": [
+      "duplicate received replaces record",
+      "duplicate record replaces received",
+      "manifest checksum substituted into result row",
+      "legacy profile at record/received/row positions",
+      "wrong ref type at record/received/row positions",
+      "checked profile at input manifest",
+      "wrong input-manifest scope",
+      "wrong input-manifest ref type"
+    ],
+    "positive_test_cases": [
+      "current Python producer exact position assertions",
+      "order-independent reversal",
+      "dispatcher validation for Python 0.1 fixture",
+      "dispatcher validation for desktop 0.1 fixture"
+    ]
+  },
+  "pending_verification_commands": [
+    {
+      "command": "cargo check --locked --all-targets",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "feature-off named-target admission"
+    },
+    {
+      "command": "cargo test --locked",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "feature-off library/tests"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "feature-enabled CLI/tests"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=<resolved-private-cli> PYTHONPATH=<resolved-test-dependencies> python -m pytest -q tests/test_analysis_run_compatibility.py tests/test_analysis_run_schema.py",
+      "cwd": "{WORKING_ROOT}",
+      "purpose": "0.2 exact checksum positions and preserved legacy dispatcher alternatives"
+    },
+    {
+      "command": "npm exec vitest -- run src/services/analysisRunCompatibility.test.ts src/services/previewService.test.ts --maxWorkers=1",
+      "cwd": "{WORKING_ROOT}/apps/desktop",
+      "purpose": "current TypeScript producer compatibility backcheck"
+    }
+  ],
+  "executed_commands": [],
+  "execution_hold": "Native lease active: no builds, Cargo tests, product tests, browser, or native execution.",
+  "delegation": false,
+  "git_actions": false
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "compatibility-review-repair-v10-source-patch-v1",
+  "created_utc": "2026-09-15T03:37:34.136323+00:00",
+  "status": "MINIMAL_PATCH_PREPARED_VERIFICATION_PENDING",
+  "source": {
+    "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+    "pre_sha256": "29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0",
+    "post_sha256": "f9697f4eb3b4e1542cffa7cf2ce05cef1f4936f7ec7d71cf544b61177e6a4b6b",
+    "pre_bytes": 582,
+    "post_bytes": 706
+  },
+  "exact_change": {
+    "section": "[[bin]]",
+    "name": "openpipestress_jcs_ijson",
+    "path": "src/bin/openpipestress_jcs_ijson.rs",
+    "required-features": [
+      "checked-cli"
+    ]
+  },
+  "unchanged": [
+    "features",
+    "dependencies",
+    "library target",
+    "Cargo.lock",
+    "binary source",
+    "all other product paths"
+  ],
+  "static_evidence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/STATIC_INSPECTION_V1.json",
+    "sha256": "2f0110c8fe21bb5ff6158daca8b1846114e549168fb7f6c698e22cab6b25c5fe"
+  },
+  "pending_verification_commands": [
+    {
+      "command": "cargo check --locked --all-targets",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "feature-off target discovery skips the private binary because its required feature is absent"
+    },
+    {
+      "command": "cargo test --locked",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "ordinary feature-off library and test acceptance"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "enabled checked profile and named CLI target acceptance"
+    },
+    {
+      "command": "cargo build --locked --release --features checked-cli --bin openpipestress_jcs_ijson --target-dir target/checked-json",
+      "cwd": "{WORKING_ROOT}/core/serialization/canonical_json",
+      "purpose": "explicit private CLI build path used by controller setup"
+    }
+  ]
+}

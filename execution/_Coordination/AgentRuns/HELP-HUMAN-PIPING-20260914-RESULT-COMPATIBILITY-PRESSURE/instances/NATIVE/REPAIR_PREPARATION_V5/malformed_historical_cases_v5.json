@@ -1,0 +1,62 @@
+{
+  "schema": "native-malformed-historical-cases-v5",
+  "purpose": "Exact JSON carriers for separate disposable synthetic-store GUI open and unchanged-save witnesses. Each value must survive read/open/save as written and must remain Historical.",
+  "cases": [
+    {
+      "case_id": "scalar_string",
+      "mechanics_result": "malformed-received-result",
+      "source_basis": "Existing native persistence regression carrier at apps/desktop/src-tauri/src/lib.rs:6357"
+    },
+    {
+      "case_id": "array",
+      "mechanics_result": ["malformed-received-result"],
+      "source_basis": "Serde JSON array carrier admitted by native persistence Value boundary; array shape is the reviewed F04 class"
+    },
+    {
+      "case_id": "incomplete_object",
+      "mechanics_result": {
+        "run_id": "run:malformed-incomplete",
+        "status": {},
+        "results": []
+      },
+      "source_basis": "Reviewed F04 incomplete mechanics object class"
+    },
+    {
+      "case_id": "invalid_rows",
+      "mechanics_result": {
+        "model_ref": "project:invented-loop-01",
+        "run_id": "run:malformed-invalid-rows",
+        "status": {
+          "mechanics": "MECHANICS_SOLVED"
+        },
+        "results": [false, 0, "", [], {}],
+        "diagnostics": []
+      },
+      "source_basis": "Reviewed F04 ResultsPanel invalid-row payload class"
+    },
+    {
+      "case_id": "scalar_false",
+      "mechanics_result": false,
+      "source_basis": "Explicit F04 nullish/truthy preservation edge"
+    },
+    {
+      "case_id": "scalar_zero",
+      "mechanics_result": 0,
+      "source_basis": "Explicit F04 nullish/truthy preservation edge"
+    },
+    {
+      "case_id": "scalar_empty_string",
+      "mechanics_result": "",
+      "source_basis": "Explicit F04 nullish/truthy preservation edge"
+    }
+  ],
+  "analysis_run": null,
+  "required_common_outcomes": {
+    "raw_carrier_preserved_exactly": true,
+    "designation": "historical_saved_run",
+    "current_result_established": false,
+    "safe_render_projection_only": true,
+    "unchanged_save_preserves_raw_carrier": true,
+    "malformed_evidence_finding": "PENDING_FINAL_WRITER_CODE_BINDING"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "schema": "root-first-final-review-finding-v1",
+  "created_utc": "2026-09-15T03:35:06.903045+00:00",
+  "candidate": "e244a2479207fa32db23e150d6cb41544ddc829f",
+  "reviewer": "/root/foundation_final_review",
+  "finding": "F01: optional checked-cli binary auto-discovery lacks required-features and removes main when feature is disabled.",
+  "evidence_class": "confirmed static source inspection; ordinary feature-off build not yet reproduced",
+  "repair_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_REVIEW_REPAIR_V10.md",
+    "sha256": "aec01b36f60f672edff6108fc30fdc1454a397079f1f24d562941b635aaebb68"
+  },
+  "concurrency": "Prepare in compatibility checkout only; integration remains frozen. Native owns runtime lease.",
+  "native_effect_assessment": "Native reports explicit feature-enabled adapter setup and native beforeBuild bundle succeeded on original candidate. Later metadata repair will require affected verification and explicit evidence binding, without pretending original native witness executed future source."
+}

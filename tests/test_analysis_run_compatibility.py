@@ -114,6 +114,54 @@ def test_v02_schema_rejects_unknown_version_fields_status_missing_evidence_and_b
         assert_schema_rejects(case)
 
 
+def test_v02_checksum_positions_require_exact_scope_profile_reference_and_inventory() -> None:
+    valid = build_analysis_run_v0_2(
+        mechanics_for_contract(),
+        input_manifest_ref=MANIFEST_REF,
+        input_manifest_hash=MANIFEST_HASH,
+    )
+    hashes = valid["analysis_run"]["hashes"]
+    record_hash = next(item for item in hashes if item["payload_scope"] == "analysis_run_record")
+    received_hash = next(item for item in hashes if item["payload_scope"] == "received_result")
+    row_hash = valid["analysis_run"]["result_refs"][0]["hash_refs"][0]
+    manifest_hash = valid["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]
+    assert (record_hash["canonicalization"], record_hash["payload_ref"]["object_type"]) == (
+        "openpipestress_jcs_ijson_v1", "AnalysisRun"
+    )
+    assert (received_hash["canonicalization"], received_hash["payload_ref"]["object_type"]) == (
+        "openpipestress_jcs_ijson_v1", "ResultEnvelope"
+    )
+    assert (row_hash["payload_scope"], row_hash["canonicalization"], row_hash["payload_ref"]["object_type"]) == (
+        "result_row", "openpipestress_jcs_ijson_v1", "Result"
+    )
+    assert (manifest_hash["payload_scope"], manifest_hash["canonicalization"], manifest_hash["payload_ref"]["object_type"]) == (
+        "input_manifest", "rfc8785_jcs", "InputManifest"
+    )
+    reordered = deepcopy(valid)
+    reordered["analysis_run"]["hashes"].reverse()
+    validate_instance(dispatcher_schema(), reordered, instance_label="order-independent analysis checksums")
+
+    cases = []
+    duplicate_received = deepcopy(valid); duplicate_received["analysis_run"]["hashes"] = [deepcopy(received_hash), deepcopy(received_hash)]; cases.append(duplicate_received)
+    duplicate_record = deepcopy(valid); duplicate_record["analysis_run"]["hashes"] = [deepcopy(record_hash), deepcopy(record_hash)]; cases.append(duplicate_record)
+    substituted_row = deepcopy(valid); substituted_row["analysis_run"]["result_refs"][0]["hash_refs"] = [deepcopy(manifest_hash)]; cases.append(substituted_row)
+    legacy_record_profile = deepcopy(valid); next(item for item in legacy_record_profile["analysis_run"]["hashes"] if item["payload_scope"] == "analysis_run_record")["canonicalization"] = "rfc8785_jcs"; cases.append(legacy_record_profile)
+    legacy_received_profile = deepcopy(valid); next(item for item in legacy_received_profile["analysis_run"]["hashes"] if item["payload_scope"] == "received_result")["canonicalization"] = "rfc8785_jcs"; cases.append(legacy_received_profile)
+    legacy_row_profile = deepcopy(valid); legacy_row_profile["analysis_run"]["result_refs"][0]["hash_refs"][0]["canonicalization"] = "rfc8785_jcs"; cases.append(legacy_row_profile)
+    wrong_record_ref = deepcopy(valid); next(item for item in wrong_record_ref["analysis_run"]["hashes"] if item["payload_scope"] == "analysis_run_record")["payload_ref"]["object_type"] = "ResultEnvelope"; cases.append(wrong_record_ref)
+    wrong_received_ref = deepcopy(valid); next(item for item in wrong_received_ref["analysis_run"]["hashes"] if item["payload_scope"] == "received_result")["payload_ref"]["object_type"] = "AnalysisRun"; cases.append(wrong_received_ref)
+    wrong_row_ref = deepcopy(valid); wrong_row_ref["analysis_run"]["result_refs"][0]["hash_refs"][0]["payload_ref"]["object_type"] = "InputManifest"; cases.append(wrong_row_ref)
+    checked_manifest_profile = deepcopy(valid); checked_manifest_profile["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["canonicalization"] = "openpipestress_jcs_ijson_v1"; cases.append(checked_manifest_profile)
+    wrong_manifest_scope = deepcopy(valid); wrong_manifest_scope["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["payload_scope"] = "result_row"; cases.append(wrong_manifest_scope)
+    wrong_manifest_ref = deepcopy(valid); wrong_manifest_ref["analysis_run"]["reproducibility"]["input_manifest_hashes"][0]["payload_ref"]["object_type"] = "Result"; cases.append(wrong_manifest_ref)
+    for case in cases:
+        assert_schema_rejects(case)
+
+    for fixture_name in ("legacy_python_v0_1.json", "legacy_desktop_v0_1.json"):
+        legacy = json.loads((PROJECT / "fixtures/analysis_runs/invented" / fixture_name).read_text())
+        validate_instance(dispatcher_schema(), legacy, instance_label=f"preserved {fixture_name}")
+
+
 def test_legacy_schema_rejects_unknown_version_fields_and_authority_status() -> None:
     source = {"run_id": "run:legacy", "model_ref": "model:legacy", "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE"}, "results": [{"id": "result:legacy", "kind": "displacement_magnitude", "unit": "mm", "value": 1.0}], "diagnostics": []}
     legacy = build_preview_analysis_run_envelope(source, input_manifest_ref={"object_type": "InputManifest", "ref": f"input-manifest:model-legacy:{MANIFEST_HASH}"}, input_manifest_hash=MANIFEST_HASH)

@@ -1,0 +1,51 @@
+[
+  {
+    "applied_migration_ids": [
+      "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+    ],
+    "destructive_rewrite": false,
+    "hash_evidence": {
+      "computed": {
+        "post_migration_model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+        "post_migration_project_envelope_hash": "sha256:e3b3ec632457d1f45507321ac0267fcc1a6037b244869fe4ef389b0f767039d1",
+        "pre_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+      },
+      "prior_stored": null,
+      "received": {
+        "model_hash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_ref": "project:invented-loop-01",
+          "payload_scope": "model_payload",
+          "value": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+        },
+        "project_envelope_hash": {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "hash_status": "computed_local_preview",
+          "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+          "payload_ref": "project:invented-loop-01",
+          "payload_scope": "project_envelope_payload",
+          "value": "sha256:981b67fe99c0b5cffa2870468b5d6c9e4bb8fd41d1b0da504d195ece61c35979"
+        }
+      },
+      "received_claim_verification": "not_asserted",
+      "schema": "model_migration_hash_evidence_v1",
+      "source_payload_basis": "incoming_pre_migration_model"
+    },
+    "migration_framework": "application_service_separate_db_and_product_schema",
+    "post_migration_model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "pre_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_compliance_claim": false
+    },
+    "record_kind": "model_document_migration_ledger_record",
+    "recorded_at_unix": 1789443430,
+    "source_schema_version": "0.1.0",
+    "target_schema_version": "0.2.0",
+    "trigger": "migrate_in_memory_on_open_persisted_on_save"
+  }
+]
