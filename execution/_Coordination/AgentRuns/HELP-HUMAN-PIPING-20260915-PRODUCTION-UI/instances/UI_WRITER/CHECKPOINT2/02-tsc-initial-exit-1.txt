@@ -1,0 +1,4 @@
+src/features/viewport/PipeViewport.tsx(709,27): error TS18047: 'currentAssignment' is possibly 'null'.
+src/features/viewport/PipeViewport.tsx(713,26): error TS18047: 'currentAssignment' is possibly 'null'.
+src/features/viewport/PipeViewport.tsx(714,28): error TS18047: 'currentAssignment' is possibly 'null'.
+src/features/viewport/viewportResource.test.ts(233,37): error TS2304: Cannot find name 'ownedCounts'.

@@ -1,0 +1,30 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/viewport/viewportResource.test.ts (11 tests | 1 failed) 20ms
+     × uses the real layer replacement path to retire instance buffers and assets 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/viewport/viewportResource.test.ts > viewport resource primitives > uses the real layer replacement path to retire instance buffers and assets
+TypeError: Cannot read properties of undefined (reading 'pendingCount')
+ ❯ ViewportResource.get pendingAppOwnedRafCount [as pendingAppOwnedRafCount] src/features/viewport/viewportResource.ts:360:27
+    358|
+    359|   get pendingAppOwnedRafCount(): number {
+    360|     return this.scheduler.pendingCount;
+       |                           ^
+    361|   }
+    362|
+ ❯ ViewportResource.recordOwnedResourceSnapshot src/features/viewport/viewportResource.ts:621:34
+ ❯ ViewportResource.notifyResourceStateChange src/features/viewport/viewportResource.ts:613:10
+ ❯ ViewportResource.replaceLayer src/features/viewport/viewportResource.ts:443:10
+ ❯ src/features/viewport/viewportResource.test.ts:164:14
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 5 passed (6)
+      Tests  1 failed | 31 passed (32)
+   Start at  12:15:34
+   Duration  1.36s (transform 802ms, setup 1.39s, import 627ms, tests 112ms, environment 4.55s)
+

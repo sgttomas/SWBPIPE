@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+
+No test files found, exiting with code 1
+
+filter: apps/desktop/src/features/workspace/dormantSection.test.tsx, apps/desktop/src/features/workspace/selectionState.test.ts, apps/desktop/src/features/workspace/modelIndex.test.ts, apps/desktop/src/features/workspace/uiDiagnostics.test.ts, apps/desktop/src/features/viewport/viewportSelection.test.ts, apps/desktop/src/features/viewport/viewportResource.test.ts
+include: src/**/*.test.{ts,tsx}
+exclude:  **/node_modules/**, **/.git/**
+

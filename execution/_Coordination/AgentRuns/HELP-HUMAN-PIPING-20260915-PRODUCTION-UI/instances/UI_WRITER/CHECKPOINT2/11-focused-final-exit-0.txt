@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+
+
+ Test Files  6 passed (6)
+      Tests  32 passed (32)
+   Start at  12:17:42
+   Duration  468ms (transform 376ms, setup 450ms, import 301ms, tests 62ms, environment 1.31s)
+

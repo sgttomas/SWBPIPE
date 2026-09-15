@@ -1,0 +1,16 @@
+817a20eb2 feat(ui): stabilize workspace lifecycle foundation
+ .../chirality-piping/apps/desktop/src/App.test.tsx |   1 +
+ projects/chirality-piping/apps/desktop/src/App.tsx | 116 ++++-
+ .../desktop/src/features/viewport/PipeViewport.tsx | 502 +++++++++++++++------
+ .../src/features/viewport/viewportResource.test.ts | 266 ++++++++++-
+ .../src/features/viewport/viewportResource.ts      | 436 +++++++++++++++++-
+ .../src/features/viewport/viewportSelection.ts     |  42 +-
+ .../src/features/workspace/dormantSection.test.tsx |  59 +++
+ .../src/features/workspace/dormantSection.tsx      |  23 +
+ .../src/features/workspace/modelIndex.test.ts      |  28 ++
+ .../desktop/src/features/workspace/modelIndex.ts   |  45 +-
+ .../src/features/workspace/selectionState.test.ts  |  22 +
+ .../src/features/workspace/selectionState.ts       |  12 +-
+ .../src/features/workspace/uiDiagnostics.test.ts   | 223 ++++++---
+ .../src/features/workspace/uiDiagnostics.ts        | 432 +++++++++++++-----
+ 14 files changed, 1844 insertions(+), 363 deletions(-)
