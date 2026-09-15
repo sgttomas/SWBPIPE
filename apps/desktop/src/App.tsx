@@ -52,6 +52,16 @@ import { LoadCaseManagerPanel } from "./features/load-cases/LoadCaseManagerPanel
 import { LocalFeaHandoffPanel } from "./features/local-fea-handoff/LocalFeaHandoffPanel";
 import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/missing-data/MissingDataBlockingPanel";
 import { defaultSelection } from "./features/model-workspace/modelView";
+import { modelIndexFor } from "./features/workspace/modelIndex";
+import {
+  applySelection,
+  emptySelection,
+  primarySelection,
+  sameSelection,
+  singletonSelection,
+  type OrderedSelectionState,
+  type SelectionModifiers
+} from "./features/workspace/selectionState";
 import { ModelTree } from "./features/model-tree/ModelTree";
 import { NativePackagePanel } from "./features/native-package/NativePackagePanel";
 import { intentKey, OperationApplyPanel } from "./features/operations/OperationApplyPanel";
@@ -498,7 +508,11 @@ export function App() {
 function AppSession() {
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
-  const [selection, setSelection] = useState<EntityRef | null>(null);
+  const [selection, setPrimarySelection] = useState<EntityRef | null>(null);
+  const [orderedSelection, setOrderedSelection] = useState<OrderedSelectionState>(() => emptySelection());
+  const orderedSelectionRef = useRef<OrderedSelectionState>(orderedSelection);
+  const [projectSessionGeneration, setProjectSessionGeneration] = useState(0);
+  const [uiModelRevision, setUiModelRevision] = useState(0);
   const [result, setResult] = useState<MechanicsResult | null>(null);
   const [historicalRun, setHistoricalRun] = useState<HistoricalRunContext | null>(null);
   const currentSolvedResult = result?.status.mechanics === "MECHANICS_SOLVED" ? result : null;
@@ -606,12 +620,38 @@ function AppSession() {
     () => (currentSolvedResult && analysisRun ? buildPreviewComparison({ result: currentSolvedResult, analysisRun }) : null),
     [analysisRun, currentSolvedResult]
   );
+  const activeModelIndex = useMemo(
+    () => model ? modelIndexFor(model, projectSessionGeneration, uiModelRevision) : null,
+    [model, projectSessionGeneration, uiModelRevision]
+  );
+
+  function commitSelectionState(next: OrderedSelectionState, fallbackModel: PreviewModel | null = model): boolean {
+    const previous = orderedSelectionRef.current;
+    if (sameSelection(previous, next)) return false;
+    orderedSelectionRef.current = next;
+    setOrderedSelection(next);
+    if (fallbackModel) setPrimarySelection(primarySelection(next, defaultSelection(fallbackModel)));
+    else setPrimarySelection(next.primaryKey ? primarySelection(next, { type: "project", id: "" }) : null);
+    return true;
+  }
+
+  function setSelection(next: EntityRef | null): void {
+    if (!next) {
+      const empty = emptySelection(orderedSelectionRef.current.preparationEpoch + 1);
+      orderedSelectionRef.current = empty;
+      setOrderedSelection(empty);
+      setPrimarySelection(null);
+      return;
+    }
+    commitSelectionState(singletonSelection(next, orderedSelectionRef.current));
+  }
 
   useEffect(() => {
     let active = true;
     Promise.all([loadPreviewModel(), loadDesignKnowledge(), getLocalStorageCapability()]).then(
       ([loadedModel, loadedKnowledge, loadedStorageCapability]) => {
         if (!active) return;
+        setProjectSessionGeneration((generation) => generation + 1);
         commitModel(loadedModel);
         setKnowledge(loadedKnowledge);
         setSelection(defaultSelection(loadedModel));
@@ -644,6 +684,7 @@ function AppSession() {
     requestEpochRef.current += 1;
     setRequestEpoch(requestEpochRef.current);
     setDirectDraftCommitToken(directDraftToken);
+    setUiModelRevision((revision) => revision + 1);
     currentModel.current = nextModel;
     setHistoricalRun(null);
     operationRequest.current.sequence += 1;
@@ -1595,6 +1636,7 @@ function AppSession() {
         ...created.summary,
         message: "Created blank local model document without fixture entities or external file copies."
       };
+      setProjectSessionGeneration((generation) => generation + 1);
       commitModel(created.model);
       epoch = requestEpochRef.current;
       setSelection(defaultSelection(created.model));
@@ -1652,6 +1694,7 @@ function AppSession() {
       }
       const restoredHistory = await buildHistoricalRunContext(opened);
       if (!stillCurrent()) return;
+      setProjectSessionGeneration((generation) => generation + 1);
       commitModel(opened.model);
       epoch = requestEpochRef.current;
       setSelection(defaultSelection(opened.model));
@@ -1829,7 +1872,7 @@ function AppSession() {
     if (!item || !model) return;
     const entitySelection = resolveEntitySelection(model, item.entity_ref);
     if (entitySelection) {
-      setSelection(entitySelection);
+      handleSelectEntity(entitySelection);
     }
   }
 
@@ -1838,13 +1881,15 @@ function AppSession() {
     if (!model) return;
     const entitySelection = resolveDiagnosticEntitySelection({ model, result, knowledge, diagnosticId });
     if (entitySelection) {
-      setSelection(entitySelection);
+      handleSelectEntity(entitySelection);
     }
   }
 
-  function handleSelectEntity(entity: EntityRef) {
+  function handleSelectEntity(entity: EntityRef, modifiers: SelectionModifiers = {}) {
+    const next = applySelection(orderedSelectionRef.current, entity, modifiers);
+    if (sameSelection(next, orderedSelectionRef.current)) return;
     invalidateDirectDraftContext();
-    setSelection(entity);
+    commitSelectionState(next);
   }
 
   function invalidateDirectDraftContext() {
@@ -2172,6 +2217,7 @@ function AppSession() {
             <PipeViewport
               armedCreationTool={armedCreationTool}
               model={model}
+              modelIndex={activeModelIndex ?? undefined}
               modelCommitToken={directDraftCommitToken}
               onAddDraft={handleAddDraftReview}
               onApplyDraft={handleApplyDraftReview}
@@ -2183,6 +2229,7 @@ function AppSession() {
               reservedIntents={queuedBatches.flatMap((entry) => entry.batch.operations)}
               result={result}
               selection={selection}
+              selectionState={orderedSelection}
             />
           </div>
           <div className="workspace-pane workspace-pane-inspector">

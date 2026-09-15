@@ -2,7 +2,6 @@ import { QuantityReadout } from "../display-units";
 import { Box, CircleDot, CirclePlus, GitBranch, MoveDown, Anchor } from "lucide-react";
 import { type PointerEvent as ReactPointerEvent, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { convertDisplayQuantities } from "../../services/displayQuantityService";
 import {
   describeUnitBasis,
@@ -61,29 +60,47 @@ import {
   type RoutingPlane,
   type RoutingPlaneDefinition
 } from "./viewportRouting";
+import { modelIndexFor, type Bounds3, type ModelIndex } from "../workspace/modelIndex";
+import {
+  entityKey,
+  type EntityKey,
+  type OrderedSelectionState
+} from "../workspace/selectionState";
+import {
+  authoredToLocal,
+  createRenderTransform,
+  pointPickPrimitives,
+  prioritizedLabelKeys
+} from "./viewportSelection";
+import { ViewportResource, type ViewportContextStatus } from "./viewportResource";
+import {
+  UI_DIAGNOSTICS_VERSION,
+  hasUiDiagnosticsObserver,
+  publishUiDiagnostics
+} from "../workspace/uiDiagnostics";
 
 type Props = {
   armedCreationTool?: CreationTool | null;
   model: PreviewModel;
+  modelIndex?: ModelIndex;
   modelCommitToken?: string | null;
   onArmCreationTool?: (tool: CreationTool | null) => void;
   onAddDraft?: (submission: DraftSubmission, generation: number) => Promise<FrozenDraftReview | null>;
   onApplyDraft?: (review: FrozenDraftReview) => Promise<boolean>;
   onInvalidateDraft?: () => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
-  onSelect: (selection: EntityRef) => void;
+  onSelect: (selection: EntityRef, modifiers?: { additive?: boolean; toggle?: boolean }) => void;
   queuedIntents?: EditorOperationIntent[];
   reservedIntents?: ReadonlyArray<unknown>;
   result?: MechanicsResult | null;
   selection: EntityRef;
+  selectionState?: OrderedSelectionState;
 };
 
 export type CreationTool = "node" | "pipe" | "support" | "component" | "load";
 type ViewportCommandType = "create_node" | "connect_pipe_run" | "insert_component_symbol";
 type ViewPreset = "iso" | "front" | "top";
 const VIEWPORT_DIMENSIONLESS_UNIT_VALIDATION_STATUS = "not_required_dimensionless";
-const VIEW_TARGET = { x: 3.8, y: 1.2, z: 0.7 } as const;
-const GIZMO_SIZE = 96;
 
 type ViewportSelectionTarget = {
   ref: EntityRef;
@@ -213,6 +230,7 @@ type DeformationOverlay = {
 export function PipeViewport({
   armedCreationTool = null,
   model,
+  modelIndex,
   modelCommitToken = null,
   onArmCreationTool = () => {},
   onAddDraft,
@@ -223,15 +241,20 @@ export function PipeViewport({
   queuedIntents = [],
   reservedIntents = [],
   result = null,
-  selection
+  selection,
+  selectionState
 }: Props) {
   const hostRef = useRef<HTMLDivElement | null>(null);
+  const viewportResourceRef = useRef<ViewportResource | null>(null);
+  const assignmentStartedAtRef = useRef<number | null>(null);
+  const mainFrameRef = useRef({ sequence: 0, submittedAt: null as number | null, opportunityAt: null as number | null });
   const draftProjectorRef = useRef<DraftProjector | null>(null);
   const cameraStateRef = useRef<{
     position: [number, number, number];
     target: [number, number, number];
   } | null>(null);
   const lastPresetRef = useRef<ViewPreset | null>(null);
+  const fittedSessionGenerationRef = useRef<number | null>(null);
   const pickRef = useRef<((event: { clientX: number; clientY: number }) => EntityRef | null) | null>(null);
   const pointerGestureRef = useRef<{ gesture: PointerGesture; target: Element } | null>(null);
   const placementGenerationRef = useRef(new RoutingPlacementGate());
@@ -261,11 +284,39 @@ export function PipeViewport({
   const [pointerGhost, setPointerGhost] = useState<PointerGhost | null>(null);
   const [placementMessage, setPlacementMessage] = useState<string | null>(null);
   const [webglAvailable, setWebglAvailable] = useState<boolean | null>(null);
+  const [viewportContextStatus, setViewportContextStatus] = useState<ViewportContextStatus>("ready");
   const [viewPreset, setViewPreset] = useState<ViewPreset>("iso");
   const [showLabels, setShowLabels] = useState(true);
   const [showLoads, setShowLoads] = useState(true);
   const [showGrid, setShowGrid] = useState(true);
-  const selectionTargets = useMemo(() => viewportSelectionTargets(model), [model]);
+  const fallbackModelIndex = useMemo(() => modelIndexFor(model, 0, 0), [model]);
+  const activeModelIndex = modelIndex ?? fallbackModelIndex;
+  const renderTransform = useMemo(
+    () => createRenderTransform(activeModelIndex.geometryBounds),
+    [activeModelIndex]
+  );
+  const orderedSelectionKeys = useMemo(
+    () => selectionState?.orderedKeys ?? Object.freeze([entityKey(selection)]),
+    [selection.id, selection.type, selectionState]
+  );
+  const primarySelectionKey = selectionState?.primaryKey ?? entityKey(selection);
+  const labelKeys = useMemo(
+    () => prioritizedLabelKeys(activeModelIndex, {
+      primaryKey: primarySelectionKey,
+      selectedKeys: orderedSelectionKeys
+    }),
+    [activeModelIndex, orderedSelectionKeys, primarySelectionKey]
+  );
+  const selectionTargets = useMemo(
+    () => viewportSelectionTargets(activeModelIndex, labelKeys),
+    [activeModelIndex, labelKeys]
+  );
+  const diagnosticsStateRef = useRef({
+    index: activeModelIndex,
+    orderedSelectionKeys,
+    primarySelectionKey
+  });
+  diagnosticsStateRef.current = { index: activeModelIndex, orderedSelectionKeys, primarySelectionKey };
   const deformation = useMemo(() => buildDeformationOverlay(model, result), [model, result]);
   const visibleIntents = onQueueIntent ? viewportIntents(queuedIntents) : localIntents;
   const pendingViewportIntents = [...reservedIntents, ...queuedIntents, ...localIntents];
@@ -412,7 +463,7 @@ export function PipeViewport({
   useEffect(() => {
     clearPointerPlacement();
     invalidateDraftReview("The affected selection changed. Add again to review the current draft.");
-  }, [selection.id, selection.type]);
+  }, [selection.id, selection.type, selectionState?.preparationEpoch]);
 
   useEffect(() => {
     routingVisualUpdaterRef.current?.(routingVisualStateRef.current);
@@ -436,230 +487,244 @@ export function PipeViewport({
       };
     }
     setWebglAvailable(true);
-
-    const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xf6f7f4);
-    const camera = new THREE.PerspectiveCamera(42, host.clientWidth / host.clientHeight, 0.1, 1000);
-
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(host.clientWidth, host.clientHeight);
-    host.replaceChildren(renderer.domElement);
-    draftProjectorRef.current = (event, plane) => raycastDraftPoint(event, renderer.domElement, camera, plane);
-
-    // Interactive orbit/pan/zoom. Camera state is preserved across the scene
-    // rebuilds that fire on model/selection/deformation changes, so picking an
-    // entity no longer snaps the view back; clicking a view-preset button (which
-    // changes viewPreset) deliberately re-frames the model.
-    const controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.08;
-    const presetChanged = lastPresetRef.current !== viewPreset;
-    if (presetChanged || !cameraStateRef.current) {
-      applyViewPreset(camera, viewPreset);
-      controls.target.set(VIEW_TARGET.x, VIEW_TARGET.y, VIEW_TARGET.z);
-    } else {
-      const saved = cameraStateRef.current;
-      camera.position.set(saved.position[0], saved.position[1], saved.position[2]);
-      controls.target.set(saved.target[0], saved.target[1], saved.target[2]);
-    }
+    assignmentStartedAtRef.current = performance.now();
+    const resource = new ViewportResource(host, {
+      onContextStatus: setViewportContextStatus,
+      onRestore: () => viewportResourceRef.current?.invalidate(),
+      shouldObservePaintOpportunity: hasUiDiagnosticsObserver,
+      onAfterMainFrame: (current, submittedAt) => {
+        mainFrameRef.current = {
+          sequence: current.submissionSequence,
+          submittedAt,
+          opportunityAt: null
+        };
+        publishViewportDiagnostics(current);
+      },
+      onNextPaintOpportunity: (current, opportunityAt) => {
+        mainFrameRef.current = { ...mainFrameRef.current, opportunityAt };
+        publishViewportDiagnostics(current);
+      }
+    });
+    viewportResourceRef.current = resource;
+    resource.setOrigin(renderTransform.origin);
+    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
     lastPresetRef.current = viewPreset;
-    controls.update();
+    draftProjectorRef.current = (event, plane) => resource.projectToAuthoredPlane(
+      event,
+      plane.normal,
+      plane.fixedValue
+    );
+    pickRef.current = (event) => resource.pick(event);
     const persistCameraState = () => {
       cameraStateRef.current = {
-        position: [camera.position.x, camera.position.y, camera.position.z],
-        target: [controls.target.x, controls.target.y, controls.target.z]
+        position: [resource.camera.position.x, resource.camera.position.y, resource.camera.position.z],
+        target: [resource.controls.target.x, resource.controls.target.y, resource.controls.target.z]
       };
     };
-    controls.addEventListener("change", persistCameraState);
+    resource.controls.addEventListener("change", persistCameraState);
+    resource.invalidate();
 
-    scene.add(new THREE.AmbientLight(0xffffff, 0.72));
-    const key = new THREE.DirectionalLight(0xffffff, 1.2);
-    key.position.set(4, 9, 7);
-    scene.add(key);
+    return () => {
+      resource.controls.removeEventListener("change", persistCameraState);
+      pickRef.current = null;
+      draftProjectorRef.current = null;
+      routingVisualUpdaterRef.current = null;
+      viewportResourceRef.current = null;
+      resource.dispose();
+    };
+  }, []);
 
-    const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
-    if (showGrid) scene.add(referenceGround(model));
+  useEffect(() => {
+    assignmentStartedAtRef.current = performance.now();
+    mainFrameRef.current = { sequence: 0, submittedAt: null, opportunityAt: null };
+  }, [activeModelIndex.generation]);
 
-    // Pickable meshes (raycast click-to-select) and the 3D anchor positions used
-    // to keep the entity labels pinned to their part as the camera orbits.
+  function publishViewportDiagnostics(resource: ViewportResource): void {
+    publishUiDiagnostics(
+      () => {
+        const diagnostics = diagnosticsStateRef.current;
+        const info = resource.renderer.info;
+        const authoredCamera = resource.localToAuthored(resource.camera.position);
+        const authoredTarget = resource.localToAuthored(resource.controls.target);
+        return {
+          version: UI_DIAGNOSTICS_VERSION,
+          sessionGeneration: diagnostics.index.sessionGeneration,
+          modelGeneration: diagnostics.index.generation,
+          assignmentStartedAt: assignmentStartedAtRef.current,
+          mainFrameSubmissionSequence: mainFrameRef.current.sequence,
+          mainFrameSubmittedAt: mainFrameRef.current.submittedAt,
+          nextPaintOpportunityAt: mainFrameRef.current.opportunityAt,
+          selectionKeys: diagnostics.orderedSelectionKeys,
+          primaryKey: diagnostics.primarySelectionKey,
+          boxSelectionMode: false,
+          entityFilter: "all" as const,
+          camera: {
+            position: [authoredCamera.x, authoredCamera.y, authoredCamera.z] as const,
+            target: [authoredTarget.x, authoredTarget.y, authoredTarget.z] as const,
+            up: [resource.camera.up.x, resource.camera.up.y, resource.camera.up.z] as const
+          },
+          renderOrigin: [resource.origin.x, resource.origin.y, resource.origin.z] as const,
+          rendererInfo: {
+            geometries: info.memory.geometries,
+            textures: info.memory.textures,
+            calls: info.render.calls,
+            triangles: info.render.triangles,
+            points: info.render.points,
+            lines: info.render.lines
+          },
+          pendingAppOwnedRafCount: resource.pendingAppOwnedRafCount
+        };
+      },
+      () => {
+        resource.camera.updateMatrixWorld();
+        const viewProjection = new THREE.Matrix4()
+          .multiplyMatrices(resource.camera.projectionMatrix, resource.camera.matrixWorldInverse);
+        const rect = resource.renderer.domElement.getBoundingClientRect();
+        return {
+          generation: diagnosticsStateRef.current.index.generation,
+          renderOrigin: resource.origin,
+          viewProjectionMatrix: viewProjection.toArray(),
+          canvasRect: { left: rect.left, top: rect.top, width: rect.width, height: rect.height }
+        };
+      }
+    );
+  }
+
+  useEffect(() => {
+    const resource = viewportResourceRef.current;
+    if (!resource) return;
+    resource.setOrigin(renderTransform.origin);
+    const localNodeMap = new Map(
+      model.nodes
+        .filter((node) => !activeModelIndex.invalidGeometry.has(entityKey({ type: "node", id: node.id })))
+        .map((node) => [node.id, authoredToLocal(node.position, renderTransform.origin)] as const)
+    );
+    const labelKeySet = new Set(labelKeys);
+    const modelObjects: THREE.Object3D[] = [];
+    const resultObjects: THREE.Object3D[] = [];
+    const loadObjects: THREE.Object3D[] = [];
     const pickables: THREE.Object3D[] = [];
     const anchorPositions: Array<{
-      id: string;
+      key: EntityKey;
       position: THREE.Vector3;
       offsetPct: number;
     }> = [];
-    const tag = (object: THREE.Object3D, ref: EntityRef, position: Vec3) => {
-      object.userData.entityRef = ref;
-      pickables.push(object);
-      // Co-located entities (a support/component sits on its node) would stack
-      // their labels at the same screen point; nudge them apart vertically.
-      const offsetPct = ref.type === "support" ? 8 : ref.type === "component" ? -8 : 0;
+    for (const key of labelKeySet) {
+      const indexed = activeModelIndex.entities.get(key);
+      if (!indexed?.anchor) continue;
+      const position = authoredToLocal(indexed.anchor, renderTransform.origin);
+      if (indexed.ref.type === "support") position.y -= 0.26;
+      if (indexed.ref.type === "component") position.y += 0.2;
       anchorPositions.push({
-        id: ref.id,
+        key,
         position: new THREE.Vector3(position.x, position.y, position.z),
-        offsetPct
+        offsetPct: indexed.ref.type === "support" ? 8 : indexed.ref.type === "component" ? -8 : 0
       });
-    };
-
-    for (const segment of model.pipe_segments) {
-      const from = nodeMap.get(segment.from);
-      const to = nodeMap.get(segment.to);
-      if (!from || !to) continue;
-      const mesh = pipeMesh(from, to, selection.id === segment.id);
-      tag(mesh, { type: "pipe", id: segment.id }, midpoint(from, to));
-      scene.add(mesh);
     }
+    const pipeInstances = instancedPipeMesh(model, localNodeMap, orderedSelectionKeys);
+    if (pipeInstances) modelObjects.push(pipeInstances);
     if (deformation.state === "available") {
       for (const segment of model.pipe_segments) {
-        const from = deformation.nodePositions.get(segment.from);
-        const to = deformation.nodePositions.get(segment.to);
-        if (!from || !to) continue;
-        scene.add(deformedPipeMesh(from, to, selection.id === segment.id));
+        const authoredFrom = deformation.nodePositions.get(segment.from);
+        const authoredTo = deformation.nodePositions.get(segment.to);
+        if (!authoredFrom || !authoredTo) continue;
+        const ref: EntityRef = { type: "pipe", id: segment.id };
+        resultObjects.push(deformedPipeMesh(
+          authoredToLocal(authoredFrom, renderTransform.origin),
+          authoredToLocal(authoredTo, renderTransform.origin),
+          selectionContainsKey(orderedSelectionKeys, ref)
+        ));
       }
       for (const node of model.nodes) {
-        const position = deformation.nodePositions.get(node.id);
-        if (!position) continue;
-        scene.add(deformationMarker(position, selection.id === node.id));
+        const authoredPosition = deformation.nodePositions.get(node.id);
+        if (!authoredPosition) continue;
+        const ref: EntityRef = { type: "node", id: node.id };
+        resultObjects.push(deformationMarker(
+          authoredToLocal(authoredPosition, renderTransform.origin),
+          selectionContainsKey(orderedSelectionKeys, ref)
+        ));
       }
     }
-    for (const node of model.nodes) {
-      const mesh = marker(node.position, selection.id === node.id ? 0xf08c22 : 0x2f6f73, 0.095);
-      tag(mesh, { type: "node", id: node.id }, node.position);
-      scene.add(mesh);
-    }
-    for (const support of model.supports) {
-      const node = nodeMap.get(support.node);
-      if (!node) continue;
-      const mesh = supportMesh(node, selection.id === support.id);
-      tag(mesh, { type: "support", id: support.id }, { x: node.x, y: node.y - 0.26, z: node.z });
-      scene.add(mesh);
-    }
+    const nodeInstances = instancedNodeMesh(model, localNodeMap, orderedSelectionKeys);
+    if (nodeInstances) modelObjects.push(nodeInstances);
+    const supportInstances = instancedSupportMesh(model, localNodeMap, orderedSelectionKeys);
+    if (supportInstances) modelObjects.push(supportInstances);
     for (const component of model.components) {
-      const node = nodeMap.get(component.node);
+      const node = localNodeMap.get(component.node);
       if (!node) continue;
-      const mesh = componentMesh(component, node, selection.id === component.id);
-      tag(mesh, { type: "component", id: component.id }, { x: node.x, y: node.y + 0.2, z: node.z });
-      scene.add(mesh);
+      const ref: EntityRef = { type: "component", id: component.id };
+      const mesh = componentMesh(component, node, selectionContainsKey(orderedSelectionKeys, ref));
+      mesh.userData.entityRef = ref;
+      pickables.push(mesh);
+      modelObjects.push(mesh);
     }
-    if (showLoads) {
-      for (const arrow of buildLoadArrows(model, nodeMap)) scene.add(arrow);
-    }
+    if (showGrid) modelObjects.push(referenceGroundFromBounds(renderTransform.localBounds));
+    if (showLoads) loadObjects.push(...buildLoadArrows(model, localNodeMap));
 
-    const routingGrid = routeConstructionGrid(model);
+    const routingGrid = routeConstructionGridFromBounds(renderTransform.localBounds);
     const routingGhost = routeGhostLine();
     const routingMarker = marker({ x: 0, y: 0, z: 0 }, 0xf08c22, 0.105);
     routingGrid.visible = false;
     routingGhost.visible = false;
     routingMarker.visible = false;
-    scene.add(routingGrid, routingGhost, routingMarker);
     routingVisualUpdaterRef.current = (state) => {
-      updateRouteConstructionGrid(routingGrid, state.anchor, state.plane, state.showGrid);
-      updateRouteGhostObjects(routingGhost, routingMarker, state.ghost);
+      const localAnchor = state.anchor ? authoredToLocal(state.anchor, renderTransform.origin) : null;
+      const localGhost = state.ghost ? {
+        ...state.ghost,
+        from: authoredToLocal(state.ghost.from, renderTransform.origin),
+        to: authoredToLocal(state.ghost.to, renderTransform.origin)
+      } : null;
+      updateRouteConstructionGrid(routingGrid, localAnchor, state.plane, state.showGrid);
+      updateRouteGhostObjects(routingGhost, routingMarker, localGhost);
+      resource.invalidate();
     };
     routingVisualUpdaterRef.current(routingVisualStateRef.current);
-
-    // Raycast picking: clicking a mesh selects its entity (primary selection).
-    const raycaster = new THREE.Raycaster();
-    pickRef.current = (event) => {
-      const fraction = eventPositionFraction(renderer.domElement, event);
-      const pointer = new THREE.Vector2(fraction.x * 2 - 1, -(fraction.y * 2 - 1));
-      raycaster.setFromCamera(pointer, camera);
-      for (const hit of raycaster.intersectObjects(pickables, true)) {
-        let object: THREE.Object3D | null = hit.object;
-        while (object) {
-          const ref = object.userData?.entityRef as EntityRef | undefined;
-          if (ref) return ref;
-          object = object.parent;
-        }
-      }
-      return null;
-    };
-
-    // Orientation gizmo: a small second scene showing the world X/Y/Z axes,
-    // viewed from the same direction as the main camera so it rotates with the
-    // orbit. Rendered into its own corner canvas.
-    const gizmoHost = gizmoHostRef.current;
-    let gizmoRenderer: THREE.WebGLRenderer | null = null;
-    let gizmoScene: THREE.Scene | null = null;
-    let gizmoCamera: THREE.PerspectiveCamera | null = null;
-    if (gizmoHost) {
-      gizmoRenderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      gizmoRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      gizmoRenderer.setSize(GIZMO_SIZE, GIZMO_SIZE);
-      gizmoHost.replaceChildren(gizmoRenderer.domElement);
-      gizmoScene = new THREE.Scene();
-      gizmoScene.add(buildOrientationGizmo());
-      gizmoCamera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-    }
-
-    const renderGizmo = () => {
-      if (!gizmoRenderer || !gizmoScene || !gizmoCamera) return;
-      const offset = camera.position.clone().sub(controls.target);
-      if (offset.lengthSq() === 0) offset.set(0, 0, 1);
-      gizmoCamera.position.copy(offset.normalize().multiplyScalar(3.2));
-      gizmoCamera.up.copy(camera.up);
-      gizmoCamera.lookAt(0, 0, 0);
-      gizmoRenderer.render(gizmoScene, gizmoCamera);
-    };
-
-    // Keep the (toggleable) entity labels pinned to their part: project each
-    // anchor to screen space every frame so the label tracks the 3D position
-    // through orbit/pan/zoom instead of floating at a fixed screen spot.
     const updateLabelAnchors = () => {
       const layer = selectionLayerRef.current;
       if (!layer) return;
-      for (const { id, position, offsetPct } of anchorPositions) {
-        const button = layer.querySelector<HTMLElement>(`[data-testid="viewport-select-${id}"]`);
+      const buttons = new Map(
+        [...layer.querySelectorAll<HTMLElement>("[data-entity-key]")]
+          .map((button) => [button.dataset.entityKey, button] as const)
+      );
+      for (const { key, position, offsetPct } of anchorPositions) {
+        const button = buttons.get(key);
         if (!button) continue;
-        const projected = position.clone().project(camera);
-        const behind = projected.z > 1;
+        const projected = position.clone().project(resource.camera);
+        const behind = projected.z < -1 || projected.z > 1;
         button.style.display = behind ? "none" : "";
         if (behind) continue;
         button.style.left = `${clamp((projected.x * 0.5 + 0.5) * 100, 2, 98)}%`;
         button.style.top = `${clamp((-projected.y * 0.5 + 0.5) * 100 + offsetPct, 2, 98)}%`;
       }
     };
+    resource.setPickables(pickables);
+    resource.setPointPrimitives(activeModelIndex, pointPickPrimitives(activeModelIndex, model, renderTransform.origin));
+    resource.setLabelUpdater(updateLabelAnchors);
+    resource.replaceLayer(resource.modelLayer, modelObjects);
+    resource.replaceLayer(resource.authoredLoadLayer, loadObjects);
+    resource.replaceLayer(resource.resultLayer, resultObjects);
+    resource.replaceLayer(resource.routingLayer, [routingGrid, routingGhost, routingMarker]);
+    resource.invalidate();
+    return () => resource.setLabelUpdater(null);
+  }, [activeModelIndex, deformation, labelKeys, model, orderedSelectionKeys, renderTransform, showGrid, showLoads]);
 
-    const resize = () => {
-      const { clientWidth, clientHeight } = host;
-      if (clientWidth <= 0 || clientHeight <= 0) return;
-      camera.aspect = clientWidth / clientHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(clientWidth, clientHeight);
-      renderer.render(scene, camera);
-    };
-    resize();
-    window.addEventListener("resize", resize);
-    // Rails and the analysis dock resize the host without resizing the window.
-    const resizeObserver = typeof ResizeObserver === "undefined" ? null : new ResizeObserver(resize);
-    resizeObserver?.observe(host);
+  useEffect(() => {
+    const resource = viewportResourceRef.current;
+    if (!resource || fittedSessionGenerationRef.current === activeModelIndex.sessionGeneration) return;
+    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    fittedSessionGenerationRef.current = activeModelIndex.sessionGeneration;
+    lastPresetRef.current = viewPreset;
+    resource.invalidate();
+  }, [activeModelIndex.sessionGeneration, renderTransform.localBounds, viewPreset]);
 
-    let frame = 0;
-    const animate = () => {
-      frame = requestAnimationFrame(animate);
-      controls.update();
-      renderer.render(scene, camera);
-      renderGizmo();
-      updateLabelAnchors();
-    };
-    animate();
-
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("resize", resize);
-      resizeObserver?.disconnect();
-      controls.removeEventListener("change", persistCameraState);
-      controls.dispose();
-      pickRef.current = null;
-      draftProjectorRef.current = null;
-      routingVisualUpdaterRef.current = null;
-      renderer.dispose();
-      gizmoRenderer?.dispose();
-      if (gizmoHost) gizmoHost.replaceChildren();
-      host.replaceChildren();
-    };
-  }, [model, selection, deformation, viewPreset, showLoads, showGrid]);
+  useEffect(() => {
+    const resource = viewportResourceRef.current;
+    if (!resource || lastPresetRef.current === viewPreset) return;
+    fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
+    lastPresetRef.current = viewPreset;
+    resource.invalidate();
+  }, [renderTransform.localBounds, viewPreset]);
 
   function addIntent(commandType: ViewportCommandType) {
     const intent = buildIntent(
@@ -866,7 +931,10 @@ export function PipeViewport({
     setPipeEndpointPickMode((current) => (current === mode ? null : mode));
   }
 
-  function chooseViewportTarget(target: ViewportSelectionTarget) {
+  function chooseViewportTarget(
+    target: ViewportSelectionTarget,
+    modifiers: { additive?: boolean; toggle?: boolean } = {}
+  ) {
     if (draftReviewBusy) return;
     if (pipeEndpointPickMode && target.kind === "node") {
       invalidateDraftReview();
@@ -877,7 +945,7 @@ export function PipeViewport({
     if (armedCreationTool === "component" && target.kind === "node") {
       setComponentDraft((current) => componentDraftForNode(model, current, target.ref.id));
     }
-    onSelect(target.ref);
+    onSelect(target.ref, modifiers);
   }
 
   function clearPointerPlacement(message: string | null = null) {
@@ -982,7 +1050,10 @@ export function PipeViewport({
       if (armedCreationTool === "component" && picked.type === "node") {
         setComponentDraft((current) => componentDraftForNode(model, current, picked.id));
       }
-      onSelect(picked);
+      onSelect(picked, {
+        additive: event.shiftKey,
+        toggle: event.ctrlKey || event.metaKey
+      });
       return;
     }
     if (armedCreationTool === "node") {
@@ -1152,6 +1223,16 @@ export function PipeViewport({
           </button>
         </div>
         <span>Selected: {selection.id}</span>
+        {viewportContextStatus !== "ready" ? (
+          <span role="status" data-testid="viewport-context-status">
+            {viewportContextStatus === "lost" ? "3D context lost; rendering paused." : "Restoring 3D resources…"}
+          </span>
+        ) : null}
+        {activeModelIndex.invalidGeometry.size > 0 ? (
+          <span role="status" data-testid="viewport-invalid-geometry">
+            {activeModelIndex.invalidGeometry.size} item{activeModelIndex.invalidGeometry.size === 1 ? "" : "s"} excluded: {activeModelIndex.invalidGeometry.values().next().value}
+          </span>
+        ) : null}
       </div>
       <div className="viewport-frame">
         <div
@@ -1175,16 +1256,20 @@ export function PipeViewport({
             ref={selectionLayerRef}
           >
             {selectionTargets.map((target) => {
-              const active = selection.id === target.ref.id;
+              const active = selectionContainsKey(orderedSelectionKeys, target.ref);
               return (
                 <button
                   aria-label={`Select ${target.label} in viewport`}
                   aria-pressed={active}
                   className={`viewport-select-target ${target.kind} ${active ? "active" : ""}`}
+                  data-entity-key={entityKey(target.ref)}
                   data-testid={`viewport-select-${target.ref.id}`}
                   disabled={draftReviewBusy}
-                  key={`${target.ref.type}:${target.ref.id}`}
-                  onClick={() => chooseViewportTarget(target)}
+                  key={entityKey(target.ref)}
+                  onClick={(event) => chooseViewportTarget(target, {
+                    additive: event.shiftKey,
+                    toggle: event.ctrlKey || event.metaKey
+                  })}
                   style={{
                     left: `${target.screen.x}%`,
                     top: `${target.screen.y}%`
@@ -1958,16 +2043,32 @@ function creationToolStatusLabel(tool: CreationTool | null): string {
   return "Model focus";
 }
 
-function applyViewPreset(camera: THREE.PerspectiveCamera, preset: ViewPreset) {
+function fitViewportCamera(resource: ViewportResource, preset: ViewPreset, bounds: Bounds3 | null) {
+  const center = bounds
+    ? {
+        x: (bounds.min.x + bounds.max.x) / 2,
+        y: (bounds.min.y + bounds.max.y) / 2,
+        z: (bounds.min.z + bounds.max.z) / 2
+      }
+    : { x: 0, y: 0, z: 0 };
+  const extent = bounds
+    ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z, 1)
+    : 4;
+  const distance = Math.max(4, extent * 1.8);
   if (preset === "front") {
-    camera.position.set(3.8, 1.2, 11);
+    resource.camera.position.set(center.x, center.y, center.z + distance);
   } else if (preset === "top") {
-    camera.position.set(3.8, 12, 0.7);
+    resource.camera.position.set(center.x, center.y + distance, center.z);
   } else {
-    camera.position.set(7.6, 7, 8);
+    const diagonal = distance / Math.sqrt(3);
+    resource.camera.position.set(center.x + diagonal, center.y + diagonal, center.z + diagonal);
   }
-  camera.lookAt(3.8, 1.2, 0.7);
-  camera.updateProjectionMatrix();
+  resource.controls.target.set(center.x, center.y, center.z);
+  resource.camera.near = Math.max(0.001, distance / 100_000);
+  resource.camera.far = Math.max(1_000, distance + extent * 8);
+  resource.camera.lookAt(center.x, center.y, center.z);
+  resource.camera.updateProjectionMatrix();
+  resource.controls.update();
 }
 
 function emptyPipeDraft(lengthUnit: string): PipeDraft {
@@ -2166,68 +2267,28 @@ function ViewportTargetIcon({ kind }: { kind: ViewportSelectionTarget["kind"] })
   return <Box size={13} aria-hidden="true" />;
 }
 
-function viewportSelectionTargets(model: PreviewModel): ViewportSelectionTarget[] {
-  const nodeMap = new Map(model.nodes.map((node) => [node.id, node.position]));
-  const rawTargets: Array<
-    Omit<ViewportSelectionTarget, "screen"> & {
-      position: Vec3;
-      offsetY: number;
-    }
-  > = [
-    ...model.nodes.map((node) => ({
-      ref: { type: "node" as const, id: node.id },
-      label: node.label,
-      kind: "node" as const,
-      position: node.position,
-      offsetY: 0
-    })),
-    ...model.pipe_segments.flatMap((pipe) => {
-      const from = nodeMap.get(pipe.from);
-      const to = nodeMap.get(pipe.to);
-      if (!from || !to) return [];
-      return [
-        {
-          ref: { type: "pipe" as const, id: pipe.id },
-          label: pipe.label,
-          kind: "pipe" as const,
-          position: midpoint(from, to),
-          offsetY: 0
-        }
-      ];
-    }),
-    ...model.supports.flatMap((support) => {
-      const node = nodeMap.get(support.node);
-      if (!node) return [];
-      return [
-        {
-          ref: { type: "support" as const, id: support.id },
-          label: support.label,
-          kind: "support" as const,
-          position: node,
-          offsetY: 8
-        }
-      ];
-    }),
-    ...model.components.flatMap((component) => {
-      const node = nodeMap.get(component.node);
-      if (!node) return [];
-      return [
-        {
-          ref: { type: "component" as const, id: component.id },
-          label: component.label,
-          kind: "component" as const,
-          position: node,
-          offsetY: -8
-        }
-      ];
-    })
-  ];
-
+function viewportSelectionTargets(index: ModelIndex, keys: readonly EntityKey[]): ViewportSelectionTarget[] {
+  const rawTargets = keys.flatMap((key) => {
+    const entity = index.entities.get(key);
+    if (!entity?.anchor || !["node", "pipe", "support", "component"].includes(entity.ref.type)) return [];
+    const kind = entity.ref.type as ViewportSelectionTarget["kind"];
+    return [{
+      ref: entity.ref,
+      label: entity.label,
+      kind,
+      position: entity.anchor as Vec3,
+      offsetY: kind === "support" ? 8 : kind === "component" ? -8 : 0
+    }];
+  });
   const bounds = selectionBounds(rawTargets.map((target) => target.position));
   return rawTargets.map(({ position, offsetY, ...target }) => ({
     ...target,
     screen: projectToViewport(position, bounds, offsetY)
   }));
+}
+
+function selectionContainsKey(keys: readonly EntityKey[], ref: EntityRef): boolean {
+  return keys.includes(entityKey(ref));
 }
 
 function midpoint(from: Vec3, to: Vec3): Vec3 {
@@ -2573,6 +2634,98 @@ function pipeMesh(from: Vec3, to: Vec3, active: boolean) {
   return mesh;
 }
 
+function instancedPipeMesh(
+  model: PreviewModel,
+  nodes: ReadonlyMap<string, Vec3>,
+  selectedKeys: readonly EntityKey[]
+): THREE.InstancedMesh | null {
+  const valid = model.pipe_segments.flatMap((pipe) => {
+    const from = nodes.get(pipe.from);
+    const to = nodes.get(pipe.to);
+    if (!from || !to) return [];
+    const direction = new THREE.Vector3(to.x - from.x, to.y - from.y, to.z - from.z);
+    const length = direction.length();
+    return Number.isFinite(length) && length > 0 ? [{ pipe, from, to, direction, length }] : [];
+  });
+  if (valid.length === 0) return null;
+  const geometry = new THREE.CylinderGeometry(1, 1, 1, 10, 1, false);
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.58 });
+  const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion();
+  const up = new THREE.Vector3(0, 1, 0);
+  const scale = new THREE.Vector3();
+  const center = new THREE.Vector3();
+  valid.forEach(({ pipe, from, to, direction, length }, index) => {
+    quaternion.setFromUnitVectors(up, direction.normalize());
+    center.set((from.x + to.x) / 2, (from.y + to.y) / 2, (from.z + to.z) / 2);
+    scale.set(0.052, length, 0.052);
+    matrix.compose(center, quaternion, scale);
+    mesh.setMatrixAt(index, matrix);
+    mesh.setColorAt(index, new THREE.Color(
+      selectionContainsKey(selectedKeys, { type: "pipe", id: pipe.id }) ? 0xf08c22 : 0x4f6f73
+    ));
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.userData.instanceEntityKeys = valid.map(({ pipe }) => entityKey({ type: "pipe", id: pipe.id }));
+  return mesh;
+}
+
+function instancedNodeMesh(
+  model: PreviewModel,
+  nodes: ReadonlyMap<string, Vec3>,
+  selectedKeys: readonly EntityKey[]
+): THREE.InstancedMesh | null {
+  const valid = model.nodes.filter((node) => nodes.has(node.id));
+  if (valid.length === 0) return null;
+  const geometry = new THREE.SphereGeometry(0.095, 12, 8);
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.48 });
+  const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
+  const matrix = new THREE.Matrix4();
+  valid.forEach((node, index) => {
+    const position = nodes.get(node.id)!;
+    matrix.makeTranslation(position.x, position.y, position.z);
+    mesh.setMatrixAt(index, matrix);
+    mesh.setColorAt(index, new THREE.Color(
+      selectionContainsKey(selectedKeys, { type: "node", id: node.id }) ? 0xf08c22 : 0x2f6f73
+    ));
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.userData.instanceEntityKeys = valid.map((node) => entityKey({ type: "node", id: node.id }));
+  return mesh;
+}
+
+function instancedSupportMesh(
+  model: PreviewModel,
+  nodes: ReadonlyMap<string, Vec3>,
+  selectedKeys: readonly EntityKey[]
+): THREE.InstancedMesh | null {
+  const valid = model.supports.flatMap((support) => {
+    const node = nodes.get(support.node);
+    return node ? [{ support, node }] : [];
+  });
+  if (valid.length === 0) return null;
+  const geometry = new THREE.ConeGeometry(0.18, 0.34, 4);
+  const material = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7 });
+  const mesh = new THREE.InstancedMesh(geometry, material, valid.length);
+  const matrix = new THREE.Matrix4();
+  const quaternion = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 4);
+  const scale = new THREE.Vector3(1, 1, 1);
+  valid.forEach(({ support, node }, index) => {
+    matrix.compose(new THREE.Vector3(node.x, node.y - 0.26, node.z), quaternion, scale);
+    mesh.setMatrixAt(index, matrix);
+    mesh.setColorAt(index, new THREE.Color(
+      selectionContainsKey(selectedKeys, { type: "support", id: support.id }) ? 0xf08c22 : 0x6b7d49
+    ));
+  });
+  mesh.instanceMatrix.needsUpdate = true;
+  if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true;
+  mesh.userData.instanceEntityKeys = valid.map(({ support }) => entityKey({ type: "support", id: support.id }));
+  return mesh;
+}
+
 function marker(position: Vec3, color: number, radius: number) {
   return new THREE.Mesh(
     new THREE.SphereGeometry(radius, 24, 16),
@@ -2581,6 +2734,22 @@ function marker(position: Vec3, color: number, radius: number) {
     .translateX(position.x)
     .translateY(position.y)
     .translateZ(position.z);
+}
+
+function routeConstructionGridFromBounds(bounds: Bounds3 | null): THREE.GridHelper {
+  const span = bounds
+    ? Math.max(bounds.max.x - bounds.min.x, bounds.max.y - bounds.min.y, bounds.max.z - bounds.min.z)
+    : 0;
+  const size = Math.max(8, Math.ceil(span * 1.5));
+  const grid = new THREE.GridHelper(size, Math.max(8, Math.min(40, Math.round(size * 2))), 0x2f6f73, 0x9bb7b4);
+  const materials = Array.isArray(grid.material) ? grid.material : [grid.material];
+  for (const material of materials) {
+    material.transparent = true;
+    material.opacity = 0.44;
+    material.depthWrite = false;
+  }
+  grid.renderOrder = 1;
+  return grid;
 }
 
 function routeConstructionGrid(model: PreviewModel): THREE.GridHelper {
@@ -2852,6 +3021,22 @@ function referenceGround(model: PreviewModel): THREE.GridHelper {
   const minY = ys.length ? Math.min(...ys) : 0;
   const minZ = zs.length ? Math.min(...zs) : 0;
   const maxZ = zs.length ? Math.max(...zs) : 1;
+  const size = Math.max(maxX - minX, maxZ - minZ, 1) * 1.6;
+  const divisions = Math.max(4, Math.min(20, Math.round(size)));
+  const helper = new THREE.GridHelper(size, divisions, 0xb6bfb9, 0xdce1db);
+  helper.position.set((minX + maxX) / 2, minY - 0.02, (minZ + maxZ) / 2);
+  const material = helper.material as THREE.Material & { opacity: number };
+  material.transparent = true;
+  material.opacity = 0.55;
+  return helper;
+}
+
+function referenceGroundFromBounds(bounds: Bounds3 | null): THREE.GridHelper {
+  const minX = bounds?.min.x ?? 0;
+  const maxX = bounds?.max.x ?? 1;
+  const minY = bounds?.min.y ?? 0;
+  const minZ = bounds?.min.z ?? 0;
+  const maxZ = bounds?.max.z ?? 1;
   const size = Math.max(maxX - minX, maxZ - minZ, 1) * 1.6;
   const divisions = Math.max(4, Math.min(20, Math.round(size)));
   const helper = new THREE.GridHelper(size, divisions, 0xb6bfb9, 0xdce1db);
