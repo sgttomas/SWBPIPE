@@ -1,0 +1,32 @@
+{
+  "schema": "compatibility-review-repair-v13-task-writer-status",
+  "updated_utc": "2026-09-15T04:36:02.797416Z",
+  "status": "QUALIFIED_COMPLETE_LEASE_RELEASED",
+  "final_write_scope_sha256": "01100ed5d09e39c5ad1763f12c0b7b5912540bba4a7f2da3dd15f69525e4848c",
+  "csv_ruling_addendum_sha256": "097ac5a8f791b41fba3cd36664ff4326d65cb4ac9146cf013d49d4766c8e5585",
+  "source_checkpoint": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+    "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
+    "bytes": 19025
+  },
+  "final_evidence": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/FINAL_EVIDENCE_V13.json",
+    "sha256": "67e20be7c7fdffc318905225b22b29a3c310cc664501d8eb62f4ffb2b35f1eb3",
+    "bytes": 11795
+  },
+  "lease_release": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/LEASE_RELEASE_V13.json",
+    "sha256": "f6732bc3b2277e1014522e3be25ad41212b03e03e3f0b984d7ac68b608505105",
+    "bytes": 1695
+  },
+  "results": {
+    "focused_python": "66 passed",
+    "actual_desktop_packet": "validated + nine members written and independently checked",
+    "desktop_build_dev_dist": "retained PASS from unchanged V12 desktop source",
+    "manager_backcheck": "PASS: 74 source hashes/lengths, 0 mismatches; exact packet validation/schema/writer PASS"
+  },
+  "source_frozen": true,
+  "owned_resources_released": true,
+  "git_actions": false,
+  "delegation": false
+}

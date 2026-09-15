@@ -1,0 +1,46 @@
+{
+  "schema": "compatibility-review-repair-v13-build-browser-lease-release-v1",
+  "created_utc": "2026-09-15T04:36:02.797416Z",
+  "status": "RELEASED",
+  "lease": {
+    "path": "instances/ROOT/_run_records/COMPATIBILITY_REPAIR_BUILD_BROWSER_LEASE_V3.json",
+    "sha256": "861a43b39ff1c95f687bf1ee935a53bc4d417a104d83b10c37bd6dcde92b0a2c"
+  },
+  "released_by": "COMPATIBILITY/TASK_WRITER",
+  "source_checkpoint": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+    "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
+    "bytes": 19025
+  },
+  "qualification_complete": {
+    "focused_python": {
+      "tests_passed": 66,
+      "log": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/focused-python-final.log",
+      "sha256": "9ce066437559f3978617d07ef33e2e68ae76e547ef29e559a39f9804d82c6c77",
+      "bytes": 889
+    },
+    "actual_packet": {
+      "result": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/RESULT.json",
+      "sha256": "07bccb2ab3c353d22ef4eb4d96c295a4cb07ff5bac0990b0225a4194b6c9d266",
+      "bytes": 3843
+    },
+    "retained_desktop_delivery": {
+      "production_build": "PASS",
+      "dev_playwright": "2/2 PASS",
+      "dist_playwright": "1/1 PASS"
+    }
+  },
+  "cleanup": {
+    "owned_browser_server_processes": 0,
+    "listeners_5173_5174_5175": 0,
+    "generated_f01_target_trees": 0,
+    "playwright_test_output_directories": 0,
+    "python_test_caches_in_touched_paths": 0,
+    "accidental_projects_execution_tree_present": false
+  },
+  "prohibited_actions": {
+    "native_gui": false,
+    "git": false,
+    "delegation": false
+  }
+}

@@ -1,0 +1,203 @@
+[
+  {
+    "name": "unknown-kind",
+    "code": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+    "source_result_id": "result:force:pipe-P-100:axial",
+    "row": {
+      "result_id": "result:force:pipe-P-100:axial",
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "row_kind": "result_value",
+      "result_family": "other",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:L-100"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "end_i"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:P-100"
+      },
+      "value": 0,
+      "unit": "N",
+      "dimension": "TBD",
+      "correlation_status": "unit_or_dimension_blocking_review_required",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    },
+    "finding": {
+      "code": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+      "class": "unit_preservation_witness",
+      "severity": "blocking",
+      "source": {
+        "object_type": "StressNeutralResultRow",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "affected_object": {
+        "object_type": "StressNeutralUnitWitness",
+        "ref": "unit-witness:302"
+      },
+      "message": "unknown semantic prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.",
+      "remediation": "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    }
+  },
+  {
+    "name": "missing-component",
+    "code": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+    "source_result_id": "result:force:pipe-P-100:axial",
+    "row": {
+      "result_id": "result:force:pipe-P-100:axial",
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "row_kind": "result_value",
+      "result_family": "force",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:L-100"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "end_i"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:P-100"
+      },
+      "value": 0,
+      "unit": "N",
+      "dimension": "force",
+      "correlation_status": "canonical_id_map",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    },
+    "finding": {
+      "code": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+      "class": "unit_preservation_witness",
+      "severity": "blocking",
+      "source": {
+        "object_type": "StressNeutralResultRow",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "affected_object": {
+        "object_type": "StressNeutralUnitWitness",
+        "ref": "unit-witness:302"
+      },
+      "message": "missing semantic prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.",
+      "remediation": "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    }
+  },
+  {
+    "name": "unit-component-contradiction",
+    "code": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+    "source_result_id": "result:force:pipe-P-100:axial",
+    "row": {
+      "result_id": "result:force:pipe-P-100:axial",
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "row_kind": "result_value",
+      "result_family": "other",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:L-100"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "end_i"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:P-100"
+      },
+      "value": 0,
+      "unit": "Pa",
+      "dimension": "TBD",
+      "correlation_status": "unit_or_dimension_blocking_review_required",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    },
+    "finding": {
+      "code": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+      "class": "unit_preservation_witness",
+      "severity": "blocking",
+      "source": {
+        "object_type": "StressNeutralResultRow",
+        "ref": "result:force:pipe-P-100:axial"
+      },
+      "affected_object": {
+        "object_type": "StressNeutralUnitWitness",
+        "ref": "unit-witness:302"
+      },
+      "message": "contradiction prevents a unit-preservation witness; the received row remains retained without a physical interpretation claim.",
+      "remediation": "Resolve the source kind, unit, component and semantic-contract evidence before downstream physical interpretation.",
+      "provenance": {
+        "source_name": "OpenPipeStress desktop technical preview",
+        "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+        "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+        "contributor": "OpenPipeStress app integration tranche",
+        "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending"
+      }
+    }
+  }
+]

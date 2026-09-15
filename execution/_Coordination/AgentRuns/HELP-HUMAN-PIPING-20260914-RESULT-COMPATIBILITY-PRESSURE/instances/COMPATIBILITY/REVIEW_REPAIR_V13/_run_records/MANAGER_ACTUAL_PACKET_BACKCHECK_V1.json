@@ -1,0 +1,40 @@
+{
+  "schema": "compatibility-manager-v13-actual-packet-backcheck-v1",
+  "status": "PASS",
+  "source_checkpoint": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+    "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
+    "files_rehashed": 74,
+    "hash_or_length_mismatches": 0
+  },
+  "packet": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87"
+  },
+  "execution": {
+    "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "checked_json_executable_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "validate_stress_neutral_export_package_v0_2": "PASS",
+    "project_schema_validation": "PASS",
+    "write_materialized_members_v0_2": "PASS"
+  },
+  "accounting": {
+    "result_rows": 830,
+    "unit_preservation_witnesses": 828,
+    "other_family_rows": 52,
+    "witnessed_other_family_rows": 50,
+    "diagnostic_work_withholdings": 2,
+    "obsolete_missing_witness_holds_on_witnessed_rows": 0,
+    "validation_ready": false,
+    "human_review_required": true
+  },
+  "materialization": {
+    "member_count": 9,
+    "non_manifest_member_hash_claim_mismatches": 0,
+    "csv_sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+    "manifest_materialized_sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479",
+    "manifest_claim_semantics": "The manifest claim is over the established manifest_seed projection, so it is not expected to equal the complete materialized manifest.json file hash."
+  },
+  "source_edits": false,
+  "git_actions": false
+}

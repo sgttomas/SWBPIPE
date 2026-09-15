@@ -1,0 +1,10 @@
+{
+  "schema": "compatibility-review-repair-v14-child-continuation",
+  "status": "ACTUALLY_CONTINUED",
+  "write_scope_sha256": "d1c4c20a4607be75a78676f0a9d648f19c94a54609b99a09051ae41b6de17fe1",
+  "agent_task_name": "/root/foundation_compatibility/compatibility_writer",
+  "role": "TASK / Type 2",
+  "model_effort": "gpt-5.6-sol / high",
+  "delegation_allowed": false,
+  "actual_continuation": true
+}

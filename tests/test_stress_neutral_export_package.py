@@ -280,19 +280,29 @@ def test_v02_other_family_does_not_infer_diagnostic_work_from_moment_unit():
     assert finding["code"] != "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
 
 
-def test_v02_uses_accepted_semantics_without_rewriting_a_legacy_dimension_observation():
+def test_v02_explicit_exported_dimension_contradiction_is_preserved_and_withheld():
     source = source_payload()
     source["result_rows"][0]["dimension"] = "stress"
     before = deepcopy(source)
     package = build_stress_neutral_export_package_v0_2(**source)
     result_id = source["result_rows"][0]["result_id"]
     row = next(item for item in package["result_rows"] if item["result_id"] == result_id)
-    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == result_id)
     assert row["dimension"] == "stress"
-    assert witness["source_quantity"]["dimension"] == "force"
-    assert witness["target_quantity"]["dimension"] == "force"
+    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
+    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
+    assert finding["severity"] == "blocking"
     assert source == before
     validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_rejects_witness_over_explicit_exported_dimension_contradiction():
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    package["result_rows"][0]["dimension"] = "stress"
+    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
+    rehash_v02(package)
+    with pytest.raises(ValueError, match="SN-UNIT-WITNESS-BINDING-MISMATCH"):
+        validate_stress_neutral_export_package_v0_2(package)
 
 
 def test_v02_rejects_member_and_package_tamper():
@@ -360,6 +370,41 @@ def rehash_v02(package):
     package["package_checksum"]["value"] = canonical_sha256_checked_v1(package_projection(package))
 
 
+@pytest.mark.parametrize(
+    "initial_change,reduced_change,expected_code",
+    [
+        (
+            lambda row: row.update(unit="unknown-unit"),
+            lambda row: row.update(unit="N", dimension="force", correlation_status="canonical_id_map"),
+            "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+        ),
+        (
+            lambda row: row.update(result_family="unknown"),
+            lambda row: row.update(result_family="other", dimension="TBD", correlation_status="unit_or_dimension_blocking_review_required"),
+            "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+        ),
+        (
+            lambda row: row.update(unit="Pa"),
+            lambda row: None,
+            "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+        ),
+    ],
+)
+def test_v02_consumes_explicit_checksum_covered_withholding_from_reduced_rows(initial_change, reduced_change, expected_code):
+    source = source_payload()
+    initial_change(source["result_rows"][0])
+    package = build_stress_neutral_export_package_v0_2(**source)
+    row = package["result_rows"][0]
+    reduced_change(row)
+    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
+    rehash_v02(package)
+    result_id = row["result_id"]
+    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    assert [item["code"] for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id] == [expected_code]
+    assert package["validation_ready"] is False
+    validate_stress_neutral_export_package_v0_2(package)
+
+
 def test_v02_received_csv_accepts_equivalent_binary64_spellings_without_rewriting_bytes():
     source = source_payload()
     source["result_rows"][0]["value"] = 0.000028
@@ -372,6 +417,19 @@ def test_v02_received_csv_accepts_equivalent_binary64_spellings_without_rewritin
     assert package["csv_text"].encode("ascii") == received_bytes
     csv_claim = next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "stress_neutral_results.csv")
     assert csv_claim["value"] == hashlib.sha256(received_bytes).hexdigest()
+
+
+@pytest.mark.parametrize("blank_mutation", [
+    lambda text: text.replace("\n", "\n\n", 1),
+    lambda text: text + "\n",
+    lambda text: text.replace("\n", "\n   \n", 1),
+])
+def test_v02_public_validator_rejects_recomputed_blank_csv_records(blank_mutation):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    package["csv_text"] = blank_mutation(package["csv_text"])
+    rehash_v02(package)
+    with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
+        validate_stress_neutral_export_package_v0_2(package)
 
 
 @pytest.mark.parametrize(

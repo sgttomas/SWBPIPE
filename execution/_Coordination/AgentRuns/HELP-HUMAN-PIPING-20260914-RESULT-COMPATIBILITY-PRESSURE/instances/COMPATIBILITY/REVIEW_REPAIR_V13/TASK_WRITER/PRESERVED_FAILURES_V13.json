@@ -1,0 +1,33 @@
+{
+  "schema": "compatibility-review-repair-v13-preserved-failures-v1",
+  "created_utc": "2026-09-15T04:36:02.797416Z",
+  "status": "PRESERVED_RESOLVED",
+  "failures": [
+    {
+      "id": "F05_ACCEPTED_REPRODUCTION",
+      "classification": "source interoperability defect",
+      "record": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/F05_REPRODUCTION_V1/RESULT.json",
+      "sha256": "670994b4546d7384824308c582b501f3b80e4e570f0dd6293193e277931043b3",
+      "bytes": 2813,
+      "observed": "actual packet rejected first at SN-CSV-ROW-BINDING-MISMATCH; all 50 witnessed other-family rows classified unknown by prior Python consumer",
+      "resolution": "exact received CSV binary64 comparison and explicit other-family dimension/unit semantic binding"
+    },
+    {
+      "id": "V13_FIRST_FOCUSED_BACKCHECK",
+      "classification": "intermediate repair failure",
+      "record": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/focused-python.log",
+      "sha256": "5f5b9507d3305321df4f9d9bf1b19ef917d1ce8aa2288793a91928eef4b90fce",
+      "bytes": 29562,
+      "observed": "3 failed, 62 passed; diagnostic-work admission was over-restricted to absent/TBD dimensions and rejected maintained explicit work rows",
+      "resolution": "admit explicit row_kind/result_family work evidence or explicit withheld-semantics carrier evidence; retain eligible-row reassignment rejection"
+    },
+    {
+      "id": "V13_PACKET_PROBE_ENV",
+      "classification": "invocation error",
+      "record": null,
+      "observed": "first ad hoc probe omitted export of PACKET and raised KeyError before product validation",
+      "resolution": "corrected absolute packet environment binding; exact packet qualification passed"
+    }
+  ],
+  "unresolved_source_failures": 0
+}

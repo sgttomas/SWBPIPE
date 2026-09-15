@@ -1,0 +1,263 @@
+{
+  "schema": "compatibility-review-repair-final-evidence-v13",
+  "created_utc": "2026-09-15T04:36:02.797416Z",
+  "status": "QUALIFIED_COMPLETE_LEASE_RELEASED",
+  "parentage": {
+    "task": "COMPATIBILITY/TASK_WRITER",
+    "role": "TASK / Type 2",
+    "continuation_of": "V10/V11/V12",
+    "delegation": false
+  },
+  "authorizations": {
+    "governing_brief": {
+      "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V13.md",
+      "sha256": "c41617486df22190484866eda08e4c57e7f43c16440e5be70e372b1d24ff4803"
+    },
+    "write_scope": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/WRITE_SCOPE.json",
+      "sha256": "01100ed5d09e39c5ad1763f12c0b7b5912540bba4a7f2da3dd15f69525e4848c"
+    },
+    "csv_ruling": {
+      "path": "briefs/COMPATIBILITY_CSV_BINDING_RULING_V1.md",
+      "sha256": "3b4bfc77a8d5764670844cafb88065715d55c44116ad433b539dda5664242902"
+    },
+    "csv_ruling_addendum": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/CSV_RULING_ADDENDUM_V1.json",
+      "sha256": "097ac5a8f791b41fba3cd36664ff4326d65cb4ac9146cf013d49d4766c8e5585"
+    }
+  },
+  "source": {
+    "checkpoint": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+      "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
+      "bytes": 19025
+    },
+    "parent_checkpoint_sha256": "62bfa83e7533041cdba07b35655af787ce491e71873dc06717510fae95357edf",
+    "manifest_paths": 74,
+    "delta_from_v12": [
+      {
+        "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+        "v12_sha256": "f44a53acec65ceeb940d525d3454235314be4aea36e7b1090a7613ffc0f07758",
+        "v12_bytes": 23139,
+        "v13_sha256": "10bcf745f316d97afab67b2849756b6cc14c2100eb5e3875131f788563ff8770",
+        "v13_bytes": 27223
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+        "v12_sha256": "33f534b80b09a77b029bd7f241b4746bce5e74a7d9e2668226de8b2adc03cc87",
+        "v12_bytes": 29140,
+        "v13_sha256": "dbdb226ce0e04faa4452c4d3ff21b9af67d1f1162cc0518775989603772f4ac8",
+        "v13_bytes": 33620
+      }
+    ],
+    "optional_fixture_changed": false,
+    "stable_after_qualification": true
+  },
+  "runtime": {
+    "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "python_version": "3.13.14",
+    "dependencies": {
+      "pytest": "9.1.1",
+      "jsonschema": "4.26.0",
+      "PyYAML": "6.0.3",
+      "coverage": "7.15.3",
+      "xdist": "3.8.0",
+      "numpy": "2.5.3"
+    },
+    "checked_cli": {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+      "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+      "bytes": 621296
+    }
+  },
+  "qualification": {
+    "maintained_python": {
+      "command": "PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN={WORKING_ROOT}/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_stress_neutral_export_package.py",
+      "cwd": "{WORKING_ROOT}",
+      "exit_code": 0,
+      "passed": 66,
+      "warnings": 30,
+      "skipped": 0,
+      "log": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/focused-python-final.log",
+        "sha256": "9ce066437559f3978617d07ef33e2e68ae76e547ef29e559a39f9804d82c6c77",
+        "bytes": 889
+      },
+      "coverage": [
+        "explicit other-family stiffness/rotational-stiffness/review/discrete/basis semantics",
+        "unit/dimension contradictions and diagnostic-work distinction",
+        "exact binary64 CSV spelling equivalence",
+        "nonfinite/unsafe/malformed/underflow/overflow/partial/duplicate/extra/field/value rejection",
+        "nine-member writer and legacy 0.1 preservation"
+      ]
+    },
+    "actual_desktop_packet": {
+      "command": "explicit OPENPIPESTRESS_CHECKED_JSON_BIN + task Python inline qualification: validate_stress_neutral_export_package_v0_2; project schema resolver; write_materialized_members_v0_2 to fresh evidence-local directory; independent nine-member byte/hash checks",
+      "exit_code": 0,
+      "log": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/qualification.log",
+        "sha256": "68fd844197d1a6e468f59e30509a8cfe25ee9f2aee419464b794dc5f2fff7760",
+        "bytes": 281
+      },
+      "result": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/RESULT.json",
+        "sha256": "07bccb2ab3c353d22ef4eb4d96c295a4cb07ff5bac0990b0225a4194b6c9d266",
+        "bytes": 3843
+      },
+      "source_packet": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+        "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+        "bytes": 2107038,
+        "preserved_unchanged": true
+      },
+      "accounting": {
+        "result_rows": 830,
+        "unit_preservation_witnesses": 828,
+        "result_family_other_rows": 52,
+        "witnessed_other_rows": 50,
+        "diagnostic_work_withholdings": 2,
+        "obsolete_missing_witness_findings_for_witnessed_rows": 0,
+        "validation_ready": false,
+        "human_review_required": true,
+        "validation_status": "blocked"
+      },
+      "package_checksum_verified": true,
+      "members": [
+        {
+          "filename": "manifest.json",
+          "bytes": 5883,
+          "sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479",
+          "claim_value": "c8c7b1bb5b1d3fe9883aa7d66abba483d7da1b3a9013f80568648a34efbc23d0",
+          "check": "manifest_seed_claim_matches;materialized_bytes_match_checked_canonical_json"
+        },
+        {
+          "filename": "stress_neutral_results.csv",
+          "bytes": 172162,
+          "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+          "claim_value": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "result_rows.json",
+          "bytes": 921611,
+          "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+          "claim_value": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "unit_system_disclosure.json",
+          "bytes": 1412,
+          "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+          "claim_value": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "unit_preservation_witnesses.json",
+          "bytes": 331939,
+          "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+          "claim_value": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "stable_id_map.json",
+          "bytes": 656807,
+          "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+          "claim_value": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "loss_report.json",
+          "bytes": 3445,
+          "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+          "claim_value": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "validation_report.json",
+          "bytes": 4714,
+          "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+          "claim_value": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+          "check": "materialized_byte_sha256_matches_claim"
+        },
+        {
+          "filename": "diagnostics.json",
+          "bytes": 3961,
+          "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+          "claim_value": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+          "check": "materialized_byte_sha256_matches_claim"
+        }
+      ]
+    },
+    "retained_unchanged_desktop_delivery": {
+      "v12_final_evidence": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/FINAL_EVIDENCE_V12.json",
+        "sha256": "efa82e8c5bbfdd9c32ee8424c4203b99144f3925bd67682200bfa4e8c60b0db4",
+        "bytes": 13953
+      },
+      "production_build": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/DELIVERY_V12/PRODUCTION_BUILD_RETENTION_V1.json",
+        "sha256": "4cbf5b9f9f0695bc0f602578c059eaf6fb5be0237b6417f288b1b58503d8bd4f",
+        "bytes": 898,
+        "result": "PASS: tsc + Vite 7.3.3, 1705 modules, 1.83s; chunk-size warning only"
+      },
+      "dev_playwright": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/DELIVERY_V12/dev_playwright.log",
+        "sha256": "357eabb1124ba363f3b61aec129f7073881bef802325b47fa11e4e1aaba55c7e",
+        "bytes": 1214,
+        "result": "2 passed, workers=1, clean exit"
+      },
+      "dist_playwright": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/DELIVERY_V12/dist_playwright.log",
+        "sha256": "c0dd58681e5bb0f116554e594ccf2ed2234c07ca0c7f3c005e6fae4f5ace9e71",
+        "bytes": 745,
+        "result": "1 passed, workers=1, clean exit"
+      },
+      "evidence_path_correction": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/DELIVERY_V12/EVIDENCE_PATH_CORRECTION_V1.json",
+        "sha256": "95dc0e0e0284dfe0d43d2b232d4ba7a9f4161eab62dba2a265caadf791eea0a5",
+        "bytes": 1747
+      },
+      "v12_lease_release": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/LEASE_RELEASE_V12.json",
+        "sha256": "19d023bc72d9267ca85787368b0095b9314c1a22a10972b25142901227c4e5e0",
+        "bytes": 1171,
+        "status": "RELEASED"
+      }
+    },
+    "manager_actual_packet_backcheck": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/_run_records/MANAGER_ACTUAL_PACKET_BACKCHECK_V1.json",
+      "sha256": "c6f94f7811f9bfbf0d141f3060d46f1bb03dfb5a03ca9b44c23fe34d86adbef6",
+      "bytes": 1797,
+      "status": "PASS",
+      "source_files_rehashed": 74,
+      "hash_or_length_mismatches": 0
+    }
+  },
+  "preserved_failures": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/PRESERVED_FAILURES_V13.json",
+    "sha256": "60c13b613ed6ef04f61ce98d975770c3d3f1f72094c7504aad5e986d1bd25cb8",
+    "bytes": 1785
+  },
+  "cleanup": {
+    "owned_browser_server_processes": 0,
+    "listeners_5173_5174_5175": 0,
+    "generated_f01_target_trees": 0,
+    "playwright_test_output_directories": 0,
+    "python_test_caches_in_touched_paths": 0,
+    "accidental_projects_execution_tree_present": false
+  },
+  "lease_release": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/LEASE_RELEASE_V13.json",
+    "sha256": "f6732bc3b2277e1014522e3be25ad41212b03e03e3f0b984d7ac68b608505105",
+    "bytes": 1695
+  },
+  "remaining_external_gates": [
+    "Native V3 qualification",
+    "complete registered DEC-025",
+    "independent final review",
+    "Root-owned Git closure"
+  ],
+  "native_gui": false,
+  "git_actions": false,
+  "delegation": false
+}

@@ -14,7 +14,7 @@ import re
 from typing import Any, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
-from .package import build_stress_neutral_export_package
+from .package import build_stress_neutral_export_package, canonical_csv
 
 VERSION = "0.2.0"
 PROFILE = "openpipestress_jcs_ijson_v1"
@@ -68,7 +68,7 @@ def _witness_disposition(row: Mapping[str, Any]) -> tuple[str, str | None]:
             return "missing_semantic", None
     else:
         return "unknown_semantic", None
-    if unit_dimension != interpreted or row.get("correlation_status") != "canonical_id_map":
+    if unit_dimension != interpreted or row.get("dimension") != interpreted or row.get("correlation_status") != "canonical_id_map":
         return "contradiction", None
     return "eligible", interpreted
 
@@ -105,25 +105,25 @@ def _supported_binary64(text: str, expected: Any) -> bool:
 
 
 def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]]) -> None:
-    if not isinstance(csv_text, str) or "\r" in csv_text or not csv_text.endswith("\n"):
+    if not isinstance(csv_text, str) or csv_text != canonical_csv(csv_text):
         raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
     try:
         csv_text.encode("ascii")
     except UnicodeEncodeError as error:
         raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
     try:
-        reader = csv.DictReader(io.StringIO(csv_text, newline=""), strict=True)
-        if reader.fieldnames != CSV_COLUMNS:
+        records = list(csv.reader(io.StringIO(csv_text, newline=""), strict=True))
+        if not records or records[0] != CSV_COLUMNS:
             raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
-        received_rows = list(reader)
+        if any(len(record) != len(CSV_COLUMNS) for record in records):
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+        received_rows = [dict(zip(CSV_COLUMNS, record)) for record in records[1:]]
     except (csv.Error, UnicodeError) as error:
         raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
     if len(received_rows) != len(rows):
         raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
     received_ids: set[str] = set()
     for received, expected in zip(received_rows, rows):
-        if set(received) != set(CSV_COLUMNS) or any(value is None for value in received.values()):
-            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
         result_id = received["result_id"]
         if not result_id or result_id in received_ids:
             raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
@@ -328,8 +328,9 @@ def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> N
             explicit_withheld_semantics = row.get("dimension") in {None, "", "TBD"} and row.get("correlation_status") != "canonical_id_map"
             if expected_category == "eligible" or not (explicit_work_row or explicit_withheld_semantics):
                 raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
-        elif category != expected_category:
-            raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+        else:
+            if expected_category == "diagnostic_work" or (expected_category == "contradiction" and category != "contradiction"):
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
         categorized[result_id] = category
     if set(categorized) & seen_witnesses or len(categorized) + len(seen_witnesses) != len(rows) or any(row_id not in categorized and row_id not in seen_witnesses for row_id in row_ids):
         raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")

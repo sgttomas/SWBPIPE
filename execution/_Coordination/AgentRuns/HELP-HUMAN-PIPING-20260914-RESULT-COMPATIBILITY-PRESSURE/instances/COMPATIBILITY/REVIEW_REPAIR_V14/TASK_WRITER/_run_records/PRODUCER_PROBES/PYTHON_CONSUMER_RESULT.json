@@ -1,0 +1,39 @@
+{
+  "schema": "compatibility-v14-actual-desktop-withholding-python-consumer-v1",
+  "status": "PASS",
+  "cases": [
+    {
+      "case": "unknown-kind",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+      "packet_sha256": "6f06ae4d84c7d2a580c77afa897e559652bae0b06534461f0eb2f59ba865f36c",
+      "packet_bytes": 2107803,
+      "source_result_id": "result:force:pipe-P-100:axial",
+      "members_written": 9,
+      "validation": "PASS",
+      "schema": "PASS",
+      "writer": "PASS"
+    },
+    {
+      "case": "missing-component",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+      "packet_sha256": "e4f89cb75db3d9f4684d6a8f7f86666e3a726a4893eb8c77737bab8e829d7ce9",
+      "packet_bytes": 2107755,
+      "source_result_id": "result:force:pipe-P-100:axial",
+      "members_written": 9,
+      "validation": "PASS",
+      "schema": "PASS",
+      "writer": "PASS"
+    },
+    {
+      "case": "unit-component-contradiction",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+      "packet_sha256": "e86310ba8a077aeceb36b5459effbec194bf23bf586d14a3f42c4feeb24a1a56",
+      "packet_bytes": 2107804,
+      "source_result_id": "result:force:pipe-P-100:axial",
+      "members_written": 9,
+      "validation": "PASS",
+      "schema": "PASS",
+      "writer": "PASS"
+    }
+  ]
+}

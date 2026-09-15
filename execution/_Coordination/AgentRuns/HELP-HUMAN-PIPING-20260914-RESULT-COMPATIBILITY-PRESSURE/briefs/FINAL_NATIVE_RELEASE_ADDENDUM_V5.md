@@ -1,0 +1,7 @@
+# TASK — final native execution release binding V5
+
+Continue foundation_native TASK, gpt-5.6-sol/high, parent HELP_HUMAN Agent0. No delegation or product/Git writes. Derive REPO_ROOT and WORKING_ROOT from the supplied integration checkout; RUN is WORKING_ROOT/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE.
+
+This changes the source-release binding in FINAL_NATIVE_RELEASE_ADDENDUM_V4.md to the separately supplied FINAL_SOURCE_RELEASE_V4.json. Root must also supply FINAL_NATIVE_LEASE_V3.json with an exact hash and the prior compatibility release. The complete required witnesses, exclusions and FINAL_NATIVE_V3 evidence target in FINAL_NATIVE_EXECUTION_V3.md and addendumV4 remain in force. No prerequisite is waived.
+
+The final two-file Python follow-on resolves CSV blank-record validation and explicit semantic-withholding edge cases. Verify the actual released candidate and unchanged desktop/Rust/pressure source; keep earlier V3 preparation immutable and create a new actual-source binding. Reuse completed focused/browser qualification only by its exact source relationship. Build the actual native bundle through maintained beforeBuild and run the required full native witnesses; use Python's validated disk writer for actual packages. Preserve all failures, source/artifact/receipt/store hashes, final normal quit and owned-process cleanup, then explicitly release the lease. Native acceptance, full registeredDEC025, Root acceptance, final review and actual candidateCI/merge remain distinct.

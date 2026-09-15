@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop
+
+No test files found, exiting with code 1
+
+filter: /Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/producer-probes.test.ts
+include: src/**/*.test.{ts,tsx}
+exclude:  **/node_modules/**, **/.git/**
+
