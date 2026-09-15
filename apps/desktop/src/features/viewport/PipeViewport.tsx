@@ -472,7 +472,27 @@ export function PipeViewport({
   useEffect(() => {
     const host = hostRef.current;
     if (!host) return;
-    if (!hasWebGL()) {
+    assignmentStartedAtRef.current = performance.now();
+    let resource: ViewportResource;
+    try {
+      resource = new ViewportResource(host, {
+        onContextStatus: setViewportContextStatus,
+        onRestore: () => viewportResourceRef.current?.invalidate(),
+        shouldObservePaintOpportunity: hasUiDiagnosticsObserver,
+        onAfterMainFrame: (current, submittedAt) => {
+          mainFrameRef.current = {
+            sequence: current.submissionSequence,
+            submittedAt,
+            opportunityAt: null
+          };
+          publishViewportDiagnostics(current);
+        },
+        onNextPaintOpportunity: (current, opportunityAt) => {
+          mainFrameRef.current = { ...mainFrameRef.current, opportunityAt };
+          publishViewportDiagnostics(current);
+        }
+      });
+    } catch {
       setWebglAvailable(false);
       draftProjectorRef.current = null;
       routingVisualUpdaterRef.current = null;
@@ -487,24 +507,6 @@ export function PipeViewport({
       };
     }
     setWebglAvailable(true);
-    assignmentStartedAtRef.current = performance.now();
-    const resource = new ViewportResource(host, {
-      onContextStatus: setViewportContextStatus,
-      onRestore: () => viewportResourceRef.current?.invalidate(),
-      shouldObservePaintOpportunity: hasUiDiagnosticsObserver,
-      onAfterMainFrame: (current, submittedAt) => {
-        mainFrameRef.current = {
-          sequence: current.submissionSequence,
-          submittedAt,
-          opportunityAt: null
-        };
-        publishViewportDiagnostics(current);
-      },
-      onNextPaintOpportunity: (current, opportunityAt) => {
-        mainFrameRef.current = { ...mainFrameRef.current, opportunityAt };
-        publishViewportDiagnostics(current);
-      }
-    });
     viewportResourceRef.current = resource;
     resource.setOrigin(renderTransform.origin);
     fitViewportCamera(resource, viewPreset, renderTransform.localBounds);
@@ -3259,18 +3261,6 @@ function formatStatus(value: string): string {
 
 function formatNumber(value: number): string {
   return value.toFixed(6).replace(/0+$/u, "").replace(/\.$/u, "");
-}
-
-function hasWebGL() {
-  if (navigator.userAgent.toLowerCase().includes("jsdom")) {
-    return false;
-  }
-  try {
-    const canvas = document.createElement("canvas");
-    return Boolean(canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
-  } catch {
-    return false;
-  }
 }
 
 function finitePointerEventNumber(value: number, fallback: number): number {
