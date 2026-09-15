@@ -1,0 +1,67 @@
+{
+  "artifact": "openpipestress.native_producer_execution_map_v3",
+  "cli_source": "core/runner/headless/src/bin/openpipestress-runner.rs",
+  "command_template": "<FROZEN_CLI> solve --input <ABS_REQUEST_JSON> --output <ABS_OUTPUT_JSON>",
+  "new_cases": {
+    "hanger_constant_effort": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/hanger_constant_effort.output.json",
+      "model": "models/hanger_constant_effort.model.json",
+      "request": "requests/hanger_constant_effort.request.json"
+    },
+    "rotational_nonlinear": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/rotational_nonlinear.output.json",
+      "model": "models/rotational_nonlinear.model.json",
+      "request": "requests/rotational_nonlinear.request.json"
+    },
+    "zero_pressure_longitudinal": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/zero_pressure_longitudinal.output.json",
+      "model": "models/zero_pressure_longitudinal.model.json",
+      "request": "requests/zero_pressure_longitudinal.request.json"
+    }
+  },
+  "output_contract": {
+    "exact_signature_projection": [
+      "kind",
+      "unit",
+      "metadata.component"
+    ],
+    "exit_code": 0,
+    "mechanics_envelope_pointer": "/mechanics_envelope",
+    "mechanics_status_pointer": "/mechanics_envelope/status/mechanics",
+    "results_pointer": "/mechanics_envelope/results"
+  },
+  "qualification_boundary": "Commands must use the final frozen binary and candidate-bound request/output hashes under root-issued execution lease. This map is not an execution record.",
+  "referenced_cases": {
+    "combination_modulus": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/combination_modulus.output.json",
+      "future_request": "<RUNTIME_EVIDENCE_DIR>/combination_modulus.request.json",
+      "model_reference": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "source_sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076",
+      "wrapper_rule": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash."
+    },
+    "curved": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/curved.output.json",
+      "future_request": "<RUNTIME_EVIDENCE_DIR>/curved.request.json",
+      "model_reference": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.model.json",
+      "source_sha256": "1f6125237912846153fb79414df0fd717d26799a5c5c55faedb84898e4b70dac",
+      "wrapper_rule": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash."
+    },
+    "friction": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/friction.output.json",
+      "future_request": "<RUNTIME_EVIDENCE_DIR>/friction.request.json",
+      "model_reference": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.model.json",
+      "source_sha256": "c7c6898e11b144aad4733cbdffb445bdc6b7b1074d373d767d85b8f5a71e69e4",
+      "wrapper_rule": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash."
+    },
+    "modulus": {
+      "future_output": "<RUNTIME_EVIDENCE_DIR>/modulus.output.json",
+      "future_request": "<RUNTIME_EVIDENCE_DIR>/modulus.request.json",
+      "model_reference": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/modulus_exact.json",
+      "source_sha256": "516d8581ad50e28f656f1a353985925bcffcea1d966bc7e9e8bc679792f03e7c",
+      "wrapper_rule": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash."
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "FUTURE_COMMANDS_NOT_EXECUTED",
+  "verifier_command": "python3 verify_declared_signatures.py EXPECTED_SIGNATURES_V3.json hanger_constant_effort=<ABS_OUTPUT_JSON> rotational_nonlinear=<ABS_OUTPUT_JSON> zero_pressure_longitudinal=<ABS_OUTPUT_JSON>"
+}

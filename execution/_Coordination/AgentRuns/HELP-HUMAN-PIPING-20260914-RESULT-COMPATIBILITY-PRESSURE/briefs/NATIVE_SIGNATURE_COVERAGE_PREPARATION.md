@@ -1,0 +1,9 @@
+# TASK native signature-coverage preparation addendum
+
+Continue TASK / Type2 foundation_native, Sol/high, under the original read-only preparation permissions. No delegation. REPO_ROOT is the integration checkout /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914. Read original NATIVE_PREPARATION.md and root NATIVE_PREPARATION_ACCEPTANCE.json. This addendum does not grant a build/runtime lease; compatibility currently owns the build-only lease.
+
+The user requires formerly failing classes to pass through browser/native producer paths. Trace the frozen60 signatures/830 rows to their actual synthetic mechanics producer inputs. Determine whether the shipped reference model yields that population through the actual native solve caller, which additional synthetic inputs produce any absent classes, and the available existing UI/file-backed/CLI test route. Do not assume a golden JSON fixture was freshly produced by native execution.
+
+Read only maintained source/tests/fixtures and prior accepted evidence needed for this trace. No private/user models, network, test/build commands, GUI/browser/app control, source/Git edits or runtime effect. Local JSON parsing/hashing and graph/field comparison are allowed.
+
+Write only new instances/NATIVE/SIGNATURE_COVERAGE_PREPARATION_V2.md and associated context/input-map JSON under instances/NATIVE/_run_records/SIGNATURE_PREPARATION_V2/**. Keep all V1 files immutable. Return the exact fixture/model hashes, producer-to-consumer route, proposed smallest real native/browser witness, explicit limitations and unresolved inputs. This is preparation, not an execution pass. Distinguish actual native producer checks, actual frontend delivery, GUI authoring and compositional evidence. Do not require a UI feature or transport that does not exist.

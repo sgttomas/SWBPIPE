@@ -1,0 +1,60 @@
+{
+  "artifact": "openpipestress.native_producer_referenced_inputs_v3",
+  "duplication_policy": "No historical model or output bytes are copied into V3. Candidate-bound execution may materialize a CLI wrapper in the runtime evidence directory while retaining the exact referenced PreviewModel hash.",
+  "references": {
+    "combination_modulus": {
+      "bytes": 6052,
+      "expected_signature": {
+        "component": "material_modulus_basis",
+        "kind": "combination_modulus_basis_record",
+        "signature_id": "supported-source-051",
+        "unit": "record"
+      },
+      "future_wrapper": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash.",
+      "input_shape": "PreviewModel",
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076"
+    },
+    "curved": {
+      "bytes": 5368,
+      "expected_signature": {
+        "component": "curved_bend_flexibility",
+        "kind": "curved_bend_macro_element_review",
+        "signature_id": "supported-source-022",
+        "unit": "unitless"
+      },
+      "future_wrapper": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash.",
+      "input_shape": "PreviewModel",
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.model.json",
+      "sha256": "1f6125237912846153fb79414df0fd717d26799a5c5c55faedb84898e4b70dac"
+    },
+    "friction": {
+      "bytes": 4109,
+      "expected_signature": {
+        "component": "friction_normal_reaction_input",
+        "kind": "nonlinear_support_friction_normal_reaction_input",
+        "signature_id": "supported-source-029",
+        "unit": "N"
+      },
+      "future_wrapper": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash.",
+      "input_shape": "PreviewModel",
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.model.json",
+      "sha256": "c7c6898e11b144aad4733cbdffb445bdc6b7b1074d373d767d85b8f5a71e69e4"
+    },
+    "modulus": {
+      "bytes": 4758,
+      "expected_signature": {
+        "component": "material_modulus_basis",
+        "kind": "modulus_basis_record",
+        "signature_id": "supported-source-050",
+        "unit": "record"
+      },
+      "future_wrapper": "Embed the parsed object unchanged at solve.preview_model.model with solve.preview_model.materials=[] in a candidate-bound openpipestress-runner request. Preserve and record the referenced source hash.",
+      "input_shape": "PreviewModel",
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/modulus_exact.json",
+      "sha256": "516d8581ad50e28f656f1a353985925bcffcea1d966bc7e9e8bc679792f03e7c"
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "COPY_BY_REFERENCE_ONLY"
+}

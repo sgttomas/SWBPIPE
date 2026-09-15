@@ -1,0 +1,29 @@
+{
+  "status": "RUNNING_SOURCE_EFFECT_ACTIVE",
+  "dispatch_utc": "2026-09-15T00:20:47Z",
+  "mechanism": "delegated-harness-native",
+  "parent": "/root/foundation_compatibility",
+  "child": "/root/foundation_compatibility/compatibility_writer",
+  "role": "TASK",
+  "type": 2,
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning_effort": "high",
+  "role_enforcement": "instruction-asserted",
+  "non_delegation_enforcement": "instruction-and-config asserted",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/BRIEF.md",
+    "sha256": "cd87caacf6622a979c37ee7577de3ffa1ca255cbc2ca556ed75f9975904112d6"
+  },
+  "release_addendum": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/BRIEF_RELEASE_ADDENDUM_V2.md",
+    "sha256": "363c25b499e7e4ca329a1e1d007eaeb5cf7c0485d4acee30c75b9786ee13d60b"
+  },
+  "final_write_scope": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V2.json",
+    "sha256": "11bcbf5d79a722a4417510a96638d5874daeb081c95b73a88f8886fbf780c43d"
+  },
+  "root_release_sha256": "68ec3c0be138eaa85b2ec5cd6ebfd8d371af7e04d9075ab6d219700f77ffe31d",
+  "writer_limit": "one active product writer",
+  "native_wasm_browser_build_execution": "held pending root lease",
+  "child_delegation": false
+}

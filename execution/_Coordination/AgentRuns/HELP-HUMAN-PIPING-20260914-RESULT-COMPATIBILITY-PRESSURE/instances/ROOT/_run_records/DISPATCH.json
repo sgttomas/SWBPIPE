@@ -9,7 +9,8 @@
     "status": "returned",
     "brief_sha256": "f7b51cd10bb8a1019bb35210b24b6e86eeaed922e5d556b5bcd931fa6a21cdc4",
     "mechanism": "delegated-harness-native",
-    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329287+00:00"
   },
   {
     "agent": "/root/foundation_compatibility",
@@ -18,10 +19,11 @@
     "model": "gpt-5.6-sol",
     "reasoning": "high",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_MANAGER.md",
-    "status": "running_contract_freeze",
+    "status": "running_one_released_TASK_writer",
     "brief_sha256": "6ac6f48e3d69d363fbfb20698f3c10bb6512d23e983e148a77b3b8b51431b4d2",
     "mechanism": "delegated-harness-native",
-    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329476+00:00"
   },
   {
     "agent": "/root/foundation_pressure_oracle",
@@ -30,10 +32,14 @@
     "model": "gpt-6-astra",
     "reasoning": "xhigh",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md",
-    "status": "running_independent_expectations",
+    "status": "returned_V3_PASS_with_qualified_overflow_boundary",
     "brief_sha256": "a8a7698db46115949cef72a47ae5467554dec7a0183b168116df504f0440d25a",
     "mechanism": "delegated-harness-native",
-    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V3.md",
+    "latest_brief_sha256": "ee3bfd11c95ca53a0a85e6cbe0dc7bc0d175d6cd5b1fc3c83bcbddeb86386f6a",
+    "status_updated_utc": "2026-09-15T01:10:15.545696+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329478+00:00"
   },
   {
     "agent": "/root/foundation_pressure",
@@ -42,9 +48,71 @@
     "model": "gpt-5.6-sol",
     "reasoning": "high",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION.md",
-    "status": "running_readonly_intake_pending_oracle",
+    "status": "returned_V3_accepted_for_integration; frozen",
     "brief_sha256": "4740a6cdb7ef8490a0fee48a5c1a8cd65e1ff43665397cb7a306d824628e4423",
     "mechanism": "delegated-harness-native",
-    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host"
+    "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_SCALED_ARITHMETIC_REPAIR_V3.md",
+    "latest_brief_sha256": "13a8e51d87efe1c31b34c9b09e5bbe598d48e9550c666db1924a35bc0ec10109",
+    "status_updated_utc": "2026-09-15T01:10:15.545917+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329480+00:00"
+  },
+  {
+    "agent": "/root/foundation_native",
+    "parent": "/root",
+    "role": "TASK",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_PREPARATION.md",
+    "brief_sha256": "4120428aff2de3481394e5948ba6d169b8deb7693c40573f6e20c6deb3a0bbe3",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role/non-delegation",
+    "status": "returned_V1_V2_V3_preparation; native_execution_unreleased",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_PRODUCER_INPUTS_PREPARATION_V3.md",
+    "latest_brief_sha256": "901e3e48df8d33bbe743f4bba5061c7ed7c907e2afeb2063bf30a08790f37060",
+    "status_updated_utc": "2026-09-15T01:14:27.372032+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329481+00:00"
+  },
+  {
+    "agent": "/root/foundation_compatibility/compatibility_writer",
+    "parent": "/root/foundation_compatibility",
+    "role": "TASK",
+    "model": "gpt-5.6-sol",
+    "reasoning": "high",
+    "status": "running",
+    "owning_dispatch_record": "instances/COMPATIBILITY/CHILD_ACTUAL_DISPATCH_V1.json",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329482+00:00"
+  },
+  {
+    "agent": "/root/foundation_closeout",
+    "parent": "/root",
+    "role": "TASK",
+    "model": "gpt-5.6-sol",
+    "reasoning": "medium",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_PREPARATION.md",
+    "brief_sha256": "d0f0a6a79429c7a22de5208e1ed58858412ab5e0226755dad6be21af494d7583",
+    "status": "returned_readonly_closeout_preparation; final_closeout_unreleased",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
+    "status_updated_utc": "2026-09-15T01:10:15.546205+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329483+00:00"
+  },
+  {
+    "agent": "/root/legacy_profile_refutation",
+    "parent": "/root",
+    "role": "ephemeral_generalist_Agent_2",
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/LEGACY_PROFILE_REFUTATION_V1.md",
+    "brief_sha256": "ede6fa75021937ec49abe810ea3975eceaff4684abe2bbca4f6bb643508a1fa5",
+    "status": "returned_COMPLETE_WITH_FINDINGS; F1-F3_and_Python_projection_gap_routed",
+    "mechanism": "delegated-harness-native",
+    "enforcement": "instruction-asserted scope/non-delegation; host permissions broader than declared read-only scope",
+    "dispatched_during": "Compatibility implementation waiting on exact profile/evidence decisions; does not replace fresh final candidate review",
+    "status_updated_utc": "2026-09-15T01:33:38.182850+00:00",
+    "return_ref": "instances/LEGACY_REFUTATION/REPORT.md",
+    "return_sha256": "dcd3c5c627bff13cadeed26b4640a0c2ad6c8e90f0f5751e8013d76da42250a0"
   }
 ]

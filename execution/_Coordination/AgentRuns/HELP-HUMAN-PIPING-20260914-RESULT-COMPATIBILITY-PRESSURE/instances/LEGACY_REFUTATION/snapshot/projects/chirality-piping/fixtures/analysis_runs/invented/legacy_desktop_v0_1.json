@@ -1,0 +1,118 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-14-02",
+  "package_id": "PKG-14",
+  "scope_item": "SOW-072",
+  "objectives": [
+    "OBJ-016"
+  ],
+  "run_contract_status": {
+    "record_contract": "schema_first_analysis_run_records",
+    "model_state_binding": "schemas/model_state.schema.json",
+    "result_binding": "schemas/results.schema.yaml",
+    "physical_project_container": "TBD",
+    "external_validation_boundary": "reference_only_not_determined_by_software"
+  },
+  "analysis_run": {
+    "run_id": "run:legacy-desktop",
+    "run_name": "run:legacy-desktop preview mechanics run",
+    "run_kind": "mechanics_solve",
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:model:legacy-desktop:preview"
+    },
+    "load_basis_refs": [],
+    "result_refs": [
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:legacy-desktop"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "rfc8785_jcs",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:legacy-desktop"
+            },
+            "payload_scope": "result_value",
+            "value": "c8008b4be3aacdb9b9b298a090dd0f06fc9a7d83a2d598a96f0622448beb15b3"
+          }
+        ],
+        "privacy_classification": "invented_public_example"
+      }
+    ],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:legacy-desktop"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "b711c67fa1cfda2bc56fd5a8b75c7f18553ee6a31e7e2455b40933e0e7ae4300"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:legacy-desktop"
+        },
+        "payload_scope": "result_envelope",
+        "value": "927fcd42704a0804a6113aff012352d5e9c47575abb3bfcac35e601081783602"
+      }
+    ],
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "reproducibility": {
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:legacy-desktop"
+        }
+      ],
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:legacy-desktop"
+          },
+          "payload_scope": "input_manifest",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "determinism_notes": [
+        "analysis run binds the exact current-session input-manifest ref and SHA-256",
+        "source result dimensions are explicit declarations, not inferred from unit text"
+      ],
+      "unresolved_tbd": [
+        "physical project container",
+        "release-grade solver build provenance"
+      ]
+    },
+    "immutability_policy": {
+      "run_record_is_read_only": true,
+      "mutation_policy": "changes_create_new_analysis_run",
+      "new_run_required_for_change": true,
+      "hash_invalidates_external_acceptance": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    }
+  }
+}

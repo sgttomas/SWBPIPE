@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "status": "PARTIAL_EVIDENCE_RETAINED_NOT_MANAGER_ACCEPTED",
+  "recorded_utc": "2026-09-15T00:47:00Z",
+  "role": "WORKING_ITEMS / Type 1",
+  "parent": "HELP_HUMAN",
+  "checkpoint": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+    "sha256": "1981bc63979a36a26596699da2ec52e9fb04e7e18346845f9ccf27a996e27847",
+    "preservation": "The writer checkpoint is immutable and remains useful canonicalizer and checksum-projection evidence. This qualification is additive and does not rewrite its claims."
+  },
+  "reproduced_evidence": [
+    {
+      "command": "CARGO_TARGET_DIR=/private/tmp/chirality-compat-canonical-target cargo test --features checked-cli",
+      "result": "10 passed; 0 failed"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py tests/test_persistence_schema.py tests/test_project_persistence_service.py",
+      "result": "30 passed; 0 failed; 14 deprecation warnings"
+    },
+    {
+      "command": "../../node_modules/.bin/tsc --noEmit -p tsconfig.json",
+      "result": "pass; no diagnostics"
+    }
+  ],
+  "verified_bindings": {
+    "all_18_checkpoint_source_post_hashes_match": true,
+    "contract_sha256": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+    "legacy_expectations_sha256": "8765b66eef865c7a51e0b737334fec216a29fd15cfb87ff10b2dcbb9b62d6901",
+    "source_release_sha256": "68ec3c0be138eaa85b2ec5cd6ebfd8d371af7e04d9075ab6d219700f77ffe31d",
+    "semantic_contract_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+  },
+  "blocking_qualification": [
+    "The 0.2 schema and both builders at this checkpoint omit established solver-version, settings, unit-system and top-level/per-result provenance evidence required by the sealed full-envelope contract.",
+    "The analysis_status schema accepts arbitrary strings, including unsupported approval or compliance status, and diagnostics, rule-pack and library entries remain insufficiently constrained.",
+    "The replacement maintained schema test checks dispatcher structure but does not preserve substantive negative instance coverage for unknown fields and versions, missing required run/result/hash evidence, redaction and professional-boundary violations, or immutable-revision rules.",
+    "The minimum App Current and rule-revision path, HistoricalRunContext profile-aware verification, unchanged save/reopen consumer path, real checked WASM exports and focused App tests are outside this checkpoint inventory and remain required before native qualification."
+  ],
+  "required_superseding_evidence": [
+    "A strict 0.2 schema and matching Python/desktop builders populated from established solver, settings, unit-system, manifest, session and provenance evidence, with explicit unavailable evidence only where genuinely absent.",
+    "Substantive positive and negative schema tests for legacy and 0.2 instances.",
+    "Minimum fresh-Current, immutable rule-revision, Historical and unchanged save/reopen consumer integration.",
+    "Actual WASM build, focused Vitest and desktop production build under the serialized build-only lease, followed by explicit build-surface release."
+  ],
+  "governance_limit": "This record changes no formal decomposition, DAG, lifecycle, dependency or claim status and is not source acceptance."
+}

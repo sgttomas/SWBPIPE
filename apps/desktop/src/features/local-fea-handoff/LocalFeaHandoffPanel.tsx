@@ -149,7 +149,7 @@ function buildLocalFeaHandoffPacket({
   const selectedResults = selectedResultRefs(result);
   const diagnostics = localFeaDiagnostics(selected);
   const unitPreservationWitnesses = localFeaUnitPreservationWitnesses(model, result, selectedResults);
-  const resultHash = run.hashes.find((item) => item.payload_scope === "result_envelope");
+  const resultHash = run.hashes.find((item) => item.payload_scope === (analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope"));
   const modelRef = reference("model", run.model_state_ref.ref);
   const resultEnvelopeRef = reference("result_envelope", `result-envelope:${result.run_id}`);
   const modelHash = checksum("TBD", "TBD", modelRef, "TBD_browser_preview_does_not_emit_model_state_hash");

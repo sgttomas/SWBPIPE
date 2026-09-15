@@ -1,0 +1,173 @@
+{
+  "schema_version": "0.2.0",
+  "deliverable_id": "DEL-14-02",
+  "package_id": "PKG-14",
+  "scope_item": "SOW-072",
+  "objectives": [
+    "OBJ-016"
+  ],
+  "run_contract_status": {
+    "record_contract": "strict_analysis_run_v0_2",
+    "result_binding": "received_mechanics_result",
+    "external_validation_boundary": "reference_only_not_determined_by_software"
+  },
+  "analysis_run": {
+    "run_id": "run:test",
+    "run_name": "run:test analysis record",
+    "run_kind": "mechanics_solve",
+    "created_at": null,
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:model:test:preview"
+    },
+    "solver_version": {
+      "solver_name": "solver",
+      "solver_version": "0.1.0",
+      "build_ref": {
+        "object_type": "ExternalReference",
+        "ref": "build:test"
+      }
+    },
+    "settings_ref": {
+      "object_type": "SolverSettings",
+      "ref": "solver-settings:input-manifest:test:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "unit-system:model:test:1111111111111111111111111111111111111111111111111111111111111111"
+    },
+    "load_basis_refs": [
+      {
+        "object_type": "LoadCase",
+        "ref": "load:test"
+      }
+    ],
+    "diagnostics": [],
+    "result_refs": [
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:test"
+        },
+        "source_row_index": 0,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-001"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:test"
+            },
+            "payload_scope": "result_row",
+            "value": "e34547d959b2f1fcdc18ade1e17be373b4a1ebd9afc288d8c7537588e0eb6aaf"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "library_refs": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:test"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "cfd4fa86f84ca329db449adf54365c335439217d38fcab53869a06af8db8319c"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:test"
+        },
+        "payload_scope": "received_result",
+        "value": "3e8ae362493136997eac42eb87dba362c745c6da38f55cf71f566daba925ba87"
+      }
+    ],
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "reproducibility": {
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:test"
+        }
+      ],
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:test"
+          },
+          "payload_scope": "input_manifest",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "semantic_contract": {
+        "id": "openpipestress_result_semantics_v0_2",
+        "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+      },
+      "determinism_notes": [
+        "created_at_unavailable",
+        "model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"
+      ],
+      "unresolved_tbd": []
+    },
+    "immutability_policy": {
+      "run_record_is_read_only": true,
+      "mutation_policy": "changes_create_new_immutable_record_revision",
+      "new_mechanics_run_required_for_record_revision": false,
+      "record_revision_identity": "analysis_run_record_sha256",
+      "hash_invalidates_external_acceptance": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "provenance": {
+      "source_name": "OpenPipeStress analysis record 0.2",
+      "source_location": "analysis_run.compatibility.v0.2",
+      "source_license": "project-governed",
+      "review_status": "pending",
+      "professional_claim": false
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "status": "LEASE_GRANTED",
+  "issued_utc": "2026-09-15T00:39:38.983329+00:00",
+  "owner": "/root/foundation_compatibility",
+  "executor": "/root/foundation_compatibility/compatibility_writer",
+  "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+  "allowed": [
+    "explicit checked-CLI development/test setup",
+    "existing build:wasm desktop script",
+    "desktop TypeScript/Vite production build",
+    "focused Vitest and pure Rust/Python tests"
+  ],
+  "excluded": [
+    "GUI/app control",
+    "Playwright/browser runtime",
+    "Tauri native bundle build",
+    "full DEC-025 sweep",
+    "Git integration/push/merge"
+  ],
+  "write_boundary": "Original released exact tracked-source fence; ordinary ignored build outputs allowed. Report any generated tracked-file delta outside fence before changing it.",
+  "serialization": "No other team-owned native/WASM/desktop build or browser witness is currently active. Root will not release native qualification until this holder explicitly releases these surfaces.",
+  "required_return": "Checkpoint source manifest, exact commands/results, failed evidence, and explicit build-surface release."
+}

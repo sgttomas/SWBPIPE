@@ -14,6 +14,7 @@ import {
   verifyCurrentSessionInputManifest,
   type CurrentSessionInputManifestEvidence,
 } from "./inputManifestService";
+import { buildAnalysisRunV02 } from "./analysisRunCompatibility";
 
 async function invokeOrFixture<T>(
   command: string,
@@ -159,161 +160,9 @@ export async function buildAnalysisRunPreview(
     ruleCheckAggregate?: string | null;
   },
 ): Promise<AnalysisRunEnvelope> {
-  result = bindSourceResultDimensions(result);
   await verifyCurrentSessionInputManifest(inputManifest);
-  if (inputManifest.manifest.model_basis.model_ref !== result.model_ref) {
-    throw new Error(
-      "ANALYSIS-RUN-INPUT-MANIFEST-MODEL-MISMATCH: manifest model ref must match the solved result.",
-    );
-  }
-  const runRef = ref("AnalysisRun", result.run_id);
-  const effectiveRuleCheck = appliedRuleCheckStatus(
-    result.status.rule_check,
-    ruleCheckAggregate,
-  );
-  // The analysis-run record's own status carries the rule-check outcome; the
-  // raw solve envelope (hashed separately below) is left exactly as solved.
-  const recordStatus = { ...result.status, rule_check: effectiveRuleCheck };
-  const resultEnvelopeRef = ref(
-    "ResultEnvelope",
-    `result-envelope:${result.run_id}`,
-  );
-  const resultEnvelopeHash = await sha256(canonicalJson(result));
-  if (inputManifest.manifest_sha256 === resultEnvelopeHash) {
-    throw new Error(
-      "ANALYSIS-RUN-INPUT-MANIFEST-RESULT-SUBSTITUTION: input manifest identity must be distinct from result-envelope evidence.",
-    );
-  }
-  const resultRefs = await Promise.all(
-    result.results
-      .slice()
-      .sort((left, right) => left.id.localeCompare(right.id))
-      .map(async (item) => ({
-        result_ref: ref("Result", item.id),
-        result_family: resultFamily(
-          item,
-          item.dimension ?? declaredSourceResultDimension(item),
-        ),
-        source_dimension:
-          item.dimension ?? declaredSourceResultDimension(item),
-        hash_refs: [
-          {
-            algorithm: "sha256" as const,
-            canonicalization: "rfc8785_jcs",
-            payload_ref: ref("Result", item.id),
-            payload_scope: "result_value",
-            value: await sha256(canonicalJson(item)),
-          },
-        ],
-        privacy_classification: "invented_public_example",
-      })),
-  );
-  const status = new Set(
-    [
-      "HUMAN_REVIEW_REQUIRED",
-      result.status.mechanics,
-      effectiveRuleCheck,
-    ].filter(Boolean),
-  );
-  const resultIds = result.results.map((item) => item.id).sort();
-  const diagnosticIds = result.diagnostics
-    .map((item) => item.id ?? "diagnostic:unknown")
-    .sort();
-  const loadBasisRefs = loadBasisRefsFor(result);
-
-  return {
-    schema_version: "0.1.0",
-    deliverable_id: "DEL-14-02",
-    package_id: "PKG-14",
-    scope_item: "SOW-072",
-    objectives: ["OBJ-016"],
-    run_contract_status: {
-      record_contract: "schema_first_analysis_run_records",
-      model_state_binding: "schemas/model_state.schema.json",
-      result_binding: "schemas/results.schema.yaml",
-      physical_project_container: "TBD",
-      external_validation_boundary: "reference_only_not_determined_by_software",
-    },
-    analysis_run: {
-      run_id: result.run_id,
-      run_name: `${result.run_id} preview mechanics run`,
-      run_kind: "mechanics_solve",
-      model_state_ref: ref("ModelState", `state:${result.model_ref}:preview`),
-      load_basis_refs: loadBasisRefs,
-      result_refs: resultRefs,
-      hashes: [
-        {
-          algorithm: "sha256",
-          canonicalization: "rfc8785_jcs",
-          payload_ref: runRef,
-          payload_scope: "analysis_run_record",
-          value: await sha256(
-            canonicalJson({
-              run_id: result.run_id,
-              model_ref: result.model_ref,
-              status: recordStatus,
-              load_basis_refs: loadBasisRefs,
-              result_ids: resultIds,
-              diagnostic_ids: diagnosticIds,
-              input_manifest_ref: inputManifest.manifest_ref,
-              input_manifest_sha256: inputManifest.manifest_sha256,
-              result_dimensions: result.results
-                .map((item) => ({
-                  result_id: item.id,
-                  dimension:
-                    item.dimension ?? declaredSourceResultDimension(item),
-                }))
-                .sort((left, right) =>
-                  left.result_id.localeCompare(right.result_id),
-                ),
-            }),
-          ),
-        },
-        {
-          algorithm: "sha256",
-          canonicalization: "rfc8785_jcs",
-          payload_ref: resultEnvelopeRef,
-          payload_scope: "result_envelope",
-          value: resultEnvelopeHash,
-        },
-      ],
-      analysis_status: Array.from(status).sort(),
-      reproducibility: {
-        input_manifest_refs: [inputManifest.manifest_ref],
-        input_manifest_hashes: [
-          {
-            algorithm: "sha256",
-            canonicalization: "rfc8785_jcs",
-            payload_ref: inputManifest.manifest_ref,
-            payload_scope: "input_manifest",
-            value: inputManifest.manifest_sha256,
-          },
-        ],
-        determinism_notes: [
-          "analysis run binds the exact current-session input-manifest ref and SHA-256",
-          "source result dimensions are explicit declarations, not inferred from unit text",
-        ],
-        unresolved_tbd: [
-          "physical project container",
-          "release-grade solver build provenance",
-        ],
-      },
-      immutability_policy: {
-        run_record_is_read_only: true,
-        mutation_policy: "changes_create_new_analysis_run",
-        new_run_required_for_change: true,
-        hash_invalidates_external_acceptance: true,
-      },
-      professional_boundary: {
-        human_review_required: true,
-        software_makes_compliance_claim: false,
-        software_makes_certification_claim: false,
-        software_makes_sealing_claim: false,
-        software_makes_approval_claim: false,
-        software_makes_authentication_claim: false,
-      },
-    },
-  };
+  const effective = appliedRuleCheckStatus(result.status.rule_check, ruleCheckAggregate);
+  return buildAnalysisRunV02(result, inputManifest, effective, loadBasisRefsFor(result));
 }
 
 export function bindSourceResultDimensions(

@@ -1034,6 +1034,21 @@ mod wasm_api {
             value_json,
         )?)))
     }
+
+    /// Checked I-JSON/JCS profile used only by versioned 0.2 result records.
+    #[wasm_bindgen]
+    pub fn canonical_json_checked_v1(value_json: &str) -> Result<String, JsError> {
+        open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+            .map_err(|error| JsError::new(&error))
+    }
+
+    /// SHA-256 companion for the checked 0.2 result-record profile.
+    #[wasm_bindgen]
+    pub fn canonical_sha256_hex_checked_v1(value_json: &str) -> Result<String, JsError> {
+        let canonical = open_pipe_stress_canonical_json::canonical_json_checked_v1_text(value_json)
+            .map_err(|error| JsError::new(&error))?;
+        Ok(super::sha256_hex(&canonical))
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]

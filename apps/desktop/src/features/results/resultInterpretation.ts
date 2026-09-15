@@ -36,7 +36,7 @@ export function buildResultInterpretation({
   const resultHashes =
     analysisRun?.analysis_run.result_refs.find((ref) => ref.result_ref.ref === item.id)?.hash_refs.length ?? 0;
   const envelopeHashAvailable = Boolean(
-    analysisRun?.analysis_run.hashes.some((hash) => hash.payload_scope === "result_envelope")
+    analysisRun?.analysis_run.hashes.some((hash) => hash.payload_scope === (analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope"))
   );
 
   return {

@@ -192,7 +192,7 @@ describe("previewService mechanics browser fallback", () => {
         (item) =>
           item.result_ref.ref === "result:nonlinear-support:iteration-count",
       )?.result_family,
-    ).toBe("ratio");
+    ).toBeNull();
   });
 
   it("blocks edited-model fixture reuse instead of publishing stale result rows", async () => {
@@ -273,8 +273,8 @@ describe("buildAnalysisRunPreview rule-check aggregate (TP-C4-APPAGG-001)", () =
       "RULE_INPUTS_INCOMPLETE",
     );
     // The raw solve envelope is never mutated: its hash is byte-identical.
-    expect(hashByScope(withFail, "result_envelope")).toBe(
-      hashByScope(base, "result_envelope"),
+    expect(hashByScope(withFail, "received_result")).toBe(
+      hashByScope(base, "received_result"),
     );
     // The analysis-run record honestly binds the rule-check outcome: hash differs.
     expect(hashByScope(withFail, "analysis_run_record")).not.toBe(
@@ -315,7 +315,7 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
     const env = await buildAnalysisRunPreview(result, {
       inputManifest: manifest,
     });
-    const resultEnvelopeHash = hashByScope(env, "result_envelope");
+    const resultEnvelopeHash = hashByScope(env, "received_result");
     const byId = new Map(
       env.analysis_run.result_refs.map((item) => [
         item.result_ref.ref,
@@ -385,23 +385,16 @@ describe("analysis-run input-manifest and source-dimension binding", () => {
     }
   });
 
-  it("keeps family and dimension bound to exact kind semantics when unit text is deceptive", async () => {
+  it("blocks a unit that contradicts the exact kind semantics", async () => {
     const result = structuredClone(await runPreviewMechanics());
     const target = result.results.find(
       (item) => item.kind === "element_local_axial_force",
     );
     expect(target).toBeDefined();
     target!.unit = "MPa";
-    const env = await buildAnalysisRunPreview(result, {
+    await expect(buildAnalysisRunPreview(result, {
       inputManifest: await manifestFor(result),
-    });
-    const bound = env.analysis_run.result_refs.find(
-      (item) => item.result_ref.ref === target!.id,
-    );
-    expect(bound).toMatchObject({
-      result_family: "force",
-      source_dimension: "force",
-    });
+    })).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
   });
 
   it("blocks an explicit dimension that contradicts exact result kind semantics", async () => {

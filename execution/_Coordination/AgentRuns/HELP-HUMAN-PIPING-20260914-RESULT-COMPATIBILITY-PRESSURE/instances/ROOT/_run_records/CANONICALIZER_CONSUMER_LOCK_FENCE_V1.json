@@ -1,0 +1,50 @@
+{
+  "status": "EXACT_CONSUMER_LOCK_FENCE_EXTENSION",
+  "issued_utc": "2026-09-15T00:48:55.272201+00:00",
+  "reason": "The checked canonicalizer adds a direct serde dependency. Every maintained consumer lock must represent that dependency for reproducible locked builds; historical snapshots remain immutable.",
+  "write_paths": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "baseline_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33"
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "baseline_sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597"
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "baseline_sha256": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181"
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "baseline_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8"
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+      "baseline_sha256": "c4ef95b578d017d0774e090ad515f2c7483a73c902f3619bcbdb09d02b6faeff"
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+      "baseline_sha256": "46565cdb405f9713399fa30b841c849c2fa59a7650551b1ba6bacbb7154da9a8"
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+      "baseline_sha256": "7d0c6b916947c528c80a181bad28b314e306342b3e335cb2cc73ffef9cb35b7c"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "baseline_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8"
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+      "baseline_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7"
+    }
+  ],
+  "limits": [
+    "Only dependency-graph accommodation required by the approved canonicalizer change; no unrelated version upgrades or churn.",
+    "Existing canonicalizer/operation-applier locks were already in the fence; seven other maintained locks are added.",
+    "No manifest/source change outside existing fence; no historical execution Cargo.lock updates.",
+    "Use offline precise resolution or equivalent minimal correct lock maintenance; verify --locked metadata/build for affected graph under existing build permissions.",
+    "This extends tracked lock scope only, not native/GUI/browser execution permission."
+  ]
+}

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "status": "FROZEN_PREWRITE",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "context": {
+    "actual_role": "WORKING_ITEMS",
+    "actual_model": "gpt-5.6-sol",
+    "actual_reasoning_effort": "high",
+    "parent": "HELP_HUMAN",
+    "delegation_mechanism": "delegated-harness-native",
+    "role_enforcement": "instruction-asserted",
+    "type2_non_delegation": "instruction-asserted"
+  },
+  "profiles": {
+    "analysis_run_python_sorted_compact_v0_1": {
+      "schema_version": "0.1.0",
+      "serializer": "json.dumps(sort_keys=True,separators=(',',':'),ensure_ascii=True)",
+      "projection": "existing core/analysis_runs/records.py projections",
+      "mutation": "forbidden; preserve exact behavior and labels"
+    },
+    "analysis_run_desktop_locale_v0_1": {
+      "schema_version": "0.1.0",
+      "serializer": "recursive Object.entries key sort by localeCompare then JSON.stringify",
+      "projection": "existing buildAnalysisRunPreview reduced record/result projections",
+      "received_label": "rfc8785_jcs may be present but is retained evidence, not proof",
+      "mutation": "forbidden; preserve exact behavior and labels"
+    },
+    "stress_neutral_python_sorted_compact_v0_1": {
+      "schema_version": "0.1.0",
+      "serializer": "json.dumps(sort_keys=True,separators=(',',':'),ensure_ascii=True)",
+      "json_label": "deterministic_sorted_compact_json_payload_hash",
+      "csv_label": "normalized_ascii_lf_text",
+      "mutation": "producer, readers, schema bytes and fixtures remain available byte-exact"
+    }
+  },
+  "frozen_counts": {
+    "supported_signatures": 60,
+    "supported_unique_kinds": 47,
+    "former_legacy_admission_failures": 9,
+    "legacy_interpretation_mismatches": 4,
+    "stress_neutral_original_findings": 922,
+    "stress_neutral_already_repaired_findings": 11,
+    "stress_neutral_residual_findings": 911,
+    "stress_neutral_rows": 830,
+    "stress_neutral_eligible_witnesses": 828,
+    "stress_neutral_withheld_diagnostic_work_witnesses": 2,
+    "stress_neutral_residual_families": {
+      "ROOT": 2,
+      "source_hashes": 6,
+      "export_profile": 3,
+      "manifest": 45,
+      "stable_id_map": 830,
+      "loss_report": 1,
+      "validation_report": 2,
+      "diagnostics": 10,
+      "privacy": 7,
+      "professional_boundary": 5
+    }
+  },
+  "immutable_behaviors": [
+    "received mechanics JSON and raw rows are unchanged",
+    "known unit/component contradictions block",
+    "missing metadata discloses and does not become producer attestation",
+    "diagnostic work is not moment or governing-ratio evidence",
+    "historical advertised checksum claims are never rewritten",
+    "existing model/native-project/input-manifest/operation hashes and versions are unchanged",
+    "fresh exact solve+model+manifest may be Current; opened saved records are Historical",
+    "missing historical manifest payload is not invented",
+    "unchanged save, attachment preservation, busy/stale/cancel/history/late-response guards remain",
+    "stress-neutral 0.1 JSON and CSV contracts remain separately labeled"
+  ],
+  "pinned_files": [
+    {"path":"AGENTS.md","sha256":"6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64","bytes":12834},
+    {"path":"agents/AGENT_WORKING_ITEMS.md","sha256":"9ae4bea25bd95750a6878a9d53fbbbd7cd058d72c652a36baf4aa90601799665","bytes":1804},
+    {"path":"projects/chirality-piping/AGENTS.md","sha256":"33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b","bytes":10615},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_MANAGER.md","sha256":"6ac6f48e3d69d363fbfb20698f3c10bb6512d23e983e148a77b3b8b51431b4d2","bytes":9277},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SETUP/_run_records/OWNER_MESSAGE.md","sha256":"1927b09d3ce84f403c68a745e579e3b21457fa10954aebd2d91af137734a87e0","bytes":13403},
+    {"path":"projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md","sha256":"0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a","bytes":3151},
+    {"path":"projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md","sha256":"ce6cbd2363081b606a7bce2aaad4cd1ae8bbbde5fb3686e13393608caf99aee7","bytes":69811},
+    {"path":"projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/ScopeOfWork.md","sha256":"029d21c052fa4b4f3f302ad2fe66add5fafed4f0c538aa3914a211d2479677bf","bytes":39550},
+    {"path":"projects/chirality-piping/execution/PKG-17_Export Format Interoperability/1_Working/DEL-17-06_Stress-neutral CSV JSON package/_CONTEXT.md","sha256":"b2f72184c31b5de6e1cfa2675067e58df5eda468cb01867da8da4a9df7603c97","bytes":3517},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/HANDOFF_STATE_V4.md","sha256":"9424e08849bc5caae2bbae937d11ff24dc0158a397c82589e3e0d78e73d25970","bytes":4636},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md","sha256":"713f9329939f8d1e8d870440ac4631e3eca6d455a9893f5cf5204b9f335c607b","bytes":8450},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/MANAGER_COMPLETE_SUPPORTED_SOURCE_AND_LEGACY_ADMISSION_V2.json","sha256":"4f676832062fdb4c9035132a41358edeb23f2ab916bd5ca2a5122c05eba0ffda","bytes":135490},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/STRESS_NEUTRAL_EXISTING_SCHEMA_DISPOSITION_V1.json","sha256":"acdebb077e2af19cd5d2d16b8a5925d81d130cc2a205068042fd0c9b0bf72575","bytes":731386},
+    {"path":"projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/IMMUTABLE_LEGACY_BINDER_SOURCE_FREEZE_V1.json","sha256":"df1bf79b128aa2ff5f8a1dc3a5559dbcea0b6274fb1cba8e2f7ddd7bae662270","bytes":3092},
+    {"path":"projects/chirality-piping/fixtures/results/semantic_contract_v0_2.json","sha256":"4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da","bytes":37875},
+    {"path":"projects/chirality-piping/schemas/analysis_run.schema.json","sha256":"a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f","bytes":20276},
+    {"path":"projects/chirality-piping/schemas/stress_neutral_export.schema.json","sha256":"fd903475b1670a742fc9adfd28267e404c44f7d1fcf85f2ceac9e7278f15576f","bytes":14792},
+    {"path":"projects/chirality-piping/schemas/project_persistence.schema.yaml","sha256":"babb93fc4c7aee20be3b82d8e191d6a92a49f6d604b7e341669c1226a12b4164","bytes":23995},
+    {"path":"projects/chirality-piping/core/analysis_runs/records.py","sha256":"709f3a16f01b617084dd8d522081138826cae5d390fa0fc56dec23cb6c1a6bb0","bytes":22818},
+    {"path":"projects/chirality-piping/core/project_persistence/service.py","sha256":"34e0cdf27b06e86df73aa26beff3f0a1bbea1c87af5a868b70ee9c7293ed6c4d","bytes":31206},
+    {"path":"projects/chirality-piping/core/handoff/stress_neutral/package.py","sha256":"cb25f09a26922ead575b914dc9d8b054e8d3988b6c14f64bf36a830009739415","bytes":29476},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/src/lib.rs","sha256":"3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897","bytes":13243},
+    {"path":"projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs","sha256":"83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7","bytes":530814},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/previewService.ts","sha256":"2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800","bytes":29883},
+    {"path":"projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx","sha256":"9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd","bytes":5181},
+    {"path":"projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx","sha256":"28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2","bytes":24506},
+    {"path":"projects/chirality-piping/fixtures/canonical_hash/cases.json","sha256":"85458f61baa73bfe31e9fc92f8f1fe56f4931768e2cf8f78e5a4c54469fdf3ca","bytes":6339},
+    {"path":"projects/chirality-piping/fixtures/stress_neutral/invented/source_result_payload.json","sha256":"7e18447e9aadcd5c670cab60180871334403e4661c222b5152b35f8a5919dcae","bytes":3887},
+    {"path":"projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package.json","sha256":"03dfcce930dd503208488d254e7fb17a5f8ad1de98f0b0027b8676d349fcb8a2","bytes":23021},
+    {"path":"projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_results.csv","sha256":"2dec9464b88220050ae64a10fedf44b06d8ea609d7c0cec06a1902f13355db06","bytes":512},
+    {"path":"projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json","sha256":"fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c","bytes":636601},
+    {"path":"projects/chirality-piping/fixtures/persistence/invented_persisted_preview_project.json","sha256":"4a60fb6ee0ce0c4aaf0701384626d5dd3632aa0d3c713f028838cffaff82e2e5","bytes":36888}
+  ],
+  "known_prewrite_concern": "HistoricalRunContext currently recomputes a saved desktop result hash through the global checked/JCS WASM seam even though the frozen desktop 0.1 producer used a localeCompare projection. The writer must replace that with exact profile/evidence dispatch and unverifiable findings; it must not rewrite stored claims."
+}

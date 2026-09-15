@@ -1,0 +1,644 @@
+{
+  "schema_version": "0.2.0",
+  "deliverable_id": "DEL-17-06",
+  "package_id": "PKG-17",
+  "scope_items": [
+    "SOW-046",
+    "SOW-074"
+  ],
+  "objectives": [
+    "OBJ-007",
+    "OBJ-017",
+    "OBJ-018"
+  ],
+  "export_id": "stress-neutral:invented-del-17-06",
+  "package_status": "stress_neutral_export_package",
+  "schema_conformant": true,
+  "validation_ready": true,
+  "source_result_ref": {
+    "object_type": "ResultEnvelope",
+    "ref": "result-envelope:invented-del-17-06"
+  },
+  "source_run_ref": {
+    "object_type": "AnalysisRun",
+    "ref": "run:invented-del-17-06"
+  },
+  "source_model_ref": {
+    "object_type": "Model",
+    "ref": "model:invented-del-17-06"
+  },
+  "received_source_checksums": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "deterministic_sorted_compact_json_payload_hash",
+      "payload_ref": {
+        "object_type": "ResultEnvelope",
+        "ref": "result-envelope:invented-del-17-06"
+      },
+      "payload_scope": "source_result_envelope",
+      "value": "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+    }
+  ],
+  "unresolved_assumption_refs": [
+    {
+      "object_type": "Assumption",
+      "ref": "assumption:invented-result-review"
+    }
+  ],
+  "reproducibility_refs": [
+    {
+      "object_type": "AnalysisRun",
+      "ref": "run:invented-del-17-06"
+    },
+    {
+      "object_type": "AuditManifest",
+      "ref": "audit-manifest:invented-del-17-06"
+    }
+  ],
+  "export_profile": {
+    "boundary_notes": [
+      "Stress-neutral CSV/JSON is a project-owned review and regression artifact.",
+      "This package is not a vendor format, solver input deck, or target compatibility claim.",
+      "Comparison semantics are diagnostic/export-only; pass/fail tolerances remain outside this package.",
+      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance."
+    ],
+    "comparison_semantics": "diagnostic_export_only_no_pass_fail",
+    "csv_columns": [
+      "result_id",
+      "canonical_ref",
+      "row_kind",
+      "result_family",
+      "load_case_ref",
+      "station_ref",
+      "component_ref",
+      "value",
+      "unit",
+      "dimension",
+      "correlation_status"
+    ],
+    "identity_policy": "canonical_ref_per_row_plus_stable_id_map",
+    "loss_report_policy": "mandatory_for_every_package",
+    "profile_id": "ops.stress_neutral.v1",
+    "profile_version": "0.1.0",
+    "source_basis_refs": [
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-08-04"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-14-02"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-14-05"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      }
+    ],
+    "target_family": "stress_neutral_csv_json",
+    "unit_policy": "unit_and_dimension_required_per_row"
+  },
+  "manifest": {
+    "manifest_id": "stress-neutral:invented-del-17-06:manifest",
+    "export_profile_ref": {
+      "object_type": "ExportProfile",
+      "ref": "ops.stress_neutral.v1"
+    },
+    "boundary_notes": [
+      "Stress-neutral CSV/JSON is a project-owned review and regression artifact.",
+      "This package is not a vendor format, solver input deck, or target compatibility claim.",
+      "Comparison semantics are diagnostic/export-only; pass/fail tolerances remain outside this package.",
+      "Package evidence does not assert solver validation, release readiness, code compliance, or professional reliance."
+    ],
+    "package_members": [
+      {
+        "filename": "manifest.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "manifest_seed",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "manifest.json"
+          },
+          "value": "de3f2613cc81a06e9090c065191ce4e13a123f24056b79be18e110d6f640aa4c"
+        }
+      },
+      {
+        "filename": "stress_neutral_results.csv",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "normalized_ascii_lf_text",
+          "payload_scope": "member_bytes",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "stress_neutral_results.csv"
+          },
+          "value": "2dec9464b88220050ae64a10fedf44b06d8ea609d7c0cec06a1902f13355db06"
+        }
+      },
+      {
+        "filename": "result_rows.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "result_rows.json"
+          },
+          "value": "211134b56babdd7b3203dd1193f54af18d5c5f8b9e8619889d18ce13d8ed4a47"
+        }
+      },
+      {
+        "filename": "unit_system_disclosure.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "unit_system_disclosure.json"
+          },
+          "value": "a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
+        }
+      },
+      {
+        "filename": "unit_preservation_witnesses.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "unit_preservation_witnesses.json"
+          },
+          "value": "2345ebb846eb059acaed868fa0ee2f4f0bf6cd65e6d9b6e3b004f2d96d742034"
+        }
+      },
+      {
+        "filename": "stable_id_map.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "stable_id_map.json"
+          },
+          "value": "3a352d6f1a6d4ab5e7df4477834ba2e6f470d70e298519880e2be1c7ed24ae1b"
+        }
+      },
+      {
+        "filename": "loss_report.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "loss_report.json"
+          },
+          "value": "b868ab127156fb07d254927af64b3a4b44577b679f1c19b32cad5fe18645d28f"
+        }
+      },
+      {
+        "filename": "validation_report.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "validation_report.json"
+          },
+          "value": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13"
+        }
+      },
+      {
+        "filename": "diagnostics.json",
+        "checksum": {
+          "algorithm": "sha256",
+          "canonicalization": "openpipestress_jcs_ijson_v1",
+          "payload_scope": "member_payload",
+          "payload_ref": {
+            "object_type": "StressNeutralMember",
+            "ref": "diagnostics.json"
+          },
+          "value": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      }
+    ],
+    "checksums": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "normalized_ascii_lf_text",
+        "payload_scope": "member_bytes",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "stress_neutral_results.csv"
+        },
+        "value": "2dec9464b88220050ae64a10fedf44b06d8ea609d7c0cec06a1902f13355db06"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "result_rows.json"
+        },
+        "value": "211134b56babdd7b3203dd1193f54af18d5c5f8b9e8619889d18ce13d8ed4a47"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "unit_system_disclosure.json"
+        },
+        "value": "a16f14a8250a2f622cdaf7d15ccbade1b462d4ca4076d9e1e3d86649a7555fb1"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "unit_preservation_witnesses.json"
+        },
+        "value": "2345ebb846eb059acaed868fa0ee2f4f0bf6cd65e6d9b6e3b004f2d96d742034"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "stable_id_map.json"
+        },
+        "value": "3a352d6f1a6d4ab5e7df4477834ba2e6f470d70e298519880e2be1c7ed24ae1b"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "loss_report.json"
+        },
+        "value": "b868ab127156fb07d254927af64b3a4b44577b679f1c19b32cad5fe18645d28f"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "validation_report.json"
+        },
+        "value": "65be20ef22800df89d862a810a2da45bd6fa2ab1be3d01b5a8e399219f805d13"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "member_payload",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "diagnostics.json"
+        },
+        "value": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_scope": "manifest_seed",
+        "payload_ref": {
+          "object_type": "StressNeutralMember",
+          "ref": "manifest.json"
+        },
+        "value": "de3f2613cc81a06e9090c065191ce4e13a123f24056b79be18e110d6f640aa4c"
+      }
+    ]
+  },
+  "csv_text": "result_id,canonical_ref,row_kind,result_family,load_case_ref,station_ref,component_ref,value,unit,dimension,correlation_status\nresult:invented:force:P001:axial,result:invented:force:P001:axial,result_value,force,load:invented:operating,station:invented:P001:end-i,pipe:invented:001,12.5,N,force,canonical_id_map\nresult:invented:stress:P001:sustained,result:invented:stress:P001:sustained,result_value,stress,load:invented:sustained,station:invented:P001:midspan,pipe:invented:001,3450,Pa,stress,canonical_id_map\n",
+  "result_rows": [
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:invented:001"
+      },
+      "correlation_status": "canonical_id_map",
+      "dimension": "force",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:invented:operating"
+      },
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/stress_neutral/package.py",
+        "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+      },
+      "result_family": "force",
+      "result_id": "result:invented:force:P001:axial",
+      "row_kind": "result_value",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "station:invented:P001:end-i"
+      },
+      "unit": "N",
+      "value": 12.5
+    },
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "component_ref": {
+        "object_type": "PipeElement",
+        "ref": "pipe:invented:001"
+      },
+      "correlation_status": "canonical_id_map",
+      "dimension": "stress",
+      "load_case_ref": {
+        "object_type": "LoadCase",
+        "ref": "load:invented:sustained"
+      },
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/stress_neutral/package.py",
+        "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+      },
+      "result_family": "stress",
+      "result_id": "result:invented:stress:P001:sustained",
+      "row_kind": "result_value",
+      "source_result_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "station_ref": {
+        "object_type": "Station",
+        "ref": "station:invented:P001:midspan"
+      },
+      "unit": "Pa",
+      "value": 3450.0
+    }
+  ],
+  "unit_system_disclosure": {
+    "conversion_performed": false,
+    "conversion_policy": "result_row_units_preserved_no_export_time_conversion",
+    "conversion_scope": [],
+    "decision_basis_refs": [
+      {
+        "object_type": "Decision",
+        "ref": "DEC-018"
+      },
+      {
+        "object_type": "Deliverable",
+        "ref": "DEL-02-02"
+      }
+    ],
+    "model_units": {},
+    "private_payload_included": false,
+    "protected_content_included": false,
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/stress_neutral/package.py",
+      "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+    },
+    "result_units": [
+      "N",
+      "Pa"
+    ],
+    "source_model_ref": {
+      "object_type": "Model",
+      "ref": "model:invented-del-17-06"
+    },
+    "storage_convention": "entered_units_preserved",
+    "target_export_units": {},
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "unit-system:dec-018-si-dual-display"
+    }
+  },
+  "unit_preservation_witnesses": [
+    {
+      "witness_id": "unit-witness:0",
+      "source_row_index": 0,
+      "result_id": "result:invented:force:P001:axial",
+      "source_quantity": {
+        "value": 12.5,
+        "unit": "N",
+        "dimension": "force"
+      },
+      "target_quantity": {
+        "value": 12.5,
+        "unit": "N",
+        "dimension": "force"
+      },
+      "conversion_performed": false,
+      "policy": "preserve_received_value_and_unit"
+    },
+    {
+      "witness_id": "unit-witness:1",
+      "source_row_index": 1,
+      "result_id": "result:invented:stress:P001:sustained",
+      "source_quantity": {
+        "value": 3450.0,
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "target_quantity": {
+        "value": 3450.0,
+        "unit": "Pa",
+        "dimension": "stress"
+      },
+      "conversion_performed": false,
+      "policy": "preserve_received_value_and_unit"
+    }
+  ],
+  "stable_id_map": [
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "export_ref": {
+        "object_type": "StressNeutralRow",
+        "ref": "result:invented:force:P001:axial"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/stress_neutral/package.py",
+        "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+      }
+    },
+    {
+      "canonical_ref": {
+        "object_type": "Result",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "export_ref": {
+        "object_type": "StressNeutralRow",
+        "ref": "result:invented:stress:P001:sustained"
+      },
+      "loss_category": "exported",
+      "mapping_status": "mapped",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/stress_neutral/package.py",
+        "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+      }
+    }
+  ],
+  "loss_report": [
+    {
+      "affected_refs": [
+        {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:invented-del-17-06"
+        }
+      ],
+      "category": "exported",
+      "downstream_implication": "Does not define comparison pass/fail or professional reliance semantics.",
+      "human_review_required": true,
+      "loss_id": "loss:invented:stress-neutral-exported",
+      "provenance": {
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "privacy_classification": "public_metadata",
+        "redistribution_status": "public_permissive",
+        "review_status": "machine_checked",
+        "source_license": "project-governed",
+        "source_location": "core/handoff/stress_neutral/package.py",
+        "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+      },
+      "reason": "Invented result rows exported to stress-neutral CSV/JSON for deterministic package testing.",
+      "severity": "info",
+      "source_basis_ref": {
+        "object_type": "Deliverable",
+        "ref": "DEL-17-02"
+      },
+      "target_artifact_ref": {
+        "object_type": "StressNeutralExportPackage",
+        "ref": "stress-neutral:invented-del-17-06"
+      }
+    }
+  ],
+  "validation_report": {
+    "checks": [
+      {
+        "blocking_count": 0,
+        "check_id": "stress-neutral-boundary-diagnostics",
+        "check_status": "passed",
+        "diagnostic_count": 0,
+        "provenance": {
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "privacy_classification": "public_metadata",
+          "redistribution_status": "public_permissive",
+          "review_status": "machine_checked",
+          "source_license": "project-governed",
+          "source_location": "core/handoff/stress_neutral/package.py",
+          "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+        }
+      }
+    ],
+    "human_review_required": true,
+    "provenance": {
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "privacy_classification": "public_metadata",
+      "redistribution_status": "public_permissive",
+      "review_status": "machine_checked",
+      "source_license": "project-governed",
+      "source_location": "core/handoff/stress_neutral/package.py",
+      "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+    },
+    "validation_status": "passed"
+  },
+  "diagnostics": [],
+  "privacy": {
+    "classification": "invented_public_example",
+    "commercial_tool_payload_embedded": false,
+    "local_only": true,
+    "private_payload_embedded": false,
+    "protected_payload_embedded": false,
+    "redaction_refs": [],
+    "telemetry_allowed": false
+  },
+  "provenance": {
+    "contributor": "OpenPipeStress Type 2 worker",
+    "contributor_certification": "implementation-only-no-professional-claim",
+    "privacy_classification": "public_metadata",
+    "redistribution_status": "public_permissive",
+    "review_status": "machine_checked",
+    "source_license": "project-governed",
+    "source_location": "core/handoff/stress_neutral/package.py",
+    "source_name": "OpenPipeStress DEL-17-06 stress-neutral export package builder"
+  },
+  "professional_boundary": {
+    "human_review_required": true,
+    "software_creates_professional_reliance_record": false,
+    "software_makes_approval_claim": false,
+    "software_makes_certification_claim": false,
+    "software_makes_compliance_claim": false,
+    "software_makes_external_compatibility_claim": false,
+    "software_makes_release_claim": false,
+    "software_makes_sealing_claim": false,
+    "software_makes_solver_validation_claim": false,
+    "supports_downstream_tooling": true,
+    "supports_regression_comparison_input": true,
+    "supports_review": true
+  },
+  "package_checksum": {
+    "algorithm": "sha256",
+    "canonicalization": "openpipestress_jcs_ijson_v1",
+    "payload_scope": "complete_package_excluding_self_checksum",
+    "payload_ref": {
+      "object_type": "StressNeutralExportPackage",
+      "ref": "stress-neutral:invented-del-17-06"
+    },
+    "value": "0ad96d49a42f3432a42af8c0220bdc47b64dd3ce4205cb471955355a0c2b543c"
+  }
+}
+

@@ -123,8 +123,9 @@ export async function buildReportPackageRequest({
   const report = await buildRenderableReportInput({ model, result, analysisRun, projectSummary });
   const run = analysisRun.analysis_run;
   const runHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
+  const resultHashScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
   const resultEnvelopeHash = run.hashes.find(
-    (item) => item.payload_scope === "result_envelope"
+    (item) => item.payload_scope === resultHashScope
   );
   const [inputManifestRef] = run.reproducibility.input_manifest_refs;
   const [inputHash] = run.reproducibility.input_manifest_hashes;
@@ -184,7 +185,10 @@ export async function buildReportPackageRequest({
   for (const item of result.results) {
     const semantics = resultSemantics(item); // known unit/component contradictions fail closed
     const declared = resultDimensions.get(item.id);
-    if (!declared || (item.dimension && item.dimension !== declared)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
+    const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
+      ? semantics?.source_physical_semantic_dimension
+      : item.dimension;
+    if (!resultDimensions.has(item.id) || (expectedSourceDimension ?? null) !== (declared ?? null)) throw new Error(`REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id}`);
     if (!semantics || semantics.category !== "physical_quantity") {
       semanticDisclosures.push({id:item.id,reason:semantics?.category ?? "unsupported_source_kind"}); continue;
     }
@@ -202,18 +206,21 @@ export async function buildReportPackageRequest({
       set_type: "mechanics",
       basis_ref: reference(basis.ref_type, basis.ref_id),
       values: values.map((item) => {
+        const semantics = resultSemantics(item)!;
         const sourceDimension = resultDimensions.get(item.id);
         if (!sourceDimension) {
           throw new Error(
             `REPORT-PACKAGE-SOURCE-DIMENSION-MISSING: ${item.id} has no DEL-14-02 source declaration.`
           );
         }
-        if (item.dimension && item.dimension !== sourceDimension) {
+        const expectedSourceDimension = analysisRun.schema_version === "0.2.0"
+          ? semantics?.source_physical_semantic_dimension
+          : item.dimension;
+        if (expectedSourceDimension && expectedSourceDimension !== sourceDimension) {
           throw new Error(
             `REPORT-PACKAGE-SOURCE-DIMENSION-MISMATCH: ${item.id} differs from its DEL-14-02 declaration.`
           );
         }
-        const semantics = resultSemantics(item)!;
         const family = semantics.family;
         return {
         result_id: item.id,

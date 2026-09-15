@@ -1,10 +1,11 @@
 import { semanticFamily, semanticDimension, semanticCategory } from "../results/resultSemantics";
 import { Download, FileJson } from "lucide-react";
-import { usePackageHash, withCanonicalPackageHash } from "../../services/usePackageHash";
+import { useEffect, useState } from "react";
+import { canonicalSha256HexCheckedV1 } from "../../services/hashService";
 import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef } from "../../types";
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
-const STRESS_NEUTRAL_EXPORT_VERSION = "0.1.0";
+const STRESS_NEUTRAL_EXPORT_VERSION = "0.2.0";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
 const CSV_COLUMNS = [
@@ -75,13 +76,13 @@ export function StressNeutralExportPanel({
   result: MechanicsResult | null;
   analysisRun: AnalysisRunEnvelope | null;
 }) {
-  const basePacket = result && analysisRun ? buildStressNeutralExportPacket({ model, result, analysisRun }) : null;
-  const packageHash = usePackageHash(
-    basePacket?.manifest.manifest_id ?? null,
-    basePacket,
-    "manifest_and_validation_report_package_hash_carrier_fields"
-  );
-  const packet = basePacket ? withCanonicalPackageHash(basePacket, packageHash) : null;
+  const [packet, setPacket] = useState<Awaited<ReturnType<typeof buildStressNeutralExportPacket>> | null>(null);
+  useEffect(() => {
+    let current = true;
+    setPacket(null);
+    if (result && analysisRun) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => { if (current) setPacket(built); }).catch(() => { if (current) setPacket(null); });
+    return () => { current = false; };
+  }, [model, result, analysisRun]);
   return (
     <section
       className="panel stress-neutral-export-panel"
@@ -143,15 +144,15 @@ export function StressNeutralExportPanel({
             />
             <StressNeutralLine
               label="Package"
-              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.entries.length}; validation=${packet.validation_report.validation_status}; package_hash=${packet.manifest.canonical_package_hash_status}`}
+              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.length}; validation=${packet.validation_report.validation_status}; package_hash=checked`}
               testId="stress-neutral-package"
             />
             <StressNeutralLine
               label="Boundary"
-              value={`vendor_format=${String(packet.vendor_format_claim)}; solver_validation=${String(
-                packet.solver_validation_claim
-              )}; code_compliance=${String(packet.code_compliance_claim)}; professional_reliance=${String(
-                packet.professional_reliance_claim
+              value={`vendor_format=${String(packet.professional_boundary.software_makes_external_compatibility_claim)}; solver_validation=${String(
+                packet.professional_boundary.software_makes_solver_validation_claim
+              )}; code_compliance=${String(packet.professional_boundary.software_makes_compliance_claim)}; professional_reliance=${String(
+                packet.professional_boundary.software_creates_professional_reliance_record
               )}`}
               testId="stress-neutral-boundary"
             />
@@ -180,7 +181,7 @@ function StressNeutralLine({ label, value, testId }: { label: string; value: str
   );
 }
 
-export function buildStressNeutralExportPacket({
+function buildStressNeutralExportPacketV01({
   model,
   result,
   analysisRun
@@ -346,6 +347,95 @@ export function buildStressNeutralExportPacket({
   };
 }
 
+const STRICT_MEMBER_NAMES = ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"] as const;
+
+async function rawTextSha256(text: string): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function checksumRef(filename: string) {
+  return { object_type: "StressNeutralMember", ref: filename };
+}
+
+async function checkedMemberChecksum(filename: string, value: unknown, payloadScope = "member_payload") {
+  return { algorithm: "sha256" as const, canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: payloadScope, payload_ref: checksumRef(filename), value: await canonicalSha256HexCheckedV1(value) };
+}
+
+function strictManifestSeed(packet: any, checksums: any[]) {
+  return {
+    manifest_id: packet.manifest.manifest_id,
+    source_result_ref: packet.source_result_ref,
+    source_run_ref: packet.source_run_ref,
+    source_model_ref: packet.source_model_ref,
+    received_source_checksums: packet.received_source_checksums,
+    unresolved_assumption_refs: packet.unresolved_assumption_refs,
+    reproducibility_refs: packet.reproducibility_refs,
+    export_profile_ref: packet.manifest.export_profile_ref,
+    boundary_notes: packet.manifest.boundary_notes,
+    member_checksums: checksums,
+    diagnostics: packet.diagnostics,
+  };
+}
+
+export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
+  const legacy = buildStressNeutralExportPacketV01(args);
+  const packet: any = {
+    schema_version: STRESS_NEUTRAL_EXPORT_VERSION,
+    deliverable_id: "DEL-17-06", package_id: "PKG-17", scope_items: ["SOW-046", "SOW-074"], objectives: ["OBJ-007", "OBJ-017", "OBJ-018"],
+    export_id: legacy.export_id, package_status: "stress_neutral_export_package", schema_conformant: true,
+    validation_ready: !legacy.diagnostics.some((item) => item.severity === "blocking"),
+    source_result_ref: legacy.source_result_ref, source_run_ref: legacy.source_run_ref, source_model_ref: legacy.source_model_ref,
+    received_source_checksums: structuredClone(args.analysisRun.analysis_run.hashes),
+    unresolved_assumption_refs: [], reproducibility_refs: [legacy.source_run_ref], export_profile: { ...legacy.export_profile, profile_version: "0.2.0", boundary_notes: legacy.boundary_notes, source_basis_refs: [legacy.source_run_ref] },
+    manifest: { manifest_id: legacy.manifest.manifest_id, export_profile_ref: reference("StressNeutralExportProfile", legacy.export_profile.profile_id), boundary_notes: legacy.boundary_notes, package_members: [] as any[], checksums: [] as any[] },
+    csv_text: legacy.csv_text, result_rows: legacy.result_rows, unit_system_disclosure: legacy.unit_system_disclosure,
+    unit_preservation_witnesses: legacy.unit_preservation_witnesses.map((witness) => ({ witness_id: witness.witness_id, source_row_index: legacy.result_rows.findIndex((row) => row.result_id === witness.source_result_ref.ref), result_id: witness.source_result_ref.ref, source_quantity: witness.source_quantity, target_quantity: witness.target_quantity, conversion_performed: false, policy: "preserve_received_value_and_unit" })),
+    stable_id_map: legacy.stable_id_map.map(({ canonical_ref, export_ref, mapping_status, loss_category, provenance }) => ({ canonical_ref, export_ref, mapping_status, loss_category, provenance })),
+    loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
+    validation_report: { validation_status: legacy.validation_report.validation_status, checks: legacy.validation_report.checks.map((check) => ({ check_id: check.check_id, check_status: check.status, blocking_count: check.blocking ? 1 : 0, diagnostic_count: 0, provenance: previewProvenance() })), human_review_required: true, provenance: previewProvenance() },
+    diagnostics: legacy.diagnostics.map((item) => ({ code: item.code, class: item.class ?? "stress_neutral_export", severity: item.severity, source: item.source ?? reference("StressNeutralExportPackage", legacy.export_id), affected_object: item.affected_object ?? ("affected_ref" in item ? item.affected_ref : undefined) ?? reference("StressNeutralExportPackage", legacy.export_id), message: item.message, remediation: item.remediation ?? "Review stress-neutral handoff evidence before use.", provenance: item.provenance })),
+    privacy: { classification: legacy.privacy.privacy_classification, commercial_tool_payload_embedded: false, local_only: true, private_payload_embedded: false, protected_payload_embedded: false, redaction_refs: [], telemetry_allowed: false },
+    provenance: previewProvenance(),
+    professional_boundary: { human_review_required: true, supports_review: true, supports_regression_comparison_input: true, supports_downstream_tooling: true, software_makes_release_claim: false, software_makes_external_compatibility_claim: false, software_makes_solver_validation_claim: false, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_creates_professional_reliance_record: false },
+  };
+  const payloads: Record<string, unknown> = {
+    "stress_neutral_results.csv": packet.csv_text, "result_rows.json": packet.result_rows, "unit_system_disclosure.json": packet.unit_system_disclosure,
+    "unit_preservation_witnesses.json": packet.unit_preservation_witnesses, "stable_id_map.json": packet.stable_id_map, "loss_report.json": packet.loss_report,
+    "validation_report.json": packet.validation_report, "diagnostics.json": packet.diagnostics,
+  };
+  const checksums = [];
+  for (const filename of STRICT_MEMBER_NAMES.slice(1)) {
+    const value = payloads[filename];
+    checksums.push(filename.endsWith(".csv")
+      ? { algorithm: "sha256" as const, canonicalization: "normalized_ascii_lf_text", payload_scope: "member_bytes", payload_ref: checksumRef(filename), value: await rawTextSha256(value as string) }
+      : await checkedMemberChecksum(filename, value));
+  }
+  const manifestChecksum = await checkedMemberChecksum("manifest.json", strictManifestSeed(packet, checksums), "manifest_seed");
+  packet.manifest.checksums = [...checksums, manifestChecksum];
+  packet.manifest.package_members = STRICT_MEMBER_NAMES.map((filename) => ({ filename, checksum: packet.manifest.checksums.find((item: any) => item.payload_ref.ref === filename) }));
+  packet.package_checksum = { algorithm: "sha256", canonicalization: "openpipestress_jcs_ijson_v1", payload_scope: "complete_package_excluding_self_checksum", payload_ref: { object_type: "StressNeutralExportPackage", ref: packet.export_id }, value: await canonicalSha256HexCheckedV1(packet) };
+  await validateStressNeutralExportPacket(packet);
+  return packet;
+}
+
+export async function validateStressNeutralExportPacket(packet: any): Promise<void> {
+  if (packet.schema_version !== "0.2.0" || packet.manifest.package_members.length !== 9 || packet.manifest.checksums.length !== 9) throw new Error("SN-STRICT-INVENTORY-MISMATCH");
+  if (JSON.stringify(packet.manifest.package_members.map((item: any) => item.filename)) !== JSON.stringify(STRICT_MEMBER_NAMES)) throw new Error("SN-MEMBER-ORDER-MISMATCH");
+  const received = new Set(packet.received_source_checksums.map((item: any) => JSON.stringify(item)));
+  if (packet.manifest.checksums.some((item: any) => received.has(JSON.stringify(item)))) throw new Error("SN-RECEIVED-CHECKSUM-RELABEL");
+  const payloads: Record<string, unknown> = { "stress_neutral_results.csv": packet.csv_text, "result_rows.json": packet.result_rows, "unit_system_disclosure.json": packet.unit_system_disclosure, "unit_preservation_witnesses.json": packet.unit_preservation_witnesses, "stable_id_map.json": packet.stable_id_map, "loss_report.json": packet.loss_report, "validation_report.json": packet.validation_report, "diagnostics.json": packet.diagnostics };
+  const nonManifest = packet.manifest.checksums.filter((item: any) => item.payload_ref.ref !== "manifest.json");
+  for (const claim of nonManifest) {
+    const expected = claim.payload_ref.ref.endsWith(".csv") ? await rawTextSha256(payloads[claim.payload_ref.ref] as string) : await canonicalSha256HexCheckedV1(payloads[claim.payload_ref.ref]);
+    if (claim.value !== expected) throw new Error(`SN-MEMBER-CHECKSUM-MISMATCH: ${claim.payload_ref.ref}`);
+  }
+  const manifest = packet.manifest.checksums.find((item: any) => item.payload_ref.ref === "manifest.json");
+  if (!manifest || manifest.value !== await canonicalSha256HexCheckedV1(strictManifestSeed(packet, nonManifest))) throw new Error("SN-MANIFEST-SEED-CHECKSUM-MISMATCH");
+  const projection = structuredClone(packet); delete projection.package_checksum;
+  if (packet.package_checksum.value !== await canonicalSha256HexCheckedV1(projection)) throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH");
+}
+
 function stressNeutralRow(item: MechanicsResult["results"][number], runId: string): StressNeutralRow {
   const family = semanticFamily(item);
   const dimension = semanticDimension(item) ?? "TBD";
@@ -495,12 +585,12 @@ function entityReference(value: string) {
 }
 
 
-function unitCount(packet: ReturnType<typeof buildStressNeutralExportPacket>): number {
-  return new Set(packet.result_rows.map((row) => row.unit)).size;
+function unitCount(packet: Awaited<ReturnType<typeof buildStressNeutralExportPacket>>): number {
+  return new Set(packet.result_rows.map((row: any) => row.unit)).size;
 }
 
-function dimensionSummary(packet: ReturnType<typeof buildStressNeutralExportPacket>): string {
-  return Array.from(new Set(packet.result_rows.map((row) => row.dimension))).sort().join(", ");
+function dimensionSummary(packet: Awaited<ReturnType<typeof buildStressNeutralExportPacket>>): string {
+  return Array.from(new Set<string>(packet.result_rows.map((row: any) => row.dimension))).sort().join(", ");
 }
 
 function professionalBoundary() {

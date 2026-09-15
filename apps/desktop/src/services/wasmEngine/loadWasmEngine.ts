@@ -23,6 +23,8 @@ export type WasmOperationEngine = {
   // input (WASM-ENGINE-INPUT-JSON-INVALID).
   canonicalJsonString: (valueJson: string) => string;
   canonicalSha256Hex: (valueJson: string) => string;
+  canonicalJsonCheckedV1: (valueJson: string) => string;
+  canonicalSha256HexCheckedV1: (valueJson: string) => string;
 };
 
 type GeneratedGlueModule = {
@@ -34,6 +36,8 @@ type GeneratedGlueModule = {
   convert_display_quantities_json: WasmOperationEngine["convertDisplayQuantitiesJson"];
   canonical_json_string: (valueJson: string) => string;
   canonical_sha256_hex: (valueJson: string) => string;
+  canonical_json_checked_v1: (valueJson: string) => string;
+  canonical_sha256_hex_checked_v1: (valueJson: string) => string;
 };
 
 // The browser specifier is intentionally held in a constant (not an inline
@@ -137,7 +141,7 @@ async function instantiate(): Promise<WasmOperationEngine> {
     }
   }
 
-  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex"] as const) {
+  for (const name of ["validate_operation_json", "apply_operation_json", "validate_operation_batch_json", "apply_operation_batch_json", "convert_display_quantities_json", "canonical_json_string", "canonical_sha256_hex", "canonical_json_checked_v1", "canonical_sha256_hex_checked_v1"] as const) {
     if (typeof glue[name] !== "function") throw absenceError("required export missing", name);
   }
   return {
@@ -147,7 +151,9 @@ async function instantiate(): Promise<WasmOperationEngine> {
     applyOperationBatchJson: glue.apply_operation_batch_json,
     convertDisplayQuantitiesJson: glue.convert_display_quantities_json,
     canonicalJsonString: glue.canonical_json_string,
-    canonicalSha256Hex: glue.canonical_sha256_hex
+    canonicalSha256Hex: glue.canonical_sha256_hex,
+    canonicalJsonCheckedV1: glue.canonical_json_checked_v1,
+    canonicalSha256HexCheckedV1: glue.canonical_sha256_hex_checked_v1
   };
 }
 

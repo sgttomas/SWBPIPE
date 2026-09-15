@@ -1,0 +1,83 @@
+{
+  "schema": "compatibility-focused-command-evidence-v2",
+  "created_utc": "2026-09-15T01:39:44.612753+00:00",
+  "status": "FOCUSED_CHECKS_PASS_BUILD_LEASE_USED",
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python tools/serialization/build_checked_json.py",
+      "cwd": "projects/chirality-piping",
+      "result": "passed",
+      "detail": "private checked-JSON CLI built once at core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson"
+    },
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/private/tmp/chirality-compat-pydeps python -m pytest -q tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py tests/test_analysis_run_schema.py tests/test_project_persistence_service.py tests/test_stress_neutral_export_package.py",
+      "cwd": "projects/chirality-piping",
+      "result": "50 passed, 94 warnings in 4.33s"
+    },
+    {
+      "command": "npm exec tsc -- --noEmit",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "result": "passed"
+    },
+    {
+      "command": "npm exec vitest -- run src/services/analysisRunCompatibility.test.ts src/services/hashService.test.ts src/services/previewService.test.ts src/features/results/HistoricalRunContext.test.tsx src/features/result-export/resultExportAdapter.test.ts src/features/report/reportPackageRequest.test.ts src/features/stress-neutral/StressNeutralExportPanel.test.tsx src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "result": "8 files passed; 85 tests passed"
+    },
+    {
+      "command": "npm exec vitest -- run src/App.test.tsx -t 'makes delayed rule-revision success and failure inert|routes both File-menu report-package attempts|shows computed mechanics diagnostics'",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "result": "1 file passed; 3 passed; 172 skipped"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "projects/chirality-piping/core/serialization/canonical_json",
+      "result": "10 passed"
+    },
+    {
+      "command": "npm run build:wasm",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "result": "passed; operation and self-weight WASM artifacts generated; wasm-bindgen 0.2.123"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "result": "passed; tsc -b and Vite; 1705 modules transformed"
+    },
+    {
+      "command": "cargo metadata --locked --offline --no-deps --format-version 1 --manifest-path <each maintained manifest>",
+      "cwd": "projects/chirality-piping",
+      "result": "9 locked offline metadata checks passed"
+    }
+  ],
+  "failed_commands_preserved": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 python -m pytest -q ... tests/test_project_persistence.py tests/test_stress_neutral_package_v02.py",
+      "stderr_verbatim": "ERROR: file or directory not found: tests/test_project_persistence.py\n\n\nno tests ran in 0.00s",
+      "disposition": "corrected to test_project_persistence_service.py and test_stress_neutral_export_package.py"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "projects/chirality-piping/apps/desktop",
+      "stderr_verbatim": "error: could not find `Cargo.toml` in `/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop` or any parent directory",
+      "disposition": "rerun in canonical_json crate; 10 passed"
+    },
+    {
+      "command": "Python focused checks without PYTHONPATH dependency setup",
+      "stderr_verbatim": "ModuleNotFoundError: No module named 'jsonschema'",
+      "disposition": "rerun with /private/tmp/chirality-compat-pydeps; passed"
+    },
+    {
+      "command": "npm exec tsc / npm exec vitest from project root",
+      "stderr_verbatim": "Error: Cannot find module '../../services/hashService' imported from historical snapshot paths",
+      "disposition": "wrong cwd selected immutable historical test copies; rerun from apps/desktop against current source; passed"
+    }
+  ],
+  "held_not_run": [
+    "npm run test:e2e --workspace apps/desktop",
+    "npm run test:e2e:dist --workspace apps/desktop",
+    "native Tauri GUI/build/test commands",
+    "full DEC-025/registered sweep",
+    "Git commit/push/merge commands"
+  ]
+}

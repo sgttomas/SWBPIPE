@@ -1,0 +1,116 @@
+{
+  "status": "FROZEN_PRE_SOURCE_RELEASE_EXPECTATIONS; no build, runtime, GUI or acceptance verdict",
+  "claim_fence": "F-PIP-2; derivative technical evidence only",
+  "basis": {
+    "method": "independent elementary Euler-Bernoulli hollow-circular cantilever calculation",
+    "equation_source": "sealed synthetic geometry and elementary calculation; no piping-design OCR/equation artifact",
+    "calculation_runtime": "stock Node.js arithmetic and SHA-256, independent of OpenPipeStress solver and operation applier",
+    "publication_absolute_allowance_declared_units": 5.001e-7,
+    "identity_allowance": "exact equality"
+  },
+  "synthetic_model": {
+    "provenance": "invented_synthetic_workflow_input",
+    "project_id": "project:blank-local-20260913t210608z",
+    "root_global_position_m": [0, 2.4, 0],
+    "tip_global_position_m": [3.2, 2.4, 0],
+    "length_m": 3.2,
+    "outside_diameter_m": 0.168,
+    "wall_thickness_m": 0.007,
+    "inside_diameter_m": 0.154,
+    "elastic_modulus_Pa": 200000000000,
+    "shear_modulus_Pa": 77000000000,
+    "root_restraints": ["UX", "UY", "UZ", "RX", "RY", "RZ"],
+    "tip_force_direction": "positive global Y",
+    "element_axes": {
+      "local_x": "positive global X",
+      "local_y": "positive global Z",
+      "local_z": "negative global Y"
+    },
+    "single_load_case": "load:WF",
+    "single_primitive": "load:WF-FY"
+  },
+  "section_and_formulae": {
+    "second_moment_m4": 1.1493591335983794e-5,
+    "I": "pi*(OD^4-(OD-2*t)^4)/64",
+    "tip_Uy_mm": "F*L^3/(3*E*I)*1000",
+    "tip_Rz_rad": "F*L^2/(2*E*I)",
+    "root_global_Fy_N": "-F",
+    "root_global_Mz_Nm": "-F*L",
+    "local_end_i_shear_z_N": "F",
+    "local_end_i_bending_y_Nm": "-F*L"
+  },
+  "loads": {
+    "350N": {
+      "tip_Uy_mm": 1.663071716046058,
+      "tip_Rz_rad": 0.0007795648668965897,
+      "direct_support_resultant_N": 350,
+      "root_global_Fy_N": -350,
+      "root_global_Mz_Nm": -1120,
+      "local_end_i_shear_z_N": 350,
+      "local_end_i_bending_y_Nm": -1120,
+      "accepted_published_Uy_mm": 1.663072,
+      "accepted_published_Rz_rad": 0.00078
+    },
+    "500N": {
+      "tip_Uy_mm": 2.375816737208654,
+      "tip_Rz_rad": 0.0011136640955665567,
+      "direct_support_resultant_N": 500,
+      "root_global_Fy_N": -500,
+      "root_global_Mz_Nm": -1600,
+      "local_end_i_shear_z_N": 500,
+      "local_end_i_bending_y_Nm": -1600,
+      "accepted_published_Uy_mm": 2.375817,
+      "accepted_published_Rz_rad": 0.001114
+    }
+  },
+  "model_identity": {
+    "retained_exact_350_model_sha256": "sha256:2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788",
+    "independently_derived_exact_500_model_sha256": "sha256:6c909e3114442b2fbbc78c44c98b1bf41520f4c0fa201c3813e046f59de8d0bf",
+    "derivation": "parse retained 350 model; change only load_cases[0].primitive_loads[0].magnitude.value from 350 to 500; hash compact member-order JSON bytes (the retained file is already JCS member ordered)",
+    "exact_relations": [
+      "undo350 full model bytes and qualified model hash equal authored350",
+      "redo500 full model bytes and qualified model hash equal human500",
+      "equivalent reviewed synthetic agent-authored operation output full model bytes and qualified model hash equal human500",
+      "if a new blank project creates a different project id, freeze H350 from its exact authored model and independently derive H500 before apply; require the same exact relations and do not compare metadata-distinct documents to the retained fixed hashes"
+    ]
+  },
+  "attachments": {
+    "must_remain_exact": [
+      "project id and units",
+      "root and tip node ids, labels, coordinates and provenance",
+      "pipe endpoints, section OD/wall, material ref, y-reference and provenance",
+      "material E/G, labels, units and provenance",
+      "support node, all six restraint tokens, label and provenance",
+      "sole load case identity, kind, status and provenance",
+      "sole primitive identity, target, direction, category, dimension, unit and provenance"
+    ],
+    "permitted_350_to_500_delta": "load_cases[0].primitive_loads[0].magnitude.value only"
+  },
+  "native_67_row_expectation": {
+    "received_rows": 67,
+    "source_signature_contracts": 60,
+    "canonical_result_0_2_target_accounting": {
+      "exported_quantity": 66,
+      "disclosed": 1,
+      "total": 67
+    },
+    "canonical_result_0_2_unit_witnesses": 66,
+    "stress_neutral_0_2_received_rows": 67,
+    "stress_neutral_0_2_expected_preservation_witnesses": 66,
+    "stress_neutral_0_2_expected_withheld_or_disclosed_rows": 1,
+    "solver_mode_row": "result:solver-mode:linear-solve-basis",
+    "solver_mode_policy": "disclosure; never governing ratio or physical solved quantity"
+  },
+  "state_expectations": {
+    "current": "requires the exact live model, mechanics run, analysis record and in-session input-manifest payload/ref/hash; any model edit, open/replacement, undo/redo transition, cancellation or stale/late completion invalidates Current until a fresh solve",
+    "legacy_historical_0_1": "reopen remains Historical; expect HISTORICAL_INPUT_MANIFEST_MISSING only for the accepted intact fixture, no false HISTORICAL_RESULT_HASH_MISMATCH, and preserve received legacy labels/hashes and all raw stored fields",
+    "new_historical_0_2": "reopen remains Historical because the saved historical input-manifest payload is absent; validate its stored record/checksums without rebinding or minting Current; unchanged save preserves every raw attachment field",
+    "fresh_resolve": "restores Current only against a fresh exact input manifest and reproduces the unchanged 500 N mechanics rows and new derivative outputs"
+  },
+  "hash_scope_fences": [
+    "model-content hash, input-manifest hash, raw received mechanics carrier, individual received rows, legacy 0.1 serializers, result derivative 0.2, analysis record 0.2, stress-neutral JSON members, stress-neutral CSV normalized text and stress-neutral package hash are distinct scopes",
+    "legacy desktop 0.1 verification retains localeCompare ordering and its historical projection; it is not replaced by JCS",
+    "new 0.2 JSON checksums use openpipestress_jcs_ijson_v1 and exclude only their explicitly declared own checksum carrier",
+    "original producer bytes/checksums remain null/unavailable when the actual producer preimage is unavailable; a preservation checksum cannot authenticate or reconstruct that preimage"
+  ]
+}

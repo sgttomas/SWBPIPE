@@ -13,6 +13,7 @@ vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 
 import {
   App,
+  RuleRevisionGenerationGate,
   SolveRunGenerationGate,
   commitModelAfterSolveInvalidation,
   solveProofStatus,
@@ -293,6 +294,24 @@ describe("OpenPipeStress desktop preview", () => {
     expect(tokenWasCurrentInsideCommit).toBe(false);
     expect(revision.current).toBe(5);
     expect(gate.finish(first!)).toBe(false);
+  });
+
+  it("makes delayed rule-revision success and failure inert after a newer revision", async () => {
+    const gate = new RuleRevisionGenerationGate();
+    const delayedSuccess = deferred<string>();
+    const first = gate.start();
+    const firstPublication = delayedSuccess.promise.then((value) => gate.isCurrent(first) ? value : null);
+    const second = gate.start();
+    delayedSuccess.resolve("stale-rule-record");
+    expect(await firstPublication).toBeNull();
+    expect(gate.isCurrent(second)).toBe(true);
+
+    const delayedFailure = deferred<never>();
+    const failureRevision = gate.start();
+    const staleCatch = delayedFailure.promise.catch(() => gate.isCurrent(failureRevision));
+    gate.invalidate();
+    delayedFailure.reject(new Error("late hash failure"));
+    expect(await staleCatch).toBe(false);
   });
 
   it("suppresses a real delayed backend completion when native open commits a new model", async () => {
@@ -9899,7 +9918,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(solveJobPacket.analysis_status).toContain("RULE_INPUTS_INCOMPLETE");
     expect(solveJobPacket.result_hash_count).toBe(830);
     expect(solveJobPacket.hash_scopes).toContain("analysis_run_record");
-    expect(solveJobPacket.hash_scopes).toContain("result_envelope");
+    expect(solveJobPacket.hash_scopes).toContain("received_result");
     expect(solveJobPacket.unit_policy_evidence.unit_system_ref.ref).toBe(
       "unit-system:dec-018-si-dual-display",
     );
@@ -10108,7 +10127,7 @@ describe("OpenPipeStress desktop preview", () => {
     await waitFor(() =>
       expect(
         within(stressNeutral).getByTestId("stress-neutral-package").textContent,
-      ).toContain("package_hash=computed_local_preview_sha256"),
+      ).toContain("package_hash=checked"),
     );
     expect(
       within(stressNeutral).getByTestId("stress-neutral-boundary").textContent,
@@ -10123,7 +10142,8 @@ describe("OpenPipeStress desktop preview", () => {
     const stressNeutralPacket = JSON.parse(
       decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
     );
-    expect(stressNeutralPacket.document_kind).toBe("[REDACTED]");
+    expect(stressNeutralPacket.document_kind).toBeUndefined();
+    expect(stressNeutralPacket.schema_version).toBe("[REDACTED]");
     expect(stressNeutralPacket.deliverable_id).toBe("[REDACTED]");
     expect(stressNeutralPacket.package_id).toBe("[REDACTED]");
     expect(stressNeutralPacket.scope_items).toEqual([
@@ -10152,11 +10172,8 @@ describe("OpenPipeStress desktop preview", () => {
       stressNeutralPacket.unit_system_disclosure.protected_content_included,
     ).toBe("[REDACTED]");
     expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
-    expect(
-      stressNeutralPacket.manifest.package_members.map(
-        (item: { role: string }) => item.role,
-      ),
-    ).toContain("[REDACTED]");
+    expect(stressNeutralPacket.manifest.package_members).toHaveLength(9);
+    expect(stressNeutralPacket.manifest.checksums).toHaveLength(9);
     const stressNeutralUnitWitness =
       stressNeutralPacket.unit_preservation_witnesses[0];
     expect(stressNeutralUnitWitness.source_quantity).toEqual(
@@ -10165,9 +10182,7 @@ describe("OpenPipeStress desktop preview", () => {
     expect(stressNeutralUnitWitness.target_quantity).toEqual(
       expect.objectContaining({ value: "[REDACTED]" }),
     );
-    expect(stressNeutralUnitWitness.export_unit_policy).toBe(
-      "[REDACTED]",
-    );
+    expect(stressNeutralUnitWitness.policy).toBe("[REDACTED]");
     expect(stressNeutralUnitWitness.conversion_performed).toBe("[REDACTED]");
     expect(stressNeutralPacket.result_rows).toHaveLength(830);
     expect(stressNeutralPacket.stable_id_map).toHaveLength(830);
@@ -10175,30 +10190,15 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(stressNeutral).getByTestId("stress-neutral-csv-link").getAttribute("href"),
     ).toBeNull();
-    expect(stressNeutralPacket.loss_report.entries).toHaveLength(3);
+    expect(stressNeutralPacket.loss_report).toHaveLength(3);
     expect(
-      stressNeutralPacket.loss_report.entries.map(
+      stressNeutralPacket.loss_report.map(
         (entry: { category: string }) => entry.category,
       ),
     ).toContain("[REDACTED]");
-    expect(stressNeutralPacket.manifest.package_members).toHaveLength(9);
-    expect(stressNeutralPacket.manifest.canonical_package_hash_status).toBe(
-      "[REDACTED]",
-    );
-    expect(stressNeutralPacket.manifest.canonical_package_hash.value).toBe("[REDACTED]");
-    expect(
-      stressNeutralPacket.manifest.canonical_package_hash.payload_scope,
-    ).toBe("[REDACTED]");
-    expect(
-      stressNeutralPacket.manifest.canonical_package_hash.payload_excludes,
-    ).toBe("[REDACTED]");
-    expect(stressNeutralPacket.validation_report.hash_validation_status).toBe(
-      "[REDACTED]",
-    );
+    expect(stressNeutralPacket.package_checksum.value).toBe("[REDACTED]");
+    expect(stressNeutralPacket.package_checksum.payload_scope).toBe("[REDACTED]");
     expect(stressNeutralPacket.validation_report.validation_status).toBe(
-      "[REDACTED]",
-    );
-    expect(stressNeutralPacket.validation_report.schema_validation_status).toBe(
       "[REDACTED]",
     );
     expect(
@@ -10211,12 +10211,11 @@ describe("OpenPipeStress desktop preview", () => {
         (row: { unit: string; dimension: string }) => row.unit && row.dimension,
       ),
     ).toBe(true);
-    expect(stressNeutralPacket.private_payload_included).toBe("[REDACTED]");
-    expect(stressNeutralPacket.protected_content_included).toBe("[REDACTED]");
-    expect(stressNeutralPacket.vendor_format_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.solver_validation_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.code_compliance_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.professional_reliance_claim).toBe("[REDACTED]");
+    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe("[REDACTED]");
+    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe("[REDACTED]");
+    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe("[REDACTED]");
+    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe("[REDACTED]");
+    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe("[REDACTED]");
     expect(
       within(stressNeutral)
         .getByTestId("stress-neutral-csv-link")
@@ -11119,7 +11118,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("analysis_run_record");
     expect(
       within(runAudit).getByTestId("run-audit-hashes").textContent,
-    ).toContain("result_envelope");
+      ).toContain("received_result");
     expect(
       within(runAudit).getByTestId("run-audit-units").textContent,
     ).toContain("model=angle=rad,force=N,length=m");
@@ -11142,16 +11141,13 @@ describe("OpenPipeStress desktop preview", () => {
     );
     expect(
       within(runAudit).getByTestId("run-audit-reproducibility").textContent,
-    ).toContain("physical project container");
-    expect(
-      within(runAudit).getByTestId("run-audit-reproducibility").textContent,
-    ).toContain("release-grade solver build provenance");
+    ).toBe("Reproducibility TBDs");
     expect(
       within(runAudit).getByTestId("run-audit-immutability").textContent,
     ).toContain("read-only run record");
     expect(
       within(runAudit).getByTestId("run-audit-immutability").textContent,
-    ).toContain("changes_create_new_analysis_run");
+    ).toContain("changes_create_new_immutable_record_revision");
     expect(
       within(runAudit).getByTestId("run-audit-boundary").textContent,
     ).toContain(

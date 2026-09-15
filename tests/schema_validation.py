@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import sys
+from pathlib import Path
 from copy import deepcopy
 
 
@@ -49,7 +50,17 @@ def validate_instance(schema, instance, *, schema_label="schema", instance_label
     """Validate an instance and raise an assertion with compact error paths."""
     validate_schema_document(schema, schema_label=schema_label)
     validator_class = _draft202012_validator()
-    validator = validator_class(schema)
+    try:
+        from jsonschema import RefResolver
+        schema_dir = Path(__file__).resolve().parents[1] / "schemas"
+        store = {}
+        for path in schema_dir.glob("*.schema.json"):
+            candidate = json.loads(path.read_text(encoding="utf-8"))
+            if "$id" in candidate:
+                store[candidate["$id"]] = candidate
+        validator = validator_class(schema, resolver=RefResolver.from_schema(schema, store=store))
+    except (ImportError, OSError, ValueError):
+        validator = validator_class(schema)
     errors = sorted(validator.iter_errors(instance), key=lambda error: list(error.path))
     if errors:
         formatted = "\n".join(_format_error(error) for error in errors[:10])

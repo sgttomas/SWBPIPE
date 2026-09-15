@@ -1,0 +1,14 @@
+{
+  "status": "PREPARED",
+  "files": [
+    {"path": "CONTEXT.json", "sha256": "5ffacbea8fb39cca0a5b87f35404a8e011831bf490ebd5312b975e0512016c80", "bytes": 8760},
+    {"path": "CLOSEOUT_INVENTORY.md", "sha256": "ce257e2748ab6360b8a36bfb54c58324ae6f882d28a45908e4dd338b4b8c0423", "bytes": 9669},
+    {"path": "VERIFICATION_AND_GIT_SEQUENCE.md", "sha256": "9ced78af5b7fa5ea8c21131a4b07c6b7eef2cd93e4a47b57bf7878ef8a13b488", "bytes": 7571},
+    {"path": "RECEIPT_141_TEMPLATE.md", "sha256": "1df61fb998da464a6bda31a2202f2e632e55a638abd30dd6d82a7921b7418d45", "bytes": 1559},
+    {"path": "RETURN.md", "sha256": "83587def275aba34b92eba506f8c352f2f8fbe63040f8d337273e096e0798359", "bytes": 1572}
+  ],
+  "write_scope": "instances/CLOSEOUT/** only",
+  "source_or_metadata_acceptance": false,
+  "git_mutation": false,
+  "tests_or_builds_run": false
+}

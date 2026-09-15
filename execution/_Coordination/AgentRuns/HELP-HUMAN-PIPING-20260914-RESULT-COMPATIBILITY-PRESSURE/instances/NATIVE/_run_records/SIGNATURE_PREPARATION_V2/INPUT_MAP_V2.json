@@ -1,0 +1,375 @@
+{
+  "acceptance_boundary": {
+    "actual_browser_delivery_for_all_60_available": false,
+    "actual_native_gui_delivery_for_shipped_population_available": true,
+    "all_60_actual_producer_signatures_qualified": false,
+    "file_backed_actual_product_route_for_supplements_available": true,
+    "prepared": true,
+    "runtime_qualified": false,
+    "unresolved_signature_ids": [
+      "supported-source-052",
+      "supported-source-053",
+      "supported-source-054",
+      "supported-source-056",
+      "supported-source-057",
+      "supported-source-058",
+      "supported-source-059"
+    ]
+  },
+  "artifact": "openpipestress.native_signature_coverage_input_map",
+  "claims_forbidden_without_new_transport_or_execution": [
+    "The 830-row golden JSON was freshly produced by the current native candidate.",
+    "The browser route executes the Rust mechanics producer.",
+    "The current browser app delivers the 12 supplemental signatures.",
+    "Component tests constitute browser application delivery.",
+    "The stable CLI constitutes GUI authoring or GUI delivery.",
+    "The authored 60-row semantic fixture constitutes actual producer output.",
+    "A project file or mechanics-result file can be imported through a UI control absent from maintained source."
+  ],
+  "contract_key": [
+    "kind",
+    "unit",
+    "metadata.component"
+  ],
+  "missing_from_shipped_830": [
+    {
+      "derivative_target_dimension": "dimensionless",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": "curved_model",
+        "output": "curved_output",
+        "route": "prior dedicated product runner; rerun through frozen stable CLI",
+        "status": "prior_actual_product_output"
+      },
+      "signature": {
+        "kind": "curved_bend_macro_element_review",
+        "metadata.component": "curved_bend_flexibility",
+        "unit": "unitless"
+      },
+      "signature_id": "supported-source-022",
+      "source_physical_semantic_dimension": "dimensionless"
+    },
+    {
+      "derivative_target_dimension": "force",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": "friction_model",
+        "output": "friction_output",
+        "route": "prior dedicated product runner; rerun through frozen stable CLI",
+        "status": "prior_actual_product_output"
+      },
+      "signature": {
+        "kind": "nonlinear_support_friction_normal_reaction_input",
+        "metadata.component": "friction_normal_reaction_input",
+        "unit": "N"
+      },
+      "signature_id": "supported-source-029",
+      "source_physical_semantic_dimension": "force"
+    },
+    {
+      "derivative_target_dimension": "ratio",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": "shipped_model",
+        "output": "prior_shipped_dense_output",
+        "route": "same shipped model in dense_scrutiny; packaged native GUI mode control also exists",
+        "status": "prior_actual_product_output"
+      },
+      "signature": {
+        "kind": "sparse_live_path_dense_parity_relative_delta",
+        "metadata.component": "sparse_live_path",
+        "unit": "unitless"
+      },
+      "signature_id": "supported-source-037",
+      "source_physical_semantic_dimension": "dimensionless"
+    },
+    {
+      "derivative_target_dimension": "dimensionless",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": "modulus_model",
+        "output": "modulus_output",
+        "route": "prior headless product output; rerun through frozen stable CLI",
+        "status": "prior_actual_product_output"
+      },
+      "signature": {
+        "kind": "modulus_basis_record",
+        "metadata.component": "material_modulus_basis",
+        "unit": "record"
+      },
+      "signature_id": "supported-source-050",
+      "source_physical_semantic_dimension": "dimensionless"
+    },
+    {
+      "derivative_target_dimension": "dimensionless",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": "combination_modulus_model",
+        "output": "combination_modulus_output",
+        "route": "prior headless product output; rerun through frozen stable CLI",
+        "status": "prior_actual_product_output"
+      },
+      "signature": {
+        "kind": "combination_modulus_basis_record",
+        "metadata.component": "material_modulus_basis",
+        "unit": "record"
+      },
+      "signature_id": "supported-source-051",
+      "source_physical_semantic_dimension": "dimensionless"
+    },
+    {
+      "derivative_target_dimension": "force",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "create a small final-candidate file model based on the existing constant-effort superposition test and run through frozen stable CLI",
+        "status": "source_and_product_unit_test_trigger_only"
+      },
+      "signature": {
+        "kind": "constant_effort_support_applied_load",
+        "metadata.component": "constant_effort_support_applied_load",
+        "unit": "N"
+      },
+      "signature_id": "supported-source-052",
+      "source_physical_semantic_dimension": "force"
+    },
+    {
+      "derivative_target_dimension": "angle",
+      "legacy_declared_dimension": "length",
+      "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "create a stable rotational nonlinear-support model and run through frozen stable CLI",
+        "status": "source_branch_without_positive_exact_producer_snapshot"
+      },
+      "signature": {
+        "kind": "nonlinear_support_final_displacement",
+        "metadata.component": "nonlinear_support_final_displacement",
+        "unit": "rad"
+      },
+      "signature_id": "supported-source-053",
+      "source_physical_semantic_dimension": "angle"
+    },
+    {
+      "derivative_target_dimension": "moment",
+      "legacy_declared_dimension": "force",
+      "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "same rotational nonlinear-support model as supported-source-053",
+        "status": "source_branch_without_positive_exact_producer_snapshot"
+      },
+      "signature": {
+        "kind": "nonlinear_support_final_reaction",
+        "metadata.component": "nonlinear_support_final_reaction",
+        "unit": "N*m"
+      },
+      "signature_id": "supported-source-054",
+      "source_physical_semantic_dimension": "moment"
+    },
+    {
+      "derivative_target_dimension": "length",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "create a small hanger user-input model with a positive variable-spring movement_limit and run through frozen stable CLI",
+        "status": "source_and_product_unit_test_trigger_only"
+      },
+      "signature": {
+        "kind": "spring_hanger_user_input_review",
+        "metadata.component": "variable_spring_hanger_movement_limit",
+        "unit": "m"
+      },
+      "signature_id": "supported-source-056",
+      "source_physical_semantic_dimension": "length"
+    },
+    {
+      "derivative_target_dimension": "length",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "same supplement or a separate constant-effort case with a positive movement_limit",
+        "status": "source_and_product_unit_test_trigger_only"
+      },
+      "signature": {
+        "kind": "constant_effort_user_input_review",
+        "metadata.component": "constant_effort_support_movement_limit",
+        "unit": "m"
+      },
+      "signature_id": "supported-source-057",
+      "source_physical_semantic_dimension": "length"
+    },
+    {
+      "derivative_target_dimension": "rotational_stiffness",
+      "legacy_declared_dimension": "linear_stiffness",
+      "legacy_run_creation_admission": "accepts_with_preserved_legacy_dimension_different_from_new_semantics",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "create a variable-spring model whose stiffness DOF is rotational and whose stiffness unit is N*m/rad; run through frozen stable CLI",
+        "status": "source_branch_without_positive_exact_producer_snapshot"
+      },
+      "signature": {
+        "kind": "spring_hanger_user_input_review",
+        "metadata.component": "variable_spring_hanger_stiffness",
+        "unit": "N*m/rad"
+      },
+      "signature_id": "supported-source-058",
+      "source_physical_semantic_dimension": "rotational_stiffness"
+    },
+    {
+      "derivative_target_dimension": "stress",
+      "legacy_declared_dimension": null,
+      "legacy_run_creation_admission": "throws_ANALYSIS_RUN_RESULT_DIMENSION_UNDECLARED",
+      "present_in_shipped_830": false,
+      "producer_evidence": {
+        "input": null,
+        "output": null,
+        "route": "qualify separately. Current source suppresses longitudinal pressure stress whenever pressure thrust is active; a zero-valued genuine pressure record may reach the row but has no actual product-output witness.",
+        "status": "source_reachability_unresolved"
+      },
+      "signature": {
+        "kind": "pipe_section_pressure_longitudinal_stress",
+        "metadata.component": "pressure_longitudinal_stress",
+        "unit": "MPa"
+      },
+      "signature_id": "supported-source-059",
+      "source_physical_semantic_dimension": "stress"
+    }
+  ],
+  "population": {
+    "absent_exact_signatures": 12,
+    "legacy_admission_failures_among_absent": 9,
+    "legacy_preserved_dimension_differences_among_absent": 3,
+    "required_exact_signatures": 60,
+    "shipped_sparse_exact_signatures": 48,
+    "shipped_sparse_rows": 830
+  },
+  "schema_version": "1.0.0",
+  "smallest_truthful_witness": [
+    {
+      "assertions": [
+        "830 result rows",
+        "40 kinds",
+        "48 exact signatures",
+        "result-id set equals the shipped 830-row golden population",
+        "stress-neutral semantic eligibility remains raw=828/reference=830; retained source rows remain 830"
+      ],
+      "covers": "the shipped population only; it does not cover the 12 absent signatures",
+      "input": "shipped_model",
+      "method": "Launch the frozen packaged app, keep Sparse interactive selected, solve through the asynchronous backend job, verify seam=backend_job, save the actual result JSON through ResultExportPanel/save_local_result_json.",
+      "step": "NATIVE-SHIPPED-SPARSE",
+      "surface": "actual packaged native GUI producer and actual frontend delivery"
+    },
+    {
+      "assertions": [
+        "832 result rows",
+        "41 kinds",
+        "49 exact signatures",
+        "supported-source-037 is present as (sparse_live_path_dense_parity_relative_delta, unitless, sparse_live_path)"
+      ],
+      "covers": [
+        "supported-source-037"
+      ],
+      "input": "shipped_model",
+      "method": "Select Dense scrutiny in the existing Solve panel, solve through the backend job, and save the actual result JSON.",
+      "step": "NATIVE-SHIPPED-DENSE",
+      "surface": "actual packaged native GUI producer and actual frontend delivery"
+    },
+    {
+      "assertions": [
+        "CLI process succeeds",
+        "mechanics envelope contains the expected exact signature",
+        "capture input/output hashes and row counts"
+      ],
+      "covers": [
+        "supported-source-022",
+        "supported-source-029",
+        "supported-source-050",
+        "supported-source-051"
+      ],
+      "inputs": [
+        "curved_model",
+        "friction_model",
+        "modulus_model",
+        "combination_modulus_model"
+      ],
+      "method": "Wrap each exact PreviewModel in a valid openpipestress-runner solve request and execute the frozen final CLI with explicit input and output paths.",
+      "step": "FILE-PRODUCER-EXISTING-CASES",
+      "surface": "actual product mechanics producer, file-backed CLI; no GUI delivery claim"
+    },
+    {
+      "assertions": [
+        "expected exact signatures occur in actual producer output",
+        "each row is accepted by the final analysis-record constructor",
+        "new 0.2 semantics are emitted while legacy projection/admission behavior matches the frozen contract"
+      ],
+      "covers": [
+        "supported-source-052",
+        "supported-source-053",
+        "supported-source-054",
+        "supported-source-056",
+        "supported-source-057",
+        "supported-source-058",
+        "supported-source-059 if reachable"
+      ],
+      "hard_hold": "Do not mark supported-source-059 passed unless an actual producer output contains the exact signature. If the candidate cannot produce it, report it as unreachable/blocking rather than substituting the authored one-row fixture.",
+      "inputs": [
+        "new evidence-local constant-effort/hanger supplement model",
+        "new evidence-local rotational nonlinear-support model",
+        "separate pressure-longitudinal reachability model"
+      ],
+      "method": "Derive minimal models only after the candidate and lease are frozen; execute each with the frozen final CLI. Keep pressure-longitudinal separate because its reachability is unresolved.",
+      "step": "FILE-PRODUCER-SUPPLEMENTS",
+      "surface": "actual product mechanics producer, file-backed CLI; no GUI delivery claim"
+    },
+    {
+      "assertions": [
+        "no authored one-row substitute is used as producer proof",
+        "all admitted rows retain exact kind/unit/component",
+        "legacy throws or preserves its declared dimension exactly as specified"
+      ],
+      "covers": "frontend consumption of supplemental classes without claiming browser app delivery",
+      "input": "captured outputs from FILE-PRODUCER-EXISTING-CASES and FILE-PRODUCER-SUPPLEMENTS",
+      "method": "Run the final result-semantics/analysis-record/export adapter against captured producer rows and verify exact 0.2 serialization, category/disposition, legacy behavior, and stress-neutral withholdings.",
+      "step": "FRONTEND-COMPOSITION",
+      "surface": "frontend component ingestion of actual producer outputs; compositional evidence only"
+    },
+    {
+      "assertions": [
+        "830-row fixture is displayed/consumed through the real browser app",
+        "browser seam remains explicitly fixture-backed"
+      ],
+      "covers": "browser delivery for the base 48 signatures only",
+      "input": "shipped_model plus shipped 830-row golden result",
+      "method": "Use the existing Playwright GUI workflow. Assert seam=browser_fixture_no_backend_job and the 830-row UI/export behavior.",
+      "step": "BROWSER-SHIPPED-DELIVERY",
+      "surface": "actual browser UI delivery of maintained fixture; no solver/backend claim"
+    }
+  ],
+  "status": "PREPARED_NOT_EXECUTED"
+}

@@ -288,7 +288,8 @@ export async function buildRenderableReportInput({
   const provenance = sessionProvenance(model);
   const modelHashValue = await canonicalSha256Hex(model);
   const runRecordHash = run.hashes.find((item) => item.payload_scope === "analysis_run_record");
-  const resultEnvelopeHash = run.hashes.find((item) => item.payload_scope === "result_envelope");
+  const receivedResultScope = analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope";
+  const resultEnvelopeHash = run.hashes.find((item) => item.payload_scope === receivedResultScope);
 
   const analysisStatus = Array.from(
     new Set(

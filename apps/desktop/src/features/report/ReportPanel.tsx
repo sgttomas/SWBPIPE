@@ -52,7 +52,8 @@ export function ReportPanel({
   const severitySummary = countDiagnosticsBySeverity(diagnostics);
   const run = analysisRun?.analysis_run;
   const resultHashCount = run?.result_refs.reduce((count, item) => count + item.hash_refs.length, 0) ?? 0;
-  const envelopeHash = run?.hashes.find((item) => item.payload_scope === "result_envelope");
+  const resultHashScope = analysisRun?.schema_version === "0.2.0" ? "received_result" : "result_envelope";
+  const envelopeHash = run?.hashes.find((item) => item.payload_scope === resultHashScope);
   const loadBasisRefs = run?.load_basis_refs?.map((item) => item.ref).join(", ") ?? "not generated";
   const persistenceEvidence = reportPersistenceEvidence({
     model,

@@ -225,6 +225,22 @@ export class SolveRunGenerationGate {
   }
 }
 
+export class RuleRevisionGenerationGate {
+  private generation = 0;
+
+  start(): number {
+    return ++this.generation;
+  }
+
+  isCurrent(token: number): boolean {
+    return token === this.generation;
+  }
+
+  invalidate(): void {
+    this.generation += 1;
+  }
+}
+
 export function commitModelAfterSolveInvalidation(
   gate: SolveRunGenerationGate,
   revision: { current: number },
@@ -511,6 +527,11 @@ function AppSession() {
   const directDraftReviews = useRef(new Map<string, FrozenDraftReview>());
   const directDraftReviewSequence = useRef(0);
   const solveRunGate = useRef(new SolveRunGenerationGate());
+  const ruleRevisionGate = useRef(new RuleRevisionGenerationGate());
+  const currentSolvedResultRef = useRef<MechanicsResult | null>(null);
+  const currentInputManifestRef = useRef<CurrentSessionInputManifestEvidence | null>(null);
+  currentSolvedResultRef.current = currentSolvedResult;
+  currentInputManifestRef.current = inputManifest;
   const activeSolveJob = useRef<{
     generation: number;
     job: SolveJobAuditState;
@@ -633,6 +654,7 @@ function AppSession() {
   async function handleRun() {
     const runGeneration = solveRunGate.current.tryStart();
     if (runGeneration === null) return;
+    ruleRevisionGate.current.invalidate();
     solveCancellationTombstones.current.set(runGeneration, {
       requested: false,
       dispatched: false
@@ -814,19 +836,33 @@ function AppSession() {
   // envelope to annotate.
   async function handleRuleCheckAggregate(aggregate: RuleCheckStatus | null) {
     if (aggregate === ruleCheckAggregate) return;
+    const previousAggregate = ruleCheckAggregate;
+    const revision = ruleRevisionGate.current.start();
     setRuleCheckAggregate(aggregate);
     if (!currentSolvedResult || !inputManifest) return;
+    const capturedResult = currentSolvedResult;
+    const capturedManifest = inputManifest;
+    const capturedModelRevision = modelRevision.current;
+    const capturedSolveGeneration = solveRunGate.current.current();
+    const stillCurrent = () =>
+      ruleRevisionGate.current.isCurrent(revision) &&
+      modelRevision.current === capturedModelRevision &&
+      solveRunGate.current.current() === capturedSolveGeneration &&
+      currentSolvedResultRef.current === capturedResult &&
+      currentInputManifestRef.current === capturedManifest &&
+      currentModel.current?.project.id === capturedResult.model_ref;
     try {
-      setAnalysisRun(
-        await buildAnalysisRunPreview(currentSolvedResult, {
-          inputManifest,
+      const revisedRecord = await buildAnalysisRunPreview(capturedResult, {
+          inputManifest: capturedManifest,
           ruleCheckAggregate: aggregate
-        })
-      );
+        });
+      if (!stillCurrent()) return;
+      setAnalysisRun(revisedRecord);
     } catch {
+      if (!stillCurrent()) return;
       // Recording the aggregate failed (e.g. hashing unavailable); keep the
       // solve-time analysis-run envelope rather than surfacing a false outcome.
-      setRuleCheckAggregate(null);
+      setRuleCheckAggregate(previousAggregate);
     }
   }
 
@@ -1341,6 +1377,7 @@ function AppSession() {
   }
 
   function clearComputedModelState(nextSolveJob: SolveJobAuditState) {
+    ruleRevisionGate.current.invalidate();
     setHistoricalRun(null);
     setResult(null);
     setAnalysisRun(null);
@@ -1406,6 +1443,7 @@ function AppSession() {
   }
 
   async function handleCreateBlankProject() {
+    ruleRevisionGate.current.invalidate();
     const blankModel = buildBlankLocalModelDocument();
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
@@ -1468,6 +1506,7 @@ function AppSession() {
   }
 
   async function handleOpenProject(projectId: string | null = null) {
+    ruleRevisionGate.current.invalidate();
     const request = ++projectRequest.current;
     let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;

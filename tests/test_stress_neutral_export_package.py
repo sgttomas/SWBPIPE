@@ -24,6 +24,9 @@ from core.handoff.stress_neutral import (  # noqa: E402
     canonical_json,
     render_stress_neutral_csv,
     write_stress_neutral_export_package,
+    build_stress_neutral_export_package_v0_2,
+    materialized_members_v0_2,
+    validate_stress_neutral_export_package_v0_2,
 )
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
@@ -38,6 +41,7 @@ SCHEMA_PATH = ROOT / "schemas" / "stress_neutral_export.schema.json"
 FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_export_package.json"
 CSV_FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_results.csv"
 SOURCE_PAYLOAD_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "source_result_payload.json"
+V02_FIXTURE_PATH = ROOT / "fixtures" / "stress_neutral" / "invented" / "stress_neutral_export_package_v0_2.json"
 SHA256_PATTERN = re.compile(r"^sha256:[a-f0-9]{64}$")
 
 CSV_HEADER = (
@@ -147,6 +151,88 @@ def source_payload() -> dict[str, object]:
 
 def build_from_source() -> dict[str, object]:
     return build_stress_neutral_export_package(**source_payload())
+
+
+def source_payload_830() -> dict[str, object]:
+    payload = source_payload()
+    template = payload["result_rows"][0]
+    rows, stable = [], []
+    for index in range(830):
+        row = deepcopy(template)
+        row["result_id"] = f"result:stress-neutral:{index:03d}"
+        row["canonical_ref"] = ref("Result", row["result_id"])
+        row["source_result_ref"] = ref("Result", row["result_id"])
+        row["value"] = float(index)
+        if index >= 828:
+            row["row_kind"] = "diagnostic_work"
+            row["result_family"] = "diagnostic_work"
+        rows.append(row)
+        stable.append({"canonical_ref": ref("Result", row["result_id"]), "export_ref": ref("StressNeutralRow", row["result_id"]), "mapping_status": "mapped", "loss_category": "exported"})
+    payload["result_rows"] = rows
+    payload["stable_id_map"] = stable
+    return payload
+
+
+def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
+    source = source_payload_830()
+    received = deepcopy(source["source_hashes"])
+    package = build_stress_neutral_export_package_v0_2(**source)
+    assert package["schema_version"] == "0.2.0"
+    assert len(package["result_rows"]) == 830
+    assert len(package["stable_id_map"]) == 830
+    assert len(package["unit_preservation_witnesses"]) == 828
+    assert sum(item["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK" for item in package["diagnostics"]) == 2
+    assert package["received_source_checksums"] == received
+    members = materialized_members_v0_2(package)
+    assert list(members) == ["manifest.json", "stress_neutral_results.csv", "result_rows.json", "unit_system_disclosure.json", "unit_preservation_witnesses.json", "stable_id_map.json", "loss_report.json", "validation_report.json", "diagnostics.json"]
+    assert all(not data.endswith(b"\n") for name, data in members.items() if name.endswith(".json"))
+    assert next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "manifest.json")["payload_scope"] == "manifest_seed"
+    validate_stress_neutral_export_package_v0_2(package)
+    validate_instance(load_json(SCHEMA_PATH), package, schema_label=str(SCHEMA_PATH), instance_label="strict stress-neutral 0.2 package")
+
+
+def test_v02_rejects_member_and_package_tamper():
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    package["result_rows"][0]["value"] = 999
+    try:
+        validate_stress_neutral_export_package_v0_2(package)
+    except ValueError as error:
+        assert "MEMBER-CHECKSUM-MISMATCH" in str(error)
+    else:
+        raise AssertionError("member tamper must fail")
+
+
+def test_v02_fixture_matches_builder_and_dispatch_schema():
+    fixture = load_json(V02_FIXTURE_PATH)
+    assert fixture == build_stress_neutral_export_package_v0_2(**source_payload())
+    validate_instance(load_json(SCHEMA_PATH), fixture, schema_label=str(SCHEMA_PATH), instance_label=str(V02_FIXTURE_PATH))
+
+
+def test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families():
+    schema = load_json(SCHEMA_PATH)
+    valid = build_stress_neutral_export_package_v0_2(**source_payload())
+    diagnostic_source = source_payload()
+    diagnostic_source["result_rows"][0]["row_kind"] = "diagnostic_work"
+    diagnostic_source["result_rows"][0]["result_family"] = "diagnostic_work"
+    with_diagnostic = build_stress_neutral_export_package_v0_2(**diagnostic_source)
+    cases = []
+    item = deepcopy(valid); item["export_profile"]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); del item["result_rows"][0]["unit"]; cases.append(item)
+    item = deepcopy(valid); item["unit_system_disclosure"]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); del item["stable_id_map"][0]["mapping_status"]; cases.append(item)
+    item = deepcopy(valid); del item["loss_report"][0]["reason"]; cases.append(item)
+    item = deepcopy(valid); item["validation_report"]["unknown"] = True; cases.append(item)
+    item = deepcopy(with_diagnostic); item["diagnostics"][0]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); item["provenance"]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); item["received_source_checksums"][0]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); item["privacy"]["unknown"] = True; cases.append(item)
+    item = deepcopy(valid); item["professional_boundary"]["unknown"] = True; cases.append(item)
+    for case in cases:
+        try:
+            validate_instance(schema, case, schema_label=str(SCHEMA_PATH), instance_label="negative strict stress-neutral package")
+        except AssertionError:
+            continue
+        raise AssertionError("strict stress-neutral schema accepted an unknown or missing family field")
 
 
 def walk_mappings(value):

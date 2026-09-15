@@ -1,0 +1,182 @@
+{
+  "accepted_basis_bindings": [
+    {
+      "bytes": 6425,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FROZEN_SYNTHETIC_EXPECTATIONS_V1.json",
+      "sha256": "5c60f51fbb50c92405f1b13392e58e765d12c717df0202c26744fc8bf6a78f65"
+    },
+    {
+      "bytes": 6147,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/CURRENT_HOOKS_AND_FIXTURES_V1.json",
+      "sha256": "b6f3910d423c9bd962eff70c0c59ecc3103d90ffe847b35f7563fecf85938693"
+    },
+    {
+      "bytes": 12455,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/NATIVE_QUALIFICATION_PROCEDURE_V1.md",
+      "sha256": "ddb5f92ef50eed2c66358262886e3c889c0742c1e69a75a6d3c9a397699430d8"
+    },
+    {
+      "bytes": 2222,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PREPARATION_RETURN_V1.md",
+      "sha256": "68d1d5489e39a8a90d295f3523ba26793999a997483b1905155077f61b6f30b6"
+    },
+    {
+      "bytes": 13569,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/SIGNATURE_COVERAGE_PREPARATION_V2.md",
+      "sha256": "eed58ac80283b75466922f4bc0bed984663655af5b54b7c21f6fca128d0b73aa"
+    },
+    {
+      "bytes": 9634,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/_run_records/SIGNATURE_PREPARATION_V2/CONTEXT_V2.json",
+      "sha256": "6e1c0eb17f9c5699c96ae8fabcaf644d59f6a836c43a6fb5f79cf3a7445a1e6a"
+    },
+    {
+      "bytes": 16137,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/_run_records/SIGNATURE_PREPARATION_V2/INPUT_MAP_V2.json",
+      "sha256": "ac684961017b5b7a94932162cc2cab5268308a145f5a39d34b739dd1c0eb8868"
+    }
+  ],
+  "artifact": "openpipestress.native_producer_inputs_preparation_hash_manifest_v3",
+  "brief": {
+    "bytes": 2615,
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_PRODUCER_INPUTS_PREPARATION_V3.md",
+    "sha256": "901e3e48df8d33bbe743f4bba5061c7ed7c907e2afeb2063bf30a08790f37060"
+  },
+  "future_command_contract": {
+    "candidate_binding_required": true,
+    "command": "<FROZEN_CLI> solve --input <ABS_REQUEST_JSON> --output <ABS_OUTPUT_JSON>",
+    "mechanics_envelope_pointer": "/mechanics_envelope",
+    "pass_predicates": [
+      "process exit code is zero",
+      "mechanics status is MECHANICS_SOLVED",
+      "actual output contains every case-declared exact kind/unit/metadata.component triple",
+      "candidate source, binary, request and output hashes are captured"
+    ],
+    "results_pointer": "/mechanics_envelope/results",
+    "serialized_lease_required": true
+  },
+  "hash_scope_note": "This manifest hashes the prepared inputs, wrappers, verifier, maps and return. It does not claim product behavior. The manifest does not self-hash.",
+  "preparation_boundary": {
+    "browser_or_native_execution": false,
+    "delegation": false,
+    "git_or_network_action": false,
+    "output_fence": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3",
+    "product_or_test_execution": false,
+    "source_edit": false
+  },
+  "preparation_time_source_bindings": [
+    {
+      "bytes": 710426,
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15"
+    },
+    {
+      "bytes": 41028,
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+    },
+    {
+      "bytes": 56866,
+      "path": "core/runner/headless/src/lib.rs",
+      "sha256": "39e60b1fb6ce53aaea1e3572eca48705520d6299f7636d3b2a1899190ef344f2"
+    },
+    {
+      "bytes": 37875,
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    },
+    {
+      "bytes": 17555,
+      "path": "fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "sealed_outputs": [
+    {
+      "bytes": 4516,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/EXECUTION_MAP_V3.json",
+      "sha256": "b9e7f7dc9b2e2afd9f7fcd01137a91f4d789fb97f7e71f33aa574fd134c492bb"
+    },
+    {
+      "bytes": 4584,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/EXPECTED_SIGNATURES_V3.json",
+      "sha256": "184cbf7a27b0a3f01aaf80dbfb97df0c528fb8edfdc51c511b045d75fc77d9f6"
+    },
+    {
+      "bytes": 5850,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/PREPARATION_RETURN_V3.md",
+      "sha256": "2c6360ffeef77fda2f45c3d0c5e9f864236b3aba47f94ff5d2a272692656ae34"
+    },
+    {
+      "bytes": 3506,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/REFERENCED_INPUTS_V3.json",
+      "sha256": "d2de11cccc5f5ee0b767f40b16967e6884682be9d3585bc545a3adc293344cb1"
+    },
+    {
+      "bytes": 4644,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/models/hanger_constant_effort.model.json",
+      "sha256": "1a9aec8bbddae0435a12371b7a70cf95d9141bf6c4d86643f5cb500984d43da6"
+    },
+    {
+      "bytes": 3078,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/models/rotational_nonlinear.model.json",
+      "sha256": "b8c962014b253ff0136b8ec303865cef84bbd42628fbf5d60a34099d882220de"
+    },
+    {
+      "bytes": 2725,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/models/zero_pressure_longitudinal.model.json",
+      "sha256": "a7beace29a7a5b2cf96e04cff9113411897c31fae8bda0ae95f417592305884e"
+    },
+    {
+      "bytes": 8154,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/requests/hanger_constant_effort.request.json",
+      "sha256": "ae7b7d1c01890cc3faa7a3a3f402cbfd317d49c5c02233237e6a851929d63184"
+    },
+    {
+      "bytes": 6236,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/requests/rotational_nonlinear.request.json",
+      "sha256": "c88a6288e157fcf3d535944081c69c57296e0365b62de505c2c5f2b6cfd9f2bd"
+    },
+    {
+      "bytes": 5841,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/requests/zero_pressure_longitudinal.request.json",
+      "sha256": "c4f670047a5ac0ae5aface3e4294450bd88ddd27873a6c5d24535b94743fa013"
+    },
+    {
+      "bytes": 2966,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/verify_declared_signatures.py",
+      "sha256": "9aa61bbcea88a851d638b87da8655f7ebdddc8ae781cfb14ad8fedd4ee9af870"
+    }
+  ],
+  "source_derived_expected_signatures": {
+    "hanger_constant_effort": [
+      "supported-source-052",
+      "supported-source-056",
+      "supported-source-057",
+      "supported-source-058"
+    ],
+    "rotational_nonlinear": [
+      "supported-source-053",
+      "supported-source-054"
+    ],
+    "zero_pressure_longitudinal": [
+      "supported-source-059"
+    ]
+  },
+  "status": "SEALED_PREPARATION_NOT_EXECUTED",
+  "unresolved_preconditions": [
+    {
+      "case": "hanger_constant_effort",
+      "condition": "final candidate parses and solves the prepared request without a new validation or mechanics blocker"
+    },
+    {
+      "case": "rotational_nonlinear",
+      "condition": "final candidate active-set loop converges for the prepared rotational one-way contact and emits completed-support rows"
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "condition": "final candidate retains Some(0) pressure stress and emits the longitudinal row when the summed pressure thrust is exactly zero"
+    }
+  ]
+}

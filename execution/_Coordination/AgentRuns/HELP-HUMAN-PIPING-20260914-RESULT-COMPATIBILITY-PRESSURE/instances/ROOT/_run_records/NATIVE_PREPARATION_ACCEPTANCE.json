@@ -1,0 +1,20 @@
+{
+  "status": "STATIC_PREPARATION_ACCEPTED_WITH_EXECUTION_CLARIFICATIONS",
+  "recorded_utc": "2026-09-15T00:22:27.872905+00:00",
+  "inputs": {
+    "FROZEN_SYNTHETIC_EXPECTATIONS_V1.json": "5c60f51fbb50c92405f1b13392e58e765d12c717df0202c26744fc8bf6a78f65",
+    "CURRENT_HOOKS_AND_FIXTURES_V1.json": "b6f3910d423c9bd962eff70c0c59ecc3103d90ffe847b35f7563fecf85938693",
+    "NATIVE_QUALIFICATION_PROCEDURE_V1.md": "ddb5f92ef50eed2c66358262886e3c889c0742c1e69a75a6d3c9a397699430d8",
+    "PREPARATION_RETURN_V1.md": "68d1d5489e39a8a90d295f3523ba26793999a997483b1905155077f61b6f30b6"
+  },
+  "source_or_runtime_acceptance": false,
+  "clarifications": [
+    "Immutable V1 preparation is a procedure basis, not a runtime pass. Source bindings and record/package projections must be qualified against the actual supplied checkpoint.",
+    "Early checkpoint qualification is intentionally narrower than the complete native procedure: actual new analysis record creation, native save, normal quit/reopen as Historical, unchanged-save preservation and fresh solve. Complete stress-neutral and other final paths run after their source is ready. Relevant source changes determine reruns.",
+    "The solver-mode row is a discrete disclosure, not diagnostic work. The 67-row native fixture and 830-row compatibility inventory are separate populations. Do not conflate a solver-mode disclosure with the two work-row preservation withholdings. Freeze exact 0.2 stress witness counts from semantic eligibility before executing, and retain all source rows.",
+    "Legacy fixture success may include explicit unverifiable findings warranted by missing preimages, profile or numeric-type information. The older HISTORICAL_INPUT_MANIFEST_MISSING-only expectation is not a requirement to suppress truthful new findings. A genuine available-basis mismatch remains a mismatch.",
+    "Existing model, persistence, input-manifest and already accepted result-derivative hash contracts remain unchanged. Use their established canonicalizer/projections when verifying them. Only new analysis-record and stress-neutral 0.2 checked hashes use openpipestress_jcs_ijson_v1.",
+    "Preserve the manifest-seed checksum exception explicitly; it is not a final manifest-file checksum. Verify actual member materialization through the product route that owns it. Frontend package JSON/CSV delivery and Python materialization are separate witnesses; do not claim a GUI wrote individual files that it did not write.",
+    "Root supplies an explicit serialized build/GUI lease with exact source. No native effect is authorized by this preparation acceptance alone."
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "status": "IMMUTABLE_ANALYSIS_CANONICALIZER_CHECKPOINT",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "role": "TASK / Type 2",
+  "parent": "/root/foundation_compatibility",
+  "delegation": "none",
+  "basis": {
+    "contract_sha256": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+    "legacy_expectations_sha256": "8765b66eef865c7a51e0b737334fec216a29fd15cfb87ff10b2dcbb9b62d6901",
+    "source_release_sha256": "68ec3c0be138eaa85b2ec5cd6ebfd8d371af7e04d9075ab6d219700f77ffe31d",
+    "semantic_contract_sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+  },
+  "result": {
+    "checked_profile": "openpipestress_jcs_ijson_v1",
+    "rust_authority": "additive checked parser/canonicalizer rejects duplicate keys, unsafe integral numbers including largest finite binary64, malformed JSON and lone-surrogate JSON escapes; existing canonical_json remains unchanged",
+    "private_adapter": "feature-gated stdin batch executable with explicit configured/known path; runtime has no Cargo invocation, shell, PATH search or fallback; Python computes SHA-256 over returned UTF-8",
+    "desktop": "buildAnalysisRunPreview now emits the strict 0.2 full-row envelope using checked WASM exports; the received mechanics object is cloned and is not enriched or rewritten",
+    "python": "build_analysis_run_v0_2 emits the same field meanings and exact checksum projections",
+    "schema": "exact version dispatcher with metadata-adjusted full Python 0.1 schema, separate strict abbreviated desktop 0.1 schema and strict 0.2 schema",
+    "coverage": "all 60 frozen signatures are accounted; each complete raw row and complete received result has a distinct checked checksum; rule-only revisions retain received hashes and change record identity"
+  },
+  "changed_inventory": [
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/Cargo.toml","pre":"30dac091c5df988b0beeaf316b0a36157d73526c8a5466664f4efb433e4ab91d","post":"29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0"},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/Cargo.lock","pre":"7d0c6b916947c528c80a181bad28b314e306342b3e335cb2cc73ffef9cb35b7c","post":"dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8"},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/src/lib.rs","pre":"3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897","post":"0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573"},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs","pre":null,"post":"0a1b2cd84de09c2c83e9af987f1f291b12b977c9111af732dc53df966ebfd45c"},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/adapter.py","pre":null,"post":"830404d7a6cb0dbd4987d68625403d6da1cc45a54574618b91ef65b6e162e859"},
+    {"path":"projects/chirality-piping/core/serialization/canonical_json/tests/checked_profile.rs","pre":null,"post":"25583a1e87a9381ecc5d5a2a7e7a44380b316fe41dfb0d47896221e5ca3f88be"},
+    {"path":"projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs","pre":"83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7","post":"22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355"},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts","pre":"edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c","post":"fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073"},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/hashService.ts","pre":"5ccb4b3a8c79c1814aa694e4ad94d563fa943a5203c87aaaa581065b6bcf185c","post":"715193df8294676f4b3a1e0635af8b131b00a1dc2122a2d0f8e14fca2c4573e2"},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts","pre":null,"post":"169a1d7d1aa0aa83a59e36e69c7bf7494f8dfd0595bd1ca83aca7f7ce4bfc3ce"},
+    {"path":"projects/chirality-piping/apps/desktop/src/services/previewService.ts","pre":"2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800","post":"0f624a6e0c80214d52a85e3098b8b9a6f5b8c70645cc7f49680e387063e7a652"},
+    {"path":"projects/chirality-piping/apps/desktop/src/types.ts","pre":"b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf","post":"cfeae417415e498258c371331c7af66b76afb2d2f00f50b9d418c7933fb5fe46"},
+    {"path":"projects/chirality-piping/core/analysis_runs/__init__.py","pre":"712c525b351a473a7e63b810c6a003d6fac5d97efed9a9c2acfb54af279ce00b","post":"33946993195dc6abaa897d04e0783343018d48e4a431c182ee5c8ef37eb3d9c4"},
+    {"path":"projects/chirality-piping/core/analysis_runs/compatibility.py","pre":null,"post":"415376b6f146f9d9b58fb654ff9bf96cab5627a43a1c4dc93fe30b71721c7632"},
+    {"path":"projects/chirality-piping/schemas/analysis_run.schema.json","pre":"a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f","post":"b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86"},
+    {"path":"projects/chirality-piping/schemas/analysis_run.v0.1.schema.json","pre":null,"post":"112d18290dd168d33293fad5597a08fbb45fa022105eb0d490ccd8cd0b89cab8"},
+    {"path":"projects/chirality-piping/schemas/analysis_run.v0.2.schema.json","pre":null,"post":"29acfefa1105dd796d189d3ec4406f81b776d024e072b49a758ba44c706b3d29"},
+    {"path":"projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json","pre":null,"post":"5c5f586b5309f73d2a996faf8d6bf1c1ed87ae37032b5f7f04b2a8045ae79575"}
+  ],
+  "verification": [
+    {"command":"CARGO_TARGET_DIR=/private/tmp/chirality-compat-canonical-target cargo test --features checked-cli","result":"10 passed (8 existing unit + 2 checked-profile integration); 0 failed"},
+    {"command":"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py","result":"12 passed; 0 failed; 2 deprecation warnings"},
+    {"command":"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_persistence_schema.py tests/test_project_persistence_service.py","result":"18 passed; 0 failed; 12 deprecation warnings"},
+    {"command":"../../node_modules/.bin/tsc --noEmit -p tsconfig.json","result":"pass; no diagnostics"}
+  ],
+  "held_qualification": {
+    "reason": "serialized root lease required for WASM/native/browser execution",
+    "commands": [
+      "npm run build:wasm --workspace apps/desktop",
+      "npm test --workspace apps/desktop -- --run src/services/previewService.test.ts src/services/hashService.test.ts src/services/analysisRunCompatibility.test.ts",
+      "PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test e2e/result-compatibility.spec.ts",
+      "PLAYWRIGHT_WORKERS=1 ../../node_modules/.bin/playwright test --config playwright.dist.config.ts e2e/result-compatibility-dist.spec.ts"
+    ],
+    "observed_without_build": "focused Vitest startup failed with WASM-ENGINE-ASSET-ABSENT before test collection, as designed"
+  },
+  "limits": [
+    "WASM exports are source-authored and TypeScript-typed but await the serialized build/test lease.",
+    "Stress-neutral 0.2 and cross-consumer designation repair continue after this checkpoint.",
+    "No Git operation, native build, WASM build, browser/GUI action, full sweep, commit, push or merge was run."
+  ]
+}

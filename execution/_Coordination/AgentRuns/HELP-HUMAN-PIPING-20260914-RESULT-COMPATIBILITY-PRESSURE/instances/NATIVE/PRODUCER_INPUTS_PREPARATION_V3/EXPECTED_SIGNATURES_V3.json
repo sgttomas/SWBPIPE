@@ -1,0 +1,107 @@
+{
+  "artifact": "openpipestress.native_producer_expected_signatures_v3",
+  "cases": {
+    "hanger_constant_effort": {
+      "expected_mechanics_status": "MECHANICS_SOLVED",
+      "model": "models/hanger_constant_effort.model.json",
+      "preconditions": [
+        "root anchor supplies all six rigid-body restraint classes",
+        "constant-effort support declares exactly one translational restraint UY and a finite positive constant load",
+        "variable-spring stiffness uses rotational DOF RZ and N*m/rad",
+        "movement limits are finite positive lengths"
+      ],
+      "request": "requests/hanger_constant_effort.request.json",
+      "required_signatures": [
+        {
+          "component": "constant_effort_support_applied_load",
+          "kind": "constant_effort_support_applied_load",
+          "signature_id": "supported-source-052",
+          "unit": "N"
+        },
+        {
+          "component": "variable_spring_hanger_movement_limit",
+          "kind": "spring_hanger_user_input_review",
+          "signature_id": "supported-source-056",
+          "unit": "m"
+        },
+        {
+          "component": "constant_effort_support_movement_limit",
+          "kind": "constant_effort_user_input_review",
+          "signature_id": "supported-source-057",
+          "unit": "m"
+        },
+        {
+          "component": "variable_spring_hanger_stiffness",
+          "kind": "spring_hanger_user_input_review",
+          "signature_id": "supported-source-058",
+          "unit": "N*m/rad"
+        }
+      ],
+      "uncertainty": "unexecuted until frozen-candidate CLI run"
+    },
+    "rotational_nonlinear": {
+      "expected_mechanics_status": "MECHANICS_SOLVED",
+      "model": "models/rotational_nonlinear.model.json",
+      "preconditions": [
+        "root anchor leaves the cantilever stable whether the one-way RZ support is active or inactive",
+        "one-way is an existing accepted nonlinear class",
+        "initial state and activation sense are explicit",
+        "nodal RZ load has moment dimension and N*m unit"
+      ],
+      "request": "requests/rotational_nonlinear.request.json",
+      "required_signatures": [
+        {
+          "component": "nonlinear_support_final_displacement",
+          "kind": "nonlinear_support_final_displacement",
+          "signature_id": "supported-source-053",
+          "unit": "rad"
+        },
+        {
+          "component": "nonlinear_support_final_reaction",
+          "kind": "nonlinear_support_final_reaction",
+          "signature_id": "supported-source-054",
+          "unit": "N*m"
+        }
+      ],
+      "uncertainty": "active-set convergence and final state are unexecuted until frozen-candidate CLI run; exact signatures are emitted for a completed nonlinear solve regardless of final active/inactive state"
+    },
+    "zero_pressure_longitudinal": {
+      "expected_mechanics_status": "MECHANICS_SOLVED",
+      "model": "models/zero_pressure_longitudinal.model.json",
+      "preconditions": [
+        "genuine pressure requires category=pressure, dimension=pressure and an element target",
+        "finite zero pressure makes pressure_for_pipe return Some(0)",
+        "zero pressure makes pressure thrust sum 0 so pressure_thrust_active is false",
+        "stress recovery must retain Some(0) pressure components"
+      ],
+      "request": "requests/zero_pressure_longitudinal.request.json",
+      "required_signatures": [
+        {
+          "component": "pressure_longitudinal_stress",
+          "kind": "pipe_section_pressure_longitudinal_stress",
+          "signature_id": "supported-source-059",
+          "unit": "MPa"
+        }
+      ],
+      "uncertainty": "source-derived reachability probe only; the exact row has no actual product-output witness and must remain unresolved until the frozen-candidate CLI run"
+    }
+  },
+  "contract_key": [
+    "kind",
+    "unit",
+    "metadata.component"
+  ],
+  "output_extraction": {
+    "mechanics_envelope_json_pointer": "/mechanics_envelope",
+    "results_json_pointer": "/mechanics_envelope/results",
+    "signature_projection": [
+      "row.kind",
+      "row.unit",
+      "row.metadata.component"
+    ],
+    "status_json_pointer": "/mechanics_envelope/status/mechanics"
+  },
+  "qualification_rule": "A signature passes only when the frozen candidate CLI exits successfully, mechanics status equals MECHANICS_SOLVED, and at least one actual mechanics_envelope.results row matches all three exact fields. Prepared inputs and source-derived expectations are not a pass.",
+  "schema_version": "1.0.0",
+  "status": "SOURCE_DERIVED_UNEXECUTED"
+}

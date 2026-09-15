@@ -19,6 +19,7 @@ name = "open_pipe_stress_canonical_json"
 version = "0.1.0"
 dependencies = [
  "ryu",
+ "serde",
  "serde_json",
 ]
 

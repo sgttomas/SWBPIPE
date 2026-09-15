@@ -222,6 +222,37 @@ def state_record_hash_from(envelope):
     raise AssertionError("No model_state_record hash found in run history.")
 
 
+def test_run_history_preserves_distinct_v02_revisions_with_repeated_run_id():
+    from core.analysis_runs.compatibility import build_analysis_run_v0_2
+
+    mechanics = {
+        "schema_version": "0.2.0",
+        "run_id": "run:repeated",
+        "model_ref": "model:repeated",
+        "status": {"mechanics": "MECHANICS_SOLVED", "rule_check": "RULE_INPUTS_INCOMPLETE", "professional_acceptance": "NOT_PROVIDED"},
+        "results": [{"id": "result:repeated", "kind": "displacement_magnitude", "unit": "mm", "value": 1.0}],
+        "diagnostics": [],
+    }
+    manifest_ref = {"object_type": "InputManifest", "ref": "input-manifest:repeated"}
+    first = build_analysis_run_v0_2(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64)
+    revised = build_analysis_run_v0_2(mechanics, input_manifest_ref=manifest_ref, input_manifest_hash="1" * 64, rule_check_status="USER_RULE_CHECKED")
+    envelope = build_project_persistence_envelope(
+        project_id="project:repeated",
+        project_name="Repeated analysis revision fixture",
+        model_payload={"project": {"id": "project:repeated"}},
+        model_state_refs=[artifact_ref("model_state", "state:repeated")],
+        analysis_run_records=[first, revised],
+        result_envelope_refs=[artifact_ref("result_envelope", "result-envelope:repeated")],
+        result_refs=[artifact_ref("result", "result:repeated")],
+    )
+    history = envelope["project"]["run_history"]
+    assert history["analysis_run_records"] == [first, revised]
+    assert [item["ref"] for item in history["analysis_run_refs"]] == ["run:repeated", "run:repeated"]
+    identities = [item["hash"]["value"] for item in history["analysis_run_refs"]]
+    assert len(set(identities)) == 2
+    assert identities == [item["value"] for item in history["hash_manifest"] if item["payload_scope"] == "analysis_run_record"]
+
+
 def validate_persistence_instance(instance, instance_label):
     from jsonschema import Draft202012Validator
     from referencing import Registry, Resource

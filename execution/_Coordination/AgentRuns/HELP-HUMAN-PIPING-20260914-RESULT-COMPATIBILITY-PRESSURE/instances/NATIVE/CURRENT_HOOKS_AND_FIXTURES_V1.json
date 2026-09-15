@@ -1,0 +1,33 @@
+{
+  "status": "PREPARATION_OBSERVATION_ONLY; every current hook hash must be replaced by a post-release frozen-source binding",
+  "accepted_inputs": [
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/SYNTHETIC_RETAINED_AUTHORED350_MODEL.json", "sha256": "2932edda205a4531a1f0b3dd209b7d487b7f0c694fb1c26440d436fa2aab1788", "use": "invented retained model field/value oracle only"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/agent-load-batch-fresh-source-bound.json", "sha256": "dd83514ba9a8750845973385c06dc2ab2f7f1d7db101bbd627f5d903b5a8f4f4", "use": "synthetic equivalent agent-authored 350-to-500 operation intent"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/_run_records/gui-solved500.sqlite3", "sha256": "9d7aaf6336d146871e6e2e6d66e7612ef77387b312c0f56b0b0164c965e56195", "use": "accepted synthetic legacy 0.1 Current saved-store preimage; copy into an isolated store for Historical compatibility only"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_INDEPENDENT_EXPECTATIONS_V1.json", "sha256": "833e9fe70224e9d26d0e8557175b18a005484b778852bf5ed96d2d441510461f", "use": "accepted prior numerical cross-check"},
+    {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/NATIVE_VERIFY/FROZEN_NATIVE_ROW_CONTRACT_V1.json", "sha256": "a4301db5596ddca8c3277935b6ef077e73ced5ab62dd1d081502833d12906627", "use": "accepted 67-row/60-signature semantic expectation"}
+  ],
+  "existing_public_fixtures": [
+    {"path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json", "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"},
+    {"path": "projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json", "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"},
+    {"path": "projects/chirality-piping/fixtures/results/invented/tp_phys_015_canonical_solve_result_envelope.json", "sha256": "0e6d0fd3bf1b27d4032a6ae04c2d2c740e187200b369a60723b392b56a9d6771"},
+    {"path": "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package.json", "sha256": "03dfcce930dd503208488d254e7fb17a5f8ad1de98f0b0027b8676d349fcb8a2"},
+    {"path": "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_results.csv", "sha256": "2dec9464b88220050ae64a10fedf44b06d8ea609d7c0cec06a1902f13355db06"},
+    {"path": "projects/chirality-piping/fixtures/stress_neutral/invented/source_result_payload.json", "sha256": "7e18447e9aadcd5c670cab60180871334403e4661c222b5152b35f8a5919dcae"}
+  ],
+  "observed_current_hooks": [
+    {"path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts", "sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa", "purpose": "Current proof admission, legacy 0.1 verification, 0.2 result derivative and checksum validation"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/result-export/ResultExportPanel.tsx", "sha256": "1da429abbce5dcf250a7b82564bc60ab8fcae67c726fb831b932afdd7f22025c", "purpose": "actual async frontend producer, exact prop binding and stale completion suppression"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts", "sha256": "7c3495bf5d859e8ee045fac99d614bf427ef3988513cc0d5ba7706eb95593146", "purpose": "typed native save request/receipt/error boundary"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx", "sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2", "purpose": "frontend stress-neutral producer and delivered-payload link"},
+    {"path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx", "sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd", "purpose": "Historical designation and integrity findings"},
+    {"path": "projects/chirality-piping/apps/desktop/src/App.tsx", "sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691", "purpose": "solve generation gate, model/open invalidation, save/open/undo/redo and panel wiring"},
+    {"path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs", "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23", "purpose": "native persistence, packaged saved-edited-load self-test, command registration"},
+    {"path": "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs", "sha256": "749dd03a591d6360105c08c44587c50e3fcbd80af36603fa6de2a4c0f4f26cf1", "purpose": "exact-byte create-new Downloads writer, busy admission, error cleanup"},
+    {"path": "projects/chirality-piping/schemas/results.v0.2.schema.yaml", "sha256": "5fb3fc2ec6a94f748781f525087956d22daa6b1bd15bd21a470d0bf6c42ed485", "purpose": "strict result derivative 0.2 schema"},
+    {"path": "projects/chirality-piping/schemas/results.schema.yaml", "sha256": "8c0a520a21acb439abcbb3c1c033e49efceb113405efc69f3f802542b06f0f01", "purpose": "version dispatcher and analysis/result schema surface"},
+    {"path": "projects/chirality-piping/schemas/stress_neutral_export.schema.json", "sha256": "fd903475b1670a742fc9adfd28267e404c44f7d1fcf85f2ceac9e7278f15576f", "purpose": "stress-neutral package schema; expected to change for strict 0.2"
+    }
+  ],
+  "binding_rule": "These hook hashes describe an in-progress checkout and are not candidate evidence. After root supplies the frozen source, hash the complete relevant source/test/schema/dependency set before build, hash the exact binary/bundle/dist after build, and repeat source hashes after the GUI cycle. Any mismatch invalidates the affected witness."
+}

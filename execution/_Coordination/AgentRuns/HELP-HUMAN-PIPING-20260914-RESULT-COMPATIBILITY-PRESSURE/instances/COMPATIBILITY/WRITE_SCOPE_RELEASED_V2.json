@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "status": "FINAL_RELEASED_EXACT_FENCE",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "root_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPATIBILITY_SOURCE_RELEASE.json",
+    "sha256": "68ec3c0be138eaa85b2ec5cd6ebfd8d371af7e04d9075ab6d219700f77ffe31d"
+  },
+  "base_exact_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE.json",
+    "sha256": "12b76a1cbb52f4f63da6cb61a586c10ccc3f96e0d4a437033eb585f72d917654"
+  },
+  "additional_exact_write_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json",
+    "projects/chirality-piping/tests/schema_validation.py",
+    "projects/chirality-piping/tests/conftest.py",
+    "projects/chirality-piping/tools/serialization/build_checked_json.py",
+    "projects/chirality-piping/core/analysis_runs/legacy.py",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts"
+  ],
+  "final_fence_definition": "The exact final product/test write fence is the set union of base_exact_fence.write_paths and additional_exact_write_paths. Both sources enumerate literal repository-relative paths; no glob, directory or inferred adjacent path is authorized.",
+  "writer_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/**",
+  "manager_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/**",
+  "excluded_and_read_only": "Unchanged from the immutable base fence and root release. Any new exact path requires a recorded manager/root fence amendment before effect."
+}

@@ -1,0 +1,190 @@
+{
+  "schema_version": "0.1.0",
+  "deliverable_id": "DEL-14-02",
+  "package_id": "PKG-14",
+  "scope_item": "SOW-072",
+  "objectives": [
+    "OBJ-016"
+  ],
+  "run_contract_status": {
+    "record_contract": "schema_first_analysis_run_records",
+    "model_state_binding": "schemas/model_state.schema.json",
+    "result_binding": "schemas/results.schema.yaml",
+    "physical_project_container": {
+      "profile": "sqlite_local_project_store",
+      "decision_ref": "SCA-003",
+      "storage_role": "local_store_index_projection",
+      "canonical_truth": "sorted_compact_json_payload",
+      "sql_public_contract": false,
+      "direct_sql_access_allowed": false,
+      "hosted_db_allowed": false,
+      "network_required": false,
+      "sidecars_rebuildable": true
+    },
+    "external_validation_boundary": "reference_only_not_determined_by_software"
+  },
+  "analysis_run": {
+    "run_id": "run:legacy-python",
+    "run_name": "run:legacy-python preview mechanics run",
+    "run_kind": "mechanics_solve",
+    "created_at": "2026-05-10T00:00:00Z",
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:model:legacy-python:preview"
+    },
+    "solver_version": {
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0",
+      "build_ref": {
+        "object_type": "ExternalReference",
+        "ref": "build:TBD"
+      },
+      "provenance": {
+        "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+        "source_location": "core/analysis_runs/records.py",
+        "source_license": "project-governed",
+        "contributor": "OpenPipeStress Type 2 worker",
+        "contributor_certification": "implementation-only-no-professional-claim",
+        "redistribution_status": "invented_non_engineering_example",
+        "review_status": "pending",
+        "privacy_classification": "invented_public_example"
+      }
+    },
+    "settings_ref": {
+      "object_type": "SolverSettings",
+      "ref": "settings:run:legacy-python"
+    },
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "SI-preview-units"
+    },
+    "load_basis_refs": [
+      {
+        "object_type": "LoadCase",
+        "ref": "loadcase:preview"
+      }
+    ],
+    "diagnostics": [],
+    "result_refs": [
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:legacy-python"
+        },
+        "result_family": "displacement",
+        "source_dimension": "length",
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "SORTED_COMPACT_JSON",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:legacy-python"
+            },
+            "payload_scope": "result_value",
+            "value": "9adc125432499c0fde185120d7054fa04a286ab50a51f41a48a428a0b7a5c660"
+          }
+        ],
+        "privacy_classification": "invented_public_example",
+        "provenance": {
+          "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+          "source_location": "core/analysis_runs/records.py",
+          "source_license": "project-governed",
+          "contributor": "OpenPipeStress Type 2 worker",
+          "contributor_certification": "implementation-only-no-professional-claim",
+          "redistribution_status": "invented_non_engineering_example",
+          "review_status": "pending",
+          "privacy_classification": "invented_public_example"
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "library_refs": [],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:legacy-python"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "350694f7e4dc460ca037513ba44cedc0e77341291db6a1d99c0e4cbe3b8e9742"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "SORTED_COMPACT_JSON",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:legacy-python"
+        },
+        "payload_scope": "result_envelope",
+        "value": "d27eb73060b667037df946650dfbc818fa331ec87a646897ef6f064eabd9e2d5"
+      }
+    ],
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "reproducibility": {
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:model-legacy-python:1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "JCS",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:model-legacy-python:1111111111111111111111111111111111111111111111111111111111111111"
+          },
+          "payload_scope": "input_manifest",
+          "value": "1111111111111111111111111111111111111111111111111111111111111111"
+        }
+      ],
+      "environment_refs": [
+        {
+          "object_type": "ExternalReference",
+          "ref": "environment:local-preview"
+        }
+      ],
+      "determinism_notes": [
+        "analysis run record was generated from an already computed invented preview mechanics result",
+        "canonical hashes use stable JSON key ordering",
+        "source result dimensions are explicit declarations and are not inferred from unit text"
+      ],
+      "unresolved_tbd": [
+        "physical project container",
+        "release-grade solver build provenance"
+      ]
+    },
+    "immutability_policy": {
+      "run_record_is_read_only": true,
+      "mutation_policy": "changes_create_new_analysis_run",
+      "new_run_required_for_change": true,
+      "hash_invalidates_external_acceptance": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "provenance": {
+      "source_name": "OpenPipeStress DEL-14-02 analysis-run record builder",
+      "source_location": "core/analysis_runs/records.py",
+      "source_license": "project-governed",
+      "contributor": "OpenPipeStress Type 2 worker",
+      "contributor_certification": "implementation-only-no-professional-claim",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending",
+      "privacy_classification": "invented_public_example"
+    }
+  }
+}

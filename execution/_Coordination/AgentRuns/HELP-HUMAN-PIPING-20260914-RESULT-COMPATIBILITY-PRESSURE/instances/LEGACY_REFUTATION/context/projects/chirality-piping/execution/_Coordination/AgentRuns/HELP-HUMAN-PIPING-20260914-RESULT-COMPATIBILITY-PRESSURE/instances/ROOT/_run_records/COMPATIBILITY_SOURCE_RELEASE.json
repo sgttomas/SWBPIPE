@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "status": "RELEASED_FOR_ONE_TASK_WRITER",
+  "owner": "HELP_HUMAN / Agent 0",
+  "recorded_utc": "2026-09-15T00:19:37.548741+00:00",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "authority": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/OWNER_DIRECTION.md",
+  "approved_basis_sha256": {
+    "CONTRACT_AND_TEST_BASIS.md": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+    "WRITE_SCOPE.json": "12b76a1cbb52f4f63da6cb61a586c10ccc3f96e0d4a437033eb585f72d917654",
+    "LEGACY_EXPECTATIONS_V1.json": "8765b66eef865c7a51e0b737334fec216a29fd15cfb87ff10b2dcbb9b62d6901",
+    "READY_FOR_WRITER.md": "266e9f42da498202dfc1dbe1c2b0c2fec2f4fdeca93035236f8194d168db5259"
+  },
+  "additional_exact_write_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json",
+    "projects/chirality-piping/tests/schema_validation.py",
+    "projects/chirality-piping/tests/conftest.py",
+    "projects/chirality-piping/tools/serialization/build_checked_json.py",
+    "projects/chirality-piping/core/analysis_runs/legacy.py",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+    "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts"
+  ],
+  "clarifications": [
+    "Keep the frozen V1 basis immutable. This release addendum governs its following refinements. The TASK brief must consume this release and record the final combined exact file fence before source effect.",
+    "Legacy preservation means identical instance acceptance, hash projections and existing produced bytes. Preserve original schema bytes in frozen baseline evidence. Active version-specific schema compatibility files may adjust resolver metadata ($id and local $ref) and exact version dispatch so their IDs do not collide with new unversioned dispatchers. Do not claim byte-identical active schema files after metadata adjustment. Resolve all version schemas locally; tests/schema_validation.py may register explicit local resources and accommodate dispatcher structure. A separate strict abbreviated desktop 0.1 compatibility schema is authorized.",
+    "The manifest checksum is explicitly seed-scoped under the preserved construction and is not a checksum of the final manifest file bytes. Name this scope distinctly. The complete package checksum covers the actual final manifest payload. Other JSON member checksums cover declared canonical payloads; if claiming file-byte equality, materialize canonical UTF-8 exactly without added formatting or newline. Preserve existing 0.1 file serialization.",
+    "The largest finite binary64 is a required rejected unsafe-integral case under this profile. Subnormal and exponent cases that satisfy the profile remain eligible. Keep the safe-integral domain unchanged.",
+    "The private adapter must have explicit development and verification setup. A narrow build helper and/or test-session conftest may build it explicitly before tests. Runtime adapters never invoke Cargo, search PATH, or fall back to another serializer. The whole DEC-025 sweep must work from a fresh checkout using this explicit setup.",
+    "Add actual producer-path Playwright coverage for result compatibility and delivered 0.2 payloads using the two named dev/dist specs or already allowed tests. Authoring is released; running native/WASM builds and browser/GUI witnesses still requires a serialized root lease.",
+    "The result-export adapter may be updated to consume strict 0.2 row/record checksums and shared Current/Historical designation. Native/model/input-manifest/public operation wire versions and global canonicalizer behavior remain unchanged.",
+    "Optional new legacy.py and package_v0_2.py are authorized for preserving isolated legacy behavior. They need not be created if equivalent organization stays clearer within the original fence. Product writer may not edit root-owned D-67/DEL-17 amendments."
+  ],
+  "execution": {
+    "manager": "/root/foundation_compatibility",
+    "child_role": "TASK / Type 2",
+    "configured_model": "gpt-5.6-sol",
+    "configured_reasoning_effort": "high",
+    "max_simultaneous_product_writers": 1,
+    "child_delegation": false,
+    "native_build_or_browser_execution": "held pending root lease",
+    "pure_focused_checks": "allowed in isolated targets"
+  },
+  "closure": "Root owns native qualification, independent full-diff review, complete sweep, combined acceptance and Git publication; source release is not acceptance."
+}

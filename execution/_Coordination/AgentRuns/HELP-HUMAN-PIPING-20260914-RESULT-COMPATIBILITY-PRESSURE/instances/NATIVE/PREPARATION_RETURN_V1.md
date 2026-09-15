@@ -1,0 +1,11 @@
+# Native foundation witness preparation return V1
+
+PREPARED. This first stage performed only scoped local reads, independent arithmetic/hashing and writes under this instance directory. No build, test, app/browser/native control, Git, network, product-source edit or delegation occurred.
+
+`FROZEN_SYNTHETIC_EXPECTATIONS_V1.json` freezes the 3.2 m cantilever, independent 350/500 N numerical results, the existing publication allowance, fixed retained model hashes and exact identity relations. `CURRENT_HOOKS_AND_FIXTURES_V1.json` identifies the accepted invented inputs, legacy 0.1 synthetic store fixture, public fixtures and current necessary source hooks. `NATIVE_QUALIFICATION_PROCEDURE_V1.md` is the executable post-release method and keeps technical tests separate from the mandatory actual GUI/native/save lifecycle.
+
+Required root follow-up is the immutable source candidate plus serialized native build/GUI lease. At release, replace every preparation-time current-hook hash with a frozen candidate binding; confirm final analysis-record 0.2 and stress-neutral 0.2 schemas/checksum projections and the actual frontend producer routes; then execute the procedure without source accommodation. The proposed build command is `CARGO_NET_OFFLINE=true npm run tauri -- build --bundles app --ci --no-sign --config <evidence-local absolute overlay path>` from `projects/chirality-piping/apps/desktop`, followed by the exact packaged executable `--self-test-saved-edited-load` and the actual GUI sequence.
+
+Environment needs are an unlocked macOS GUI session, existing offline npm/Cargo dependencies, Codex computer control, Finder, a unique Tauri identifier/product/store overlay, and exclusive ownership of build/WASM/dist/native surfaces. The prior Downloads constraint is preserved: direct terminal reads stalled; if it recurs, a Finder copy plus typed native receipt is compositional evidence only and is not a direct original/copy inode-byte proof.
+
+Closure verdict: static preparation complete; native qualification unexecuted. Remaining holds are final source/contract freeze and root's serialized lease. Formal acceptance, independent integrated review, DEC-025, Git and readiness decisions remain parent-owned.

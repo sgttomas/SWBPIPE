@@ -1,0 +1,13 @@
+# TASK native producer input preparation V3
+
+Continue foundation_native as TASK / Type 2, gpt-5.6-sol/high, reporting to HELP_HUMAN. No delegation. This is a bounded independent preparation task while the compatibility manager finishes the source. It does not grant a build, browser, native GUI, test execution, network or Git lease.
+
+Read the existing V1 lifecycle basis, V2 signature coverage package and exact maintained source/fixtures they cite. Original artifacts remain immutable. All source is read-only. Root authorizes preparation of evidence-local input models before candidate freeze; actual qualification must rerun these inputs against the eventual frozen candidate.
+
+Write only new RUN/instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/**. Prepare the smallest synthetic PreviewModel inputs and established stable headless request wrappers needed to emit previously uncovered signatures 052, 053, 054, 056, 057, 058 and 059. Use maintained invented model/test construction patterns, existing model schema and accepted operation vocabulary. Avoid hidden solver precondition failures: preserve a stable restraint basis and valid existing nonlinear support classes. Separate rotational contacts, hanger/constant-effort and pressure-longitudinal reachability as needed.
+
+For 059, inspect the existing pressure_thrust_active != 0 and Some(pressure) paths; a genuine zero-valued pressure may exercise the existing longitudinal row. Derive that expectation from source, and identify any remaining reachability uncertainty honestly. Do not activate the new private pressure kernel or alter the runtime mechanics to force a row.
+
+Also identify/copy-by-reference the maintained curved, friction, modulus and combination-modulus request inputs from V2, avoiding duplicate raw historical evidence. Provide a compact execution mapping for the later stable headless CLI, including how to extract the real mechanics envelope from each output and check its exact kind/unit/component triples. You may write a local verifier for these declared signature assertions, but do not execute product code or tests now.
+
+Seal PREPARATION_RETURN_V3.md and a hash manifest naming exact inputs, source hashes, source-derived expected signatures, unresolved preconditions and future command contracts. This is preparation, not schema/runtime acceptance. Root will later bind the actual source and release serialized build/native execution. Preserve both existing V1 corrections: solver-mode is discrete disclosure, not diagnostic work; manifest hashes retain seed scope, while dedicated package checksums bind final assembled data.

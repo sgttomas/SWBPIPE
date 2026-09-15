@@ -27,6 +27,91 @@
 
 use serde_json::{Number, Value};
 
+pub const CHECKED_PROFILE_V1: &str = "openpipestress_jcs_ijson_v1";
+pub const MAX_SAFE_INTEGER: i64 = 9_007_199_254_740_991;
+
+/// Parse and canonicalize an I-JSON-compatible document for versioned result
+/// records. This is additive: `canonical_json` deliberately retains its
+/// historical, unrestricted `serde_json::Value` behavior.
+pub fn canonical_json_checked_v1_text(input: &str) -> Result<String, String> {
+    let value = checked_parse(input)?;
+    validate_checked_value(&value)?;
+    Ok(canonical_json(&value))
+}
+
+fn checked_parse(input: &str) -> Result<Value, String> {
+    use serde::de::{DeserializeSeed, Error as _, MapAccess, SeqAccess, Visitor};
+    use std::collections::HashSet;
+    use std::fmt;
+
+    struct Seed;
+    struct ValueVisitor;
+    impl<'de> DeserializeSeed<'de> for Seed {
+        type Value = Value;
+        fn deserialize<D: serde::Deserializer<'de>>(self, d: D) -> Result<Value, D::Error> {
+            d.deserialize_any(ValueVisitor)
+        }
+    }
+    impl<'de> Visitor<'de> for ValueVisitor {
+        type Value = Value;
+        fn expecting(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { f.write_str("a JSON value") }
+        fn visit_bool<E>(self, v: bool) -> Result<Value, E> { Ok(Value::Bool(v)) }
+        fn visit_i64<E>(self, v: i64) -> Result<Value, E> { Ok(Value::Number(v.into())) }
+        fn visit_u64<E>(self, v: u64) -> Result<Value, E> { Ok(Value::Number(v.into())) }
+        fn visit_f64<E: serde::de::Error>(self, v: f64) -> Result<Value, E> {
+            Number::from_f64(v).map(Value::Number).ok_or_else(|| E::custom("non-finite number"))
+        }
+        fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<Value, E> { Ok(Value::String(v.to_owned())) }
+        fn visit_string<E>(self, v: String) -> Result<Value, E> { Ok(Value::String(v)) }
+        fn visit_none<E>(self) -> Result<Value, E> { Ok(Value::Null) }
+        fn visit_unit<E>(self) -> Result<Value, E> { Ok(Value::Null) }
+        fn visit_some<D: serde::Deserializer<'de>>(self, d: D) -> Result<Value, D::Error> { Seed.deserialize(d) }
+        fn visit_seq<A: SeqAccess<'de>>(self, mut seq: A) -> Result<Value, A::Error> {
+            let mut values = Vec::new();
+            while let Some(value) = seq.next_element_seed(Seed)? { values.push(value); }
+            Ok(Value::Array(values))
+        }
+        fn visit_map<A: MapAccess<'de>>(self, mut map: A) -> Result<Value, A::Error> {
+            let mut seen = HashSet::new();
+            let mut values = serde_json::Map::new();
+            while let Some(key) = map.next_key::<String>()? {
+                if !seen.insert(key.clone()) { return Err(A::Error::custom(format!("duplicate object member: {key}"))); }
+                values.insert(key, map.next_value_seed(Seed)?);
+            }
+            Ok(Value::Object(values))
+        }
+    }
+
+    let mut deserializer = serde_json::Deserializer::from_str(input);
+    let value = Seed.deserialize(&mut deserializer).map_err(|e| format!("CHECKED-JSON-INVALID: {e}"))?;
+    deserializer.end().map_err(|e| format!("CHECKED-JSON-INVALID: {e}"))?;
+    Ok(value)
+}
+
+fn validate_checked_value(value: &Value) -> Result<(), String> {
+    match value {
+        Value::Number(number) => {
+            if let Some(v) = number.as_i64() {
+                if !(-MAX_SAFE_INTEGER..=MAX_SAFE_INTEGER).contains(&v) {
+                    return Err(format!("CHECKED-JSON-UNSAFE-INTEGER: {v}"));
+                }
+            } else if let Some(v) = number.as_u64() {
+                if v > MAX_SAFE_INTEGER as u64 { return Err(format!("CHECKED-JSON-UNSAFE-INTEGER: {v}")); }
+            } else {
+                let v = number.as_f64().ok_or_else(|| "CHECKED-JSON-NUMBER-INVALID".to_string())?;
+                if !v.is_finite() { return Err("CHECKED-JSON-NON-FINITE".to_string()); }
+                if v.fract() == 0.0 && v.abs() > MAX_SAFE_INTEGER as f64 {
+                    return Err(format!("CHECKED-JSON-UNSAFE-INTEGRAL-FLOAT: {v}"));
+                }
+            }
+        }
+        Value::Array(values) => for item in values { validate_checked_value(item)?; },
+        Value::Object(values) => for item in values.values() { validate_checked_value(item)?; },
+        _ => {}
+    }
+    Ok(())
+}
+
 /// Render a JSON value as RFC 8785 canonical JSON text.
 pub fn canonical_json(value: &Value) -> String {
     let mut out = String::new();

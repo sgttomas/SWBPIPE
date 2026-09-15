@@ -1,0 +1,4 @@
+First preflight attempt stopped before staging or Git mutation because the newly announced manager qualification already existed in BASE: it had been included in the immediately preceding evidence copy. Exact SHA256 and byte identity were rechecked and match. Repeated source hash preflight then continued. The initial tool output was:
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+AssertionError

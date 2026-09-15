@@ -1,0 +1,57 @@
+{
+  "schema": "compatibility-manager-analysis-lifecycle-qualification-v2",
+  "created_utc": "2026-09-15T01:40:34Z",
+  "status": "QUALIFIED_FOR_EARLY_ROOT_NATIVE_SYNTHETIC_LIFECYCLE",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "writer_checkpoint": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_LIFECYCLE_CHECKPOINT_V2.json",
+    "sha256": "8c2c7154aaf150f8d0db5eed481a9c1d1a93d9a2501511113fc45d5539a94d6b",
+    "candidate_source_entries": 64,
+    "all_candidate_hashes_rechecked_at_qualification": true
+  },
+  "writer_focused_evidence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_FOCUSED_EVIDENCE_V2.json",
+    "sha256": "0f1dd451706ef5a39c0c36bb9e81db72e44a2b5ec104fffd4b2a0382bdf6b1dd"
+  },
+  "independent_manager_checks": [
+    {
+      "scope": "analysis schema, checked adapter, compatibility, persistence",
+      "result": "38 passed"
+    },
+    {
+      "scope": "desktop canonical hash, analysis 0.2, preview, Historical, Current export and report consumers",
+      "result": "78 passed"
+    },
+    {
+      "scope": "post-refutation Historical profile/scoped/locale checks",
+      "result": "12 passed"
+    },
+    {
+      "scope": "TypeScript no-emit typecheck",
+      "result": "passed"
+    }
+  ],
+  "qualified_behavior": [
+    "Fresh desktop Current records use strict analysis 0.2, checked Rust canonical hashes, nullable unavailable created_at evidence, manifest-backed solver/settings/unit/model-state references, and immutable record revisions keyed by analysis_run_record SHA-256 while retaining mechanics run_id.",
+    "Received mechanics bytes remain separately bound by received_result and result rows are interpreted through the frozen semantic contract without mutating the received carrier.",
+    "Historical reopen preserves legacy Python and desktop 0.1 evidence, distinguishes profile and claim scope, treats unknown desktop collation failures as unverifiable, and never promotes reopened history to Current.",
+    "Delayed rule-revision success and failure are generation guarded against newer aggregate, model, manifest and solve state.",
+    "Maintained Current/report/local-FEA/native-package consumers select received_result for 0.2 while preserving legacy result_envelope vocabulary for 0.1.",
+    "The private Python adapter uses one explicitly prepared checked Rust executable and does not build, search or fall back at runtime."
+  ],
+  "native_release": {
+    "released": true,
+    "scope": "Root-prepared bundled synthetic backend solve to Current 0.2, native Save, normal quit/reopen Historical, unchanged Save, and fresh solve against the exact 64-entry checkpoint bytes.",
+    "build_surfaces": "Writer recorded successful real WASM build and desktop tsc/Vite production build; root may now build/run the separately authorized early native slice."
+  },
+  "pending": [
+    "Stress-neutral 0.2 final strict emitted/download payload acceptance and 830-row coverage matrix.",
+    "Playwright dev/dist execution.",
+    "Final authored native lifecycle, complete registered sweep, independent 100-percent integrated diff review and Git closeout owned by root."
+  ],
+  "limitations": [
+    "This is an early integration checkpoint, not final package acceptance.",
+    "The 64-entry manifest includes compilable stress-neutral work in progress because it is an App build dependency; stress behavior is not accepted by this qualification.",
+    "Later source edits require a new source manifest for final review and do not alter the exact bytes qualified here."
+  ]
+}

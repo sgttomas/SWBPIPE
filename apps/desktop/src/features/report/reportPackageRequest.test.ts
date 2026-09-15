@@ -258,10 +258,9 @@ describe("report-package current-session request", () => {
     );
     expect(target).toBeDefined();
     target!.unit = "MPa";
-    const analysisRun = await buildAnalysisRunPreview(deceptive, {
+    await expect(buildAnalysisRunPreview(deceptive, {
       inputManifest
-    });
-    await expect(buildReportPackageRequest({model,result:deceptive,analysisRun,inputManifest,projectSummary:null,comparison:null,ruleCheckAggregate:null})).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
+    })).rejects.toThrow("SOURCE_UNIT_CONTRADICTION");
   });
 
   it("blocks a source dimension that contradicts exact result kind semantics", async () => {

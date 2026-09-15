@@ -1,0 +1,93 @@
+{
+  "schema": "root-integration-observations-v1",
+  "created_utc": "2026-09-15T01:14:27.370974+00:00",
+  "status": "WORK_IN_PROGRESS_OBSERVATIONS_NOT_FINAL_REVIEW",
+  "basis": "Read-only inspection of mutable compatibility lane plus manager reports; not a frozen source acceptance and not independent final review",
+  "items": [
+    {
+      "id": "C01",
+      "topic": "Complete new record identity and parity",
+      "observation": "Manager found absent solver/settings/units/provenance and language-specific constructor evidence. Full envelope parity must be demonstrated for identical inputs.",
+      "routing": "manager-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C02",
+      "topic": "No fabricated timestamp",
+      "observation": "New record initially copied 2026-05-10 fixture timestamp. Use supplied session evidence or explicit unavailable consistently in both languages.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C03",
+      "topic": "Strict schemas",
+      "observation": "Analysis and stress 0.2 and desktop legacy alternate branch must not erase old findings through bare objects, arrays or permissive statuses/boundaries.",
+      "routing": "manager-and-root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C04",
+      "topic": "Immutable asynchronous input",
+      "observation": "Snapshot checked values before first await; reject holes, unsupported properties and malformed strings. Preserve valid __proto__ object keys in the frozen tree.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C05",
+      "topic": "Protocol pretransport rejection and explicit setup",
+      "observation": "Python item IDs as well as payloads reject malformed Unicode before child launch; configured binary path and explicit setup agree; no runtime build/fallback.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C06",
+      "topic": "Versioned consumer hash selection",
+      "observation": "Report/results/local FEA/native package consumers recognize received_result for0.2 while retaining legacy result_envelope and their own document vocabulary.",
+      "routing": "root-fence-released",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C07",
+      "topic": "Legacy profile/evidence dispatch",
+      "observation": "Desktop must establish abbreviated-desktop vs Python0.1 before reconstruction; lost numeric types and ambiguous or absent preimages remain unverifiable.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C08",
+      "topic": "Rule revision races",
+      "observation": "Delayed success/catch after model replacement/new solve/newer aggregate cannot publish or erase state; current writer now has generation checks, tests pending.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C09",
+      "topic": "Real negative tests",
+      "observation": "Retain substantive malformed fields/statuses/hash/provenance/boundary tests rather than replacing schema rejection tests with dispatcher-layout assertions.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C10",
+      "topic": "Record revision identity",
+      "observation": "Python persisted run history retains distinct0.2 record checksums for one unchanged mechanics run_id.",
+      "routing": "root-routed",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C11",
+      "topic": "All maintained canonicalizer lock consumers",
+      "observation": "Minimal serde dependency accommodation in nine exact maintained locks; historical execution snapshots excluded.",
+      "routing": "root-fence-released",
+      "acceptance": "pending candidate-bound verification"
+    },
+    {
+      "id": "C12",
+      "topic": "Actual post-hash stress payload",
+      "observation": "Freeze and validate delivered async-decorated package; manifest seed scope, full package scope, all declared member materialization and source replacement guards require evidence.",
+      "routing": "approved-plan",
+      "acceptance": "pending candidate-bound verification"
+    }
+  ],
+  "required_next": "Manager disposition and source freeze; fresh separate read-only 100% integrated diff review after source stabilization."
+}

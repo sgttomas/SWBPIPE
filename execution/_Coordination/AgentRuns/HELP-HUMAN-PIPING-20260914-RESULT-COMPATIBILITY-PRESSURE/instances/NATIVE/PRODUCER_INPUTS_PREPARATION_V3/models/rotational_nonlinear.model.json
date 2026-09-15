@@ -1,0 +1,133 @@
+{
+  "analysis_status": {
+    "mechanics": "ready_for_preview_diagnostics",
+    "professional_acceptance": "not_provided",
+    "rule_check": "not_performed_user_rule_inputs_missing"
+  },
+  "combinations": [],
+  "components": [],
+  "document_kind": "openpipestress.product_preview.model",
+  "load_cases": [
+    {
+      "id": "load:V3-RZ",
+      "primitive_loads": [
+        {
+          "category": "occasional",
+          "dimension": "moment",
+          "direction": "RZ",
+          "id": "load:V3-TIP-MZ",
+          "magnitude": {
+            "unit": "N*m",
+            "value": -100.0
+          },
+          "provenance": "invented_source_derived_native_producer_preparation_v3",
+          "target": {
+            "node": "node:V3-TIP",
+            "type": "node"
+          }
+        }
+      ],
+      "provenance": "invented_source_derived_native_producer_preparation_v3"
+    }
+  ],
+  "materials": [
+    {
+      "elastic_modulus": {
+        "unit": "Pa",
+        "value": 200000000000.0
+      },
+      "id": "material:V3",
+      "provenance": "invented_source_derived_native_producer_preparation_v3",
+      "shear_modulus": {
+        "unit": "Pa",
+        "value": 77000000000.0
+      }
+    }
+  ],
+  "nodes": [
+    {
+      "id": "node:V3-ROOT",
+      "position": {
+        "x": 0.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_source_derived_native_producer_preparation_v3"
+    },
+    {
+      "id": "node:V3-TIP",
+      "position": {
+        "x": 2.0,
+        "y": 0.0,
+        "z": 0.0
+      },
+      "provenance": "invented_source_derived_native_producer_preparation_v3"
+    }
+  ],
+  "pipe_segments": [
+    {
+      "from": "node:V3-ROOT",
+      "id": "pipe:V3",
+      "material": "material:V3",
+      "provenance": "invented_source_derived_native_producer_preparation_v3",
+      "section": {
+        "outside_diameter": {
+          "unit": "m",
+          "value": 0.168
+        },
+        "wall_thickness": {
+          "unit": "m",
+          "value": 0.007
+        }
+      },
+      "to": "node:V3-TIP",
+      "y_reference": {
+        "x": 0.0,
+        "y": 1.0,
+        "z": 0.0
+      }
+    }
+  ],
+  "project": {
+    "id": "project:v3-rotational-nonlinear",
+    "units": {
+      "angle": "rad",
+      "force": "N",
+      "length": "m",
+      "pressure": "Pa",
+      "stress": "MPa",
+      "temperature": "degC"
+    }
+  },
+  "schema_version": "0.1.0",
+  "sections": [],
+  "supports": [
+    {
+      "family": "anchor",
+      "id": "support:V3-ROOT",
+      "node": "node:V3-ROOT",
+      "provenance": "invented_source_derived_native_producer_preparation_v3",
+      "restraints": [
+        "UX",
+        "UY",
+        "UZ",
+        "RX",
+        "RY",
+        "RZ"
+      ]
+    },
+    {
+      "family": "nonlinear",
+      "id": "support:V3-NL-RZ",
+      "node": "node:V3-TIP",
+      "nonlinear": {
+        "active_when": "positive_reaction",
+        "behavior": "one_way",
+        "dof": "RZ",
+        "initial_state": "active"
+      },
+      "provenance": "invented_source_derived_native_producer_preparation_v3",
+      "restraints": []
+    }
+  ]
+}

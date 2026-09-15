@@ -489,10 +489,17 @@ def _run_history(
 ) -> dict[str, Any]:
     analysis_records = [deepcopy(dict(item)) for item in (analysis_run_records or [])]
     state_records = [deepcopy(dict(item)) for item in (model_state_records or [])]
-    inferred_analysis_refs = [
-        _artifact_ref("analysis_run", item.get("analysis_run", {}).get("run_id", "analysis-run:unknown"))
-        for item in analysis_records
-    ]
+    inferred_analysis_refs = []
+    for item in analysis_records:
+        run_id = item.get("analysis_run", {}).get("run_id", "analysis-run:unknown")
+        identity_ref = _artifact_ref("analysis_run", run_id)
+        inferred_analysis_refs.append(
+            _artifact_ref(
+                "analysis_run",
+                run_id,
+                _checksum(identity_ref, "analysis_run_record", item),
+            )
+        )
     inferred_result_refs = _result_refs_from_analysis_records(analysis_records)
     history = {
         "model_state_refs": [deepcopy(dict(item)) for item in (model_state_refs or [])],

@@ -1,0 +1,433 @@
+{
+  "schema": "task-writer-return-manifest-v2",
+  "created_utc": "2026-09-15T01:40:44.673543+00:00",
+  "status": "COMPLETE_ROOT_HELD_INTEGRATION_QUALIFICATION",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "write_fence_sha256": "5bcb111158fffb4c6be0cb0989e7555d22a2d4dd63bd203839c9600ea32031b2",
+  "source_files": [
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.schema.json",
+      "baseline_sha256": "a49a71156dfa141e895f183eca88a122a0954a2e54bb66a4c1afa9257aa7de9f",
+      "candidate_sha256": "b787444e0a421c995fac4d393c16c28e4e3e84496196d5c2914a7bb082e43e86",
+      "bytes": 698
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.1.schema.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "112d18290dd168d33293fad5597a08fbb45fa022105eb0d490ccd8cd0b89cab8",
+      "bytes": 20282
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.v0.2.schema.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "6747a3ea7866b6a35d7cb667e7265016c5b4b87a14c550cb1992f2c430106984",
+      "bytes": 12362
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.schema.json",
+      "baseline_sha256": "fd903475b1670a742fc9adfd28267e404c44f7d1fcf85f2ceac9e7278f15576f",
+      "candidate_sha256": "68b971d61ca7864e3ab74d1fb92d2518ba0fead2a8753bc089d9964977fea1a8",
+      "bytes": 344
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.1.schema.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "5fb977614cd2df1ee304670cb89e1d45fb20ea28104829b845dd7be27e3c8b2c",
+      "bytes": 14798
+    },
+    {
+      "path": "projects/chirality-piping/schemas/stress_neutral_export.v0.2.schema.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "a00a74095aa76aa5389fd219091efd708bac521f89b0b5eb4dad92b0e594bb15",
+      "bytes": 8341
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/__init__.py",
+      "baseline_sha256": "712c525b351a473a7e63b810c6a003d6fac5d97efed9a9c2acfb54af279ce00b",
+      "candidate_sha256": "3cbf541cd2e84e719dab8411482424c9e04300d0f4ffdb8d01994e86d886aa8e",
+      "bytes": 512
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/compatibility.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7",
+      "bytes": 11449
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.toml",
+      "baseline_sha256": "30dac091c5df988b0beeaf316b0a36157d73526c8a5466664f4efb433e4ab91d",
+      "candidate_sha256": "29436d180fddbc26c094b0f5ad163a9b4fadaf51a323b9185a2041b5a9fbf3c0",
+      "bytes": 582
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+      "baseline_sha256": "7d0c6b916947c528c80a181bad28b314e306342b3e335cb2cc73ffef9cb35b7c",
+      "candidate_sha256": "dc4edf682da807a0240eb20770d8292380aeb9e181b184875ab0ed97d12db2e8",
+      "bytes": 2886
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "baseline_sha256": "3fc4c97586988d4ef0ba5cfa748fbf26366230a4d95a3826d17f25247a7d1897",
+      "candidate_sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573",
+      "bytes": 17468
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/bin/openpipestress_jcs_ijson.rs",
+      "baseline_sha256": null,
+      "candidate_sha256": "0a1b2cd84de09c2c83e9af987f1f291b12b977c9111af732dc53df966ebfd45c",
+      "bytes": 1950
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/adapter.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "f6c92a186b65f1ae1990194098f668566b190a7ac77376b3fcf792d0711335df",
+      "bytes": 4235
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/tests/checked_profile.rs",
+      "baseline_sha256": null,
+      "candidate_sha256": "25583a1e87a9381ecc5d5a2a7e7a44380b316fe41dfb0d47896221e5ca3f88be",
+      "bytes": 777
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+      "baseline_sha256": "2c10cb42fe2a439d804b785ee1e2b3e88684737b018b80e0e02698376c5c6181",
+      "candidate_sha256": "ea31afc93ac9e721234a0d6843777ff4caa240545f108208d3f550c447efe116",
+      "bytes": 7062
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "baseline_sha256": "83f7e3063fc483a15aecd4fc2a513abba1ee001c2cc8f568037281194640cbc7",
+      "candidate_sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "bytes": 531519
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "baseline_sha256": "2738e4a1ed2b20ef523e5ae61ed9e30b0baf059fea0cb2ce8aac0d868e5f8852",
+      "candidate_sha256": "2afe571244ff29710e62fb898193d7bac8f9a0903c45ee40d8374b41470a7720",
+      "bytes": 934
+    },
+    {
+      "path": "projects/chirality-piping/core/project_persistence/service.py",
+      "baseline_sha256": "34e0cdf27b06e86df73aa26beff3f0a1bbea1c87af5a868b70ee9c7293ed6c4d",
+      "candidate_sha256": "b4005c8cb03aacb23ecc79c4d87d4f66153559098bf06081d2d5549804391da7",
+      "bytes": 31453
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "baseline_sha256": "b23991700988d1fc80811089dd9daf54ddddc9690610f21493c71cd7b7a71caf",
+      "candidate_sha256": "1bd11bad15b75a92f2f3edbf5b8790fc8f096606c2eccd695877073cf2a76c26",
+      "bytes": 27345
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/wasmEngine/loadWasmEngine.ts",
+      "baseline_sha256": "edf3639fcdee2cc94acd2e7ac835186249613140eabd3e3d92d60542b3da1f1c",
+      "candidate_sha256": "fbd8f9b474484086395b6b7fd09de0ef3bc265736f58c2b1104781785a6e5073",
+      "bytes": 8936
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "baseline_sha256": "5ccb4b3a8c79c1814aa694e4ad94d563fa943a5203c87aaaa581065b6bcf185c",
+      "candidate_sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1",
+      "bytes": 7029
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "baseline_sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800",
+      "candidate_sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7",
+      "bytes": 24546
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts",
+      "baseline_sha256": null,
+      "candidate_sha256": "0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1",
+      "bytes": 8721
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.test.ts",
+      "baseline_sha256": null,
+      "candidate_sha256": "3efe2bf11babd73416fd9142d23ea4372a67d920dff93d525a506c29ad638017",
+      "bytes": 3969
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/previewService.test.ts",
+      "baseline_sha256": "b47ad7b8b242f530ba38047140932b3c7a221dc249243b9041471437fddc1444",
+      "candidate_sha256": "7db412acc01531233631ebdacf7a4affee569eec3684f9e5e0b44684d25b7238",
+      "bytes": 16891
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "baseline_sha256": "9852478a26563c16038f9ec7db1d6240c53e861735a56bb628289e4e11cdb1cd",
+      "candidate_sha256": "1bcd1e85e2db890f479a0c99d1b75d7d8c0d951dcddd29e0bc9a1921033bcc4b",
+      "bytes": 28628
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "baseline_sha256": "a207caf3687db846c842fdf7b854d8a02498025b48b23925541a700844de7365",
+      "candidate_sha256": "6f005bfaaf07fedb1232fec396208b525a8243f0d24158ea1bc9c5dd6275df77",
+      "bytes": 18530
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/renderableReportInput.ts",
+      "baseline_sha256": "041621201bc438c0323cd0219e2cbd862cc801128186da051f698d5e9e046826",
+      "candidate_sha256": "919484341f849a66a0a88203f2333db33c78d3aacff00202bdf3cb591631c6ee",
+      "bytes": 17790
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "baseline_sha256": "28a6ed19e178dbc7f8b7ca92ccf06edf1306f752a024a3d214656fb1a24671d2",
+      "candidate_sha256": "84e4f51190a265963142e580b166c5c213fafaddee7151888ae9c394fecc9bb8",
+      "bytes": 34220
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "baseline_sha256": "9a0c075d666372ab68b00b029187a4457270e925156a72b6c1572460f1c85fac",
+      "candidate_sha256": "7c344e1b3394f5783b85d7e95d43064e2b5cbf5b36d659d55c2f7affed785e8c",
+      "bytes": 3043
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "baseline_sha256": "666eb7a8e1de1c917002d30e95f23674a1e14110994b2e5e7f1d04e85da70691",
+      "candidate_sha256": "24bc376b9ed2c38d6f2beb1c6d94d99c1710537bd04bc1c100a13276470bea5a",
+      "bytes": 144586
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "baseline_sha256": "dd1c0e625e6543e66078546152d3aa672bbf224390fc117df532b834b98cd87d",
+      "candidate_sha256": "4c19c81baed38e95ba58cb2cea5137b21bdbd6b9ec58912a76864c27fd9ff934",
+      "bytes": 723885
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/analysis_runs/invented/legacy_python_v0_1.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "03040257859d1a82b2a05166f743451e97266c5bfe897a8b75ae886a5b275ebc",
+      "bytes": 6716
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/analysis_runs/invented/legacy_desktop_v0_1.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "b69214394e2f8183b50149aa0db0827bd5f94fee79f4dc2add00026ef9760860",
+      "bytes": 3777
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/analysis_runs/invented/analysis_run_v0_2.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "2a62a971d9f74833470bd8ed0cabb7467d5ae844a7c57cba777758c4761c3fe7",
+      "bytes": 5547
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "8fad8d503b0f3268f149b8e4284ac1a9784581dad485845bb8382a5078e8d46a",
+      "bytes": 22524
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_analysis_run_schema.py",
+      "baseline_sha256": "0a860733fe72b00e54e6fd27a77e46e24331f6c08d185bda4a2b56a275f9a022",
+      "candidate_sha256": "5849211df40a99a81f77ddeb512a47535fad62b6271464805c492eb8f8489a5b",
+      "bytes": 1304
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_analysis_run_compatibility.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "c03504002add71a8a59a970c670a36a471c5387e3a209d9b0ced448b986f57c3",
+      "bytes": 12174
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_checked_canonical_json_adapter.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "afd42f907e367cde9033119d7ca0407936b57d66bda434df3baabd008db427ec",
+      "bytes": 1855
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_project_persistence_service.py",
+      "baseline_sha256": "d0064539f2e2138125ac8d1a46e2e4095a4892c4f4ead8970a19037e1e697037",
+      "candidate_sha256": "45e04fac942c7f1155a49753868fc71db83ed579b5c8f157274bc6d1399c300d",
+      "bytes": 28649
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "baseline_sha256": "8d0cd13da1a63024b1d8fa0fe6fb892ec22c061a8eeff5367193913ec8a66bf8",
+      "candidate_sha256": "ba295d1b64b76725112adf0ce933b007fde9e8926e3e5857fd7045fa74ce3c2a",
+      "bytes": 19991
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "baseline_sha256": "ec3ff3444c753781b5db99eb244800bccdb417c9a278066be13749d520c022fa",
+      "candidate_sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf",
+      "bytes": 29060
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "baseline_sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78",
+      "candidate_sha256": "1787ae2835ba18ac2cce9a6b86e8a59c7fe69b1c48b45ec0016b26d20ea7da48",
+      "bytes": 10502
+    },
+    {
+      "path": "projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json",
+      "baseline_sha256": null,
+      "candidate_sha256": "df9a2a35953e3fa0cddf5be6d10287dfd0f37ffc082a67a4d9a6578953c0326e",
+      "bytes": 5810
+    },
+    {
+      "path": "projects/chirality-piping/tests/schema_validation.py",
+      "baseline_sha256": "03a51c59f0a9e7a66ac65982fda5b57a52bfd89a59ec976a1cc95f229ede946c",
+      "candidate_sha256": "c15fe440720c3fbb54d4098b4c83478a900b4b0e538adc19d354a77fb6314085",
+      "bytes": 4154
+    },
+    {
+      "path": "projects/chirality-piping/tests/conftest.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "6f46548cdf645aa98cc83a9d2f8908b530325341a34645981b8ca0ef864b33a2",
+      "bytes": 718
+    },
+    {
+      "path": "projects/chirality-piping/tools/serialization/build_checked_json.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "6d5d55434d2ca94c896c2794ebdebc89ef1bb0efbfd605d840b0835a9d654bd3",
+      "bytes": 972
+    },
+    {
+      "path": "projects/chirality-piping/core/analysis_runs/legacy.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "cfbeb21f43de82e2dc06efe50cfbad60aeea3f23961e095d046e438bd7714834",
+      "bytes": 2027
+    },
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "baseline_sha256": null,
+      "candidate_sha256": "8e59b76c67bbd41a49f56af8247a3dc48d4e2691b2c046ec8b0fe8f49929f12b",
+      "bytes": 9009
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "baseline_sha256": null,
+      "candidate_sha256": "95700e24d065646d6f60598f8b6f3e54e9429b7cdc36fef098193af666aaf9d1",
+      "bytes": 1900
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "baseline_sha256": null,
+      "candidate_sha256": "907625a272027d1d67979fadb97e387eee28d2e2ca9975b91213f72079a88410",
+      "bytes": 1456
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+      "baseline_sha256": "1cf8526d6ce0b53cd925d89d37d05f45168bef97e72e9fa818245d1ea5ba8e33",
+      "candidate_sha256": "8b68e437515761bf5877a485cc99c52947bac386595f0182f5dcbc17732c71af",
+      "bytes": 122843
+    },
+    {
+      "path": "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+      "baseline_sha256": "e1254a5095d363697fe687a9eaf7327999ad11f86355f1864fb94b13c6dc5597",
+      "candidate_sha256": "18d729de26a4ee9c040af8732fea24bf7492d178ab83fbe2092660ec31527b7e",
+      "bytes": 9540
+    },
+    {
+      "path": "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+      "baseline_sha256": "d36919fc323ff83f03522b864bd03d54ef7c3cbb132ee7e5a3267e6eac3d68b8",
+      "candidate_sha256": "946819d8c31b2227afa8e46ce552d3211483faea0c163becf41abc95b0e2836a",
+      "bytes": 6480
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+      "baseline_sha256": "c4ef95b578d017d0774e090ad515f2c7483a73c902f3619bcbdb09d02b6faeff",
+      "candidate_sha256": "f2c88c161a6529ca4bef3f28916ff2354810f6cf1d613322bc308c6acb3aa13a",
+      "bytes": 3691
+    },
+    {
+      "path": "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+      "baseline_sha256": "46565cdb405f9713399fa30b841c849c2fa59a7650551b1ba6bacbb7154da9a8",
+      "candidate_sha256": "08d421f4d82eab267177bc0c8f30f874a14b20ee4b610dd8e2c2e39a5384d61a",
+      "bytes": 3280
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+      "baseline_sha256": "f4a071029afee81e5ee76d2cca91b6ac01e529db97ff431a44ce9338ee9945c8",
+      "candidate_sha256": "feab70abe260c80cd1597b9592334a11e4ba421f5e27306efa3630dbe2428882",
+      "bytes": 6758
+    },
+    {
+      "path": "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock",
+      "baseline_sha256": "c813173b36cbfe2c79d4fac77c8d0758b6913ae6aa85f0fbfc85c8cd198dcaa7",
+      "candidate_sha256": "f4b8438615cdc66a4f85e8ddefd2e48cb9bd6851a02b85fb4f242a5dd8ef70cc",
+      "bytes": 6138
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "baseline_sha256": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd",
+      "candidate_sha256": "4ba14bba2f228399b4dd98fd3f158c4407a749a48a706e4860e0863d31173e7c",
+      "bytes": 14891
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "baseline_sha256": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6",
+      "candidate_sha256": "0cd63116062c57434be786a9ace935417bf797b43286296498db1db226233855",
+      "bytes": 14359
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "baseline_sha256": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab",
+      "candidate_sha256": "792b19da30feef9640699024775006e955b973b1b7397a25f0eaf43c1eee735e",
+      "bytes": 49706
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "baseline_sha256": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede",
+      "candidate_sha256": "df7887f62a7c79ea8f45840f062dbbf7f70a1918a1292e308282cbde415f0f0e",
+      "bytes": 11730
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "baseline_sha256": "e9ef9db712a1acc88ef671b4d18ee55c3dacc85ae7c79bb5d724fa85c689af2a",
+      "candidate_sha256": "c0cd4431f81bfce7dc391ec219e9ccf91a1ded6d931206d7c5f7be133af08d79",
+      "bytes": 24756
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "baseline_sha256": "aa4a531d4abaebd03bcbd9f2fc824e3f299cbfd2546d508091b1fed8a3ceb0b7",
+      "candidate_sha256": "0f15b8485e0729da69d3395d44d21e3b2c7a24cebb978b3ea24fcaa3ed75b331",
+      "bytes": 35995
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/RETURN.md",
+      "sha256": "9681bf807217e485d5f92b1f9ab8978626e51adc3fa06dbe9d2cd8f719b7d75f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_LIFECYCLE_CHECKPOINT_V2.json",
+      "sha256": "8c2c7154aaf150f8d0db5eed481a9c1d1a93d9a2501511113fc45d5539a94d6b"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_FOCUSED_EVIDENCE_V2.json",
+      "sha256": "0f1dd451706ef5a39c0c36bb9e81db72e44a2b5ec104fffd4b2a0382bdf6b1dd"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "sha256": "1981bc63979a36a26596699da2ec52e9fb04e7e18346845f9ccf27a996e27847",
+      "status": "superseded_provisional_checkpoint"
+    }
+  ],
+  "counts": {
+    "changed_in_fence_paths": 64,
+    "python_passed": 50,
+    "desktop_focused_passed": 85,
+    "targeted_app_passed": 3,
+    "rust_passed": 10,
+    "maintained_locked_graphs": 9,
+    "stress_rows": 830,
+    "stress_witnesses": 828,
+    "stress_withheld_diagnostic_work": 2,
+    "semantic_inventory_signatures": 60,
+    "shipped_population_signatures": 48
+  },
+  "held": [
+    "playwright_dev",
+    "playwright_dist",
+    "native_tauri_gui_build_test",
+    "full_registered_sweep",
+    "git_lifecycle"
+  ],
+  "delegated": false
+}

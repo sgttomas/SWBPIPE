@@ -1,0 +1,18 @@
+{
+  "version": 3,
+  "status": "FINAL_RELEASED_EXACT_FENCE_WITH_CONSUMER_LOCK_CLOSURE",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "prior_exact_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V2.json",
+    "sha256": "11bcbf5d79a722a4417510a96638d5874daeb081c95b73a88f8886fbf780c43d"
+  },
+  "consumer_lock_extension": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CANONICALIZER_CONSUMER_LOCK_FENCE_V1.json",
+    "sha256": "a6676a5a880e48d69b37584df79efea5300eaab1f2c12f494634b5d2ed725a49"
+  },
+  "final_fence_definition": "The exact final product/test write fence is the set union defined by WRITE_SCOPE_RELEASED_V2.json and the nine literal maintained Cargo.lock paths in CANONICALIZER_CONSUMER_LOCK_FENCE_V1.json. No glob, directory or inferred adjacent path is authorized.",
+  "lock_change_limit": "Only minimal dependency-graph accommodation required by the approved canonicalizer serde dependency; no unrelated version upgrades or churn and no historical execution locks.",
+  "writer_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/**",
+  "manager_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/**",
+  "permissions": "Build-only lease remains unchanged; this extension adds tracked lock scope only."
+}

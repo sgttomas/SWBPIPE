@@ -1,0 +1,70 @@
+{
+  "schema": "agent0-bounded-consumer-fence-extension-v1",
+  "created_utc": "2026-09-15T01:08:37.700889+00:00",
+  "authority": "User-approved result compatibility plan and standing engineering authority; D-67 bounded consumer accommodations",
+  "parent": "HELP_HUMAN / Agent 0",
+  "owner": "WORKING_ITEMS / foundation_compatibility",
+  "executor": "TASK / compatibility_writer",
+  "status": "RELEASED",
+  "reason": "Actual WASM App report test identifies REPORT-PACKAGE-HASH-BINDING-INCOMPLETE: these existing consumers select only the legacy result_envelope scope. New Current analysis 0.2 uses received_result.",
+  "additional_write_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+    "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.tsx"
+  ],
+  "constraints": [
+    "Version-dispatch the analysis result checksum scope: received_result for analysis 0.2 and legacy result_envelope for 0.1.",
+    "Keep each downstream document's own result-envelope vocabulary, schema and checksum projection unchanged.",
+    "No new export route, persistence migration, transport or runtime physics activation.",
+    "NativePackagePanel.test.tsx may be added only for focused meaningful checks of this repair; it is absent at release.",
+    "Preserve historical findings and every prior frozen scope; record additive release and actual changed files.",
+    "Existing compatibility build lease is unchanged; no native GUI or bundle lease is granted."
+  ],
+  "consumer_state": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.ts",
+      "exists": true,
+      "sha256_at_release": "73ef20db2f56221aa15ff4657162626952e9837d334378bd84c3efe81e02aefd"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/reportPackageRequest.test.ts",
+      "exists": true,
+      "sha256_at_release": "95889e8171ddc5dc2577062865d47312de67c656b0f1ca334865ccd1b11648f6"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/report/ReportPanel.tsx",
+      "exists": true,
+      "sha256_at_release": "b3d3b01ed1b1475be912e7412d73619965f53c5ebdf1ae9315ffe890836a2fab"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts",
+      "exists": true,
+      "sha256_at_release": "b930fa78d3783e5a95454630607c7d12dc41e36fc531374d0e5e36a7a0e13ede"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.tsx",
+      "exists": true,
+      "sha256_at_release": "e9ef9db712a1acc88ef671b4d18ee55c3dacc85ae7c79bb5d724fa85c689af2a"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/local-fea-handoff/LocalFeaHandoffPanel.test.tsx",
+      "exists": true,
+      "sha256_at_release": "8ba59a57b86a73bb38ed49c1c8305f2c2c5b1ef3b3c8976678cd96b118218b75"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.tsx",
+      "exists": true,
+      "sha256_at_release": "aa4a531d4abaebd03bcbd9f2fc824e3f299cbfd2546d508091b1fed8a3ceb0b7"
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/native-package/NativePackagePanel.test.tsx",
+      "exists": false,
+      "sha256_at_release": null
+    }
+  ]
+}

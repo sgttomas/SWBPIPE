@@ -1,0 +1,18 @@
+{
+  "status": "RUNNING",
+  "role": "TASK",
+  "type": 2,
+  "parent": "COMPATIBILITY_WORKING_ITEMS",
+  "actual_dispatch": true,
+  "dispatch_utc": "2026-09-15T00:20:47Z",
+  "agent_task_name": "/root/foundation_compatibility/compatibility_writer",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning_effort": "high",
+  "final_write_scope_sha256": "5bcb111158fffb4c6be0cb0989e7555d22a2d4dd63bd203839c9600ea32031b2",
+  "prior_write_scope_sha256": "1c4c7c1cf391b176da03b07e0b021f9836980607eceb8619354a41cd6fcad6d7",
+  "consumer_lock_fence_sha256": "a6676a5a880e48d69b37584df79efea5300eaab1f2c12f494634b5d2ed725a49",
+  "hash_consumer_fence_sha256": "3198b17921ca4ee983cd375f074d1b89c9e62ac8d86fe4b0381c79acc490816e",
+  "release_addendum_sha256": "363c25b499e7e4ca329a1e1d007eaeb5cf7c0485d4acee30c75b9786ee13d60b",
+  "source_effect": true,
+  "delegation_allowed": false
+}

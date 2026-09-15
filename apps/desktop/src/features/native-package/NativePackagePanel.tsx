@@ -255,7 +255,7 @@ export function buildNativePackageReview({
       "results/result_envelope_ref.json",
       "result_envelope_ref",
       "result-envelope reference, status, and hash scope",
-      runHashStatus(runHashRefs, "result_envelope")
+      runHashStatus(runHashRefs, analysisRun.schema_version === "0.2.0" ? "received_result" : "result_envelope")
     ),
     member(
       "maps/unit_preservation_witnesses.json",

@@ -1,0 +1,194 @@
+{
+  "artifact": "openpipestress.native_signature_coverage_preparation_context",
+  "bindings": {
+    "browser_gui_workflow": {
+      "bytes": 23422,
+      "path": "apps/desktop/e2e/gui-workflow-validation.spec.ts",
+      "sha256": "5e3013dfc1d7e6b7b77f6bfa6274e7f845b9ef299609dfe3b79d4d95e1a55f10"
+    },
+    "browser_r2_smoke": {
+      "bytes": 103809,
+      "path": "apps/desktop/e2e/r2-smoke.spec.ts",
+      "sha256": "e52e799b7b6aefe3c6122f32a6bb9d51f6892160f4ae932b09bf1360659900dc"
+    },
+    "combination_modulus_model": {
+      "bytes": 6052,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "sha256": "426397a6655403dac5521bbb75227f5b4b39f1e6bd0bbcc5f55977f80e116076"
+    },
+    "combination_modulus_output": {
+      "bytes": 417524,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/results/opposite_combinations_v2.sparse.json",
+      "sha256": "069a3dde110d2464c87c104b04e7d2c502cd707d2d9a6717ec894f27767f0d7a"
+    },
+    "curved_model": {
+      "bytes": 5368,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.model.json",
+      "sha256": "1f6125237912846153fb79414df0fd717d26799a5c5c55faedb84898e4b70dac"
+    },
+    "curved_output": {
+      "bytes": 48166,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/curved-tip-weight-full.received.json",
+      "sha256": "26d39653b1913156e33846906a683f8c4f3f94be7e5c924ccff169eb766cdcd2"
+    },
+    "export_adapter_component_test": {
+      "bytes": 10407,
+      "path": "apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "3fc719f89973bc3b41bf041de8af8f05129af6f5cb4b595dbc02278ebd442e78"
+    },
+    "friction_model": {
+      "bytes": 4109,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.model.json",
+      "sha256": "c7c6898e11b144aad4733cbdffb445bdc6b7b1074d373d767d85b8f5a71e69e4"
+    },
+    "friction_output": {
+      "bytes": 60983,
+      "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/RESULTS/_run_records/TASK_WRITER_IMPLEMENTATION_V1/fresh_producer_outputs_v1/nonconverged-candidate-1.received.json",
+      "sha256": "d50cb5a2d2bf16ab4dc2219ac6ca3a16fc286abe9ae86b45e6eb8a6f9e7c4699"
+    },
+    "golden_result": {
+      "bytes": 636601,
+      "path": "fixtures/product_preview/invented_mechanics_result.json",
+      "sha256": "fb6724aafca965509b999390b3abd4a3eed6b8b85551a6b308ec5aa529c2a58c"
+    },
+    "modulus_model": {
+      "bytes": 4758,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/fixtures/modulus_exact.json",
+      "sha256": "516d8581ad50e28f656f1a353985925bcffcea1d966bc7e9e8bc679792f03e7c"
+    },
+    "modulus_output": {
+      "bytes": 41901,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/C/extended/results/modulus_exact_sparse.json",
+      "sha256": "42aea70c00ac32374641f786102ca3a59e01ff54954352f1a5284c5fda48f506"
+    },
+    "preview_service": {
+      "bytes": 29883,
+      "path": "apps/desktop/src/services/previewService.ts",
+      "sha256": "2c4d459e62689a24d831d88ab92770b7f923f63f3419947b0963e9d413b62800"
+    },
+    "prior_shipped_dense_output": {
+      "bytes": 605683,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/results/invented_nonlinear.dense.json",
+      "sha256": "18dc0ac047938250961ccb06f64e7a5cb057557ecbfcd3d2a50372b0e064d465"
+    },
+    "prior_shipped_replay_input": {
+      "bytes": 20238,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/invented_nonlinear.json",
+      "sha256": "fb374cc68aaa3e2db9fce70251c4d90e4a3084c989ff4caa28180597433b2b3c"
+    },
+    "prior_shipped_sparse_output": {
+      "bytes": 603335,
+      "path": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/post_repair/P5/manager_replay/results/invented_nonlinear.sparse.json",
+      "sha256": "cd514bf44ee7ba0ca1b019e3ee162471dfc33c390ba848f50e062468c69bfef8"
+    },
+    "product_physics": {
+      "bytes": 710426,
+      "path": "core/product_physics/src/lib.rs",
+      "sha256": "aa91613c48346654dc7e8b110f22fc74cf9578fb16f21ae9c40cec863b910f15"
+    },
+    "semantic_contract": {
+      "bytes": 37875,
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    },
+    "semantic_fixture": {
+      "bytes": 244411,
+      "path": "fixtures/results/invented/result_export_v0_2.json",
+      "sha256": "ef09b38c1619e06c3fbf2082a331a8cb94936f4b8d1b8ecd025e0f424424cff2"
+    },
+    "semantics_component_test": {
+      "bytes": 1706,
+      "path": "apps/desktop/src/features/results/resultSemantics.test.ts",
+      "sha256": "69081dbf91c303b8b5bf9dcd19437d86d49c0459fe55287b27fb0e481ca48b60"
+    },
+    "shipped_model": {
+      "bytes": 17555,
+      "path": "fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c"
+    },
+    "stable_cli": {
+      "bytes": 41028,
+      "path": "core/runner/headless/src/bin/openpipestress-runner.rs",
+      "sha256": "f873b5b9ac6518e1361049d101a323fbc8a1e54b67017810f48d97a1ba9f33ee"
+    },
+    "tauri_backend": {
+      "bytes": 274569,
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23"
+    }
+  },
+  "brief": {
+    "bytes": 1825,
+    "path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_SIGNATURE_COVERAGE_PREPARATION.md",
+    "sha256": "23671cf541a3b85487747358f2fd3991485175ef2802a7597d1be5d8fb9396f8"
+  },
+  "closure": {
+    "execution_pass": false,
+    "preparation_complete": true,
+    "remaining_holds": [
+      "immutable final source candidate",
+      "root-issued serialized native build/GUI lease",
+      "actual execution and captured outputs for uncovered source-only signatures",
+      "independent acceptance"
+    ],
+    "v1_preserved": true
+  },
+  "population_findings": {
+    "prior_actual_shipped_dense_replay": {
+      "adds_signature_id": "supported-source-037",
+      "exact_signatures": 49,
+      "kinds": 41,
+      "rows": 832
+    },
+    "prior_actual_shipped_sparse_replay": {
+      "exact_signatures": 48,
+      "kinds": 40,
+      "rows": 830,
+      "rows_with_value_or_metadata_difference_from_golden": 534,
+      "same_result_id_set_as_golden": true
+    },
+    "semantic_contract_exact_signature_count": 60,
+    "semantic_contract_kind_count": 47,
+    "semantic_fixture_status_limits": {
+      "supported-source-022": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
+      "supported-source-029": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
+      "supported-source-037": "EXACT_ORIGINAL_PRODUCER_ROW_SNAPSHOT_NOT_NEW_RUNTIME",
+      "supported-source-050..059": "AUTHORED_SYNTHETIC_SOURCE_SEMANTICS_FIXTURE_NOT_EXECUTED_PRODUCER_OUTPUT"
+    },
+    "semantic_signatures_absent_from_shipped_golden": 12,
+    "shipped_golden_result_exact_signature_count": 48,
+    "shipped_golden_result_kind_count": 40,
+    "shipped_golden_result_row_count": 830
+  },
+  "route_facts": {
+    "browser_frontend": "Non-Tauri execution returns the maintained 830-row mechanics fixture only for the bundled model (or no model). An edited browser model returns a blocked result. Existing Playwright tests prove real browser UI delivery of the 830-row fixture, not a mechanics-producer execution.",
+    "component": "Result-semantics and export-adapter tests consume the 60-row semantic fixture. This proves frontend semantics/adapter behavior at component scope; it is neither browser application delivery nor native mechanics production.",
+    "file_backed_cli": "openpipestress-runner solve reads an explicit RunnerRequest wrapper containing solve.preview_model and invokes the product mechanics path in one local foreground process. It provides the existing truthful file-backed producer route for additional models.",
+    "gui_authoring": "No existing arbitrary PreviewModel JSON import or alternate MechanicsResult JSON import control was found. Project open/save exists, but preparation found no supported UI transport that would let browser tests inject supplemental producer outputs.",
+    "native_backend": "Tauri resolves the supplied or bundled PreviewModel and calls run_linear_static_preview_with_mode with materials: vec![]. The asynchronous backend-job path returns the result to the UI; save_local_result_json writes a user-selected native result export."
+  },
+  "schema_version": "1.0.0",
+  "scope": {
+    "actions_not_performed": [
+      "build",
+      "test",
+      "browser control",
+      "native app control",
+      "Git action",
+      "network action",
+      "product-source edit",
+      "V1 mutation",
+      "delegation"
+    ],
+    "actions_performed": [
+      "maintained source/evidence reads",
+      "local JSON parsing",
+      "SHA-256 hashing",
+      "writes confined to named V2 preparation paths"
+    ],
+    "delegation": false,
+    "role": "TASK / Type 2 foundation_native",
+    "runtime_or_build_lease": false
+  },
+  "status": "PREPARED_READ_ONLY"
+}
