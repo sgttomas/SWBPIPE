@@ -344,3 +344,7 @@ Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260905-PHYSICS-
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 Accepted ENGINEERING compositeV3 supplies the pressure/connector contracts, analytical expectations, UI field handoff and sealed following physics briefs. Evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/ENGINEERING_ACCEPTANCE_V1.json`. This is derivative contract/design acceptance only; pressure/connector runtime and public material/model migration remain unactivated.
+
+## 2026-09-15 — Private pressure-kernel foundation
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` binds the private dormant exact-annulus pressure kernel and its private module declaration. Independent refutation and Root acceptance qualify its representability repair and dormant call graph. This is private kernel qualification, not runtime pressure qualification. The 196-error statement remains a preserved 2026-09-09 raw-envelope observation, not a current universal measurement. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`). Lifecycle and formal dependency dispositions remain unchanged.

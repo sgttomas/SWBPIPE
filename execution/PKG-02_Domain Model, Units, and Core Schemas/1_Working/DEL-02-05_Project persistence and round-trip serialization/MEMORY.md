@@ -441,6 +441,10 @@ Boundaries preserved:
   professional approval, certification, sealing, authentication, or
   code-compliance claim changed.
 
+## 2026-09-15 — Result compatibility foundation
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` persists distinct 0.2 record revisions by complete record checksum and adopts validated native model normalization while preserving historical profile claims. Native-written Historical payloads preserve their exact stored bytes across unchanged save. An externally preseeded insertion-order legacy fixture normalized on its first native save with semantically equal data and retained advertised claims; arbitrary external serialization byte equality is not promised. Container/migration compatibility-window work and profile-specific `unverifiable` limits remain open. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
+
 ## 2026-06-18 - TP-UNITS-BTAIL-EXPORTREVIEWSTORAGEUNITS-001 supporting export-review matrix evidence
 
 - Supporting role for DEL-02-05: the Export Safety Review manifest now

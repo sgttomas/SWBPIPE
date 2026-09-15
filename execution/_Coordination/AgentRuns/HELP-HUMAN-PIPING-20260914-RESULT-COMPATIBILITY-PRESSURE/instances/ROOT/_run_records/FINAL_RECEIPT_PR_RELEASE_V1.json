@@ -1,0 +1,38 @@
+{
+  "schema": "root-final-receipt-pr-successor-v1",
+  "created_utc": "2026-09-15T08:57:21.093050+00:00",
+  "local_checks": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/LOCAL_CLOSEOUT_V1/RESULT.json",
+    "sha256": "9c3f8c4cabad1ae90aa05530e744dc8864658ed877f6dcbf311b5ee3704fce5e",
+    "status": "PASS"
+  },
+  "receipt": {
+    "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+    "before_sha256": "ed0176518fb8ede027d84eaf9e0301885b89275697caa307b07c8104f8e6aaad",
+    "after_sha256": "47df1c55dc8a821b0c2cb24f4c04f2ce0be440bc70588cc10d9b462b03851c30",
+    "change": "Only Receipt141 Checks record; all earlier receipts unchanged.",
+    "validator_argv": [
+      "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "tools/validation/validate_piping_loop_receipts.py",
+      "--repo-root",
+      ".",
+      "--validation-commit",
+      "HEAD"
+    ],
+    "exit_code": 0,
+    "log_sha256": "6d9e68656876c5256e15d52b56bb4b0ee6b5a88b6372d2fe4d4333c16143e8a5"
+  },
+  "pr_body": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/PR_BODY_FINAL_V1.md",
+    "sha256": "9c1f00e794e63c78048d5828421c5be4b2abd322012a4b77be67e8f19b97c18b",
+    "prepared_predecessor_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/FINAL_APPLICATION_V6/PR_BODY.md",
+    "prepared_predecessor_sha256": "46ec3a7ec91a665b3dbacd294734a5219d47dfaa60c318137a8fa6c024a712a2",
+    "change": "Final successor replaces the local-check pending sentence with the actual passed result. Native-normalized historical-byte wording retained; hosted CI remains a future merge gate."
+  },
+  "source_change": "None; the 77 reviewed maintained paths remain unchanged.",
+  "pending": [
+    "Final additive independent review",
+    "Final committed range checks",
+    "Actual candidate hosted CI, PR and merge"
+  ]
+}

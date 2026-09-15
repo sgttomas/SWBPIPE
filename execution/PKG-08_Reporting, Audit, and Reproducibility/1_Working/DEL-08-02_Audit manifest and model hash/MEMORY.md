@@ -162,3 +162,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-06-17 - Lifecycle Housekeeping
 
 - Housekeeping lifecycle reset: `_STATUS.md` current state set to `IN_PROGRESS` to reflect current code development in progress. This does not change review, issuance, release readiness, professional approval, certification, sealing, authentication, or code-compliance status.
+
+## 2026-09-15 — Checked result-record profile
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` adds checked profile `openpipestress_jcs_ijson_v1` for bounded 0.2 analysis/stress payloads. Existing model, persistence, input-manifest and operation hash profiles remain unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).

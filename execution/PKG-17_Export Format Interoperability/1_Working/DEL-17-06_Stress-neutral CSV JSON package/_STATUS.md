@@ -1,12 +1,14 @@
 # Status: DEL-17-06
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-14
+**Last Updated:** 2026-09-15
 
 ## Remaining
-- Resolve the stress-neutral preview schema findings recorded in the frozen fixture/witness (911 findings, not independent bugs or a universal application count) through the owning DEL-17-06 follow-on; bounded current semantic mapping/witness repair does not claim whole preview compatibility.
+- For the accepted 830-row sparse fixture only, resolve or formally disposition the two explicitly withheld unit-preservation witnesses for diagnostic-work rows `result:nonlinear-support:free-dof-work-residual` and `result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual`. The strict 0.2 package retains every raw row; this fixture-scoped hold is not a dropped-row, schema-failure, universal-row-count, or other-producer claim.
+- Regenerate `_SEMANTIC.md` and `_SEMANTIC_LENSING.md` against the accepted post-D-67/CLM-042 state, or formally retire them from current use; their 2026-05-18 statements that exact schema/hash partitioning is unresolved are superseded and must not be used as current evidence. Refresh `_DEPENDENCIES.md` against DAG-010 through the owning dependency workflow; `Dependencies.csv` and DAG authority remain unchanged until then.
 
 ## History
+- 2026-09-15 - Bounded versioned 0.2 stress-neutral export foundation accepted at source `8ad37207cf088025623aa1e777a97a6fcb802f48`; the accepted 830-row sparse fixture retains two named diagnostic-work witness holds. Deferred semantic/lensing and DAG-010 dependency-summary work remains with its owning workflows. Lifecycle and dependency satisfaction are unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
 - 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-001/PDU-038 added conditional unresolved-assumption and reproducibility-reference passthrough with schema and preservation evidence; comparison tolerances remain outside this package.

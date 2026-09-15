@@ -356,3 +356,7 @@ Durable context preserved after reconciliation review:
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 Localized existing report quantity interpretation follows the current semantic adapter without expanding report readiness or persistence format. Container compatibility-window/versioning remains open. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.
+
+## 2026-09-15 — Versioned report result selection
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` makes report consumers select the received 0.2 result and retained 0.1 result envelope under their respective profiles, with absent producer dimensions disclosed. The `.opsproj` compatibility window and profile-specific `unverifiable` limits remain open. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).

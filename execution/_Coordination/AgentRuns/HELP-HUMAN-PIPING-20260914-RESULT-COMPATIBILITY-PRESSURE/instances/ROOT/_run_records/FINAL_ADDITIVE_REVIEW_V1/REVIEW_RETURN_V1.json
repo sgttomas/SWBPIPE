@@ -1,0 +1,98 @@
+{
+  "schema": "root-captured-final-additive-review-return-v1",
+  "capture_utc": "2026-09-15T09:01:46.447737+00:00",
+  "attribution": "Root-authored faithful structured capture of foundation_final_review actual final message; reviewer did not write this file. This return is an output of the reviewed cut, not an input to its own review.",
+  "verdict": "PASS_FINAL_ADDITIVE_REVIEW",
+  "findings": [],
+  "prior_P2": "CLOSED in actual persistence metadata and final PR body. Native-normalized unchanged-save byte preservation is distinguished from external first-save normalization; advertised claims and unverifiable boundaries retained.",
+  "reviewer": "/root/foundation_final_review",
+  "parent": "/root",
+  "parent_role": "HELP_HUMAN",
+  "role": "TASK / Type 2",
+  "model": "gpt-6-astra",
+  "reasoning": "high",
+  "delegation": false,
+  "execution": "Read-only inspection and static hashing/comparison; no tests, builds, runtime actions, network or writes. Scope and non-delegation enforcement are instruction-asserted.",
+  "candidate_checkpoint": "a843e16090b58abef857c9eeacc407217b6c946d",
+  "candidate_state": "Checkpoint plus explicitly frozen final additions in FINAL_REVIEW_CUT_V1",
+  "planning_base": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "coverage": {
+    "full_pr_paths": 1857,
+    "reviewed_paths": 1857,
+    "maintained_paths": 77,
+    "maintained_reviewed": 77,
+    "additive_files_plus_cut": 49,
+    "ordered_lf_terminated_path_list_sha256": "23a295a03492a69878b60c5c1dc754cb9a665aba3104a11df619385d0b8b1138"
+  },
+  "verified": [
+    "All 76 V6 source hashes and F12 test exact; native build inputs unchanged.",
+    "All 406 native manifest entries exact; historical V5 drafts and V6 application package preserved.",
+    "Complete DEC025 ran all five surfaces without selectors on a clean committed candidate; raw logs match.",
+    "Local check raw logs and exits match, including complete practitioner/validation suites, self-check, receipt/path and governance checks. Existing self-check WARN/REVIEW observations retained.",
+    "All 13 metadata targets preserve lifecycle/dependency boundaries and retained work. Receipt141 preserves earlier receipts, parent140 and exact examined-through commit and respects caps.",
+    "Receipt finalization changes only Checks; its required validator rerun passed. Final PR preserves P2 correction.",
+    "Four UI readiness gates and eight interface groups properly bound to prepared next tranche.",
+    "Dormant pressure/overflow-admission qualification, fixture-specific witness holds, PDU033/public DTO limits, derivative deferrals, calibrated native observations and integration boundaries retained."
+  ],
+  "input_bindings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_ADDITIVE_REVIEW_V1.md",
+      "sha256": "4d6db3dbc7ed100c3a06cde8af06e36f0f588f7f701bcbb42ee20620f5a51864"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_CUT_V1.json",
+      "sha256": "3281a4fb969ac8bee1ef618be553b2f06093ff59fe19ef85f8e64f779258b728"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V2/EXECUTION_RESULT_V2.json",
+      "sha256": "286c34fd4e672ba5748ffaa67191be9f6eee3c2811d04d8b03b5ddcb684ccabb"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V2/summaries/SWEEP_20260915T083057Z_a843e16090b5.json",
+      "sha256": "e002a678e07d87446a10c1494d0d3d890bab45763d76c61face615e13c49dfbc"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md",
+      "sha256": "e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/PRODUCTION_UI_READINESS_V1.md",
+      "sha256": "0166bec43f15de369df28e17b8fb7829806d71467fe9299770c65ab19a56406f"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/HANDOFF_STATE_V1.md",
+      "sha256": "57b842c53251f2afd0c5f0d80fbf3852a015ccd0f96cb50fd5738fe92aae8023"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/FINAL_APPLICATION_V6/MANIFEST.json",
+      "sha256": "de8e2237fb4417541ebf9f16b62bf886dbf2ca999cfcd4bad84212867a961637"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/FINAL_APPLICATION_V6/TARGET_HASHES.json",
+      "sha256": "af122f509451862b0998bf329b17d6d6c0cae379f836ddc1bcb04611efe10790"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/LOCAL_CLOSEOUT_V1/RESULT.json",
+      "sha256": "9c3f8c4cabad1ae90aa05530e744dc8864658ed877f6dcbf311b5ee3704fce5e"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_RECEIPT_PR_RELEASE_V1.json",
+      "sha256": "403cf61530aefd82fe6719457ad7e0ef0eb439a8ab5814ef593755f47b8b2db8"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/PR_BODY_FINAL_V1.md",
+      "sha256": "9c1f00e794e63c78048d5828421c5be4b2abd322012a4b77be67e8f19b97c18b"
+    },
+    {
+      "path": "projects/chirality-piping/loop/LOOP_RECEIPTS.md",
+      "sha256": "47df1c55dc8a821b0c2cb24f4c04f2ce0be440bc70588cc10d9b462b03851c30"
+    }
+  ],
+  "outside_cut": [
+    "Final committed-range checks",
+    "Hosted CI on actual PR head",
+    "Push, PR and merge",
+    "Product release"
+  ],
+  "rerun_disposition": "No product rerun indicated by metadata/evidence-only additions. Suitable for Root scoped commit and Git closeout."
+}

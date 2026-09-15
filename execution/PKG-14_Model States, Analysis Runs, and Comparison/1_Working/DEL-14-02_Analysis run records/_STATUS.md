@@ -1,13 +1,14 @@
 # Status: DEL-14-02 Analysis run records
 
 **Current State:** IN_PROGRESS
-**Last Updated:** 2026-09-14
+**Last Updated:** 2026-09-15
 
 ## Remaining
 - Complete explicit solve-required and rule-check-required diagnostic breadth at the producer; the persisted-run report handoff preserves existing records only, and PDU-033's unit/dimension hold remains.
-- Preserve PDU-033 pending whole canonical analysis-record/version compatibility and complete governed per-result metadata coverage. The bounded current semantic adapter does not close the nine unsupported legacy Current admission variants or alter retained legacy dimension enrichment/serializer/hash verification for authentic saved attachments; separate legacy interpretation from current quantity meaning.
+- Preserve PDU-033 for producer-supplied physical dimensions and other governed result metadata absent from received rows. The accepted foundation implements exact-version analysis record 0.2 under checked profile `openpipestress_jcs_ijson_v1`, retains both historical 0.1 profiles, records immutable rule-check revisions, and scopes legacy interpretation. Raw source rows remain unchanged; semantic interpretation beside them does not create missing producer evidence, and explicit `unverifiable` states do not close PDU-033.
 
 ## History
+- 2026-09-15 - Result compatibility foundation accepted at source `8ad37207cf088025623aa1e777a97a6fcb802f48`; PDU-033 remains. Lifecycle and formal dependency dispositions are unchanged. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
 - 2026-09-14 - Bounded result-integrity closeout clarifies the surviving compatibility residual only; lifecycle and all formal dispositions remain unchanged. Actual acceptance: execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md.
 - 2026-07-12 - D-41 R5 T7 PDU-055 refreshed 4 cited declaration claims to current T1-T6 authority/evidence while preserving genuine residuals; cited-claim and Remaining backcheck closed the D-41 bootstrap.
 - 2026-07-12 - D-41 R5 T4 PDU-040 recorded the bounded canonical persisted-run-to-report workflow evidence and retained this deliverable's producer/runtime/policy residuals; lifecycle remains IN_PROGRESS.

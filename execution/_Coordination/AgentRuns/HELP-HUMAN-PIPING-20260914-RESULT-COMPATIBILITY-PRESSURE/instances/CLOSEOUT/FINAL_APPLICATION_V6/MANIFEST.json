@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "FROZEN_FOR_ROOT_CHECKS",
+  "hash_algorithm": "sha256",
+  "self_excluded": true,
+  "files": [
+    {"path": "CONTEXT.json", "sha256": "12863406e1a5fa923b31283ee9a52237f148e08c0c56bc14b5c8583741a49573"},
+    {"path": "PR_BODY.md", "sha256": "46ec3a7ec91a665b3dbacd294734a5219d47dfaa60c318137a8fa6c024a712a2"},
+    {"path": "RETURN.md", "sha256": "9b7271b5b6b91f8e471f7211b76df6c8a22cee37fa3ba0d4661960b079c662ac"},
+    {"path": "TARGET_HASHES.json", "sha256": "af122f509451862b0998bf329b17d6d6c0cae379f836ddc1bcb04611efe10790"},
+    {"path": "_run_records/PREAPPLICATION_TARGET_CHECK.json", "sha256": "8b3c55e8903a211b6980b4c55009adf6156ade5027d1756b71cde2049346bde0"},
+    {"path": "_run_records/STATIC_CHECKS.json", "sha256": "25997721a51a819a6167c27c1035b8694e0472a5c06e947c3c11bfca6e909715"}
+  ]
+}

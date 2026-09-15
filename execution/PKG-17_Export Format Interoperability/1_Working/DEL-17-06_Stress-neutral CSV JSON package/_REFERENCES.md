@@ -19,3 +19,5 @@
 ## Notes
 - Source material must remain public, official, project-owned, or user-provided with documented rights.
 - CAEPIPE-specific target behavior remains bounded by DEL-17-01 source-basis evidence and unanswered developer-team questions.
+- **D-67:** `execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md` — owner-adopted versioned 0.2 hash-contract amendment preserving 0.1.
+- **Foundation final acceptance:** `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`) — bounded compatibility, pressure and native acceptance; no lifecycle or dependency promotion.

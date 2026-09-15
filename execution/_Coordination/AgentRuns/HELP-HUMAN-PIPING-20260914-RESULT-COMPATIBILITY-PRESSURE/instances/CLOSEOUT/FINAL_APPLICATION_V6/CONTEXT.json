@@ -1,0 +1,37 @@
+{
+  "schema": "foundation-closeout-final-application-v6-context",
+  "status": "METADATA_AND_RECEIPT_APPLIED_PENDING_FINAL_LOCAL_REVIEW",
+  "executor": {
+    "task": "/root/foundation_closeout",
+    "role": "TASK_TYPE_2",
+    "parent": "/root",
+    "parent_role": "HELP_HUMAN_AGENT_0",
+    "model": "gpt-5.6-sol",
+    "reasoning_effort": "medium",
+    "delegation": false,
+    "enforcement": "Host scope and non-delegation limits are instruction-asserted; mechanism-proven isolation is not claimed."
+  },
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_APPLICATION_V6.md",
+    "sha256": "0973543fb4aa27f74e1c63f02ab12e38d51097e9b0fdeed623e484421180afaa"
+  },
+  "accepted_bindings": {
+    "source_commit": "8ad37207cf088025623aa1e777a97a6fcb802f48",
+    "sweep_candidate_commit": "a843e16090b58abef857c9eeacc407217b6c946d",
+    "source_release": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json", "sha256": "ad18bceaa8e6d958a9182d94f5f6095619fe197eb227c1234edae1abea56dc72"},
+    "source_review": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V6/REVIEW_RETURN_V6.json", "sha256": "a0589d0739907f790baa1020bf868a17da5f82a29bd1251e9555a5457fab6adc", "verdict": "PASS_SOURCE_REVIEW"},
+    "f12_review": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/F12_REVIEW_V1/REVIEW_RETURN_V1.json", "sha256": "4bdd5d1bfb5fce919d2b8c2f30598893625c6f7ccf7ef0e96af7e723f3ef8817", "verdict": "PASS_SOURCE_REVIEW"},
+    "native_acceptance": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_V4_FANIN_V1.json", "sha256": "03ee5f8aa7065454746840579cd6dd610a5934875cadb0f58c659c4712a38dbd"},
+    "native_evidence_review": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_NATIVE_EVIDENCE_REVIEW_V1/REVIEW_RETURN_V1.json", "sha256": "2fe46695ca9b7ad6a97a20f754723941b0e15130a64090d62cf581db07bea672", "verdict": "PASS_WITH_SUCCESSOR_METADATA_P2"},
+    "complete_sweep": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/DEC025_V2/EXECUTION_RESULT_V2.json", "sha256": "286c34fd4e672ba5748ffaa67191be9f6eee3c2811d04d8b03b5ddcb684ccabb", "verdict": "PASS"},
+    "technical_acceptance": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md", "sha256": "e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d"},
+    "ui_readiness": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/PRODUCTION_UI_READINESS_V1.md", "sha256": "0166bec43f15de369df28e17b8fb7829806d71467fe9299770c65ab19a56406f"}
+  },
+  "p2_disposition": "Native-written Historical payloads preserve exact stored bytes across unchanged save. The externally preseeded insertion-order legacy fixture normalized on first native save with semantically equal data and retained advertised claims. Arbitrary external serialization byte equality is not promised. This calibration is present in the DEL-02-05 persistence note and PR_BODY.md.",
+  "pending": [
+    "Root-routed final local checks and validators",
+    "final additive independent review of metadata, Receipt 141, PR body and application evidence",
+    "Root finalization of the Receipt 141 Checks record after actual local outcomes",
+    "separate Git commit/push/PR, hosted actual-head CI and merge"
+  ]
+}

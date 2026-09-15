@@ -505,3 +505,7 @@ Durable context preserved after reconciliation review:
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 ControlledExportLink retains existing DOTH-JSON-001/local_private own initially-false intent, policy screening and lossless materialization/equality. The admitted native route uses a save button without href, while the browser retains its original anchor. Original screened href is decoded once by the private async exact-text save route; Downloads create_new collision work is background-only. Blocked/protected paths, unrelated routes and stale/current lifecycle boundaries remain. Actual native 350 N/repeat350/500 N delivery, collision preservation and lifecycle passed; capture-method limits remain explicit in the accepted native packet. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.
+
+## 2026-09-15 — Controlled stress export route
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` admits the controlled stress JSON route and paired native filename only after explicit local-private intent and existing screening. This adds no general route, privacy-policy, public-transport, or local-first change. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).

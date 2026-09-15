@@ -1,0 +1,31 @@
+{
+  "schema": "v6-application-static-checks",
+  "receipt_validator": {
+    "command": "python3 tools/validation/validate_piping_loop_receipts.py --repo-root . --validation-commit HEAD",
+    "exit_code": 0,
+    "stdout": "VALID {REPO_ROOT}/projects/chirality-piping/loop/LOOP_RECEIPTS.md: frozen through Receipt-44; versioned receipt contract satisfied"
+  },
+  "maintained_source_verification": {
+    "basis": "instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V6.json plus the reviewed F12 target in instances/ROOT/_run_records/F12_REVIEW_V1/REVIEW_RETURN_V1.json",
+    "checked": 77,
+    "all_match": true,
+    "mismatches": []
+  },
+  "target_diff_check": {
+    "command": "git diff --check -- {14 exact metadata and receipt paths}",
+    "exit_code": 0,
+    "stdout": ""
+  },
+  "application_verification": {
+    "target_after_hashes_match": true,
+    "primary_lifecycle_states_remain_in_progress": true,
+    "v5_manifested_files_preserved": true,
+    "unresolved_final_placeholders_in_applied_targets_receipt_or_pr_body": 0,
+    "p2_wording_present_in_persistence_note_and_pr_body": true
+  },
+  "pending": [
+    "Root-routed final local tool suite and validators",
+    "final additive independent metadata/receipt/PR review",
+    "hosted actual-head CI, PR and merge"
+  ]
+}

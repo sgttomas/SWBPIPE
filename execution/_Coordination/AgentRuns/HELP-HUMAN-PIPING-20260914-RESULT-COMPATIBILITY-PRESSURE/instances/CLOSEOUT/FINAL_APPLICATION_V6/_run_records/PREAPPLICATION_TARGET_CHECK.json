@@ -1,0 +1,8 @@
+{
+  "schema": "v6-preapplication-target-check",
+  "all_match": true,
+  "target_count": 13,
+  "basis": "instances/CLOSEOUT/CANDIDATE_PREPARATION_V5/_run_records/CONTEXT_MANIFEST.json",
+  "basis_sha256": "438123b2c61fc4e286261fd14f81a998f153644552bc5a5548ed696d901df72a",
+  "result": "All 13 target bytes matched their V5 before-hashes before the first metadata edit."
+}

@@ -248,3 +248,7 @@ Durable context preserved after reconciliation review:
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 Current semantic adaptation is separate from version-qualified legacy dimension enrichment and attachment serializer/hash verification. Authentic legacy saved bytes remain unchanged; Historical runs are not promoted to Current. Whole canonical analysis-record/version compatibility, nine existing unsupported legacy Current admission variants and retained legacy dimension/hash behavior remain open under PDU-033. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.
+
+## 2026-09-15 — Result compatibility foundation
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` implements strict analysis-record 0.2 under checked profile `openpipestress_jcs_ijson_v1`, preserves historical 0.1 profiles and received source rows, separates mechanics-run identity from immutable record-revision identity, and preserves truthful Current/Historical and profile-specific `unverifiable` states. PDU-033 and producer diagnostic breadth remain open. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`). Lifecycle and formal dependency dispositions remain unchanged.

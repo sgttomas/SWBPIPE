@@ -210,3 +210,7 @@ Durable context preserved after PKG-02 grounded finding resolution:
 ## 2026-09-14 — Bounded result-integrity/design closeout
 
 Current result interpretation/export uses rad/angle rotations, distinguishes actual ratios from dimensionless count/state/flag/mode evidence, and labels work residual as N*m diagnostic evidence. Rotational visualization and upstream criteria sufficiency remain open. Source: `cda14a585236f74abccff6cc42e5f02a23d8aaa6`. Final acceptance/evidence: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md`.
+
+## 2026-09-15 — Version-aware result designation
+
+Accepted source `8ad37207cf088025623aa1e777a97a6fcb802f48` preserves profile-aware Current/Historical display and scoped legacy match/mismatch/unverifiable findings; 0.2 record-revision identity remains distinct from mechanics-run identity. Rotational visualization and upstream criteria sufficiency remain open. `PRODUCTION_UI_FOUNDATION_CANDIDATE.md` is a ready next-tranche interface handoff under `PRODUCTION_UI_READINESS_V1.md`, not production UI implementation or personal visual approval. Acceptance: `execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/FINAL_ACCEPTANCE_V1.md` (SHA-256 `e894ddf341a99bfea72270deb89a31d2d321068209b7399db3217bc5b08b851d`).
