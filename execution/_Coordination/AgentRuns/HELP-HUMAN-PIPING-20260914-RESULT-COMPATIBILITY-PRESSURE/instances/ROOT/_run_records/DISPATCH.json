@@ -152,13 +152,18 @@
     "fork_turns": "none",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V1.md",
     "brief_sha256": "54dced9b2e213cd27a98fecd0128f53976c591ecb3de6afd363c4bfdd0615eca",
-    "source_release_sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b",
-    "status": "returned_COMPLETE_WITH_FINDINGS_F01-F04; repair rereview pending",
+    "source_release_sha256": "355a8ff788ff492250bddf2c619c0e81847e528f88554c44b15a488f128c1481",
+    "status": "running repaired candidate independent review V2",
     "actual_dispatch": "collaboration.spawn_agent returned /root/foundation_final_review",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted scope and Type-2 non-delegation; no mechanically isolated filesystem",
     "created_utc": "2026-09-15T03:32:27.688570+00:00",
     "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V1/REVIEW_RETURN_V1.json",
-    "return_sha256": "192f01678318f675239ceea8659aa0003693aa218320da2a91a6f41910f87b5e"
+    "return_sha256": "192f01678318f675239ceea8659aa0003693aa218320da2a91a6f41910f87b5e",
+    "candidate_commit": "311addeb208434c38d7553ab3194ca851eeb9577",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V2.md",
+    "latest_brief_sha256": "a70bc58565b7cb96dfe11edd533df453708441e6b4a706defcf362ffaec6aa07",
+    "actual_continuation": "collaboration.followup_task returned successfully after user resume; same independent Astra/high reviewer",
+    "status_updated_utc": "2026-09-15T04:20:55.021063+00:00"
   }
 ]

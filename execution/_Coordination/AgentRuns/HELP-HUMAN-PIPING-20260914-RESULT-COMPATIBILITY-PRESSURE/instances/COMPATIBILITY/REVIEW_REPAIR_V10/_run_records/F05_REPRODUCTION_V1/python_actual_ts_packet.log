@@ -1,0 +1,6 @@
+packet execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json
+rows 830 witnesses 828
+other_rows 52
+other_witnesses 50
+validate EXPECTED_REVIEW_FAILURE ValueError SN-CSV-ROW-BINDING-MISMATCH
+materialize UNEXPECTED_PASS ['diagnostics.json', 'loss_report.json', 'manifest.json', 'result_rows.json', 'stable_id_map.json', 'stress_neutral_results.csv', 'unit_preservation_witnesses.json', 'unit_system_disclosure.json', 'validation_report.json']

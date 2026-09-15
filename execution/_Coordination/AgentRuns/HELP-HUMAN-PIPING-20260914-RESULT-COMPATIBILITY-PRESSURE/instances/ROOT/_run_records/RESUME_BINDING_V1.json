@@ -1,0 +1,24 @@
+{
+  "schema": "root-foundation-resume-binding-v1",
+  "created_utc": "2026-09-15T04:22:07.627891+00:00",
+  "candidate": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "origin_main": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "source_checkpoint": "62bfa83e7533041cdba07b35655af787ce491e71873dc06717510fae95357edf",
+  "source_release": "355a8ff788ff492250bddf2c619c0e81847e528f88554c44b15a488f128c1481",
+  "event": "User requested resume after session limit. All74 compatibility source hashes matched frozen checkpoint; pressure source unchanged. Root integrated12repairs and resumed same Sol/high manager and writer. Astra/high review initially returned limit again, then resumed after fresh tool evidence ordinaryUsageAllowed=true and weekly usedPercent=0. No reset, purchase, setting or model change performed.",
+  "active_roles": [
+    "HELP_HUMAN root",
+    "WORKING_ITEMS foundation_compatibility",
+    "TASK compatibility_writer",
+    "TASK foundation_final_review"
+  ],
+  "resource_owner": "Compatibility build/browser lease V3; native remains unreleased.",
+  "remaining": [
+    "Final compatibility build/dev/dist and release",
+    "Independent repaired review",
+    "Final native V3 required witnesses",
+    "Full registered DEC025 and governance checks",
+    "Remaining/receipt/acceptance/UI handoff",
+    "Actual candidate CI and scoped PR merge"
+  ]
+}

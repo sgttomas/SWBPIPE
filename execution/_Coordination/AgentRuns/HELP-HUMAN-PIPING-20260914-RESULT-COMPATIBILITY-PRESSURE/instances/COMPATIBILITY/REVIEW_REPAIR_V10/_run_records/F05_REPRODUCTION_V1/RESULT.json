@@ -1,0 +1,59 @@
+{
+  "schema": "compatibility-review-f05-actual-ts-python-reproduction-v1",
+  "status": "CONFIRMED_WITH_EARLIER_CSV_INTEROPERABILITY_FAILURE",
+  "source_frozen": true,
+  "packet": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+    "result_rows": 830,
+    "unit_witnesses": 828,
+    "result_family_other_rows": 52,
+    "witnessed_result_family_other_rows": 50
+  },
+  "python": {
+    "executable": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "checked_json_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "observations": [
+    {
+      "operation": "validate_stress_neutral_export_package_v0_2",
+      "result": "FAIL",
+      "error": "SN-CSV-ROW-BINDING-MISMATCH",
+      "detail": "Python re-render uses a different numeric text for at least one accepted binary64 value: TypeScript CSV 0.000028 versus Python CSV 2.8e-05. This precedes the reviewed family-classification failure."
+    },
+    {
+      "operation": "materialized_members_v0_2",
+      "result": "PASS_RAW_SERIALIZATION_ONLY",
+      "detail": "The function serializes members but does not call validation. This does not establish package acceptance."
+    },
+    {
+      "operation": "write_materialized_members_v0_2",
+      "result": "NOT_RUN_BECAUSE_VALIDATION_FAILURE_ALREADY_ESTABLISHED",
+      "detail": "The writer calls validate_stress_neutral_export_package_v0_2 before materialization and would stop at the same CSV mismatch."
+    },
+    {
+      "operation": "direct current _witness_disposition comparison",
+      "result": "F05_CONFIRMED",
+      "detail": "All 50 witnessed result_family=other rows are classified unknown_semantic by Python even though the packet carries accepted dimensions; the validator would raise SN-UNIT-WITNESS-BINDING-MISMATCH after the earlier CSV check is resolved."
+    }
+  ],
+  "example_f05": {
+    "result_id": "result:combination:combination-C-OPER-ALT:pressure-thrust:component-C-150",
+    "row_kind": "result_value",
+    "result_family": "other",
+    "unit": "N",
+    "dimension": "force",
+    "python_current_disposition": "unknown_semantic",
+    "witness_source_quantity": {
+      "value": 27000,
+      "unit": "N",
+      "dimension": "force"
+    }
+  },
+  "raw_log": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/F05_REPRODUCTION_V1/python_actual_ts_packet.log",
+    "sha256": "40bfeeb4d29c9200242f6c78b7f48c06857694f1c16e01d7e92ab66714ea85da"
+  },
+  "source_edits": false,
+  "routing": "Root must include the cross-language CSV re-render mismatch in the sealed successor scope or rule it separately; no inference-based source expansion was made."
+}

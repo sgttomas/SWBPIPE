@@ -1,0 +1,48 @@
+{
+  "schema": "compatibility-review-repair-v13-write-scope",
+  "status": "SEALED_EXACT_SCOPE",
+  "governing_brief": {
+    "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V13.md",
+    "sha256": "c41617486df22190484866eda08e4c57e7f43c16440e5be70e372b1d24ff4803"
+  },
+  "preserved_source_checkpoint": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/SOURCE_CHECKPOINT_V12.json",
+    "sha256": "62bfa83e7533041cdba07b35655af787ce491e71873dc06717510fae95357edf"
+  },
+  "exact_product_write_paths": [
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+    "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json"
+  ],
+  "optional_path": {
+    "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json": "only if the maintained fixture requires a truthful compatible update"
+  },
+  "actual_packet": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+    "rows": 830,
+    "witnesses": 828,
+    "other_rows": 52,
+    "witnessed_other_rows": 50,
+    "work_withholdings": 2
+  },
+  "existing_reproduction": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/F05_REPRODUCTION_V1/RESULT.json",
+    "sha256": "670994b4546d7384824308c582b501f3b80e4e570f0dd6293193e277931043b3",
+    "notes": [
+      "direct classifier comparison confirms all 50 witnessed other-family rows are rejected by current Python classification",
+      "actual validation currently stops earlier at SN-CSV-ROW-BINDING-MISMATCH because the TS preserved CSV uses decimal spelling 0.000028 where Python re-render uses 2.8e-05",
+      "pure materialized_members_v0_2 serializes only; write_materialized_members_v0_2 validates first"
+    ]
+  },
+  "acceptance": [
+    "validate_stress_neutral_export_package_v0_2 passes the exact captured packet",
+    "write_materialized_members_v0_2 writes exactly nine validated members from the exact captured packet",
+    "accepted explicit interpreted dimensions and units bind eligible other-family witnesses without treating other as unknown",
+    "unit/dimension contradictions remain rejected",
+    "CSV bytes and their advertised checksum remain unchanged while cross-language numeric spelling does not cause a false row mismatch",
+    "828 witnesses and exactly two diagnostic-work withholdings remain; validation_ready stays false and human review stays required"
+  ],
+  "desktop_source_writes": false,
+  "git_actions": false
+}

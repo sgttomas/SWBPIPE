@@ -37,7 +37,12 @@ from schema_validation import (  # noqa: E402
     validate_schema_document,
     walk_strings,
 )
-from core.handoff.stress_neutral.package_v0_2 import _checked, _manifest_seed, package_projection  # noqa: E402
+from core.handoff.stress_neutral.package_v0_2 import (  # noqa: E402
+    _checked,
+    _manifest_seed,
+    _validate_received_csv,
+    package_projection,
+)
 from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1  # noqa: E402
 
 
@@ -212,7 +217,7 @@ def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
 @pytest.mark.parametrize(
     "change,expected_code",
     [
-        (lambda row: row.update(result_family="other"), "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC"),
+        (lambda row: row.update(result_family="unknown"), "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC"),
         (lambda row: row.update(unit="unknown-unit"), "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC"),
         (lambda row: row.update(unit="Pa"), "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"),
     ],
@@ -229,6 +234,50 @@ def test_v02_categorizes_unknown_missing_and_contradictory_rows_separately(chang
     assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
     assert source == before
     validate_stress_neutral_export_package_v0_2(package)
+
+
+@pytest.mark.parametrize(
+    "unit,dimension",
+    [
+        ("N/m", "linear_stiffness"),
+        ("N*m/rad", "rotational_stiffness"),
+        ("N", "force"),
+        ("count", "dimensionless"),
+        ("record", "dimensionless"),
+    ],
+)
+def test_v02_other_family_uses_explicit_bound_semantics(unit, dimension):
+    source = source_payload()
+    source["result_rows"][0].update(result_family="other", unit=unit, dimension=dimension)
+    package = build_stress_neutral_export_package_v0_2(**source)
+    row = package["result_rows"][0]
+    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == row["result_id"])
+    assert witness["source_quantity"] == {"value": row["value"], "unit": unit, "dimension": dimension}
+    assert witness["target_quantity"] == witness["source_quantity"]
+    assert not [item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"]]
+    validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_other_family_rejects_unit_dimension_contradiction():
+    source = source_payload()
+    source["result_rows"][0].update(result_family="other", unit="N/m", dimension="force")
+    package = build_stress_neutral_export_package_v0_2(**source)
+    row = package["result_rows"][0]
+    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"])
+    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
+    assert row["result_id"] not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_other_family_does_not_infer_diagnostic_work_from_moment_unit():
+    source = source_payload()
+    source["result_rows"][0].update(result_family="other", unit="N*m", dimension="TBD")
+    package = build_stress_neutral_export_package_v0_2(**source)
+    row = package["result_rows"][0]
+    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == row["result_id"])
+    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC"
+    assert finding["severity"] == "blocking"
+    assert finding["code"] != "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
 
 
 def test_v02_uses_accepted_semantics_without_rewriting_a_legacy_dimension_observation():
@@ -309,6 +358,45 @@ def rehash_v02(package):
     for member in package["manifest"]["package_members"]:
         member["checksum"] = deepcopy(by_name[member["filename"]])
     package["package_checksum"]["value"] = canonical_sha256_checked_v1(package_projection(package))
+
+
+def test_v02_received_csv_accepts_equivalent_binary64_spellings_without_rewriting_bytes():
+    source = source_payload()
+    source["result_rows"][0]["value"] = 0.000028
+    source["result_rows"][1]["value"] = 1.0
+    package = build_stress_neutral_export_package_v0_2(**source)
+    package["csv_text"] = package["csv_text"].replace(",2.8e-05,N,", ",0.000028,N,").replace(",1,Pa,", ",1.0,Pa,")
+    received_bytes = package["csv_text"].encode("ascii")
+    rehash_v02(package)
+    validate_stress_neutral_export_package_v0_2(package)
+    assert package["csv_text"].encode("ascii") == received_bytes
+    csv_claim = next(item for item in package["manifest"]["checksums"] if item["payload_ref"]["ref"] == "stress_neutral_results.csv")
+    assert csv_claim["value"] == hashlib.sha256(received_bytes).hexdigest()
+
+
+@pytest.mark.parametrize(
+    "numeric_text",
+    ["NaN", "Infinity", "-Infinity", "1e400", "1e-4000", "9007199254740992", "12.500000000000002", "01", "+12.5", "12.5x", ""],
+)
+def test_v02_received_csv_rejects_nonfinite_unsafe_malformed_underflow_and_unequal_values(numeric_text):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    text = package["csv_text"].replace(",12.5,N,", f",{numeric_text},N,")
+    with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
+        _validate_received_csv(text, package["result_rows"])
+
+
+@pytest.mark.parametrize("mutation", [
+    lambda text: text.replace("result_id,canonical_ref", "canonical_ref,result_id", 1),
+    lambda text: "\n".join(text.splitlines()[:-1]) + "\n",
+    lambda text: text + text.splitlines()[1] + "\n",
+    lambda text: text.replace(",N,force,", ",kN,force,", 1),
+    lambda text: text.replace(",canonical_id_map\n", "\n", 1),
+    lambda text: text.replace("correlation_status\n", "correlation_status,extra\n", 1).replace("\n", ",extra\n", 1),
+])
+def test_v02_received_csv_rejects_order_partial_duplicate_extra_and_field_changes(mutation):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    with pytest.raises(ValueError, match="SN-CSV-ROW-BINDING-MISMATCH"):
+        _validate_received_csv(mutation(package["csv_text"]), package["result_rows"])
 
 
 @pytest.mark.parametrize("mutation,expected", [

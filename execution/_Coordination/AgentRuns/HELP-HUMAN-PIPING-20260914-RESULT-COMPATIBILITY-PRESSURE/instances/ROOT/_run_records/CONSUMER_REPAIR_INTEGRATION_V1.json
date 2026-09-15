@@ -1,0 +1,127 @@
+{
+  "schema": "root-desktop-python-consumer-fanin-v1",
+  "created_utc": "2026-09-15T04:34:30.387770+00:00",
+  "prior_candidate": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "source_checkpoint": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+    "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949"
+  },
+  "source_verified": 74,
+  "prior_source_verified": 76,
+  "copied_source_delta": [
+    {
+      "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "v12_sha256": "f44a53acec65ceeb940d525d3454235314be4aea36e7b1090a7613ffc0f07758",
+      "v12_bytes": 23139,
+      "v13_sha256": "10bcf745f316d97afab67b2849756b6cc14c2100eb5e3875131f788563ff8770",
+      "v13_bytes": 27223
+    },
+    {
+      "path": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "v12_sha256": "33f534b80b09a77b029bd7f241b4746bce5e74a7d9e2668226de8b2adc03cc87",
+      "v12_bytes": 29140,
+      "v13_sha256": "dbdb226ce0e04faa4452c4d3ff21b9af67d1f1162cc0518775989603772f4ac8",
+      "v13_bytes": 33620
+    }
+  ],
+  "evidence_imported": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/CHILD_CONTINUATION.json",
+      "sha256": "fb929186b13f45f928e2645ede32bc97dfc1d684305c034721a55572d4e35b9b",
+      "bytes": 631
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/CSV_RULING_ADDENDUM_V1.json",
+      "sha256": "097ac5a8f791b41fba3cd36664ff4326d65cb4ac9146cf013d49d4766c8e5585",
+      "bytes": 1547
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+      "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
+      "bytes": 19025
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/RESULT.json",
+      "sha256": "07bccb2ab3c353d22ef4eb4d96c295a4cb07ff5bac0990b0225a4194b6c9d266",
+      "bytes": 3843
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/diagnostics.json",
+      "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+      "bytes": 3961
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/loss_report.json",
+      "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+      "bytes": 3445
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/manifest.json",
+      "sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479",
+      "bytes": 5883
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/result_rows.json",
+      "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "bytes": 921611
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "bytes": 656807
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/stress_neutral_results.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "bytes": 172162
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/unit_preservation_witnesses.json",
+      "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+      "bytes": 331939
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/unit_system_disclosure.json",
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "bytes": 1412
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized/validation_report.json",
+      "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+      "bytes": 4714
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/qualification.log",
+      "sha256": "68fd844197d1a6e468f59e30509a8cfe25ee9f2aee419464b794dc5f2fff7760",
+      "bytes": 281
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/focused-python-final.log",
+      "sha256": "9ce066437559f3978617d07ef33e2e68ae76e547ef29e559a39f9804d82c6c77",
+      "bytes": 889
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/focused-python.log",
+      "sha256": "5f5b9507d3305321df4f9d9bf1b19ef917d1ce8aa2288793a91928eef4b90fce",
+      "bytes": 29562
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/WRITE_SCOPE.json",
+      "sha256": "01100ed5d09e39c5ad1763f12c0b7b5912540bba4a7f2da3dd15f69525e4848c",
+      "bytes": 2728
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/F05_REPRODUCTION_V1/RESULT.json",
+      "sha256": "670994b4546d7384824308c582b501f3b80e4e570f0dd6293193e277931043b3",
+      "bytes": 2813
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/_run_records/F05_REPRODUCTION_V1/python_actual_ts_packet.log",
+      "sha256": "40bfeeb4d29c9200242f6c78b7f48c06857694f1c16e01d7e92ab66714ea85da",
+      "bytes": 607
+    }
+  ],
+  "qualified": "Manager actual return plus Root hash preflight; source frozen and focused66tests/actual830row validated9file consumer pass",
+  "pending": "Independent consumer re-review, final manager release, nativeV3, fullDEC025 and closeout",
+  "limits": "No desktop, schema, legacy, raw received packet or pressure source change. No native/sweep acceptance inferred."
+}

@@ -1,0 +1,44 @@
+{
+  "candidate": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "file_count": 7,
+  "files": [
+    {
+      "bytes": 3033,
+      "path": "helpers/prepare_malformed_historical_row_v6.mjs",
+      "sha256": "ec91fceba427d58a694ec9888b0b3631a5d1da6924a09c45ffac3266062b5e0a"
+    },
+    {
+      "bytes": 8685,
+      "path": "helpers/verify_f03_accounting_v6.py",
+      "sha256": "27d5f701dcf8caff4d5e7d173ae3ce97317ff800f443b52baf00609818321798"
+    },
+    {
+      "bytes": 909,
+      "path": "preparation/EXECUTION_GATE_V3.json",
+      "sha256": "4380c14545ee86739ce1a0367bedeed84227986aab673c056399c2f46b6e1067"
+    },
+    {
+      "bytes": 3145,
+      "path": "preparation/PREEXECUTION_RETURN_V3.json",
+      "sha256": "2849fbb7c8fb16f549b67705dcead4608cc6e508180607063a78624550effe1f"
+    },
+    {
+      "bytes": 3129,
+      "path": "preparation/REPAIR_REPRESENTATION_BINDING_V3.json",
+      "sha256": "4d883cefd0f398a6bc1c0890e9c325a6dd8868aef2ea7d24bb85971cd287f49a"
+    },
+    {
+      "bytes": 25618,
+      "path": "preparation/SOURCE_BINDING_PREEXECUTION_V3.json",
+      "sha256": "313300440168300e7c53da4a05096a2e4cb00894afc03fc8f7ac7a34467571e6"
+    },
+    {
+      "bytes": 2507,
+      "path": "preparation/malformed_historical_cases_bound_v3.json",
+      "sha256": "2a46c259b13e854b8a6986678b6a66c8d9dbf90176f2d1dcaf77cf803c51f67e"
+    }
+  ],
+  "schema": "openpipestress.final-native-v3-preexecution-hash-manifest.v1",
+  "self_excluded": "preparation/HASH_MANIFEST_PREEXECUTION_V3.json",
+  "status": "PREPARED_AWAITING_FINAL_NATIVE_LEASE_V3"
+}

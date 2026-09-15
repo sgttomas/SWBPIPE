@@ -1,0 +1,93 @@
+{
+  "schema": "compatibility-v13-actual-desktop-packet-qualification-v1",
+  "status": "PASS",
+  "source_packet": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+    "bytes": 2107038,
+    "preserved_unchanged": true
+  },
+  "consumer": {
+    "validation": "PASS",
+    "json_schema": "PASS",
+    "disk_writer": "PASS",
+    "materialized_directory": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/_run_records/ACTUAL_PACKET_V13/materialized"
+  },
+  "accounting": {
+    "result_rows": 830,
+    "unit_preservation_witnesses": 828,
+    "result_family_other_rows": 52,
+    "witnessed_other_rows": 50,
+    "diagnostic_work_withholdings": 2,
+    "obsolete_missing_witness_findings_for_witnessed_rows": 0,
+    "validation_ready": false,
+    "human_review_required": true,
+    "validation_status": "blocked"
+  },
+  "package_checksum_verified": true,
+  "members": [
+    {
+      "filename": "manifest.json",
+      "bytes": 5883,
+      "sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479",
+      "claim_value": "c8c7b1bb5b1d3fe9883aa7d66abba483d7da1b3a9013f80568648a34efbc23d0",
+      "check": "manifest_seed_claim_matches;materialized_bytes_match_checked_canonical_json"
+    },
+    {
+      "filename": "stress_neutral_results.csv",
+      "bytes": 172162,
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "claim_value": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "result_rows.json",
+      "bytes": 921611,
+      "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "claim_value": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "unit_system_disclosure.json",
+      "bytes": 1412,
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "claim_value": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "unit_preservation_witnesses.json",
+      "bytes": 331939,
+      "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+      "claim_value": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "stable_id_map.json",
+      "bytes": 656807,
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "claim_value": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "loss_report.json",
+      "bytes": 3445,
+      "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+      "claim_value": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "validation_report.json",
+      "bytes": 4714,
+      "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+      "claim_value": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+      "check": "materialized_byte_sha256_matches_claim"
+    },
+    {
+      "filename": "diagnostics.json",
+      "bytes": 3961,
+      "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+      "claim_value": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+      "check": "materialized_byte_sha256_matches_claim"
+    }
+  ]
+}

@@ -5,7 +5,12 @@ its normalized data into the versioned nine-member checked-hash contract.
 """
 from __future__ import annotations
 from copy import deepcopy
+import csv
+from decimal import Decimal, InvalidOperation
+import io
+import math
 from pathlib import Path
+import re
 from typing import Any, Mapping
 
 from core.serialization.canonical_json.adapter import canonical_json_checked_v1, canonical_sha256_checked_v1
@@ -31,7 +36,15 @@ UNIT_DIMENSIONS = {
     "mm": "length", "m": "length", "rad": "angle", "N": "force", "N*m": "moment",
     "Pa": "stress", "MPa": "stress", "ratio": "ratio", "mode_code": "dimensionless",
     "count": "dimensionless", "boolean": "dimensionless", "state_code": "dimensionless",
+    "unitless": "dimensionless", "record": "dimensionless", "N/m": "linear_stiffness",
+    "N*m/rad": "rotational_stiffness",
 }
+CSV_COLUMNS = [
+    "result_id", "canonical_ref", "row_kind", "result_family", "load_case_ref",
+    "station_ref", "component_ref", "value", "unit", "dimension", "correlation_status",
+]
+JSON_NUMBER = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\Z")
+MAX_SAFE_INTEGER = (1 << 53) - 1
 
 
 def _checked(payload: Any, filename: str, scope: str = "member_payload") -> dict[str, Any]:
@@ -42,15 +55,85 @@ def _witness_disposition(row: Mapping[str, Any]) -> tuple[str, str | None]:
     if row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work":
         return "diagnostic_work", None
     family = row.get("result_family")
-    if not isinstance(family, str) or family not in FAMILY_DIMENSIONS:
+    if not isinstance(family, str):
         return "unknown_semantic", None
     unit_dimension = UNIT_DIMENSIONS.get(row.get("unit"))
     if unit_dimension is None:
         return "missing_semantic", None
-    interpreted = FAMILY_DIMENSIONS[family]
+    if family in FAMILY_DIMENSIONS:
+        interpreted = FAMILY_DIMENSIONS[family]
+    elif family == "other":
+        interpreted = row.get("dimension")
+        if not isinstance(interpreted, str) or interpreted in {"", "TBD"}:
+            return "missing_semantic", None
+    else:
+        return "unknown_semantic", None
     if unit_dimension != interpreted or row.get("correlation_status") != "canonical_id_map":
         return "contradiction", None
     return "eligible", interpreted
+
+
+def _csv_scalar(row: Mapping[str, Any], column: str) -> Any:
+    if column == "value":
+        return row.get(column)
+    if column in {"canonical_ref", "load_case_ref", "station_ref", "component_ref"}:
+        ref = row.get(column)
+        return ref.get("ref", "") if isinstance(ref, Mapping) else ""
+    return row.get(column, "")
+
+
+def _supported_binary64(text: str, expected: Any) -> bool:
+    if isinstance(expected, bool) or not isinstance(expected, (int, float)):
+        return False
+    if not JSON_NUMBER.fullmatch(text):
+        return False
+    try:
+        decimal_value = Decimal(text)
+        parsed = float(text)
+    except (InvalidOperation, OverflowError, ValueError):
+        return False
+    if not decimal_value.is_finite() or not math.isfinite(parsed):
+        return False
+    if not decimal_value.is_zero() and parsed == 0.0:
+        return False
+    expected_float = float(expected)
+    if not math.isfinite(expected_float):
+        return False
+    if parsed.is_integer() and abs(parsed) > MAX_SAFE_INTEGER:
+        return False
+    return parsed == expected_float
+
+
+def _validate_received_csv(csv_text: Any, rows: list[Mapping[str, Any]]) -> None:
+    if not isinstance(csv_text, str) or "\r" in csv_text or not csv_text.endswith("\n"):
+        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+    try:
+        csv_text.encode("ascii")
+    except UnicodeEncodeError as error:
+        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
+    try:
+        reader = csv.DictReader(io.StringIO(csv_text, newline=""), strict=True)
+        if reader.fieldnames != CSV_COLUMNS:
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+        received_rows = list(reader)
+    except (csv.Error, UnicodeError) as error:
+        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH") from error
+    if len(received_rows) != len(rows):
+        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+    received_ids: set[str] = set()
+    for received, expected in zip(received_rows, rows):
+        if set(received) != set(CSV_COLUMNS) or any(value is None for value in received.values()):
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+        result_id = received["result_id"]
+        if not result_id or result_id in received_ids:
+            raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+        received_ids.add(result_id)
+        for column in CSV_COLUMNS:
+            if column == "value":
+                if not _supported_binary64(received[column], _csv_scalar(expected, column)):
+                    raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+            elif received[column] != str(_csv_scalar(expected, column)):
+                raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
 
 
 def _witnesses(rows: list[dict[str, Any]], provenance: Mapping[str, Any]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -205,9 +288,7 @@ def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> N
     row_ids = [row.get("result_id") for row in rows]
     if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
         raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
-    from .package import render_stress_neutral_csv
-    if package.get("csv_text") != render_stress_neutral_csv(rows):
-        raise ValueError("SN-CSV-ROW-BINDING-MISMATCH")
+    _validate_received_csv(package.get("csv_text"), rows)
     stable = package.get("stable_id_map", [])
     canonical_ids = [item.get("canonical_ref", {}).get("ref") for item in stable]
     export_ids = [item.get("export_ref", {}).get("ref") for item in stable]
@@ -239,6 +320,15 @@ def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> N
         result_id = item.get("source", {}).get("ref")
         expected_severity = "info" if category == "diagnostic_work" else "blocking"
         if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+            raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+        row = rows[row_ids.index(result_id)]
+        expected_category, _ = _witness_disposition(row)
+        if category == "diagnostic_work":
+            explicit_work_row = row.get("row_kind") in {"diagnostic_work", "work"} or row.get("result_family") == "diagnostic_work"
+            explicit_withheld_semantics = row.get("dimension") in {None, "", "TBD"} and row.get("correlation_status") != "canonical_id_map"
+            if expected_category == "eligible" or not (explicit_work_row or explicit_withheld_semantics):
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+        elif category != expected_category:
             raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
         categorized[result_id] = category
     if set(categorized) & seen_witnesses or len(categorized) + len(seen_witnesses) != len(rows) or any(row_id not in categorized and row_id not in seen_witnesses for row_id in row_ids):

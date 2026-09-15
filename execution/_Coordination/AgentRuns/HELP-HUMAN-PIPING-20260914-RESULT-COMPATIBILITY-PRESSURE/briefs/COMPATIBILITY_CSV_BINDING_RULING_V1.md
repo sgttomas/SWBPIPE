@@ -1,0 +1,11 @@
+# Agent0 engineering ruling — received CSV and JSON row agreement
+
+This supplements COMPATIBILITY_REVIEW_REPAIR_V13.md under the same already released three-path Python/test/fixture boundary. No new maintained path or public schema is authorized. Preserve the observed F05_REPRODUCTION_V1/RESULT.json SHA670994b4546d7384824308c582b501f3b80e4e570f0dd6293193e277931043b3.
+
+The actual desktop producer emits decimal0.000028 where Python re-rendering emits2.8e-05. Both represent the identical received binary64 value. A consumer must verify the actual received normalized ASCII/LF CSV bytes against their declared member checksum, preserve those bytes on disk, and verify row/field agreement with JSON. It must not require Python's numeric spelling or regenerate the received CSV to make a historical checksum appear correct.
+
+Within0.2, replace the Python-reserialization equality check with strict received-CSV validation: established exact columns/order and complete unique row accounting; exact nonnumeric field agreement including IDs, units, dimensions and references; valid finite supported numeric values that equal the corresponding JSON binary64 values without a publication tolerance. Preserve the normalized_ascii_lf_text contract, actual CSV byte checksum, complete package checksum, row ordering and malformed-input rejection. Equivalent established decimal/exponent spellings and integral1/1.0 are valid. NaN/infinity, unsafe values, malformed numerals, partial rows, missing/duplicate/extra rows, field changes and actual unequal values must be rejected. Do not silently turn nonzero underflow or overflow text into zero/infinity.
+
+The unchanged legacy0.1 renderer and producer still use their existing Python spellings. The desktop producer need not change. Add focused decimal/exponent parity and negative row-binding cases, then validate and write the exact captured desktop packet with all9members. Keep construction/schema conformance distinct from readiness and retain the two work withholdings.
+
+This is a compatible consumer repair under the approved shared-package objective, not a new CSV hashing profile or alteration of accepted source evidence. Independent V2 review must assess the repair.

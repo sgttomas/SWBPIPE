@@ -1,0 +1,79 @@
+{
+  "F03": {
+    "dimension_trace": {
+      "packet_locations": [
+        "export_profile.source_basis_refs",
+        "unit_system_disclosure.decision_basis_refs"
+      ],
+      "raw_source_rule": "Received source rows are hashed and retained without inserting dimension; witness dimension is interpreted from accepted kind/unit/component semantics.",
+      "semantic_contract_reference": {
+        "object_type": "ExternalReference",
+        "ref": "fixtures/results/semantic_contract_v0_2.json"
+      },
+      "witness_locations": [
+        "unit_preservation_witnesses[*].source_quantity.dimension",
+        "unit_preservation_witnesses[*].target_quantity.dimension"
+      ]
+    },
+    "frozen_native_expectation": {
+      "diagnostic_work_withholds": 2,
+      "eligible_witnesses": 828,
+      "raw_dimension_fields": 0,
+      "rows": 830,
+      "unknown_missing_contradictory": 0
+    },
+    "malformed_or_unavailable_categories": {
+      "contradiction": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+      "diagnostic_work": "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK",
+      "eligible": "witness",
+      "missing_semantic": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+      "unknown_semantic": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC"
+    }
+  },
+  "F04": {
+    "current_rule": "Malformed received evidence remains Historical; no renderable mechanicsResult is established.",
+    "finding_code": "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+    "raw_authority": [
+      "HistoricalRunContext.rawMechanicsResult",
+      "HistoricalRunContext.rawAnalysisRun"
+    ],
+    "safe_projection": [
+      "HistoricalRunContext.mechanicsResult guarded by isRenderableMechanicsResult",
+      "ResultsPanel receives only guarded mechanicsResult"
+    ],
+    "save_authority": [
+      "App.handleCreateProject snapshotResult=rawMechanicsResult while Historical",
+      "App.handleSaveProject snapshotResult=rawMechanicsResult while Historical"
+    ]
+  },
+  "candidate_commit": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "captured_utc": "2026-09-15T04:24:46.305501+00:00",
+  "schema": "final-native-v3-repair-representation-binding",
+  "source": {
+    "app": {
+      "bytes": 152676,
+      "path": "apps/desktop/src/App.tsx",
+      "sha256": "aa1d9c7d0d9e3096097cdad1fd6b44004114a8e17cbc9555c44c4d5f5621bcfc"
+    },
+    "contract": {
+      "bytes": 37875,
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    },
+    "historical": {
+      "bytes": 32445,
+      "path": "apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "03b3400909b1d2b980bdff5835c3ae58a47d404a24186803f66843c163c5bf0e"
+    },
+    "stress_frontend": {
+      "bytes": 48045,
+      "path": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "sha256": "e2701ecef9b2f83128174d2c835b1fa4ee98b0df3743e6bc1118c7efa5bc9ec3"
+    },
+    "stress_python": {
+      "bytes": 23139,
+      "path": "core/handoff/stress_neutral/package_v0_2.py",
+      "sha256": "f44a53acec65ceeb940d525d3454235314be4aea36e7b1090a7613ffc0f07758"
+    }
+  }
+}

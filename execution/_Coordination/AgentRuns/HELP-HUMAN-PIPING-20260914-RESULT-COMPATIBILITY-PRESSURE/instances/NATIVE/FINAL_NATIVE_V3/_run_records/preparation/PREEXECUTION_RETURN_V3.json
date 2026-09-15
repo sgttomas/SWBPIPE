@@ -1,0 +1,85 @@
+{
+  "base": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "bindings": {
+    "brief": {
+      "path": "briefs/FINAL_NATIVE_EXECUTION_V3.md",
+      "sha256": "227b8b0e688b43093c2227179ed5c2a8540afb21498b81b3e19b94034949f284"
+    },
+    "source_files": {
+      "declared": 76,
+      "mismatches": 0,
+      "record": "preparation/SOURCE_BINDING_PREEXECUTION_V3.json",
+      "verified": 76
+    },
+    "source_release": {
+      "path": "instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V2.json",
+      "sha256": "355a8ff788ff492250bddf2c619c0e81847e528f88554c44b15a488f128c1481"
+    },
+    "v4_preparation_manifest": {
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/_run_records/HASH_MANIFEST_V4.json",
+      "sha256": "ca38129a7266d4bd97d366bfcabd5093f36fe4eb9386f7e6eace28e301f52c3d"
+    },
+    "v5_preparation_manifest": {
+      "path": "instances/NATIVE/REPAIR_PREPARATION_V5/HASH_MANIFEST_V5.json",
+      "sha256": "0e1e674df253abf600b70459ecbc6f621e8563dfb1a4b5e1e72cb1da46be1285"
+    }
+  },
+  "candidate": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "effects": {
+    "browser": false,
+    "builds": false,
+    "delegation": false,
+    "git": false,
+    "native_store": false,
+    "native_ui": false,
+    "product_processes": false,
+    "product_source_edits": false
+  },
+  "execution_gate": {
+    "compatibility_lease": {
+      "path": "instances/ROOT/_run_records/COMPATIBILITY_REPAIR_BUILD_BROWSER_LEASE_V3.json",
+      "sha256": "861a43b39ff1c95f687bf1ee935a53bc4d417a104d83b10c37bd6dcde92b0a2c"
+    },
+    "execution_authorized": false,
+    "final_native_lease_v3_present": false,
+    "next_required_input": "instances/ROOT/_run_records/FINAL_NATIVE_LEASE_V3.json"
+  },
+  "f03_binding": {
+    "frozen_population": {
+      "contradiction": 0,
+      "diagnostic_work": 2,
+      "missing_semantic": 0,
+      "rows": 830,
+      "unknown_semantic": 0,
+      "witnessed": 828
+    },
+    "interpreted_dimension_trace": [
+      "export_profile.source_basis_refs",
+      "unit_system_disclosure.decision_basis_refs",
+      "unit_witnesses[].source_quantity.dimension",
+      "unit_witnesses[].target_quantity.dimension"
+    ],
+    "raw_received_rows": "unchanged",
+    "semantic_contract_ref": {
+      "object_type": "ExternalReference",
+      "ref": "fixtures/results/semantic_contract_v0_2.json"
+    },
+    "verifier": "helpers/verify_f03_accounting_v6.py"
+  },
+  "f04_binding": {
+    "finding_code": "HISTORICAL_MECHANICS_EVIDENCE_MALFORMED",
+    "raw_evidence_preserved_for_hashing_and_unchanged_save": true,
+    "render_safe_projection_separate": true,
+    "row_preparer": "helpers/prepare_malformed_historical_row_v6.mjs",
+    "seven_cases": "preparation/malformed_historical_cases_bound_v3.json"
+  },
+  "schema": "openpipestress.final-native-v3-preexecution-return.v1",
+  "static_preparation_checks": {
+    "bound_case_json": "PASS_PARSE_ONLY",
+    "javascript_syntax": "PASS_NODE_CHECK_ONLY",
+    "product_runtime_executed": false,
+    "python_syntax": "PASS_AST_PARSE_ONLY",
+    "source_release_hashes": "PASS_76_OF_76"
+  },
+  "status": "PREPARED_AWAITING_FINAL_NATIVE_LEASE_V3"
+}

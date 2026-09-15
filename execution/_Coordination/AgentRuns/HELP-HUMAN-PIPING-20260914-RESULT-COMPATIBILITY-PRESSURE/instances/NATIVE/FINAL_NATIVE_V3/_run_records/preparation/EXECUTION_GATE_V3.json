@@ -1,0 +1,25 @@
+{
+  "allowed_current_state": "read-only preparation only",
+  "candidate_commit": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "captured_utc": "2026-09-15T04:24:46.306379+00:00",
+  "compatibility_lease": {
+    "path": "instances/ROOT/_run_records/COMPATIBILITY_REPAIR_BUILD_BROWSER_LEASE_V3.json",
+    "sha256": "861a43b39ff1c95f687bf1ee935a53bc4d417a104d83b10c37bd6dcde92b0a2",
+    "state": "OWNED_BY_COMPATIBILITY_UNTIL_EXPLICIT_RELEASE"
+  },
+  "execution_authorized": false,
+  "native_lease_path": "instances/ROOT/_run_records/FINAL_NATIVE_LEASE_V3.json",
+  "native_lease_present": false,
+  "prohibited_until_release": [
+    "build",
+    "process launch",
+    "browser control",
+    "native UI",
+    "native store mutation",
+    "product execution"
+  ],
+  "schema": "final-native-v3-preexecution-gate",
+  "source_binding_verified": true,
+  "source_release_verified": true,
+  "v5_bindings_complete": true
+}

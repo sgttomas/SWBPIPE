@@ -1,0 +1,12 @@
+{
+  "schema": "compatibility-review-repair-v13-child-continuation",
+  "status": "ACTUALLY_CONTINUED",
+  "agent_task_name": "/root/foundation_compatibility/compatibility_writer",
+  "role": "TASK / Type 2",
+  "model_effort": "gpt-5.6-sol / high",
+  "write_scope_sha256": "01100ed5d09e39c5ad1763f12c0b7b5912540bba4a7f2da3dd15f69525e4848c",
+  "csv_ruling_addendum": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/CSV_RULING_ADDENDUM_V1.json",
+  "temporary_mutated_scope_sha256_also_supplied_then_retracted": "610bba5d29910e004dcb79821f9328bf0cdff23855fa7da534f7e7255a8e1866",
+  "delegation_allowed": false,
+  "actual_continuation": true
+}

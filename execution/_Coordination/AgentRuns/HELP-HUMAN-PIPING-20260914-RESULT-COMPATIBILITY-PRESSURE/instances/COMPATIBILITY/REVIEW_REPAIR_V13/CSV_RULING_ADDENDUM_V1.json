@@ -1,0 +1,26 @@
+{
+  "schema": "compatibility-review-repair-v13-csv-ruling-addendum-v1",
+  "status": "ADDITIVE_BINDING_TO_IMMUTABLE_RELEASED_SCOPE",
+  "released_scope": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/WRITE_SCOPE.json",
+    "sha256": "01100ed5d09e39c5ad1763f12c0b7b5912540bba4a7f2da3dd15f69525e4848c"
+  },
+  "ruling": {
+    "path": "briefs/COMPATIBILITY_CSV_BINDING_RULING_V1.md",
+    "sha256": "3b4bfc77a8d5764670844cafb88065715d55c44116ad433b539dda5664242902"
+  },
+  "maintained_path_change": false,
+  "acceptance_refinement": [
+    "preserve actual normalized ASCII/LF received CSV bytes and their checksum",
+    "strictly validate exact columns, order, complete unique row accounting and all nonnumeric fields",
+    "accept exact finite supported binary64 equality across legitimate decimal/exponent and integral decimal spellings without tolerance",
+    "reject malformed, nonfinite, unsafe, underflow-to-zero, overflow, partial, duplicate, extra, identity, field and unequal-value cases",
+    "leave the legacy 0.1 renderer unchanged",
+    "validate and write all nine members from the exact captured desktop packet"
+  ],
+  "dispatch_history": {
+    "temporary_mutated_scope_sha256_supplied_to_writer": "610bba5d29910e004dcb79821f9328bf0cdff23855fa7da534f7e7255a8e1866",
+    "disposition": "superseded as an evidence-control correction; its only added content was the ruling path/hash and it changed no scope or acceptance substance",
+    "current_binding": "immutable released scope 01100ed5 plus this additive ruling record"
+  }
+}

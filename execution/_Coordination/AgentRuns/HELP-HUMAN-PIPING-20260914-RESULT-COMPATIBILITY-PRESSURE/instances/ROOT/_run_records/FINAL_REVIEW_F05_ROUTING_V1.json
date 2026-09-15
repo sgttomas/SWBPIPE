@@ -1,0 +1,28 @@
+{
+  "schema": "root-final-review-f05-routing-v1",
+  "created_utc": "2026-09-15T04:24:43.545598+00:00",
+  "candidate": "311addeb208434c38d7553ab3194ca851eeb9577",
+  "source": "Actual independent Astra/high V2 review message; parent-structured persistence",
+  "priority": "P1",
+  "finding": "Actual desktop packet has50 valid witnessed other-family rows rejected by Python validator and validated disk writer; pure materialized_members renderer does not validate.",
+  "raw_packet_sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+  "root_observation": {
+    "rows": 830,
+    "other_family_rows": 52,
+    "withheld_other_work_rows": 2,
+    "known_other_dimensions": [
+      "force",
+      "stress",
+      "rotational_stiffness",
+      "linear_stiffness",
+      "length",
+      "dimensionless",
+      "moment",
+      "angle"
+    ]
+  },
+  "repair_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_REVIEW_REPAIR_V13.md",
+  "repair_brief_sha256": "c41617486df22190484866eda08e4c57e7f43c16440e5be70e372b1d24ff4803",
+  "acceptance": "Exact desktop packet must pass strict Python validation and validated disk materialization, preserving all9 members and meaningful semantic/tamper guards.",
+  "runtime_reproduction": "Delegated to compatibility under existing lease; not yet claimed by Root."
+}

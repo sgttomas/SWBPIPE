@@ -1,0 +1,362 @@
+F..............................................F......F..........        [100%]
+=================================== FAILURES ===================================
+_______ test_v02_preserves_830_rows_and_materializes_exact_nine_members ________
+
+    def test_v02_preserves_830_rows_and_materializes_exact_nine_members():
+        source = source_payload_830()
+        source_before = deepcopy(source)
+        received = deepcopy(source["source_hashes"])
+>       package = build_stress_neutral_export_package_v0_2(**source)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_stress_neutral_export_package.py:189: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/handoff/stress_neutral/package_v0_2.py:212: in build_stress_neutral_export_package_v0_2
+    validate_stress_neutral_export_package_v0_2(package)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = {'schema_version': '0.2.0', 'deliverable_id': 'DEL-17-06', 'package_id': 'PKG-17', 'scope_items': ['SOW-046', 'SOW-074'], ...}
+
+    def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> None:
+        if package.get("schema_version") != VERSION:
+            raise ValueError("SN-VERSION-UNSUPPORTED")
+        if package.get("schema_conformant") is not True:
+            raise ValueError("SN-SCHEMA-CONFORMANCE-CLAIM-INVALID")
+        if package.get("export_profile", {}).get("profile_id") != EXPORT_PROFILE or package.get("export_profile", {}).get("profile_version") != VERSION or package.get("manifest", {}).get("export_profile_ref") != {"object_type": "StressNeutralExportProfile", "ref": EXPORT_PROFILE}:
+            raise ValueError("SN-PROFILE-IDENTITY-MISMATCH")
+        members = materialized_members_v0_2(package)
+        if list(members) != MEMBERS:
+            raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+        manifest = package.get("manifest")
+        if not isinstance(manifest, Mapping) or not isinstance(manifest.get("checksums"), list) or not isinstance(manifest.get("package_members"), list):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        checksums = manifest["checksums"]
+        package_members = manifest["package_members"]
+        if len(checksums) != len(MEMBERS) or len(package_members) != len(MEMBERS):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        member_names = [item.get("filename") if isinstance(item, Mapping) else None for item in package_members]
+        checksum_names = [item.get("payload_ref", {}).get("ref") if isinstance(item, Mapping) else None for item in checksums]
+        if member_names != MEMBERS:
+            raise ValueError("SN-MEMBER-ORDER-MISMATCH")
+        if len(set(checksum_names)) != len(MEMBERS) or set(checksum_names) != set(MEMBERS):
+            raise ValueError("SN-MEMBER-CHECKSUM-BIJECTION-MISMATCH")
+        def expected_metadata(filename: str) -> tuple[str, str, str, str, str]:
+            if filename == "manifest.json":
+                return ("sha256", PROFILE, "manifest_seed", "StressNeutralMember", filename)
+            if filename.endswith(".csv"):
+                return ("sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename)
+            return ("sha256", PROFILE, "member_payload", "StressNeutralMember", filename)
+        for index, filename in enumerate(MEMBERS):
+            claim = next((item for item in checksums if item.get("payload_ref", {}).get("ref") == filename), None)
+            actual_metadata = (claim.get("algorithm"), claim.get("canonicalization"), claim.get("payload_scope"), claim.get("payload_ref", {}).get("object_type"), claim.get("payload_ref", {}).get("ref")) if isinstance(claim, Mapping) else None
+            if actual_metadata != expected_metadata(filename):
+                raise ValueError(f"SN-CHECKSUM-METADATA-MISMATCH: {filename}")
+            if package_members[index].get("filename") != filename or package_members[index].get("checksum") != claim:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-BINDING-MISMATCH: {filename}")
+        package_checksum = package.get("package_checksum", {})
+        if (package_checksum.get("algorithm"), package_checksum.get("canonicalization"), package_checksum.get("payload_scope"), package_checksum.get("payload_ref", {}).get("object_type"), package_checksum.get("payload_ref", {}).get("ref")) != ("sha256", PROFILE, "complete_package_excluding_self_checksum", "StressNeutralExportPackage", package.get("export_id")):
+            raise ValueError("SN-PACKAGE-CHECKSUM-METADATA-MISMATCH")
+        if any(item in checksums for item in package.get("received_source_checksums", [])):
+            raise ValueError("SN-RECEIVED-CHECKSUM-RELABEL")
+        non_manifest = [item for item in checksums if item["payload_ref"]["ref"] != "manifest.json"]
+        expected_seed = _checked(_manifest_seed(package, non_manifest), "manifest.json", "manifest_seed")
+        actual_seed = next((item for item in checksums if item["payload_ref"]["ref"] == "manifest.json"), None)
+        if actual_seed != expected_seed:
+            raise ValueError("SN-MANIFEST-SEED-CHECKSUM-MISMATCH")
+        import hashlib
+        for item in non_manifest:
+            filename = item["payload_ref"]["ref"]
+            if filename not in members:
+                raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+            if hashlib.sha256(members[filename]).hexdigest() != item["value"]:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-MISMATCH: {filename}")
+        rows = package.get("result_rows", [])
+        row_ids = [row.get("result_id") for row in rows]
+        if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
+            raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
+        _validate_received_csv(package.get("csv_text"), rows)
+        stable = package.get("stable_id_map", [])
+        canonical_ids = [item.get("canonical_ref", {}).get("ref") for item in stable]
+        export_ids = [item.get("export_ref", {}).get("ref") for item in stable]
+        if len(stable) != len(rows) or len(set(canonical_ids)) != len(rows) or len(set(export_ids)) != len(rows) or set(canonical_ids) != set(row_ids) or any(item.get("mapping_status") != "mapped" or item.get("loss_category") != "exported" for item in stable):
+            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
+        received = package.get("received_source_checksums", [])
+        if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):
+            raise ValueError("SN-SOURCE-RESULT-REF-UNBOUND")
+        if package.get("source_run_ref") not in package.get("reproducibility_refs", []):
+            raise ValueError("SN-SOURCE-RUN-REF-UNBOUND")
+        seen_witnesses: set[str] = set()
+        for witness in package.get("unit_preservation_witnesses", []):
+            index = witness.get("source_row_index")
+            row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
+            disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+            quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
+            if row is None or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
+                raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
+            seen_witnesses.add(witness["result_id"])
+        for entry in package.get("loss_report", []):
+            if entry.get("target_artifact_ref", {}).get("ref") != package.get("export_id") or entry.get("human_review_required") is not True:
+                raise ValueError("SN-LOSS-REPORT-BINDING-MISMATCH")
+        categories_by_code = {code: category for category, code in WITHHOLDING_CODES.items()}
+        categorized: dict[str, str] = {}
+        for item in package.get("diagnostics", []):
+            category = categories_by_code.get(item.get("code"))
+            if category is None:
+                continue
+            result_id = item.get("source", {}).get("ref")
+            expected_severity = "info" if category == "diagnostic_work" else "blocking"
+            if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+            row = rows[row_ids.index(result_id)]
+            expected_category, _ = _witness_disposition(row)
+            if category == "diagnostic_work":
+                if expected_category == "eligible" or row.get("dimension") not in {None, "", "TBD"}:
+>                   raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+E                   ValueError: SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH
+
+core/handoff/stress_neutral/package_v0_2.py:328: ValueError
+__________ test_v02_rejects_recomputed_explicit_category_reassignment __________
+
+    def test_v02_rejects_recomputed_explicit_category_reassignment():
+>       package = build_stress_neutral_export_package_v0_2(**source_payload_830())
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_stress_neutral_export_package.py:416: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/handoff/stress_neutral/package_v0_2.py:212: in build_stress_neutral_export_package_v0_2
+    validate_stress_neutral_export_package_v0_2(package)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = {'schema_version': '0.2.0', 'deliverable_id': 'DEL-17-06', 'package_id': 'PKG-17', 'scope_items': ['SOW-046', 'SOW-074'], ...}
+
+    def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> None:
+        if package.get("schema_version") != VERSION:
+            raise ValueError("SN-VERSION-UNSUPPORTED")
+        if package.get("schema_conformant") is not True:
+            raise ValueError("SN-SCHEMA-CONFORMANCE-CLAIM-INVALID")
+        if package.get("export_profile", {}).get("profile_id") != EXPORT_PROFILE or package.get("export_profile", {}).get("profile_version") != VERSION or package.get("manifest", {}).get("export_profile_ref") != {"object_type": "StressNeutralExportProfile", "ref": EXPORT_PROFILE}:
+            raise ValueError("SN-PROFILE-IDENTITY-MISMATCH")
+        members = materialized_members_v0_2(package)
+        if list(members) != MEMBERS:
+            raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+        manifest = package.get("manifest")
+        if not isinstance(manifest, Mapping) or not isinstance(manifest.get("checksums"), list) or not isinstance(manifest.get("package_members"), list):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        checksums = manifest["checksums"]
+        package_members = manifest["package_members"]
+        if len(checksums) != len(MEMBERS) or len(package_members) != len(MEMBERS):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        member_names = [item.get("filename") if isinstance(item, Mapping) else None for item in package_members]
+        checksum_names = [item.get("payload_ref", {}).get("ref") if isinstance(item, Mapping) else None for item in checksums]
+        if member_names != MEMBERS:
+            raise ValueError("SN-MEMBER-ORDER-MISMATCH")
+        if len(set(checksum_names)) != len(MEMBERS) or set(checksum_names) != set(MEMBERS):
+            raise ValueError("SN-MEMBER-CHECKSUM-BIJECTION-MISMATCH")
+        def expected_metadata(filename: str) -> tuple[str, str, str, str, str]:
+            if filename == "manifest.json":
+                return ("sha256", PROFILE, "manifest_seed", "StressNeutralMember", filename)
+            if filename.endswith(".csv"):
+                return ("sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename)
+            return ("sha256", PROFILE, "member_payload", "StressNeutralMember", filename)
+        for index, filename in enumerate(MEMBERS):
+            claim = next((item for item in checksums if item.get("payload_ref", {}).get("ref") == filename), None)
+            actual_metadata = (claim.get("algorithm"), claim.get("canonicalization"), claim.get("payload_scope"), claim.get("payload_ref", {}).get("object_type"), claim.get("payload_ref", {}).get("ref")) if isinstance(claim, Mapping) else None
+            if actual_metadata != expected_metadata(filename):
+                raise ValueError(f"SN-CHECKSUM-METADATA-MISMATCH: {filename}")
+            if package_members[index].get("filename") != filename or package_members[index].get("checksum") != claim:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-BINDING-MISMATCH: {filename}")
+        package_checksum = package.get("package_checksum", {})
+        if (package_checksum.get("algorithm"), package_checksum.get("canonicalization"), package_checksum.get("payload_scope"), package_checksum.get("payload_ref", {}).get("object_type"), package_checksum.get("payload_ref", {}).get("ref")) != ("sha256", PROFILE, "complete_package_excluding_self_checksum", "StressNeutralExportPackage", package.get("export_id")):
+            raise ValueError("SN-PACKAGE-CHECKSUM-METADATA-MISMATCH")
+        if any(item in checksums for item in package.get("received_source_checksums", [])):
+            raise ValueError("SN-RECEIVED-CHECKSUM-RELABEL")
+        non_manifest = [item for item in checksums if item["payload_ref"]["ref"] != "manifest.json"]
+        expected_seed = _checked(_manifest_seed(package, non_manifest), "manifest.json", "manifest_seed")
+        actual_seed = next((item for item in checksums if item["payload_ref"]["ref"] == "manifest.json"), None)
+        if actual_seed != expected_seed:
+            raise ValueError("SN-MANIFEST-SEED-CHECKSUM-MISMATCH")
+        import hashlib
+        for item in non_manifest:
+            filename = item["payload_ref"]["ref"]
+            if filename not in members:
+                raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+            if hashlib.sha256(members[filename]).hexdigest() != item["value"]:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-MISMATCH: {filename}")
+        rows = package.get("result_rows", [])
+        row_ids = [row.get("result_id") for row in rows]
+        if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
+            raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
+        _validate_received_csv(package.get("csv_text"), rows)
+        stable = package.get("stable_id_map", [])
+        canonical_ids = [item.get("canonical_ref", {}).get("ref") for item in stable]
+        export_ids = [item.get("export_ref", {}).get("ref") for item in stable]
+        if len(stable) != len(rows) or len(set(canonical_ids)) != len(rows) or len(set(export_ids)) != len(rows) or set(canonical_ids) != set(row_ids) or any(item.get("mapping_status") != "mapped" or item.get("loss_category") != "exported" for item in stable):
+            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
+        received = package.get("received_source_checksums", [])
+        if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):
+            raise ValueError("SN-SOURCE-RESULT-REF-UNBOUND")
+        if package.get("source_run_ref") not in package.get("reproducibility_refs", []):
+            raise ValueError("SN-SOURCE-RUN-REF-UNBOUND")
+        seen_witnesses: set[str] = set()
+        for witness in package.get("unit_preservation_witnesses", []):
+            index = witness.get("source_row_index")
+            row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
+            disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+            quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
+            if row is None or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
+                raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
+            seen_witnesses.add(witness["result_id"])
+        for entry in package.get("loss_report", []):
+            if entry.get("target_artifact_ref", {}).get("ref") != package.get("export_id") or entry.get("human_review_required") is not True:
+                raise ValueError("SN-LOSS-REPORT-BINDING-MISMATCH")
+        categories_by_code = {code: category for category, code in WITHHOLDING_CODES.items()}
+        categorized: dict[str, str] = {}
+        for item in package.get("diagnostics", []):
+            category = categories_by_code.get(item.get("code"))
+            if category is None:
+                continue
+            result_id = item.get("source", {}).get("ref")
+            expected_severity = "info" if category == "diagnostic_work" else "blocking"
+            if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+            row = rows[row_ids.index(result_id)]
+            expected_category, _ = _witness_disposition(row)
+            if category == "diagnostic_work":
+                if expected_category == "eligible" or row.get("dimension") not in {None, "", "TBD"}:
+>                   raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+E                   ValueError: SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH
+
+core/handoff/stress_neutral/package_v0_2.py:328: ValueError
+_ test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families __
+
+    def test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families():
+        schema = load_json(SCHEMA_PATH)
+        valid = build_stress_neutral_export_package_v0_2(**source_payload())
+        diagnostic_source = source_payload()
+        diagnostic_source["result_rows"][0]["row_kind"] = "diagnostic_work"
+        diagnostic_source["result_rows"][0]["result_family"] = "diagnostic_work"
+>       with_diagnostic = build_stress_neutral_export_package_v0_2(**diagnostic_source)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_stress_neutral_export_package.py:445: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+core/handoff/stress_neutral/package_v0_2.py:212: in build_stress_neutral_export_package_v0_2
+    validate_stress_neutral_export_package_v0_2(package)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+package = {'schema_version': '0.2.0', 'deliverable_id': 'DEL-17-06', 'package_id': 'PKG-17', 'scope_items': ['SOW-046', 'SOW-074'], ...}
+
+    def validate_stress_neutral_export_package_v0_2(package: Mapping[str, Any]) -> None:
+        if package.get("schema_version") != VERSION:
+            raise ValueError("SN-VERSION-UNSUPPORTED")
+        if package.get("schema_conformant") is not True:
+            raise ValueError("SN-SCHEMA-CONFORMANCE-CLAIM-INVALID")
+        if package.get("export_profile", {}).get("profile_id") != EXPORT_PROFILE or package.get("export_profile", {}).get("profile_version") != VERSION or package.get("manifest", {}).get("export_profile_ref") != {"object_type": "StressNeutralExportProfile", "ref": EXPORT_PROFILE}:
+            raise ValueError("SN-PROFILE-IDENTITY-MISMATCH")
+        members = materialized_members_v0_2(package)
+        if list(members) != MEMBERS:
+            raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+        manifest = package.get("manifest")
+        if not isinstance(manifest, Mapping) or not isinstance(manifest.get("checksums"), list) or not isinstance(manifest.get("package_members"), list):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        checksums = manifest["checksums"]
+        package_members = manifest["package_members"]
+        if len(checksums) != len(MEMBERS) or len(package_members) != len(MEMBERS):
+            raise ValueError("SN-STRICT-INVENTORY-MISMATCH")
+        member_names = [item.get("filename") if isinstance(item, Mapping) else None for item in package_members]
+        checksum_names = [item.get("payload_ref", {}).get("ref") if isinstance(item, Mapping) else None for item in checksums]
+        if member_names != MEMBERS:
+            raise ValueError("SN-MEMBER-ORDER-MISMATCH")
+        if len(set(checksum_names)) != len(MEMBERS) or set(checksum_names) != set(MEMBERS):
+            raise ValueError("SN-MEMBER-CHECKSUM-BIJECTION-MISMATCH")
+        def expected_metadata(filename: str) -> tuple[str, str, str, str, str]:
+            if filename == "manifest.json":
+                return ("sha256", PROFILE, "manifest_seed", "StressNeutralMember", filename)
+            if filename.endswith(".csv"):
+                return ("sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename)
+            return ("sha256", PROFILE, "member_payload", "StressNeutralMember", filename)
+        for index, filename in enumerate(MEMBERS):
+            claim = next((item for item in checksums if item.get("payload_ref", {}).get("ref") == filename), None)
+            actual_metadata = (claim.get("algorithm"), claim.get("canonicalization"), claim.get("payload_scope"), claim.get("payload_ref", {}).get("object_type"), claim.get("payload_ref", {}).get("ref")) if isinstance(claim, Mapping) else None
+            if actual_metadata != expected_metadata(filename):
+                raise ValueError(f"SN-CHECKSUM-METADATA-MISMATCH: {filename}")
+            if package_members[index].get("filename") != filename or package_members[index].get("checksum") != claim:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-BINDING-MISMATCH: {filename}")
+        package_checksum = package.get("package_checksum", {})
+        if (package_checksum.get("algorithm"), package_checksum.get("canonicalization"), package_checksum.get("payload_scope"), package_checksum.get("payload_ref", {}).get("object_type"), package_checksum.get("payload_ref", {}).get("ref")) != ("sha256", PROFILE, "complete_package_excluding_self_checksum", "StressNeutralExportPackage", package.get("export_id")):
+            raise ValueError("SN-PACKAGE-CHECKSUM-METADATA-MISMATCH")
+        if any(item in checksums for item in package.get("received_source_checksums", [])):
+            raise ValueError("SN-RECEIVED-CHECKSUM-RELABEL")
+        non_manifest = [item for item in checksums if item["payload_ref"]["ref"] != "manifest.json"]
+        expected_seed = _checked(_manifest_seed(package, non_manifest), "manifest.json", "manifest_seed")
+        actual_seed = next((item for item in checksums if item["payload_ref"]["ref"] == "manifest.json"), None)
+        if actual_seed != expected_seed:
+            raise ValueError("SN-MANIFEST-SEED-CHECKSUM-MISMATCH")
+        import hashlib
+        for item in non_manifest:
+            filename = item["payload_ref"]["ref"]
+            if filename not in members:
+                raise ValueError("SN-MEMBER-INVENTORY-MISMATCH")
+            if hashlib.sha256(members[filename]).hexdigest() != item["value"]:
+                raise ValueError(f"SN-MEMBER-CHECKSUM-MISMATCH: {filename}")
+        rows = package.get("result_rows", [])
+        row_ids = [row.get("result_id") for row in rows]
+        if len(set(row_ids)) != len(rows) or any(not isinstance(row_id, str) or row.get("canonical_ref", {}).get("ref") != row_id or row.get("source_result_ref", {}).get("ref") != row_id for row_id, row in zip(row_ids, rows)):
+            raise ValueError("SN-RESULT-ROW-IDENTITY-MISMATCH")
+        _validate_received_csv(package.get("csv_text"), rows)
+        stable = package.get("stable_id_map", [])
+        canonical_ids = [item.get("canonical_ref", {}).get("ref") for item in stable]
+        export_ids = [item.get("export_ref", {}).get("ref") for item in stable]
+        if len(stable) != len(rows) or len(set(canonical_ids)) != len(rows) or len(set(export_ids)) != len(rows) or set(canonical_ids) != set(row_ids) or any(item.get("mapping_status") != "mapped" or item.get("loss_category") != "exported" for item in stable):
+            raise ValueError("SN-STABLE-ID-MAP-BINDING-MISMATCH")
+        received = package.get("received_source_checksums", [])
+        if not any(item.get("payload_ref") == package.get("source_result_ref") for item in received):
+            raise ValueError("SN-SOURCE-RESULT-REF-UNBOUND")
+        if package.get("source_run_ref") not in package.get("reproducibility_refs", []):
+            raise ValueError("SN-SOURCE-RUN-REF-UNBOUND")
+        seen_witnesses: set[str] = set()
+        for witness in package.get("unit_preservation_witnesses", []):
+            index = witness.get("source_row_index")
+            row = rows[index] if isinstance(index, int) and 0 <= index < len(rows) else None
+            disposition, interpreted_dimension = _witness_disposition(row) if row else ("unknown_semantic", None)
+            quantity = {"value": row.get("value"), "unit": row.get("unit"), "dimension": interpreted_dimension} if row and disposition == "eligible" else None
+            if row is None or witness.get("result_id") in seen_witnesses or witness.get("result_id") != row.get("result_id") or witness.get("source_quantity") != quantity or witness.get("target_quantity") != quantity or witness.get("conversion_performed") is not False or witness.get("policy") != "preserve_received_value_and_unit":
+                raise ValueError("SN-UNIT-WITNESS-BINDING-MISMATCH")
+            seen_witnesses.add(witness["result_id"])
+        for entry in package.get("loss_report", []):
+            if entry.get("target_artifact_ref", {}).get("ref") != package.get("export_id") or entry.get("human_review_required") is not True:
+                raise ValueError("SN-LOSS-REPORT-BINDING-MISMATCH")
+        categories_by_code = {code: category for category, code in WITHHOLDING_CODES.items()}
+        categorized: dict[str, str] = {}
+        for item in package.get("diagnostics", []):
+            category = categories_by_code.get(item.get("code"))
+            if category is None:
+                continue
+            result_id = item.get("source", {}).get("ref")
+            expected_severity = "info" if category == "diagnostic_work" else "blocking"
+            if not isinstance(result_id, str) or result_id not in row_ids or result_id in categorized or item.get("severity") != expected_severity:
+                raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+            row = rows[row_ids.index(result_id)]
+            expected_category, _ = _witness_disposition(row)
+            if category == "diagnostic_work":
+                if expected_category == "eligible" or row.get("dimension") not in {None, "", "TBD"}:
+>                   raise ValueError("SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH")
+E                   ValueError: SN-WITNESS-CATEGORY-ACCOUNTING-MISMATCH
+
+core/handoff/stress_neutral/package_v0_2.py:328: ValueError
+=============================== warnings summary ===============================
+tests/test_stress_neutral_export_package.py::test_v02_fixture_matches_builder_and_dispatch_schema
+tests/test_stress_neutral_export_package.py::test_v02_fixture_matches_builder_and_dispatch_schema
+tests/test_stress_neutral_export_package.py::test_fixture_and_builder_validate_against_schema
+tests/test_stress_neutral_export_package.py::test_fixture_and_builder_validate_against_schema
+tests/test_stress_neutral_export_package.py::test_fixture_and_builder_validate_against_schema
+tests/test_stress_neutral_export_package.py::test_fixture_and_builder_validate_against_schema
+  /Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/tests/schema_validation.py:54: DeprecationWarning: jsonschema.RefResolver is deprecated as of v4.18.0, in favor of the https://github.com/python-jsonschema/referencing library, which provides more compliant referencing behavior as well as more flexible APIs for customization. A future release will remove RefResolver. Please file a feature request (on referencing) if you are missing an API for the kind of customization you need.
+    from jsonschema import RefResolver
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_stress_neutral_export_package.py::test_v02_preserves_830_rows_and_materializes_exact_nine_members
+FAILED tests/test_stress_neutral_export_package.py::test_v02_rejects_recomputed_explicit_category_reassignment
+FAILED tests/test_stress_neutral_export_package.py::test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families
+3 failed, 62 passed, 6 warnings in 6.77s
