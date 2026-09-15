@@ -1,0 +1,81 @@
+CHECKPOINT 1 QUALIFICATION TRANSCRIPT
+worktree: /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915
+commit: 0121e1ba7acd2b0e8429f07846042cd016c03aea
+source aggregate SHA-256: e1fcfdbe31d9d21ce964c956b4f8509c09e39472887a5b882ba1c22bf429d637
+
+COMMAND: npm ci --ignore-scripts
+EXIT: 0
+OUTPUT:
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+
+added 206 packages, and audited 208 packages in 2s
+
+35 packages are looking for funding
+  run `npm fund` for details
+
+12 vulnerabilities (2 low, 5 moderate, 5 high)
+
+To address all issues, run:
+  npm audit fix
+
+Run `npm audit` for details.
+
+COMMAND: npm exec --workspace apps/desktop tsc -- -b --pretty false
+EXIT: 1
+OUTPUT:
+src/features/viewport/viewportSelection.ts(132,31): error TS2304: Cannot find name 'midpoint'.
+
+REPAIR: added the missing local midpoint helper.
+
+COMMAND: npm exec --workspace apps/desktop tsc -- -b --pretty false
+EXIT: 0
+OUTPUT: <empty>
+
+COMMAND: npm exec --workspace apps/desktop vitest -- run src/features/workspace/selectionState.test.ts src/features/workspace/modelIndex.test.ts src/features/workspace/uiDiagnostics.test.ts src/features/viewport/viewportSelection.test.ts src/features/viewport/viewportResource.test.ts
+EXIT: 1
+OUTPUT:
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+
+ Failed Suites 5
+ Error: WASM-ENGINE-ASSET-ABSENT: wasm artifact not found on disk: probed: /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop/public/wasm-engine, /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop/public/wasm-engine, /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop/apps/desktop/public/wasm-engine — the wasm operation engine is required in browser mode (DEC-020 / ADR-0001) and no fallback engine exists. Build it with `npm run build:wasm --workspace apps/desktop`.
+ Test Files 5 failed (5)
+ Tests no tests
+ Duration 452ms (transform 158ms, setup 0ms, import 0ms, tests 0ms, environment 1.36s)
+
+COMMAND: npm exec --workspace apps/desktop vitest -- run --config /tmp/ui-checkpoint1-vitest.config.ts src/features/workspace/selectionState.test.ts src/features/workspace/modelIndex.test.ts src/features/workspace/uiDiagnostics.test.ts src/features/viewport/viewportSelection.test.ts src/features/viewport/viewportResource.test.ts
+TEMP CONFIG FIRST FORM: imported defineConfig from an absolute package export path
+EXIT: 1
+OUTPUT:
+Could not resolve "/Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/node_modules/vitest/config"
+failed to load config from /tmp/ui-checkpoint1-vitest.config.ts
+
+TEMP CONFIG CORRECTION: replaced the import with a plain default config object; root is the desktop app and test.environment is jsdom. No repository source or config was changed.
+
+COMMAND: npm exec --workspace apps/desktop vitest -- run --config /tmp/ui-checkpoint1-vitest.config.ts src/features/workspace/selectionState.test.ts src/features/workspace/modelIndex.test.ts src/features/workspace/uiDiagnostics.test.ts src/features/viewport/viewportSelection.test.ts src/features/viewport/viewportResource.test.ts
+EXIT: 1
+OUTPUT:
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+ Test Files 1 failed | 4 passed (5)
+ Tests 1 failed | 18 passed (19)
+ Duration 495ms (transform 299ms, setup 0ms, import 430ms, tests 40ms, environment 1.39s)
+Failure: selectionState.test.ts expected repeat plain selection of the sole selected typed ref to preserve object identity; rangeAnchorKey changed from pipe to node.
+
+REPAIR: repeat plain selection of the sole primary typed ref is now an exact no-op.
+
+COMMAND: npm exec --workspace apps/desktop tsc -- -b --pretty false
+EXIT: 0
+OUTPUT: <empty>
+
+COMMAND: npm exec --workspace apps/desktop vitest -- run --config /tmp/ui-checkpoint1-vitest.config.ts src/features/workspace/selectionState.test.ts src/features/workspace/modelIndex.test.ts src/features/workspace/uiDiagnostics.test.ts src/features/viewport/viewportSelection.test.ts src/features/viewport/viewportResource.test.ts
+EXIT: 0
+OUTPUT:
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+ Test Files 5 passed (5)
+ Tests 19 passed (19)
+ Duration 383ms (transform 213ms, setup 0ms, import 318ms, tests 28ms, environment 1.01s)
+
+COMMAND: git diff --check
+EXIT: 0
+OUTPUT: <empty>
+
+LEASE RELEASE: explicit release sent to /root/ui_workspace_manager after the final checks and before commit.
