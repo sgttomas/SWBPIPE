@@ -1,0 +1,94 @@
+{
+  "created_utc": "2026-09-15T16:26:33.684503+00:00",
+  "head": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "baseline": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "selected_committed_loop": "projects/chirality-piping/loop/WORKPLAN_2026-07-18b_piping_loop.md",
+  "latest_validated_receipt": "Receipt-141",
+  "accepted_pointers": {
+    "decomposition": "0.12",
+    "scope": "SCA-009",
+    "dag": "DAG-010",
+    "stage": "R5"
+  },
+  "original_handoff": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality/projects/chirality-piping/plans/HANDOFF_2026-09-06_agent0_session_transition.md",
+    "sha256": "ebbed866266cc961344151519b2792c6cfc5889eb18143a7809be69700c56035",
+    "action": "read only; preserved"
+  },
+  "retained_initial_failure": {
+    "command": "python3 tools/practitioner_harness/harness.py self-check",
+    "exit_code": 2,
+    "stderr": "ERROR: PyYAML is required to read domain-engine profiles but is not importable in this interpreter (operational error, exit 2).",
+    "repair": "revalidated prior verification interpreter, reran command without source changes"
+  },
+  "checks": [
+    {
+      "name": "receipt",
+      "command": [
+        "python3",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "receipt.stdout.txt",
+      "stderr": "receipt.stderr.txt"
+    },
+    {
+      "name": "selfcheck",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/practitioner_harness/harness.py",
+        "self-check"
+      ],
+      "exit_code": 0,
+      "stdout": "selfcheck.stdout.txt",
+      "stderr": "selfcheck.stderr.txt"
+    },
+    {
+      "name": "status",
+      "command": [
+        "python3",
+        "projects/chirality-piping/tools/coordination/list_deliverable_status.py",
+        "--dag",
+        "DAG-010",
+        "--format",
+        "table",
+        "--summary"
+      ],
+      "exit_code": 0,
+      "stdout": "status.stdout.txt",
+      "stderr": "status.stderr.txt"
+    },
+    {
+      "name": "git",
+      "command": [
+        "git",
+        "status",
+        "--short",
+        "--branch"
+      ],
+      "exit_code": 0,
+      "stdout": "git.stdout.txt",
+      "stderr": "git.stderr.txt"
+    },
+    {
+      "name": "environment",
+      "command": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "-c",
+        "import sys,yaml; print(sys.version); print(yaml.__version__)"
+      ],
+      "exit_code": 0,
+      "stdout": "environment.stdout.txt",
+      "stderr": "environment.stderr.txt"
+    }
+  ],
+  "notes": [
+    "Existing root/dependency/provenance warnings do not constitute new UI blockers; no zero-findings claim.",
+    "D-68 records explicit owner approval; no lifecycle/dependency promotion.",
+    "Original CWD is not switched, cleaned, reset or staged.",
+    "Root deliberately consulted WORKING_ITEMS and TASK instructions to prepare sealed delegation.",
+    "Former Specification/Datasheet/Guidance/Procedure files may be consolidated into current ScopeOfWork; intake uses live files."
+  ]
+}

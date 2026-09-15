@@ -1,0 +1,4 @@
+## codex/piping-ui-foundation-20260915...origin/main
+ M projects/chirality-piping/execution/_Coordination/_DECISIONS/_REGISTER.md
+?? projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260915-PRODUCTION-UI/
+?? projects/chirality-piping/execution/_Coordination/_DECISIONS/D-68_RULING_2026-09-15.md

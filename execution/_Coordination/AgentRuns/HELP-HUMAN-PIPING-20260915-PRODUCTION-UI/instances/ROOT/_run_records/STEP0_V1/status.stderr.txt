@@ -1,0 +1,3 @@
+Rows: 102
+Status counts: IN_PROGRESS=100, ISSUED=1, OPEN=1
+Remaining items: 132 across 65 deliverables

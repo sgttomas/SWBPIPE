@@ -1,0 +1,91 @@
+{
+  "schema": "piping-agent-run-work-graph/v1",
+  "run_id": "HELP-HUMAN-PIPING-20260915-PRODUCTION-UI",
+  "basis": "28ad73cc3f936872f8de1d5116c617db1290331b",
+  "delegation": "delegated-harness-native",
+  "max_active_including_root": 6,
+  "nodes": [
+    {
+      "id": "ROOT",
+      "role": "HELP_HUMAN",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "status": "active"
+    },
+    {
+      "id": "UI",
+      "role": "WORKING_ITEMS",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "prepared"
+    },
+    {
+      "id": "WRITER",
+      "role": "TASK",
+      "parent": "UI",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "held_until_baseline"
+    },
+    {
+      "id": "VERIFY",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "high",
+      "status": "prepared"
+    },
+    {
+      "id": "REVIEW",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-6-astra",
+      "effort": "high",
+      "status": "after_frozen_source"
+    },
+    {
+      "id": "CLOSEOUT",
+      "role": "TASK",
+      "parent": "ROOT",
+      "model": "gpt-5.6-sol",
+      "effort": "medium",
+      "status": "after_acceptance"
+    }
+  ],
+  "edges": [
+    [
+      "ROOT",
+      "UI"
+    ],
+    [
+      "ROOT",
+      "VERIFY"
+    ],
+    [
+      "VERIFY",
+      "WRITER"
+    ],
+    [
+      "UI",
+      "WRITER"
+    ],
+    [
+      "WRITER",
+      "REVIEW"
+    ],
+    [
+      "REVIEW",
+      "CLOSEOUT"
+    ]
+  ],
+  "runtime_lease": {
+    "holder": null,
+    "serializes": [
+      "native_build",
+      "browser_witness",
+      "native_witness",
+      "final_git"
+    ]
+  }
+}
