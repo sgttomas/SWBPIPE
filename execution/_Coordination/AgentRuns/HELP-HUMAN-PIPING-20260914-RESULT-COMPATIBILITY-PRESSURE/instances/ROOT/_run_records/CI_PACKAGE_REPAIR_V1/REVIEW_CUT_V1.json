@@ -1,0 +1,92 @@
+{
+  "schema": "f13-evidence-review-cut-v1",
+  "created_utc": "2026-09-15T09:26:32.879830+00:00",
+  "previous_reviewed_commit": "c5f90373e7bc889dc8a98c21a08fc2833e3c6cc8",
+  "preliminary_repair_commit": "e7def4d100c9274c4372bf84eba5b7665a415df7",
+  "checked_repair_tree": "2417002a016cd617c6bbb9ed62719e3fc96c6d3c",
+  "cut_file": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/REVIEW_CUT_V1.json",
+  "self_hash_exclusion": "This cut names itself in path coverage, but excludes its own bytes from the hash list. Reviewer return is an output, not its own review input.",
+  "additive_paths_including_cut": 18,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/F13_EVIDENCE_PACKAGING_REVIEW_V1.md",
+      "sha256": "1a9c04dccd13d098651703a57e7e498d2c7c75ff620977bde3be319ab29a5a38"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/bound_bundle_manifest.json",
+      "sha256": "57bf22986ba74ae74bf6523bb893d9f8f3fec296564473106b86b2d510e07b62"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/tauri.early-native-v1.conf.json",
+      "sha256": "6f7239d235c0fa4e51e19ba1d20b45d76ec3a717a4a4fa6dc0497b8d32f51339"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/build/build_binding.json",
+      "sha256": "1505ef1df9a41cf8c804d146b10c64f00326d6d032807bb63f27ddaa40b991f6"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/_run_records/build/runner_archive_binding.json",
+      "sha256": "ca780f1abeea715dde64736366627f008fe198f4e2bfec944327bc7a9fe92cd4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/build/build_binding.json",
+      "sha256": "83e4a376ac9baa2ab975eb0d8b2da2299848bef830d0f94c91e57d6a2081b7e7"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/build/checked_json_path.txt",
+      "sha256": "a154fa172db429b24e289182d58adbc3f21ace2a07cdf032c8bf843271e3fb91"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/RESULT.json",
+      "sha256": "6e05a71a55ff179ed585d28520cb8225a541b8f8bca2a2e73535626c52fcaaa4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/gen8_clean_commit.log",
+      "sha256": "5749ef09f376fd5acf832b5ff5ae1a59db1eb7b3c7d34941f6a9f6995cf80130"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/path_anchors_clean_commit.log",
+      "sha256": "67d51f71332a7a3379941b822d8798a54ef42d8dea2c5e48e873c215f0223fe4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/receipts_clean_commit.log",
+      "sha256": "c5d5741763fee5ea9a902c68bf519787786d0f5da91e96ddd4605b6cceb9a637"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/DIAGNOSIS_V1.json",
+      "sha256": "060c7d659e51fadcd585094aadc890d224c0594c5cc98c95142f115f6e3d2958"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/RESULT.json",
+      "sha256": "d6d7761b7ed5dfd4f4f351a6cb3c3fc5f581430608203d8ac47f6b3895df6721"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/gen8_index_export.log",
+      "sha256": "ec7c9e1fa1704459947bf8716cbd4331d5acb0d06ee7edd7371a90fa76951f15"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/path_anchors_index_export.log",
+      "sha256": "cfd0d0f685d095ec6791bcf5bd7e00476c84ae1909a461447f87fc9f5351d325"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/precommit_receipt_integration.log",
+      "sha256": "6d9e68656876c5256e15d52b56bb4b0ee6b5a88b6372d2fe4d4333c16143e8a5"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/hosted_harness_failure.log",
+      "sha256": "2b2f41a1b666a8bbaa280f666932a1dfb566908af3c560d1f4060b0b485edc76"
+    }
+  ],
+  "full_pr_paths_including_cut": 1876,
+  "full_ordered_lf_path_list_sha256": "17dbf87ea226556a4a38c7ed03eb0057dd78fcaeac408c3cc94e6a9241775df9",
+  "clean_commit_check": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/RESULT.json",
+    "sha256": "6e05a71a55ff179ed585d28520cb8225a541b8f8bca2a2e73535626c52fcaaa4"
+  },
+  "prior_complete_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_ADDITIVE_REVIEW_V1/REVIEW_RETURN_V1.json",
+    "sha256": "dac27000747abf2fa75d89c3e4b5c2bef71209dda3551eb51583b766ac63c5f9"
+  },
+  "scope": "Six exact historical provenance text files and related failed/passing packaging evidence. All77maintained files, existing policy/ignore bytes, prior acceptance, original handoff and nativeV4 are unchanged.",
+  "validation_disposition": "Fresh index-only export lacked Git history for GEN8 fixture setup; that failed attempt is preserved. A fresh clean detached worktree with repository history passed the identical unmodified test, path and receipt validation. Full DEC025/native rerun is not indicated by the evidence-only repair. Final required hosted CI must cover the repaired PR head."
+}

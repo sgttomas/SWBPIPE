@@ -1,0 +1,94 @@
+{
+  "schema": "f13-clean-committed-checkout-check-v1",
+  "started_utc": "2026-09-15T09:24:50.224585+00:00",
+  "finished_utc": "2026-09-15T09:25:19.131858+00:00",
+  "candidate_commit": "e7def4d100c9274c4372bf84eba5b7665a415df7",
+  "candidate_tree": "2417002a016cd617c6bbb9ed62719e3fc96c6d3c",
+  "checkout": "/private/tmp/piping-foundation-f13-clean-worktree-20260915-v1",
+  "witness_basis": "Fresh detached Git worktree of the scoped preliminary repair commit, with original repository history. Exactly the committed tracked files and Git worktree marker existed before and after the checks; ignored local artifacts could not satisfy the checks.",
+  "tracked_file_count": 80968,
+  "ordered_lf_path_list_sha256": "def6e0c188bea2357ea7931970701868106f37adc8aff3c3919b9beea588303a",
+  "status_clean_before_and_after": true,
+  "no_untracked_or_ignored_extra_files_before_and_after": true,
+  "head_unchanged": true,
+  "hash_audits_exact_before_and_after": {
+    "historical_policy_targets": {
+      "checked": 123,
+      "mismatches": []
+    },
+    "control_policy_targets": {
+      "checked": 41,
+      "mismatches": []
+    },
+    "native_v4_evidence": {
+      "checked": 406,
+      "mismatches": []
+    },
+    "maintained_source_and_tests": {
+      "checked": 77,
+      "mismatches": []
+    },
+    "six_repaired_historical_records": {
+      "checked": 6,
+      "mismatches": []
+    }
+  },
+  "environment": {
+    "python": "Python 3.13.14",
+    "PYTHONDONTWRITEBYTECODE": "1",
+    "CHIRALITY_SKIP_LIVE_TESTS": "absent",
+    "pytest_cacheprovider": "disabled"
+  },
+  "results": [
+    {
+      "name": "gen8_clean_commit",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "-p",
+        "no:cacheprovider",
+        "tools/practitioner_harness/test_live_baseline.py::test_live_gen8_semantic_portability_invariants"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 22.821,
+      "log": "gen8_clean_commit.log",
+      "sha256": "5749ef09f376fd5acf832b5ff5ae1a59db1eb7b3c7d34941f6a9f6995cf80130"
+    },
+    {
+      "name": "path_anchors_clean_commit",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_path_anchors.py",
+        "--json"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 5.481,
+      "log": "path_anchors_clean_commit.log",
+      "sha256": "67d51f71332a7a3379941b822d8798a54ef42d8dea2c5e48e873c215f0223fe4"
+    },
+    {
+      "name": "receipts_clean_commit",
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "tools/validation/validate_piping_loop_receipts.py",
+        "--repo-root",
+        ".",
+        "--validation-commit",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "duration_seconds": 2.0,
+      "log": "receipts_clean_commit.log",
+      "sha256": "c5d5741763fee5ea9a902c68bf519787786d0f5da91e96ddd4605b6cceb9a637"
+    }
+  ],
+  "prior_attempt": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/RESULT.json",
+    "sha256": "d6d7761b7ed5dfd4f4f351a6cb3c3fc5f581430608203d8ac47f6b3895df6721",
+    "disposition": "Index-only export passed blob/hash/path audits but GEN8 fixture setup required Git history. That failed attempt is preserved; no test/validator change or bypass was made."
+  },
+  "status": "PASS_F13_CLEAN_COMMIT",
+  "remaining": "Independent additive review and required hosted CI on the final PR candidate. Product/native qualification remains on the exact unchanged accepted sources."
+}

@@ -1,0 +1,58 @@
+{
+  "schema": "root-captured-f13-supplemental-review-return-v1",
+  "captured_utc": "2026-09-15T09:29:06.215301+00:00",
+  "capture": "Faithful structured capture by Root of the actual independent reviewer final message; this file is a review output and is not included in its own input coverage.",
+  "verdict": "PASS_F13_SUPPLEMENTAL_REVIEW",
+  "actionable_findings": [],
+  "reviewer": {
+    "agent": "/root/foundation_final_review",
+    "role": "TASK",
+    "type": 2,
+    "model": "gpt-6-astra",
+    "reasoning_effort": "high",
+    "parent": "HELP_HUMAN /root",
+    "execution": "Read-only static inspection and hashing; no writes, tests, builds, runtime/network actions or delegation. Scope and non-delegation enforcement are instruction-asserted."
+  },
+  "previous_reviewed_commit": "c5f90373e7bc889dc8a98c21a08fc2833e3c6cc8",
+  "preliminary_repair_commit": "e7def4d100c9274c4372bf84eba5b7665a415df7",
+  "reviewed_staged_tree": "ca3364e52a0e2694ebec9877482670b94ed7122a",
+  "coverage": {
+    "additive_paths": 18,
+    "full_pr_input_paths": 1876,
+    "maintained_paths": 77,
+    "full_ordered_lf_path_list_sha256": "17dbf87ea226556a4a38c7ed03eb0057dd78fcaeac408c3cc94e6a9241775df9"
+  },
+  "review_findings": [
+    "Actual missing target repaired: EARLY_NATIVE_V1/build/bound_bundle_manifest.json is indexed with its original policy-bound hash. All six added text records match pre-existing historical manifest bindings; no binaries, caches, policy exemptions or ignore-rule changes.",
+    "All 123 historical-policy targets and 41 control-exception targets were independently verified against indexed bytes and the clean detached checkout. Entire current index matches released staged tree, with no unstaged delta.",
+    "Failed index-export attempt is preserved as a Git-history-dependent fixture setup error. The clean detached checkout passed the identical unmodified GEN8 test with one pass and zero skips, path validation with zero findings, and receipt validation. No untracked or ignored extras; raw log hashes match.",
+    "Prior source/native acceptance and P2 closure remain applicable. Historical build records do not establish current binary identity or new runtime results."
+  ],
+  "verified_inputs": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/F13_EVIDENCE_PACKAGING_REVIEW_V1.md",
+      "sha256": "1a9c04dccd13d098651703a57e7e498d2c7c75ff620977bde3be319ab29a5a38"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/DIAGNOSIS_V1.json",
+      "sha256": "060c7d659e51fadcd585094aadc890d224c0594c5cc98c95142f115f6e3d2958"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/hosted_harness_failure.log",
+      "sha256": "2b2f41a1b666a8bbaa280f666932a1dfb566908af3c560d1f4060b0b485edc76"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/INDEX_EXPORT_ATTEMPT_V1/RESULT.json",
+      "sha256": "d6d7761b7ed5dfd4f4f351a6cb3c3fc5f581430608203d8ac47f6b3895df6721"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/CLEAN_COMMIT_CHECK_V1/RESULT.json",
+      "sha256": "6e05a71a55ff179ed585d28520cb8225a541b8f8bca2a2e73535626c52fcaaa4"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CI_PACKAGE_REPAIR_V1/REVIEW_CUT_V1.json",
+      "sha256": "77334bb14874f31cd400ae293c2f35ded55d20b83efe3fd87f7defc41cd91b97"
+    }
+  ],
+  "remaining_gates": "Final committed-range checks and both required hosted jobs on the repaired PR head; old-head CI is not a substitute."
+}
