@@ -1,0 +1,204 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-ui-workspace-20260915/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/model-tree/ModelTree.test.tsx (1 test | 1 failed) 66ms
+     × uses collision-safe IDs, publishes range metadata, and scrolls off-window keyboard focus 65ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/model-tree/ModelTree.test.tsx > ModelTree virtual typed selection > uses collision-safe IDs, publishes range metadata, and scrolls off-window keyboard focus
+TestingLibraryElementError: Unable to find an element by: [data-testid="tree-row-pipe-n%2F0"]
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33maria-label[39m=[32m"Model tree"[39m
+      [33mclass[39m=[32m"panel model-tree"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"panel-title"[39m
+      [36m>[39m
+        [0mModel[0m
+      [36m</div>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"Layout grid mode"[39m
+        [33mclass[39m=[32m"layout-mode-toggle"[39m
+        [33mdata-testid[39m=[32m"layout-grid-mode-toggle"[39m
+      [36m>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"true"[39m
+          [33mdata-testid[39m=[32m"layout-mode-tree"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-list-tree"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 12h-8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 6H8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M21 18h-8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M3 6v4c0 1.1.9 2 2 2h3"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M3 10v6c0 1.1.9 2 2 2h3"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0mTree[0m
+        [36m</button>[39m
+        [36m<button[39m
+          [33maria-pressed[39m=[32m"false"[39m
+          [33mdata-testid[39m=[32m"layout-mode-grid"[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-table2"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [0mGrid[0m
+        [36m</button>[39m
+      [36m</section>[39m
+      [36m<section[39m
+        [33maria-label[39m=[32m"Model tree filtering"[39m
+        [33mclass[39m=[32m"model-tree-controls"[39m
+        [33mdata-testid[39m=[32m"model-tree-controls"[39m
+      [36m>[39m
+        [36m<label>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-search"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<circle[39m
+              [33mcx[39m=[32m"11"[39m
+              [33mcy[39m=[32m"11"[39m
+              [33mr[39m=[32m"8"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m21 21-4.3-4.3"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+          [36m<span>[39m
+            [0mFilter model[0m
+          [36m</span>[39m
+          [36m<input[39m
+            [33maria-label[39m=[32m"Filter model tree"[39m
+            [33mdata-testid[39m=[32m"model-tree-filter-input"[39m
+            [33mplaceholder[39m=[32m"Name, ID, type, or group"[39m
+            [33mtype[39m=[32m"search"[39m
+            [33mvalue[39m=[32m""[39m
+          [36m/>[39m
+        [36m</label>[39m
+        [36m<span[39m
+          [33mdata-testid[39m=[32m"model-tree-filter-summary"[39m
+        [36m>[39m
+          [0m162[0m
+          [0m of [0m
+          [0m162[0m
+          [0m model entities visible[0m
+        [36m</span>[39m
+        [36m<button[39m
+          [33maria-label[39m=[32m"Clear model tree filter"[39m
+          [33mdata-testid[39m=[32m"clear-model-tree-filter"[39m
+          [33mdisabled[39m=[32m""[39m
+          [33mtype[39m=[32m"button"[39m
+        [36m>[39m
+          [36m<svg[39m
+            [33maria-hidden[39m=[32m"true"[39m
+            [33mclass[39m=[32m"lucide lucide-x"[39m
+            [33mfill[39m=[32m"none"[39m
+            [33mheight[39m=[32m"14"[39m
+            [33mstroke[39m=[32m"currentColor"[39m
+            [33mstroke-linecap[39m=[32m"round"[39m
+            [33mstroke-linejoin[39m=[32m"round"[39m
+            [33mstroke-width[39m=[32m"2"[39m
+            [33mviewBox[39m=[32m"0 0 24 24"[39m
+            [33mwidth[39m=[32m"14"[39m
+            [33mxmlns[39m=[32m"http://www.w3.org/2000/svg"[39m
+          [36m>[39m
+            [36m<path[39m
+              [33md[39m=[32m"M18 6 6 18"[39m
+            [36m/>[39m
+            [36m<path[39m
+              [33md[39m=[32m"m6 6 12 12"[39m
+            [36m/>[39m
+          [36m</svg>[39m
+        [36m</button>[39m
+      [36m</section>[39m
+      [36m<div[39m
+        [33maria-activedescendant[39m=[32m"tree-row-project-p"[39m
+        [33maria-label[39m=[32m"Model"[39m
+        [33maria-multiselectable[39m=[32m"true"[39m
+        [33mclass[39m=[32m"model-tree-virtual"[39m
+        [33mdata-testid[39m=[32m"model-tree-virtual"[39m
+        [33mrole[39m=[32m"tree"[39m
+        [33mstyle[39m=[32m"height: 420px; overflow-y: auto;"[39m
+        [33mtabindex[39m=[32m"0"[39m
+      [36m>[39m
+        [36m<div[39m
+          [33mstyle[39m=[32m"height: 5576px; position: relative;"[39m
+        [36m>[39m
+          [36m<div[39m
+            [33mdata-virtual-index[39m=[32m"0"[39m
+            [33mstyle[39m=[32m"height: 34px; left: 0px; position: absolute; right: 0px; top: 0px;"[39m
+          [36m>[39m
+            [36m<button[39m
+              [33...
+ ❯ Object.getElementError ../../node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/model-tree/ModelTree.test.tsx:39:19
+     37|     expect(screen.getByRole("tree", { name: "Model" })).toHaveAttribut…
+     38|     expect(screen.getByTestId("tree-row-node-n%2F0")).toBeInTheDocumen…
+     39|     expect(screen.getByTestId("tree-row-pipe-n%2F0")).toBeInTheDocumen…
+       |                   ^
+     40|     fireEvent.click(screen.getByTestId("tree-row-node-n%2F1"), { shift…
+     41|     expect(onSelect).toHaveBeenLastCalledWith(
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 9 passed (10)
+      Tests  1 failed | 42 passed (43)
+   Start at  12:53:29
+   Duration  1.07s (transform 923ms, setup 1.50s, import 862ms, tests 269ms, environment 5.53s)
+
+EXIT_CODE=1

@@ -1,0 +1,27 @@
+Tracked source diff:
+ projects/chirality-piping/apps/desktop/src/App.tsx | 144 +++-
+ .../desktop/src/features/model-tree/ModelTree.tsx  | 309 +++++++--
+ .../src/features/model-tree/PropertyInspector.tsx  |  28 +-
+ .../src/features/model-workspace/modelView.ts      |  35 +-
+ .../desktop/src/features/viewport/PipeViewport.tsx | 765 +++++++++++++++++++--
+ .../src/features/viewport/viewportResource.ts      |  49 +-
+ .../src/features/viewport/viewportSelection.ts     | 155 ++++-
+ .../desktop/src/features/workspace/modelIndex.ts   | 122 +++-
+ .../src/features/workspace/selectionState.ts       |  44 ++
+ .../src/features/workspace/uiDiagnostics.test.ts   |   8 +-
+ .../src/features/workspace/uiDiagnostics.ts        |  31 +-
+ .../chirality-piping/apps/desktop/src/styles.css   |  74 ++
+ 12 files changed, 1608 insertions(+), 156 deletions(-)
+
+New source files (line count):
+      55 projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.test.tsx
+      38 projects/chirality-piping/apps/desktop/src/features/model-workspace/modelView.test.ts
+      58 projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.test.tsx
+     114 projects/chirality-piping/apps/desktop/src/features/workspace/VirtualList.tsx
+      33 projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.test.tsx
+     120 projects/chirality-piping/apps/desktop/src/features/workspace/VirtualTargetPicker.tsx
+      59 projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.test.ts
+     107 projects/chirality-piping/apps/desktop/src/features/workspace/uiPreferences.ts
+
+Bound source file count:
+      20
