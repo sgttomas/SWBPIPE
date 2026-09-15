@@ -19,6 +19,78 @@ export type LabelPriorityInput = Readonly<{
   limit?: number;
 }>;
 
+export type BoxSelectionFilter = "all" | "pipes" | "nodes" | "supports" | "components";
+export type BoxSelectionDirection = "left-to-right" | "right-to-left";
+export type BoxSelectionRect = Readonly<{ left: number; top: number; right: number; bottom: number }>;
+
+export function boxSelectEntityKeys(
+  index: ModelIndex,
+  model: PreviewModel,
+  options: Readonly<{
+    camera: THREE.PerspectiveCamera;
+    canvas: HTMLCanvasElement;
+    renderOrigin: Readonly<Vec3>;
+    rect: BoxSelectionRect;
+    direction: BoxSelectionDirection;
+    filter: BoxSelectionFilter;
+    hiddenKeys?: ReadonlySet<EntityKey>;
+  }>
+): readonly EntityKey[] {
+  const canvasRect = options.canvas.getBoundingClientRect();
+  if (!(canvasRect.width > 0) || !(canvasRect.height > 0)) return Object.freeze([]);
+  options.camera.updateMatrixWorld();
+  const viewProjection = new THREE.Matrix4().multiplyMatrices(
+    options.camera.projectionMatrix,
+    options.camera.matrixWorldInverse
+  );
+  const frustum = new THREE.Frustum().setFromProjectionMatrix(viewProjection);
+  const candidateKeys = new Set<EntityKey>();
+  for (const chunk of index.spatialChunks) {
+    const local = localBounds(chunk.bounds, options.renderOrigin);
+    const box = new THREE.Box3(
+      new THREE.Vector3(local.min.x, local.min.y, local.min.z),
+      new THREE.Vector3(local.max.x, local.max.y, local.max.z)
+    );
+    if (!frustum.intersectsBox(box) && !frustum.containsPoint(box.getCenter(new THREE.Vector3()))) continue;
+    for (const key of chunk.entityKeys) candidateKeys.add(key);
+  }
+  const nodes = new Map(model.nodes.map((node) => [node.id, node.position] as const));
+  const pipes = new Map(model.pipe_segments.map((pipe) => [pipe.id, pipe] as const));
+  const normalized = normalizeBoxRect(options.rect);
+  const acceptsType = (type: EntityRef["type"]) =>
+    options.filter === "all" || options.filter === `${type}s`;
+  const hits: EntityKey[] = [];
+
+  for (const key of index.treeOrder) {
+    if (!candidateKeys.has(key) || options.hiddenKeys?.has(key) || index.invalidGeometry.has(key)) continue;
+    const indexed = index.entities.get(key);
+    if (!indexed || !acceptsType(indexed.ref.type)) continue;
+    if (indexed.ref.type === "pipe") {
+      const pipe = pipes.get(indexed.ref.id);
+      const from = pipe ? nodes.get(pipe.from) : null;
+      const to = pipe ? nodes.get(pipe.to) : null;
+      if (!from || !to) continue;
+      const clipped = clipSegmentToClosedNdc(
+        clipPoint(authoredToLocal(from, options.renderOrigin), viewProjection),
+        clipPoint(authoredToLocal(to, options.renderOrigin), viewProjection)
+      );
+      if (!clipped) continue;
+      const a = clipToCanvasPoint(clipped[0], canvasRect.width, canvasRect.height);
+      const b = clipToCanvasPoint(clipped[1], canvasRect.width, canvasRect.height);
+      const hit = options.direction === "left-to-right"
+        ? pointInClosedRect(a, normalized) && pointInClosedRect(b, normalized)
+        : segmentIntersectsClosedRect(a, b, normalized);
+      if (hit) hits.push(key);
+      continue;
+    }
+    if (!["node", "support", "component"].includes(indexed.ref.type) || !indexed.anchor) continue;
+    const clip = clipPoint(authoredToLocal(indexed.anchor, options.renderOrigin), viewProjection);
+    if (!insideClosedClip(clip)) continue;
+    if (pointInClosedRect(clipToCanvasPoint(clip, canvasRect.width, canvasRect.height), normalized)) hits.push(key);
+  }
+  return Object.freeze(hits);
+}
+
 export type PointPickPrimitive = Readonly<{
   key: EntityKey;
   ref: EntityRef;
@@ -215,13 +287,17 @@ export function pickPointPrimitive(
   const tFar = options.camera.far / cosTheta;
   if (![tNear, tFar].every(Number.isFinite) || tNear < 0 || tFar < tNear) return null;
   const farTolerance = cssPixelsInWorld(6, options.camera.far, options.camera, height);
+  let largestActualOdRadius = 0;
+  for (const radius of options.actualOdRadiusByPipe?.values() ?? []) {
+    if (Number.isFinite(radius)) largestActualOdRadius = Math.max(largestActualOdRadius, radius);
+  }
   const broadPhaseKeys = pointRayBroadPhaseKeys(
     options.index,
     options.renderOrigin,
     raycaster.ray,
     tNear,
     tFar,
-    Math.max(0.5, farTolerance)
+    Math.max(0.5, farTolerance, largestActualOdRadius)
   );
   const candidates: Array<{ primitive: PointPickPrimitive; entry: number; miss: number }> = [];
   for (const primitive of primitives) {
@@ -636,4 +712,81 @@ function coneNormalizedMissAt(
 ): number {
   const point = ray.at(entry, new THREE.Vector3());
   return Math.hypot(point.x - center.x, point.z - center.z) / radius;
+}
+
+type ClipPoint = Readonly<{ x: number; y: number; z: number; w: number }>;
+type ScreenPoint = Readonly<{ x: number; y: number }>;
+
+function clipPoint(point: Readonly<Vec3>, matrix: THREE.Matrix4): ClipPoint {
+  const e = matrix.elements;
+  const { x, y, z } = point;
+  return {
+    x: e[0] * x + e[4] * y + e[8] * z + e[12],
+    y: e[1] * x + e[5] * y + e[9] * z + e[13],
+    z: e[2] * x + e[6] * y + e[10] * z + e[14],
+    w: e[3] * x + e[7] * y + e[11] * z + e[15]
+  };
+}
+
+function insideClosedClip(point: ClipPoint): boolean {
+  return Number.isFinite(point.w) && point.w > 0 &&
+    point.x >= -point.w && point.x <= point.w && point.y >= -point.w && point.y <= point.w &&
+    point.z >= -point.w && point.z <= point.w;
+}
+
+function clipSegmentToClosedNdc(a: ClipPoint, b: ClipPoint): readonly [ClipPoint, ClipPoint] | null {
+  if (![a.x, a.y, a.z, a.w, b.x, b.y, b.z, b.w].every(Number.isFinite)) return null;
+  let enter = 0;
+  let exit = 1;
+  const planes = [
+    (p: ClipPoint) => p.x + p.w, (p: ClipPoint) => p.w - p.x,
+    (p: ClipPoint) => p.y + p.w, (p: ClipPoint) => p.w - p.y,
+    (p: ClipPoint) => p.z + p.w, (p: ClipPoint) => p.w - p.z
+  ];
+  for (const plane of planes) {
+    const fa = plane(a);
+    const fb = plane(b);
+    if (fa < 0 && fb < 0) return null;
+    if (fa >= 0 && fb >= 0) continue;
+    const t = fa / (fa - fb);
+    if (fa < 0) enter = Math.max(enter, t);
+    else exit = Math.min(exit, t);
+    if (enter > exit) return null;
+  }
+  const lerp = (t: number): ClipPoint => ({
+    x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t,
+    z: a.z + (b.z - a.z) * t, w: a.w + (b.w - a.w) * t
+  });
+  const start = lerp(enter);
+  const end = lerp(exit);
+  return start.w > 0 && end.w > 0 ? Object.freeze([start, end] as const) : null;
+}
+
+function clipToCanvasPoint(point: ClipPoint, width: number, height: number): ScreenPoint {
+  return { x: (point.x / point.w * 0.5 + 0.5) * width, y: (-point.y / point.w * 0.5 + 0.5) * height };
+}
+
+function normalizeBoxRect(rect: BoxSelectionRect): BoxSelectionRect {
+  return { left: Math.min(rect.left, rect.right), right: Math.max(rect.left, rect.right), top: Math.min(rect.top, rect.bottom), bottom: Math.max(rect.top, rect.bottom) };
+}
+
+function pointInClosedRect(point: ScreenPoint, rect: BoxSelectionRect): boolean {
+  return point.x >= rect.left && point.x <= rect.right && point.y >= rect.top && point.y <= rect.bottom;
+}
+
+function segmentIntersectsClosedRect(a: ScreenPoint, b: ScreenPoint, rect: BoxSelectionRect): boolean {
+  if (pointInClosedRect(a, rect) || pointInClosedRect(b, rect)) return true;
+  let enter = 0;
+  let exit = 1;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+  for (const [p, q] of [[-dx, a.x - rect.left], [dx, rect.right - a.x], [-dy, a.y - rect.top], [dy, rect.bottom - a.y]] as const) {
+    if (p === 0 && q < 0) return false;
+    if (p === 0) continue;
+    const t = q / p;
+    if (p < 0) enter = Math.max(enter, t);
+    else exit = Math.min(exit, t);
+    if (enter > exit) return false;
+  }
+  return true;
 }

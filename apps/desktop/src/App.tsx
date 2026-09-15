@@ -28,8 +28,14 @@ import {
 } from "lucide-react";
 import { WorkspaceToolbar } from "./features/workspace/WorkspaceToolbar";
 import { DormantSection } from "./features/workspace/dormantSection";
+import {
+  readUiPreferences,
+  resolvedUiTheme,
+  updateUiPreferences,
+  writeUiPreferences
+} from "./features/workspace/uiPreferences";
 import type React from "react";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AccessibilityBaselinePanel } from "./features/accessibility-baseline/AccessibilityBaselinePanel";
 import { AdapterFrameworkPanel } from "./features/adapter-framework/AdapterFrameworkPanel";
 import { AgentProposalPanel } from "./features/agent-proposals/AgentProposalPanel";
@@ -55,12 +61,16 @@ import { MissingDataBlockingPanel, countMissingDataBlockers } from "./features/m
 import { defaultSelection } from "./features/model-workspace/modelView";
 import { modelIndexFor } from "./features/workspace/modelIndex";
 import {
+  applyDisplayedRange,
+  applyBoxSelection,
   applySelection,
   emptySelection,
   primarySelection,
   pruneSelection,
   sameSelection,
   singletonSelection,
+  setSelectionFocus,
+  type EntityKey,
   type OrderedSelectionState,
   type SelectionModifiers
 } from "./features/workspace/selectionState";
@@ -267,6 +277,9 @@ export function commitModelAfterSolveInvalidation(
 
 const SUPPORTED_MODEL_NORMALIZATION_ID =
   "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop";
+
+// Diagnostics generations must not repeat across real same-page App remounts.
+let nextUiModelPublicationGeneration = 0;
 
 export function isSupportedChangedModelPersistenceResponse(
   envelope: LocalProjectEnvelope,
@@ -509,11 +522,27 @@ export function App() {
 }
 
 function AppSession() {
+  const [uiPreferences, setUiPreferences] = useState(readUiPreferences);
+  const [systemDark, setSystemDark] = useState(() =>
+    typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+  const resolvedTheme = resolvedUiTheme(uiPreferences.theme, systemDark);
   const [model, setModel] = useState<PreviewModel | null>(null);
   const [knowledge, setKnowledge] = useState<DesignKnowledge | null>(null);
   const [selection, setPrimarySelection] = useState<EntityRef | null>(null);
   const [orderedSelection, setOrderedSelection] = useState<OrderedSelectionState>(() => emptySelection());
   const orderedSelectionRef = useRef<OrderedSelectionState>(orderedSelection);
+  const [hiddenEntityKeys, setHiddenEntityKeys] = useState<ReadonlySet<EntityKey>>(() => new Set());
+  const [treePublication, setTreePublication] = useState<{
+    actionSequence: number;
+    publicationSequence: number;
+    query: string;
+    visibleCount: number;
+    publishedAt: number;
+  } | null>(null);
+  const handleTreePublication = useCallback((publication: NonNullable<typeof treePublication>) => {
+    setTreePublication(publication);
+  }, []);
   const [projectSessionGeneration, setProjectSessionGeneration] = useState(0);
   const projectSessionGenerationRef = useRef(0);
   const [uiModelRevision, setUiModelRevision] = useState(0);
@@ -649,14 +678,37 @@ function AppSession() {
     [model, projectSessionGeneration, uiModelRevision]
   );
 
+  useEffect(() => {
+    if (!activeModelIndex) return;
+    setHiddenEntityKeys((current) => {
+      const next = new Set([...current].filter((key) => activeModelIndex.entities.has(key)));
+      return next.size === current.size ? current : next;
+    });
+  }, [activeModelIndex]);
+
+  useEffect(() => {
+    writeUiPreferences(uiPreferences);
+  }, [uiPreferences]);
+
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    const update = () => setSystemDark(query.matches);
+    query.addEventListener?.("change", update);
+    return () => query.removeEventListener?.("change", update);
+  }, []);
+
   function commitSelectionState(next: OrderedSelectionState, fallbackModel: PreviewModel | null = model): boolean {
     const previous = orderedSelectionRef.current;
-    if (sameSelection(previous, next)) return false;
+    const membershipChanged = !sameSelection(previous, next);
+    if (!membershipChanged && previous.focusKey === next.focusKey && previous.rangeAnchorKey === next.rangeAnchorKey) return false;
     orderedSelectionRef.current = next;
     setOrderedSelection(next);
-    if (fallbackModel) setPrimarySelection(primarySelection(next, defaultSelection(fallbackModel)));
-    else setPrimarySelection(next.primaryKey ? primarySelection(next, { type: "project", id: "" }) : null);
-    return true;
+    if (membershipChanged) {
+      if (fallbackModel) setPrimarySelection(primarySelection(next, defaultSelection(fallbackModel)));
+      else setPrimarySelection(next.primaryKey ? primarySelection(next, { type: "project", id: "" }) : null);
+    }
+    return membershipChanged;
   }
 
   function setSelection(next: EntityRef | null): void {
@@ -706,7 +758,7 @@ function AppSession() {
 
   function commitModel(nextModel: PreviewModel, directDraftToken: string | null = null) {
     const assignmentStartedAt = performance.now();
-    const modelPublicationGeneration = modelPublicationGenerationRef.current + 1;
+    const modelPublicationGeneration = ++nextUiModelPublicationGeneration;
     publishUiModelAssignmentStarted(modelPublicationGeneration, assignmentStartedAt);
     const nextUiModelRevision = uiModelRevisionRef.current + 1;
     const indexGeneration = `${projectSessionGenerationRef.current}:${nextUiModelRevision}`;
@@ -751,6 +803,7 @@ function AppSession() {
   function advanceProjectSession(): void {
     const nextGeneration = ++projectSessionGenerationRef.current;
     setProjectSessionGeneration(nextGeneration);
+    setHiddenEntityKeys(new Set());
   }
 
   // Warm up the operation engine and report its honest route/readiness.
@@ -1950,11 +2003,24 @@ function AppSession() {
     }
   }
 
-  function handleSelectEntity(entity: EntityRef, modifiers: SelectionModifiers = {}) {
-    const next = applySelection(orderedSelectionRef.current, entity, modifiers);
-    if (sameSelection(next, orderedSelectionRef.current)) return;
-    invalidateDirectDraftContext();
-    commitSelectionState(next);
+  function handleSelectEntity(
+    entity: EntityRef,
+    modifiers: SelectionModifiers & Readonly<{ range?: boolean }> = {},
+    displayedOrder: readonly EntityKey[] = []
+  ) {
+    const next = modifiers.range
+      ? applyDisplayedRange(orderedSelectionRef.current, entity, displayedOrder)
+      : applySelection(orderedSelectionRef.current, entity, modifiers);
+    if (commitSelectionState(next)) invalidateDirectDraftContext();
+  }
+
+  function handleBoxSelection(
+    keys: readonly EntityKey[],
+    modifiers: SelectionModifiers
+  ): OrderedSelectionState {
+    const next = applyBoxSelection(orderedSelectionRef.current, keys, modifiers);
+    if (commitSelectionState(next)) invalidateDirectDraftContext();
+    return next;
   }
 
   function invalidateDirectDraftContext() {
@@ -2154,7 +2220,15 @@ function AppSession() {
   return (
     <main
       className={showInAppMenuBar ? "app-shell" : "app-shell native-menu"}
+      data-density={uiPreferences.density}
+      data-theme={resolvedTheme}
+      data-theme-preference={uiPreferences.theme}
       data-testid="desktop-preview-shell"
+      style={{
+        "--workspace-left-rail": `${uiPreferences.leftRailPx}px`,
+        "--workspace-right-rail": `${uiPreferences.rightRailPx}px`,
+        "--workspace-dock-height": `${uiPreferences.dockPx}px`
+      } as React.CSSProperties}
       onKeyDown={(event) => {
         if (event.key !== "Escape" || event.defaultPrevented) return;
         setOpenMenu(null);
@@ -2172,6 +2246,33 @@ function AppSession() {
         </div>
         <div className="titlebar-actions" aria-label="Local project controls">
           <details className="display-preference-control"><summary>Units</summary><DisplayUnitSelector /></details>
+          <label className="titlebar-preference">
+            <span>Theme</span>
+            <select
+              aria-label="Appearance theme"
+              onChange={(event) => setUiPreferences((current) => updateUiPreferences(current, {
+                theme: event.target.value as typeof current.theme
+              }))}
+              value={uiPreferences.theme}
+            >
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </label>
+          <label className="titlebar-preference">
+            <span>Density</span>
+            <select
+              aria-label="Workspace density"
+              onChange={(event) => setUiPreferences((current) => updateUiPreferences(current, {
+                density: event.target.value as typeof current.density
+              }))}
+              value={uiPreferences.density}
+            >
+              <option value="comfortable">Comfortable</option>
+              <option value="compact">Compact</option>
+            </select>
+          </label>
 
           <button type="button" onClick={handleCreateProject} disabled={projectBusy}>
             <Database size={15} aria-hidden="true" />
@@ -2181,7 +2282,7 @@ function AppSession() {
             <FilePlus size={15} aria-hidden="true" />
             New blank
           </button>
-          <button type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
+          <button data-testid="open-local-project" type="button" onClick={() => handleOpenProject()} disabled={projectBusy}>
             <FolderOpen size={15} aria-hidden="true" />
             Open local
           </button>
@@ -2276,7 +2377,18 @@ function AppSession() {
                 {treeCollapsed ? "›" : "‹"}
               </span>
             </button>
-            <ModelTree model={model} selection={selection} onQueueIntent={handleQueueEditorIntent} onSelect={handleSelectEntity} />
+            <ModelTree
+              density={uiPreferences.density}
+              hiddenKeys={hiddenEntityKeys}
+              model={model}
+              projectSessionGeneration={projectSessionGeneration}
+              selection={selection}
+              selectionState={orderedSelection}
+              onQueueIntent={handleQueueEditorIntent}
+              onSelect={handleSelectEntity}
+              onFocusChange={(key) => commitSelectionState(setSelectionFocus(orderedSelectionRef.current, key))}
+              onFilterPublication={handleTreePublication}
+            />
           </div>
           <div className="workspace-pane workspace-pane-viewport">
             <PipeViewport
@@ -2284,11 +2396,14 @@ function AppSession() {
               assignment={modelAssignment}
               model={model}
               modelIdentityHash={modelAssignment?.identityHash ?? null}
+              hiddenKeys={hiddenEntityKeys}
               modelIndex={activeModelIndex ?? undefined}
               modelCommitToken={directDraftCommitToken}
               onAddDraft={handleAddDraftReview}
               onApplyDraft={handleApplyDraftReview}
               onArmCreationTool={handleArmCreationTool}
+              onBoxSelection={handleBoxSelection}
+              onHiddenKeysChange={setHiddenEntityKeys}
               onInvalidateDraft={invalidateDirectDraftContext}
               onQueueIntent={handleQueueEditorIntent}
               onSelect={handleSelectEntity}
@@ -2297,6 +2412,8 @@ function AppSession() {
               result={result}
               selection={selection}
               selectionState={orderedSelection}
+              theme={resolvedTheme}
+              treePublication={treePublication}
             />
           </div>
           <div className="workspace-pane workspace-pane-inspector">
@@ -2323,6 +2440,7 @@ function AppSession() {
               operationOutcomes={operationOutcomes}
               queuedIntents={editorIntents}
               selection={selection}
+              selectionState={orderedSelection}
             />
           </div>
         </section>

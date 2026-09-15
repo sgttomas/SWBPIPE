@@ -23,6 +23,7 @@ import {
   type UnitCatalogRoute
 } from "../../services/unitCatalogService";
 import { entityLabel, selectedProperties, selectedPropertyRows } from "../model-workspace/modelView";
+import { entityRefFromKey, type OrderedSelectionState } from "../workspace/selectionState";
 import {
   buildCreateComponentIntent,
   componentDraftForKind,
@@ -42,7 +43,8 @@ export function PropertyInspector({
   operationBusy = false,
   operationOutcomes = {},
   queuedIntents = [],
-  selection
+  selection,
+  selectionState
 }: {
   model: PreviewModel;
   onQueueIntent: (intent: EditorOperationIntent) => void;
@@ -52,6 +54,7 @@ export function PropertyInspector({
   operationOutcomes?: Record<string, OperationOutcome>;
   queuedIntents?: EditorOperationIntent[];
   selection: EntityRef;
+  selectionState?: OrderedSelectionState;
 }) {
   const properties = selectedProperties(model, selection);
   const editableFields = useMemo(() => editorFieldOptions(model, selection), [model, selection]);
@@ -282,9 +285,28 @@ export function PropertyInspector({
     });
   }
 
+  const aggregateRefs = selectionState?.orderedKeys.flatMap((key) => {
+    const ref = entityRefFromKey(key);
+    return ref ? [ref] : [];
+  }) ?? [selection];
+  if (aggregateRefs.length > 1) {
+    const counts = new Map<EntityRef["type"], number>();
+    for (const ref of aggregateRefs) counts.set(ref.type, (counts.get(ref.type) ?? 0) + 1);
+    return (
+      <div className="panel inspector aggregate-inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
+        <h2>{aggregateRefs.length} selected items</h2>
+        <p role="status">Aggregate inspection is read-only. Choose one primary item to edit its engineering properties.</p>
+        <dl>
+          {[...counts].map(([type, count]) => <div key={type}><dt>{type}</dt><dd>{count}</dd></div>)}
+          <div><dt>Primary</dt><dd>{selection.type}: {selection.id}</dd></div>
+        </dl>
+      </div>
+    );
+  }
+
   return (
-    <div className="panel inspector" aria-label="Property inspector">
-      <h2>{entityLabel(model, selection.id)}</h2>
+    <div className="panel inspector" data-testid="property-inspector" role="region" aria-label="Property inspector">
+      <h2>{entityLabel(model, selection)}</h2>
       <details className="inspector-details">
         <summary>All properties</summary>
         <dl>

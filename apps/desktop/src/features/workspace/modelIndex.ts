@@ -27,6 +27,7 @@ export type SectionBinding = Readonly<{
   source: "shared" | "inline";
   sectionKey: EntityKey | null;
   record: PreviewModel["pipe_segments"][number]["section"] | NonNullable<PreviewModel["sections"]>[number]["properties"];
+  issue: string | null;
 }>;
 
 export type ModelIndex = Readonly<{
@@ -135,15 +136,18 @@ export function buildModelIndex(
   for (const material of model.materials ?? []) {
     add({ type: "material", id: material.id }, material.label || material.id, material);
   }
+  const duplicateSectionIds = duplicateIds(model.sections ?? []);
+  const uniqueSections = new Map(
+    (model.sections ?? []).filter((section) => !duplicateSectionIds.has(section.id)).map((section) => [section.id, section] as const)
+  );
   for (const section of model.sections ?? []) {
     add({ type: "section", id: section.id }, section.name || section.id, section);
   }
 
-  const nodeIdCounts = new Map<string, number>();
-  for (const node of model.nodes) nodeIdCounts.set(node.id, (nodeIdCounts.get(node.id) ?? 0) + 1);
-  const duplicateNodeIds = new Set(
-    [...nodeIdCounts].filter(([, count]) => count > 1).map(([id]) => id)
-  );
+  const duplicateNodeIds = duplicateIds(model.nodes);
+  const duplicatePipeIds = duplicateIds(model.pipe_segments);
+  const duplicateSupportIds = duplicateIds(model.supports);
+  const duplicateComponentIds = duplicateIds(model.components);
   const nodesById = new Map(
     model.nodes.filter((node) => !duplicateNodeIds.has(node.id)).map((node) => [node.id, node] as const)
   );
@@ -161,7 +165,9 @@ export function buildModelIndex(
     const from = nodesById.get(pipe.from)?.position;
     const to = nodesById.get(pipe.to)?.position;
     let issue: string | null = null;
-    if (duplicateNodeIds.has(pipe.from) || duplicateNodeIds.has(pipe.to)) {
+    if (duplicatePipeIds.has(pipe.id)) {
+      issue = `Pipe ${pipe.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`;
+    } else if (duplicateNodeIds.has(pipe.from) || duplicateNodeIds.has(pipe.to)) {
       issue = `Pipe ${pipe.id} references an ambiguous duplicate node endpoint.`;
     } else if (!from || !to) issue = `Pipe ${pipe.id} references a missing endpoint.`;
     else if (!finiteVec(from) || !finiteVec(to)) issue = `Pipe ${pipe.id} has a non-finite endpoint.`;
@@ -177,20 +183,37 @@ export function buildModelIndex(
       adjacent.push(pipeKey);
       pipeKeysByNode.set(nodeKey, adjacent);
     }
-    const sectionKey = pipe.section_ref ? entityKey({ type: "section", id: pipe.section_ref }) : null;
-    const shared = sectionKey ? entities.get(sectionKey) : null;
+    const hasSectionRef = pipe.section_ref !== undefined;
+    const sectionRef = pipe.section_ref?.trim() ?? "";
+    const sectionKey = sectionRef ? entityKey({ type: "section", id: sectionRef }) : null;
+    const sharedSection = sectionRef ? uniqueSections.get(sectionRef) : null;
+    const shared = sharedSection && sectionKey ? entities.get(sectionKey) : null;
+    const sectionIssue = !hasSectionRef
+      ? null
+      : !sectionRef
+        ? `Pipe ${pipe.id} has a blank shared section reference.`
+        : duplicateSectionIds.has(sectionRef)
+          ? `Pipe ${pipe.id} references duplicate shared section ${sectionRef}.`
+          : !sharedSection || !shared
+            ? `Pipe ${pipe.id} references missing shared section ${sectionRef}.`
+            : sharedSection.section_type !== "pipe"
+              ? `Pipe ${pipe.id} references shared section ${sectionRef} with unsupported type ${sharedSection.section_type}.`
+              : sharedSectionBindingIssue(pipe, sharedSection);
     sectionBindings.set(pipeKey, Object.freeze({
-      source: shared ? "shared" : "inline",
+      source: hasSectionRef ? "shared" : "inline",
       sectionKey: shared ? sectionKey : null,
       record: shared
         ? (shared.record as NonNullable<PreviewModel["sections"]>[number]).properties
-        : pipe.section
+        : pipe.section,
+      issue: sectionIssue
     }));
   }
 
   for (const support of model.supports) {
     const position = nodesById.get(support.node)?.position;
-    const issue = duplicateNodeIds.has(support.node)
+    const issue = duplicateSupportIds.has(support.id)
+      ? `Support ${support.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`
+      : duplicateNodeIds.has(support.node)
       ? `Support ${support.id} references an ambiguous duplicate node.`
       : !position
       ? `Support ${support.id} references a missing node.`
@@ -209,7 +232,9 @@ export function buildModelIndex(
 
   for (const component of model.components) {
     const position = nodesById.get(component.node)?.position;
-    const issue = duplicateNodeIds.has(component.node)
+    const issue = duplicateComponentIds.has(component.id)
+      ? `Component ${component.id} has a duplicate same-type identifier; its authored geometry is ambiguous.`
+      : duplicateNodeIds.has(component.node)
       ? `Component ${component.id} references an ambiguous duplicate node.`
       : !position
       ? `Component ${component.id} references a missing node.`
@@ -294,9 +319,32 @@ function pointBounds(point: Vec3): Bounds3 {
 }
 
 function chunkSpatialEntries(entries: readonly { key: EntityKey; bounds: Bounds3 }[]): readonly SpatialChunk[] {
+  // Sort by authored-space cell then typed key so spatial locality is stable and
+  // independent of declaration order. Exact per-entry bounds remain authoritative.
+  const overall = unionBounds(entries.map((entry) => entry.bounds));
+  const span = overall ? Math.max(
+    overall.max.x - overall.min.x,
+    overall.max.y - overall.min.y,
+    overall.max.z - overall.min.z,
+    1
+  ) : 1;
+  const cell = span / Math.max(1, Math.ceil(Math.cbrt(entries.length / CHUNK_SIZE)));
+  const spatial = [...entries].sort((a, b) => {
+    const ac = boundsCenter(a.bounds);
+    const bc = boundsCenter(b.bounds);
+    const ax = Math.floor((ac.x - (overall?.min.x ?? 0)) / cell);
+    const bx = Math.floor((bc.x - (overall?.min.x ?? 0)) / cell);
+    if (ax !== bx) return ax - bx;
+    const ay = Math.floor((ac.y - (overall?.min.y ?? 0)) / cell);
+    const by = Math.floor((bc.y - (overall?.min.y ?? 0)) / cell);
+    if (ay !== by) return ay - by;
+    const az = Math.floor((ac.z - (overall?.min.z ?? 0)) / cell);
+    const bz = Math.floor((bc.z - (overall?.min.z ?? 0)) / cell);
+    return az !== bz ? az - bz : String(a.key).localeCompare(String(b.key));
+  });
   const chunks: SpatialChunk[] = [];
-  for (let offset = 0; offset < entries.length; offset += CHUNK_SIZE) {
-    const slice = entries.slice(offset, offset + CHUNK_SIZE);
+  for (let offset = 0; offset < spatial.length; offset += CHUNK_SIZE) {
+    const slice = spatial.slice(offset, offset + CHUNK_SIZE);
     const bounds = unionBounds(slice.map((entry) => entry.bounds));
     if (!bounds) continue;
     chunks.push(Object.freeze({
@@ -306,6 +354,52 @@ function chunkSpatialEntries(entries: readonly { key: EntityKey; bounds: Bounds3
     }));
   }
   return Object.freeze(chunks);
+}
+
+function duplicateIds<T extends { id: string }>(items: readonly T[]): ReadonlySet<string> {
+  const counts = new Map<string, number>();
+  for (const item of items) counts.set(item.id, (counts.get(item.id) ?? 0) + 1);
+  return new Set([...counts].filter(([, count]) => count > 1).map(([id]) => id));
+}
+
+function boundsCenter(bounds: Bounds3): Vec3 {
+  return {
+    x: (bounds.min.x + bounds.max.x) / 2,
+    y: (bounds.min.y + bounds.max.y) / 2,
+    z: (bounds.min.z + bounds.max.z) / 2
+  };
+}
+
+function sharedSectionBindingIssue(
+  pipe: PreviewModel["pipe_segments"][number],
+  section: NonNullable<PreviewModel["sections"]>[number]
+): string | null {
+  const definedKeys = Object.keys(section.properties).filter((key) => section.properties[key] !== undefined);
+  if (definedKeys.some((key) => key !== "outside_diameter" && key !== "wall_thickness")) {
+    return `Shared section ${section.id} contains unsupported properties for Actual OD resolution.`;
+  }
+  const outside = section.properties.outside_diameter;
+  const wall = section.properties.wall_thickness;
+  if (!validPositiveQuantity(outside) || !validPositiveQuantity(wall)) {
+    return `Shared section ${section.id} has an invalid OD or wall-thickness envelope.`;
+  }
+  const inlineOutside = pipe.section.outside_diameter;
+  const inlineWall = pipe.section.wall_thickness;
+  if (!sameQuantity(inlineOutside, outside) || !sameQuantity(inlineWall, wall)) {
+    return `Pipe ${pipe.id} inline OD/wall values are inconsistent with shared section ${section.id}.`;
+  }
+  return null;
+}
+
+function validPositiveQuantity(value: { value: number; unit: string } | undefined): value is { value: number; unit: string } {
+  return Boolean(value && Number.isFinite(value.value) && value.value > 0 && value.unit.trim());
+}
+
+function sameQuantity(
+  left: { value: number; unit: string } | undefined,
+  right: { value: number; unit: string } | undefined
+): boolean {
+  return Boolean(left && right && left.value === right.value && left.unit === right.unit);
 }
 
 function unionBounds(bounds: readonly Bounds3[]): Bounds3 | null {

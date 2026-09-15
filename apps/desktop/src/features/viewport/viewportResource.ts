@@ -218,6 +218,13 @@ export function registerInstancedSelectionPresentation(
 ): void {
   mesh.userData.instanceEntityKeys = Object.freeze([...keys]);
   mesh.userData.viewportBaseColor = baseColor;
+  const baseMatrices: THREE.Matrix4[] = [];
+  for (let index = 0; index < keys.length; index += 1) {
+    const matrix = new THREE.Matrix4();
+    mesh.getMatrixAt(index, matrix);
+    baseMatrices.push(matrix.clone());
+  }
+  mesh.userData.instanceBaseMatrices = Object.freeze(baseMatrices);
   const ownershipKind = keys[0] ? ownershipKindFromKey(keys[0]) : null;
   if (ownershipKind) mesh.userData.viewportOwnershipKind = ownershipKind;
   applyInstancedSelection(mesh, new Set());
@@ -253,6 +260,27 @@ export function applySelectionPresentation(
 
 export function applyThemePresentation(scene: THREE.Scene, theme: ViewportThemePresentation): void {
   scene.background = new THREE.Color(theme === "dark" ? 0x111820 : 0xf6f7f4);
+}
+
+export function applyVisibilityPresentation(
+  roots: readonly THREE.Object3D[],
+  hiddenKeys: ReadonlySet<EntityKey>
+): void {
+  const hiddenMatrix = new THREE.Matrix4().makeScale(0, 0, 0);
+  for (const root of roots) {
+    root.traverse((object) => {
+      if (object instanceof THREE.InstancedMesh && Array.isArray(object.userData.instanceEntityKeys)) {
+        const keys = object.userData.instanceEntityKeys as readonly EntityKey[];
+        const matrices = object.userData.instanceBaseMatrices as readonly THREE.Matrix4[] | undefined;
+        if (!matrices) return;
+        keys.forEach((key, index) => object.setMatrixAt(index, hiddenKeys.has(key) ? hiddenMatrix : matrices[index]));
+        object.instanceMatrix.needsUpdate = true;
+        return;
+      }
+      const key = object.userData.selectionEntityKey as EntityKey | undefined;
+      if (key) object.visible = !hiddenKeys.has(key);
+    });
+  }
 }
 
 export type ViewportResourceOptions = {
@@ -294,6 +322,8 @@ export class ViewportResource {
   private pickables: THREE.Object3D[] = [];
   private pointPrimitives: readonly PointPickPrimitive[] = [];
   private modelIndex: ModelIndex | null = null;
+  private hiddenKeys: ReadonlySet<EntityKey> = new Set();
+  private actualOdRadiusByPipe: ReadonlyMap<EntityKey, number> = new Map();
   private renderOrigin: Readonly<Vec3> = Object.freeze({ x: 0, y: 0, z: 0 });
   private labelUpdater: (() => void) | null = null;
   private disposed = false;
@@ -412,6 +442,10 @@ export class ViewportResource {
     this.pointPrimitives = primitives;
   }
 
+  setActualOdRadiusByPipe(radii: ReadonlyMap<EntityKey, number>): void {
+    this.actualOdRadiusByPipe = new Map(radii);
+  }
+
   setLabelUpdater(updater: (() => void) | null): void {
     this.labelUpdater = updater;
   }
@@ -426,6 +460,15 @@ export class ViewportResource {
 
   setThemePresentation(theme: ViewportThemePresentation): void {
     applyThemePresentation(this.scene, theme);
+    this.invalidate();
+  }
+
+  setVisibilityPresentation(hiddenKeys: ReadonlySet<EntityKey>): void {
+    this.hiddenKeys = new Set(hiddenKeys);
+    applyVisibilityPresentation(
+      [this.modelLayer, this.authoredLoadLayer, this.resultLayer, this.diagnosticLayer],
+      this.hiddenKeys
+    );
     this.invalidate();
   }
 
@@ -452,7 +495,9 @@ export class ViewportResource {
         camera: this.camera,
         canvas: this.renderer.domElement,
         clientX: event.clientX,
-        clientY: event.clientY
+        clientY: event.clientY,
+        hiddenKeys: this.hiddenKeys,
+        actualOdRadiusByPipe: this.actualOdRadiusByPipe
       });
     }
     const pointer = eventNdc(this.renderer.domElement, event);
@@ -522,6 +567,8 @@ export class ViewportResource {
     this.pickables = [];
     this.pointPrimitives = [];
     this.modelIndex = null;
+    this.hiddenKeys = new Set();
+    this.actualOdRadiusByPipe = new Map();
     this.labelUpdater = null;
     this.host.replaceChildren();
     this.notifyResourceStateChange(true);

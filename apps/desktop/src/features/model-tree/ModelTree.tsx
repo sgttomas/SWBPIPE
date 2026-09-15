@@ -1,13 +1,25 @@
 import { QuantityReadout } from "../display-units";
 import { Anchor, Box, CircleDot, Circle, GitBranch, ListTree, Search, SquareStack, Table2, Waypoints, X, Zap } from "lucide-react";
 import type React from "react";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { EditorOperationIntent, EditorOperationObjectType, EntityRef, PreviewModel } from "../../types";
+import { entityKey, type EntityKey, type OrderedSelectionState, type SelectionModifiers } from "../workspace/selectionState";
+import { VirtualList } from "../workspace/VirtualList";
 
 type Props = {
   model: PreviewModel;
   selection: EntityRef;
-  onSelect: (selection: EntityRef) => void;
+  selectionState?: OrderedSelectionState;
+  density?: "comfortable" | "compact";
+  hiddenKeys?: ReadonlySet<EntityKey>;
+  projectSessionGeneration?: number;
+  onSelect: (
+    selection: EntityRef,
+    modifiers?: SelectionModifiers & { range?: boolean },
+    displayedOrder?: readonly EntityKey[]
+  ) => void;
+  onFocusChange?: (key: EntityKey | null) => void;
+  onFilterPublication?: (publication: { actionSequence: number; publicationSequence: number; query: string; visibleCount: number; publishedAt: number }) => void;
   onQueueIntent?: (intent: EditorOperationIntent) => void;
 };
 
@@ -33,18 +45,48 @@ const GRID_ENTITY_TYPES: ReadonlyArray<{ id: GridEntityType; label: string }> = 
   { id: "combinations", label: "Combinations" }
 ];
 
-export function ModelTree({ model, selection, onSelect, onQueueIntent }: Props) {
+export function ModelTree({ model, selection, selectionState, density = "comfortable", hiddenKeys = new Set(), projectSessionGeneration = 0, onSelect, onFocusChange = () => {}, onFilterPublication = () => {}, onQueueIntent }: Props) {
   const [filterText, setFilterText] = useState("");
   const [layoutMode, setLayoutMode] = useState<LayoutMode>("tree");
   const [gridEntityType, setGridEntityType] = useState<GridEntityType>(() => gridEntityTypeFromSelection(selection));
   const tree = useMemo(() => buildTree(model), [model]);
   const filteredTree = useMemo(() => filterTree(tree, filterText), [tree, filterText]);
+  const [expandedGroups, setExpandedGroups] = useState<ReadonlySet<string>>(() => new Set(
+    tree.groups.map((group) => group.title)
+  ));
+  const [focusedTreeKey, setFocusedTreeKey] = useState<string | null>(null);
+  const filterActionSequence = useRef(0);
+  const filterPublicationSequence = useRef(0);
+  const treeRows = useMemo(
+    () => flattenTreeRows(filteredTree, expandedGroups, Boolean(filterText.trim())),
+    [expandedGroups, filterText, filteredTree]
+  );
+  const effectiveFocusedTreeKey = focusedTreeKey ?? treeRows[0]?.key ?? null;
+  const focusedTreeIndex = Math.max(0, treeRows.findIndex((row) => row.key === effectiveFocusedTreeKey));
+  const displayedEntityOrder = useMemo(
+    () => treeRows.flatMap((row) => row.kind === "entity" ? [entityKey(row.item)] : []),
+    [treeRows]
+  );
+  const selectedKeys = useMemo(
+    () => new Set(selectionState?.orderedKeys ?? [entityKey(selection)]),
+    [selection.id, selection.type, selectionState]
+  );
 
   useEffect(() => {
     if (layoutMode === "grid") {
       setGridEntityType(gridEntityTypeFromSelection(selection));
     }
   }, [layoutMode, selection.id, selection.type]);
+
+  useEffect(() => {
+    onFilterPublication({
+      actionSequence: filterActionSequence.current,
+      publicationSequence: ++filterPublicationSequence.current,
+      query: filterText,
+      visibleCount: filteredTree.count,
+      publishedAt: performance.now()
+    });
+  }, [filterText, filteredTree.count, onFilterPublication]);
 
   return (
     <div className="panel model-tree" aria-label="Model tree">
@@ -73,49 +115,111 @@ export function ModelTree({ model, selection, onSelect, onQueueIntent }: Props) 
         filterText={filterText}
         filteredCount={filteredTree.count}
         totalCount={tree.count}
-        onFilterChange={setFilterText}
+        onFilterChange={(value) => { filterActionSequence.current += 1; setFilterText(value); }}
       />
       {layoutMode === "grid" ? (
         <EntityGrid
+          density={density}
           entityType={gridEntityType}
           filterText={filterText}
           model={model}
           onEntityTypeChange={setGridEntityType}
           onQueueIntent={onQueueIntent}
           onSelect={onSelect}
+          projectSessionGeneration={projectSessionGeneration}
           selection={selection}
         />
       ) : (
-        <>
-          {filteredTree.project ? (
-            <TreeButton
-              active={selection.id === model.project.id}
-              item={filteredTree.project}
-              onClick={() => onSelect({ type: "project", id: model.project.id })}
-            />
-          ) : null}
-          {filteredTree.groups.length ? (
-            filteredTree.groups.map((group) => (
-              <TreeGroup key={group.title} title={group.title}>
-                {group.items.map((item) => (
-                  <TreeButton
-                    key={item.id}
-                    active={selection.id === item.id}
-                    item={item}
-                    onClick={() => onSelect({ type: item.type, id: item.id })}
-                  />
-                ))}
-              </TreeGroup>
-            ))
-          ) : !filteredTree.project ? (
+        treeRows.length > 0 ? (
+          <VirtualList
+            activeIndex={focusedTreeIndex}
+            ariaActiveDescendant={effectiveFocusedTreeKey ? treeRowDomId(treeRows[focusedTreeIndex]) : undefined}
+            ariaLabel="Model"
+            ariaMultiselectable
+            className="model-tree-virtual"
+            height={420}
+            itemKey={(row) => row.key}
+            items={treeRows}
+            onKeyDown={(event) => handleTreeKeyDown(event, treeRows, focusedTreeIndex, (index) => {
+              const row = treeRows[index];
+              setFocusedTreeKey(row.key);
+              onFocusChange(row.kind === "entity" ? entityKey(row.item) : null);
+              if (row.kind === "group") {
+                if (event.key === "Enter" || event.key === " ") toggleExpandedGroup(row.groupKey);
+                return;
+              }
+              if (event.key === "Enter") onSelect(row.item, {}, displayedEntityOrder);
+              if (event.key === " ") onSelect(row.item, {
+                additive: event.shiftKey,
+                range: event.shiftKey,
+                toggle: event.ctrlKey || event.metaKey
+              }, displayedEntityOrder);
+            })}
+            renderItem={(row) => row.kind === "group" ? (
+              <button
+                aria-expanded={row.expanded}
+                aria-level={1}
+                aria-posinset={row.position}
+                aria-setsize={row.setSize}
+                className="tree-row tree-group-row"
+                data-testid={`tree-group-${encodeURIComponent(row.groupKey)}`}
+                id={treeRowDomId(row)}
+                onClick={(event) => {
+                  setFocusedTreeKey(row.key);
+                  onFocusChange(null);
+                  toggleExpandedGroup(row.groupKey);
+                  event.currentTarget.closest<HTMLElement>('[role="tree"]')?.focus();
+                }}
+                role="treeitem"
+                tabIndex={-1}
+                type="button"
+              >
+                <span aria-hidden="true">{row.expanded ? "▾" : "▸"}</span><strong>{row.title}</strong>
+              </button>
+            ) : (
+              <TreeButton
+                active={selectedKeys.has(entityKey(row.item))}
+                focused={effectiveFocusedTreeKey === row.key}
+                hidden={hiddenKeys.has(entityKey(row.item))}
+                item={row.item}
+                level={row.level}
+                onClick={(event) => {
+                  setFocusedTreeKey(row.key);
+                  onFocusChange(entityKey(row.item));
+                  onSelect(row.item, {
+                    additive: event.shiftKey,
+                    range: event.shiftKey,
+                    toggle: event.ctrlKey || event.metaKey
+                  }, displayedEntityOrder);
+                  event.currentTarget.closest<HTMLElement>('[role="tree"]')?.focus();
+                }}
+                position={row.position}
+                setSize={row.setSize}
+              />
+            )}
+            role="tree"
+            rowHeight={density === "compact" ? 28 : 34}
+            pinIndex={focusedTreeIndex}
+            tabIndex={0}
+            testId="model-tree-virtual"
+          />
+        ) : (
             <p className="muted" data-testid="model-tree-filter-empty">
               No model entities match this filter.
             </p>
-          ) : null}
-        </>
+        )
       )}
     </div>
   );
+
+  function toggleExpandedGroup(groupKey: string) {
+    setExpandedGroups((current) => {
+      const next = new Set(current);
+      if (next.has(groupKey)) next.delete(groupKey);
+      else next.add(groupKey);
+      return next;
+    });
+  }
 }
 
 type TreeItem = {
@@ -464,23 +568,29 @@ function matchesTreeItem(item: TreeItem, groupTitle: string, query: string): boo
     .includes(query);
 }
 
-function TreeGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="tree-group">
-      <h3>{title}</h3>
-      {children}
-    </section>
-  );
-}
-
-function TreeButton({ active, item, onClick }: { active: boolean; item: TreeItem; onClick: () => void }) {
+function TreeButton({ active, focused, hidden, item, level, onClick, position, setSize }: {
+  active: boolean;
+  focused: boolean;
+  hidden: boolean;
+  item: TreeItem;
+  level: number;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  position: number;
+  setSize: number;
+}) {
   return (
     <button
-      className={`tree-row ${active ? "active" : ""}`}
-      data-testid={`tree-row-${item.id}`}
-      aria-pressed={active}
+      className={`tree-row ${active ? "active" : ""} ${focused ? "focused" : ""} ${hidden ? "hidden-entity" : ""}`}
+      data-testid={`tree-row-${encodeURIComponent(item.type)}-${encodeURIComponent(item.id)}`}
+      id={`tree-row-${encodeURIComponent(item.type)}-${encodeURIComponent(item.id)}`}
+      aria-level={level}
+      aria-posinset={position}
+      aria-selected={active}
+      aria-setsize={setSize}
       title={`${item.label}${item.detail ? ` (${item.detail})` : ""}`}
       onClick={onClick}
+      role="treeitem"
+      tabIndex={-1}
       type="button"
     >
       {item.icon}
@@ -488,8 +598,55 @@ function TreeButton({ active, item, onClick }: { active: boolean; item: TreeItem
         <strong>{item.label}</strong>
         {item.detail ? <small>{item.detail}</small> : null}
       </span>
+      {hidden ? <span className="tree-visibility-state">Hidden</span> : null}
     </button>
   );
+}
+
+type FlatTreeRow =
+  | Readonly<{ kind: "group"; key: string; groupKey: string; title: string; expanded: boolean; position: number; setSize: number }>
+  | Readonly<{ kind: "entity"; key: string; item: TreeItem; level: number; position: number; setSize: number }>;
+
+function flattenTreeRows(tree: FilteredTreeModel, expandedGroups: ReadonlySet<string>, filtering: boolean): FlatTreeRow[] {
+  const rows: FlatTreeRow[] = [];
+  const topLevelSize = tree.groups.length + (tree.project ? 1 : 0);
+  if (tree.project) rows.push({
+    kind: "entity", key: entityKey(tree.project), item: tree.project, level: 1, position: 1, setSize: topLevelSize
+  });
+  tree.groups.forEach((group, groupIndex) => {
+    const groupKey = group.title;
+    const expanded = filtering || expandedGroups.has(group.title);
+    rows.push({
+      kind: "group", key: `group:${groupKey}`, groupKey, title: group.title, expanded,
+      position: groupIndex + (tree.project ? 2 : 1), setSize: topLevelSize
+    });
+    if (!expanded) return;
+    group.items.forEach((item, itemIndex) => rows.push({
+      kind: "entity", key: entityKey(item), item, level: 2, position: itemIndex + 1, setSize: group.items.length
+    }));
+  });
+  return rows;
+}
+
+function handleTreeKeyDown(
+  event: KeyboardEvent<HTMLDivElement>, rows: readonly FlatTreeRow[], currentIndex: number,
+  activate: (index: number) => void
+): void {
+  if (rows.length === 0) return;
+  let next = currentIndex;
+  if (event.key === "ArrowDown") next = Math.min(rows.length - 1, currentIndex + 1);
+  else if (event.key === "ArrowUp") next = Math.max(0, currentIndex - 1);
+  else if (event.key === "Home") next = 0;
+  else if (event.key === "End") next = rows.length - 1;
+  else if (event.key !== "Enter" && event.key !== " ") return;
+  activate(next);
+  event.preventDefault();
+}
+
+function treeRowDomId(row: FlatTreeRow): string {
+  return row.kind === "group"
+    ? `tree-group-${encodeURIComponent(row.groupKey)}`
+    : `tree-row-${encodeURIComponent(row.item.type)}-${encodeURIComponent(row.item.id)}`;
 }
 
 type GridColumn = {
@@ -517,14 +674,17 @@ type GridRow = {
 };
 
 function EntityGrid({
+  density,
   entityType,
   filterText,
   model,
   onEntityTypeChange,
   onQueueIntent,
   onSelect,
-  selection
+  selection,
+  projectSessionGeneration
 }: {
+  density: "comfortable" | "compact";
   entityType: GridEntityType;
   filterText: string;
   model: PreviewModel;
@@ -532,8 +692,10 @@ function EntityGrid({
   onQueueIntent?: (intent: EditorOperationIntent) => void;
   onSelect: (selection: EntityRef) => void;
   selection: EntityRef;
+  projectSessionGeneration: number;
 }) {
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [focusedGridIndex, setFocusedGridIndex] = useState<number | null>(null);
   const [queuedMessage, setQueuedMessage] = useState("");
   const rows = useMemo(() => gridRows(model, entityType), [model, entityType]);
   const columns = useMemo(() => gridColumns(model, entityType), [model, entityType]);
@@ -541,11 +703,12 @@ function EntityGrid({
   const visibleRows = query ? rows.filter((row) => row.searchText.includes(query)) : rows;
   const changedCells = changedGridCells({ columns, drafts, rows: visibleRows });
   const queueDisabled = !onQueueIntent || changedCells.length === 0;
+  const virtualGrid = visibleRows.length >= 100;
 
   useEffect(() => {
     setDrafts({});
     setQueuedMessage("");
-  }, [entityType, model.project.id]);
+  }, [entityType, projectSessionGeneration]);
 
   function updateCell(row: GridRow, column: GridColumn, value: string) {
     setDrafts((current) => {
@@ -577,7 +740,11 @@ function EntityGrid({
     setQueuedMessage(
       `Queued ${changedCells.length} review intent${changedCells.length === 1 ? "" : "s"} from Grid mode.`
     );
-    setDrafts({});
+    setDrafts((current) => {
+      const next = { ...current };
+      for (const { column, row } of changedCells) delete next[draftKey(row, column)];
+      return next;
+    });
   }
 
   return (
@@ -603,6 +770,39 @@ function EntityGrid({
         <span data-testid="entity-grid-change-count">{changedCells.length} changed cells</span>
       </div>
       <div className="entity-grid-scroll" role="region" aria-label="Editable model entity table">
+        {virtualGrid ? (
+          <div className="entity-grid-virtual-table" role="table" aria-label={`${entityType} editable grid`} data-testid={`entity-grid-table-${entityType}`}>
+            <div className="entity-grid-virtual-row header" role="row" style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}>
+              <strong role="columnheader">ID</strong>
+              {columns.map((column) => <strong role="columnheader" key={column.key}>{column.label}</strong>)}
+            </div>
+            <VirtualList
+              height={360}
+              itemKey={(row) => `${row.type}:${row.id}`}
+              items={visibleRows}
+              pinIndex={focusedGridIndex}
+              renderItem={(row, rowIndex) => (
+                <div
+                  className={`entity-grid-virtual-row${selection.type === row.type && selection.id === row.id ? " active" : ""}`}
+                  onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusedGridIndex(null); }}
+                  onFocusCapture={() => setFocusedGridIndex(rowIndex)}
+                  role="row"
+                  style={{ gridTemplateColumns: `minmax(100px, 1fr) repeat(${columns.length}, minmax(120px, 1fr))` }}
+                >
+                  <div role="rowheader"><button aria-pressed={selection.type === row.type && selection.id === row.id} data-testid={`entity-grid-row-${safeToken(row.type)}-${safeToken(row.id)}`} onClick={() => onSelect({ type: row.type, id: row.id })} type="button">{row.id}</button></div>
+                  {columns.map((column) => {
+                    const key = draftKey(row, column);
+                    const value = drafts[key] ?? column.value(row);
+                    return <div role="cell" key={column.key}>{gridCellControl(row, column, value, updateCell)}</div>;
+                  })}
+                </div>
+              )}
+              role="rowgroup"
+              rowHeight={density === "compact" ? 36 : 42}
+              testId="entity-grid-virtual-rows"
+            />
+          </div>
+        ) : (
         <table data-testid={`entity-grid-table-${entityType}`}>
           <thead>
             <tr>
@@ -657,6 +857,7 @@ function EntityGrid({
             ))}
           </tbody>
         </table>
+        )}
         {visibleRows.length === 0 ? (
           <p className="muted" data-testid="entity-grid-empty">
             No grid rows match this filter.
@@ -694,6 +895,26 @@ function EntityGrid({
       ) : null}
     </section>
   );
+}
+
+function gridCellControl(
+  row: GridRow,
+  column: GridColumn,
+  value: string,
+  onChange: (row: GridRow, column: GridColumn, value: string) => void
+): React.ReactNode {
+  if (gridCellReadonly(column, row)) {
+    return <span data-testid={`entity-grid-cell-${safeToken(row.id)}-${safeToken(column.key)}`}>
+      {column.quantity ? <QuantityReadout quantity={{ value: numericGridValue(column.value(row)), unit: column.unit(row), dimension_id: column.dimension }} /> : value}
+    </span>;
+  }
+  if (column.options) {
+    return <select aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} value={value} onChange={(event) => onChange(row, column, event.target.value)}>
+      {!column.options.includes(value) ? <option value={value} disabled>{value} (existing)</option> : null}
+      {column.options.map((option) => <option key={option} value={option}>{option}</option>)}
+    </select>;
+  }
+  return <input aria-label={`${row.id} ${column.label}`} data-testid={`entity-grid-input-${safeToken(row.id)}-${safeToken(column.key)}`} onChange={(event) => onChange(row, column, event.target.value)} value={value} />;
 }
 
 function gridRows(model: PreviewModel, entityType: GridEntityType): GridRow[] {

@@ -4,17 +4,18 @@ export function defaultSelection(model: PreviewModel): EntityRef {
   return { type: "project", id: model.project.id };
 }
 
-export function entityLabel(model: PreviewModel, id: string): string {
-  const entity =
-    model.materials?.find((item) => item.id === id) ??
-    model.sections?.find((item) => item.id === id) ??
-    model.nodes.find((item) => item.id === id) ??
-    model.pipe_segments.find((item) => item.id === id) ??
-    model.supports.find((item) => item.id === id) ??
-    model.components.find((item) => item.id === id) ??
-    model.load_cases.find((item) => item.id === id) ??
-    model.combinations?.find((item) => item.id === id);
-  return entityDisplayLabel(entity) ?? id;
+export function entityLabel(model: PreviewModel, selection: EntityRef): string {
+  if (selection.type === "project") return model.project.name || model.project.id;
+  let entity: { label?: string; name?: string } | undefined;
+  if (selection.type === "material") entity = model.materials?.find((item) => item.id === selection.id);
+  else if (selection.type === "section") entity = model.sections?.find((item) => item.id === selection.id);
+  else if (selection.type === "node") entity = model.nodes.find((item) => item.id === selection.id);
+  else if (selection.type === "pipe") entity = model.pipe_segments.find((item) => item.id === selection.id);
+  else if (selection.type === "support") entity = model.supports.find((item) => item.id === selection.id);
+  else if (selection.type === "component") entity = model.components.find((item) => item.id === selection.id);
+  else if (selection.type === "load") entity = model.load_cases.find((item) => item.id === selection.id);
+  else if (selection.type === "combination") entity = model.combinations?.find((item) => item.id === selection.id);
+  return entityDisplayLabel(entity) ?? selection.id;
 }
 
 export type PropertyQuantity = { value: number | string; unit: string; dimension_id: string; label?: string };
@@ -40,7 +41,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Professional acceptance", model.analysis_status.professional_acceptance]
     ];
   }
-  const material = model.materials?.find((item) => item.id === selection.id);
+  const material = selection.type === "material" ? model.materials?.find((item) => item.id === selection.id) : null;
   if (material) {
     return [
       ["ID", material.id],
@@ -55,7 +56,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Provenance", material.provenance]
     ];
   }
-  const section = model.sections?.find((item) => item.id === selection.id);
+  const section = selection.type === "section" ? model.sections?.find((item) => item.id === selection.id) : null;
   if (section) {
     return [
       ["ID", section.id],
@@ -66,7 +67,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Provenance", provenanceDisplay(section.provenance)]
     ];
   }
-  const node = model.nodes.find((item) => item.id === selection.id);
+  const node = selection.type === "node" ? model.nodes.find((item) => item.id === selection.id) : null;
   if (node) {
     return [
       ["ID", node.id],
@@ -75,7 +76,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Provenance", node.provenance]
     ];
   }
-  const pipe = model.pipe_segments.find((item) => item.id === selection.id);
+  const pipe = selection.type === "pipe" ? model.pipe_segments.find((item) => item.id === selection.id) : null;
   if (pipe) {
     return [
       ["ID", pipe.id],
@@ -93,7 +94,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
       ["Provenance", pipe.provenance]
     ];
   }
-  const support = model.supports.find((item) => item.id === selection.id);
+  const support = selection.type === "support" ? model.supports.find((item) => item.id === selection.id) : null;
   if (support) {
     const rows: Array<[string, PropertyValue]> = [
       ["ID", support.id],
@@ -131,7 +132,7 @@ function selectedPropertyValues(model: PreviewModel, selection: EntityRef): Arra
     rows.push(["Provenance", support.provenance]);
     return rows;
   }
-  const component = model.components.find((item) => item.id === selection.id);
+  const component = selection.type === "component" ? model.components.find((item) => item.id === selection.id) : null;
   if (component) {
     const rows: Array<[string, PropertyValue]> = [
       ["ID", component.id],

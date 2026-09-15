@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 import {
+  clearUiDiagnosticsPublisher,
   UI_DIAGNOSTICS_SCHEMA,
   publishUiDiagnostics,
   publishUiModelAssignmentStarted,
@@ -98,7 +99,7 @@ function ownedCounts(overrides: Partial<Record<string, number>> = {}) {
 }
 
 describe("UI diagnostics attachment", () => {
-  it("installs the exact immutable global without sampling before first demand", () => {
+  it("installs the exact immutable global and materializes a settled publisher on first demand", () => {
     const factory = vi.fn(publication);
     publishUiDiagnostics(factory);
     expect(factory).not.toHaveBeenCalled();
@@ -109,6 +110,11 @@ describe("UI diagnostics attachment", () => {
     ]);
     expect(globalThis.__openPipeStressUiDiagnosticsV1.schema).toBe(UI_DIAGNOSTICS_SCHEMA);
     expect(Object.isFrozen(globalThis.__openPipeStressUiDiagnosticsV1)).toBe(true);
+    const first = globalThis.__openPipeStressUiDiagnosticsV1.readCurrent();
+    expect(factory).toHaveBeenCalledTimes(1);
+    expect(first.model.generation).toBe(4);
+    expect(first.viewport).not.toEqual({ status: "unavailable" });
+    clearUiDiagnosticsPublisher();
   });
 
   it("returns a recursively frozen idle snapshot, then replaces one bounded current snapshot", () => {

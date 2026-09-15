@@ -7,6 +7,8 @@ export type SelectionModifiers = {
   toggle?: boolean;
 };
 
+export type BoxSelectionModifiers = SelectionModifiers;
+
 export type OrderedSelectionState = Readonly<{
   orderedKeys: readonly EntityKey[];
   primaryKey: EntityKey | null;
@@ -119,6 +121,48 @@ export function applyDisplayedRange(
     orderedKeys.push(key);
   }
   return replaceSelection(current, orderedKeys, hitKey, anchor);
+}
+
+/** Applies one completed box gesture as one immutable selection publication. */
+export function applyBoxSelection(
+  current: OrderedSelectionState,
+  hitKeys: readonly EntityKey[],
+  modifiers: BoxSelectionModifiers = {}
+): OrderedSelectionState {
+  const hits = [...new Set(hitKeys)].filter((key) => entityRefFromKey(key)?.type !== "project");
+  const existing = current.orderedKeys.filter((key) => entityRefFromKey(key)?.type !== "project");
+  if ((modifiers.toggle || modifiers.additive) && hits.length === 0) return current;
+
+  if (!modifiers.toggle && !modifiers.additive) {
+    return replaceSelection(current, hits, hits.at(-1) ?? null, hits.at(-1) ?? null);
+  }
+
+  const orderedKeys = [...existing];
+  const membership = new Set(orderedKeys);
+  let primaryKey = current.primaryKey && membership.has(current.primaryKey)
+    ? current.primaryKey
+    : orderedKeys.at(-1) ?? null;
+
+  for (const key of hits) {
+    if (modifiers.toggle) {
+      if (membership.delete(key)) {
+        const index = orderedKeys.indexOf(key);
+        if (index >= 0) orderedKeys.splice(index, 1);
+        if (primaryKey === key) primaryKey = orderedKeys.at(-1) ?? null;
+      } else {
+        membership.add(key);
+        orderedKeys.push(key);
+        primaryKey = key;
+      }
+      continue;
+    }
+    if (!membership.has(key)) {
+      membership.add(key);
+      orderedKeys.push(key);
+    }
+    primaryKey = key;
+  }
+  return replaceSelection(current, orderedKeys, primaryKey, hits.at(-1) ?? current.rangeAnchorKey);
 }
 
 export function setSelectionFocus(

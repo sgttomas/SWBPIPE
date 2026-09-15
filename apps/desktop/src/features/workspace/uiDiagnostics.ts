@@ -195,6 +195,9 @@ let demanded = false;
 let snapshotSequence = 0;
 let currentSnapshot: UiDiagnosticsSnapshot = idleSnapshot();
 let currentProjection: UiProjectionContext | null = null;
+let latestSnapshotFactory: (() => UiDiagnosticsPublication) | null = null;
+let latestProjectionFactory: (() => UiProjectionContext) | null = null;
+let projectionAvailable = false;
 
 export function hasUiDiagnosticsObserver(): boolean {
   return demanded;
@@ -224,18 +227,42 @@ export function publishUiDiagnostics(
   snapshotFactory: () => UiDiagnosticsPublication,
   projectionFactory?: () => UiProjectionContext
 ): void {
+  latestSnapshotFactory = snapshotFactory;
+  latestProjectionFactory = projectionFactory ?? null;
+  projectionAvailable = Boolean(projectionFactory);
   if (!demanded) return;
+  materializeCurrentPublisher();
+}
+
+export function refreshUiDiagnostics(includeProjection = true): void {
+  projectionAvailable = includeProjection;
+  if (demanded) materializeCurrentPublisher();
+}
+
+/** Clears only the current product-owned read publisher during viewport teardown. */
+export function clearUiDiagnosticsPublisher(): void {
+  latestSnapshotFactory = null;
+  latestProjectionFactory = null;
+  projectionAvailable = false;
+  currentProjection = null;
+  const idle = idleSnapshot();
+  currentSnapshot = deepFreeze({ ...idle, snapshotSequence: ++snapshotSequence, capturedAt: performance.now() });
+}
+
+function materializeCurrentPublisher(): void {
+  if (!latestSnapshotFactory) return;
   currentSnapshot = deepFreeze({
-    ...snapshotFactory(),
+    ...latestSnapshotFactory(),
     schema: UI_DIAGNOSTICS_SCHEMA,
     snapshotSequence: ++snapshotSequence,
     capturedAt: performance.now()
   });
-  currentProjection = projectionFactory ? deepFreeze(projectionFactory()) : null;
+  currentProjection = projectionAvailable && latestProjectionFactory ? deepFreeze(latestProjectionFactory()) : null;
 }
 
 function readCurrent(): UiDiagnosticsSnapshot {
   demanded = true;
+  materializeCurrentPublisher();
   return deepFreeze(structuredClone(currentSnapshot));
 }
 

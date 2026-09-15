@@ -3436,3 +3436,77 @@ body { min-width: 760px; min-height: 540px; }
 .status-pill > summary { cursor: pointer; display: flex; gap: 4px; align-items: center; }
 .status-pill[open] > div { position: absolute; bottom: 30px; left: 0; z-index: 30; min-width: 210px; max-width: 340px; padding: 10px; border: 1px solid #c8d0cb; border-radius: 5px; background: #fff; box-shadow: 0 -4px 20px #162d3026; }
 .status-pill[open] > div > strong, .status-pill[open] code { display: block; white-space: normal; overflow-wrap: anywhere; }
+
+/* Frozen workspace tokens. */
+.app-shell {
+  --ui-bg: #f3f5f6; --ui-surface: #fff; --ui-raised: #e8edf0; --ui-canvas: #dfe5e8;
+  --ui-text: #182026; --ui-muted: #52606d; --ui-divider: #aebbc2; --ui-border: #71838d;
+  --ui-accent: #086f75; --ui-accent-text: #fff; --ui-selection: #c5eef0; --ui-selection-text: #102a2e;
+  --ui-focus: #005fcc; --ui-disabled: #e1e6e9; --ui-disabled-text: #667680;
+  color: var(--ui-text); background: var(--ui-bg);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 14px; line-height: 1.4;
+}
+.app-shell[data-theme="dark"] {
+  --ui-bg: #10161a; --ui-surface: #182026; --ui-raised: #22303a; --ui-canvas: #0c1114;
+  --ui-text: #f2f6f8; --ui-muted: #b6c4cc; --ui-divider: #4f606a; --ui-border: #70828c;
+  --ui-accent: #65d1d4; --ui-accent-text: #071315; --ui-selection: #164e52; --ui-selection-text: #eaffff;
+  --ui-focus: #8ab4ff; --ui-disabled: #253038; --ui-disabled-text: #9baab2;
+}
+.app-shell[data-density="compact"] { font-size: 13px; }
+.app-shell .workspace-toolbar, .app-shell .workspace-pane, .app-shell .workspace-dock,
+.app-shell .panel, .app-shell .viewport-toolbar, .app-shell .command-bar,
+.app-shell .workspace-dock-body, .app-shell .operation-tabs { color: var(--ui-text); background: var(--ui-surface); border-color: var(--ui-divider); }
+.app-shell input, .app-shell select, .app-shell textarea, .app-shell button {
+  color: var(--ui-text); background-color: var(--ui-surface); border-color: var(--ui-border);
+}
+.app-shell button[aria-pressed="true"], .app-shell .tree-row[aria-selected="true"] {
+  color: var(--ui-selection-text); background: var(--ui-selection); border-inline-start: 3px solid var(--ui-accent);
+}
+.app-shell button:disabled, .app-shell input:disabled, .app-shell select:disabled {
+  color: var(--ui-disabled-text); background: var(--ui-disabled);
+}
+.app-shell :focus-visible { outline: 2px solid var(--ui-focus); outline-offset: 2px; }
+.app-shell[data-density="comfortable"] button, .app-shell[data-density="comfortable"] select,
+.app-shell[data-density="comfortable"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 32px; }
+.app-shell[data-density="compact"] button, .app-shell[data-density="compact"] select,
+.app-shell[data-density="compact"] input:not([type="checkbox"]):not([type="radio"]) { min-height: 28px; }
+.modeling-workspace { --pane-tree-col: var(--workspace-left-rail, 280px); --pane-inspector-col: var(--workspace-right-rail, 340px); }
+.model-tree-virtual { min-height: 0; max-height: 100%; border-block: 1px solid var(--ui-divider); }
+.tree-row { width: 100%; min-width: 0; border: 0; border-bottom: 1px solid var(--ui-divider); border-radius: 0; }
+.tree-row.hidden-entity { opacity: .7; text-decoration: line-through; }
+.tree-visibility-state { margin-left: auto; color: var(--ui-muted); font-size: .78em; text-decoration: none; }
+.viewport-selection-tools, .viewport-geometry-tools { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; }
+.viewport-selection-tools button, .viewport-selection-tools select, .viewport-geometry-tools button { min-height: 28px; padding: 3px 6px; font-size: 11px; }
+.viewport-box-rect { position: absolute; z-index: 9; pointer-events: none; border: 1px solid var(--ui-focus); background: color-mix(in srgb, var(--ui-selection) 35%, transparent); }
+.box-select-active .viewport-selection-layer { pointer-events: none; }
+.box-select-active canvas { cursor: crosshair; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+.virtual-target-picker { display: grid; gap: 6px; min-width: 0; }
+.virtual-target-picker input { width: 100%; min-width: 0; }
+.virtual-target-picker-list { border: 1px solid var(--ui-divider); border-radius: 4px; background: var(--ui-surface); }
+.virtual-target-picker-option { width: 100%; justify-content: flex-start; border: 0; border-bottom: 1px solid var(--ui-divider); border-radius: 0; text-align: left; }
+.entity-grid-virtual-table { min-width: max-content; border: 1px solid var(--ui-divider); }
+.entity-grid-virtual-row { display: grid; min-width: max-content; border-bottom: 1px solid var(--ui-divider); }
+.entity-grid-virtual-row > * { min-width: 0; padding: 4px 6px; border-right: 1px solid var(--ui-divider); overflow: hidden; }
+.entity-grid-virtual-row input, .entity-grid-virtual-row select { width: 100%; min-width: 0; }
+.entity-grid-virtual-row.header { position: sticky; top: 0; z-index: 2; background: var(--ui-raised); }
+
+@media (max-width: 1279px) {
+  body { min-width: 0; }
+  .modeling-workspace, .modeling-workspace:not(.tree-collapsed):not(.inspector-collapsed) { grid-template-columns: minmax(0, 1fr); position: relative; }
+  .workspace-pane-viewport { grid-column: 1; }
+  .workspace-pane-tree, .workspace-pane-inspector { position: absolute; z-index: 45; top: 0; bottom: 0; width: min(390px, calc(100vw - 48px)); box-shadow: 0 8px 28px rgb(0 0 0 / 28%); }
+  .workspace-pane-tree { left: 0; }
+  .workspace-pane-inspector { right: 0; }
+  .modeling-workspace.tree-collapsed .workspace-pane-tree { width: 40px; overflow: hidden; box-shadow: none; }
+  .modeling-workspace.inspector-collapsed .workspace-pane-inspector { width: 40px; overflow: hidden; box-shadow: none; }
+  .modeling-workspace.tree-collapsed .workspace-pane-tree > :not(.workspace-pane-toggle),
+  .modeling-workspace.inspector-collapsed .workspace-pane-inspector > :not(.workspace-pane-toggle) { display: none; }
+  .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr) minmax(250px, 34vw); }
+}
+@media (max-width: 899px) {
+  .viewport-shell:has(.viewport-intents.active) { grid-template-columns: minmax(0, 1fr); }
+  .viewport-intents.active { position: absolute; z-index: 40; right: 0; top: 70px; bottom: 0; width: min(360px, calc(100vw - 48px)); border: 1px solid var(--ui-divider); }
+  .workspace-toolbar { overflow-x: auto; }
+}
