@@ -1,0 +1,8 @@
+{
+  "recorded_utc": "2026-09-15T01:54:16.139363+00:00",
+  "stage": "bundle_preservation",
+  "status": "REJECTED_BEFORE_EXECUTION",
+  "reason": "command contained disallowed recursive cleanup operation",
+  "filesystem_effect": false,
+  "recovery": "repeat to confirmed-new destination without cleanup"
+}

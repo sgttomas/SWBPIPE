@@ -6,6 +6,7 @@ import type { AnalysisRunEnvelope, MechanicsResult, PreviewModel, ResultBasisRef
 import { buildExportUnitSystemDisclosure, unitDisclosureSummary } from "../exportUnitDisclosure";
 
 const STRESS_NEUTRAL_EXPORT_VERSION = "0.2.0";
+const STRESS_NEUTRAL_EXPORT_PROFILE = "ops.stress_neutral.v2";
 const HASH_STATUS_TBD = "TBD_browser_preview_does_not_emit_canonical_package_hash";
 const SCHEMA_VALIDATION_STATUS = "desktop_preview_shape_aligned_not_runtime_json_schema_validated";
 const CSV_COLUMNS = [
@@ -77,10 +78,20 @@ export function StressNeutralExportPanel({
   analysisRun: AnalysisRunEnvelope | null;
 }) {
   const [packet, setPacket] = useState<Awaited<ReturnType<typeof buildStressNeutralExportPacket>> | null>(null);
+  const [binding, setBinding] = useState<object[] | null>(null);
+  const currentPacket = binding?.[0] === model && binding?.[1] === result && binding?.[2] === analysisRun
+    ? packet
+    : null;
   useEffect(() => {
     let current = true;
     setPacket(null);
-    if (result && analysisRun) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => { if (current) setPacket(built); }).catch(() => { if (current) setPacket(null); });
+    setBinding(null);
+    if (result && analysisRun) buildStressNeutralExportPacket({ model, result, analysisRun }).then((built) => {
+      if (current) {
+        setPacket(built);
+        setBinding([model, result, analysisRun]);
+      }
+    }).catch(() => { if (current) { setPacket(null); setBinding(null); } });
     return () => { current = false; };
   }, [model, result, analysisRun]);
   return (
@@ -93,14 +104,16 @@ export function StressNeutralExportPanel({
         <FileJson size={16} aria-hidden="true" />
         Stress-neutral CSV/JSON
       </div>
-      {packet ? (
+      {currentPacket ? (
         <>
           <div className="report-actions">
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-export-link"
-              download={`openpipestress-preview-stress-neutral-${safeFileToken(packet.source_result_ref.ref)}.json`}
-              href={jsonDataHref(packet)}
+              nativeCurrentBinding={binding}
+              download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.json`}
+              href={jsonDataHref(currentPacket)}
+              validateDecodedPayload={validateStressNeutralExportPacket}
             >
               <Download size={14} aria-hidden="true" />
               Package JSON
@@ -108,43 +121,43 @@ export function StressNeutralExportPanel({
         <ControlledExportLink
               className="report-export-link"
               data-testid="stress-neutral-csv-link"
-              download={`openpipestress-preview-stress-neutral-${safeFileToken(packet.source_result_ref.ref)}.csv`}
-              href={csvDataHref(packet.csv_text)}
+              download={`openpipestress-preview-stress-neutral-${safeFileToken(currentPacket.source_result_ref.ref)}.csv`}
+              href={csvDataHref(currentPacket.csv_text)}
             >
               <Download size={14} aria-hidden="true" />
               CSV
         </ControlledExportLink>
             <span data-testid="stress-neutral-summary">
-              available; rows={packet.result_rows.length}; csv_columns={packet.export_profile.csv_columns.length};
-              diagnostics={packet.diagnostics.length}
+              available; rows={currentPacket.result_rows.length}; csv_columns={currentPacket.export_profile.csv_columns.length};
+              diagnostics={currentPacket.diagnostics.length}
             </span>
           </div>
           <div className="report-list" data-testid="stress-neutral-body">
             <StressNeutralLine
               label="Format"
-              value={`${packet.export_profile.target_family}; profile=${packet.export_profile.profile_id}; schema=${packet.validation_report.schema_validation_status}`}
+              value={`${currentPacket.export_profile.target_family}; profile=${currentPacket.export_profile.profile_id}; schema=${currentPacket.schema_version}`}
               testId="stress-neutral-format"
             />
             <StressNeutralLine
               label="State binding"
-              value={`${packet.source_model_ref.ref}; ${packet.source_run_ref.ref}; ${packet.source_result_ref.ref}`}
+              value={`${currentPacket.source_model_ref.ref}; ${currentPacket.source_run_ref.ref}; ${currentPacket.source_result_ref.ref}`}
               testId="stress-neutral-state-binding"
             />
             <StressNeutralLine
               label="Units"
-              value={`${unitCount(packet)} explicit units; dimensions=${dimensionSummary(
-                packet
-              )}; ${unitDisclosureSummary(packet.unit_system_disclosure)}`}
+              value={`${unitCount(currentPacket)} explicit units; dimensions=${dimensionSummary(
+                currentPacket
+              )}; ${unitDisclosureSummary(currentPacket.unit_system_disclosure)}`}
               testId="stress-neutral-units"
             />
             <StressNeutralLine
               label="Unit witnesses"
-              value={`count=${packet.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
+              value={`count=${currentPacket.unit_preservation_witnesses.length}; policy=preserve_source_result_units; conversion=false`}
               testId="stress-neutral-unit-witnesses"
             />
             <StressNeutralLine
               label="Package"
-              value={`members=${packet.manifest.package_members.length}; stable_ids=${packet.stable_id_map.length}; loss_entries=${packet.loss_report.length}; validation=${packet.validation_report.validation_status}; package_hash=checked`}
+              value={`members=${currentPacket.manifest.package_members.length}; stable_ids=${currentPacket.stable_id_map.length}; loss_entries=${currentPacket.loss_report.length}; validation=${currentPacket.validation_report.validation_status}; package_hash=checked`}
               testId="stress-neutral-package"
             />
             <StressNeutralLine
@@ -380,6 +393,14 @@ function strictManifestSeed(packet: any, checksums: any[]) {
 
 export async function buildStressNeutralExportPacket(args: { model: PreviewModel; result: MechanicsResult; analysisRun: AnalysisRunEnvelope }) {
   const legacy = buildStressNeutralExportPacketV01(args);
+  const strictBoundaryNotes = legacy.boundary_notes.filter((note) =>
+    !note.includes("does not emit canonical package member hashes")
+  );
+  const withheldDiagnostics = args.result.results.flatMap((source, sourceRowIndex) => semanticCategory(source) === "diagnostic_work" ? [{
+    code: "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK", class: "unit_preservation_witness", severity: "info",
+    source: reference("StressNeutralResultRow", source.id), affected_object: reference("StressNeutralUnitWitness", `unit-witness:${sourceRowIndex}`),
+    message: "Diagnostic work evidence is retained as a row but has no physical unit-preservation witness.", remediation: "Review diagnostic work separately from physical quantity witnesses.", provenance: previewProvenance(),
+  }] : []);
   const packet: any = {
     schema_version: STRESS_NEUTRAL_EXPORT_VERSION,
     deliverable_id: "DEL-17-06", package_id: "PKG-17", scope_items: ["SOW-046", "SOW-074"], objectives: ["OBJ-007", "OBJ-017", "OBJ-018"],
@@ -387,14 +408,14 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
     validation_ready: !legacy.diagnostics.some((item) => item.severity === "blocking"),
     source_result_ref: legacy.source_result_ref, source_run_ref: legacy.source_run_ref, source_model_ref: legacy.source_model_ref,
     received_source_checksums: structuredClone(args.analysisRun.analysis_run.hashes),
-    unresolved_assumption_refs: [], reproducibility_refs: [legacy.source_run_ref], export_profile: { ...legacy.export_profile, profile_version: "0.2.0", boundary_notes: legacy.boundary_notes, source_basis_refs: [legacy.source_run_ref] },
-    manifest: { manifest_id: legacy.manifest.manifest_id, export_profile_ref: reference("StressNeutralExportProfile", legacy.export_profile.profile_id), boundary_notes: legacy.boundary_notes, package_members: [] as any[], checksums: [] as any[] },
+    unresolved_assumption_refs: [], reproducibility_refs: [legacy.source_run_ref], export_profile: { ...legacy.export_profile, profile_id: STRESS_NEUTRAL_EXPORT_PROFILE, profile_version: STRESS_NEUTRAL_EXPORT_VERSION, boundary_notes: strictBoundaryNotes, source_basis_refs: [legacy.source_run_ref] },
+    manifest: { manifest_id: legacy.manifest.manifest_id, export_profile_ref: reference("StressNeutralExportProfile", STRESS_NEUTRAL_EXPORT_PROFILE), boundary_notes: strictBoundaryNotes, package_members: [] as any[], checksums: [] as any[] },
     csv_text: legacy.csv_text, result_rows: legacy.result_rows, unit_system_disclosure: legacy.unit_system_disclosure,
     unit_preservation_witnesses: legacy.unit_preservation_witnesses.map((witness) => ({ witness_id: witness.witness_id, source_row_index: legacy.result_rows.findIndex((row) => row.result_id === witness.source_result_ref.ref), result_id: witness.source_result_ref.ref, source_quantity: witness.source_quantity, target_quantity: witness.target_quantity, conversion_performed: false, policy: "preserve_received_value_and_unit" })),
     stable_id_map: legacy.stable_id_map.map(({ canonical_ref, export_ref, mapping_status, loss_category, provenance }) => ({ canonical_ref, export_ref, mapping_status, loss_category, provenance })),
     loss_report: legacy.loss_report.entries.map((entry) => ({ loss_id: entry.loss_id, category: entry.category, severity: entry.severity, affected_refs: [entry.affected_ref], target_artifact_ref: reference("StressNeutralExportPackage", legacy.export_id), reason: entry.reason, source_basis_ref: reference("Deliverable", "DEL-17-06"), downstream_implication: entry.downstream_implication, human_review_required: true, provenance: previewProvenance() })),
     validation_report: { validation_status: legacy.validation_report.validation_status, checks: legacy.validation_report.checks.map((check) => ({ check_id: check.check_id, check_status: check.status, blocking_count: check.blocking ? 1 : 0, diagnostic_count: 0, provenance: previewProvenance() })), human_review_required: true, provenance: previewProvenance() },
-    diagnostics: legacy.diagnostics.map((item) => ({ code: item.code, class: item.class ?? "stress_neutral_export", severity: item.severity, source: item.source ?? reference("StressNeutralExportPackage", legacy.export_id), affected_object: item.affected_object ?? ("affected_ref" in item ? item.affected_ref : undefined) ?? reference("StressNeutralExportPackage", legacy.export_id), message: item.message, remediation: item.remediation ?? "Review stress-neutral handoff evidence before use.", provenance: item.provenance })),
+    diagnostics: [...legacy.diagnostics.filter((item) => item.code !== "SN-DESKTOP-PREVIEW-HASH-TBD").map((item) => ({ code: item.code, class: item.class ?? "stress_neutral_export", severity: item.severity, source: item.source ?? reference("StressNeutralExportPackage", legacy.export_id), affected_object: item.affected_object ?? ("affected_ref" in item ? item.affected_ref : undefined) ?? reference("StressNeutralExportPackage", legacy.export_id), message: item.message, remediation: item.remediation ?? "Review stress-neutral handoff evidence before use.", provenance: item.provenance })), ...withheldDiagnostics],
     privacy: { classification: legacy.privacy.privacy_classification, commercial_tool_payload_embedded: false, local_only: true, private_payload_embedded: false, protected_payload_embedded: false, redaction_refs: [], telemetry_allowed: false },
     provenance: previewProvenance(),
     professional_boundary: { human_review_required: true, supports_review: true, supports_regression_comparison_input: true, supports_downstream_tooling: true, software_makes_release_claim: false, software_makes_external_compatibility_claim: false, software_makes_solver_validation_claim: false, software_makes_compliance_claim: false, software_makes_certification_claim: false, software_makes_sealing_claim: false, software_makes_approval_claim: false, software_creates_professional_reliance_record: false },
@@ -420,8 +441,27 @@ export async function buildStressNeutralExportPacket(args: { model: PreviewModel
 }
 
 export async function validateStressNeutralExportPacket(packet: any): Promise<void> {
-  if (packet.schema_version !== "0.2.0" || packet.manifest.package_members.length !== 9 || packet.manifest.checksums.length !== 9) throw new Error("SN-STRICT-INVENTORY-MISMATCH");
-  if (JSON.stringify(packet.manifest.package_members.map((item: any) => item.filename)) !== JSON.stringify(STRICT_MEMBER_NAMES)) throw new Error("SN-MEMBER-ORDER-MISMATCH");
+  if (packet.schema_version !== "0.2.0" || !Array.isArray(packet.manifest?.package_members) || !Array.isArray(packet.manifest?.checksums) || packet.manifest.package_members.length !== 9 || packet.manifest.checksums.length !== 9) throw new Error("SN-STRICT-INVENTORY-MISMATCH");
+  if (packet.schema_conformant !== true) throw new Error("SN-SCHEMA-CONFORMANCE-CLAIM-INVALID");
+  if (packet.export_profile?.profile_id !== STRESS_NEUTRAL_EXPORT_PROFILE || packet.export_profile?.profile_version !== STRESS_NEUTRAL_EXPORT_VERSION
+    || packet.manifest?.export_profile_ref?.object_type !== "StressNeutralExportProfile" || packet.manifest?.export_profile_ref?.ref !== STRESS_NEUTRAL_EXPORT_PROFILE) throw new Error("SN-PROFILE-IDENTITY-MISMATCH");
+  const exactNames = [...STRICT_MEMBER_NAMES];
+  const memberNames = packet.manifest.package_members.map((item: any) => item.filename);
+  const checksumNames = packet.manifest.checksums.map((item: any) => item?.payload_ref?.ref);
+  if (JSON.stringify(memberNames) !== JSON.stringify(exactNames)) throw new Error("SN-MEMBER-ORDER-MISMATCH");
+  if (new Set(memberNames).size !== 9 || new Set(checksumNames).size !== 9 || exactNames.some((name) => !checksumNames.includes(name))) throw new Error("SN-MEMBER-CHECKSUM-BIJECTION-MISMATCH");
+  const metadata = (filename: string) => filename === "manifest.json"
+    ? ["sha256", "openpipestress_jcs_ijson_v1", "manifest_seed", "StressNeutralMember", filename]
+    : filename.endsWith(".csv")
+      ? ["sha256", "normalized_ascii_lf_text", "member_bytes", "StressNeutralMember", filename]
+      : ["sha256", "openpipestress_jcs_ijson_v1", "member_payload", "StressNeutralMember", filename];
+  for (const [index, filename] of exactNames.entries()) {
+    const claim = packet.manifest.checksums.find((item: any) => item?.payload_ref?.ref === filename);
+    if (!claim || JSON.stringify([claim.algorithm, claim.canonicalization, claim.payload_scope, claim.payload_ref?.object_type, claim.payload_ref?.ref]) !== JSON.stringify(metadata(filename))) throw new Error(`SN-CHECKSUM-METADATA-MISMATCH: ${filename}`);
+    if (packet.manifest.package_members[index]?.filename !== filename || JSON.stringify(packet.manifest.package_members[index]?.checksum) !== JSON.stringify(claim)) throw new Error(`SN-MEMBER-CHECKSUM-BINDING-MISMATCH: ${filename}`);
+  }
+  const packageMetadata = [packet.package_checksum?.algorithm, packet.package_checksum?.canonicalization, packet.package_checksum?.payload_scope, packet.package_checksum?.payload_ref?.object_type, packet.package_checksum?.payload_ref?.ref];
+  if (JSON.stringify(packageMetadata) !== JSON.stringify(["sha256", "openpipestress_jcs_ijson_v1", "complete_package_excluding_self_checksum", "StressNeutralExportPackage", packet.export_id])) throw new Error("SN-PACKAGE-CHECKSUM-METADATA-MISMATCH");
   const received = new Set(packet.received_source_checksums.map((item: any) => JSON.stringify(item)));
   if (packet.manifest.checksums.some((item: any) => received.has(JSON.stringify(item)))) throw new Error("SN-RECEIVED-CHECKSUM-RELABEL");
   const payloads: Record<string, unknown> = { "stress_neutral_results.csv": packet.csv_text, "result_rows.json": packet.result_rows, "unit_system_disclosure.json": packet.unit_system_disclosure, "unit_preservation_witnesses.json": packet.unit_preservation_witnesses, "stable_id_map.json": packet.stable_id_map, "loss_report.json": packet.loss_report, "validation_report.json": packet.validation_report, "diagnostics.json": packet.diagnostics };
@@ -432,6 +472,39 @@ export async function validateStressNeutralExportPacket(packet: any): Promise<vo
   }
   const manifest = packet.manifest.checksums.find((item: any) => item.payload_ref.ref === "manifest.json");
   if (!manifest || manifest.value !== await canonicalSha256HexCheckedV1(strictManifestSeed(packet, nonManifest))) throw new Error("SN-MANIFEST-SEED-CHECKSUM-MISMATCH");
+  const rows = packet.result_rows;
+  if (!Array.isArray(rows) || new Set(rows.map((row: any) => row?.result_id)).size !== rows.length
+    || rows.some((row: any) => typeof row?.result_id !== "string" || row?.canonical_ref?.ref !== row.result_id || row?.source_result_ref?.ref !== row.result_id)) throw new Error("SN-RESULT-ROW-IDENTITY-MISMATCH");
+  if (packet.csv_text !== renderCsv(rows)) throw new Error("SN-CSV-ROW-BINDING-MISMATCH");
+  if (!Array.isArray(packet.stable_id_map) || packet.stable_id_map.length !== rows.length
+    || new Set(packet.stable_id_map.map((item: any) => item?.canonical_ref?.ref)).size !== rows.length
+    || new Set(packet.stable_id_map.map((item: any) => item?.export_ref?.ref)).size !== rows.length
+    || packet.stable_id_map.some((item: any) => !rows.some((row: any) => row.result_id === item?.canonical_ref?.ref)
+      || item?.mapping_status !== "mapped" || item?.loss_category !== "exported")) throw new Error("SN-STABLE-ID-MAP-BINDING-MISMATCH");
+  if (!packet.received_source_checksums.some((item: any) => JSON.stringify(item.payload_ref) === JSON.stringify(packet.source_result_ref))) throw new Error("SN-SOURCE-RESULT-REF-UNBOUND");
+  if (!packet.reproducibility_refs.some((item: any) => JSON.stringify(item) === JSON.stringify(packet.source_run_ref))) throw new Error("SN-SOURCE-RUN-REF-UNBOUND");
+  const seenWitnesses = new Set<string>();
+  for (const witness of packet.unit_preservation_witnesses) {
+    const row = rows[witness.source_row_index];
+    if (!row || seenWitnesses.has(witness.result_id) || witness.result_id !== row.result_id || JSON.stringify(witness.source_quantity) !== JSON.stringify({ value: row.value, unit: row.unit, dimension: row.dimension }) || JSON.stringify(witness.target_quantity) !== JSON.stringify(witness.source_quantity) || witness.conversion_performed !== false || witness.policy !== "preserve_received_value_and_unit") throw new Error("SN-UNIT-WITNESS-BINDING-MISMATCH");
+    seenWitnesses.add(witness.result_id);
+  }
+  for (const entry of packet.loss_report) if (entry.target_artifact_ref?.ref !== packet.export_id || entry.human_review_required !== true) throw new Error("SN-LOSS-REPORT-BINDING-MISMATCH");
+  const diagnosticWorkIds = new Set(rows.filter((row: any) => !seenWitnesses.has(row.result_id)).map((row: any) => row.result_id));
+  const withheldIds = new Set(packet.diagnostics.filter((item: any) => item.code === "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK").map((item: any) => item.source?.ref));
+  if (diagnosticWorkIds.size !== withheldIds.size || [...diagnosticWorkIds].some((id) => !withheldIds.has(id))) throw new Error("SN-DIAGNOSTIC-WORK-FINDING-MISMATCH");
+  const blockingDiagnostics = packet.diagnostics.filter((item: any) => item.severity === "blocking").length;
+  const checks = packet.validation_report?.checks;
+  const checksConsistent = Array.isArray(checks) && checks.every((check: any) => Number.isSafeInteger(check.blocking_count) && check.blocking_count >= 0
+    && ((check.check_status === "blocking" && check.blocking_count > 0) || (check.check_status === "passed" && check.blocking_count === 0)));
+  if (!checksConsistent || packet.validation_report?.validation_status !== (blockingDiagnostics > 0 ? "blocked" : "passed")
+    || checks.some((check: any) => check.check_status === "blocking") !== (blockingDiagnostics > 0)
+    || packet.validation_ready !== (blockingDiagnostics === 0)) throw new Error("SN-VALIDATION-STATUS-BINDING-MISMATCH");
+  const privacy = packet.privacy;
+  if (!privacy || privacy.local_only !== true || privacy.commercial_tool_payload_embedded !== false || privacy.private_payload_embedded !== false
+    || privacy.protected_payload_embedded !== false || privacy.telemetry_allowed !== false) throw new Error("SN-PRIVACY-BOUNDARY-VIOLATION");
+  const boundary = packet.professional_boundary;
+  if (!boundary || boundary.human_review_required !== true || ["software_makes_release_claim", "software_makes_external_compatibility_claim", "software_makes_solver_validation_claim", "software_makes_compliance_claim", "software_makes_certification_claim", "software_makes_sealing_claim", "software_makes_approval_claim", "software_creates_professional_reliance_record"].some((key) => boundary[key] !== false)) throw new Error("SN-PROFESSIONAL-BOUNDARY-VIOLATION");
   const projection = structuredClone(packet); delete projection.package_checksum;
   if (packet.package_checksum.value !== await canonicalSha256HexCheckedV1(projection)) throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH");
 }

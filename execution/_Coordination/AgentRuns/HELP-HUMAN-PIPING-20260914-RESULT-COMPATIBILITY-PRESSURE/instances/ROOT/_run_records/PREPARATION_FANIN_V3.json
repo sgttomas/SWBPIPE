@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "accepted_by": "HELP_HUMAN Agent 0",
+  "at_utc": "2026-09-15T02:39:30.438831+00:00",
+  "candidate": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "records": [
+    {
+      "name": "native_v4",
+      "owning_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/_run_records/HASH_MANIFEST_V4.json",
+      "sha256": "ca38129a7266d4bd97d366bfcabd5093f36fe4eb9386f7e6eace28e301f52c3d",
+      "files_verified": 10,
+      "verdict": "PREPARATION_ACCEPTED_ONLY"
+    },
+    {
+      "name": "closeout_portability_v2",
+      "owning_manifest": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/PORTABILITY_AUDIT_V2/MANIFEST.json",
+      "sha256": "afb6f481e4e4840f75f5ec5a34dae9004ea83473e3ab43d89cdcf89afa1510ec",
+      "files_verified": 5,
+      "verdict": "PREPARATION_ACCEPTED_ONLY"
+    }
+  ],
+  "native_conditions": [
+    "No final candidate or execution lease released.",
+    "Final source API names and hashes must be bound at execution; preparation files do not prove runtime.",
+    "Actual 059 output and full sixty signature union remain required.",
+    "Composition, Python materialization, native/browser delivery and legacy verification are separate evidence classes.",
+    "Migration repair must pass first-save/reopen without a recovery solve."
+  ],
+  "portability_conditions": [
+    "Draft has not changed project policy.",
+    "Revalidate hashes and role/completion status at final freeze; preserve sealed evidence bytes.",
+    "Active controls need portable successors; historical exceptions cannot authorize future machine-specific paths."
+  ]
+}

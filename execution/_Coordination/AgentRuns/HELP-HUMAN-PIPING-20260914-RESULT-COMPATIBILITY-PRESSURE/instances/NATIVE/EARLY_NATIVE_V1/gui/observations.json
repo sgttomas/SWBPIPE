@@ -1,0 +1,98 @@
+{
+  "schema": "early-native-gui-observations-v1",
+  "capture_method": "cua_repl native accessibility tree and inline screenshots in the task transcript",
+  "application": {
+    "product_name": "OpenPipeStress Foundation Early 20260914",
+    "bundle_identifier": "org.openpipestress.foundation-early-20260914",
+    "bound_app": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress Foundation Early 20260914.app",
+    "synthetic_only": true
+  },
+  "observations": [
+    {
+      "phase": "launch_1_initial",
+      "pid": 48752,
+      "visible_model": "Invented Utility Loop Preview",
+      "project_id": "project:invented-loop-01",
+      "store_status": "Local project store not opened.",
+      "privacy": "bundled invented public synthetic model; no user/private input"
+    },
+    {
+      "phase": "create_local",
+      "ui_confirmation": "Created local SQLite project snapshot without external file copies."
+    },
+    {
+      "phase": "first_actual_native_solve",
+      "ui_state": "completed",
+      "mechanics": "MECHANICS_SOLVED",
+      "row_count": 830,
+      "diagnostic_count": 32,
+      "warning_count": 12,
+      "blocking_error_count": 0,
+      "solver_mode": "sparse_interactive",
+      "seam": "tauri backend job",
+      "model_identity": "match",
+      "generation": 4,
+      "job": "backend-solve-job-1",
+      "model_sha256": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "input_manifest_sha256": "e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+    },
+    {
+      "phase": "first_current_results",
+      "designation": "Current",
+      "visible_result_rows": 830,
+      "current_browser": "analysis_run=run:preview-linear-static-001; comparison=comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT; result_rows=830",
+      "deformation": "normalized"
+    },
+    {
+      "phase": "first_save",
+      "ui_confirmation": "Saved current project model snapshot without external file copies."
+    },
+    {
+      "phase": "normal_quit_1_and_relaunch",
+      "old_pid": 48752,
+      "old_pid_absent": true,
+      "new_pid": 50089,
+      "store": "same isolated store",
+      "bound_app": "same exact bound bundle"
+    },
+    {
+      "phase": "restored_historical",
+      "designation": "HISTORICAL SAVED RUN",
+      "run_id": "run:preview-linear-static-001",
+      "mechanics": "MECHANICS_SOLVED",
+      "visible_result_rows": 830,
+      "ui_boundary": "Historical results cannot drive current overlays, rule checks, comparisons or report readiness.",
+      "current_browser": "analysis_run=not generated; comparison=not generated; result_rows=0",
+      "deformation": "unavailable",
+      "findings": [
+        "HISTORICAL_INPUT_MANIFEST_MISSING",
+        "HISTORICAL_MODEL_HASH_MISMATCH",
+        "HISTORICAL_ENVELOPE_HASH_MISMATCH"
+      ]
+    },
+    {
+      "phase": "unchanged_save",
+      "ui_confirmation": "Saved current project model snapshot without external file copies.",
+      "payload_field_preservation": "11 of 11 exact; see validation/unchanged_save_preservation.json"
+    },
+    {
+      "phase": "fresh_actual_native_solve",
+      "ui_state": "completed",
+      "mechanics": "MECHANICS_SOLVED",
+      "row_count": 830,
+      "seam": "tauri backend job",
+      "model_identity": "match",
+      "generation": 6,
+      "job": "backend-solve-job-1",
+      "model_sha256": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "input_manifest_sha256": "94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0",
+      "current_browser": "analysis_run=run:preview-linear-static-001; comparison=comparison:run:preview-linear-static-001:load-L-100-to-combination-C-OPER-ALT; result_rows=830",
+      "mechanics_content_exact_equal_to_first": true
+    },
+    {
+      "phase": "final_normal_quit",
+      "pid": 50089,
+      "process_gone": true
+    }
+  ]
+}

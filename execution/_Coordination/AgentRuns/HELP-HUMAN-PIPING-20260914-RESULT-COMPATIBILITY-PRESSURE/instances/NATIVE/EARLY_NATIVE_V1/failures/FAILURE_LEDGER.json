@@ -1,0 +1,37 @@
+{
+  "schema": "early-native-failure-ledger-v1",
+  "resolved_attempts": [
+    {
+      "attempt": "bundle copy using a destructive pre-clean command",
+      "result": "tool policy rejected before execution",
+      "effect": "none",
+      "evidence": "failures/bundle_copy_attempt_01.json",
+      "resolution": "copied the fresh bundle with ditto to the new bound destination"
+    },
+    {
+      "attempt": "process proof using substring match",
+      "result": "validator also matched its own argument string",
+      "effect": "read-only only",
+      "evidence": "failures/process_probe_attempt_01.json",
+      "resolution": "matched exact command suffix and proved old PID absent/new PID present"
+    },
+    {
+      "attempt": "call app.getElement after context compaction",
+      "result": "TypeError: app.getElement is not a function",
+      "effect": "none",
+      "resolution": "restored CUA documentation and used app.click with fresh accessibility indices"
+    },
+    {
+      "attempt": "guessed window zoom secondary action on the window element",
+      "result": "CUA rejected because that element did not expose the guessed action",
+      "effect": "none",
+      "resolution": "no zoom was needed; continued from full accessibility state"
+    }
+  ],
+  "unresolved": [
+    {
+      "finding_id": "EARLY-NATIVE-INTEGRITY-001",
+      "evidence": "validation/EARLY_NATIVE_INTEGRITY_FINDING_V1.json"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "version": 7,
+  "status": "FINAL_RELEASED_EXACT_FENCE_WITH_STRESS_SUCCESSOR_IDENTITY",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "prior_exact_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V6.json",
+    "sha256": "33cb372713b6ab76ae59b2e704f3b5c6eb9fc2abc10f66bca13bdc7809dfc730"
+  },
+  "contract_identity_refinement": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/STRESS_SUCCESSOR_PROFILE_IDENTITY_V1.json",
+    "sha256": "28cab5d3484668bab901388d31ffaeff549b4e8f8465e96b96a51b3fba94e4db"
+  },
+  "final_fence_definition": "The exact final product/test write fence remains the set defined by WRITE_SCOPE_RELEASED_V6.json. This additive release changes no paths and binds the accepted 0.2 stress successor identity.",
+  "successor_identity_contract": {
+    "stock_profile_id": "ops.stress_neutral.v2",
+    "profile_version": "0.2.0",
+    "requirement": "Both desktop and Python 0.2 producers and all manifest profile references agree on this identity.",
+    "custom_metadata": "If the 0.2 constructor accepts explicit custom profile metadata, accept only internally consistent successor identity claims and reject contradictions.",
+    "legacy": "Preserve every 0.1 profile default, claim, byte fixture and behavior."
+  },
+  "writer_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/**",
+  "manager_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/**",
+  "permissions": "Source and focused existing-artifact checks only. Root holds exclusive native build/GUI lease."
+}

@@ -1,0 +1,16 @@
+{
+  "schema": "root-contract-interpretation-v1",
+  "created_utc": "2026-09-15T01:58:37.846Z",
+  "status": "ACCEPTED_BOUNDED_0_2_CONTRACT_IDENTITY",
+  "authority": "Approved strict stress-neutral 0.2 successor and D67 versioned contract amendment; routine Agent 0 integration decision",
+  "decision": "Use ops.stress_neutral.v2 and profile_version 0.2.0 for the stock new 0.2 export profile in both desktop and Python. All emitted profile references must name that same profile. Retain the 0.1 profile and producer bytes/behavior.",
+  "rationale": "The strict successor changes the package/checksum/member contract. Mixed v1 identifiers and inconsistent Python/desktop profile versions make producer identity misleading. A distinct v2 stock profile states the actual contract without modifying history.",
+  "constraints": [
+    "No change to received historical profile metadata or legacy 0.1 producer defaults.",
+    "Reference object types and identities must follow the accepted successor schema consistently.",
+    "If explicit custom profile metadata is accepted by the new constructor, validate it as a consistent declared successor profile; reject contradictions rather than silently relabeling received or caller-provided claims.",
+    "New stock profile, manifest references, validation and checksum/tamper expectations must agree. Any changed derived checksum is recomputed under the new record revision.",
+    "Implementation and focused tests remain within the released exact compatibility fence; no new registry or public transport is introduced."
+  ],
+  "evidence": "Final desktop/Python actual emitted packages and independent package validator must agree on the stock successor identity and preserve legacy fixtures."
+}

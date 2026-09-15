@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "at_utc": "2026-09-15T02:59:39.646696+00:00",
+  "failure_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_AFTER_DISPOSITION_V1.json",
+  "failure_sha256": "07cd8459492db2a21bee11811252df24f4f275578c762386f0c3b05e5a1e0bf1",
+  "correction": "Add required role=CONTROL to the two new completed-native-control exceptions. No classified source bytes or rule semantics changed.",
+  "paths": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_CONSUMER_PREPARATION_V4.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_SIGNATURE_COVERAGE_PREPARATION.md"
+  ],
+  "policy_before_sha256": "dcf596080a9eb22a4437f1099d21d314d90917c841bea035aaf367274a9a31c5",
+  "policy_after_sha256": "0d26894f45b7ac98836b58255098a1c5835235eba83de15e912e24645c070d78"
+}

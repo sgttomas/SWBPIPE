@@ -1,0 +1,32 @@
+{
+  "artifact": "openpipestress.final_native_consumer_preparation_context_v4",
+  "schema_version": "1.0.0",
+  "status": "PREPARATION_ONLY",
+  "brief": {"path":"briefs/FINAL_NATIVE_CONSUMER_PREPARATION_V4.md","sha256":"4690f79e2afce405306a64be04fbdb97f2cc65594036b4627690a79d2ad1b415"},
+  "final_candidate": {"status":"UNRELEASED","source_commit":"UNRELEASED","source_tree_sha256":"UNRELEASED"},
+  "accepted_inputs": [
+    {"path":"instances/NATIVE/NATIVE_QUALIFICATION_PROCEDURE_V1.md","sha256":"ddb5f92ef50eed2c66358262886e3c889c0742c1e69a75a6d3c9a397699430d8"},
+    {"path":"instances/NATIVE/FROZEN_SYNTHETIC_EXPECTATIONS_V1.json","sha256":"5c60f51fbb50c92405f1b13392e58e765d12c717df0202c26744fc8bf6a78f65"},
+    {"path":"instances/NATIVE/EARLY_NATIVE_V1/validation/validate_stored_analysis.py","sha256":"9fc8d5c257ca2d1f65709ee2eb4ec44cbf5394be52096d7739999aa441644c0c","reuse":"path-and-hash; not copied"},
+    {"path":"instances/NATIVE/_run_records/SIGNATURE_PREPARATION_V2/INPUT_MAP_V2.json","sha256":"ac684961017b5b7a94932162cc2cab5268308a145f5a39d34b739dd1c0eb8868"},
+    {"path":"instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/EXECUTION_MAP_V3.json","sha256":"b9e7f7dc9b2e2afd9f7fcd01137a91f4d789fb97f7e71f33aa574fd134c492bb"},
+    {"path":"instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/EXPECTED_SIGNATURES_V3.json","sha256":"184cbf7a27b0a3f01aaf80dbfb97df0c528fb8edfdc51c511b045d75fc77d9f6"},
+    {"path":"instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/verify_declared_signatures.py","sha256":"9aa61bbcea88a851d638b87da8655f7ebdddc8ae781cfb14ad8fedd4ee9af870","reuse":"path-and-hash; not copied"},
+    {"path":"instances/ROOT/_run_records/NATIVE_PREPARATION_ACCEPTANCE.json","sha256":"452be6ef90bad915ee4a94c9ea934227cf2baedc8285d897c8c7a6772435396f"},
+    {"path":"instances/ROOT/_run_records/CLOSEOUT_PREPARATION_ADDENDUM_V2.json","sha256":"6966dbe6624b4e250fa138d525a1661e7fa86a2caa205c618098c446d3ad1c7d"},
+    {"path":"instances/ROOT/_run_records/NATIVE_MIGRATION_INTEGRITY_REPAIR_FENCE_V1.json","sha256":"3382d193c7888bb398693734ec892a92a003b184ced43b56b19cab13a493a5d5"},
+    {"path":"instances/MIGRATION_DIAGNOSIS_V1/REPORT.md","sha256":"f82e8342ad5a8eaee144a4452eb43c09007cc9ea8b40594e35bcdf66c7d426fb"},
+    {"path":"instances/MIGRATION_DIAGNOSIS_V1/RETURN.json","sha256":"ca94e8a1eb567fa37c55070d7f34199b45f456afe7bb694bf4b6407b560d2c64"}
+  ],
+  "provisional_method_context": [
+    {"path":"apps/desktop/src/services/analysisRunCompatibility.ts","sha256":"0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1"},
+    {"path":"apps/desktop/src/services/inputManifestService.ts","sha256":"7fee1a96e3fb66b6658d5562d9c50d2d26fe8a3eb5d0f0a2e4be459f30021cf3"},
+    {"path":"apps/desktop/src/features/result-export/resultExportAdapter.ts","sha256":"a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf"},
+    {"path":"apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx","sha256":"57688be08d4f803e5d57603d7537f678f64ccfd6c9e3f1a7e832c46eca32a5cb"},
+    {"path":"core/analysis_runs/compatibility.py","sha256":"5b191695c32495c633d21ec74a2ec95aede27b56f6521069a328f0e386575dd7"},
+    {"path":"core/handoff/stress_neutral/package_v0_2.py","sha256":"7fe73d9606af0201662a2e410ced854d763d92b8e06afe792a0a9db8f5997784"}
+  ],
+  "provisional_context_warning": "These hashes were read from the compatibility worktree solely to prepare method-compatible helpers. They are not final candidate bindings and confer no acceptance.",
+  "actions": {"performed":["source/evidence reads","local SHA-256","evidence-local helper and instruction writes","Python syntax compilation only"],"not_performed":["product import or execution","test","build","GUI/browser/native store","network","Git","product source/schema/fixture edit","delegation"]},
+  "write_scope": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/**"
+}

@@ -1,0 +1,64 @@
+{
+  "method": "Independent Python standard-library JSON field comparison and SHA-256 of already captured text; no product code or canonicalizer executed. Exact text digests below match the separately captured WASM witness for this fixture only; not a generic JCS implementation claim.",
+  "model_changed_top_keys_vs_bundled_fixture": [
+    "schema_version"
+  ],
+  "model_equal_to_fresh_save": true,
+  "stored_text_sha256": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+  "version_token_occurrences": 1,
+  "version_only_reversal_text_sha256": "b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+  "received_model_claim": {
+    "algorithm": "sha256",
+    "canonicalization": "rfc8785_jcs",
+    "hash_status": "computed_local_preview",
+    "payload_ref": "project:invented-loop-01",
+    "payload_scope": "model_payload",
+    "value": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+  },
+  "migration_ledger_records": [
+    {
+      "applied_migration_ids": [
+        "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+      ],
+      "destructive_rewrite": false,
+      "migration_framework": "application_service_separate_db_and_product_schema",
+      "post_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "pre_migration_model_hash": "not_previously_stored",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_compliance_claim": false
+      },
+      "record_kind": "model_document_migration_ledger_record",
+      "recorded_at_unix": 1789437330,
+      "source_schema_version": "0.1.0",
+      "target_schema_version": "0.2.0",
+      "trigger": "migrate_in_memory_on_open_persisted_on_save"
+    },
+    {
+      "applied_migration_ids": [
+        "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"
+      ],
+      "destructive_rewrite": false,
+      "migration_framework": "application_service_separate_db_and_product_schema",
+      "post_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "pre_migration_model_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "professional_boundary": {
+        "human_review_required": true,
+        "software_makes_approval_claim": false,
+        "software_makes_compliance_claim": false
+      },
+      "record_kind": "model_document_migration_ledger_record",
+      "recorded_at_unix": 1789437484,
+      "source_schema_version": "0.1.0",
+      "target_schema_version": "0.2.0",
+      "trigger": "migrate_in_memory_on_open_persisted_on_save"
+    }
+  ],
+  "changed_first_to_fresh_fields": [
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "updated_at_unix"
+  ]
+}

@@ -17,6 +17,7 @@ type RouteBinding = {
   lossless?: boolean;
   knownPrivateScalar?: boolean;
   exactCanonicalPayload?: boolean;
+  requiresDecodedPayloadValidation?: boolean;
 };
 
 const TEST_ID_BINDINGS: Record<string, RouteBinding> = {
@@ -36,7 +37,13 @@ const TEST_ID_BINDINGS: Record<string, RouteBinding> = {
   "pcf-text-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true },
   "caepipe-mbf-export-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool" },
   "caepipe-mbf-text-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true },
-  "stress-neutral-export-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool" },
+  "stress-neutral-export-link": {
+    routeId: "DOTH-FORMAT-003",
+    context: "local_private",
+    lossless: true,
+    exactCanonicalPayload: true,
+    requiresDecodedPayloadValidation: true
+  },
   "stress-neutral-csv-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true },
   "review-geometry-export-link": { routeId: "DOTH-FORMAT-003", context: "downstream_tool", lossless: true }
 };
@@ -63,10 +70,11 @@ type Props = Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> & {
   href: string;
   children: ReactNode;
   nativeCurrentBinding?: object | null;
+  validateDecodedPayload?: (payload: unknown) => Promise<void>;
   "data-testid"?: string;
 };
 
-export function ControlledExportLink({ href, children, nativeCurrentBinding, ...anchorProps }: Props) {
+export function ControlledExportLink({ href, children, nativeCurrentBinding, validateDecodedPayload, ...anchorProps }: Props) {
   const testId = String(anchorProps["data-testid"] ?? "controlled-export-link");
   const binding = routeBindingForTestId(testId);
   const [explicitIntent, setExplicitIntent] = useState(false);
@@ -100,11 +108,37 @@ export function ControlledExportLink({ href, children, nativeCurrentBinding, ...
       ? controlled.payload.value
       : controlled.payload;
   const exactPayload = !binding.exactCanonicalPayload || sameDecodedJson(controlledPayload, decoded.payload);
+  const [decodedValidation, setDecodedValidation] = useState<{
+    href: string;
+    outcome: "pending" | "valid" | "invalid";
+  } | null>(null);
+  useEffect(() => {
+    if (!binding.requiresDecodedPayloadValidation) {
+      setDecodedValidation(null);
+      return;
+    }
+    if (!validateDecodedPayload || !decoded.isJson) {
+      setDecodedValidation({ href, outcome: "invalid" });
+      return;
+    }
+    let current = true;
+    setDecodedValidation({ href, outcome: "pending" });
+    Promise.resolve(validateDecodedPayload(decoded.payload)).then(
+      () => { if (current) setDecodedValidation({ href, outcome: "valid" }); },
+      () => { if (current) setDecodedValidation({ href, outcome: "invalid" }); }
+    );
+    return () => { current = false; };
+  }, [binding.requiresDecodedPayloadValidation, decoded.isJson, decoded.payload, href, validateDecodedPayload]);
+  const decodedPayloadValid = !binding.requiresDecodedPayloadValidation || (
+    decodedValidation?.href === href && decodedValidation.outcome === "valid"
+  );
   const canonicalIntentMissing = Boolean(binding.exactCanonicalPayload && !explicitIntent);
-  const exposureBlocked = controlled.blocked || canonicalIntentMissing || !exactPayload;
+  const exposureBlocked = controlled.blocked || canonicalIntentMissing || !exactPayload || !decodedPayloadValid;
   const exposureReason = canonicalIntentMissing ? "LOCAL_PRIVATE_INTENT_REQUIRED" : controlled.blocked
     ? controlled.summary.local_first?.reason_code ?? "EXPORT_POLICY_BLOCKED"
-    : !exactPayload ? "CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED" : null;
+    : !exactPayload ? "CANONICAL_PAYLOAD_MATERIALIZATION_CHANGED"
+    : !decodedPayloadValid && decodedValidation?.outcome === "pending" ? "PAYLOAD_VALIDATION_PENDING"
+    : !decodedPayloadValid ? "PAYLOAD_VALIDATION_FAILED" : null;
   const controlledHref = exposureBlocked ? undefined : binding.exactCanonicalPayload
     ? href // original serialized canonical document; never rehash a redacted derivative
     : encodeDataHref(controlledPayload, decoded.mediaType, decoded.isJson);

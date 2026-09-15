@@ -1,0 +1,37 @@
+{
+  "schema": "root-pre-freeze-acceptance-routing-v2",
+  "status": "ROUTED_FOR_FINAL_QUALIFICATION",
+  "created_utc": "2026-09-15T02:00:32.412Z",
+  "basis_commit": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "owner": "/root/foundation_compatibility",
+  "checks": [
+    {
+      "id": "C13_CONTROLLED_BROWSER_DELIVERY",
+      "paths": [
+        "apps/desktop/e2e/result-compatibility.spec.ts",
+        "apps/desktop/e2e/result-compatibility-dist.spec.ts"
+      ],
+      "observation": "Checkpoint specs request result/stress hrefs before explicit private intent; the actual exact canonical route withholds by default.",
+      "required": "Default-withheld, explicit-intent and actual strict delivered payload, with async completion/source replacement guards. Execute only after native lease release."
+    },
+    {
+      "id": "C14_CHECKED_CROSS_LANGUAGE_VECTORS",
+      "paths": [
+        "apps/desktop/src/services/analysisRunCompatibility.test.ts",
+        "tests/test_checked_canonical_json_adapter.py",
+        "core/serialization/canonical_json/tests/checked_profile.rs"
+      ],
+      "observation": "Checkpoint contains simple complete-record fixture and single checked Unicode vector; accepted contract calls for a broader checked transport parity set.",
+      "required": "Run accepted canonical_hash/cases.json vectors through checked Rust/WASM/Python entry points, expecting exact bytes/SHA for eligible vectors and rejection for unsafe integrals. Cover escaping, 1/1.0, negative zero, safe exponent transitions, duplicate keys and malformed Unicode without falling back or overwriting older authority fixtures."
+    },
+    {
+      "id": "C15_APP_REGRESSION_CLOSURE",
+      "paths": [
+        "apps/desktop/src/App.test.tsx"
+      ],
+      "observation": "Early analysis checkpoint selected only three App tests while shared Current/result APIs changed.",
+      "required": "Run the complete App suite after current stress/current-binding changes with existing artifacts and bounded workers before final broad sweep. Retain failed attempts and route source fixes."
+    }
+  ],
+  "restrictions": "No additional product paths authorized by this record. Existing writer fence applies; any new maintained fixture requires an exact additive release. This is routing and verification preparation, not final source review or acceptance."
+}

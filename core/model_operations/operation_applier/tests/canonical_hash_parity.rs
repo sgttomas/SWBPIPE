@@ -15,12 +15,40 @@
 //! would erase what the corpus exists to pin.
 
 use open_pipe_stress_operation_applier::{canonical_json, sha256_hex};
+use open_pipe_stress_canonical_json::canonical_json_checked_v1_text;
 use serde_json::Value;
 use std::fs;
 use std::path::PathBuf;
 
 fn fixture_path() -> PathBuf {
     PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../../fixtures/canonical_hash/cases.json")
+}
+
+#[test]
+fn checked_ijson_corpus_matches_native_engine() {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../../fixtures/canonical_hash/cases.json");
+    let corpus: Value = serde_json::from_str(&fs::read_to_string(path).expect("checked corpus must exist"))
+        .expect("checked corpus must be valid JSON");
+    let supported = ["scalar-string-unicode", "number-negative-zero-renders-zero", "number-ecma-notation-boundaries", "number-beyond-2-53-integer-kept-exact"];
+    for case in corpus["cases"].as_array().expect("cases").iter().filter(|case| supported.contains(&case["case_id"].as_str().unwrap_or(""))) {
+        let case_id = case["case_id"].as_str().expect("case_id");
+        let input = case["input_json"].as_str().expect("input_json");
+        let actual = canonical_json_checked_v1_text(input);
+        if ["number-beyond-2-53-integer-kept-exact", "number-ecma-notation-boundaries"].contains(&case_id) {
+            assert!(actual.unwrap_err().contains("UNSAFE"), "case {case_id}");
+        } else {
+            let canonical = actual.unwrap_or_else(|error| panic!("case {case_id}: {error}"));
+            assert_eq!(canonical, case["expected_canonical"].as_str().expect("expected_canonical"), "case {case_id}");
+            assert_eq!(sha256_hex(&canonical), case["expected_sha256"].as_str().expect("expected_sha256"), "case {case_id}");
+        }
+    }
+    let canonical = canonical_json_checked_v1_text("[1,1.0]").expect("inline 1/1.0 case");
+    assert_eq!(canonical, "[1,1]");
+    assert_eq!(sha256_hex(&canonical), "e61b9f584dbe27741cef6e9ee440831d7d94470c0871b0871541f0308916efea");
+    let canonical = canonical_json_checked_v1_text("[1e-6,1e-7]").expect("inline safe exponent case");
+    assert_eq!(canonical, "[0.000001,1e-7]");
+    assert_eq!(sha256_hex(&canonical), "19ca01c5d07894d9ce68294ad32b64d9c2a851c244ae8010e0a2b8a26f3734a0");
 }
 
 #[test]

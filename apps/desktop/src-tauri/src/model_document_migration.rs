@@ -239,8 +239,9 @@ pub fn migration_ledger_record(
     pre_migration_model_hash: &str,
     post_migration_model_hash: &str,
     recorded_at_unix: i64,
+    hash_evidence: Option<Value>,
 ) -> Value {
-    json!({
+    let mut record = json!({
         "record_kind": "model_document_migration_ledger_record",
         "recorded_at_unix": recorded_at_unix,
         "source_schema_version": status.source_schema_version,
@@ -256,7 +257,14 @@ pub fn migration_ledger_record(
             "software_makes_compliance_claim": false,
             "software_makes_approval_claim": false,
         },
-    })
+    });
+    if let Some(hash_evidence) = hash_evidence {
+        record
+            .as_object_mut()
+            .expect("ledger record is an object")
+            .insert("hash_evidence".to_string(), hash_evidence);
+    }
+    record
 }
 
 #[cfg(test)]
@@ -411,7 +419,13 @@ mod tests {
     #[test]
     fn ledger_records_carry_pre_and_post_hashes_and_no_claims() {
         let evaluated = evaluate_model_document(&document("0.0.9"), &test_chain());
-        let record = migration_ledger_record(&evaluated.status, "sha256:pre", "sha256:post", 1234);
+        let record = migration_ledger_record(
+            &evaluated.status,
+            "sha256:pre",
+            "sha256:post",
+            1234,
+            None,
+        );
         assert_eq!(record["pre_migration_model_hash"], json!("sha256:pre"));
         assert_eq!(record["post_migration_model_hash"], json!("sha256:post"));
         assert_eq!(record["source_schema_version"], json!("0.0.9"));
@@ -424,5 +438,24 @@ mod tests {
             record["professional_boundary"]["software_makes_compliance_claim"],
             json!(false)
         );
+        assert!(record.get("hash_evidence").is_none());
+    }
+
+    #[test]
+    fn new_ledger_records_preserve_optional_hash_evidence_without_changing_old_shape() {
+        let evaluated = evaluate_model_document(&document("0.1.0"), &model_document_migrations());
+        let evidence = json!({
+            "schema": "model_migration_hash_evidence_v1",
+            "received": { "model_hash": "malformed-raw-value" },
+            "received_claim_verification": "not_asserted"
+        });
+        let record = migration_ledger_record(
+            &evaluated.status,
+            "sha256:actual-pre",
+            "sha256:actual-post",
+            1234,
+            Some(evidence.clone()),
+        );
+        assert_eq!(record["hash_evidence"], evidence);
     }
 }

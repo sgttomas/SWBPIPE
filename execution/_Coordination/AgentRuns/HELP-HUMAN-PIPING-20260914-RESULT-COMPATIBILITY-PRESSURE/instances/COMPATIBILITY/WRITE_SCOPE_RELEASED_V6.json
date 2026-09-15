@@ -1,0 +1,35 @@
+{
+  "version": 6,
+  "status": "FINAL_RELEASED_EXACT_FENCE_WITH_PAIRED_NATIVE_STRESS_JSON_ADMISSION",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "prior_exact_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V5.json",
+    "sha256": "7461c0ae7cce3b1af620cc27c6cd3be4cc972b3380ab31ea626da1cd087d5e0b"
+  },
+  "native_admission_extension": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_STRESS_JSON_ADMISSION_FENCE_V1.json",
+    "sha256": "f1896064b4210187299cab3d8f120a569fd8f3356be08a7c293ccd1ab2c7ae23"
+  },
+  "additional_exact_product_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs"
+  ],
+  "final_fence_definition": "The exact final product/test write fence is the set union defined by WRITE_SCOPE_RELEASED_V5.json and the three literal additional paths listed here. No glob, directory or inferred adjacent path is authorized.",
+  "paired_admission_contract": {
+    "existing_result_profile": {
+      "route_id": "DOTH-JSON-001",
+      "file_name_family": "openpipestress-preview-results-*.json"
+    },
+    "stress_neutral_profile": {
+      "route_id": "DOTH-FORMAT-003",
+      "file_name_family": "openpipestress-preview-stress-neutral-*.json"
+    },
+    "common_requirements": "local_private, explicit intent, lossless, exact-payload, zero blocking, no withheld materialization, matching local-first evidence, exact bytes, create-new and containment safeguards",
+    "negative_requirement": "Reject cross-paired route/name combinations and malformed names; receipts and typed partial-filename cleanup stay within the exact requested family."
+  },
+  "transport_constraint": "Use the existing save_local_result_json wire request/receipt and command without new fields or public operation.",
+  "writer_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/**",
+  "manager_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/**",
+  "permissions": "Source and focused existing-artifact checks only. Root holds the exclusive native build/GUI lease; no native/WASM/desktop build or browser execution until explicit release."
+}

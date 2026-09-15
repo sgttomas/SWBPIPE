@@ -171,6 +171,143 @@ describe("ControlledExportLink", () => {
   });
 });
 
+describe("strict stress-neutral JSON delivery", () => {
+  const packet = {
+    schema_version: "0.2.0",
+    package_checksum: { value: "checked-package-hash" },
+    private_payload_included: false,
+    protected_content_included: false
+  };
+  const hrefFor = (value: unknown) =>
+    `data:application/json;charset=utf-8,${encodeURIComponent(JSON.stringify(value, null, 2))}`;
+
+  it("keeps DOTH-FORMAT-003 and exposes the exact href only after intent and async validation", async () => {
+    let finish!: () => void;
+    const validation = new Promise<void>((resolve) => { finish = resolve; });
+    const validate = vi.fn(() => validation);
+    const href = hrefFor(packet);
+    render(
+      <ControlledExportLink
+        data-testid="stress-neutral-export-link"
+        download="openpipestress-preview-stress-neutral-result-run-1.json"
+        href={href}
+        validateDecodedPayload={validate}
+      >
+        Stress package
+      </ControlledExportLink>
+    );
+    expect(routeBindingForTestId("stress-neutral-export-link")).toMatchObject({
+      routeId: "DOTH-FORMAT-003",
+      context: "local_private",
+      lossless: true,
+      exactCanonicalPayload: true,
+      requiresDecodedPayloadValidation: true
+    });
+    expect(validate).toHaveBeenCalledWith(packet);
+    expect(screen.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+    fireEvent.click(screen.getByTestId("stress-neutral-export-link-local-private-intent"));
+    expect(screen.getByTestId("stress-neutral-export-link-canonical-block-reason")).toHaveTextContent(
+      "PAYLOAD_VALIDATION_PENDING"
+    );
+    await act(async () => { finish(); });
+    expect(screen.getByRole("link", { name: "Stress package" })).toHaveAttribute("href", href);
+  });
+
+  it("withholds covered-field tamper and policy-blocked private metadata", async () => {
+    const tampered = { ...packet, package_checksum: { value: "tampered" } };
+    const view = render(
+      <ControlledExportLink
+        data-testid="stress-neutral-export-link"
+        href={hrefFor(tampered)}
+        validateDecodedPayload={async () => { throw new Error("SN-PACKAGE-CHECKSUM-MISMATCH"); }}
+      >
+        Stress package
+      </ControlledExportLink>
+    );
+    fireEvent.click(screen.getByTestId("stress-neutral-export-link-local-private-intent"));
+    await waitFor(() => expect(screen.getByTestId("stress-neutral-export-link-canonical-block-reason")).toHaveTextContent(
+      "PAYLOAD_VALIDATION_FAILED"
+    ));
+    expect(screen.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href");
+
+    const protectedPacket = {
+      field_id: "stress-neutral-package",
+      field_class: "stress_neutral_export",
+      privacy_classification: "protected_code_data",
+      redistribution_status: "protected_suspected",
+      review_status: "accepted",
+      value: "INVENTED_PROTECTED_STRESS_PACKAGE"
+    };
+    view.rerender(
+      <ControlledExportLink
+        data-testid="stress-neutral-export-link"
+        href={hrefFor(protectedPacket)}
+        validateDecodedPayload={async () => undefined}
+      >
+        Stress package
+      </ControlledExportLink>
+    );
+    const intent = screen.getByTestId("stress-neutral-export-link-local-private-intent") as HTMLInputElement;
+    if (!intent.checked) fireEvent.click(intent);
+    await waitFor(() => expect(screen.getByTestId("stress-neutral-export-link")).not.toHaveAttribute("href"));
+    expect(screen.getByTestId("stress-neutral-export-link-redaction-findings")).toHaveTextContent("BLOCKING");
+  });
+
+  it("ignores stale validation completion after the source href is replaced", async () => {
+    let resolveOld!: () => void;
+    const oldValidation = new Promise<void>((resolve) => { resolveOld = resolve; });
+    const replacement = { ...packet, package_checksum: { value: "replacement-hash" } };
+    const validate = vi.fn((value: unknown) =>
+      (value as typeof packet).package_checksum.value === packet.package_checksum.value
+        ? oldValidation
+        : Promise.resolve()
+    );
+    const view = render(
+      <ControlledExportLink
+        data-testid="stress-neutral-export-link"
+        href={hrefFor(packet)}
+        validateDecodedPayload={validate}
+      >
+        Stress package
+      </ControlledExportLink>
+    );
+    fireEvent.click(screen.getByTestId("stress-neutral-export-link-local-private-intent"));
+    const replacementHref = hrefFor(replacement);
+    view.rerender(
+      <ControlledExportLink
+        data-testid="stress-neutral-export-link"
+        href={replacementHref}
+        validateDecodedPayload={validate}
+      >
+        Stress package
+      </ControlledExportLink>
+    );
+    await waitFor(() => expect(screen.getByRole("link", { name: "Stress package" })).toHaveAttribute(
+      "href",
+      replacementHref
+    ));
+    await act(async () => { resolveOld(); });
+    expect(screen.getByRole("link", { name: "Stress package" })).toHaveAttribute("href", replacementHref);
+  });
+
+  it("keeps the separately governed stress CSV withheld and unrelated routes unchanged", () => {
+    render(
+      <ControlledExportLink
+        data-testid="stress-neutral-csv-link"
+        href={`data:text/csv;charset=utf-8,${encodeURIComponent("result_id,value\nr1,1\n")}`}
+      >
+        Stress CSV
+      </ControlledExportLink>
+    );
+    expect(screen.getByTestId("stress-neutral-csv-link")).not.toHaveAttribute("href");
+    expect(screen.queryByTestId("stress-neutral-csv-link-local-private-intent")).not.toBeInTheDocument();
+    expect(routeBindingForTestId("report-export-link")).toMatchObject({
+      routeId: "DREP-JSON-002",
+      context: "public_report"
+    });
+  });
+});
+
 describe('canonical local result link',()=>{
  it('requires its own intent then exposes original serialized bytes with local unknown/private warnings',()=>{
   const payload={private_payload_included:false,protected_content_included:false,project_name:'Invented private project',opaque_leaf:'unknown retained locally'};

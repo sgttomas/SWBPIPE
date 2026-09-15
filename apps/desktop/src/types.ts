@@ -941,6 +941,24 @@ export type ModelMigrationLedgerRecord = {
   trigger: string;
   destructive_rewrite: boolean;
   professional_boundary: Record<string, boolean>;
+  hash_evidence?: {
+    schema: "model_migration_hash_evidence_v1";
+    source_payload_basis: "incoming_pre_migration_model" | "stored_pre_open_migration_model";
+    received: {
+      model_hash: unknown;
+      project_envelope_hash: unknown;
+    };
+    prior_stored: null | {
+      model_hash: unknown;
+      project_envelope_hash: unknown;
+    };
+    computed: {
+      pre_migration_model_hash: string;
+      post_migration_model_hash: string;
+      post_migration_project_envelope_hash: string;
+    };
+    received_claim_verification: "not_asserted";
+  };
 };
 
 export type LocalProjectEnvelope = {

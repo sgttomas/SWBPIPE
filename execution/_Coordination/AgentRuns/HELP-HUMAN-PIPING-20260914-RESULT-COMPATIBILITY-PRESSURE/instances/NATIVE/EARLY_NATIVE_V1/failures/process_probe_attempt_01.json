@@ -1,0 +1,7 @@
+{
+  "attempt": "prove quit/relaunch by filtering ps rows containing the executable path",
+  "effect": "read-only process inspection; no product or app state mutation",
+  "failure": "the filter also matched the validator process because the executable path was present as an argument",
+  "resolution": "require the ps command column to end exactly with the candidate executable path",
+  "status": "resolved"
+}

@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import re
 import sys
+import pytest
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +28,7 @@ from core.handoff.stress_neutral import (  # noqa: E402
     build_stress_neutral_export_package_v0_2,
     materialized_members_v0_2,
     validate_stress_neutral_export_package_v0_2,
+    write_materialized_members_v0_2,
 )
 from schema_validation import (  # noqa: E402
     JsonSchemaDependencyMissing,
@@ -35,6 +37,8 @@ from schema_validation import (  # noqa: E402
     validate_schema_document,
     walk_strings,
 )
+from core.handoff.stress_neutral.package_v0_2 import _checked, _manifest_seed, package_projection  # noqa: E402
+from core.serialization.canonical_json.adapter import canonical_sha256_checked_v1  # noqa: E402
 
 
 SCHEMA_PATH = ROOT / "schemas" / "stress_neutral_export.schema.json"
@@ -206,6 +210,91 @@ def test_v02_fixture_matches_builder_and_dispatch_schema():
     fixture = load_json(V02_FIXTURE_PATH)
     assert fixture == build_stress_neutral_export_package_v0_2(**source_payload())
     validate_instance(load_json(SCHEMA_PATH), fixture, schema_label=str(SCHEMA_PATH), instance_label=str(V02_FIXTURE_PATH))
+
+
+def test_v02_successor_profile_identity_is_consistent_and_contradictions_are_rejected():
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    assert package["export_profile"]["profile_id"] == "ops.stress_neutral.v2"
+    assert package["export_profile"]["profile_version"] == "0.2.0"
+    assert package["manifest"]["export_profile_ref"] == {
+        "object_type": "StressNeutralExportProfile",
+        "ref": "ops.stress_neutral.v2",
+    }
+    for profile in (
+        {"profile_id": "ops.stress_neutral.v1"},
+        {"profile_version": "0.1.0"},
+    ):
+        payload = source_payload()
+        payload["export_profile"] = profile
+        with pytest.raises(ValueError, match="SN-0.2-PROFILE-IDENTITY-MISMATCH"):
+            build_stress_neutral_export_package_v0_2(**payload)
+
+
+def test_v02_writer_materializes_exact_nine_checksum_bound_bytes(tmp_path):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    expected = materialized_members_v0_2(package)
+    written = write_materialized_members_v0_2(package, tmp_path)
+    assert [path.name for path in written] == list(expected)
+    assert {path.name: path.read_bytes() for path in written} == expected
+    claims = {item["payload_ref"]["ref"]: item for item in package["manifest"]["checksums"]}
+    for filename, payload in expected.items():
+        if filename != "manifest.json":
+            assert hashlib.sha256(payload).hexdigest() == claims[filename]["value"]
+        else:
+            assert claims[filename]["payload_scope"] == "manifest_seed"
+        if filename.endswith(".json"):
+            assert not payload.endswith(b"\n")
+
+
+def rehash_v02(package):
+    members = materialized_members_v0_2(package)
+    checksums = package["manifest"]["checksums"]
+    non_manifest = [item for item in checksums if item["payload_ref"]["ref"] != "manifest.json"]
+    for item in non_manifest:
+        item["value"] = hashlib.sha256(members[item["payload_ref"]["ref"]]).hexdigest()
+    manifest = next(item for item in checksums if item["payload_ref"]["ref"] == "manifest.json")
+    manifest.update(_checked(_manifest_seed(package, non_manifest), "manifest.json", "manifest_seed"))
+    by_name = {item["payload_ref"]["ref"]: item for item in checksums}
+    for member in package["manifest"]["package_members"]:
+        member["checksum"] = deepcopy(by_name[member["filename"]])
+    package["package_checksum"]["value"] = canonical_sha256_checked_v1(package_projection(package))
+
+
+@pytest.mark.parametrize("mutation,expected", [
+    (lambda p: p["unit_preservation_witnesses"][0].update(result_id="result:wrong"), "UNIT-WITNESS-BINDING"),
+    (lambda p: p["loss_report"][0]["target_artifact_ref"].update(ref="package:wrong"), "LOSS-REPORT-BINDING"),
+    (lambda p: p["source_result_ref"].update(ref="result-envelope:wrong"), "SOURCE-RESULT-REF-UNBOUND"),
+    (lambda p: p["result_rows"][1].update(result_id=p["result_rows"][0]["result_id"], canonical_ref=deepcopy(p["result_rows"][0]["canonical_ref"]), source_result_ref=deepcopy(p["result_rows"][0]["source_result_ref"])), "RESULT-ROW-IDENTITY"),
+    (lambda p: p["stable_id_map"][1].update(canonical_ref=deepcopy(p["stable_id_map"][0]["canonical_ref"])), "STABLE-ID-MAP-BINDING"),
+    (lambda p: p["stable_id_map"].pop(), "STABLE-ID-MAP-BINDING"),
+    (lambda p: p.update(csv_text=p["csv_text"].replace(",N,force,", ",kN,force,", 1)), "CSV-ROW-BINDING"),
+    (lambda p: p["validation_report"].update(validation_status="blocked"), "VALIDATION-STATUS-BINDING"),
+    (lambda p: p["validation_report"]["checks"][0].update(check_status="blocking", blocking_count=0), "VALIDATION-STATUS-BINDING"),
+    (lambda p: p.update(schema_conformant=False), "SCHEMA-CONFORMANCE-CLAIM"),
+    (lambda p: p["privacy"].update(private_payload_embedded=True), "PRIVACY-BOUNDARY"),
+    (lambda p: p["professional_boundary"].update(software_makes_approval_claim=True), "PROFESSIONAL-BOUNDARY"),
+])
+def test_v02_recomputed_hashes_do_not_hide_relational_tamper(mutation, expected):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    mutation(package)
+    rehash_v02(package)
+    with pytest.raises(ValueError, match=expected):
+        validate_stress_neutral_export_package_v0_2(package)
+
+
+@pytest.mark.parametrize("mutation,expected", [
+    (lambda p: p["manifest"]["checksums"][0].update(algorithm="sha512"), "CHECKSUM-METADATA"),
+    (lambda p: p["manifest"]["checksums"][1]["payload_ref"].update(ref="../escape.csv"), "BIJECTION"),
+    (lambda p: p["manifest"]["checksums"].append(deepcopy(p["manifest"]["checksums"][0])), "STRICT-INVENTORY"),
+    (lambda p: p["manifest"]["checksums"].pop(), "STRICT-INVENTORY"),
+    (lambda p: p["manifest"]["package_members"][0].update(checksum=deepcopy(p["manifest"]["checksums"][1])), "MEMBER-CHECKSUM-BINDING"),
+    (lambda p: p["package_checksum"].update(payload_scope="member_payload"), "PACKAGE-CHECKSUM-METADATA"),
+])
+def test_v02_rejects_inventory_checksum_metadata_and_binding_mutations(mutation, expected):
+    package = build_stress_neutral_export_package_v0_2(**source_payload())
+    mutation(package)
+    with pytest.raises(ValueError, match=expected):
+        validate_stress_neutral_export_package_v0_2(package)
 
 
 def test_v02_schema_rejects_unknown_and_missing_fields_across_repaired_families():

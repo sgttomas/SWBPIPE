@@ -1,0 +1,12 @@
+{
+  "schema": "root-early-native-fanin-v1",
+  "recorded_utc": "2026-09-15T02:11:18.999812+00:00",
+  "evidence_hash_validation": "PASS",
+  "manifest_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/EVIDENCE_MANIFEST.json",
+  "manifest_sha256": "47c26d8656d402217e3b1578911b364e4c9ce428523a52fe98f975f01e1454b0",
+  "technical_verdict": "BLOCKED_BY_PERSISTED_MODEL_ENVELOPE_INTEGRITY",
+  "source_candidate": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "calibration": "Accept passing analysis/checksum/preservation/process observations as bounded evidence; reject early lifecycle closure until first-save native normalization produces truthful model/envelope evidence. Fresh recovery does not verify the inconsistent first save.",
+  "lease_released": true,
+  "repair_route": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_MIGRATION_INTEGRITY_DIAGNOSIS_V1.md"
+}

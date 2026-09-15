@@ -1,0 +1,26 @@
+# TASK — final foundation native qualification V2
+
+Continue foundation_native as TASK / Type 2, parent HELP_HUMAN, gpt-5.6-sol / high. No delegation. The approved implementation authorizes these synthetic native and browser operations. Product source, governance and Git are read-only.
+
+Resolve REPO_ROOT with `git rev-parse --show-toplevel` in the supplied checkout, WORKING_ROOT as `{REPO_ROOT}/projects/chirality-piping`, and RUN as `{WORKING_ROOT}/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE`. Obtain the exact Python/controller and temporary output bindings from the release record; no fixed machine path is executable direction in this brief.
+
+## Release and scope
+
+Do not execute until Root supplies the existing immutable `RUN/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V1.json` and `FINAL_NATIVE_LEASE_V2.json`, both with hashes. Check candidate and complete source binding before build, after build and after GUI execution. A mismatch is a blocker. This final execution supersedes the completed preparation directions; sealed earlier briefs/evidence remain unchanged.
+
+The released lease exclusively owns native/WASM/desktop builds and browser/native GUI. Write only `RUN/instances/NATIVE/FINAL_NATIVE_V2/**`; put raw commands, host bindings, store snapshots and generated artifacts under its `_run_records/**`. Normal ignored build directories and a unique synthetic temporary root from the lease are allowed. Use a unique app product name/bundle identifier and isolated store; preserve the bound app outside normal build output. No user models, production store, product source repairs or Git.
+
+## Required witness
+
+Consume the sealed V1 native procedure, frozen synthetic expectations, V2 signature map, V3 producer inputs and V4 final consumer sequence/helpers by their owning manifests. The V4 helpers are preparation and may require evidence-local API corrections against final source. Preserve any failed helper version and failure, issue a successor before retry, and report a product defect to Root rather than editing product source.
+
+1. Freshly build the actual native application using its maintained beforeBuild workflow and explicit checked-JSON setup. Bind executable, WASM, dist, runner, schema and source hashes. Avoid duplicate builds.
+2. Backcheck the blocked early first-save normalization case directly: first create/solve/save, normal quit and reopen before any recovery solve. Independently verify exact stored post-normalization model and seven-field envelope under their existing hash profiles, plus received result, full analysis and row hashes under 0.2. Historical is explained by absent saved input-manifest payload, with no checksum mismatch. Unchanged save preserves evidence; test the second save for idempotence.
+3. Run seven genuine product producer captures and actual desktop constructor composition, hard-gating signature 059. Combine with shipped sparse/dense population evidence to cover all 60 frozen signatures. Never substitute fixture rows for authentic producer output. Bind row identity and semantic eligibility.
+4. Exercise actual shipped sparse/dense native delivery and final browser distribution delivery where not already owned by accepted exact-source evidence. Require strict 0.2 result/stress packages, explicit private local export intent through existing controls, exact delivered bytes/receipts, all 830 frozen rows, 828 eligible witnesses and two explicitly withheld diagnostic-work witnesses. Separately materialize and independently verify all nine package members through the Python product API. Keep frontend composition, native delivery, browser fixture delivery and Python materialization claims distinct.
+5. Complete the actual GUI-authored 3.2 m cantilever at Y=2.4 m, OD=0.168 m, wall=0.007 m, E=200 GPa, G=77 GPa, anchored root, tip +Y350 N then500 N. Solve, inspect, edit/invalidate, exact undo/redo hashes, reviewed synthetic agent-authored equivalent operation, save, normal quit/reopen Historical, unchanged save, fresh re-solve Current, and final normal quit. Derive hashes from this exact project/model identity; do not substitute prior fixture project hashes. Preserve attachments. Use frozen analytical quantities and publication allowance; hashes require exact equality.
+6. Recheck an isolated legacy saved fixture truthfully. Missing preimages/ambiguous profile/numeric-type loss remain unverifiable, not silently rehashed proof. Relevant busy, stale, cancellation, late-response, native IPC and invalid operation guards may reference exact-source maintained tests; do not pretend every injected failure occurred through GUI.
+7. Seal all observations, exact receipts/store fields, process identities, source stability, verifier outputs and failures with one canonical raw copy. Release lease only after final app and owned browsers/servers exit. Return PASS or a concrete blocker with precise boundaries.
+
+No pressure runtime, UI redesign, new transport or model operation, schema migration beyond accepted source, CAEPIPE or harness work is authorized. A later successful solve cannot erase an earlier failed persisted-integrity witness. Final native acceptance is distinct from the complete registered sweep, independent code review and Root combined closure.
+

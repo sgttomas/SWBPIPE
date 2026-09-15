@@ -1,0 +1,53 @@
+{
+  "schema": "native-normalization-integrity-focused-evidence-v8",
+  "created_utc": "2026-09-15T03:17:34.177575+00:00",
+  "status": "PASS",
+  "fence_sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80",
+  "behavior_verified": [
+    "actual 0.1\u21920.2 transitions compute the final model hash and exact seven-field project-envelope hash before atomic persistence",
+    "new ledger evidence preserves raw received and prior claims without asserting their validity",
+    "unchanged current Historical saves preserve raw malformed/mislabeled/absent carriers and remain idempotent",
+    "changed-model adoption validates the supported transition, exact pre/post hashes, complete model carrier, independently recomputed envelope carrier, and captured request ownership",
+    "renderer restart may receive older native ledger records; the exact bound final transition is accepted when returned history is longer than the captured session history",
+    "unbound differing responses are rejected without accepting returned model, history, or metadata",
+    "same-model Historical refreshes through two saves; fresh solve wins delayed refresh; same-model Current remains Current"
+  ],
+  "commands": [
+    {
+      "command": "cargo test --locked --lib",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src-tauri",
+      "result": "91 passed; 0 failed"
+    },
+    {
+      "command": "npm exec vitest -- run src/App.test.tsx --maxWorkers=1 -t \"(refreshes only the still-owned|lets a fresh same-model solve|adopts a changed native|rejects an unrelated differing|keeps a same-model Current|blocks (undo|redo) through native menu)\"",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "7 passed; 173 skipped"
+    },
+    {
+      "command": "npm exec vitest -- run src/App.test.tsx --maxWorkers=1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "180 passed; 0 failed; duration 289.14s"
+    },
+    {
+      "command": "npm exec tsc -- --noEmit",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "passed"
+    },
+    {
+      "command": "npm exec vitest -- run <10 focused files> --maxWorkers=1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "10 files passed; 125 tests passed; includes projectService/nativeResultSave/stress/control/hash and analysis consumers"
+    }
+  ],
+  "command_level_native_witnesses": [
+    "tests::saved_edited_load_model_round_trips_and_solves_from_restored_payload \u2014 empty-store incoming 0.1 computes final model/seven-field envelope and retains raw received claims",
+    "tests::saving_an_open_time_migrated_document_appends_a_ledger_record_with_pre_and_post_hashes \u2014 stored 0.1/open-time transition and repeat idempotence",
+    "tests::stale_status_on_current_document_preserves_raw_claims_and_existing_ledger \u2014 no-transition raw carrier preservation"
+  ],
+  "preserved_failure": {
+    "command": "initial post-V8 complete App run",
+    "result": "178 passed; 1 failed in 273.55s",
+    "finding": "busy undo test exposed over-broad changed-response adoption; repaired with the bound normalization transition validator and backchecked by final 180/180"
+  },
+  "native_gui": "not run; root-owned"
+}

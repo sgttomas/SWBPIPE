@@ -1,0 +1,18 @@
+{
+  "status": "COMPLETE_SOURCE_FROZEN_AND_RELEASED_TO_ROOT",
+  "source_checkpoint": "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+  "source_checkpoint_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
+  "manager_fanin": "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+  "manager_fanin_sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362",
+  "source_file_count": 74,
+  "writer": "COMPLETE_AND_IDLE",
+  "source_frozen": true,
+  "build_browser_lease": "RELEASED",
+  "owned_browsers_or_servers": 0,
+  "root_pending": [
+    "final native GUI/bundle qualification",
+    "fresh complete-diff review",
+    "full registered sweep",
+    "Git closeout"
+  ]
+}

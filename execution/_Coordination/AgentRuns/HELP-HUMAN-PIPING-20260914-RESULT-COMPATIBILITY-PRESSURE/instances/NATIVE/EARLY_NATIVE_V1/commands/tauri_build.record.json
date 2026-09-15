@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app",
+    "--ci",
+    "--no-sign",
+    "--config",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/tauri.early-native-v1.conf.json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop",
+  "elapsed_seconds": 99.84171199798584,
+  "ended_utc": "2026-09-15T01:53:00Z",
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "exit_code": 0,
+  "started_utc": "2026-09-15T01:51:21Z",
+  "stderr": {
+    "bytes": 15101,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/tauri_build.stderr.txt",
+    "sha256": "1bdc25bc9954251cf1f27c38ea630a6f4b53bad897aa52c2fc3dd04c582dc337"
+  },
+  "stdout": {
+    "bytes": 2431,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/tauri_build.stdout.txt",
+    "sha256": "0cd94a2b3735638962b13fb88ad7c82b46bd85e0b026a1ed49e4116e2223cd08"
+  }
+}

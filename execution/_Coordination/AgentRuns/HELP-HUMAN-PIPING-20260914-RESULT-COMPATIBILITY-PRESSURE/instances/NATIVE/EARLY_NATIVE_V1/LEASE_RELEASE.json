@@ -1,0 +1,11 @@
+{
+  "bound_application_preserved": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress Foundation Early 20260914.app",
+  "final_candidate_process_gone": true,
+  "final_process_evidence": "process/final_quit.json",
+  "lease": "exclusive native/WASM/desktop build and native GUI surfaces",
+  "released_at": "2026-09-15T02:09:43.740996+00:00",
+  "result_status": "BLOCKED_BY_PERSISTED_MODEL_ENVELOPE_INTEGRITY",
+  "schema": "native-build-gui-lease-release-v1",
+  "state": "RELEASED",
+  "statement": "No further build or GUI action will be performed for this checkpoint. Root may acquire the native/build/GUI lease for repair or backcheck."
+}

@@ -1,0 +1,21 @@
+{
+  "schema_pass": true,
+  "validator": "tests.schema_validation.validate_instance with project Draft 2020-12 resolver",
+  "packet_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.packet.json",
+  "packet_sha256": "c56047ec1df9dff25b882e7fcc21d65d725309934cb4c041ac2a7e56eed47204",
+  "schema_version": "0.2.0",
+  "profile_id": "ops.stress_neutral.v2",
+  "profile_version": "0.2.0",
+  "result_rows": 830,
+  "unit_preservation_witnesses": 828,
+  "diagnostic_work_withheld_findings": 2,
+  "diagnostic_work_source_refs": [
+    "result:nonlinear-support:free-dof-work-residual",
+    "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+  ],
+  "package_members": 9,
+  "manifest_checksums": 9,
+  "validation_status": "blocked",
+  "human_review_required": true,
+  "package_checksum": "5ad713f6fae02ce8ed27023f3f324886c82a90f435d229260397ddc47320fa4e"
+}

@@ -1,0 +1,92 @@
+{
+  "analysis_run": {
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "input_manifest_hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "rfc8785_jcs",
+        "payload_ref": {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+        },
+        "payload_scope": "input_manifest",
+        "value": "e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+      }
+    ],
+    "input_manifest_payload_persisted": false,
+    "input_manifest_refs": [
+      {
+        "object_type": "InputManifest",
+        "ref": "input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+      }
+    ],
+    "known_semantic_signature_rows": 830,
+    "result_ref_count": 830,
+    "run_id": "run:preview-linear-static-001",
+    "semantics_unavailable_rows": 0
+  },
+  "checked_authority": {
+    "executable": "/private/tmp/piping-foundation-native-early-20260914/checked-json/release/openpipestress_jcs_ijson",
+    "executable_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "items_canonicalized": 832,
+    "protocol_profile": "openpipestress_jcs_ijson_v1"
+  },
+  "full_record_self_exclusion_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "AnalysisRun",
+        "ref": "run:preview-linear-static-001"
+      },
+      "payload_scope": "analysis_run_record",
+      "value": "dc107d911accfad9a430cbac8595cb5fa13a1e168e53c20b7fae6d084a4cfc40"
+    },
+    "independently_computed": "dc107d911accfad9a430cbac8595cb5fa13a1e168e53c20b7fae6d084a4cfc40",
+    "match": true,
+    "projection": "whole envelope with all analysis_run.hashes entries of payload_scope analysis_run_record removed"
+  },
+  "received_result_checksum": {
+    "advertised": {
+      "algorithm": "sha256",
+      "canonicalization": "openpipestress_jcs_ijson_v1",
+      "payload_ref": {
+        "object_type": "ResultEnvelope",
+        "ref": "result-envelope:run:preview-linear-static-001"
+      },
+      "payload_scope": "received_result",
+      "value": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c"
+    },
+    "independently_computed": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c",
+    "match": true,
+    "payload": "exact parsed mechanics_result_json from same stored row"
+  },
+  "result_row_checksums": {
+    "count": 830,
+    "mismatches": [],
+    "status": "PASS"
+  },
+  "schema_validation": {
+    "dispatcher": "PASS",
+    "selected_schema": "analysis_run.v0.2.schema.json",
+    "selected_version": "0.2.0",
+    "strict_v0_2": "PASS"
+  },
+  "source_snapshot": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_first_save.row.json",
+  "status": "PASS",
+  "stored_field_sha256": {
+    "analysis_run_json": "816eada4b36193353e28b42103d152ad36d6979bbe6c779e0ea573e8d4e98784",
+    "editor_intents_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "mechanics_result_json": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+    "model_hash_json": "8a6165e9796c87c8546cdaa6bf34dec9307aa5433f9e31cab0e8e31bb4e5f2be",
+    "model_json": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "model_migration_ledger_json": "31fe4543133958621896fb10d7a275f41fd2e892b9c494d2f0ccf1d9e2b5b564",
+    "project_envelope_hash_json": "b9d28a81fd9aefd0f92e2f449582fa477e54a864f8c73afdfac889d464df9e33",
+    "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  }
+}

@@ -1,0 +1,121 @@
+{
+  "schema": "stress-analysis-delivery-final-evidence-v9",
+  "created_utc": "2026-09-15T03:17:34.177575+00:00",
+  "status": "PASS",
+  "fence_sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80",
+  "portable_successor_brief_sha256": "b31db482ddc636a91ce8690cd7b97d5fc9edbe0b28b38aca8682fe5809de23ee",
+  "commands": [
+    {
+      "command": "PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=<resolved-worktree>/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson PYTHONPATH=/private/tmp/chirality-compat-pydeps python -m pytest -q tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py tests/test_analysis_run_schema.py tests/test_project_persistence_service.py tests/test_stress_neutral_export_package.py",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping",
+      "result": "71 passed; 94 deprecation warnings"
+    },
+    {
+      "command": "npm exec vitest -- run <10 focused files> --maxWorkers=1",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "10 files passed; 125 tests passed"
+    },
+    {
+      "command": "cargo test --locked --features checked-cli",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/serialization/canonical_json",
+      "result": "10 passed"
+    },
+    {
+      "command": "cargo test --locked --test canonical_hash_parity",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/model_operations/operation_applier",
+      "result": "2 passed"
+    },
+    {
+      "command": "npm run build:wasm",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "passed; operation and self-weight WASM; wasm-bindgen 0.2.123"
+    },
+    {
+      "command": "npm run build",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "passed; tsc -b and Vite; 1705 modules transformed"
+    },
+    {
+      "command": "RESULTS_CONTRACT_OUTPUT_DIR=<TASK_WRITER/_run_records/FINAL_V8_STRESS> npm exec vitest -- run src/features/stress-neutral/StressNeutralExportPanel.test.tsx --maxWorkers=1 -t \"retains every source numerical row\"",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "1 passed; emitted actual packet"
+    },
+    {
+      "command": "project schema resolver validation of emitted packet",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping",
+      "result": "passed; strict dispatcher\u21920.2 schema"
+    },
+    {
+      "command": "PLAYWRIGHT_WORKERS=1 npm exec playwright -- test e2e/result-compatibility.spec.ts --workers=1 --trace=off",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "2 passed; clean exit; 1.4m"
+    },
+    {
+      "command": "PLAYWRIGHT_WORKERS=1 npm exec playwright -- test e2e/result-compatibility-dist.spec.ts --config playwright.dist.config.ts --workers=1 --trace=off",
+      "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop",
+      "result": "1 passed; clean exit; 16.5s"
+    }
+  ],
+  "actual_packet": {
+    "schema_pass": true,
+    "validator": "tests.schema_validation.validate_instance with project Draft 2020-12 resolver",
+    "packet_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.packet.json",
+    "packet_sha256": "c56047ec1df9dff25b882e7fcc21d65d725309934cb4c041ac2a7e56eed47204",
+    "schema_version": "0.2.0",
+    "profile_id": "ops.stress_neutral.v2",
+    "profile_version": "0.2.0",
+    "result_rows": 830,
+    "unit_preservation_witnesses": 828,
+    "diagnostic_work_withheld_findings": 2,
+    "diagnostic_work_source_refs": [
+      "result:nonlinear-support:free-dof-work-residual",
+      "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+    ],
+    "package_members": 9,
+    "manifest_checksums": 9,
+    "validation_status": "blocked",
+    "human_review_required": true,
+    "package_checksum": "5ad713f6fae02ce8ed27023f3f324886c82a90f435d229260397ddc47320fa4e"
+  },
+  "delivery_assertions": [
+    "default JSON href withheld",
+    "explicit local-private intent required",
+    "strict exact JSON delivered",
+    "CSV remains withheld",
+    "replacement dense Current requires renewed intent and publishes a distinct package checksum",
+    "dev desktop+compact and built dist validated"
+  ],
+  "preserved_failures": [
+    {
+      "result": "2 failed",
+      "finding": "initial dev assertion read strict result-export reference as payload_ref.ref; actual document uses ref_type/ref_id",
+      "repair": "assert payload_ref.ref_id; next run advanced past initial delivery"
+    },
+    {
+      "result": "2 failed",
+      "finding": "edited browser model correctly produced MODEL_INCOMPLETE, so no replacement stress packet existed",
+      "repair": "use maintained dense solver mode as the fresh supported Current source"
+    },
+    {
+      "result": "1 failed; 1 did not run",
+      "finding": "mode selection preserves the prior Current until Run, making a pre-run link-count-zero assertion invalid",
+      "repair": "remove pre-run absence assertion; after fresh run assert default-withheld before renewed intent"
+    },
+    {
+      "result": "2 passed (4.4m), process interrupted with exit 130",
+      "finding": "trace-retaining worker remained in teardown grace after both tests passed",
+      "repair": "rerun unchanged frozen specs with --trace=off; clean exit 2/2 in 1.4m"
+    }
+  ],
+  "resource_release": {
+    "ports_5174_5175_listeners": 0,
+    "owned_playwright_workers": 0,
+    "owned_vite_servers": 0,
+    "build_browser_lease": "RELEASED_BY_TASK_WRITER"
+  },
+  "held": [
+    "native Tauri GUI/bundle",
+    "full registered sweep",
+    "Git lifecycle"
+  ]
+}

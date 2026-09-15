@@ -1,0 +1,257 @@
+{
+  "schema": "compatibility-manager-final-fanin-v1",
+  "created_utc": "2026-09-15T03:26:00Z",
+  "status": "ACCEPTED_FOR_ROOT_INTEGRATION_AND_FINAL_QUALIFICATION",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "role": "WORKING_ITEMS / Type 1",
+  "parent": "HELP_HUMAN",
+  "writer": {
+    "identity": "/root/foundation_compatibility/compatibility_writer",
+    "role": "TASK / Type 2",
+    "model_effort": "gpt-5.6-sol / high",
+    "delegation": false,
+    "status": "COMPLETE_AND_IDLE"
+  },
+  "governing_inputs": {
+    "final_exact_write_fence": {
+      "path": "instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V8.json",
+      "sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80"
+    },
+    "portable_successor_brief": {
+      "path": "briefs/COMPATIBILITY_QUALIFICATION_REPAIR_V9.md",
+      "sha256": "b31db482ddc636a91ce8690cd7b97d5fc9edbe0b28b38aca8682fe5809de23ee"
+    },
+    "frozen_contract_basis": "instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md",
+    "frozen_legacy_expectations": "instances/COMPATIBILITY/LEGACY_EXPECTATIONS_V1.json"
+  },
+  "single_complete_source_manifest": {
+    "path": "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+    "sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
+    "source_file_count": 74,
+    "manager_rehash": {
+      "files_checked": 74,
+      "sha256_mismatches": 0,
+      "byte_length_mismatches": 0
+    },
+    "source_frozen": true,
+    "later_source_writes": false
+  },
+  "delta_from_accepted_64_file_checkpoint": {
+    "accepted_checkpoint": {
+      "path": "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V3.json",
+      "source_file_count": 64
+    },
+    "modified_existing_count": 14,
+    "modified_existing_paths": [
+      "projects/chirality-piping/apps/desktop/e2e/result-compatibility-dist.spec.ts",
+      "projects/chirality-piping/apps/desktop/e2e/result-compatibility.spec.ts",
+      "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "projects/chirality-piping/apps/desktop/src/types.ts",
+      "projects/chirality-piping/core/handoff/stress_neutral/__init__.py",
+      "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "projects/chirality-piping/core/serialization/canonical_json/tests/checked_profile.rs",
+      "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json",
+      "projects/chirality-piping/schemas/stress_neutral_export.v0.2.schema.json",
+      "projects/chirality-piping/tests/test_checked_canonical_json_adapter.py",
+      "projects/chirality-piping/tests/test_stress_neutral_export_package.py"
+    ],
+    "added_extension_count": 8,
+    "added_extension_paths": [
+      "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs",
+      "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+      "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts"
+    ],
+    "corrected_prior_manifest_omission_count": 2,
+    "corrected_prior_manifest_omission_paths": [
+      "projects/chirality-piping/apps/desktop/src/services/hashService.test.ts",
+      "projects/chirality-piping/core/model_operations/operation_applier/tests/canonical_hash_parity.rs"
+    ],
+    "locks": {
+      "count": 9,
+      "disposition": "present in the complete 74-file manifest and byte-identical to the accepted 64-file checkpoint",
+      "paths": [
+        "projects/chirality-piping/apps/desktop/src-tauri/Cargo.lock",
+        "projects/chirality-piping/core/loads/self_weight_wasm/Cargo.lock",
+        "projects/chirality-piping/core/model_operations/operation_applier/Cargo.lock",
+        "projects/chirality-piping/core/reporting/report_package/Cargo.lock",
+        "projects/chirality-piping/core/rules/rule_check_runner/Cargo.lock",
+        "projects/chirality-piping/core/rules/rule_pack_document/Cargo.lock",
+        "projects/chirality-piping/core/serialization/canonical_json/Cargo.lock",
+        "projects/chirality-piping/validation/benchmarks/mechanics/Cargo.lock",
+        "projects/chirality-piping/validation/benchmarks/stress/Cargo.lock"
+      ]
+    },
+    "fixture_and_test_calibration": {
+      "stress_fixture_changed": "projects/chirality-piping/fixtures/stress_neutral/invented/stress_neutral_export_package_v0_2.json",
+      "analysis_fixtures": "present and unchanged from accepted 64-file checkpoint",
+      "later_test_revisions": "included among the 14 modified paths",
+      "new_test_extensions": "ControlledExportLink.test.tsx, nativeResultSave.test.ts, projectService.test.ts",
+      "corrected_test_omissions": "hashService.test.ts and operation_applier/tests/canonical_hash_parity.rs"
+    }
+  },
+  "evidence": {
+    "migration_integrity": {
+      "path": "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_MIGRATION_V8_EVIDENCE.json",
+      "sha256": "dc71f73ac3e17980c1ca8b72fb689f8b5bdf13f42ee645d9d124fdb83c1e8bb1",
+      "status": "PASS"
+    },
+    "analysis_stress_and_delivery": {
+      "path": "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json",
+      "sha256": "8ef40614ef6e20211b7f9005fef90795585f3ca0a04f61ec686b0da2dcf3f725",
+      "status": "PASS"
+    },
+    "actual_stress_packet": {
+      "path": "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.packet.json",
+      "sha256": "c56047ec1df9dff25b882e7fcc21d65d725309934cb4c041ac2a7e56eed47204"
+    },
+    "actual_stress_schema_evidence": {
+      "path": "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.schema-evidence.json",
+      "sha256": "e8ce9f996a2fdde7be42e0ae0cad6241296c918ee91a0f47a488f8b04509fbb8"
+    },
+    "analysis_lifecycle_checkpoint_retained": {
+      "writer_path": "instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_LIFECYCLE_CHECKPOINT_V2.json",
+      "writer_sha256": "8c2c7154aaf150f8d0db5eed481a9c1d1a93d9a2501511113fc45d5539a94d6b",
+      "manager_path": "instances/COMPATIBILITY/ANALYSIS_LIFECYCLE_CHECKPOINT_V2_QUALIFICATION.json",
+      "manager_sha256": "d9a4bdab0aa56be4f934c0b52241163d5674622e9f9cdee7737a349c918f0491",
+      "calibration": "retained early source qualification; final V10 evidence supersedes its source state, and it is not final native lifecycle evidence"
+    }
+  },
+  "acceptance_map": [
+    {
+      "surface": "analysis 0.2 construction and hash projection",
+      "status": "PASS_FOCUSED",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json"
+      ],
+      "basis": "Python 71/71, desktop focused 125/125, canonical Rust 10/10, operation parity 2/2, WASM build and TypeScript build passed; 0.1 profile bytes remain frozen."
+    },
+    {
+      "surface": "analysis Current/Historical in-memory lifecycle and normalization adoption",
+      "status": "PASS_FOCUSED",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_MIGRATION_V8_EVIDENCE.json"
+      ],
+      "basis": "Complete App 180/180 and native library 91/91 cover guarded revision publication, scoped legacy verification, bound persisted normalization adoption, invalid-response rejection, same-model Historical two-save refresh, delayed-save/fresh-solve race and retained Current."
+    },
+    {
+      "surface": "strict stress 0.2 construction",
+      "status": "PASS_ACTUAL_PACKET",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.packet.json",
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json"
+      ],
+      "basis": "Actual emitted packet has profile ops.stress_neutral.v2 / 0.2.0, 830 unique raw result rows and nine manifest members/checksums."
+    },
+    {
+      "surface": "strict stress 0.2 in-memory validation",
+      "status": "PASS_SCHEMA_CONFORMANCE_VALIDATION_BLOCKED_BY_DISCLOSED_GAPS",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_V8_STRESS/stress-neutral.schema-evidence.json"
+      ],
+      "basis": "Project Draft 2020-12 resolver passes the packet. Validation readiness remains blocked with human review required because exactly two diagnostic-work rows have no unit-preservation witness."
+    },
+    {
+      "surface": "controlled browser delivery",
+      "status": "PASS_DEV_AND_BUILT_DIST",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json"
+      ],
+      "basis": "Dev 2/2 and built-dist 1/1 Playwright runs passed cleanly with one worker: default JSON withheld, explicit local-private intent required, exact strict JSON delivered, CSV withheld, and replacement Current invalidates intent and changes package checksum."
+    },
+    {
+      "surface": "native delivery admission",
+      "status": "PASS_FOCUSED_COMMAND_AND_UNIT_CONTRACT",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_MIGRATION_V8_EVIDENCE.json",
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json"
+      ],
+      "basis": "Native library and client focused tests cover paired route/filename admission, typed partial cleanup, intent/current-binding guards and normalization persistence. Actual native GUI delivery remains Root-owned."
+    },
+    {
+      "surface": "Python stress member materialization",
+      "status": "PASS_FOCUSED",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/TASK_WRITER/_run_records/FINAL_STRESS_DELIVERY_V9_EVIDENCE.json",
+        "instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json"
+      ],
+      "basis": "The 71-test Python run includes exact nine-member builder, writer, checksum-bound byte materialization, profile agreement, tamper rejection and fixture/dispatcher validation."
+    }
+  ],
+  "stress_consumer_composition": {
+    "schema_version": "0.2.0",
+    "profile_id": "ops.stress_neutral.v2",
+    "profile_version": "0.2.0",
+    "raw_result_rows": 830,
+    "stable_ids": 830,
+    "unit_preservation_witnesses": 828,
+    "withheld_witnesses": [
+      "result:nonlinear-support:free-dof-work-residual",
+      "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+    ],
+    "members": [
+      "manifest.json",
+      "stress_neutral_results.csv",
+      "result_rows.json",
+      "unit_system_disclosure.json",
+      "unit_preservation_witnesses.json",
+      "stable_id_map.json",
+      "loss_report.json",
+      "validation_report.json",
+      "diagnostics.json"
+    ],
+    "package_checksum": "5ad713f6fae02ce8ed27023f3f324886c82a90f435d229260397ddc47320fa4e",
+    "schema_conformant": true,
+    "validation_ready": false,
+    "validation_status": "blocked",
+    "calibration": "The two withheld unit witnesses are explicit information findings; no raw result row was removed."
+  },
+  "manager_independent_backcheck": {
+    "source_manifest": "74/74 current files match the V10 SHA-256 and byte-length entries",
+    "packet_schema": "PASS using tests.schema_validation.validate_instance and the project Draft 2020-12 resolver",
+    "packet_relations": "830 unique result IDs, 830 unique stable-ID mappings, 828 unique witness result IDs, nine unique package members and nine checksum references",
+    "packet_hash": "c56047ec1df9dff25b882e7fcc21d65d725309934cb4c041ac2a7e56eed47204"
+  },
+  "verification_summary": {
+    "complete_app": "180/180 passed",
+    "native_rust_library": "91/91 passed",
+    "desktop_focused": "125/125 passed across 10 files",
+    "python_focused": "71/71 passed",
+    "canonical_json_rust": "10/10 passed",
+    "operation_hash_parity": "2/2 passed",
+    "typescript_no_emit": "passed",
+    "wasm_build": "passed",
+    "production_build": "passed",
+    "playwright_dev": "2/2 passed; clean exit",
+    "playwright_dist": "1/1 passed; clean exit"
+  },
+  "resource_handoff": {
+    "build_browser_lease": "RELEASED",
+    "ports_5174_5175_listeners": 0,
+    "owned_playwright_workers": 0,
+    "owned_vite_servers": 0,
+    "owned_browsers": 0
+  },
+  "root_owned_pending_acceptance": [
+    "actual final native Tauri GUI/bundle save-reopen-fresh-solve and stress-delivery witness",
+    "fresh complete-diff review over the exact V10 manifest",
+    "full registered sweep",
+    "Git integration and closeout"
+  ],
+  "governance_calibration": {
+    "formal_dag_or_lifecycle_status_changed": false,
+    "full_package_satisfaction_claimed": false,
+    "native_gui_acceptance_claimed": false,
+    "full_sweep_claimed": false,
+    "git_actions": false
+  },
+  "manager_verdict": "The frozen V10 compatibility candidate and its focused dev/dist delivery evidence are internally coherent and accepted for Root integration. The explicit stress findings remain blocking validation findings rather than schema failures or dropped rows. Overall tranche acceptance remains with Root after native GUI qualification, fresh review and the full registered sweep."
+}

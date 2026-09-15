@@ -1,0 +1,65 @@
+{
+  "analysis_changed_paths": [
+    "$.analysis_run.hashes[0].value",
+    "$.analysis_run.reproducibility.input_manifest_hashes[0].payload_ref.ref",
+    "$.analysis_run.reproducibility.input_manifest_hashes[0].value",
+    "$.analysis_run.reproducibility.input_manifest_refs[0].ref",
+    "$.analysis_run.settings_ref.ref",
+    "$.analysis_run.unit_system_ref.ref"
+  ],
+  "analysis_record_changed": true,
+  "field_sha256": {
+    "analysis_run_json": "b1b83504febbc5177729b32839b14b14b8ab8abed35a623ca18b235c82603e87",
+    "editor_intents_json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "mechanics_result_json": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294",
+    "model_hash_json": "ddeba77654066754e14794198f78d9fc77e72dd479cc770e3ba6a47a2af85cb4",
+    "model_json": "405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "model_migration_ledger_json": "31fe4543133958621896fb10d7a275f41fd2e892b9c494d2f0ccf1d9e2b5b564",
+    "project_envelope_hash_json": "79614ee1e30108a6fac9255dfa15a26990fd5e3ca216f1dd4c4d5ae44c4bb9cf",
+    "proposal_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "selected_review_target_json": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b"
+  },
+  "first_input_manifest_hashes": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "object_type": "InputManifest",
+        "ref": "input-manifest:project-invented-loop-01:e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+      },
+      "payload_scope": "input_manifest",
+      "value": "e5eb1c25d854a98cd230da42c4fde20d617ee1c3a9c772f2cd8320adb732a0a4"
+    }
+  ],
+  "fresh_full_record_checksum": {
+    "advertised": "46548ad64518e1ccfb0c7480db3e5cf6c43e41219035261507597327f2d90304",
+    "computed": "46548ad64518e1ccfb0c7480db3e5cf6c43e41219035261507597327f2d90304",
+    "match": true
+  },
+  "fresh_input_manifest_hashes": [
+    {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "payload_ref": {
+        "object_type": "InputManifest",
+        "ref": "input-manifest:project-invented-loop-01:94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0"
+      },
+      "payload_scope": "input_manifest",
+      "value": "94c2ac6de9310ffb501fc6d5f79ac8b1938780f3eeaf5382d36f7f50e82ef2e0"
+    }
+  ],
+  "fresh_input_manifest_payload_persisted": false,
+  "fresh_received_result_checksum": {
+    "advertised": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c",
+    "computed": "f3b3b8277f70844cf139be2febe9258810889926259f6f4d474dcc1f4076597c",
+    "match": true
+  },
+  "fresh_result_ref_count": 830,
+  "fresh_run_id": "run:preview-linear-static-001",
+  "fresh_schema_validation": "PASS",
+  "mechanics_content": {
+    "exact_equal_to_first_solve": true,
+    "sha256": "114d3e92d502f19bd70b3d239f8944773360c547e1dbdde8b84aa554323bb294"
+  },
+  "status": "PASS"
+}

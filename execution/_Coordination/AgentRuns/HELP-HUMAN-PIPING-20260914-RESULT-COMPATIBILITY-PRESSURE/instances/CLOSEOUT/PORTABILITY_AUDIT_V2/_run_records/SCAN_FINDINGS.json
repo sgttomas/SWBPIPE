@@ -1,0 +1,1877 @@
+{
+  "generated_at_basis": "bounded current filesystem scan; timestamp intentionally omitted",
+  "validator": "tools/validation/validate_path_anchors.py",
+  "classifier": "tools/practitioner_harness/surface_roles.py",
+  "repository_scan_summary": {
+    "checked_file_count": 6769,
+    "finding_count": 298,
+    "semantic_invariants": {
+      "unacknowledged_control": 1,
+      "active_unclassified": 73,
+      "policy_issues": 0,
+      "acknowledged_control": 31
+    }
+  },
+  "selected_run_file_count": 74,
+  "selected_run_finding_count": 298,
+  "files": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_PREPARATION.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "d0f0a6a79429c7a22de5208e1ed58858412ab5e0226755dad6be21af494d7583",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914;"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/EARLY_NATIVE_EXECUTION_V1.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "45f8c72365c0cd78d3cc805440635ff8bb080a659b23d763991b68669af0a5bd",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 7,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        },
+        {
+          "line": 18,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/**."
+        },
+        {
+          "line": 22,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_CONSUMER_PREPARATION_V4.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "4690f79e2afce405306a64be04fbdb97f2cc65594036b4627690a79d2ad1b415",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914"
+        },
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/LEGACY_PROFILE_REFUTATION_V1.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "ede6fa75021937ec49abe810ea3975eceaff4684abe2bbca4f6bb643508a1fa5",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 7,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        },
+        {
+          "line": 7,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_MIGRATION_INTEGRITY_DIAGNOSIS_V1.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "4f9c299ac5b4aeb165ec89d43604bc30e3028e74a75429e6fee0200ec47e5cab",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_SIGNATURE_COVERAGE_PREPARATION.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "23671cf541a3b85487747358f2fd3991485175ef2802a7597d1be5d8fb9396f8",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V1.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "5e6816bbebc8b6422aeda96182d7b222caf43a816ba566d728ea6abe1b647b5c",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        },
+        {
+          "line": 13,
+          "match": "/private/tmp/piping-pressure-refutation-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V2.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "b1e8d6cab0f39b63f85b80b400a38874f9cf8811458e1eac66c7787754782257",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-pressure-refutation-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V3.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "ee3bfd11c95ca53a0a85e6cbe0dc7bc0d175d6cd5b1fc3c83bcbddeb86386f6a",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-pressure-refutation-20260914."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CONTEXT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "5ffacbea8fb39cca0a5b87f35404a8e011831bf490ebd5312b975e0512016c80",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 11,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/ANALYSIS_CANONICALIZER_CHECKPOINT_V1_QUALIFICATION.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "41ebea74705f315b1959a03514776b1a9ffc9b58c063815bf800629b5774e007",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 14,
+          "match": "/private/tmp/chirality-compat-canonical-target"
+        },
+        {
+          "line": 18,
+          "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson"
+        },
+        {
+          "line": 18,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 96,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1981bc63979a36a26596699da2ec52e9fb04e7e18346845f9ccf27a996e27847",
+      "occurrence_count": 5,
+      "occurrences": [
+        {
+          "line": 44,
+          "match": "/private/tmp/chirality-compat-canonical-target"
+        },
+        {
+          "line": 45,
+          "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson"
+        },
+        {
+          "line": 45,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        },
+        {
+          "line": 46,
+          "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson"
+        },
+        {
+          "line": 46,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/BRIEF.md",
+      "role": "CONTROL",
+      "role_reason": "managed control record `BRIEF.md`",
+      "sha256": "cd87caacf6622a979c37ee7577de3ffa1ca255cbc2ca556ed75f9975904112d6",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 47,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/LEGACY_REFUTATION/EVIDENCE_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "3108d71c892f27f9d03685225da398c4c5e8b400e8a1112fcbee3c69547c257e",
+      "occurrence_count": 30,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914"
+        },
+        {
+          "line": 8,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/AGENTS.md"
+        },
+        {
+          "line": 14,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/AGENTS.md"
+        },
+        {
+          "line": 20,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/analysis_runs/records.py"
+        },
+        {
+          "line": 26,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/analysis_runs/legacy.py"
+        },
+        {
+          "line": 32,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/analysis_runs/compatibility.py"
+        },
+        {
+          "line": 38,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/services/previewService.ts"
+        },
+        {
+          "line": 44,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/services/projectService.ts"
+        },
+        {
+          "line": 50,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx"
+        },
+        {
+          "line": 56,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx"
+        },
+        {
+          "line": 62,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/tests/test_analysis_run_compatibility.py"
+        },
+        {
+          "line": 68,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/schemas/analysis_run.schema.json"
+        },
+        {
+          "line": 74,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/schemas/analysis_run.v0.1.schema.json"
+        },
+        {
+          "line": 80,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/schemas/analysis_run.v0.2.schema.json"
+        },
+        {
+          "line": 86,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/schemas/analysis_run.legacy-desktop.v0.1.schema.json"
+        },
+        {
+          "line": 92,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/fixtures/analysis_runs/invented/legacy_python_v0_1.json"
+        },
+        {
+          "line": 98,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/fixtures/analysis_runs/invented/legacy_desktop_v0_1.json"
+        },
+        {
+          "line": 104,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/fixtures/persistence/invented_persisted_preview_project.json"
+        },
+        {
+          "line": 110,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/fixtures/product_preview/invented_mechanics_result.json"
+        },
+        {
+          "line": 116,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/LEGACY_EXPECTATIONS_V1.json"
+        },
+        {
+          "line": 122,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md"
+        },
+        {
+          "line": 128,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/AGENTS.md"
+        },
+        {
+          "line": 134,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/AGENTS.md"
+        },
+        {
+          "line": 140,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/APPROVED_PLAN.md"
+        },
+        {
+          "line": 146,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SETUP/_run_records/OWNER_MESSAGE.md"
+        },
+        {
+          "line": 152,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md"
+        },
+        {
+          "line": 158,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/LEGACY_PROFILE_REFUTATION_V1.md"
+        },
+        {
+          "line": 164,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPATIBILITY_SOURCE_RELEASE.json"
+        },
+        {
+          "line": 170,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/ANALYSIS_RESULT_HASH_CONSUMER_FENCE_V1.json"
+        },
+        {
+          "line": 176,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CANONICALIZER_CONSUMER_LOCK_FENCE_V1.json"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/LEGACY_REFUTATION/context/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/LEGACY_PROFILE_REFUTATION_V1.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "ede6fa75021937ec49abe810ea3975eceaff4684abe2bbca4f6bb643508a1fa5",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 7,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914."
+        },
+        {
+          "line": 7,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914."
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/LEGACY_REFUTATION/snapshot/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 96,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/MIGRATION_DIAGNOSIS_V1/INPUT_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "8680f70e70d1f1f2669bfbc51493711b81c4f761f5002488bcc9fef83af5b127",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/EARLY_NATIVE_RESULT_V1.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "82abbc2b6953117b57b069574abb53e03183a88f4e2acb48e65eccfd419a894c",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 26,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 72,
+          "match": "/Users/ryan/Library/Application"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/LEASE_RELEASE.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "355e70ea9861e58202e171385ec509613592161d2b31fbdd3c81ff5652144e9b",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/bindings/source_binding_after_gui.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "a549a2f9ecb76eb8d0e1ede9c19d48a4e5349440b6c40a285a1a7ea7ed60571a",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 5,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_LIFECYCLE_CHECKPOINT_V2.json"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/bound_bundle_manifest.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "57bf22986ba74ae74bf6523bb893d9f8f3fec296564473106b86b2d510e07b62",
+      "occurrence_count": 4,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 28,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/dist"
+        },
+        {
+          "line": 169,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 173,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src-tauri/target/release/bundle/macos/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/checked_json_build.record.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "fd09d2a554ea3fb77bf2076e9bc4a5c5ade7843337e39feed25e51e4035e2916",
+      "occurrence_count": 4,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-foundation-20260914-venv/bin/python"
+        },
+        {
+          "line": 4,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/tools/serialization/build_checked_json.py"
+        },
+        {
+          "line": 6,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/checked-json"
+        },
+        {
+          "line": 8,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/packaged_self_test.record.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "80e0e0329398c078d15506ae58581349188dccef79023822b1026d6a33bd5b22",
+      "occurrence_count": 4,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 6,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping"
+        },
+        {
+          "line": 184,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/packaged_self_test.stderr.txt"
+        },
+        {
+          "line": 189,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/packaged_self_test.stdout.json"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/tauri_build.record.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "498ed50a176942708600778279317578e39ca5e936b4947ad9da4105f7ef0923",
+      "occurrence_count": 4,
+      "occurrences": [
+        {
+          "line": 13,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/build/tauri.early-native-v1.conf.json"
+        },
+        {
+          "line": 15,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop"
+        },
+        {
+          "line": 25,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/tauri_build.stderr.txt"
+        },
+        {
+          "line": 30,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/commands/tauri_build.stdout.txt"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/gui/observations.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "eb10d209017a2600e16c74248c05a005082cdc66d2644ef8df75df44da55eb04",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 7,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/process/final_quit.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "f2df2becc2cacc5193272d8c160fc49532b23622808025821aa33d2945408d6a",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/process/launch_1.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "cda95742187114e9a03ecd5d1144f9fb8f0bf924eab1ebb4366cfab8948beb6f",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 6,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 10,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/process/quit_1_and_launch_2.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "f8bf0ae6280f3c87f9129ee58949d68a5d6dc051862c9f006ddd5901faba25e1",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 3,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        },
+        {
+          "line": 6,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_first_save.capture.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "33dd643f410e5dad2afa9a726524b911d548712fd1a88c5b65a75e12f7588405",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 19,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_first_save.sqlite3"
+        },
+        {
+          "line": 23,
+          "match": "/Users/ryan/Library/Application"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_fresh_solve_save.capture.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1b9fc7dd9513dacd2d3f8360107adf2f217c57a1ca320d628c6dbd35cbccc861",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 19,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_fresh_solve_save.sqlite3"
+        },
+        {
+          "line": 23,
+          "match": "/Users/ryan/Library/Application"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_unchanged_save.capture.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "a54dfb4e73f5212d6eeb4574b9417d080453cb494cbef55753b8b5eaf39b95d7",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 19,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_unchanged_save.sqlite3"
+        },
+        {
+          "line": 23,
+          "match": "/Users/ryan/Library/Application"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/prelaunch_store_state.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "ae3de1ab5c07251a9f40d926e1a6b91aef17486e2760b2bc8bc15382f30655a0",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/Library/Application"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/after_first_save_analysis_validation.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "60f09269383cfe2b91672840f49db3993c1e46adea7deecf471b188a0d8611c3",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 33,
+          "match": "/private/tmp/piping-foundation-native-early-20260914/checked-json/release/openpipestress_jcs_ijson"
+        },
+        {
+          "line": 79,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_first_save.row.json"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/after_first_save_model_envelope_hashes.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1ca1783af4e9cd5e26c10037b08ec91f0709d9b72ee3136c3281492f1035a243",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 6,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js"
+        },
+        {
+          "line": 8,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/after_fresh_solve_model_envelope_hashes.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "02e500cccc18b5734f6004ad9e853913f377058e21bbcb6b6dda64706c3d912b",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 6,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js"
+        },
+        {
+          "line": 8,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/CONTEXT_V1.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "7734d05cd6663b9ba845b305a43cd1a9f2dac939a2b0a65a70c4b5d676c292a5",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914"
+        },
+        {
+          "line": 11,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914"
+        },
+        {
+          "line": 12,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-pressure-kernel-20260914/projects/chirality-piping"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/IMPLEMENTATION_RETURN_V2.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1f1b8ca7f6c26721a627325306fbaf0f78429ee3ff8a1ed29e270bf87997742b",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 18,
+          "match": "/tmp/chirality-pressure-cargo-target-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V2.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "0ab04e60c03c8482569468c71baea5ec03854ab0fda110d36b5e3f214f1dc14f",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 24,
+          "match": "/tmp/chirality-pressure-cargo-target-20260914"
+        },
+        {
+          "line": 47,
+          "match": "/tmp/chirality-pressure-cargo-target-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE/SOURCE_FREEZE_V3.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "2deb6d5bcb2446cc52f3ec8489321caa4369795f08525884aaf245740192bb8c",
+      "occurrence_count": 2,
+      "occurrences": [
+        {
+          "line": 37,
+          "match": "/tmp/chirality-pressure-cargo-target-20260914"
+        },
+        {
+          "line": 66,
+          "match": "/tmp/chirality-pressure-cargo-target-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/BASELINE/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "99fc0633bc5b0c0cce502c8e0f82ad98b502f0a81e82fe6bce4a7b707858c08f",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 65,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/BASELINE/adapter.rs"
+        },
+        {
+          "line": 67,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/BASELINE-adapter"
+        },
+        {
+          "line": 70,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/BASELINE"
+        },
+        {
+          "line": 74,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/BASELINE-adapter"
+        },
+        {
+          "line": 77,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/BASELINE"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DIAGNOSTICS/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "ebd9349b9f1029b602d27882a0c276fb32c133a3ed77080655e44356f01086ff",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 271,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DIAGNOSTICS/adapter.rs"
+        },
+        {
+          "line": 273,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 276,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DIAGNOSTICS"
+        },
+        {
+          "line": 280,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 283,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DIAGNOSTICS"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DOUBLE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "71860d1b2f52539e33723e351308c146d1ddaa78e2fab1a28489557da1cb0ed0",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DOUBLE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DOUBLE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DOUBLE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/DOUBLE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/FAILED_ATTEMPTS.md",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "bd8f7db62f182e44f5f3edad7d05cdb24a1955dc7c553ba79a636dd5f12cb60e",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 6,
+          "match": "/private/tmp/piping-pressure-refutation-20260914;"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/MEAN_RADIUS_FLUID_AREA/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "0f12a2aee067b05720ee4f860947eb13224a954b5419159fdc87ee3697a61b5f",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/MEAN_RADIUS_FLUID_AREA/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 12668,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/MEAN_RADIUS_FLUID_AREA/adapter.rs"
+        },
+        {
+          "line": 12670,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 12673,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/MEAN_RADIUS_FLUID_AREA"
+        },
+        {
+          "line": 12677,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 12680,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/MEAN_RADIUS_FLUID_AREA"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "d49ab195095782ee0f3944e057a8b99ba241628b46cd9e808395e52b555112eb",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_FLUID_EFFECTIVE_TERM/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "5d5e8767d08657068379f25a48e203a5b44680ce4bfb982fa680b8a949bba04a",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_FLUID_EFFECTIVE_TERM/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 1217,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_FLUID_EFFECTIVE_TERM/adapter.rs"
+        },
+        {
+          "line": 1219,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1222,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_FLUID_EFFECTIVE_TERM"
+        },
+        {
+          "line": 1226,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1229,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/OMIT_FLUID_EFFECTIVE_TERM"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/REVERSE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "51a83a0ca63370de10be070870f914a7035147eac73bbf65f2f8aeed1b82dd8b",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/REVERSE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/REVERSE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/REVERSE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/REVERSE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/RUN_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "8cb8e47d2a58581d0372e37f93effd34d0a6c015a85d315df2832b36f16b4fc6",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1"
+        },
+        {
+          "line": 11,
+          "match": "/private/tmp/piping-pressure-refutation-20260914"
+        },
+        {
+          "line": 35,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/run_refutation.py"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/SUBTRACT_CAP_FROM_WALL/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "03697f5383ba1752aa9a74d38d21ec8639b72a48efcd53c18a43fb0a60e7d1b6",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/SUBTRACT_CAP_FROM_WALL/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 3615,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/SUBTRACT_CAP_FROM_WALL/adapter.rs"
+        },
+        {
+          "line": 3617,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 3620,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/SUBTRACT_CAP_FROM_WALL"
+        },
+        {
+          "line": 3624,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 3627,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V1/SUBTRACT_CAP_FROM_WALL"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/ADDITIONAL/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "531dc9163c75c655f287b54a6f0c94c5249903cb5981491c3edeeddfc263d911",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 5430,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/ADDITIONAL/adapter.rs"
+        },
+        {
+          "line": 5432,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-ADDITIONAL-adapter"
+        },
+        {
+          "line": 5435,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/ADDITIONAL"
+        },
+        {
+          "line": 5439,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-ADDITIONAL-adapter"
+        },
+        {
+          "line": 5442,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/ADDITIONAL"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "022a4d1c9b3eaee7f2d8b08cc370d55bc0a2161ea931bc7df86e6a8b1c7c2f60",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 65,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE/adapter.rs"
+        },
+        {
+          "line": 67,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-BASELINE-adapter"
+        },
+        {
+          "line": 70,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE"
+        },
+        {
+          "line": 74,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-BASELINE-adapter"
+        },
+        {
+          "line": 77,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/BASELINE"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/DOUBLE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "2e9ca03107280a7de096d142ab099ee6eab41c696af0b3b33dd33978d35c879b",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/DOUBLE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/DOUBLE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/DOUBLE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/DOUBLE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/MEAN_RADIUS_FLUID_AREA/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1327cd00d3807bc177dfad0fe2e7c62399a4fbf7660c693748f36a2cfcc2798a",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/MEAN_RADIUS_FLUID_AREA/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 3582,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/MEAN_RADIUS_FLUID_AREA/adapter.rs"
+        },
+        {
+          "line": 3584,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 3587,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/MEAN_RADIUS_FLUID_AREA"
+        },
+        {
+          "line": 3591,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 3594,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/MEAN_RADIUS_FLUID_AREA"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "62abea8ce9ae005857a6f4df0ab380a02ee39a0af5f30349fe92321489e27395",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "3142ce3284d1e30e4aeb72b0b7a401415f47ae9a4d4c606e182cd0babc59cadf",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 1217,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM/adapter.rs"
+        },
+        {
+          "line": 1219,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1222,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM"
+        },
+        {
+          "line": 1226,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1229,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/OMIT_FLUID_EFFECTIVE_TERM"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/REVERSE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "5f2943dfdf45cda1e069d703280f2dfdd738e1cf5446901d73d99c6aa519ab1d",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/REVERSE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/REVERSE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/REVERSE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/REVERSE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/RUN_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "e9cf38a782e359815db55b3b27031c8164476b23d89537cc5b036dfc5b3bfbfa",
+      "occurrence_count": 3,
+      "occurrences": [
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2"
+        },
+        {
+          "line": 11,
+          "match": "/private/tmp/piping-pressure-refutation-20260914"
+        },
+        {
+          "line": 28,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/run_refutation.py"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/SUBTRACT_CAP_FROM_WALL/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "67a57ae2f20b4124c54167c7833e7a2e8ae47d2b1eb8fd337ff530f06e6130eb",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/SUBTRACT_CAP_FROM_WALL/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 2416,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/SUBTRACT_CAP_FROM_WALL/adapter.rs"
+        },
+        {
+          "line": 2418,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 2421,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/SUBTRACT_CAP_FROM_WALL"
+        },
+        {
+          "line": 2425,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 2428,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/SUBTRACT_CAP_FROM_WALL"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "a3c82efe560921d4df2e6114edc1ffee1c555aa4de038dd163fe63638ee4775f",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 17,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS/adapter.rs"
+        },
+        {
+          "line": 19,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-V1_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 22,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS"
+        },
+        {
+          "line": 26,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V2-V1_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 29,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V2/V1_DIAGNOSTICS"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADDITIONAL/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "68ca794bbd91414152eacf5fdd1b4af2fb3653911195a280e3c18b4cda9ba4bb",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 186,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADDITIONAL/adapter.rs"
+        },
+        {
+          "line": 188,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-ADDITIONAL-adapter"
+        },
+        {
+          "line": 191,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADDITIONAL"
+        },
+        {
+          "line": 195,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-ADDITIONAL-adapter"
+        },
+        {
+          "line": 198,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/ADDITIONAL"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/BASELINE/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "e9325e6be9899832138409aef105a68aeab7ee780aec26d647179622b998fc19",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 65,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/BASELINE/adapter.rs"
+        },
+        {
+          "line": 67,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-BASELINE-adapter"
+        },
+        {
+          "line": 70,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/BASELINE"
+        },
+        {
+          "line": 74,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-BASELINE-adapter"
+        },
+        {
+          "line": 77,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/BASELINE"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/DOUBLE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "c452bb5f49ad23bd3ba6fb070ff51cfae11a06c893fdb89f4a563dc7d2f0abc3",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/DOUBLE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/DOUBLE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/DOUBLE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-DOUBLE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/DOUBLE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/MEAN_RADIUS_FLUID_AREA/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "516e941798fe37d5ad89e7dbad276c53d31ba2c569d1dca45c0610374d3bb73a",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/MEAN_RADIUS_FLUID_AREA/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 12668,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/MEAN_RADIUS_FLUID_AREA/adapter.rs"
+        },
+        {
+          "line": 12670,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 12673,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/MEAN_RADIUS_FLUID_AREA"
+        },
+        {
+          "line": 12677,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-MEAN_RADIUS_FLUID_AREA-adapter"
+        },
+        {
+          "line": 12680,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/MEAN_RADIUS_FLUID_AREA"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "56cb592e03c88ab8a3f562847755de56b71cc84ffb56e2de12dfccc9798c2751",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-OMIT_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_FLUID_EFFECTIVE_TERM/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "97d133bbc7abeb605520eb8f623bd720ffc27a89cb860d126ed4dfd293528a5f",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_FLUID_EFFECTIVE_TERM/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 1217,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_FLUID_EFFECTIVE_TERM/adapter.rs"
+        },
+        {
+          "line": 1219,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1222,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_FLUID_EFFECTIVE_TERM"
+        },
+        {
+          "line": 1226,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-OMIT_FLUID_EFFECTIVE_TERM-adapter"
+        },
+        {
+          "line": 1229,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/OMIT_FLUID_EFFECTIVE_TERM"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/REVERSE_2NUP/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "de224e02d1c1121ad2e25a7b3ed31c24bbef79675ffc52dcad9c663b4d63665a",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/REVERSE_2NUP/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 5793,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/REVERSE_2NUP/adapter.rs"
+        },
+        {
+          "line": 5795,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5798,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/REVERSE_2NUP"
+        },
+        {
+          "line": 5802,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-REVERSE_2NUP-adapter"
+        },
+        {
+          "line": 5805,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/REVERSE_2NUP"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/RUN_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "c736624a8176dc826ce16edf76223c38a68a116b6808d45db4def4b5e4350782",
+      "occurrence_count": 4,
+      "occurrences": [
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3"
+        },
+        {
+          "line": 11,
+          "match": "/private/tmp/piping-pressure-refutation-20260914"
+        },
+        {
+          "line": 15,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/run_refutation.py"
+        },
+        {
+          "line": 19,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/probe_admission.py"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/STRICT_ADMISSION/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "066c0f79247b585bbc381daca05a1f8dec4500d9c230c735f979345909b90c5d",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 17,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/STRICT_ADMISSION/adapter.rs"
+        },
+        {
+          "line": 19,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-STRICT_ADMISSION-adapter"
+        },
+        {
+          "line": 22,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/STRICT_ADMISSION"
+        },
+        {
+          "line": 26,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-STRICT_ADMISSION-adapter"
+        },
+        {
+          "line": 29,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/STRICT_ADMISSION"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/SUBTRACT_CAP_FROM_WALL/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "eb199749e248d3aac91df6043d33b07b91f05a4f3caf9d50f7f068766f114a22",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/SUBTRACT_CAP_FROM_WALL/pressure_exact_mutant.rs"
+        },
+        {
+          "line": 2416,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/SUBTRACT_CAP_FROM_WALL/adapter.rs"
+        },
+        {
+          "line": 2418,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 2421,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/SUBTRACT_CAP_FROM_WALL"
+        },
+        {
+          "line": 2425,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-SUBTRACT_CAP_FROM_WALL-adapter"
+        },
+        {
+          "line": 2428,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/SUBTRACT_CAP_FROM_WALL"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V1_DIAGNOSTICS/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "1a590b94d186da48e7e08ac0638fa8dcdb310a496cd69aa259aa5bf633f0fc4e",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 17,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V1_DIAGNOSTICS/adapter.rs"
+        },
+        {
+          "line": 19,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-V1_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 22,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V1_DIAGNOSTICS"
+        },
+        {
+          "line": 26,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-V1_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 29,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V1_DIAGNOSTICS"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V2_DIAGNOSTICS/RESULT.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "fe7907d25d1549611b105415208f066f4a2ba539c30caa40db4d7fc88ac6c03f",
+      "occurrence_count": 6,
+      "occurrences": [
+        {
+          "line": 2,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/core/product_physics/src/pressure_exact.rs"
+        },
+        {
+          "line": 17,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V2_DIAGNOSTICS/adapter.rs"
+        },
+        {
+          "line": 19,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-V2_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 22,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V2_DIAGNOSTICS"
+        },
+        {
+          "line": 26,
+          "match": "/private/tmp/piping-pressure-refutation-20260914/V3-V2_DIAGNOSTICS-adapter"
+        },
+        {
+          "line": 29,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/REFUTATION_V3/V2_DIAGNOSTICS"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/RUN_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "7691ba5ffb5cd463b0433fbcb6c62ff2c734453dd21bc775ce6f73ade648f768",
+      "occurrence_count": 1,
+      "occurrences": [
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914"
+        }
+      ]
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/PRESSURE_ORACLE/SOURCE_MANIFEST.json",
+      "role": "UNCLASSIFIED",
+      "role_reason": "unknown managed AgentRuns artifact",
+      "sha256": "04cf6a75ff01e6c5f0f2973a8063358392a426f7c304120dad389002a9bf9753",
+      "occurrence_count": 11,
+      "occurrences": [
+        {
+          "line": 4,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/AGENTS.md"
+        },
+        {
+          "line": 10,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/agents/AGENT_TASK.md"
+        },
+        {
+          "line": 16,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/AGENTS.md"
+        },
+        {
+          "line": 22,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_ORACLE.md"
+        },
+        {
+          "line": 28,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/briefs/PRIVATE_PRESSURE_KERNEL_V1.md"
+        },
+        {
+          "line": 34,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/contracts/PRESSURE_CONTRACT_V1.md"
+        },
+        {
+          "line": 40,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ENGINEERING/verification/ANALYTICAL_ORACLES_V1.json"
+        },
+        {
+          "line": 46,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/PKG-05_Loads,"
+        },
+        {
+          "line": 52,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/PKG-05_Loads,"
+        },
+        {
+          "line": 58,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/docs/_Registers/Deliverables.csv"
+        },
+        {
+          "line": 64,
+          "match": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/docs/CONTRACT.md"
+        }
+      ]
+    }
+  ]
+}

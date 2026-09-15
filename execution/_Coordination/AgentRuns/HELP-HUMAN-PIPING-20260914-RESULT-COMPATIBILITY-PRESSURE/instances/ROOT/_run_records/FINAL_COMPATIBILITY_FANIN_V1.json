@@ -1,0 +1,42 @@
+{
+  "schema": "root-final-compatibility-fanin-v1",
+  "created_utc": "2026-09-15T03:29:17.897710+00:00",
+  "checkpoint": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+    "sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832"
+  },
+  "manager_fanin": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+    "sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362"
+  },
+  "all_source_hashes_equal": true,
+  "source_files": 74,
+  "source_mutations_this_import": false,
+  "imported_new_evidence": [
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/RETURN.md",
+    "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/STATUS.json"
+  ],
+  "versioned_final_mutable_returns": [
+    {
+      "received_from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/MANIFEST.json",
+      "preserved_old_sha256": "ec2dcef76ee591cae63b181f40342c46a9f051a5ff288248235f8b33e1de3db6",
+      "final_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/MANIFEST_FINAL_DELIVERY_V10.json",
+      "sha256": "a1aa00b9727dd22ff1b43253083d9112a27383b3cb6e7e341b382a4dd2300bab"
+    },
+    {
+      "received_from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/RETURN.md",
+      "preserved_old_sha256": "9681bf807217e485d5f92b1f9ab8978626e51adc3fa06dbe9d2cd8f719b7d75f",
+      "final_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/RETURN_FINAL_DELIVERY_V10.md",
+      "sha256": "92f7a42a7fcc617dce90e3862cbf21dbff8ef834a4068d01e04f4fd65655436a"
+    },
+    {
+      "received_from": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/STATUS.json",
+      "preserved_old_sha256": "232a4098d2cf8d6b48773cb91df1fb20afedf54f850d98dd315bf798bcfd6865",
+      "final_snapshot": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/STATUS_FINAL_DELIVERY_V10.json",
+      "sha256": "993a36af9ea0253053f9ab08ddfdfe1113a39baf875069d8133e196807263420"
+    }
+  ],
+  "build_browser_lease": "RELEASED; manager and writer report zero owned processes",
+  "acceptance": "Compatibility source and focused evidence accepted for frozen review and final native execution. Tranche remains open."
+}

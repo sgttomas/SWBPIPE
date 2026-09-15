@@ -9,7 +9,8 @@ use std::{
 };
 
 const PREFIX: &str = "data:application/json;charset=utf-8,";
-const FILE_PREFIX: &str = "openpipestress-preview-results-";
+const RESULT_FILE_PREFIX: &str = "openpipestress-preview-results-";
+const STRESS_FILE_PREFIX: &str = "openpipestress-preview-stress-neutral-";
 
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
@@ -84,23 +85,27 @@ impl Drop for SavePermit {
     fn drop(&mut self) { self.0.store(false, Ordering::Release); }
 }
 
-fn valid_name(name: &str) -> bool {
-    let Some(token) = name.strip_prefix(FILE_PREFIX).and_then(|v| v.strip_suffix(".json")) else { return false; };
+fn valid_name(name: &str, prefix: &str) -> bool {
+    let Some(token) = name.strip_prefix(prefix).and_then(|v| v.strip_suffix(".json")) else { return false; };
     !token.is_empty() && token.split('-').all(|part| !part.is_empty()
         && part.bytes().all(|b| b.is_ascii_lowercase() || b.is_ascii_digit()))
 }
 fn validate(request: &SaveRequest) -> Result<(), SaveError> {
     let s = &request.screening;
     let l = &request.local_first;
-    if s.route_id != "DOTH-JSON-001" || s.export_context != "local_private"
-        || !s.explicit_local_private_intent || s.blocked || s.materialization_withheld
+    if s.export_context != "local_private" || !s.explicit_local_private_intent || s.blocked || s.materialization_withheld
         || !s.lossless_required || !s.exact_payload_match || s.blocking_count != 0
         || l.route_id != s.route_id || l.export_context != s.export_context
         || l.storage_context != "local_private" || l.action != "include_metadata_only"
         || l.reason_code != "PRIVATE_LOCAL_METADATA_ALLOWED" || l.blocked
         || !l.metadata_only || !l.explicit_local_private_intent
     { return Err(failure("REQUEST_EVIDENCE_DENIED", "request")); }
-    if !valid_name(&request.file_name) { return Err(failure("INVALID_FILE_NAME", "request")); }
+    let prefix = match s.route_id.as_str() {
+        "DOTH-JSON-001" => RESULT_FILE_PREFIX,
+        "DOTH-FORMAT-003" => STRESS_FILE_PREFIX,
+        _ => return Err(failure("REQUEST_EVIDENCE_DENIED", "request")),
+    };
+    if !valid_name(&request.file_name, prefix) { return Err(failure("INVALID_FILE_NAME", "request")); }
     Ok(())
 }
 fn decode(href: &str) -> Result<Vec<u8>, SaveError> {
@@ -201,15 +206,19 @@ mod tests {
     use serde_json::json;
     use std::{cell::Cell, sync::atomic::AtomicU64, time::{SystemTime, UNIX_EPOCH}};
     const NAME: &str = "openpipestress-preview-results-run-350.json";
+    const STRESS_NAME: &str = "openpipestress-preview-stress-neutral-result-run-350.json";
     static NEXT: AtomicU64 = AtomicU64::new(0);
     struct Scratch(PathBuf);
     impl Scratch { fn new() -> Self { let p = std::env::temp_dir().join(format!("ops-result-save-{}-{}-{}", std::process::id(), SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_nanos(), NEXT.fetch_add(1, Ordering::Relaxed))); fs::create_dir(&p).unwrap(); Self(p) } }
     impl Drop for Scratch { fn drop(&mut self) { let _ = fs::remove_dir_all(&self.0); } }
     fn percent(text: &str) -> String { text.as_bytes().iter().map(|b| format!("%{b:02X}")).collect() }
     fn request(text: &str) -> SaveRequest {
-        serde_json::from_value(json!({"href":format!("{PREFIX}{}",percent(text)),"file_name":NAME,
-            "screening":{"route_id":"DOTH-JSON-001","export_context":"local_private","explicit_local_private_intent":true,"blocked":false,"materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},
-            "local_first":{"route_id":"DOTH-JSON-001","export_context":"local_private","storage_context":"local_private","action":"include_metadata_only","reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}})).unwrap()
+        request_for(text, "DOTH-JSON-001", NAME)
+    }
+    fn request_for(text: &str, route: &str, name: &str) -> SaveRequest {
+        serde_json::from_value(json!({"href":format!("{PREFIX}{}",percent(text)),"file_name":name,
+            "screening":{"route_id":route,"export_context":"local_private","explicit_local_private_intent":true,"blocked":false,"materialization_withheld":false,"lossless_required":true,"exact_payload_match":true,"blocking_count":0},
+            "local_first":{"route_id":route,"export_context":"local_private","storage_context":"local_private","action":"include_metadata_only","reason_code":"PRIVATE_LOCAL_METADATA_ALLOWED","blocked":false,"metadata_only":true,"explicit_local_private_intent":true}})).unwrap()
     }
     #[test]
     fn contradictory_route_intent_evidence_and_unknown_fields_never_resolve_or_write() {
@@ -242,7 +251,20 @@ mod tests {
             assert!(decode(href).is_err(), "{href}");
         }
         assert_eq!(decode("data:application/json;charset=utf-8,%22a+b%2525%22").unwrap(), b"\"a+b%25\"");
-        for name in ["openpipestress-preview-results-.json", "openpipestress-preview-results-run--350.json", "openpipestress-preview-results-RUN.json", "openpipestress-preview-results-rún.json", "openpipestress-preview-results-run (1).json", "openpipestress-preview-results-run.JSON", "/outside.json", "../outside.json", "other.json"] { assert!(!valid_name(name), "{name}"); }
+        for name in ["openpipestress-preview-results-.json", "openpipestress-preview-results-run--350.json", "openpipestress-preview-results-RUN.json", "openpipestress-preview-results-rún.json", "openpipestress-preview-results-run (1).json", "openpipestress-preview-results-run.JSON", "/outside.json", "../outside.json", "other.json"] { assert!(!valid_name(name, RESULT_FILE_PREFIX), "{name}"); }
+        assert!(valid_name(STRESS_NAME, STRESS_FILE_PREFIX));
+        assert!(!valid_name(STRESS_NAME, RESULT_FILE_PREFIX));
+    }
+    #[test]
+    fn exactly_paired_result_and_stress_profiles_are_admitted() {
+        let s = Scratch::new();
+        let result = save_request(request_for("{\"family\":\"result\"}", "DOTH-JSON-001", NAME), || Ok::<_, ()>(s.0.clone())).unwrap();
+        let stress = save_request(request_for("{\"family\":\"stress\"}", "DOTH-FORMAT-003", STRESS_NAME), || Ok::<_, ()>(s.0.clone())).unwrap();
+        assert!(result.file_name.starts_with(RESULT_FILE_PREFIX));
+        assert!(stress.file_name.starts_with(STRESS_FILE_PREFIX));
+        for (route, name) in [("DOTH-JSON-001", STRESS_NAME), ("DOTH-FORMAT-003", NAME)] {
+            assert_eq!(save_request(request_for("{}", route, name), || -> Result<PathBuf, ()> { panic!("must not resolve") }).unwrap_err().stage, "request");
+        }
     }
     #[test]
     fn actual_files_preserve_exact_escaped_unicode_numbers_and_multi_megabyte_bytes() {

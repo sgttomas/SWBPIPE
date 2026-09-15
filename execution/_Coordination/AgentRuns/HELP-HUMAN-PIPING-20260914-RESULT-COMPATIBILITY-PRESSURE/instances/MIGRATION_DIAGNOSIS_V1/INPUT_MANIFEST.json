@@ -1,0 +1,178 @@
+{
+  "captured_utc": "2026-09-15T02:16:00.063731+00:00",
+  "root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "candidate_head": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "scope": "read_only_source_and_captured_synthetic_store_analysis",
+  "files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "6af3362f1b129a5d6a614270868950360f4ec9b94f84216c1015daf7577a5c64",
+      "bytes": 12834
+    },
+    {
+      "path": "projects/chirality-piping/AGENTS.md",
+      "sha256": "33f5e5f01ac80971e853094b72a3297c9002e8537593292648b34e5eb90d4d5b",
+      "bytes": 10615
+    },
+    {
+      "path": "agents/AGENT_TASK.md",
+      "sha256": "1a13a5b00b3ce01ff8519efe6b46bcbe0cd6a5b7985e24282fa7efa2c57c8fb7",
+      "bytes": 1499
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_MIGRATION_INTEGRITY_DIAGNOSIS_V1.md",
+      "sha256": "4f9c299ac5b4aeb165ec89d43604bc30e3028e74a75429e6fee0200ec47e5cab",
+      "bytes": 5317
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/APPROVED_PLAN.md",
+      "sha256": "8dc764d047439756ae788c12dd2f19e5e827f5dd3429a857faeade620e3c121d",
+      "bytes": 680
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/SETUP/_run_records/OWNER_MESSAGE.md",
+      "sha256": "1927b09d3ce84f403c68a745e579e3b21457fa10954aebd2d91af137734a87e0",
+      "bytes": 13403
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/_DECISIONS/D-67_RULING_2026-09-14.md",
+      "sha256": "0c605e5548acf6c9b36b4dbe4de82674960d5b2fc3f9f5bc2f968dc9d53be19a",
+      "bytes": 3151
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPATIBILITY_SOURCE_RELEASE.json",
+      "sha256": "68ec3c0be138eaa85b2ec5cd6ebfd8d371af7e04d9075ab6d219700f77ffe31d",
+      "bytes": 4838
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/EARLY_NATIVE_FANIN_V1.json",
+      "sha256": "e605fdd61499a0ace6256ed4e586a702ac5c94c174d0e6d8e6bcd9e82b7dac9b",
+      "bytes": 1053
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.tsx",
+      "sha256": "24bc376b9ed2c38d6f2beb1c6d94d99c1710537bd04bc1c100a13276470bea5a",
+      "bytes": 144586
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+      "sha256": "4c19c81baed38e95ba58cb2cea5137b21bdbd6b9ec58912a76864c27fd9ff934",
+      "bytes": 723885
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.ts",
+      "sha256": "da38305ab02c69be95cdae4e79c9546568038716d597cc72385883938cc1363d",
+      "bytes": 23589
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts",
+      "sha256": "a7e28cff52c2d4f02dc54d3ade763ee5d70eb6c759ca2ced15418c9eee395bed",
+      "bytes": 9043
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/services/hashService.ts",
+      "sha256": "0f1d342d60501b212c3a307b96ba1dfa625fcc1845cc33b47e54dd58341cf7e1",
+      "bytes": 7029
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx",
+      "sha256": "1bcd1e85e2db890f479a0c99d1b75d7d8c0d951dcddd29e0bc9a1921033bcc4b",
+      "bytes": 28628
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.test.tsx",
+      "sha256": "6f005bfaaf07fedb1232fec396208b525a8243f0d24158ea1bc9c5dd6275df77",
+      "bytes": 18530
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/project-validation/ProjectValidationPanel.tsx",
+      "sha256": "4916682566d3f2e51447e15d32658698aa1a72c1707a15a7b1250152d0791a55",
+      "bytes": 38048
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/types.ts",
+      "sha256": "1bd11bad15b75a92f2f3edbf5b8790fc8f096606c2eccd695877073cf2a76c26",
+      "bytes": 27345
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+      "sha256": "5c480a4e9317fc72a1c81a043eb8f48c1cc7d0c174e8d5aee0aabfb53e556f23",
+      "bytes": 274569
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+      "sha256": "ce3e36b018559eafe1955155b0cb0ce6e2aac6ad3556c9fded7a17306741c704",
+      "bytes": 17044
+    },
+    {
+      "path": "projects/chirality-piping/schemas/project_persistence.schema.yaml",
+      "sha256": "babb93fc4c7aee20be3b82d8e191d6a92a49f6d604b7e341669c1226a12b4164",
+      "bytes": 23995
+    },
+    {
+      "path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs",
+      "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355",
+      "bytes": 531519
+    },
+    {
+      "path": "projects/chirality-piping/core/serialization/canonical_json/src/lib.rs",
+      "sha256": "0236e76eeed2949d95d2826c0c20f68232e6bb4a5ceb983744e8db78628a3573",
+      "bytes": 17468
+    },
+    {
+      "path": "projects/chirality-piping/fixtures/product_preview/invented_preview_model.json",
+      "sha256": "986c055944776ca8d0d849d552678e1f2bfb6c4559bbb9ff8a1928157a4f871c",
+      "bytes": 17555
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_first_save.row.json",
+      "sha256": "007d34fcaeac47222212fae6b973d0a26adb6db0aed9a9a066732d15ab0dfcf7",
+      "bytes": 1847885
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_unchanged_save.row.json",
+      "sha256": "407ce7dc5df7180965350f4b9d6082b95c964b368ae6d64c46ce9fd312c33687",
+      "bytes": 1847885
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_fresh_solve_save.row.json",
+      "sha256": "7b6b09084226959bffbcd3d575b33a28cf9f6bae1901b3223360d8399877da7c",
+      "bytes": 1847885
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/after_first_save_model_envelope_hashes.json",
+      "sha256": "1ca1783af4e9cd5e26c10037b08ec91f0709d9b72ee3136c3281492f1035a243",
+      "bytes": 2503
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/after_fresh_solve_model_envelope_hashes.json",
+      "sha256": "02e500cccc18b5734f6004ad9e853913f377058e21bbcb6b6dda64706c3d912b",
+      "bytes": 2497
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/EARLY_NATIVE_INTEGRITY_FINDING_V1.json",
+      "sha256": "037cd5806d1531a18fd396e0d91be45d133b64ea65c375331765b23a7d80dc14",
+      "bytes": 3688
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/validation/unchanged_save_preservation.json",
+      "sha256": "b33ffcea6144d997a1332306bd622d05d9b31f87254e1d34ec03cf4fc91e7ae5",
+      "bytes": 2968
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/bindings/source_binding_after_gui.json",
+      "sha256": "a549a2f9ecb76eb8d0e1ede9c19d48a4e5349440b6c40a285a1a7ea7ed60571a",
+      "bytes": 24016
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/EVIDENCE_MANIFEST.json",
+      "sha256": "47c26d8656d402217e3b1578911b364e4c9ce428523a52fe98f975f01e1454b0",
+      "bytes": 9671
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/SEALED_RESULT.json",
+      "sha256": "0150015fbfacd54532cce5a2b1547b925ea0db3f927e66492dd45f9f1e76b3a5",
+      "bytes": 713
+    }
+  ]
+}

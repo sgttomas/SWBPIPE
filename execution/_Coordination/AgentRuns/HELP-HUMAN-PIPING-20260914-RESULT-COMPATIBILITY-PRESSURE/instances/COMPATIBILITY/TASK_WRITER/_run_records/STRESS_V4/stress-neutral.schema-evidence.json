@@ -1,0 +1,17 @@
+{
+  "schema_pass": true,
+  "packet_path": "execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/_run_records/STRESS_V4/stress-neutral.packet.json",
+  "packet_sha256": "4a0e3aecfa8dd1adafbc1b65f34d69c6c87fa3277ca7e866f7a846ecc108936f",
+  "schema_version": "0.2.0",
+  "result_rows": 830,
+  "unit_preservation_witnesses": 828,
+  "diagnostic_work_withheld_findings": 2,
+  "diagnostic_work_source_refs": [
+    "result:nonlinear-support:free-dof-work-residual",
+    "result:loadcase:load-L-200:nonlinear-support:free-dof-work-residual"
+  ],
+  "package_members": 9,
+  "manifest_checksums": 9,
+  "validation_status": "blocked",
+  "human_review_required": true
+}

@@ -17,6 +17,8 @@ The user wants a professional engineering modelling workspace with a proper 3D v
 
 Paths in this table are relative to `projects/chirality-piping/apps/desktop/src`, except the explicitly named Rust applier. The final source binding will name exact candidate hashes rather than treating this working table as a frozen API manifest.
 
+Production development may restructure internal component props and layout while preserving the accepted typed operation and result contracts. The current viewport already separates selection, draft preparation, reviewed application and invalidation callbacks; the tree and inspector share `EntityRef` and `EditorOperationIntent`. Preserve those distinctions through the redesign, including one history checkpoint per successful atomic batch and result revision identity separate from mechanics-run identity.
+
 ## Readiness decision to complete at tranche closure
 
 1. Stable typed operation and result interfaces: pending final compatibility acceptance and unchanged public operation/model/input-manifest contract check.

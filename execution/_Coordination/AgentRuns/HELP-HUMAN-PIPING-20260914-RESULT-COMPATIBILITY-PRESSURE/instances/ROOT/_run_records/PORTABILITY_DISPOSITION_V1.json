@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "at_utc": "2026-09-15T02:58:29.751069+00:00",
+  "decision": "ADOPT_EXACT_COMPLETED_EVIDENCE_CLASSIFICATIONS_ONLY",
+  "authority": "Approved implementation and standing routine coordination/Git authority; no normative rule or root validator change",
+  "independent_audit_manifest_sha256": "afb6f481e4e4840f75f5ec5a34dae9004ea83473e3ab43d89cdcf89afa1510ec",
+  "policy_before_sha256": "972f4bcd9f003bdc93ceb088c92ac427bb384776c7d8ecc00ec59d193569be8d",
+  "policy_after_sha256": "dcf596080a9eb22a4437f1099d21d314d90917c841bea035aaf367274a9a31c5",
+  "appended": {
+    "historical_role_overrides": 61,
+    "control_path_exceptions": 9
+  },
+  "rationale": "The listed pressure, diagnosis, early-native and preparation phases have explicit completed returns and immutable bytes. Their observed host paths are retained as historical evidence. Remaining compatibility controls and checkpoints are held for final freeze; ongoing product work is not treated as historical. Native final execution uses a separately gated portable successor.",
+  "unresolved": "Four compatibility surfaces remain for final freeze and any new artifacts require fresh classification. This is not a clean final portability-gate claim.",
+  "source_effect": false,
+  "root_tools_changed": false,
+  "evidence_bytes_changed": false
+}

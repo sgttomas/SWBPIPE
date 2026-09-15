@@ -1,0 +1,34 @@
+{
+  "schema_version": 1,
+  "at_utc": "2026-09-15T03:07:28.198296+00:00",
+  "decision": "ADOPT_SUPERSEDED_SETUP_AND_COMPLETED_CHECKPOINT_CLASSIFICATION",
+  "predecessor_record_sha256": "0272cfa48adf7bed45dcd0036f453a69c83ec7053e24cc62381b9c8d93cbfe0c",
+  "portable_successor": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_QUALIFICATION_REPAIR_V9.md",
+  "portable_successor_sha256": "b31db482ddc636a91ce8690cd7b97d5fc9edbe0b28b38aca8682fe5809de23ee",
+  "activation_evidence": "Compatibility manager confirmed V9 consumed/bound in its actual returned progress message. Product writer remains active only under the unchanged scope and portable successor; no source or runtime acceptance is inferred.",
+  "policy_before_sha256": "0d26894f45b7ac98836b58255098a1c5835235eba83de15e912e24645c070d78",
+  "policy_after_sha256": "ba6da2bd8a7dfef5cf11d3a42c3d128fffa3be35f368351601a38a75ca4ab396",
+  "entries": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/ANALYSIS_CANONICALIZER_CHECKPOINT_V1_QUALIFICATION.json",
+      "sha256": "41ebea74705f315b1959a03514776b1a9ffc9b58c063815bf800629b5774e007",
+      "role": "EVIDENCE"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md",
+      "sha256": "4197943bffc1e28fa46b2909d529eff609ca6cb882f0a99bae08172ae6464757",
+      "role": "EVIDENCE"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "sha256": "1981bc63979a36a26596699da2ec52e9fb04e7e18346845f9ccf27a996e27847",
+      "role": "EVIDENCE"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/BRIEF.md",
+      "sha256": "cd87caacf6622a979c37ee7577de3ffa1ca255cbc2ca556ed75f9975904112d6",
+      "role": "CONTROL"
+    }
+  ],
+  "limits": "Final new source/evidence files still require a fresh exact path-anchor scan. No wildcard or future hash is exempted."
+}

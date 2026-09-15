@@ -1,0 +1,73 @@
+{
+  "repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "checked_file_count": 6787,
+  "finding_count": 10,
+  "findings": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/ANALYSIS_CANONICALIZER_CHECKPOINT_V1_QUALIFICATION.json",
+      "line": 14,
+      "match": "/private/tmp/chirality-compat-canonical-target",
+      "text": "\"command\": \"CARGO_TARGET_DIR=/private/tmp/chirality-compat-canonical-target cargo test --features checked-cli\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/ANALYSIS_CANONICALIZER_CHECKPOINT_V1_QUALIFICATION.json",
+      "line": 18,
+      "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson",
+      "text": "\"command\": \"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py tests/test_persistence_schema.py tests/test_project_persistence_service.py\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/ANALYSIS_CANONICALIZER_CHECKPOINT_V1_QUALIFICATION.json",
+      "line": 18,
+      "match": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "text": "\"command\": \"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py tests/test_persistence_schema.py tests/test_project_persistence_service.py\","
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/CONTRACT_AND_TEST_BASIS.md",
+      "line": 96,
+      "match": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "text": "Use `/private/tmp/piping-foundation-20260914-venv/bin/python`. Focused pure Cargo/Python/TypeScript runs use isolated Rust target directories. No native build, GUI/browser action, full DEC-025 sweep, push or merge belongs to this manager. Raw failures are preserved under this instance. After two unsuccessful cycles without new evidence, return a fresh-diagnosis request rather than repeat the same approach."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "line": 44,
+      "match": "/private/tmp/chirality-compat-canonical-target",
+      "text": "{\"command\":\"CARGO_TARGET_DIR=/private/tmp/chirality-compat-canonical-target cargo test --features checked-cli\",\"result\":\"10 passed (8 existing unit + 2 checked-profile integration); 0 failed\"},"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "line": 45,
+      "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson",
+      "text": "{\"command\":\"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py\",\"result\":\"12 passed; 0 failed; 2 deprecation warnings\"},"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "line": 45,
+      "match": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "text": "{\"command\":\"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_analysis_run_schema.py tests/test_checked_canonical_json_adapter.py tests/test_analysis_run_compatibility.py\",\"result\":\"12 passed; 0 failed; 2 deprecation warnings\"},"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "line": 46,
+      "match": "/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson",
+      "text": "{\"command\":\"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_persistence_schema.py tests/test_project_persistence_service.py\",\"result\":\"18 passed; 0 failed; 12 deprecation warnings\"},"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/ANALYSIS_CANONICALIZER_CHECKPOINT_V1.json",
+      "line": 46,
+      "match": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "text": "{\"command\":\"PYTHONDONTWRITEBYTECODE=1 OPENPIPESTRESS_CHECKED_JSON_BIN=/private/tmp/chirality-compat-canonical-target/debug/openpipestress_jcs_ijson /private/tmp/piping-foundation-20260914-venv/bin/python -m pytest -q tests/test_persistence_schema.py tests/test_project_persistence_service.py\",\"result\":\"18 passed; 0 failed; 12 deprecation warnings\"},"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/BRIEF.md",
+      "line": 47,
+      "match": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "text": "Use `/private/tmp/piping-foundation-20260914-venv/bin/python`. Use an isolated task-specific Cargo target directory. Before running a WASM/browser/native build or app action, return the exact command to the parent for the serialized slot. Pure Cargo, Python and focused source-level Vitest runs are allowed. Preserve failed command/stdout/stderr evidence verbatim under `TASK_WRITER/_run_records/`."
+    }
+  ],
+  "semantic_invariants": {
+    "unacknowledged_control": 1,
+    "active_unclassified": 3,
+    "policy_issues": 0,
+    "acknowledged_control": 40
+  }
+}

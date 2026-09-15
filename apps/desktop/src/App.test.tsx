@@ -16,6 +16,7 @@ import {
   RuleRevisionGenerationGate,
   SolveRunGenerationGate,
   commitModelAfterSolveInvalidation,
+  isSupportedChangedModelPersistenceResponse,
   solveProofStatus,
   type SolveProofEvidence,
 } from "./App";
@@ -35,7 +36,7 @@ import {
   loadPreviewModel,
   runPreviewMechanics,
 } from "./services/previewService";
-import { canonicalSha256Hex } from "./services/hashService";
+import { canonicalSha256Hex, computeModelHash, computeProjectEnvelopeHash } from "./services/hashService";
 import { buildCurrentSessionInputManifest } from "./services/inputManifestService";
 import { applyModelOperation } from "./services/operationService";
 import { applyOperationBatch, type OperationBatchOutcome } from "./services/operationBatchService";
@@ -10080,7 +10081,7 @@ describe("OpenPipeStress desktop preview", () => {
     ).toContain("stress_neutral_csv_json");
     expect(
       within(stressNeutral).getByTestId("stress-neutral-format").textContent,
-    ).toContain("ops.stress_neutral.v1");
+    ).toContain("ops.stress_neutral.v2");
     expect(
       within(stressNeutral).getByTestId("stress-neutral-state-binding")
         .textContent,
@@ -10135,87 +10136,91 @@ describe("OpenPipeStress desktop preview", () => {
     expect(
       within(stressNeutral).getByTestId("stress-neutral-boundary").textContent,
     ).toContain("solver_validation=false");
+    expect(
+      within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href"),
+    ).toBeNull();
+    fireEvent.click(
+      within(stressNeutral).getByTestId("stress-neutral-export-link-local-private-intent"),
+    );
+    await waitFor(() =>
+      expect(
+        within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href"),
+      ).toContain("data:application/json"),
+    );
     const stressNeutralHref =
-      within(stressNeutral)
-        .getByTestId("stress-neutral-export-link")
-        .getAttribute("href") ?? "";
+      within(stressNeutral).getByTestId("stress-neutral-export-link").getAttribute("href") ?? "";
     const stressNeutralPacket = JSON.parse(
       decodeURIComponent(stressNeutralHref.split(",", 2)[1]),
     );
     expect(stressNeutralPacket.document_kind).toBeUndefined();
-    expect(stressNeutralPacket.schema_version).toBe("[REDACTED]");
-    expect(stressNeutralPacket.deliverable_id).toBe("[REDACTED]");
-    expect(stressNeutralPacket.package_id).toBe("[REDACTED]");
-    expect(stressNeutralPacket.scope_items).toEqual([
-      "[REDACTED]",
-      "[REDACTED]",
-    ]);
-    expect(stressNeutralPacket.objectives).toEqual(["[REDACTED]", "[REDACTED]", "[REDACTED]"]);
-    expect(stressNeutralPacket.package_status).toBe("[REDACTED]");
-    expect(stressNeutralPacket.export_profile.target_family).toBe("[REDACTED]");
+    expect(stressNeutralPacket.schema_version).toBe("0.2.0");
+    expect(stressNeutralPacket.deliverable_id).toBe("DEL-17-06");
+    expect(stressNeutralPacket.package_id).toBe("PKG-17");
+    expect(stressNeutralPacket.scope_items).toEqual(["SOW-046", "SOW-074"]);
+    expect(stressNeutralPacket.objectives).toEqual(["OBJ-007", "OBJ-017", "OBJ-018"]);
+    expect(stressNeutralPacket.package_status).toBe("stress_neutral_export_package");
+    expect(stressNeutralPacket.export_profile.target_family).toBe("stress_neutral_csv_json");
+    expect(stressNeutralPacket.export_profile.profile_id).toBe("ops.stress_neutral.v2");
+    expect(stressNeutralPacket.export_profile.profile_version).toBe("0.2.0");
+    expect(stressNeutralPacket.manifest.export_profile_ref).toEqual({
+      object_type: "StressNeutralExportProfile",
+      ref: "ops.stress_neutral.v2",
+    });
     expect(stressNeutralPacket.export_profile.csv_columns).toHaveLength(11);
-    expect(stressNeutralPacket.export_profile.csv_columns.every((item: string) => item === "[REDACTED]")).toBe(true);
-    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe("[REDACTED]");
-    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe(
-      "[REDACTED]",
+    expect(stressNeutralPacket.export_profile.csv_columns).toContain("result_id");
+    expect(stressNeutralPacket.unit_system_disclosure.unit_system_ref.ref).toBe(
+      "unit-system:dec-018-si-dual-display",
     );
-    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain(
-      "[REDACTED]",
-    );
-    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain(
-      "[REDACTED]",
-    );
-    expect(
-      stressNeutralPacket.unit_system_disclosure.conversion_performed,
-    ).toBe("[REDACTED]");
-    expect(
-      stressNeutralPacket.unit_system_disclosure.protected_content_included,
-    ).toBe("[REDACTED]");
+    expect(stressNeutralPacket.unit_system_disclosure.model_units.length).toBe("m");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("MPa");
+    expect(stressNeutralPacket.unit_system_disclosure.result_units).toContain("rad");
+    expect(stressNeutralPacket.unit_system_disclosure.conversion_performed).toBe(false);
+    expect(stressNeutralPacket.unit_system_disclosure.protected_content_included).toBe(false);
     expect(stressNeutralPacket.unit_preservation_witnesses).toHaveLength(expectedStressWitnessCount);
-    expect(stressNeutralPacket.manifest.package_members).toHaveLength(9);
+    expect(stressNeutralPacket.manifest.package_members.map((item: { filename: string }) => item.filename)).toEqual([
+      "manifest.json",
+      "stress_neutral_results.csv",
+      "result_rows.json",
+      "unit_system_disclosure.json",
+      "unit_preservation_witnesses.json",
+      "stable_id_map.json",
+      "loss_report.json",
+      "validation_report.json",
+      "diagnostics.json",
+    ]);
     expect(stressNeutralPacket.manifest.checksums).toHaveLength(9);
-    const stressNeutralUnitWitness =
-      stressNeutralPacket.unit_preservation_witnesses[0];
-    expect(stressNeutralUnitWitness.source_quantity).toEqual(
-      expect.objectContaining({ value: "[REDACTED]" }),
-    );
-    expect(stressNeutralUnitWitness.target_quantity).toEqual(
-      expect.objectContaining({ value: "[REDACTED]" }),
-    );
-    expect(stressNeutralUnitWitness.policy).toBe("[REDACTED]");
-    expect(stressNeutralUnitWitness.conversion_performed).toBe("[REDACTED]");
+    expect(new Set(stressNeutralPacket.manifest.checksums.map(
+      (item: { payload_ref: { ref: string } }) => item.payload_ref.ref,
+    )).size).toBe(9);
+    const stressNeutralUnitWitness = stressNeutralPacket.unit_preservation_witnesses[0];
+    expect(stressNeutralUnitWitness.source_row_index).toBe(0);
+    expect(stressNeutralUnitWitness.result_id).toBe(stressNeutralPacket.result_rows[0].result_id);
+    expect(stressNeutralUnitWitness.target_quantity).toEqual(stressNeutralUnitWitness.source_quantity);
+    expect(stressNeutralUnitWitness.policy).toBe("preserve_received_value_and_unit");
+    expect(stressNeutralUnitWitness.conversion_performed).toBe(false);
     expect(stressNeutralPacket.result_rows).toHaveLength(830);
     expect(stressNeutralPacket.stable_id_map).toHaveLength(830);
-    expect(stressNeutralPacket.csv_text).toBe("[REDACTED]");
-    expect(
-      within(stressNeutral).getByTestId("stress-neutral-csv-link").getAttribute("href"),
-    ).toBeNull();
+    expect(stressNeutralPacket.csv_text).toContain("result_id,canonical_ref");
     expect(stressNeutralPacket.loss_report).toHaveLength(3);
-    expect(
-      stressNeutralPacket.loss_report.map(
-        (entry: { category: string }) => entry.category,
-      ),
-    ).toContain("[REDACTED]");
-    expect(stressNeutralPacket.package_checksum.value).toBe("[REDACTED]");
-    expect(stressNeutralPacket.package_checksum.payload_scope).toBe("[REDACTED]");
-    expect(stressNeutralPacket.validation_report.validation_status).toBe(
-      "[REDACTED]",
+    expect(stressNeutralPacket.loss_report.map(
+      (entry: { category: string }) => entry.category,
+    )).toContain("exported");
+    expect(stressNeutralPacket.package_checksum.value).toMatch(/^[0-9a-f]{64}$/);
+    expect(stressNeutralPacket.package_checksum.payload_scope).toBe(
+      "complete_package_excluding_self_checksum",
     );
-    expect(
-      stressNeutralPacket.validation_report.checks.map(
-        (item: { check_id: string }) => item.check_id,
-      ),
-    ).toContain("[REDACTED]");
-    expect(
-      stressNeutralPacket.result_rows.every(
-        (row: { unit: string; dimension: string }) => row.unit && row.dimension,
-      ),
-    ).toBe(true);
-    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe("[REDACTED]");
-    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe("[REDACTED]");
-    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe("[REDACTED]");
+    expect(stressNeutralPacket.validation_report.validation_status).toBe("blocked");
+    expect(stressNeutralPacket.validation_report.checks.map(
+      (item: { check_id: string }) => item.check_id,
+    )).toContain("csv_json_row_sync");
+    expect(stressNeutralPacket.result_rows.every(
+      (row: { unit: string; dimension: string }) => row.unit && row.dimension,
+    )).toBe(true);
+    expect(stressNeutralPacket.privacy.private_payload_embedded).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_external_compatibility_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_solver_validation_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_makes_compliance_claim).toBe(false);
+    expect(stressNeutralPacket.professional_boundary.software_creates_professional_reliance_record).toBe(false);
     expect(
       within(stressNeutral)
         .getByTestId("stress-neutral-csv-link")
@@ -16514,6 +16519,21 @@ async function workflowStoredEnvelope() {
   return envelope;
 }
 
+async function withCurrentPersistenceHashes(envelope: LocalProjectEnvelope) {
+  const copy = structuredClone(envelope);
+  copy.model_hash = await computeModelHash(copy.model);
+  copy.project_envelope_hash = await computeProjectEnvelopeHash({
+    model: copy.model,
+    editor_intents: copy.editor_intents,
+    proposal: copy.proposal,
+    selected_review_target: copy.selected_review_target,
+    mechanics_result: copy.mechanics_result,
+    analysis_run: copy.analysis_run,
+    model_hash: copy.model_hash,
+  });
+  return copy;
+}
+
 describe("workflow current and historical result boundaries", () => {
   it("discloses MODEL_INCOMPLETE as blocked after a real browser model edit", async () => {
     render(<App />);
@@ -16627,7 +16647,10 @@ describe("synchronous busy history boundary", () => {
     let saved: Record<string, unknown> | undefined;
     invokeMock.mockImplementation((command: string, args: Record<string, unknown>) => {
       if (command === "validate_model_operation") { pendingModel = args.model as PreviewModel; return pending.promise; }
-      if (command === "save_local_project") { saved = (args as { request: Record<string, unknown> }).request; return Promise.resolve(envelope); }
+      if (command === "save_local_project") {
+        saved = (args as { request: Record<string, unknown> }).request;
+        return Promise.resolve({ ...envelope, ...saved });
+      }
       return Promise.reject(new Error(`Unexpected command ${command}`));
     });
     (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
@@ -16804,5 +16827,220 @@ describe("historical lifecycle history transitions", () => {
     expect(await snapshotHash()).toBe(editedHash);
     expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
     expect(screen.queryByTestId("comparison-summary")).not.toBeInTheDocument();
+  });
+
+  it("refreshes only the still-owned same-model Historical context after a normalization save", async () => {
+    const opened = await workflowStoredEnvelope();
+    opened.model_document_migration = {
+      status: "migrated",
+      source_schema_version: "0.1.0",
+      target_schema_version: "0.2.0",
+      migration_framework: "application_service_separate_db_and_product_schema",
+      db_migration_status: "store_user_version_ledger_separate_ddl_only",
+      product_schema_migration_status: "migrated",
+      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
+      persistence_state: "in_memory_only_not_yet_saved",
+      detail: "Invented open-time normalization",
+    };
+    const refreshed = await withCurrentPersistenceHashes(opened);
+    refreshed.model_document_migration = {
+      ...opened.model_document_migration,
+      persistence_state: "persisted_with_ledger_record",
+    };
+    const saveRequests: Array<Record<string, unknown>> = [];
+    invokeMock.mockImplementation((command: string, args?: { request: Record<string, unknown> }) => {
+      if (command === "open_local_project") return Promise.resolve(opened);
+      if (command === "save_local_project") {
+        saveRequests.push(args!.request);
+        return Promise.resolve(refreshed);
+      }
+      return Promise.reject(new Error(command));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await waitFor(() => expect(screen.getByTestId("historical-run-context")).toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH"));
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    expect(screen.getByTestId("historical-run-context")).not.toHaveTextContent("HISTORICAL_MODEL_HASH_MISMATCH");
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(opened.mechanics_result!.run_id);
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(saveRequests).toHaveLength(2));
+    expect(saveRequests[1].model_hash).toEqual(refreshed.model_hash);
+    expect(saveRequests[1].project_envelope_hash).toEqual(refreshed.project_envelope_hash);
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(opened.mechanics_result!.run_id);
+  });
+
+  it("lets a fresh same-model solve win against a delayed Historical refresh", async () => {
+    const opened = await workflowStoredEnvelope();
+    const refreshed = await withCurrentPersistenceHashes(opened);
+    const pendingSave = deferred<LocalProjectEnvelope>();
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_local_project") return Promise.resolve(opened);
+      if (command === "save_local_project") return pendingSave.promise;
+      return Promise.reject(new Error(command));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await screen.findByTestId("historical-run-context");
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE"), { timeout: 10000 });
+    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+    await act(async () => pendingSave.resolve(refreshed));
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MODEL_INCOMPLETE");
+  });
+
+  it("adopts a changed native persistence model and retains returned results as Historical", async () => {
+    const opened = await workflowStoredEnvelope();
+    const changed = structuredClone(opened);
+    changed.model.schema_version = "0.2.0";
+    changed.model.project.name = "Normalized returned model";
+    changed.model.nodes[0].label = "Normalized returned node";
+    const normalized = await withCurrentPersistenceHashes(changed);
+    normalized.summary.project_name = changed.model.project.name;
+    normalized.summary.message = "Saved normalized returned model.";
+    normalized.model_document_migration = {
+      status: "migrated",
+      source_schema_version: "0.1.0",
+      target_schema_version: "0.2.0",
+      migration_framework: "application_service_separate_db_and_product_schema",
+      db_migration_status: "store_user_version_ledger_separate_ddl_only",
+      product_schema_migration_status: "migrated",
+      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
+      persistence_state: "persisted_with_ledger_record",
+      detail: "Actual normalization transition persisted",
+    };
+    const requestModelHash = await computeModelHash(opened.model);
+    const currentTransition: LocalProjectEnvelope["model_migration_ledger"][number] = {
+      record_kind: "model_document_migration_ledger_record",
+      recorded_at_unix: 1,
+      source_schema_version: "0.1.0",
+      target_schema_version: "0.2.0",
+      applied_migration_ids: ["model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop"],
+      migration_framework: "application_service_separate_db_and_product_schema",
+      pre_migration_model_hash: requestModelHash!.value,
+      post_migration_model_hash: normalized.model_hash!.value,
+      trigger: "migrate_in_memory_on_open_persisted_on_save",
+      destructive_rewrite: false,
+      professional_boundary: { human_review_required: true, software_makes_compliance_claim: false },
+      hash_evidence: {
+        schema: "model_migration_hash_evidence_v1",
+        source_payload_basis: "incoming_pre_migration_model",
+        received: { model_hash: opened.model_hash, project_envelope_hash: opened.project_envelope_hash },
+        prior_stored: null,
+        computed: {
+          pre_migration_model_hash: requestModelHash!.value,
+          post_migration_model_hash: normalized.model_hash!.value,
+          post_migration_project_envelope_hash: normalized.project_envelope_hash!.value,
+        },
+        received_claim_verification: "not_asserted",
+      },
+    };
+    // A recreated renderer can have no in-session ledger while the fixed native
+    // project already has older records. Admission is bound to the exact final
+    // transition, rather than requiring a globally contiguous session count.
+    normalized.model_migration_ledger = [{
+      ...currentTransition,
+      recorded_at_unix: 0,
+      pre_migration_model_hash: "sha256:prior-source",
+      post_migration_model_hash: "sha256:prior-target",
+      hash_evidence: undefined,
+    }, currentTransition];
+    expect(requestModelHash?.value).not.toBe(normalized.model_hash?.value);
+    const recomputedNormalizedEnvelope = await computeProjectEnvelopeHash({
+      model: normalized.model,
+      editor_intents: normalized.editor_intents,
+      proposal: normalized.proposal,
+      selected_review_target: normalized.selected_review_target,
+      mechanics_result: normalized.mechanics_result,
+      analysis_run: normalized.analysis_run,
+      model_hash: normalized.model_hash,
+    });
+    const selfConsistentButFalseEnvelope = structuredClone(normalized);
+    selfConsistentButFalseEnvelope.project_envelope_hash!.value = "sha256:false-returned-envelope";
+    selfConsistentButFalseEnvelope.model_migration_ledger.at(-1)!.hash_evidence!.computed.post_migration_project_envelope_hash = "sha256:false-returned-envelope";
+    expect(isSupportedChangedModelPersistenceResponse(
+      selfConsistentButFalseEnvelope,
+      requestModelHash,
+      normalized.model_hash,
+      recomputedNormalizedEnvelope,
+      0,
+    )).toBe(false);
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_local_project") return Promise.resolve(opened);
+      if (command === "save_local_project") return Promise.resolve(normalized);
+      return Promise.reject(new Error(command));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await screen.findByTestId("historical-run-context");
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(invokeMock).toHaveBeenCalledWith("save_local_project", expect.any(Object)));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved normalized returned model"), { timeout: 10000 });
+    await waitFor(() => expect(screen.getByText("Normalized returned model", { selector: ".titlebar p" })).toBeInTheDocument(), { timeout: 10000 });
+    expect(screen.getByTestId(`tree-row-${changed.model.nodes[0].id}`)).toHaveTextContent("Normalized returned node");
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(normalized.mechanics_result!.run_id);
+    expect(screen.getByTestId("viewport-deformation-status")).toHaveTextContent("result rows=0");
+    expect(screen.getByTestId("undo-session-model-edit")).toBeDisabled();
+  });
+
+  it("rejects an unrelated differing persistence response without accepting its metadata", async () => {
+    const opened = await workflowStoredEnvelope();
+    const unrelated = structuredClone(opened);
+    unrelated.model.project.name = "Unbound returned model";
+    unrelated.model.nodes[0].label = "Unbound returned node";
+    unrelated.summary.project_name = "Unbound returned model";
+    unrelated.summary.message = "This metadata must not be accepted.";
+    invokeMock.mockImplementation((command: string) => {
+      if (command === "open_local_project") return Promise.resolve(opened);
+      if (command === "save_local_project") return Promise.resolve(unrelated);
+      return Promise.reject(new Error(command));
+    });
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.open-local"));
+    await screen.findByTestId("historical-run-context");
+    await waitFor(() => expect(screen.getByRole("button", { name: /^Save local$/ })).toBeEnabled());
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("PROJECT-PERSISTENCE-RESPONSE-INTEGRITY"));
+    expect(screen.getByText(opened.summary.project_name, { selector: ".titlebar p" })).toBeInTheDocument();
+    expect(screen.getByTestId(`tree-row-${opened.model.nodes[0].id}`)).toHaveTextContent(opened.model.nodes[0].label);
+    expect(screen.getByTestId("historical-run-context")).toHaveTextContent(opened.mechanics_result!.run_id);
+    expect(screen.getByTestId("local-project-message")).not.toHaveTextContent("This metadata must not be accepted");
+  });
+
+  it("keeps a same-model Current solve Current after native save", async () => {
+    render(<App />);
+    await screen.findByTestId("desktop-preview-shell");
+    fireEvent.click(screen.getByTestId("run-mechanics-preview"));
+    await waitFor(() => expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED"), { timeout: 10000 });
+    invokeMock.mockImplementation((command: string, args: { request: Record<string, unknown> }) => {
+      if (command === "save_local_project") {
+        const model = args.request.model as PreviewModel;
+        return Promise.resolve({
+          ...inventedOpenEnvelope(model),
+          ...args.request,
+          summary: { ...inventedOpenEnvelope(model).summary, message: "Saved unchanged Current model." },
+        });
+      }
+      return Promise.reject(new Error(command));
+    });
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    act(() => nativeMenuCommand("file.save-local"));
+    await waitFor(() => expect(screen.getByTestId("local-project-message")).toHaveTextContent("Saved unchanged Current model"));
+    expect(screen.queryByTestId("historical-run-context")).not.toBeInTheDocument();
+    expect(screen.getByTestId("status-pill-mechanics")).toHaveTextContent("MECHANICS_SOLVED");
   });
 });

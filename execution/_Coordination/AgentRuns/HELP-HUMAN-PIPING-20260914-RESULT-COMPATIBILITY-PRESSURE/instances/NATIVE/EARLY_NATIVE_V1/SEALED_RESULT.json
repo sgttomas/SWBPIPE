@@ -1,0 +1,12 @@
+{
+  "blocker_sha256": "037cd5806d1531a18fd396e0d91be45d133b64ea65c375331765b23a7d80dc14",
+  "candidate_commit_declared": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "evidence_manifest_sha256": "47c26d8656d402217e3b1578911b364e4c9ce428523a52fe98f975f01e1454b0",
+  "evidence_tree_sha256": "9e2856d5014d4eefb481aaf815f230aa7c369215e09e2b361fff727009817076",
+  "lease_release_sha256": "355e70ea9861e58202e171385ec509613592161d2b31fbdd3c81ff5652144e9b",
+  "lease_released": true,
+  "result_sha256": "82abbc2b6953117b57b069574abb53e03183a88f4e2acb48e65eccfd419a894c",
+  "schema": "early-native-seal-v1",
+  "sealed_at": "2026-09-15T02:09:43.740996+00:00",
+  "status": "BLOCKED_BY_PERSISTED_MODEL_ENVELOPE_INTEGRITY"
+}

@@ -1,0 +1,58 @@
+{
+  "artifact": "openpipestress.final_native_consumer_preparation_hash_manifest_v4",
+  "files": [
+    {
+      "bytes": 6437,
+      "path": "FINAL_NATIVE_SEQUENCE_V4.md",
+      "sha256": "16956ee51f5c1284aa8e393f7f87b404c0b893e5051b6d7693bccc119ab75a91"
+    },
+    {
+      "bytes": 3298,
+      "path": "PREPARATION_RETURN_V4.md",
+      "sha256": "18ec83f006d5dc7b1c44babf4e84d163c08b177158272d3e85a94d04258cc83a"
+    },
+    {
+      "bytes": 3980,
+      "path": "_run_records/CASE_MAP_TEMPLATE_V4.json",
+      "sha256": "bd533885b8a36d40dc26f856c3bd5c9ee427638c40c880b4bc4a00385bef48ed"
+    },
+    {
+      "bytes": 3853,
+      "path": "_run_records/CONTEXT_MANIFEST_V4.json",
+      "sha256": "908031d8da9b4f9fcd4c20019d1a8fee5bf9cb102da3766ca2d506ec20728307"
+    },
+    {
+      "bytes": 4807,
+      "path": "_run_records/EXECUTION_MAP_V4.json",
+      "sha256": "e6578723ec34ee89e41390b584b5d5653bde6ab6d37c1a73abfadfe4789881c6"
+    },
+    {
+      "bytes": 8744,
+      "path": "compose_captured_outputs.test.ts",
+      "sha256": "061e6a11068008ad9557e40ec577822569ae26a6f97dc47b91686925d3341b6d"
+    },
+    {
+      "bytes": 1132,
+      "path": "materialize_stress_members.py",
+      "sha256": "fd2f77193914333e50bb1936bcfb9c05daa8688d58f581c6c979e23ac2b433e9"
+    },
+    {
+      "bytes": 2970,
+      "path": "run_final_consumers.py",
+      "sha256": "1f4b4d78bfa12912d817777913289ae790f953703b00aa8adc023dbd0b2209d1"
+    },
+    {
+      "bytes": 15478,
+      "path": "verify_delivered_artifacts.py",
+      "sha256": "b7110b743318a33ca6ff22ce3488102392de74ce0a2244820b0f9dee3b90fe1b"
+    },
+    {
+      "bytes": 755,
+      "path": "vitest.config.ts",
+      "sha256": "baf52fd73e5ec39c77523436695075178b3ed52692aa3819599711064b58ab94"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "self_excluded": "_run_records/HASH_MANIFEST_V4.json",
+  "status": "PREPARATION_ONLY"
+}

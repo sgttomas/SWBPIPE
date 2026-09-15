@@ -1,0 +1,78 @@
+{
+  "schema": "early-native-integrity-finding-v1",
+  "finding_id": "EARLY-NATIVE-INTEGRITY-001",
+  "status": "BLOCKING_QUALIFICATION",
+  "title": "Native persistence migrates the saved model after the frontend computed model and envelope hashes, leaving the first Historical record with genuine mismatches.",
+  "candidate_commit_declared": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "ui_findings": [
+    {
+      "code": "HISTORICAL_MODEL_HASH_MISMATCH",
+      "owning_field": "model_hash_json",
+      "owning_scope": "model_payload",
+      "projection": "exact parsed stored model_json",
+      "stored": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+      "recomputed": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+      "genuine_stored_inconsistency": true
+    },
+    {
+      "code": "HISTORICAL_ENVELOPE_HASH_MISMATCH",
+      "owning_field": "project_envelope_hash_json",
+      "owning_scope": "project_envelope_payload",
+      "projection": [
+        "model",
+        "editor_intents",
+        "proposal",
+        "selected_review_target",
+        "mechanics_result",
+        "analysis_run",
+        "model_hash"
+      ],
+      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+      "stored": "sha256:555ace20b7db1987bf9a887617988b3dfa57b1766a73f1892bf953b8c31101b8",
+      "recomputed": "sha256:c995d111b094445aa417b4db23410ec0c47d1ad6ef0bb027e69ab375f6dd7529",
+      "genuine_stored_inconsistency": true
+    }
+  ],
+  "authority": {
+    "profile": "rfc8785_jcs",
+    "implementation": "exact-candidate built operation-applier WASM canonical_sha256_hex used by hashService",
+    "evidence": "validation/after_first_save_model_envelope_hashes.json",
+    "new_checked_analysis_profile_used": false
+  },
+  "source_trace": [
+    {
+      "path": "apps/desktop/src/App.tsx",
+      "lines": "1596-1617",
+      "observation": "handleSaveProject computes model and project-envelope hashes from the in-session pre-persistence model before invoking native save."
+    },
+    {
+      "path": "apps/desktop/src-tauri/src/lib.rs",
+      "lines": "1936-2030",
+      "observation": "prepare_model_document_for_persist may replace the incoming model with a migrated document but retains incoming_model_hash as post_migration_model_hash and upsert receives the original model_hash and project_envelope_hash carriers."
+    }
+  ],
+  "migration_evidence": {
+    "source_schema_version": "0.1.0",
+    "target_schema_version": "0.2.0",
+    "migration_id": "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop",
+    "ledger_post_migration_hash": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3",
+    "actual_persisted_model_hash": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2"
+  },
+  "passed_adjacent_checks": [
+    "strict analysis 0.2 schema",
+    "analysis full-record self-exclusion checksum",
+    "received-result checksum",
+    "830 result-row checksums",
+    "unchanged raw-field preservation",
+    "fresh mechanics exact equality",
+    "fresh solve/save model and envelope hashes",
+    "normal process lifecycle"
+  ],
+  "fresh_recovery": {
+    "model_hash_match": true,
+    "project_envelope_hash_match": true,
+    "evidence": "validation/after_fresh_solve_model_envelope_hashes.json"
+  },
+  "qualification_effect": "EARLY_NATIVE_V1 is blocked because the first reopened Historical record does not satisfy the frozen requirement that stored bytes and hashes remain verifiable/readable. Fresh recovery does not retroactively validate the first saved Historical hash carriers.",
+  "repair": "not attempted; product source is read-only under the sealed brief"
+}

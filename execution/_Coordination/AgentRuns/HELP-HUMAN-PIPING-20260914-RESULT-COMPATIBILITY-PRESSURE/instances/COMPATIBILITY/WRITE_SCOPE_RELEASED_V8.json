@@ -1,0 +1,42 @@
+{
+  "version": 8,
+  "status": "FINAL_RELEASED_EXACT_FENCE_WITH_NATIVE_NORMALIZATION_INTEGRITY_REPAIR",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "prior_exact_fence": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/WRITE_SCOPE_RELEASED_V7.json",
+    "sha256": "8057a305d428b10b00c674e61748637dd71c09e0866df32ac86470d6769f40ad"
+  },
+  "native_migration_integrity_extension": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_MIGRATION_INTEGRITY_REPAIR_FENCE_V1.json",
+    "sha256": "3382d193c7888bb398693734ec892a92a003b184ced43b56b19cab13a493a5d5"
+  },
+  "accepted_diagnosis": {
+    "canonical_repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/MIGRATION_DIAGNOSIS_V1/REPORT.md",
+    "sha256": "f82e8342ad5a8eaee144a4452eb43c09007cc9ea8b40594e35bcdf66c7d426fb"
+  },
+  "additional_exact_product_and_test_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/types.ts",
+    "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts"
+  ],
+  "final_fence_definition": "The exact final product/test write fence is the set union defined by WRITE_SCOPE_RELEASED_V7.json and the six literal paths listed here; paths already present remain single members. No glob, directory or inferred adjacent path is authorized.",
+  "repair_contract": [
+    "Only actual model normalization transitions mint post-normalization model/envelope hash evidence over the exact stored tuple; persistence remains atomic through the existing transaction.",
+    "New transition ledger entries preserve complete received and optional prior-stored JSON claims and computed source/final evidence without asserting received-claim verification; old entries remain byte-preserved.",
+    "Changed returned models use guarded commitModel replacement and invalidate old Current/operation/solve/rule/history ownership while preserving returned result/analysis as Historical.",
+    "Same-model Historical normalization saves refresh only the still-owned Historical context; a fresh solve wins against delayed refresh.",
+    "Same-model Current and unchanged already-current Historical saves preserve their currentness and received carriers; stale status or mismatch alone never appends or repairs.",
+    "No model/storage/wire version, hash profile, API or persistence schema change."
+  ],
+  "evidence_partition": "Record native migration integrity source delta and focused evidence separately from analysis/stress evidence. Root owns final native GUI lifecycle, complete review, full sweep and Git.",
+  "lease": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPATIBILITY_BUILD_BROWSER_LEASE_V2.json",
+    "sha256": "8d551f08a19ad08f576a59b22d038e59db5e117be0788ab0697d481be4565c91"
+  },
+  "writer_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/**",
+  "manager_evidence_path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/**"
+}

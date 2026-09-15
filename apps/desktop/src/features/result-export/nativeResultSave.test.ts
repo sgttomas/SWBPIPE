@@ -13,12 +13,36 @@ const request: NativeResultSaveRequest = {
 };
 const receipt = { outcome: "saved", file_name: "openpipestress-preview-results-run-350 (1).json", byte_count: 27,
   replaced_existing: false, durability: "not_guaranteed", path_containment: "best_effort_non_adversarial" };
+const stressRequest: NativeResultSaveRequest = {
+  ...request,
+  file_name: "openpipestress-preview-stress-neutral-result-run-350.json",
+  screening: { ...request.screening, route_id: "DOTH-FORMAT-003" },
+  local_first: { ...request.local_first, route_id: "DOTH-FORMAT-003" }
+};
+const stressReceipt = { ...receipt, file_name: "openpipestress-preview-stress-neutral-result-run-350 (1).json" };
 describe("private native result service", () => {
   it("forwards the original screened request/href unchanged and accepts only typed completion", async () => {
     (window as any).__TAURI_INTERNALS__ = {}; vi.mocked(invoke).mockResolvedValue(receipt);
     expect(await saveNativeResultJson(request)).toEqual(receipt);
     expect(invoke).toHaveBeenCalledExactlyOnceWith("save_local_result_json", { request });
     expect((vi.mocked(invoke).mock.calls[0][1] as { request: NativeResultSaveRequest }).request).toBe(request);
+  });
+  it("admits the paired stress route and filename and rejects both cross-pairs", async () => {
+    (window as any).__TAURI_INTERNALS__ = {};
+    vi.mocked(invoke).mockResolvedValue(stressReceipt);
+    expect(await saveNativeResultJson(stressRequest)).toEqual(stressReceipt);
+    expect(invoke).toHaveBeenCalledWith("save_local_result_json", { request: stressRequest });
+    vi.mocked(invoke).mockReset();
+    for (const denied of [
+      { ...request, file_name: stressRequest.file_name },
+      { ...stressRequest, file_name: request.file_name }
+    ]) {
+      await expect(saveNativeResultJson(denied)).rejects.toMatchObject({
+        code: "REQUEST_EVIDENCE_DENIED",
+        stage: "request"
+      });
+    }
+    expect(invoke).not.toHaveBeenCalled();
   });
   it("does not invoke outside native runtime", async () => {
     await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "NATIVE_RUNTIME_REQUIRED", cleanup: "not_needed" });
@@ -51,5 +75,11 @@ describe("private native result service", () => {
     await expect(saveNativeResultJson(request)).rejects.toMatchObject({ cleanup: "retained" });
     vi.mocked(invoke).mockRejectedValue("transport rejected with opaque private text");
     await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "IPC_REJECTED", cleanup: "unknown", partial_file_name: null });
+    vi.mocked(invoke).mockRejectedValue({ ...error, partial_file_name: stressReceipt.file_name });
+    await expect(saveNativeResultJson(stressRequest)).rejects.toMatchObject({ partial_file_name: stressReceipt.file_name, cleanup: "failed" });
+    vi.mocked(invoke).mockRejectedValue({ ...error, partial_file_name: stressReceipt.file_name });
+    await expect(saveNativeResultJson(request)).rejects.toMatchObject({ code: "IPC_REJECTED", partial_file_name: null, cleanup: "unknown" });
+    vi.mocked(invoke).mockRejectedValue({ ...error, partial_file_name: receipt.file_name });
+    await expect(saveNativeResultJson(stressRequest)).rejects.toMatchObject({ code: "IPC_REJECTED", partial_file_name: null, cleanup: "unknown" });
   });
 });

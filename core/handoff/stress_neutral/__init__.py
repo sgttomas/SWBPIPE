@@ -14,6 +14,7 @@ from .package_v0_2 import (
     build_stress_neutral_export_package_v0_2,
     materialized_members_v0_2,
     validate_stress_neutral_export_package_v0_2,
+    write_materialized_members_v0_2,
 )
 
 __all__ = [
@@ -28,4 +29,5 @@ __all__ = [
     "build_stress_neutral_export_package_v0_2",
     "materialized_members_v0_2",
     "validate_stress_neutral_export_package_v0_2",
+    "write_materialized_members_v0_2",
 ]

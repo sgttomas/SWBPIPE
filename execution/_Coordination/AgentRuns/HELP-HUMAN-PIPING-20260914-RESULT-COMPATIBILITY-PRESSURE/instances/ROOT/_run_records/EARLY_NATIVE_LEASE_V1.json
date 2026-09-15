@@ -1,0 +1,17 @@
+{
+  "schema": "root-exclusive-native-lease-v1",
+  "created_utc": "2026-09-15T01:44:37.772162+00:00",
+  "holder": "/root/foundation_native",
+  "model": "gpt-5.6-sol",
+  "reasoning": "high",
+  "candidate_commit": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/EARLY_NATIVE_EXECUTION_V1.md",
+  "brief_sha256": "45f8c72365c0cd78d3cc805440635ff8bb080a659b23d763991b68669af0a5bd",
+  "surfaces": [
+    "native/WASM/desktop build",
+    "native GUI early lifecycle"
+  ],
+  "status": "RELEASED_TO_NATIVE",
+  "other_work": "Compatibility writer may continue isolated source changes and existing-artifact tests; no competing builds/UI.",
+  "release_requires": "Sealed early native return, process termination and explicit lease release."
+}

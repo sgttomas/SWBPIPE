@@ -1,0 +1,30 @@
+{
+  "schema": "root-exact-source-fence-v1",
+  "created_utc": "2026-09-15T01:52:52.165Z",
+  "decision": "RELEASED_PAIRED_NATIVE_STRESS_JSON_ADMISSION",
+  "parent": "/root",
+  "owner": "/root/foundation_compatibility",
+  "writer": "/root/foundation_compatibility/compatibility_writer",
+  "authority": "Approved compatibility implementation, existing D67 consumer accommodations and standing Agent 0 engineering authority",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "additional_exact_product_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/nativeResultSave.test.ts",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/native_result_download.rs"
+  ],
+  "accepted_change": "The existing save_local_result_json request/receipt/command may admit exactly two paired route/name profiles: DOTH-JSON-001 with openpipestress-preview-results-*.json, and DOTH-FORMAT-003 with openpipestress-preview-stress-neutral-*.json.",
+  "constraints": [
+    "Reject cross-paired route/name combinations and malformed names; preserve collision-safe suffix handling and exact requested family in receipts.",
+    "No new transport command, request/receipt fields, public operation, persistence or result contract.",
+    "Preserve all explicit intent, local_private, lossless, exact-payload, blocking/materialization, local-first, Current-binding, source generation and in-flight guards.",
+    "Preserve exact bytes, create-new behavior, path containment and cleanup reporting; no filename or route disguise.",
+    "Backend inline tests and existing focused client/control tests must prove positive profiles and negative cross-profile/guard cases.",
+    "Update the combined manager/writer fence before execution.",
+    "Source changes only in the isolated compatibility worktree; native worktree stays at the released checkpoint until its lease ends."
+  ],
+  "upstream_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CONTROLLED_STRESS_DELIVERY_FENCE_V1.json",
+    "sha256": "24e4752cac279783e183071267ce3cad86c46faddbde924dbe2d565ed75c3d73"
+  },
+  "scope_classification": "Narrow product-caller admission accommodation using the existing exact-byte local JSON command; not a transport API addition."
+}

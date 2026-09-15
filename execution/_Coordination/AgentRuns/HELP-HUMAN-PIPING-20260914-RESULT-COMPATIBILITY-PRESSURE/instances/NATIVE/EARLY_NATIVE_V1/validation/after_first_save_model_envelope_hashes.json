@@ -1,0 +1,52 @@
+{
+  "status": "MISMATCH",
+  "authority": {
+    "profile": "rfc8785_jcs",
+    "implementation": "built exact-candidate open_pipe_stress_operation_applier WASM canonical_sha256_hex export used by apps/desktop/src/services/hashService.ts",
+    "glue_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier.js",
+    "glue_sha256": "5682432840e2199512059d7956dfdb51521179b797145a05835a5bfa0be71595",
+    "wasm_path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/public/wasm-engine/open_pipe_stress_operation_applier_bg.wasm",
+    "wasm_sha256": "ee5f753e4ae87d079c765e96657ddfb4b70caac7e414830f48956f3393a3566d"
+  },
+  "model_hash": {
+    "owning_scope": "model_payload",
+    "projection": "exact parsed stored model_json",
+    "stored_claim": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_ref": "project:invented-loop-01",
+      "payload_scope": "model_payload",
+      "value": "sha256:b2cec8ee447c44fa7efbdf43c0970a5c690b8c63e24577a105ce12e7f613ccc3"
+    },
+    "recomputed_value": "sha256:405db1a2316c1a937c308a91966f72f22de4018a156bb13dffa7160c67e9d3a2",
+    "match": false,
+    "finding_if_mismatch": "HISTORICAL_MODEL_HASH_MISMATCH"
+  },
+  "project_envelope_hash": {
+    "owning_scope": "project_envelope_payload",
+    "projection_keys": [
+      "model",
+      "editor_intents",
+      "proposal",
+      "selected_review_target",
+      "mechanics_result",
+      "analysis_run",
+      "model_hash"
+    ],
+    "excluded": "storage_summary_and_envelope_hash_carrier_fields",
+    "stored_claim": {
+      "algorithm": "sha256",
+      "canonicalization": "rfc8785_jcs",
+      "hash_status": "computed_local_preview",
+      "payload_excludes": "storage_summary_and_envelope_hash_carrier_fields",
+      "payload_ref": "project:invented-loop-01",
+      "payload_scope": "project_envelope_payload",
+      "value": "sha256:555ace20b7db1987bf9a887617988b3dfa57b1766a73f1892bf953b8c31101b8"
+    },
+    "recomputed_value": "sha256:c995d111b094445aa417b4db23410ec0c47d1ad6ef0bb027e69ab375f6dd7529",
+    "match": false,
+    "finding_if_mismatch": "HISTORICAL_ENVELOPE_HASH_MISMATCH"
+  },
+  "note": "These two persisted claims use the existing rfc8785_jcs WASM authority, not the checked JSON profile used by analysis 0.2."
+}

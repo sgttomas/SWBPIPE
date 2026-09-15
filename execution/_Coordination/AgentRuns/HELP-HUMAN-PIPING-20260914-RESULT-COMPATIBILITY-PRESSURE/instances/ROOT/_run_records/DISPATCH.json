@@ -19,11 +19,16 @@
     "model": "gpt-5.6-sol",
     "reasoning": "high",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_MANAGER.md",
-    "status": "running_one_released_TASK_writer",
+    "status": "returned_FINAL_MANAGER_FANIN_V1; frozen_V10; lease_released",
     "brief_sha256": "6ac6f48e3d69d363fbfb20698f3c10bb6512d23e983e148a77b3b8b51431b4d2",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329476+00:00"
+    "status_index_checked_utc": "2026-09-15T01:23:26.329476+00:00",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_QUALIFICATION_REPAIR_V9.md",
+    "latest_brief_sha256": "b31db482ddc636a91ce8690cd7b97d5fc9edbe0b28b38aca8682fe5809de23ee",
+    "status_updated_utc": "2026-09-15T03:07:28.198296+00:00",
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+    "return_sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362"
   },
   {
     "agent": "/root/foundation_pressure_oracle",
@@ -67,11 +72,15 @@
     "brief_sha256": "4120428aff2de3481394e5948ba6d169b8deb7693c40573f6e20c6deb3a0bbe3",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation",
-    "status": "returned_V1_V2_V3_preparation; native_execution_unreleased",
-    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_PRODUCER_INPUTS_PREPARATION_V3.md",
-    "latest_brief_sha256": "901e3e48df8d33bbe743f4bba5061c7ed7c907e2afeb2063bf30a08790f37060",
-    "status_updated_utc": "2026-09-15T01:14:27.372032+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329481+00:00"
+    "status": "returned_FINAL_CONSUMER_PREPARATION_V4; final_execution_unreleased",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_CONSUMER_PREPARATION_V4.md",
+    "latest_brief_sha256": "4690f79e2afce405306a64be04fbdb97f2cc65594036b4627690a79d2ad1b415",
+    "status_updated_utc": "2026-09-15T02:39:30.438831+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329481+00:00",
+    "candidate_commit": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+    "actual_dispatch": "collaboration.followup_task returned successfully; existing Sol/high TASK; preparation only",
+    "return_ref": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/PREPARATION_RETURN_V4.md",
+    "return_sha256": "18ec83f006d5dc7b1c44babf4e84d163c08b177158272d3e85a94d04258cc83a"
   },
   {
     "agent": "/root/foundation_compatibility/compatibility_writer",
@@ -79,11 +88,13 @@
     "role": "TASK",
     "model": "gpt-5.6-sol",
     "reasoning": "high",
-    "status": "running",
+    "status": "returned_FINAL_SOURCE_CHECKPOINT_V10; source_frozen",
     "owning_dispatch_record": "instances/COMPATIBILITY/CHILD_ACTUAL_DISPATCH_V1.json",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329482+00:00"
+    "status_index_checked_utc": "2026-09-15T01:23:26.329482+00:00",
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
+    "return_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832"
   },
   {
     "agent": "/root/foundation_closeout",
@@ -93,11 +104,16 @@
     "reasoning": "medium",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_PREPARATION.md",
     "brief_sha256": "d0f0a6a79429c7a22de5208e1ed58858412ab5e0226755dad6be21af494d7583",
-    "status": "returned_readonly_closeout_preparation; final_closeout_unreleased",
+    "status": "returned_PORTABILITY_AUDIT_V2; policy_unmodified",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
-    "status_updated_utc": "2026-09-15T01:10:15.546205+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329483+00:00"
+    "status_updated_utc": "2026-09-15T02:39:30.438831+00:00",
+    "status_index_checked_utc": "2026-09-15T01:23:26.329483+00:00",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_PORTABILITY_AUDIT_V2.md",
+    "latest_brief_sha256": "1356a82b54ac654ddbfcab1d75085af14898260a6869434f84e0a6eb8bcaccd4",
+    "actual_dispatch": "collaboration.followup_task returned successfully; existing Sol/medium TASK; no policy/Git write",
+    "return_ref": "instances/CLOSEOUT/PORTABILITY_AUDIT_V2/RETURN.md",
+    "return_sha256": "4d90c4083067f5ce7813a539ab970afec57132849c70ee42ed634ed71b8d034a"
   },
   {
     "agent": "/root/legacy_profile_refutation",
@@ -107,12 +123,15 @@
     "reasoning": "high",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/LEGACY_PROFILE_REFUTATION_V1.md",
     "brief_sha256": "ede6fa75021937ec49abe810ea3975eceaff4684abe2bbca4f6bb643508a1fa5",
-    "status": "returned_COMPLETE_WITH_FINDINGS; F1-F3_and_Python_projection_gap_routed",
+    "status": "returned_MIGRATION_DIAGNOSIS_V1; bounded_repair_released_to_sole_writer",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted scope/non-delegation; host permissions broader than declared read-only scope",
     "dispatched_during": "Compatibility implementation waiting on exact profile/evidence decisions; does not replace fresh final candidate review",
-    "status_updated_utc": "2026-09-15T01:33:38.182850+00:00",
-    "return_ref": "instances/LEGACY_REFUTATION/REPORT.md",
-    "return_sha256": "dcd3c5c627bff13cadeed26b4640a0c2ad6c8e90f0f5751e8013d76da42250a0"
+    "status_updated_utc": "2026-09-15T02:19:28.086253+00:00",
+    "return_ref": "instances/MIGRATION_DIAGNOSIS_V1/RETURN.json",
+    "return_sha256": "ca94e8a1eb567fa37c55070d7f34199b45f456afe7bb694bf4b6407b560d2c64",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_MIGRATION_INTEGRITY_DIAGNOSIS_V1.md",
+    "latest_brief_sha256": "4f9c299ac5b4aeb165ec89d43604bc30e3028e74a75429e6fee0200ec47e5cab",
+    "actual_dispatch": "collaboration.followup_task returned successfully; existing Astra/high ephemeral Agent 2"
   }
 ]

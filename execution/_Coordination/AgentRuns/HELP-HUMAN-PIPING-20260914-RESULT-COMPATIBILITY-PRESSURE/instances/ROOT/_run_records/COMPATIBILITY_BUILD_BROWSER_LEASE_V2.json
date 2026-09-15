@@ -1,0 +1,25 @@
+{
+  "schema": "root-exclusive-build-browser-lease-v2",
+  "created_utc": "2026-09-15T02:11:19.029Z",
+  "holder": "/root/foundation_compatibility",
+  "executor": "/root/foundation_compatibility/compatibility_writer",
+  "status": "RELEASED_TO_COMPATIBILITY",
+  "worktree": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914",
+  "source_scope": "Current exact manager/writer fence; no permission to write unreleased native migration implementation",
+  "prior_lease_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/LEASE_RELEASE.json",
+    "sha256": "355e70ea9861e58202e171385ec509613592161d2b31fbdd3c81ff5652144e9b"
+  },
+  "surfaces": [
+    "WASM/desktop build",
+    "focused Rust native command tests",
+    "focused dev/dist Playwright tests"
+  ],
+  "constraints": [
+    "One serialized build/browser executor, PLAYWRIGHT_WORKERS=1, close all owned browser processes on return.",
+    "No native application bundle/GUI lifecycle run, no normal user app/store, no Git.",
+    "Run final focused App/nativeResultSave/control/stress/parity qualification and scoped browser deliveries; complete DEC-025 remains root-owned after fresh complete review.",
+    "Record actual command/source hashes and retain failures. New migration diagnosis is read-only and may run concurrently.",
+    "Return explicit lease release before root final native integration/witness."
+  ]
+}

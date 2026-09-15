@@ -1,0 +1,25 @@
+{
+  "schema": "root-exact-source-fence-v1",
+  "decision": "RELEASED_CONTROLLED_STRESS_JSON_DELIVERY",
+  "authority": "Approved result compatibility and private pressure kernel implementation, D67 bounded integration and standing Agent 0 routine engineering authority",
+  "parent": "/root",
+  "owner": "/root/foundation_compatibility",
+  "writer": "/root/foundation_compatibility/compatibility_writer",
+  "baseline": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "additional_exact_product_paths": [
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.tsx",
+    "projects/chirality-piping/apps/desktop/src/features/redaction-controls/ControlledExportLink.test.tsx"
+  ],
+  "purpose": "Make a strict stress-neutral JSON package available as the same fully validated canonical payload after explicit local-private intent, retaining the existing governed format route and controlled-export safeguards.",
+  "constraints": [
+    "No automatic or default private consent; private intent is an existing per-export user control.",
+    "Preserve exact serialized href only when screening is lossless, unblocked and decoded-payload-equivalent; never present a redacted derivative as a verified original package.",
+    "Preserve DOTH-FORMAT-003 route identity, local-first evidence, Current binding, stale and in-flight guards, error propagation and all unrelated routes.",
+    "CSV remains separately governed and withheld when lossless output is unavailable.",
+    "Any native admission/file-name accommodation outside this exact fence needs its own bounded release; no new transport API.",
+    "Update manager combined write-scope successor and focused tests before writer completion.",
+    "Native worktree source at 6bb26b118fc038c451b97d3b86e3ae27d8ba8e91 remains frozen; no new builds or browser/native execution until native lease release."
+  ],
+  "evidence_requirement": "Validate actual delivered stress JSON after asynchronous checksum completion, covered-field tampering, explicit intent, blocked private metadata, stale source replacement and unchanged unrelated controlled exports.",
+  "created_utc": "2026-09-15T01:50:48.881Z"
+}

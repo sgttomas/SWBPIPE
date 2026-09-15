@@ -1,5 +1,8 @@
-import { describe, expect, it } from "vitest";
-import type { PreviewModel } from "../types";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { LocalProjectEnvelope, PreviewModel } from "../types";
+
+const invokeMock = vi.hoisted(() => vi.fn());
+vi.mock("@tauri-apps/api/core", () => ({ invoke: invokeMock }));
 import {
   buildBlankLocalModelDocument,
   createLocalProject,
@@ -26,6 +29,11 @@ function sampleModel(schemaVersion: string): PreviewModel {
     diagnostics: []
   };
 }
+
+afterEach(() => {
+  invokeMock.mockReset();
+  delete (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__;
+});
 
 describe("projectService model-document migration evidence (DEC-019, browser preview)", () => {
   it("evaluates current documents as current with the in-document version authority", () => {
@@ -164,5 +172,49 @@ describe("projectService model-document migration evidence (DEC-019, browser pre
   it("refuses to persist documents with refused schema versions", async () => {
     await expect(createLocalProject(sampleModel("0.9.0"))).rejects.toThrow(/newer_than_supported/);
     await expect(saveLocalProject(sampleModel("not-semver"))).rejects.toThrow(/unsupported_schema/);
+  });
+
+  it("round-trips old ledger bytes and optional transition hash evidence without projecting raw claims", async () => {
+    const model = sampleModel(SUPPORTED_MODEL_SCHEMA_VERSION);
+    const oldRecord = {
+      record_kind: "model_document_migration_ledger_record",
+      recorded_at_unix: 10,
+      source_schema_version: "0.1.0",
+      target_schema_version: "0.2.0",
+      applied_migration_ids: ["legacy-entry"],
+      migration_framework: "application_service_separate_db_and_product_schema",
+      pre_migration_model_hash: "received-old-pre",
+      post_migration_model_hash: "received-old-post",
+      trigger: "migrate_in_memory_on_open_persisted_on_save",
+      destructive_rewrite: false,
+      professional_boundary: { human_review_required: true },
+    };
+    const newRecord = {
+      ...oldRecord,
+      recorded_at_unix: 11,
+      hash_evidence: {
+        schema: "model_migration_hash_evidence_v1" as const,
+        source_payload_basis: "stored_pre_open_migration_model" as const,
+        received: { model_hash: "malformed raw claim", project_envelope_hash: ["raw", "claim"] },
+        prior_stored: { model_hash: { algorithm: "sha512", extra: true }, project_envelope_hash: null },
+        computed: {
+          pre_migration_model_hash: `sha256:${"1".repeat(64)}`,
+          post_migration_model_hash: `sha256:${"2".repeat(64)}`,
+          post_migration_project_envelope_hash: `sha256:${"3".repeat(64)}`,
+        },
+        received_claim_verification: "not_asserted" as const,
+      },
+    };
+    const envelope = {
+      model,
+      model_migration_ledger: [oldRecord, newRecord],
+    } as unknown as LocalProjectEnvelope;
+    invokeMock.mockResolvedValue(envelope);
+    (window as unknown as Record<string, unknown>).__TAURI_INTERNALS__ = {};
+    const opened = await openLocalProject(model.project.id);
+    expect(invokeMock).toHaveBeenCalledWith("open_local_project", { projectId: model.project.id });
+    expect(opened?.model_migration_ledger).toEqual([oldRecord, newRecord]);
+    expect(JSON.stringify(opened?.model_migration_ledger[0])).toBe(JSON.stringify(oldRecord));
+    expect(opened?.model_migration_ledger[1].hash_evidence?.received.model_hash).toBe("malformed raw claim");
   });
 });

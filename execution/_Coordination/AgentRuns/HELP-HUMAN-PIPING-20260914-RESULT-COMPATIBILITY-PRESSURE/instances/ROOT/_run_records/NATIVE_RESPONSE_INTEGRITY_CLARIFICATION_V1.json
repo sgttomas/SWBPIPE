@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "at_utc": "2026-09-15T02:46:42.169579+00:00",
+  "owner": "HELP_HUMAN Agent 0",
+  "scope": "Existing V8 native normalization repair; no additional product paths",
+  "upstream_revalidation": {
+    "origin_main": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+    "integration_head": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91"
+  },
+  "basis": {
+    "repair_fence_sha256": "3382d193c7888bb398693734ec892a92a003b184ced43b56b19cab13a493a5d5",
+    "trigger": "Complete App regression caught unrelated response-model mismatch being treated as a normalization replacement and clearing history; owning raw test evidence remains with compatibility writer."
+  },
+  "clarification": [
+    "A valid same-model save preserves session Current/history as already required.",
+    "A changed response may replace the session only when its supported persisted normalization is bound to the captured request and actual returned model. Newly computed migration ledger pre/post evidence is available for this purpose.",
+    "An unrelated or unsupported returned model must not silently claim successful save while leaving the session on another model; preserve the existing session/history and surface a response-integrity error, unless the existing contract already rejects it earlier.",
+    "Correct a mock that contradicts the real native save contract; retain an explicit invalid-response regression separately.",
+    "Preserve failed evidence and rerun the focused backcheck and complete App suite."
+  ],
+  "authority": "Approved tranche plus standing engineering discretion. Existing model/transport/hash profiles and file scope remain unchanged."
+}

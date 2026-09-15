@@ -1,0 +1,25 @@
+{
+  "columns": [
+    "project_id",
+    "project_name",
+    "model_json",
+    "created_at_unix",
+    "updated_at_unix",
+    "editor_intents_json",
+    "proposal_json",
+    "selected_review_target_json",
+    "mechanics_result_json",
+    "analysis_run_json",
+    "model_hash_json",
+    "project_envelope_hash_json",
+    "model_migration_ledger_json"
+  ],
+  "integrity_check": "ok",
+  "method": "sqlite online backup from read-only source connection; immutable offline-copy read",
+  "output": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/EARLY_NATIVE_V1/store/after_fresh_solve_save.sqlite3",
+  "output_bytes": 4063232,
+  "output_sha256": "2837f97cf15427f3ac6fb6783e7841c2c8587c37c3a23d135f73a04f420676df",
+  "project_id": "project:invented-loop-01",
+  "source": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-early-20260914/openpipestress-projects.sqlite3",
+  "store_schema_version": 11
+}

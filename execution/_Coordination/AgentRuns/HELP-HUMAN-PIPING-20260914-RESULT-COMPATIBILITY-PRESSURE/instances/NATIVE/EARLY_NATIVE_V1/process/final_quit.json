@@ -1,0 +1,8 @@
+{
+  "captured_at": "2026-09-15T02:03:50.104915+00:00",
+  "exact_executable": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress Foundation Early 20260914.app/Contents/MacOS/openpipestress-desktop",
+  "expected_exited_pid": 50089,
+  "expected_pid_absent": true,
+  "matching_processes": [],
+  "process_gone": true
+}

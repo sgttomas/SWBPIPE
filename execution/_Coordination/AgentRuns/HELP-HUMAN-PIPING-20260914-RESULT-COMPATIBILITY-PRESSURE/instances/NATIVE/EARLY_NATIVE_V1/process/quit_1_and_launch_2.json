@@ -1,0 +1,15 @@
+{
+  "captured_at": "2026-09-15T02:01:23.164858+00:00",
+  "exact_executable": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress Foundation Early 20260914.app/Contents/MacOS/openpipestress-desktop",
+  "matching_processes": [
+    {
+      "command": "/private/tmp/piping-foundation-native-early-20260914/bound/OpenPipeStress Foundation Early 20260914.app/Contents/MacOS/openpipestress-desktop",
+      "lstart": "Mon Sep 14 20:00:47 2026",
+      "pid": 50089,
+      "ppid": 1
+    }
+  ],
+  "new_pid": 50089,
+  "old_pid": 48752,
+  "old_pid_absent": true
+}

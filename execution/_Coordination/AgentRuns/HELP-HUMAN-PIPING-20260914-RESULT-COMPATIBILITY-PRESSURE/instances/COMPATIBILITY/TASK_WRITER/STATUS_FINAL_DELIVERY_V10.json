@@ -1,0 +1,32 @@
+{
+  "status": "COMPLETE",
+  "role": "TASK",
+  "type": 2,
+  "parent": "COMPATIBILITY_WORKING_ITEMS",
+  "actual_dispatch": true,
+  "dispatch_utc": "2026-09-15T00:20:47Z",
+  "completed_utc": "2026-09-15T03:18:24.758700+00:00",
+  "agent_task_name": "/root/foundation_compatibility/compatibility_writer",
+  "configured_model": "gpt-5.6-sol",
+  "configured_reasoning_effort": "high",
+  "final_write_scope_sha256": "090944ec865a3edb6d5faad4565c4f0def5db7621b2ffcd670258f232f79fb80",
+  "portable_successor_brief_sha256": "b31db482ddc636a91ce8690cd7b97d5fc9edbe0b28b38aca8682fe5809de23ee",
+  "final_source_checkpoint": "FINAL_SOURCE_CHECKPOINT_V10.json",
+  "final_source_checkpoint_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
+  "source_file_count": 74,
+  "source_effect": true,
+  "source_frozen": true,
+  "qualification_complete": true,
+  "build_browser_lease_status": "RELEASED_BY_TASK_WRITER",
+  "owned_browser_processes": 0,
+  "owned_web_servers": 0,
+  "delegation_allowed": false,
+  "delegated": false,
+  "git_actions": false,
+  "root_owned_remaining": [
+    "native Tauri GUI/bundle qualification",
+    "fresh complete-diff review",
+    "full registered sweep",
+    "Git lifecycle"
+  ]
+}

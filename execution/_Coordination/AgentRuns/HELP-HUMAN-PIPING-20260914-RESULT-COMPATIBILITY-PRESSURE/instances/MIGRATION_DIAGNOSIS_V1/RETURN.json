@@ -1,0 +1,25 @@
+{
+  "status": "DIAGNOSIS_COMPLETE_REPAIR_NOT_EXECUTED",
+  "sealed_utc": "2026-09-15T02:17:52.777305+00:00",
+  "actual_model": "gpt-6-astra",
+  "reasoning_effort": "high",
+  "parent": "HELP_HUMAN",
+  "role": "ephemeral Agent 2",
+  "outputs": [
+    {
+      "path": "REPORT.md",
+      "sha256": "f82e8342ad5a8eaee144a4452eb43c09007cc9ea8b40594e35bcdf66c7d426fb",
+      "bytes": 15433
+    },
+    {
+      "path": "INPUT_MANIFEST.json",
+      "sha256": "8680f70e70d1f1f2669bfbc51493711b81c4f761f5002488bcc9fef83af5b127",
+      "bytes": 8826
+    },
+    {
+      "path": "INDEPENDENT_COMPARISON.json",
+      "sha256": "aec667f033e7443f97373d3518cfa90dbdebff47e54d50df3d366e8ebade1e74",
+      "bytes": 2845
+    }
+  ]
+}

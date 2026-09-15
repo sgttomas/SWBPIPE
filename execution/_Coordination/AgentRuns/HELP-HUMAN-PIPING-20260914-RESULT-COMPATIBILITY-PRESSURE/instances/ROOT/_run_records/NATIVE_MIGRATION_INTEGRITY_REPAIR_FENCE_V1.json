@@ -1,0 +1,54 @@
+{
+  "schema": "root-bounded-integration-repair-release-v1",
+  "created_utc": "2026-09-15T02:19:27.993Z",
+  "decision": "RELEASED_NATIVE_NORMALIZATION_HASH_AND_CURRENTNESS_REPAIR",
+  "authority": "Approved result compatibility/native lifecycle tranche and standing Agent 0 routine engineering authority; no new user decision required.",
+  "parent": "/root",
+  "owner": "/root/foundation_compatibility",
+  "writer": "/root/foundation_compatibility/compatibility_writer",
+  "candidate_diagnosed": "6bb26b118fc038c451b97d3b86e3ae27d8ba8e91",
+  "accepted_diagnosis": {
+    "canonical_repo_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/MIGRATION_DIAGNOSIS_V1/REPORT.md",
+    "sha256": "f82e8342ad5a8eaee144a4452eb43c09007cc9ea8b40594e35bcdf66c7d426fb",
+    "inputs_sha256": "8680f70e70d1f1f2669bfbc51493711b81c4f761f5002488bcc9fef83af5b127",
+    "independent_comparison_sha256": "aec667f033e7443f97373d3518cfa90dbdebff47e54d50df3d366e8ebade1e74",
+    "scope": "Read these named sealed diagnosis artifacts and their referenced actual synthetic native evidence; the canonical raw evidence remains in integration and is not copied."
+  },
+  "exact_product_and_test_paths": [
+    "projects/chirality-piping/apps/desktop/src-tauri/src/lib.rs",
+    "projects/chirality-piping/apps/desktop/src-tauri/src/model_document_migration.rs",
+    "projects/chirality-piping/apps/desktop/src/App.tsx",
+    "projects/chirality-piping/apps/desktop/src/App.test.tsx",
+    "projects/chirality-piping/apps/desktop/src/types.ts",
+    "projects/chirality-piping/apps/desktop/src/services/projectService.test.ts"
+  ],
+  "accepted_behavior": [
+    "Prepare the exact normalized persistence tuple before minting its new model/envelope checksum evidence, and store the complete tuple atomically using the existing transaction.",
+    "Only an actual model normalization transition authorizes derived post-normalization hash carriers. A stale migration status or a mismatch by itself does not authorize rewriting current historical claims or appending another ledger event.",
+    "On new ledger records only, add optional hash_evidence metadata exactly as bounded by the accepted report: full received and optional prior_stored JSON claims, computed actual source/final model and final envelope evidence, source_payload_basis, and received_claim_verification=not_asserted.",
+    "Capture received metadata before normalization drops malformed/nonobject values. Preserve raw result/analysis and their hashes, old ledger entries and received claim labels/values. Computed evidence does not verify received claims or supply an absent historical preimage.",
+    "App must adopt an actually changed returned model through the established guarded replacement/commitModel path, invalidate Current and old operation/solve/rule ownership and history checkpoints, and preserve returned results/analysis as Historical.",
+    "For same-model Historical save after open-time normalization, refresh the still-owned Historical context from the returned saved envelope so subsequent saves do not reuse old hash carriers. A fresh solve that completes while save is pending wins.",
+    "Same-model Current saves preserve Current. Unchanged already-current Historical saves preserve all received carriers and do not retroactively heal prior inconsistent records.",
+    "Retain all existing request/epoch/busy/stale guards and review context/selection handling."
+  ],
+  "unchanged_contracts": [
+    "existing model/persistence rfc8785_jcs authority and projections",
+    "existing model-document migration chain and supported version",
+    "native request/receipt commands and fields",
+    "database columns and version",
+    "operation/input-manifest/result contracts",
+    "old historical ledger entry bytes/values"
+  ],
+  "compatibility_interpretation": "The optional metadata member extends the existing free-form ledger evidence carrier and optional structural TypeScript type; it is not a new storage migration or model/transport version. Full review must confirm existing consumers preserve it.",
+  "acceptance": [
+    "Meaningful file-backed native first-create/first-save projection checks with real old claims; received metadata retained.",
+    "Stored-old open/normalized-save/repeat-save, actual-transition/idempotence and same-model Historical refresh checks.",
+    "Already-current malformed/mislabelled/absent historical claim preservation without rehash; old/new ledger roundtrip.",
+    "Changed-model response Current/history/delayed operation invalidation; unchanged Current save preservation; stale Historical save versus fresh solve race.",
+    "Fresh native bundled-model reproduction/backcheck on the new candidate, followed by final complete native lifecycle, independent complete review and DEC-025."
+  ],
+  "execution": "Seal the next combined writer fence before implementation. The same sole writer owns this repair after its current bounded stress/parity tests. Existing compatibility build/browser lease applies; root owns final native bundle/GUI, review, sweep and Git integration.",
+  "exclusions": "No other product paths, public checksum migration, broad persistence redesign, new API, retroactive archive rewrite or product physics work."
+}

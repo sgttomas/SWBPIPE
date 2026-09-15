@@ -1,0 +1,56 @@
+{
+  "artifact": "openpipestress.final_native_consumer_execution_map_v4",
+  "schema_version": "1.0.0",
+  "status": "PREPARED_COMMANDS_NOT_EXECUTED",
+  "final_candidate": {
+    "source_commit": "UNRELEASED",
+    "source_tree_sha256": "UNRELEASED",
+    "checked_json_executable_sha256": "UNRELEASED",
+    "runner_executable_sha256": "UNRELEASED",
+    "wasm_sha256": "UNRELEASED",
+    "native_executable_sha256": "UNRELEASED",
+    "bundle_tree_sha256": "UNRELEASED",
+    "dist_tree_sha256": "UNRELEASED"
+  },
+  "derived_roots": {
+    "REPO_ROOT": "caller-supplied released integration checkout",
+    "WORKING_ROOT": "$REPO_ROOT/projects/chirality-piping",
+    "V4": "$WORKING_ROOT/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4",
+    "RUNTIME_EVIDENCE": "$V4/_run_records/final_execution"
+  },
+  "dependencies": [
+    "root-released immutable candidate and complete source binding",
+    "exclusive native/build/GUI lease",
+    "fresh candidate checked Rust canonicalizer, WASM, runner, native app and dist",
+    "seven exact request/output captures with hashes in a filled CASE_MAP_TEMPLATE_V4 copy",
+    "final maintained schemas and semantic contract",
+    "offline installed npm and Python development dependencies"
+  ],
+  "steps": [
+    {"id":"V4-01","action":"bind_candidate","command":"root-owned; fill $RUNTIME_EVIDENCE/CASE_MAP_V4.json from $V4/_run_records/CASE_MAP_TEMPLATE_V4.json","gate":"all UNRELEASED fields replaced and independently hashed"},
+    {"id":"V4-02","action":"focused_checks_and_fresh_build","command":"reuse ../NATIVE_QUALIFICATION_PROCEDURE_V1.md with final registered test substitutions recorded","gate":"all checks pass; source unchanged; exact fresh executable/bundle/dist hashes"},
+    {"id":"V4-03","action":"repaired_first_save_backcheck","command":"reuse ../EARLY_NATIVE_V1 lifecycle and sealed validate_stored_analysis.py by hash","gate":"first reopened record Historical only for missing manifest payload; model/envelope/result/record/row hashes all consistent; unchanged-save exact"},
+    {"id":"V4-04","action":"seven_final_runner_captures","command":"$FROZEN_RUNNER solve --input $REQUEST --output $OUTPUT (once per exact case)","gate":"seven exit-0 MECHANICS_SOLVED captures; runtime supported-source-059 exact triple present"},
+    {"id":"V4-05","action":"frontend_composition_and_independent_verification","command":"python3 $V4/run_final_consumers.py --working-root $WORKING_ROOT --checked-json-bin $CHECKED_JSON --case-map $RUNTIME_EVIDENCE/CASE_MAP_V4.json --output-root $RUNTIME_EVIDENCE/consumer","gate":"all eleven frozen supplemental signatures occur across actual captured outputs, including 059; all seven independent reports PASS; full 60-signature runtime claim also depends on shipped sparse/dense evidence"},
+    {"id":"V4-06","action":"shipped_native_sparse_dense_and_deliveries","command":"packaged native GUI plus typed result/stress save routes; record exact receipts and copied bytes","gate":"actual backend seam and native delivery shown; browser fixture seam separately labelled"},
+    {"id":"V4-07","action":"authored_350_to_500_lifecycle","command":"reuse ../NATIVE_QUALIFICATION_PROCEDURE_V1.md and ../FROZEN_SYNTHETIC_EXPECTATIONS_V1.json","gate":"exact author/edit/undo/redo/agent-equivalence/current/historical/reopen/unchanged-save/fresh-solve/process checks"},
+    {"id":"V4-08","action":"legacy_read_only_backcheck","command":"isolated accepted legacy 0.1 store copy","gate":"truthful unverifiable where preimage unavailable; no false mismatch; unchanged raw fields/profile"},
+    {"id":"V4-09","action":"seal_and_release","command":"root-owned evidence seal and explicit lease release","gate":"no candidate process remains; failures and evidence-class limits included"}
+  ],
+  "evidence_class_fence": {
+    "frontend_composition": "actual product frontend constructors consuming captured product output; no GUI/browser delivery claim",
+    "python_materialization": "owning product API writes exact nine stress members; no GUI attribution",
+    "native_delivery": "requires actual typed native save receipt and copied delivered bytes",
+    "browser_delivery": "fixture-backed shipped population only unless a new maintained transport exists",
+    "legacy": "preserve received labels and report unverifiable when exact preimage proof is unavailable"
+  },
+  "hard_stop_conditions": [
+    "candidate/source drift",
+    "native/build/GUI lease conflict",
+    "supported-source-059 absent from actual final output",
+    "first-save persisted model or envelope inconsistency",
+    "strict schema/checksum/ref/member/materialization failure",
+    "missing or unverifiable actual delivery bytes",
+    "product API rename not rebound and recorded"
+  ]
+}

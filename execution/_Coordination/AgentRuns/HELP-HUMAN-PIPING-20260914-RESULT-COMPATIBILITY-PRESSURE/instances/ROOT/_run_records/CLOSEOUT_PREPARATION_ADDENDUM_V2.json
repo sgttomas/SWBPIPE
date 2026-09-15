@@ -1,0 +1,25 @@
+{
+  "schema": "root-closeout-input-addendum-v1",
+  "status": "PREPARED_NOT_ACCEPTANCE",
+  "created_utc": "2026-09-15T01:54:14.927Z",
+  "basis": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CLOSEOUT_INVENTORY.md",
+    "qualification": "Preparation remains valid subject to these current accepted inputs and final evidence."
+  },
+  "corrections": [
+    "Pressure V2 was refuted and superseded. Final closeout must consume accepted V3 source and ROOT/PRESSURE_ACCEPTANCE_V1.json plus PRESSURE_ORACLE/REFUTATION_V3/ADJUDICATED_SUMMARY.json. Keep the raw V1/V2 failures and qualified overflow-admission boundary.",
+    "Native V1 procedure is qualified by ROOT/_run_records/NATIVE_PREPARATION_ACCEPTANCE.json; do not repeat its superseded solver-mode/work witness, legacy-only-finding or model-hash-profile assumptions.",
+    "The controlled stress JSON and paired native route/name accommodations are authorized by their exact ROOT fence records. If their final source is accepted, append a bounded consumer note to DEL-12-02 MEMORY.md alongside existing DEL-08-04/DEL-17-06 ownership.",
+    "No route inventory, general privacy policy, public transport or local-first policy change is introduced. DEL-12-01 does not receive a completion claim merely because its existing evidence is consumed."
+  ],
+  "additional_conditional_metadata_path": "projects/chirality-piping/execution/PKG-12_Security, Privacy, and Private Data Handling/1_Working/DEL-12-02_Private data redaction and export controls/MEMORY.md",
+  "consumer_note_contract": "Describe explicit local-private intent, lossless exact package delivery, unchanged DOTH-FORMAT-003 identity, paired native filename admission and preserved blocking/stale guards; reference final owning acceptance without duplicating counts or closing unrelated Remaining.",
+  "final_native_acceptance_clarifications": [
+    "Use the established model hash authority/projection for exact M350/M500, undo/redo and synthetic agent semantics; checked new JSON profile is not a model-hash migration.",
+    "Solver-mode evidence is a discrete disclosure. Determine stress witness eligibility from the accepted frozen semantic inventory, retaining each raw row; do not equate disclosure with diagnostic work.",
+    "Frontend actual JSON delivery and Python per-member filesystem materialization are distinct product routes. Verify each at its owning route.",
+    "All 60 semantic signatures must be exercised; supplemental actual product producer output plus actual frontend consumer composition has an explicitly narrower claim than GUI delivery.",
+    "Bind final source changes since the early native checkpoint and rerun relevant behavior in the final application. Early success does not substitute for final authored cantilever or controlled stress deliveries."
+  ],
+  "final_gates": "Complete candidate review, exact-source native acceptance, full registered DEC-025, practitioner/self-check/receipt, evidence-only delta review, actual PR required CI and merge remain pending."
+}

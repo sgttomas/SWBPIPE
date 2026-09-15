@@ -141,6 +141,7 @@ import type {
   DesignKnowledge,
   EditorOperationIntent,
   EntityRef,
+  LocalProjectEnvelope,
   LocalProjectIndexEntry,
   LocalProjectSummary,
   LocalStorageCapability,
@@ -249,6 +250,66 @@ export function commitModelAfterSolveInvalidation(
   revision.current += 1;
   gate.invalidate();
   commit();
+}
+
+const SUPPORTED_MODEL_NORMALIZATION_ID =
+  "model-doc-0.1.0-to-0.2.0-additive-combination-shape-noop";
+
+export function isSupportedChangedModelPersistenceResponse(
+  envelope: LocalProjectEnvelope,
+  requestModelHash: ModelHashEvidence | null,
+  returnedModelHash: ModelHashEvidence | null,
+  recomputedReturnedEnvelopeHash: ProjectEnvelopeHashEvidence | null,
+  priorLedgerCount: number
+): boolean {
+  if (
+    !requestModelHash ||
+    !returnedModelHash ||
+    !recomputedReturnedEnvelopeHash ||
+    requestModelHash.value === returnedModelHash.value
+  ) return false;
+  const migration = envelope.model_document_migration;
+  const ledger = envelope.model_migration_ledger;
+  if (
+    migration?.status !== "migrated" ||
+    migration.persistence_state !== "persisted_with_ledger_record" ||
+    migration.source_schema_version !== "0.1.0" ||
+    migration.target_schema_version !== "0.2.0" ||
+    envelope.model.schema_version !== "0.2.0" ||
+    ledger.length <= priorLedgerCount
+  ) return false;
+  const record = ledger.at(-1);
+  const evidence = record?.hash_evidence;
+  return Boolean(
+    record &&
+    evidence?.schema === "model_migration_hash_evidence_v1" &&
+    evidence.source_payload_basis === "incoming_pre_migration_model" &&
+    evidence.received_claim_verification === "not_asserted" &&
+    record.source_schema_version === "0.1.0" &&
+    record.target_schema_version === "0.2.0" &&
+    record.applied_migration_ids.length === 1 &&
+    record.applied_migration_ids[0] === SUPPORTED_MODEL_NORMALIZATION_ID &&
+    migration.applied_migration_ids.length === 1 &&
+    migration.applied_migration_ids[0] === SUPPORTED_MODEL_NORMALIZATION_ID &&
+    record.pre_migration_model_hash === requestModelHash.value &&
+    evidence.computed.pre_migration_model_hash === requestModelHash.value &&
+    record.post_migration_model_hash === returnedModelHash.value &&
+    evidence.computed.post_migration_model_hash === returnedModelHash.value &&
+    envelope.model_hash?.algorithm === returnedModelHash.algorithm &&
+    envelope.model_hash.canonicalization === returnedModelHash.canonicalization &&
+    envelope.model_hash.payload_scope === returnedModelHash.payload_scope &&
+    envelope.model_hash.payload_ref === returnedModelHash.payload_ref &&
+    envelope.model_hash.value === returnedModelHash.value &&
+    envelope.model_hash.hash_status === returnedModelHash.hash_status &&
+    evidence.computed.post_migration_project_envelope_hash === recomputedReturnedEnvelopeHash.value &&
+    envelope.project_envelope_hash?.algorithm === recomputedReturnedEnvelopeHash.algorithm &&
+    envelope.project_envelope_hash.canonicalization === recomputedReturnedEnvelopeHash.canonicalization &&
+    envelope.project_envelope_hash.payload_scope === recomputedReturnedEnvelopeHash.payload_scope &&
+    envelope.project_envelope_hash.payload_excludes === recomputedReturnedEnvelopeHash.payload_excludes &&
+    envelope.project_envelope_hash.payload_ref === recomputedReturnedEnvelopeHash.payload_ref &&
+    envelope.project_envelope_hash.value === recomputedReturnedEnvelopeHash.value &&
+    envelope.project_envelope_hash.hash_status === recomputedReturnedEnvelopeHash.hash_status
+  );
 }
 
 // TP-APP-R2-UXSHELL-001 workspace information architecture.
@@ -1388,19 +1449,50 @@ function AppSession() {
     setSolveJob(nextSolveJob);
   }
 
+  function adoptNormalizedPersistenceModel(
+    envelope: LocalProjectEnvelope,
+    returnedHistory: HistoricalRunContext | null,
+    returnedModelHash: ModelHashEvidence | null
+  ) {
+    commitModel(envelope.model);
+    setSelection(defaultSelection(envelope.model));
+    setUndoStack([]);
+    setRedoStack([]);
+    setAppliedOperations([]);
+    setQueuedBatches([]);
+    setBatchOutcomes({});
+    setBatchReceipts([]);
+    setBatchMessage(null);
+    setOperationOutcomes({});
+    setOperationMessage(null);
+    setResult(null);
+    setAnalysisRun(null);
+    setInputManifest(null);
+    setRuleCheckAggregate(null);
+    setHistoricalRun(returnedHistory);
+    setRetainedReviewContext(envelope.editor_intents ?? []);
+    setEditorIntents([]);
+    setSolveJob(initialSolveJob());
+    setModelHash(envelope.model_hash ?? returnedModelHash);
+  }
+
   async function handleCreateProject() {
     if (!model) return;
     const request = ++projectRequest.current;
-    const epoch = requestEpochRef.current;
+    let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    const requestModel = model;
+    const requestHistoricalRun = historicalRun;
+    const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
-      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
-      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
-      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
+      const actualRequestModelHash = await computeModelHash(requestModel);
+      const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.mechanicsResult : result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.analysisRun : analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
@@ -1425,6 +1517,41 @@ function AppSession() {
         envelopeHash
       );
       if (!stillCurrent()) return;
+      const returnedModelHash = await computeModelHash(created.model);
+      if (!stillCurrent()) return;
+      const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
+        model: created.model,
+        editor_intents: created.editor_intents,
+        proposal: created.proposal,
+        selected_review_target: created.selected_review_target,
+        mechanics_result: created.mechanics_result,
+        analysis_run: created.analysis_run,
+        model_hash: created.model_hash
+      });
+      if (!stillCurrent()) return;
+      const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
+      const modelChanged = isSupportedChangedModelPersistenceResponse(
+        created,
+        actualRequestModelHash,
+        returnedModelHash,
+        recomputedReturnedEnvelopeHash,
+        requestMigrationLedgerCount
+      );
+      if (responseModelChanged && !modelChanged) {
+        setProjectMessage("Create failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
+        setProjectOperation("create_failed");
+        return;
+      }
+      const returnedHistory = modelChanged || requestHistoricalRun
+        ? await buildHistoricalRunContext(created)
+        : null;
+      if (!stillCurrent()) return;
+      if (modelChanged) {
+        adoptNormalizedPersistenceModel(created, returnedHistory, returnedModelHash);
+        epoch = requestEpochRef.current;
+      } else if (requestHistoricalRun) {
+        setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
+      }
       setProjectSummary(created.summary);
       setProposal(created.proposal ?? null);
       setSelectedReviewTarget(created.selected_review_target ?? null);
@@ -1586,16 +1713,20 @@ function AppSession() {
   async function handleSaveProject() {
     if (!model) return;
     const request = ++projectRequest.current;
-    const epoch = requestEpochRef.current;
+    let epoch = requestEpochRef.current;
     const stillCurrent = () => request === projectRequest.current && epoch === requestEpochRef.current;
+    const requestModel = model;
+    const requestHistoricalRun = historicalRun;
+    const requestMigrationLedgerCount = modelMigrationLedger.length;
     const combinedContext = structuredClone([...retainedReviewContext, ...editorIntents, ...queuedBatches.flatMap((entry) => entry.batch.operations)]);
     setProjectBusy(true);
     setModelHashIntegrity(null);
     setProjectEnvelopeHashIntegrity(null);
     try {
-      const snapshotModelHash = historicalRun ? historicalRun.modelHash : await computeModelHash(model);
-      const snapshotResult = historicalRun ? historicalRun.mechanicsResult : result;
-      const snapshotAnalysisRun = historicalRun ? historicalRun.analysisRun : analysisRun;
+      const actualRequestModelHash = await computeModelHash(requestModel);
+      const snapshotModelHash = requestHistoricalRun ? requestHistoricalRun.modelHash : actualRequestModelHash;
+      const snapshotResult = requestHistoricalRun ? requestHistoricalRun.mechanicsResult : result;
+      const snapshotAnalysisRun = requestHistoricalRun ? requestHistoricalRun.analysisRun : analysisRun;
       if (!stillCurrent()) return;
       const computedEnvelopeHash = await computeProjectEnvelopeHash({
         model,
@@ -1621,6 +1752,43 @@ function AppSession() {
         modelDocumentMigration
       );
       if (!stillCurrent()) return;
+      const returnedModelHash = await computeModelHash(saved.model);
+      if (!stillCurrent()) return;
+      const recomputedReturnedEnvelopeHash = await computeProjectEnvelopeHash({
+        model: saved.model,
+        editor_intents: saved.editor_intents,
+        proposal: saved.proposal,
+        selected_review_target: saved.selected_review_target,
+        mechanics_result: saved.mechanics_result,
+        analysis_run: saved.analysis_run,
+        model_hash: saved.model_hash
+      });
+      if (!stillCurrent()) return;
+      const responseModelChanged = returnedModelHash?.value !== actualRequestModelHash?.value;
+      const modelChanged = isSupportedChangedModelPersistenceResponse(
+        saved,
+        actualRequestModelHash,
+        returnedModelHash,
+        recomputedReturnedEnvelopeHash,
+        requestMigrationLedgerCount
+      );
+      if (responseModelChanged && !modelChanged) {
+        setProjectMessage("Save failed: PROJECT-PERSISTENCE-RESPONSE-INTEGRITY: returned model change is not bound to the supported persisted normalization transition.");
+        setProjectOperation("save_failed");
+        return;
+      }
+      const returnedHistory = modelChanged || requestHistoricalRun
+        ? await buildHistoricalRunContext(saved)
+        : null;
+      if (!stillCurrent()) return;
+      if (modelChanged) {
+        adoptNormalizedPersistenceModel(saved, returnedHistory, returnedModelHash);
+        epoch = requestEpochRef.current;
+      } else if (requestHistoricalRun) {
+        // Preserve a fresh Current solve that completed while the native save
+        // was pending. Only the still-owned Historical snapshot may refresh.
+        setHistoricalRun((current) => current === requestHistoricalRun ? returnedHistory : current);
+      }
       setProjectSummary(saved.summary);
       setProposal(saved.proposal ?? null);
       setSelectedReviewTarget(saved.selected_review_target ?? null);

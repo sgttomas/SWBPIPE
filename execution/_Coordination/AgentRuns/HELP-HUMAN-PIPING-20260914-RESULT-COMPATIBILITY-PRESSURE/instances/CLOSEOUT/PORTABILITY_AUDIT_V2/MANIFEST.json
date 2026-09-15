@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "status": "PREPARATION_ONLY",
+  "hash_algorithm": "sha256",
+  "self_excluded": true,
+  "files": [
+    {
+      "path": "CLOSING_SEQUENCE.md",
+      "sha256": "44483f4f74d27def036e9ee33285350c86a9eeed1e852faaca26a41f05f3f02b"
+    },
+    {
+      "path": "DRAFT_POLICY_ENTRIES.json",
+      "sha256": "5b3cbcaa821309a0f82f7a8ac50bdaf3bdd922e2617cea4894ac95b5ff400d9b"
+    },
+    {
+      "path": "FUTURE_FREEZE_REVISITS.md",
+      "sha256": "a25bdc563c6c58f3bc42e92338fc6406531e395f1a15f6ce21e37ecd3dcbfb7c"
+    },
+    {
+      "path": "RETURN.md",
+      "sha256": "4d90c4083067f5ce7813a539ab970afec57132849c70ee42ed634ed71b8d034a"
+    },
+    {
+      "path": "_run_records/SCAN_FINDINGS.json",
+      "sha256": "f56ad9353b8dd1debc4c2d6be3f3215b64222685ef33b4357ff89d6dfb18d3a2"
+    }
+  ]
+}
