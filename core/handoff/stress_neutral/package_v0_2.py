@@ -60,7 +60,11 @@ def _witness_disposition(row: Mapping[str, Any]) -> tuple[str, str | None]:
     unit_dimension = UNIT_DIMENSIONS.get(row.get("unit"))
     if unit_dimension is None:
         return "missing_semantic", None
-    if family in FAMILY_DIMENSIONS:
+    if family == "reaction":
+        interpreted = {"N": "force", "N*m": "moment"}.get(row.get("unit"))
+        if interpreted is None:
+            return "contradiction", None
+    elif family in FAMILY_DIMENSIONS:
         interpreted = FAMILY_DIMENSIONS[family]
     elif family == "other":
         interpreted = row.get("dimension")

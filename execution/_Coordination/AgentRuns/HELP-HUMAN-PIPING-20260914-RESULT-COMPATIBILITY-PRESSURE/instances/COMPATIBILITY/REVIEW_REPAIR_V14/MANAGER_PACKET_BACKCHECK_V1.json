@@ -1,0 +1,148 @@
+{
+  "authorization": {
+    "brief": {
+      "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V14.md",
+      "sha256": "e06428df87018c9bedc1edcfc571cec850030fb728957557b8b68d8df1495f3d"
+    },
+    "execution": "nonbuild focused replay; no Cargo, build, WASM rebuild, browser, server, native GUI, full sweep, Git or network",
+    "write_scope": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/WRITE_SCOPE.json",
+      "sha256": "d1c4c20a4607be75a78676f0a9d648f19c94a54609b99a09051ae41b6de17fe1"
+    }
+  },
+  "created_utc": "2026-09-15T04:50:10.568910Z",
+  "csv_blank_record_negatives": [
+    {
+      "case": "interior_empty",
+      "expected_error": "SN-CSV-ROW-BINDING-MISMATCH",
+      "recomputed_hashes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "terminal_empty",
+      "expected_error": "SN-CSV-ROW-BINDING-MISMATCH",
+      "recomputed_hashes": true,
+      "status": "PASS"
+    },
+    {
+      "case": "interior_space",
+      "expected_error": "SN-CSV-ROW-BINDING-MISMATCH",
+      "recomputed_hashes": true,
+      "status": "PASS"
+    }
+  ],
+  "environment": {
+    "cargo_invoked": false,
+    "checked_json_executable": "projects/chirality-piping/core/serialization/canonical_json/target/checked-json/release/openpipestress_jcs_ijson",
+    "checked_json_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "python_version": "3.13.14"
+  },
+  "limits": [
+    "This is source and nonbuild consumer qualification, not final native GUI qualification.",
+    "No full registered sweep or Git closeout is claimed.",
+    "The authentic package remains validation-blocked because two diagnostic-work rows are explicitly withheld; all 830 rows remain retained."
+  ],
+  "packet_cases": [
+    {
+      "bytes": 2107038,
+      "case": "authentic_native_830",
+      "rows": 830,
+      "runtime_validation": "PASS",
+      "schema_validation": "PASS",
+      "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+      "source_path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+      "validated_writer_members": 9,
+      "witnesses": 828
+    },
+    {
+      "bytes": 2107803,
+      "case": "unknown_kind",
+      "rows": 830,
+      "runtime_validation": "PASS",
+      "schema_validation": "PASS",
+      "sha256": "6f06ae4d84c7d2a580c77afa897e559652bae0b06534461f0eb2f59ba865f36c",
+      "source_path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/unknown-kind.packet.json",
+      "validated_writer_members": 9,
+      "withheld_result_id": "result:force:pipe-P-100:axial",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-UNKNOWN-SEMANTIC",
+      "witnesses": 827
+    },
+    {
+      "bytes": 2107755,
+      "case": "missing_component",
+      "rows": 830,
+      "runtime_validation": "PASS",
+      "schema_validation": "PASS",
+      "sha256": "e4f89cb75db3d9f4684d6a8f7f86666e3a726a4893eb8c77737bab8e829d7ce9",
+      "source_path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/missing-component.packet.json",
+      "validated_writer_members": 9,
+      "withheld_result_id": "result:force:pipe-P-100:axial",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-MISSING-SEMANTIC",
+      "witnesses": 827
+    },
+    {
+      "bytes": 2107804,
+      "case": "unit_component_contradiction",
+      "rows": 830,
+      "runtime_validation": "PASS",
+      "schema_validation": "PASS",
+      "sha256": "e86310ba8a077aeceb36b5459effbec194bf23bf586d14a3f42c4feeb24a1a56",
+      "source_path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/unit-component-contradiction.packet.json",
+      "validated_writer_members": 9,
+      "withheld_result_id": "result:force:pipe-P-100:axial",
+      "withholding_code": "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION",
+      "witnesses": 827
+    }
+  ],
+  "raw_evidence_ownership": {
+    "native_raw_carrier": {
+      "duplicated": false,
+      "owner": "instances/NATIVE/FINAL_NATIVE_V2",
+      "path_in_base": "instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json",
+      "sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923"
+    },
+    "producer_packets": "evidence-local derivatives from unchanged desktop producer; retained for exact Python consumer replay"
+  },
+  "schema": "compatibility-v14-manager-packet-backcheck-v1",
+  "schema_bindings": [
+    {
+      "path": "schemas/stress_neutral_export.schema.json",
+      "sha256": "68b971d61ca7864e3ab74d1fb92d2518ba0fead2a8753bc089d9964977fea1a8"
+    },
+    {
+      "path": "schemas/stress_neutral_export.v0.2.schema.json",
+      "sha256": "7b8fbe4831fcf14415c8d7d103cca0996112854bfde2ae12ef8de80b0dd302a4"
+    }
+  ],
+  "source_freeze": {
+    "delta_from_v13_count": 2,
+    "independent_manifest_rehash": "PASS",
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+    "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+    "source_count": 74
+  },
+  "status": "PASS",
+  "writer_evidence": {
+    "authentic_packet_result": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/RESULT.json",
+      "sha256": "d66307bbf6014e0cde40b0cebc09e2fbc3eb661846316205e01bc1bc7b0ee364"
+    },
+    "desktop_producer_probe": {
+      "passed": 1,
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/vitest-final.log",
+      "sha256": "18b0ade91f08f99b9608877f4c56ffa7f93a2084d0ec970ff90957ebe92a4ade"
+    },
+    "focused_python": {
+      "passed": 73,
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/focused-python.log",
+      "sha256": "3fac1f140ec87d9118df9f7414e5c444e5805443ccff05c91230e82b78d784ee",
+      "skipped": 0,
+      "warnings": 30
+    },
+    "python_consumer_result": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/PYTHON_CONSUMER_RESULT.json",
+      "sha256": "a683db0ddbd5c35cbd11d6d2be1316360e6e1c9d8d89ec6a7a5642dee1dfe3d8"
+    }
+  }
+}

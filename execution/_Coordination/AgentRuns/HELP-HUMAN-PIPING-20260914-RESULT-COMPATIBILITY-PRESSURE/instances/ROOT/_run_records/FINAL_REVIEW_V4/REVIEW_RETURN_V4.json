@@ -1,0 +1,91 @@
+{
+  "schema": "root-persisted-independent-review-v4",
+  "persistence": "Structured parent transcription of actual final collaboration return; not byte-identical raw tool transcript.",
+  "created_utc": "2026-09-15T04:55:58.113449+00:00",
+  "verdict": "PASS_SOURCE_REVIEW",
+  "suitable_for_manager_fanin": true,
+  "reviewer": {
+    "agent": "/root/foundation_final_review",
+    "parent": "/root",
+    "role": "TASK",
+    "type": 2,
+    "model": "gpt-6-astra",
+    "reasoning": "high",
+    "execution": "Read-only; no writes, delegation, product/tests/builds, UI or network."
+  },
+  "base_commit": "eff9a58dd712ff9673fa26b9fa809a2f725f6f97",
+  "candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V4.md",
+    "sha256": "b879f744c23bd8f3435a10701fd6f99dc7ca2d3ddc3671397a9a053df2652bb8"
+  },
+  "release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_SOURCE_RELEASE_V4.json",
+    "sha256": "47e99e7f38c489768f3096f0aed9161bbf77fc55a35ecd58f2c54975c9191b85"
+  },
+  "complete_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FULL_CHANGED_PATHS_V4.json",
+    "sha256": "effd8532593c8d3b8241e9bc06fd404205c5978bca343200cf3a9ca246879642"
+  },
+  "prior_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V3/REVIEW_RETURN_V3.json",
+    "sha256": "eb8a672c5a74f0f1a5fdd838c801d1af0ea8dc1a0fe947d88db370666881dba5"
+  },
+  "coverage": {
+    "cumulative_maintained_percent": 100,
+    "maintained_paths": 76,
+    "unchanged_since_v3": 74,
+    "reviewed_delta": [
+      "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "projects/chirality-piping/tests/test_stress_neutral_export_package.py"
+    ],
+    "governed_contract_policy_paths": 5,
+    "evidence_coordination_paths": 709,
+    "added_since_v3": 66,
+    "manifest_paths": 790,
+    "source_context_manifest_hash_mismatches": 0,
+    "verified_context_count": 35,
+    "context_identity": "Complete hash-bound35entry context array in source releaseV4",
+    "git_diff_path_set_exact": true,
+    "limits": "All source/relevantcallers/validators/producersemantics/schemas/negative tests covered cumulatively. Evidence inventoried/hashchecked; historical raw numerical outputs not all independently recomputed."
+  },
+  "findings": [],
+  "dispositions": {
+    "F01-F05": "Reviewed repairs retained; no regression identified.",
+    "F06": "Resolved: normalizedASCII/LF without rewrite; strict records reject blank/malformed/extra/incomplete rows.",
+    "F07": "Resolved: explicit bound withholding survives reduced projection, disjoint from witnesses; decidable contradictions retained.",
+    "F08": "Resolved: explicit exported dimension disagreement prevents generation and invalidates supplied contradictory witnesses."
+  },
+  "qualification": {
+    "compatibility_checkpoint": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+      "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022"
+    },
+    "root_fanin": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/CSV_WITHHOLDING_INTEGRATION_V1.json",
+      "sha256": "c39c9678bfb5006b5030c63b139c183732b148eaa6baba8a1018b2d65aff641d"
+    },
+    "private_pressure": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/PRESSURE_ACCEPTANCE_V1.json",
+      "sha256": "0b197f78e8f971a1e44c0111beb0b8d09c3e2ef280aaf370b16da112bf326067"
+    },
+    "actual_desktop_negative_packets": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/PYTHON_CONSUMER_RESULT.json",
+      "sha256": "a683db0ddbd5c35cbd11d6d2be1316360e6e1c9d8d89ec6a7a5642dee1dfe3d8"
+    },
+    "actual_830_packet_consumer": {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/RESULT.json",
+      "sha256": "d66307bbf6014e0cde40b0cebc09e2fbc3eb661846316205e01bc1bc7b0ee364"
+    },
+    "delivery": "Unchanged desktop build/dev/dist passed; V13build/browser lease released. V14nonbuild focused73tests0skips plus actual3negative and830row validated9file writes passed. Final manager seal pending."
+  },
+  "independent_artifact_comparisons": "Reviewer compared actual3negativeTS packets and original54ef830row packet to all9materialized members each: JSON contents and original CSV bytes equal; correct withholding and830/828accounting retained. Owner73Python0skip and1probe3case results inspected; initial discovery failure preserved.",
+  "numeric_scope": "Exact supported finitebinary64 equality; malformed/unsafe/overflow/underflow/unequal values rejected. Legacy0.1 unchanged.",
+  "remaining": [
+    "Final nativeV3",
+    "Full registeredDEC025",
+    "Additive terminal closeout review",
+    "Actual candidateCI and merge"
+  ],
+  "limits": "Source/evidence review is not lifecycle,release,numerical-validation or professional-reliance acceptance."
+}

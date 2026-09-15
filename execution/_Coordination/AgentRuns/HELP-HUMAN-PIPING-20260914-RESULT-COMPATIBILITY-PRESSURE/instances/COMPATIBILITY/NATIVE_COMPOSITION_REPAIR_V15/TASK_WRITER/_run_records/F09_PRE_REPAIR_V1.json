@@ -1,0 +1,48 @@
+{
+  "case_map": {
+    "bytes": 10659,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/case_map_v3.json",
+    "sha256": "7610483d92a5bcc7df9391dddecdd02b1a073657225ba44170857c52a988b595"
+  },
+  "cause": "0.2 Current result export unconditionally invoked the legacy dimension binder on raw modulus_basis_record",
+  "failure_code": "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED",
+  "failure_evidence": {
+    "bytes": 7175,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+    "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+  },
+  "first_post_repair_composition_attempt": {
+    "error": "INPUT-MANIFEST-LOAD-BASIS-INCOMPLETE",
+    "meaning": "F09 was passed for earlier cases; evidence helper requires case attribution/updated composition setup before final rerun",
+    "status": "FAILED_AT_ADJACENT_INPUT_MANIFEST_VALIDATION"
+  },
+  "post_repair_working_sources": {
+    "resultExportAdapter.test.ts": {
+      "bytes": 15651,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+    },
+    "resultExportAdapter.ts": {
+      "bytes": 29156,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+    }
+  },
+  "pre_repair_maintained_sources": {
+    "resultExportAdapter.test.ts": {
+      "bytes": 10502,
+      "sha256": "1787ae2835ba18ac2cce9a6b86e8a59c7fe69b1c48b45ec0016b26d20ea7da48"
+    },
+    "resultExportAdapter.ts": {
+      "bytes": 29060,
+      "sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf"
+    }
+  },
+  "schema_version": "1.0.0",
+  "status": "PRESERVED_PRE_REPAIR_FAILURE",
+  "stderr": {
+    "bytes": 1669,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stderr.txt",
+    "sha256": "a2639fb8e671d125a70344fb9b68b4958a977303387447c5c7c3139e970dfb68"
+  }
+}

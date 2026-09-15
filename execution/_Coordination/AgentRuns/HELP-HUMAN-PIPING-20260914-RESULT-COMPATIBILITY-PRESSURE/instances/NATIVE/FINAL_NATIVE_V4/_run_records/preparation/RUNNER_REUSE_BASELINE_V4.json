@@ -1,0 +1,190 @@
+{
+  "aggregate_file_count": 125,
+  "aggregate_tree_sha256": "f39da11f76a380f04241775eab4e7b61059a1bccc9187bc62c51f0c1007356c6",
+  "archive": {
+    "bytes": 1146245120,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project.tar",
+    "sha256": "c0b7219a9f92de0b4883fb1135cbd443d008a97ce68c09fa45558729a4a0aff3"
+  },
+  "build_command": {
+    "bytes": 1155,
+    "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/runner_build.record.json",
+    "sha256": "5c39d5b174eecafe4b1494b70bb1f1b3ed1305685fb61bb1a8e2b5450418f3ca"
+  },
+  "compiler_configuration": {
+    "identity_lines": [
+      "rustc 1.97.1 (8bab26f4f 2026-07-14)",
+      "binary: rustc",
+      "commit-hash: 8bab26f4f68e0e26f0bb7960be334d5b520ea452",
+      "commit-date: 2026-07-14",
+      "host: aarch64-apple-darwin",
+      "release: 1.97.1",
+      "LLVM version: 22.1.6"
+    ],
+    "offline": true,
+    "profile": "release",
+    "rustc_fingerprint": 11637891727244253303,
+    "rustc_info_sha256": "13edf9ea73e0a91aa49bccc1cfed410407e47e23f45a48603f93354891ab354b",
+    "target": "aarch64-apple-darwin"
+  },
+  "generated_lock": {
+    "bytes": 10169,
+    "maintained_source_lock_claimed": false,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+    "sha256": "c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470"
+  },
+  "local_path_dependency_crates": [
+    {
+      "file_count": 4,
+      "path": "core/loads/load_case_algebra",
+      "tree_sha256": "3184f2a53aae9859ec7cde5087f4d05133ec868ac2ebba96d5db0fd2f15e6491"
+    },
+    {
+      "file_count": 4,
+      "path": "core/loads/primitive_loads",
+      "tree_sha256": "3d6f91327ad523b6551f8c79c78ea7dcf672e11bcb71dbee5937c854177302fb"
+    },
+    {
+      "file_count": 4,
+      "path": "core/loads/stress_recovery",
+      "tree_sha256": "4cb449de1b3fb0a98990be409eddff8e0d644872b4e27fc73ea7fb5ced769b39"
+    },
+    {
+      "file_count": 4,
+      "path": "core/loads/user_loads",
+      "tree_sha256": "07ac0e2e6a08a293e932aa49572f67a4c1aa516a42166d37fe187e1127d2accd"
+    },
+    {
+      "file_count": 6,
+      "path": "core/product_physics",
+      "tree_sha256": "5b78c9801da907200a3aebe8939ce3e39eaabdb2ed71d5a2dfffec3ffa777b96"
+    },
+    {
+      "file_count": 4,
+      "path": "core/reporting/audit_manifest",
+      "tree_sha256": "b401f44a5111feb9a4d3232b273f737449969fe6870825de935032a055a5a90a"
+    },
+    {
+      "file_count": 3,
+      "path": "core/reporting/pdf_emitter",
+      "tree_sha256": "39881fdc955ae760e8dfd6f3d036b0de47b01231cbe7d203f83944fe20d266a0"
+    },
+    {
+      "file_count": 4,
+      "path": "core/reporting/protected_content_linter",
+      "tree_sha256": "c04c1cd272145d3f4fe8f4a3c393dd332fefe90c3000a27741ef132983d0752d"
+    },
+    {
+      "file_count": 3,
+      "path": "core/reporting/report_generator",
+      "tree_sha256": "46043b19f5f1be53c5ffa30d62d2c0c52bab9f5d0e26720d3d55063ac53b76eb"
+    },
+    {
+      "file_count": 4,
+      "path": "core/reporting/report_package",
+      "tree_sha256": "bc65c0074edf39caed0ff1a341b68c52dd2537bb9b437fb69abd14f5a7406ece"
+    },
+    {
+      "file_count": 3,
+      "path": "core/reporting/report_renderer",
+      "tree_sha256": "1ae5f47456620dec9b38c38a59598e4e3819b8ad81c1e0221c132c1e5aebb246"
+    },
+    {
+      "file_count": 2,
+      "path": "core/reporting/report_sections",
+      "tree_sha256": "a1a4700149c4403d4a1f19df4b79daac5ffb867142cc65c99dd6ba4c658b2271"
+    },
+    {
+      "file_count": 6,
+      "path": "core/reporting/result_export",
+      "tree_sha256": "f9d138921a53dab47fca7a863716b26d9c665bbdec72aea0f4e1cf4c75bc1786"
+    },
+    {
+      "file_count": 8,
+      "path": "core/runner/headless",
+      "tree_sha256": "ce7cf954ecafdfa588352cef85f80e1077328fea571790251088c63a720c9d7e"
+    },
+    {
+      "file_count": 5,
+      "path": "core/serialization/canonical_json",
+      "tree_sha256": "d226d0bb506e57546e867ba180c33f31ec0652c5424269b8875842553338e49f"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/curved_bend",
+      "tree_sha256": "012c5a40b5c3a6aeb6c69941c3d8c1482f67d79a287ce95e618a947eb00364af"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/diagnostics",
+      "tree_sha256": "aa48b7deec5073df1a188e13130b6c23aac39f051d887e4688f18f18a51cd4d2"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/frame_kernel",
+      "tree_sha256": "51561c85342978814a02f8b05cabb1f30e7c8aaabd342ada5e839d692d3249c6"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/linear_supports",
+      "tree_sha256": "9deb8be1db3de6ca754c5d61d9b3fa6ebd680a931db95d0fb83ff6e852cee2fb"
+    },
+    {
+      "file_count": 3,
+      "path": "core/solver/nonlinear_integration",
+      "tree_sha256": "bbb85ebdbea3c4561136ab718ecf0900f27c574a6b1376d84d5305f47c4d34de"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/nonlinear_supports",
+      "tree_sha256": "322b8b623cad2aa91a5d91a1657e665bd5e98fc2ed5c410a95c2bb01b50a2866"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/sparse_direct",
+      "tree_sha256": "52a98ff6bc66864c1ebdb55e5eaf33aa67e60873f20d7ddbff5354dc45be2625"
+    },
+    {
+      "file_count": 4,
+      "path": "core/solver/straight_pipe",
+      "tree_sha256": "d7a32cd2613b42fbeef43f8565f8b3bc31030a0dfa6157b5b0eaa748dc173b57"
+    },
+    {
+      "file_count": 5,
+      "path": "core/units",
+      "tree_sha256": "7919c7b6527b4ed4666ba957068794e0f26c25bb419fe6b0beb9f4cdded91c3d"
+    },
+    {
+      "file_count": 4,
+      "path": "validation/benchmarks/mechanics",
+      "tree_sha256": "e7d76ccbe5d33735647835fcfc1b7d40368cc5b046c954d2e465b13310d54294"
+    },
+    {
+      "file_count": 17,
+      "path": "validation/benchmarks/nonlinear",
+      "tree_sha256": "0da518a67191b0ee63dfe8b9803df4bc7b221a203571ca58a45809dca0d163e3"
+    },
+    {
+      "file_count": 4,
+      "path": "validation/benchmarks/stress",
+      "tree_sha256": "e96cbc15ee52ced7be24ed10e2c5fe14cd9336c679ee1833816bf8cdc7484859"
+    }
+  ],
+  "reuse_claim_boundary": "Conditional source/artifact equivalence for existing raw producer bytes only. All successor frontend constructors, validators, packages, delivery and GUI lifecycle must run fresh.",
+  "reuse_preconditions": [
+    "Root successor release proves every file in this exact local dependency closure unchanged from source candidate 9d96e24",
+    "external dependency resolution remains V3 generated-lock SHA c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470",
+    "V3 runner binary remains exact SHA f8020aee734edf1a3ddd8ade0cb756e63442df97066440e9636a97775adb7897",
+    "all seven request and raw output hashes match the canonical V3 producer manifest",
+    "successor delta is frontend-only; if any closure/build input changes, rebuild exact-candidate runner and re-solve all seven"
+  ],
+  "runner": {
+    "bytes": 5517520,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+    "sha256": "f8020aee734edf1a3ddd8ade0cb756e63442df97066440e9636a97775adb7897"
+  },
+  "schema": "final-native-v4-runner-reuse-baseline-v1",
+  "source_candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "status": "CONDITIONAL_REUSE_ONLY",
+  "tree_definition": "For each recursively reachable local path dependency from core/runner/headless/Cargo.toml, SHA-256 sorted lines `<file_sha256>  <crate-relative-path>\\n`; excludes Cargo.lock, target directories and .DS_Store. Aggregate uses project-relative path."
+}

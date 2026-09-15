@@ -1,0 +1,79 @@
+{
+  "base_manifest": {
+    "bytes": 68317,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANIFEST.json",
+    "sha256": "a9e88c1b28ea5e5130acfce0ff11c1e0c91a3d08aa8da8e9fd2b5466d200893b"
+  },
+  "collision_disposition_v2": {
+    "bytes": 2394,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V2.json",
+    "sha256": "0a665daf408835cc49e64100005ab4966ccc2e1e306493275df91da0ed8df1c4"
+  },
+  "created_utc": "2026-09-15T05:30:43.182085+00:00",
+  "delegation": false,
+  "git_actions": false,
+  "maintained_source_changed": false,
+  "manager_backcheck": {
+    "bytes": 7028,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_INDEPENDENT_BACKCHECK_V1.json",
+    "sha256": "43459cd5eab551b77facd20e35ab3c87635268310fb4caa936464f115c32b016"
+  },
+  "manager_backcheck_binding": {
+    "bytes": 939,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANAGER_BACKCHECK_BINDING_V1.json",
+    "sha256": "c4ef63c4ec139d3166ce6c741ada01a58ad73100ac8f24c810c270cb1bdec2ca"
+  },
+  "manifest_addendum": {
+    "bytes": 3114,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANIFEST_ADDENDUM_V1.json",
+    "sha256": "d1b882b32e6e051bca4f72fd3da2bc4330e47ee59094e6f21ed271aa1e30b66e"
+  },
+  "preserved_sealed_records": {
+    "collision_disposition_v1": {
+      "bytes": 1847,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+      "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07"
+    },
+    "continuation_v3": {
+      "bytes": 1528,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V3.json",
+      "sha256": "8713e50ccddb1d75c3237ca18ecc4f28241535b69cee386d7b12eef667549130"
+    },
+    "final_evidence": {
+      "bytes": 6042,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/FINAL_EVIDENCE_V15.json",
+      "sha256": "7cce665da19259fe4d6d209766e34f165fbba3161ca15a16915919058993e696"
+    },
+    "return": {
+      "bytes": 1966,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/RETURN.md",
+      "sha256": "5c309cdbcc2658af5317329e9b72a644a6a6e138e92274e0dfee6aced374055f"
+    },
+    "status": {
+      "bytes": 2318,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/STATUS.json",
+      "sha256": "e3d1cff8f4162fafbdd95978f5727ab1fc5a8bfa050e5ca4db28c52234e9ddaf"
+    }
+  },
+  "return_addendum": {
+    "bytes": 1250,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/RETURN_ADDENDUM_V1.md",
+    "sha256": "2019ce45db44b272c78a66f61221cacff82fbfa5c051cd6a6266877f9b1b2ca8"
+  },
+  "schema": "compatibility-v15-final-seal-addendum-v1",
+  "source_checkpoint": {
+    "bytes": 34183,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736"
+  },
+  "source_checkpoint_revalidation": {
+    "files": 74,
+    "mismatches": 0
+  },
+  "status": "SEALED_COMPLETE_MANAGER_QUALIFIED",
+  "status_addendum": {
+    "bytes": 1422,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/STATUS_ADDENDUM_V1.json",
+    "sha256": "99a51450aac642fd63fae531a6a1d71b2ecbdaf1869cb705309b56295eab253d"
+  }
+}

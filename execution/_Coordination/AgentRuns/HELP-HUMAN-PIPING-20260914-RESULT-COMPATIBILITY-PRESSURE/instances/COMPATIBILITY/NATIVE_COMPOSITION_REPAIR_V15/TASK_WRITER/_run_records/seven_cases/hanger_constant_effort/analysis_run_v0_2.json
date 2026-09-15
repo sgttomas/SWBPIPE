@@ -1,0 +1,4093 @@
+{
+  "schema_version": "0.2.0",
+  "deliverable_id": "DEL-14-02",
+  "package_id": "PKG-14",
+  "scope_item": "SOW-072",
+  "objectives": [
+    "OBJ-016"
+  ],
+  "run_contract_status": {
+    "record_contract": "strict_analysis_run_v0_2",
+    "result_binding": "received_mechanics_result",
+    "external_validation_boundary": "reference_only_not_determined_by_software"
+  },
+  "analysis_run": {
+    "run_id": "run:preview-linear-static-001",
+    "run_name": "run:preview-linear-static-001 analysis record",
+    "run_kind": "mechanics_solve",
+    "created_at": null,
+    "model_state_ref": {
+      "object_type": "ModelState",
+      "ref": "state:project:v3-hanger-constant-effort:preview"
+    },
+    "solver_version": {
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0",
+      "build_ref": {
+        "object_type": "ExternalReference",
+        "ref": "open_pipe_stress_product_physics@0.1.0"
+      }
+    },
+    "settings_ref": {
+      "object_type": "SolverSettings",
+      "ref": "solver-settings:input-manifest:project-v3-hanger-constant-effort:11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0:11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0"
+    },
+    "unit_system_ref": {
+      "object_type": "UnitSystem",
+      "ref": "unit-system:project:v3-hanger-constant-effort:11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0"
+    },
+    "load_basis_refs": [
+      {
+        "object_type": "LoadCase",
+        "ref": "load:V3-HANGER"
+      }
+    ],
+    "diagnostics": [
+      {
+        "source_annotation": {
+          "affected_refs": [
+            "support:V3-SH-TIP",
+            "hanger"
+          ],
+          "code": "SPRING_HANGER_USER_DATA_REVIEWED",
+          "id": "diagnostic:spring-hanger:support-V3-SH-TIP:hanger",
+          "message": "variable spring hanger carries explicit user-entered stiffness, installed/cold/hot load metadata, travel metadata, and source reference under DEC-049; no catalog/default values are supplied",
+          "severity": "info",
+          "source": "core/product_physics"
+        }
+      },
+      {
+        "source_annotation": {
+          "affected_refs": [
+            "support:V3-CE-TIP",
+            "hanger"
+          ],
+          "code": "CONSTANT_EFFORT_USER_DATA_REVIEWED",
+          "id": "diagnostic:spring-hanger:support-V3-CE-TIP:hanger",
+          "message": "constant-effort support carries explicit user-entered constant load, travel metadata, and source reference under DEC-049; no global constant-effort solve behavior or catalog default is claimed",
+          "severity": "info",
+          "source": "core/product_physics"
+        }
+      },
+      {
+        "source_annotation": {
+          "affected_refs": [
+            "support:V3-CE-TIP",
+            "load:V3-HANGER",
+            "hanger.movement_limit"
+          ],
+          "code": "SUPPORT_CONSTANT_EFFORT_USER_LIMIT_EXCEEDED",
+          "id": "diagnostic:constant-effort-support:support-V3-CE-TIP:movement-limit:load-V3-HANGER",
+          "message": "computed displacement magnitude 0.000027 m at node node:V3-TIP along UY exceeds the user-entered hanger.movement_limit value 0.00001 m in load case load:V3-HANGER; this compares user-entered values only and introduces no software threshold, tolerance, or acceptance criterion",
+          "severity": "warning",
+          "source": "core/product_physics"
+        }
+      },
+      {
+        "source_annotation": {
+          "code": "RULE_CHECK_INPUTS_MISSING",
+          "id": "diagnostic:physics:rule-inputs-missing",
+          "message": "rule-check inputs and protected criteria are absent; no compliance result is produced",
+          "severity": "warning",
+          "source": "core/product_physics"
+        }
+      }
+    ],
+    "rule_pack_refs": [],
+    "library_refs": [],
+    "result_refs": [
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:solver-mode:linear-solve-basis"
+        },
+        "source_row_index": 0,
+        "category": "solver_mode",
+        "source_dimension": "dimensionless",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-000"
+        },
+        "interpretation": {
+          "status": "disclosed",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "linear_solver_mode_basis",
+          "unit": "mode_code",
+          "metadata": {
+            "basis": "DEC-053 sparse_default_promotion; solver_mode=sparse_interactive; solution_basis=sparse_profile_direct_primary; default_sparse_promotion=interactive_default; dense_scrutiny_available=true; sparse_entry_count=9; original_profile_entries=12; ordered_profile_entries=8; original_half_bandwidth=4; ordered_half_bandwidth=1; nonpositive_pivots=0; pivot_condition_ratio_proxy=410.73033; max_abs_sparse_residual=0; dense_fallback=false; dense_fallback_message=none",
+            "component": "linear_solver_mode",
+            "coordinate_system": "reduced_system",
+            "location": "load:V3-HANGER",
+            "sign_convention": "mode_code 1=sparse_interactive, 2=dense_scrutiny, 3=dense_fallback_after_sparse_failure"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:solver-mode:linear-solve-basis"
+            },
+            "payload_scope": "result_row",
+            "value": "2d3495f8d6b4b5b1fd599c52b13a8fa2196e46f04050bec4b23fc53fc0341334"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT"
+        },
+        "source_row_index": 1,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-001"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT"
+            },
+            "payload_scope": "result_row",
+            "value": "50d1e9b63814aebee3dd677c55d8afd4cf1ff2d298818712bed28f017d4d78a1"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP"
+        },
+        "source_row_index": 2,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-001"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "displacement_magnitude",
+          "unit": "mm",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP"
+            },
+            "payload_scope": "result_row",
+            "value": "8d12a03365260b2efb6abccf365b157cb817b1d29d899a8e85153cbb2e4a1386"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:ux"
+        },
+        "source_row_index": 3,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-002"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_x",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:ux"
+            },
+            "payload_scope": "result_row",
+            "value": "18e1e1e11fbe7c22e21d614829207638b7a57eecdfa4d7fe8558e4cda99effe8"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:uy"
+        },
+        "source_row_index": 4,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-003"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:uy"
+            },
+            "payload_scope": "result_row",
+            "value": "35ba962136572ef90d09a24ccd8e44fa4902aaf0ccaceee161ad960b617babec"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:uz"
+        },
+        "source_row_index": 5,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-004"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_z",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:uz"
+            },
+            "payload_scope": "result_row",
+            "value": "a61800ab10ed67160bba5ad833dca739697973cd3df3aac412ac7f31c1772343"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:rx"
+        },
+        "source_row_index": 6,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-005"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_x",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:rx"
+            },
+            "payload_scope": "result_row",
+            "value": "4f2cf2f00005fb8ed7c2c18cabfb9fed135efa695170e594e3876861c7ea5680"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:ry"
+        },
+        "source_row_index": 7,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-006"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:ry"
+            },
+            "payload_scope": "result_row",
+            "value": "4db69922b959243e2cd7f735700fa97edc0718362477b3a59f4df839a71f2653"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-ROOT:rz"
+        },
+        "source_row_index": 8,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-007"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_z",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-ROOT:rz"
+            },
+            "payload_scope": "result_row",
+            "value": "453db7dba9d9360e58e651ee2de45265ac7680e75b836be0985ece19a4aee6af"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:ux"
+        },
+        "source_row_index": 9,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-002"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_x",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_x",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian X axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:ux"
+            },
+            "payload_scope": "result_row",
+            "value": "9c3f352a132a6a1943b46f0cb15213a4ccb4d62d7db535df2498c114ac12912b"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:uy"
+        },
+        "source_row_index": 10,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-003"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_y",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian Y axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:uy"
+            },
+            "payload_scope": "result_row",
+            "value": "9059abefed4b579a28817de72d2fdf1287b718bab7d489b745d489ce5c1a377f"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:uz"
+        },
+        "source_row_index": 11,
+        "category": "physical_quantity",
+        "source_dimension": "length",
+        "result_family": "displacement",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-004"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_displacement_z",
+          "unit": "mm",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_displacement_z",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the global cartesian Z axis displacement of the node"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:uz"
+            },
+            "payload_scope": "result_row",
+            "value": "29a809540a022befb00c4adb46fdb37ce58b7aba1f29bbacebe0ca10bd07856b"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:rx"
+        },
+        "source_row_index": 12,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-005"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_x",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_x",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian X axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:rx"
+            },
+            "payload_scope": "result_row",
+            "value": "2d85e1de74020b997d26873c8735dd7016bb7c2b795c9ed1f86312503ff0abf1"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:ry"
+        },
+        "source_row_index": 13,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-006"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_y",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_y",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Y axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:ry"
+            },
+            "payload_scope": "result_row",
+            "value": "e908715996190955a266f94b6c86b63a221ad5f5571c3950afb3045ecc6cd1ff"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:disp:node-V3-TIP:rz"
+        },
+        "source_row_index": 14,
+        "category": "physical_quantity",
+        "source_dimension": "angle",
+        "result_family": "rotation",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-007"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "global_nodal_rotation_z",
+          "unit": "rad",
+          "metadata": {
+            "basis": "solved_from_global_linear_system",
+            "component": "nodal_rotation_z",
+            "coordinate_system": "global",
+            "location": "node",
+            "sign_convention": "positive value follows the right-hand-rule rotation about the global cartesian Z axis"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:disp:node-V3-TIP:rz"
+            },
+            "payload_scope": "result_row",
+            "value": "f69fb65e93c3973f0db1b76964b72abc437a5bcd80838399e8c57fa957e8aa89"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:reaction:support-V3-ROOT"
+        },
+        "source_row_index": 15,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "reaction",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-008"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "reaction_resultant",
+          "unit": "N",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:reaction:support-V3-ROOT"
+            },
+            "payload_scope": "result_row",
+            "value": "4239b780872053d2ad94dfffd4c07374917573cfd947cb2dae02f32808d80250"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:reaction:support-V3-SH-TIP"
+        },
+        "source_row_index": 16,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "reaction",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-008"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "reaction_resultant",
+          "unit": "N",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:reaction:support-V3-SH-TIP"
+            },
+            "payload_scope": "result_row",
+            "value": "1f75a143992fc6c493074dd3b84e00993f068e2d5c4acb2f37fd65ce5abc1f66"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:reaction:support-V3-CE-TIP"
+        },
+        "source_row_index": 17,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "reaction",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-008"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "reaction_resultant",
+          "unit": "N",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:reaction:support-V3-CE-TIP"
+            },
+            "payload_scope": "result_row",
+            "value": "a788536fb008177d0985f87046c2daf7ccb6f9df4c2f88286ef9521bae23e41b"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:constant-effort-support:support-V3-CE-TIP:applied-load"
+        },
+        "source_row_index": 18,
+        "category": "assembled_load_review",
+        "source_dimension": "force",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-052"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "constant_effort_support_applied_load",
+          "unit": "N",
+          "metadata": {
+            "basis": "support_family=constant_effort_support;consumed_dof=UY;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+            "component": "constant_effort_support_applied_load",
+            "coordinate_system": "global",
+            "location": "node:V3-TIP:UY applied load",
+            "sign_convention": "positive value is the user-entered constant support force applied along the positive axis of the single declared translational restraint DOF in every solved load case; the ideal constant-effort element contributes zero stiffness and adds no solve restraint row; no gravity coupling, catalog/default value, or inferred direction is supplied"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:constant-effort-support:support-V3-CE-TIP:applied-load"
+            },
+            "payload_scope": "result_row",
+            "value": "ed13571724674a1e5161f0092a5a2a7d6170e0ed10076132081f9b88d88c2224"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:axial"
+        },
+        "source_row_index": 19,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-009"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_force",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "b88fe6e50d52a1e111f1af2a0de177aad7e49462312a48d3dc2f3752d7eadab9"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:axial:end-j"
+        },
+        "source_row_index": 20,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-009"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_force",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:axial:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "33ecca7485be9076ee6d9cfc4cf1a6a9da3ce685094b9000da7cfdffe9f180c3"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:shear-y"
+        },
+        "source_row_index": 21,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-010"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_y",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "2a05f20c34b260f506810df93bde3f452c5a206707aa48e022c8e249bb483ba1"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:shear-y:end-j"
+        },
+        "source_row_index": 22,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-010"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_y",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:shear-y:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "3b2927fe0314bb5515a7ec3a0782eafe8b73c71d94ac2ee19b11ad1edea28af0"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:shear-z"
+        },
+        "source_row_index": 23,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-011"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_z",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "a44a0b99f2d30df73370aa46d64aa56cd23808c931c1f22974f21984891f525f"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:shear-z:end-j"
+        },
+        "source_row_index": 24,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-011"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_z",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:shear-z:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "7891b02bcc5589b41171ae24e8af41e042fb5e9f687dc3c96bac0852bdb14e65"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:torsion"
+        },
+        "source_row_index": 25,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-012"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_moment",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "73da7a84e994881138f1e545313e5fea0f027875b3be6cfb1eb03169ffee7015"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:torsion:end-j"
+        },
+        "source_row_index": 26,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-012"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_moment",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:torsion:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "148a8e70841dfff636323db1cde1e851b856bf0612a70c2902ec46e1b8fc33ab"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:bending-y"
+        },
+        "source_row_index": 27,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-013"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_y",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "e1b6196edfbb0590cacd93cf04ddc60c13494a34cd4034c8030e578d08d8fb26"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:bending-y:end-j"
+        },
+        "source_row_index": 28,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-013"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_y",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:bending-y:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "5b7bbb8490597d57d5f7c5f59f00a732b5ab178faef4e851f14203cc5ca3f9b1"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:bending-z"
+        },
+        "source_row_index": 29,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-014"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_z",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the element-local DOF at the i-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "93340c665865424b1bb3c16b7dec36f9d5b9bee6c14d6c5c97e2126fbafa69c6"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:bending-z:end-j"
+        },
+        "source_row_index": 30,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-014"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_z",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the element-local DOF at the j-end force vector"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:bending-z:end-j"
+            },
+            "payload_scope": "result_row",
+            "value": "13170d0807b404857a3be43e80e6c8ad7eaaae5adaea05a9d2d9868cb1dc449f"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-1:axial"
+        },
+        "source_row_index": 31,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-009"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_force",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-1:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "08a88d9e9737f198652ec65f5f299a18aa65c0026b88ed23e0db3d89bb3f5f6a"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-1:shear-y"
+        },
+        "source_row_index": 32,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-010"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-1:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "408ec4f425f97e05cd7547c4bf34240a21d4410482ce2826099e11e24d5cf5dd"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-1:shear-z"
+        },
+        "source_row_index": 33,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-011"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-1:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "f46ade82f456eba5038b2a6328b38c6f988a0e2666384a70ff104dcef52d73b0"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-1:torsion"
+        },
+        "source_row_index": 34,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-012"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_moment",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-1:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "8466e257f33de4210cffd5f6ead148251386bbc708a9ac16d82e75e55c214b34"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-1:bending-y"
+        },
+        "source_row_index": 35,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-013"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-1:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "fa1379f2b1b2bedaced8adad274bf001db61739e75d2dba09283f13f98f2c105"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-1:bending-z"
+        },
+        "source_row_index": 36,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-014"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-1:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "c601e4c4ed6798988c2dd1d2d5db606bbff63b473474f898b5fb0b97b1060575"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:midspan:axial"
+        },
+        "source_row_index": 37,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-009"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_force",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:midspan:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "ee6520a056c3dc3133efb3d1ce290704a7ec4fd098d05891641e0d37fcd59a49"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:midspan:shear-y"
+        },
+        "source_row_index": 38,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-010"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_y",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:midspan:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "fe1d647979c1ff84e485eb905be1080a6364c8ec10aea8417054c3eef05303b9"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:midspan:shear-z"
+        },
+        "source_row_index": 39,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-011"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_z",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:midspan:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "0c77c0df42c0f9729c65787544c6587145fb518b888628a751552b899d11b1d7"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:midspan:torsion"
+        },
+        "source_row_index": 40,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-012"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_moment",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:midspan:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "c2bf53fbc1fb718323b87f749f0a65bb211480e6a810bb5a6531d51fb053dc0f"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:midspan:bending-y"
+        },
+        "source_row_index": 41,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-013"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_y",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:midspan:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "bdeb65323c08553026960cd2047205ae3dd2641611c99147c82819a4cfe47906"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:midspan:bending-z"
+        },
+        "source_row_index": 42,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-014"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_z",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:midspan:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "b0f35d81cdabcf392b2802ba4a186e77a17f512c8538815205a4c4aa6d441e6d"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-3:axial"
+        },
+        "source_row_index": 43,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-009"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_force",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_force",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-3:axial"
+            },
+            "payload_scope": "result_row",
+            "value": "c374f77bdc9e08581130a63b5a24d57504500f8931a915dd8b3943347ecb8a99"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-3:shear-y"
+        },
+        "source_row_index": 44,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-010"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_y",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-3:shear-y"
+            },
+            "payload_scope": "result_row",
+            "value": "7efd6085d15f6c1fe46a15b6d5fdc598e1e20b14330b85d9eba2eb045c42e001"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:force:pipe-V3:quarter-3:shear-z"
+        },
+        "source_row_index": 45,
+        "category": "physical_quantity",
+        "source_dimension": "force",
+        "result_family": "force",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-011"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_shear_force_z",
+          "unit": "N",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "shear_force_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:force:pipe-V3:quarter-3:shear-z"
+            },
+            "payload_scope": "result_row",
+            "value": "1b4189d8f8c5cba81e9d2551d29880ea6c337db3378927c49a7bc897a69a46a4"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-3:torsion"
+        },
+        "source_row_index": 46,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-012"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_moment",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_moment",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-3:torsion"
+            },
+            "payload_scope": "result_row",
+            "value": "6f8d1a89cdcb47f0ba55db8cedfbd5f3e81ff6a421c7cdb0f16a819ee2f2286f"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-3:bending-y"
+        },
+        "source_row_index": 47,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-013"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_y",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-3:bending-y"
+            },
+            "payload_scope": "result_row",
+            "value": "5cc4b103c7920b785b18b5068ddcc3d583c30d8e392402bbbe6a51f29231666c"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:moment:pipe-V3:quarter-3:bending-z"
+        },
+        "source_row_index": 48,
+        "category": "physical_quantity",
+        "source_dimension": "moment",
+        "result_family": "moment",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-014"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_moment_z",
+          "unit": "N*m",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_moment_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:moment:pipe-V3:quarter-3:bending-z"
+            },
+            "payload_scope": "result_row",
+            "value": "3519de9c6648cbef6172939f7907ea8fddec6e65354f90ec7bc17fba133eb620"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-i:axial-normal"
+        },
+        "source_row_index": 49,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-015"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_normal_stress",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-i:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "c90cc782f341022fb6605cbd596648d1348b9a91a0245180f10b3d5edfad25cd"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-i:bending-normal-y"
+        },
+        "source_row_index": 50,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-016"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_normal_stress_y",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-i:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "ecf2ee5cd7272547295b44de60edac8d6ced30553cadcc65541ee886aa8cc2ae"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-i:bending-normal-z"
+        },
+        "source_row_index": 51,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-017"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_normal_stress_z",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-i:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "d336bad5647f9baede7d201cafe1fd937bbd14f4c1b622d466993d04e8fd6cd9"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-i:torsional-shear"
+        },
+        "source_row_index": 52,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-018"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_shear_stress",
+            "coordinate_system": "element_local",
+            "location": "end_i",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-i:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "aeb24a0d53ee7905fa64684be0cbbafe828d5ec4f29558a328037068319cace5"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-j:axial-normal"
+        },
+        "source_row_index": 53,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-015"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "axial_normal_stress",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-j:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "69197bdebc9f0fad45465b893f56d65217230a85126892ff41ec393f0728ba40"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-j:bending-normal-y"
+        },
+        "source_row_index": 54,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-016"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_normal_stress_y",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-j:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "8f487990547fe99bd960cbf6abe655fb2966bc696ce9144f619b3c993c2f1c14"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-j:bending-normal-z"
+        },
+        "source_row_index": 55,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-017"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "bending_normal_stress_z",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-j:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "5dea0ef663d8e9deb98b59719257401e706f2b396d781c652425d5386d9fc0cb"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:end-j:torsional-shear"
+        },
+        "source_row_index": 56,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-018"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_local_element_stiffness",
+            "component": "torsional_shear_stress",
+            "coordinate_system": "element_local",
+            "location": "end_j",
+            "sign_convention": "positive value follows the j-side section action in the element-local frame (local x toward end j); resultants come from section equilibrium over assembled end actions"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:end-j:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "3cb4dcada402cd496390bd9c11f50651271bcf2b6ebf9ece69be8a8f920cb19c"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-1:axial-normal"
+        },
+        "source_row_index": 57,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-015"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "axial_normal_stress",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-1:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "6022ba1baa767e6a2fc65b53479b5954a7b2efb74c0f139aa4e395e080a06f77"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-1:bending-normal-y"
+        },
+        "source_row_index": 58,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-016"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-1:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "a30406e56a71557d8b1b487a76490af8d7505882635933c24e1b7e2425d928d1"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-1:bending-normal-z"
+        },
+        "source_row_index": 59,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-017"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-1:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "6d107d114997f5456f3da7a82668da05bfb935a081bef70eed4e41796fde5d0b"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-1:torsional-shear"
+        },
+        "source_row_index": 60,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-018"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "torsional_shear_stress",
+            "coordinate_system": "element_local",
+            "location": "quarter_1",
+            "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-1:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "4ca7bb9b3cb3393d31b41a24732885f01a4b43dab444842d0ade7380f1315c21"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:midspan:axial-normal"
+        },
+        "source_row_index": 61,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-015"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "axial_normal_stress",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:midspan:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "403b3456a62b4e32c69385f6318e84bb68af389d79bddc1e5c026f2268be76b6"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:midspan:bending-normal-y"
+        },
+        "source_row_index": 62,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-016"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_y",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:midspan:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "8efbe95589c76feb74508ad0695ffb1d2bf26633be2cc9992eefa2bed30cae4b"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:midspan:bending-normal-z"
+        },
+        "source_row_index": 63,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-017"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_z",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:midspan:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "1ce687d2563f69b4a24bb93000ddc48c0f32228e93d4ef129e04b807028a41aa"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:midspan:torsional-shear"
+        },
+        "source_row_index": 64,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-018"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "torsional_shear_stress",
+            "coordinate_system": "element_local",
+            "location": "midspan",
+            "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:midspan:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "45886276ea0c122704eb18f68d4bb59976e9185eebbc4439e4a08d5c999494ae"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-3:axial-normal"
+        },
+        "source_row_index": 65,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-015"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_axial_normal_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "axial_normal_stress",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive normal stress follows the section-equilibrium element-local axial resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-3:axial-normal"
+            },
+            "payload_scope": "result_row",
+            "value": "fb33de0fc5e2203f39819f35403a305f43845e77285061b9dacdf5d00acac539"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-3:bending-normal-y"
+        },
+        "source_row_index": 66,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-016"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_y",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_y",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local y bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-3:bending-normal-y"
+            },
+            "payload_scope": "result_row",
+            "value": "53aa668813d0a7545f60b2ff4e73e5251d569d5208cd96260a3648db0610a4de"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-3:bending-normal-z"
+        },
+        "source_row_index": 67,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-017"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_bending_normal_stress_z",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "bending_normal_stress_z",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive bending normal stress follows the section-equilibrium element-local z bending resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-3:bending-normal-z"
+            },
+            "payload_scope": "result_row",
+            "value": "369cd72aa519f1e79eb8093bce13f7a71b7da45ce1983df878be5c37b144c963"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3:quarter-3:torsional-shear"
+        },
+        "source_row_index": 68,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-018"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "element_local_torsional_shear_stress",
+          "unit": "MPa",
+          "metadata": {
+            "basis": "recovered_from_open_mechanics_stress_components",
+            "component": "torsional_shear_stress",
+            "coordinate_system": "element_local",
+            "location": "quarter_3",
+            "sign_convention": "positive torsional shear stress follows the section-equilibrium element-local torsional resultant at this station; j-side section action in the element-local frame (x toward end j); section equilibrium from stiffness-recovered end actions with consistent distributed-load fixed-end correction"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3:quarter-3:torsional-shear"
+            },
+            "payload_scope": "result_row",
+            "value": "a40a320ab9be772b17d3387fcc3dcef8bb8686afc293050591af28280fc856a6"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:stress:pipe-V3"
+        },
+        "source_row_index": 69,
+        "category": "physical_quantity",
+        "source_dimension": "stress",
+        "result_family": "stress",
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-020"
+        },
+        "interpretation": {
+          "status": "exported_quantity",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "open_formula_stress_summary",
+          "unit": "MPa",
+          "metadata": null
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:stress:pipe-V3"
+            },
+            "payload_scope": "result_row",
+            "value": "0dc2f0c2224ffc947672c7984d4ad99cb5f2dbd1473cc62264caef77d8780cd7"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:stiffness"
+        },
+        "source_row_index": 70,
+        "category": "review_evidence",
+        "source_dimension": "rotational_stiffness",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-058"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "N*m/rad",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;user_entered_dof=RZ;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_stiffness",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:RZ stiffness",
+            "sign_convention": "positive value is user-entered variable spring hanger stiffness consumed by the preview linear spring primitive; no catalog/default value is supplied"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:stiffness"
+            },
+            "payload_scope": "result_row",
+            "value": "3ea9bc927113a92ae4de3e0720fc3cd4ce2282e220bdbc2bcf2a3103e00bab19"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:installed-load"
+        },
+        "source_row_index": 71,
+        "category": "review_evidence",
+        "source_dimension": "force",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-044"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "N",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;field=installed-load;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_installed_load",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:installed-load",
+            "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:installed-load"
+            },
+            "payload_scope": "result_row",
+            "value": "56c6028590807a5c19daebd9fb33c9bf20354b3430b5b9a644300ce3cde158ec"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:cold-load"
+        },
+        "source_row_index": 72,
+        "category": "review_evidence",
+        "source_dimension": "force",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-045"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "N",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;field=cold-load;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_cold_load",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:cold-load",
+            "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:cold-load"
+            },
+            "payload_scope": "result_row",
+            "value": "134c341d6141eb817d8c903936455092a3e27de35c0bf8a70b5ac6af539bb599"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:hot-load"
+        },
+        "source_row_index": 73,
+        "category": "review_evidence",
+        "source_dimension": "force",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-046"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "N",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;field=hot-load;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_hot_load",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:hot-load",
+            "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:hot-load"
+            },
+            "payload_scope": "result_row",
+            "value": "3b0bd58c8f5bf25c803a0b7c84c4c54f8f6b4ee2e4bc61da1cad10ea29d056a8"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:travel-range"
+        },
+        "source_row_index": 74,
+        "category": "review_evidence",
+        "source_dimension": "length",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-047"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "m",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;field=travel-range;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_travel_range",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:travel-range",
+            "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:travel-range"
+            },
+            "payload_scope": "result_row",
+            "value": "7fd6e0525111ec4efd91b53e1efa826b6d5e0e51cd8c3190006763c7f4005d75"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:spring-hanger:support-V3-SH-TIP:movement-limit"
+        },
+        "source_row_index": 75,
+        "category": "review_evidence",
+        "source_dimension": "length",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-056"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "spring_hanger_user_input_review",
+          "unit": "m",
+          "metadata": {
+            "basis": "support_family=variable_spring_hanger;field=movement-limit;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=linear_spring_primitive_user_stiffness;dec_ref=DEC-049",
+            "component": "variable_spring_hanger_movement_limit",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:movement-limit",
+            "sign_convention": "positive value is user-entered variable spring hanger input evidence; load-side and travel review remain human-reviewed preview metadata"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:spring-hanger:support-V3-SH-TIP:movement-limit"
+            },
+            "payload_scope": "result_row",
+            "value": "e8d9dc1806fd86b3ad65c1dce2942b16d30d07250aabaa1cf8c098a6d5029303"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:constant-effort-support:support-V3-CE-TIP:constant-load"
+        },
+        "source_row_index": 76,
+        "category": "review_evidence",
+        "source_dimension": "force",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-048"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "constant_effort_user_input_review",
+          "unit": "N",
+          "metadata": {
+            "basis": "support_family=constant_effort_support;field=constant-load;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+            "component": "constant_effort_support_constant_load",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:constant-load",
+            "sign_convention": "positive value is user-entered constant-effort support input evidence; a support meeting the DEC-049 consumption conditions (exactly one declared translational restraint DOF and a finite positive constant load) is consumed by the assembled solve as a constant nodal force along the positive axis of that DOF, recorded per load case in constant_effort_support_applied_load rows; a support not meeting those conditions stays review-only with a non-blocking warning; no nonlinear behavior and no catalog/default value is claimed by this preview row"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:constant-effort-support:support-V3-CE-TIP:constant-load"
+            },
+            "payload_scope": "result_row",
+            "value": "02c44e3647ea81c23e9dd1ff86c187a8b6be5a0cb9207f0bf31cf6b54c8666bc"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:constant-effort-support:support-V3-CE-TIP:travel-range"
+        },
+        "source_row_index": 77,
+        "category": "review_evidence",
+        "source_dimension": "length",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-049"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "constant_effort_user_input_review",
+          "unit": "m",
+          "metadata": {
+            "basis": "support_family=constant_effort_support;field=travel-range;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+            "component": "constant_effort_support_travel_range",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:travel-range",
+            "sign_convention": "positive value is user-entered constant-effort support input evidence; a support meeting the DEC-049 consumption conditions (exactly one declared translational restraint DOF and a finite positive constant load) is consumed by the assembled solve as a constant nodal force along the positive axis of that DOF, recorded per load case in constant_effort_support_applied_load rows; a support not meeting those conditions stays review-only with a non-blocking warning; no nonlinear behavior and no catalog/default value is claimed by this preview row"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:constant-effort-support:support-V3-CE-TIP:travel-range"
+            },
+            "payload_scope": "result_row",
+            "value": "fe76ad793881e14c01607731895317c56656d5e1c38dce01f4262177144db184"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      },
+      {
+        "result_ref": {
+          "object_type": "Result",
+          "ref": "result:constant-effort-support:support-V3-CE-TIP:movement-limit"
+        },
+        "source_row_index": 78,
+        "category": "review_evidence",
+        "source_dimension": "length",
+        "result_family": null,
+        "semantic_contract": {
+          "id": "openpipestress_result_semantics_v0_2",
+          "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da",
+          "signature_id": "supported-source-057"
+        },
+        "interpretation": {
+          "status": "exported_review",
+          "findings": []
+        },
+        "source_annotation": {
+          "kind": "constant_effort_user_input_review",
+          "unit": "m",
+          "metadata": {
+            "basis": "support_family=constant_effort_support;field=movement-limit;source=invented_v3_user_input;manufacturer=invented_v3_no_catalog;load_side_review=invented_v3_review_only;mechanics_consumption=assembled_solve;dec_ref=DEC-049",
+            "component": "constant_effort_support_movement_limit",
+            "coordinate_system": "support_local_preview",
+            "location": "node:V3-TIP:movement-limit",
+            "sign_convention": "positive value is user-entered constant-effort support input evidence; a support meeting the DEC-049 consumption conditions (exactly one declared translational restraint DOF and a finite positive constant load) is consumed by the assembled solve as a constant nodal force along the positive axis of that DOF, recorded per load case in constant_effort_support_applied_load rows; a support not meeting those conditions stays review-only with a non-blocking warning; no nonlinear behavior and no catalog/default value is claimed by this preview row"
+          }
+        },
+        "hash_refs": [
+          {
+            "algorithm": "sha256",
+            "canonicalization": "openpipestress_jcs_ijson_v1",
+            "payload_ref": {
+              "object_type": "Result",
+              "ref": "result:constant-effort-support:support-V3-CE-TIP:movement-limit"
+            },
+            "payload_scope": "result_row",
+            "value": "8f95d098dcecd994a03cb8b8f33df2276db8d0766c843e9b7717eb306aaa0232"
+          }
+        ],
+        "privacy_classification": "source_evidence",
+        "provenance": {
+          "source_name": "OpenPipeStress analysis record 0.2",
+          "source_location": "analysis_run.compatibility.v0.2",
+          "source_license": "project-governed",
+          "review_status": "pending",
+          "professional_claim": false
+        }
+      }
+    ],
+    "hashes": [
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "AnalysisRun",
+          "ref": "run:preview-linear-static-001"
+        },
+        "payload_scope": "analysis_run_record",
+        "value": "bcf608361c1f28c6c46a64c553da5a64251b247a52c7cafd3b0d72f5be5690a7"
+      },
+      {
+        "algorithm": "sha256",
+        "canonicalization": "openpipestress_jcs_ijson_v1",
+        "payload_ref": {
+          "object_type": "ResultEnvelope",
+          "ref": "result-envelope:run:preview-linear-static-001"
+        },
+        "payload_scope": "received_result",
+        "value": "1e1e86f187a83adc9ad1d8ec98d27ff22c591f9526d667d6130c2d51677434a1"
+      }
+    ],
+    "analysis_status": [
+      "HUMAN_REVIEW_REQUIRED",
+      "MECHANICS_SOLVED",
+      "RULE_INPUTS_INCOMPLETE"
+    ],
+    "reproducibility": {
+      "input_manifest_refs": [
+        {
+          "object_type": "InputManifest",
+          "ref": "input-manifest:project-v3-hanger-constant-effort:11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0"
+        }
+      ],
+      "input_manifest_hashes": [
+        {
+          "algorithm": "sha256",
+          "canonicalization": "rfc8785_jcs",
+          "payload_ref": {
+            "object_type": "InputManifest",
+            "ref": "input-manifest:project-v3-hanger-constant-effort:11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0"
+          },
+          "payload_scope": "input_manifest",
+          "value": "11533bd2e9599ff76a06c2fcd151089c2905fffaa40b2904645595a6463ca5d0"
+        }
+      ],
+      "semantic_contract": {
+        "id": "openpipestress_result_semantics_v0_2",
+        "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+      },
+      "determinism_notes": [
+        "created_at_unavailable",
+        "model_state_ref_and_solver_settings_unit_basis_bound_by_input_manifest"
+      ],
+      "unresolved_tbd": []
+    },
+    "immutability_policy": {
+      "run_record_is_read_only": true,
+      "mutation_policy": "changes_create_new_immutable_record_revision",
+      "new_mechanics_run_required_for_record_revision": false,
+      "record_revision_identity": "analysis_run_record_sha256",
+      "hash_invalidates_external_acceptance": true
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_compliance_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_sealing_claim": false,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false
+    },
+    "provenance": {
+      "source_name": "OpenPipeStress analysis record 0.2",
+      "source_location": "analysis_run.compatibility.v0.2",
+      "source_license": "project-governed",
+      "review_status": "pending",
+      "professional_claim": false
+    }
+  }
+}

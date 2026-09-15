@@ -1,0 +1,101 @@
+{
+  "additional_maintained_scope_needed": [
+    "core/handoff/stress_neutral/package_v0_2.py",
+    "tests/test_stress_neutral_package_v0_2.py"
+  ],
+  "blocked_case": "rotational_nonlinear",
+  "cause": "Python _witness_disposition treats every result_family=reaction as force, while accepted TS source semantics projects rotational reaction N*m as dimension=moment. The strict packet lacks original source kind/component, so validation must dispatch reaction by exact unit/dimension pair.",
+  "claim_boundary": "No full60 claim; combined sparse/dense evidence remains separate.",
+  "created_utc": "2026-09-15T05:19:51.646321+00:00",
+  "current_python_source": {
+    "bytes": 27397,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "sha256": "3fc58b5a5753192dfee6380cb0d28d8c54f70e80cce88b985d342567a364f27e"
+  },
+  "exact_row": {
+    "canonical_ref": {
+      "object_type": "Result",
+      "ref": "result:nonlinear-support:support-V3-NL-RZ:rz-reaction"
+    },
+    "component_ref": {
+      "object_type": "Support",
+      "ref": "support:V3-NL-RZ"
+    },
+    "correlation_status": "canonical_id_map",
+    "dimension": "moment",
+    "load_case_ref": {
+      "object_type": "LoadCase",
+      "ref": "load:V3-RZ"
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress app integration tranche",
+      "contributor_certification": "Invented preview metadata only; no protected standards or private project payloads.",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "pending",
+      "source_license": "PolyForm-Noncommercial-1.0.0 project license context",
+      "source_location": "apps/desktop/src/features/stress-neutral/StressNeutralExportPanel.tsx",
+      "source_name": "OpenPipeStress desktop technical preview"
+    },
+    "result_family": "reaction",
+    "result_id": "result:nonlinear-support:support-V3-NL-RZ:rz-reaction",
+    "row_kind": "result_value",
+    "source_result_ref": {
+      "object_type": "Result",
+      "ref": "result:nonlinear-support:support-V3-NL-RZ:rz-reaction"
+    },
+    "station_ref": {
+      "object_type": "Station",
+      "ref": "rz"
+    },
+    "unit": "N*m",
+    "value": 100
+  },
+  "exact_witness": {
+    "conversion_performed": false,
+    "policy": "preserve_received_value_and_unit",
+    "result_id": "result:nonlinear-support:support-V3-NL-RZ:rz-reaction",
+    "source_quantity": {
+      "dimension": "moment",
+      "unit": "N*m",
+      "value": 100
+    },
+    "source_row_index": 51,
+    "target_quantity": {
+      "dimension": "moment",
+      "unit": "N*m",
+      "value": 100
+    },
+    "witness_id": "stress-neutral-unit:result-nonlinear-support-support-v3-nl-rz-rz-reaction"
+  },
+  "f09_repair_status": "TS_CURRENT_CONSTRUCTOR_REPAIRED_AND_SEVEN_OF_SEVEN_PASSED",
+  "failure": "SN-UNIT-WITNESS-BINDING-MISMATCH",
+  "finding_id": "V15-ADJACENT-PYTHON-REACTION-DIMENSION-DISPATCH",
+  "minimal_rule": "For result_family reaction, accept N with force and N*m with moment as distinct exact known pairs; reject every cross-pair and other unit/dimension. Preserve existing witness, contradiction, work, unknown, hash and CSV checks.",
+  "observed_signature_count": 52,
+  "packet": {
+    "bytes": 255092,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases/rotational_nonlinear/stress_neutral_v0_2.json",
+    "sha256": "05e3bc36c5f0fe5beb8a6605548c8f3b11c419ca6f39db55d32560ded57723c2"
+  },
+  "passed_full_cases": [
+    "modulus",
+    "combination_modulus",
+    "curved",
+    "friction",
+    "hanger_constant_effort",
+    "zero_pressure_longitudinal"
+  ],
+  "preserved_command_log": {
+    "bytes": 19643,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15.log",
+    "sha256": "dcbd9e6e1c0695cf48b038901fdabab7bb76e8785bf35e19986365aa760b81d0"
+  },
+  "schema": "compatibility-v15-adjacent-scope-finding-v1",
+  "status": "BLOCKS_COMPLETE_SEVEN_CASE_PYTHON_SCHEMA_WRITE9",
+  "suggested_tests": [
+    "positive actual rotational N*m/moment witness packet",
+    "positive translational N/force reaction remains unchanged",
+    "recomputed-hash N/moment and N*m/force cross-pair rejections",
+    "complete seven-case Python/schema/write9 rerun"
+  ]
+}

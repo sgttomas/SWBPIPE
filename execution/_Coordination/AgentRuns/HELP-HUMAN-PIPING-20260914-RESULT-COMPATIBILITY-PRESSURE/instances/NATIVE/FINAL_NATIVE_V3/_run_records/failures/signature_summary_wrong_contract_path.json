@@ -1,0 +1,7 @@
+{
+  "schema": "final-native-v3-evidence-command-failure-v1",
+  "stage": "seven-producer summary helper",
+  "product_execution": false,
+  "reason": "evidence helper joined fixtures/results to RUN instead of WORKING_ROOT",
+  "resolution": "successor invocation uses WORKING_ROOT/fixtures/results/semantic_contract_v0_2.json"
+}

@@ -280,6 +280,54 @@ def test_v02_other_family_does_not_infer_diagnostic_work_from_moment_unit():
     assert finding["code"] != "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
 
 
+@pytest.mark.parametrize("unit,dimension", [("N", "force"), ("N*m", "moment")])
+def test_v02_reaction_family_accepts_only_established_force_and_moment_pairs(unit, dimension):
+    source = source_payload()
+    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension=dimension)
+    package = build_stress_neutral_export_package_v0_2(**source)
+    row = package["result_rows"][0]
+    witness = next(item for item in package["unit_preservation_witnesses"] if item["result_id"] == row["result_id"])
+    assert witness["source_quantity"] == {"value": row["value"], "unit": unit, "dimension": dimension}
+    assert witness["target_quantity"] == witness["source_quantity"]
+    validate_stress_neutral_export_package_v0_2(package)
+
+
+@pytest.mark.parametrize("unit,dimension", [("N", "moment"), ("N*m", "force")])
+def test_v02_reaction_family_withholds_cross_pair_contradictions(unit, dimension):
+    source = source_payload()
+    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension=dimension)
+    package = build_stress_neutral_export_package_v0_2(**source)
+    result_id = package["result_rows"][0]["result_id"]
+    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
+    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-CONTRADICTION"
+    validate_stress_neutral_export_package_v0_2(package)
+
+
+@pytest.mark.parametrize("unit,dimension", [("N", "moment"), ("N*m", "force")])
+def test_v02_rejects_rehashed_witness_over_reaction_cross_pair(unit, dimension):
+    source = source_payload()
+    source["result_rows"][0].update(result_family="reaction", unit=unit, dimension={"N": "force", "N*m": "moment"}[unit])
+    package = build_stress_neutral_export_package_v0_2(**source)
+    package["result_rows"][0]["dimension"] = dimension
+    package["csv_text"] = render_stress_neutral_csv(package["result_rows"])
+    rehash_v02(package)
+    with pytest.raises(ValueError, match="SN-UNIT-WITNESS-BINDING-MISMATCH"):
+        validate_stress_neutral_export_package_v0_2(package)
+
+
+def test_v02_diagnostic_work_with_moment_unit_remains_withheld():
+    source = source_payload()
+    source["result_rows"][0].update(row_kind="diagnostic_work", result_family="diagnostic_work", unit="N*m", dimension="moment")
+    package = build_stress_neutral_export_package_v0_2(**source)
+    result_id = package["result_rows"][0]["result_id"]
+    assert result_id not in {item["result_id"] for item in package["unit_preservation_witnesses"]}
+    finding = next(item for item in package["diagnostics"] if item.get("source", {}).get("ref") == result_id)
+    assert finding["code"] == "SN-UNIT-WITNESS-WITHHELD-DIAGNOSTIC-WORK"
+    assert finding["severity"] == "info"
+    validate_stress_neutral_export_package_v0_2(package)
+
+
 def test_v02_explicit_exported_dimension_contradiction_is_preserved_and_withheld():
     source = source_payload()
     source["result_rows"][0]["dimension"] = "stress"

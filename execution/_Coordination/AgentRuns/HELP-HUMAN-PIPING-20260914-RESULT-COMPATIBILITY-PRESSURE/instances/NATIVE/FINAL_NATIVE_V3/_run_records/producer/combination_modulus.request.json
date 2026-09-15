@@ -1,0 +1,326 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_id": "manifest:final-native-v3-combination_modulus",
+      "ref_type": "audit_manifest"
+    },
+    "load_basis_refs": [
+      {
+        "ref_id": "load:L-100",
+        "ref_type": "load_case"
+      },
+      {
+        "ref_id": "load:R-negative",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:final-native-v3-combination_modulus",
+      "ref_type": "model"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_id": "project:final-native-v3-combination_modulus",
+      "ref_type": "project"
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "candidate_bound_execution",
+      "source_license": "project invented",
+      "source_location": "execution/_Evaluation/PHYSICS_AUDIT_2026-09-05/I1/children/R/fixtures/opposite_combinations_v2.json",
+      "source_name": "Frozen referenced combination_modulus input"
+    },
+    "request_id": "final-native-v3-combination_modulus",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "solve": {
+    "preview_model": {
+      "materials": [],
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "combination:R-sum",
+            "label": "Opposite equal loads sum",
+            "provenance": "invented_audit",
+            "terms": [
+              {
+                "factor": 1,
+                "load_case": "load:L-100"
+              },
+              {
+                "factor": 1,
+                "load_case": "load:R-negative"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "combination:R-sub",
+            "label": "Result difference",
+            "minuend_id": "load:L-100",
+            "provenance": "invented_audit",
+            "subtrahend_id": "load:R-negative",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-min",
+            "label": "min",
+            "mode": "min",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-max",
+            "label": "max",
+            "mode": "max",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-min_abs",
+            "label": "min_abs",
+            "mode": "min_abs",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-max_abs",
+            "label": "max_abs",
+            "mode": "max_abs",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          }
+        ],
+        "components": [],
+        "data_boundary": {
+          "private_data_policy": "no_private_project_data",
+          "professional_boundary": "technical_preview_requires_human_engineering_review",
+          "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+          "public_examples_policy": "invented_or_cleared_data_only"
+        },
+        "diagnostics": [
+          {
+            "code": "RULE_INPUTS_MISSING",
+            "message": "Rule-check inputs are intentionally absent from this invented preview.",
+            "severity": "warning",
+            "source": "fixtures/product_preview/invented_preview_model.json"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "load:L-100",
+            "kind": "primitive_user_load",
+            "label": "Invented operating gravity and pressure preview",
+            "primitive_loads": [
+              {
+                "category": "occasional",
+                "dimension": "force",
+                "direction": "global_y",
+                "id": "load:A2-invented",
+                "magnitude": {
+                  "unit": "N",
+                  "value": 350
+                },
+                "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+                "target": {
+                  "node": "node:N-110",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "invented_example_no_code_combination",
+            "status": "preview_only"
+          },
+          {
+            "id": "load:R-negative",
+            "kind": "primitive_user_load",
+            "label": "Invented operating gravity and pressure preview",
+            "primitive_loads": [
+              {
+                "category": "occasional",
+                "dimension": "force",
+                "direction": "global_y",
+                "id": "load:R-negative-input",
+                "magnitude": {
+                  "unit": "N",
+                  "value": -350
+                },
+                "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+                "target": {
+                  "node": "node:N-110",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "invented_example_no_code_combination",
+            "status": "preview_only"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000
+            },
+            "id": "material:invented-carbon-steel",
+            "label": "Invented carbon-steel-like material",
+            "provenance": "invented_example_no_material_standard",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 77000000000
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 1.2e-05
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-100",
+            "label": "Pump nozzle",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_example"
+          },
+          {
+            "id": "node:N-110",
+            "label": "Low point elbow",
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_example"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "node:N-100",
+            "id": "pipe:P-100",
+            "label": "Pump discharge run",
+            "material": "material:invented-carbon-steel",
+            "provenance": "invented_example_no_standard_catalog",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.168
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.007
+              }
+            },
+            "to": "node:N-110",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            }
+          }
+        ],
+        "project": {
+          "description": "Small invented centerline model for desktop integration review.",
+          "id": "project:invented-loop-01",
+          "name": "Invented Utility Loop Preview",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "MPa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.1.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "support:S-100",
+            "label": "Anchor at pump nozzle",
+            "node": "node:N-100",
+            "provenance": "invented_example",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

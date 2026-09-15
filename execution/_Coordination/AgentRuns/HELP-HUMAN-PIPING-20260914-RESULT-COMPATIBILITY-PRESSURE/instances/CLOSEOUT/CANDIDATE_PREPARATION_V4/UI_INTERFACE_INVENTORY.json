@@ -1,0 +1,108 @@
+{
+  "schema": "candidate-ui-interface-inventory-v4",
+  "status": "STATIC_OBSERVATION_ONLY_ROOT_READINESS_PENDING",
+  "observed_candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "binding_rule": "Every observation binds to the listed file hash at the reviewed candidate. Any changed seam requires reinspection. This inventory is not execution, visual approval, production UI acceptance, or lifecycle acceptance.",
+  "accepted_design_basis": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/FINAL_ACCEPTANCE_V1.md",
+      "sha256": "713f9329939f8d1e8d870440ac4631e3eca6d455a9893f5cf5204b9f335c607b",
+      "use": "Accepted prior interface/design handoff basis; does not accept this tranche or future visual implementation."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/ROOT/_run_records/UI_ACCEPTANCE_V1.json",
+      "sha256": "5eb67fc7e990b2d7dd860f280e4c32f73d0bd6f9d61d5f833e3c122ad8880bfe",
+      "use": "Prior Root UI disposition."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/INTERACTION_CONTRACT_V1.md",
+      "sha256": "f0e6af29e1a605640a6484426ee41db498d3a1d7b33100e93dab5477f9e6fea8",
+      "use": "Prior accepted interaction contract."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260913-RESULTS-ENGINEERING-3D/instances/UI/successor-v3/prototype/index.html",
+      "sha256": "f2375d018570a0df2551ddc8883f7f326317f9d1575103ff4c22d3626bf3262f",
+      "use": "Simulated design reference only; not user visual approval or production behavior evidence."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/PRODUCTION_UI_HANDOFF_WORKING.md",
+      "sha256": "9d0adb5082e6ff2f4f824f4efe0befeb414ed4e12480f119ecaaca1eac8ae46d",
+      "use": "Current mutable handoff surface observed before Root applies any V4 correction."
+    }
+  ],
+  "interfaces": [
+    {
+      "interface": "viewport_and_selection",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/PipeViewport.tsx", "sha256": "d48533921280f794ef655285fb0e899b8552a3e614674fb134efc33aa81365cb"},
+        {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/routeDraft.ts", "sha256": "cb258db1ab0750b891a023c0723cfbfdb55a898bb4930d4aaf4137cc6992c7a4"},
+        {"path": "projects/chirality-piping/apps/desktop/src/features/viewport/viewportRouting.ts", "sha256": "3b76cb03e8369e1678c48587328be1a4b8c7fe22cc694036513e9c3a8967e8a4"}
+      ],
+      "observation": "PipeViewport exchanges EntityRef selections and EditorOperationIntent drafts. Routing carries explicit plane/axis state, pointer-gesture cancellation/slop handling and generation checks; a draft can be validated and applied through one operation or one atomic batch."
+    },
+    {
+      "interface": "model_tree",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/model-tree/ModelTree.tsx", "sha256": "b0babf21868697924ac4b5ec5adb1321bade3b227f2066a128b26167ee369dc3"}
+      ],
+      "observation": "The tree uses the shared EntityRef selection shape and routes edits as queued typed intents."
+    },
+    {
+      "interface": "property_inspector",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/model-tree/PropertyInspector.tsx", "sha256": "a6b63807e99e36a1194e3d01d1b91ce604e3b0478f6b29d9255971c1fb9c3a78"}
+      ],
+      "observation": "The inspector resolves the selected EntityRef, exposes typed editable fields with unit/provenance context, and queues EditorOperationIntent values rather than directly mutating the model."
+    },
+    {
+      "interface": "toolkit_palette",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/toolkit/capabilityCatalog.ts", "sha256": "ffefafc0b4237dba8a7183f3c2eba937dea03111ad3ad8d3759280d83f3935d7"}
+      ],
+      "observation": "The catalog gives capabilities stable ids, named groups, explicit routes, status values and prerequisite keys. Its own contract says availability describes executable UI routes and routes do not mutate."
+    },
+    {
+      "interface": "typed_operations",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/types.ts", "sha256": "7de6955c2c541557d988554132a58789081727c5ef9cfc1c4d3d7b0253deb409"},
+        {"path": "projects/chirality-piping/apps/desktop/src/services/operationService.ts", "sha256": "8f213ac1f3a0afb1f98072b7fa476e6d89ce13bde9b44e6fa56f60a13b5670e2"},
+        {"path": "projects/chirality-piping/apps/desktop/src/services/operationBatchService.ts", "sha256": "0cf84f7b8ced2786fa03729087fd1197bf8773afb6d15a9653cb86e8a0ecc52f"},
+        {"path": "projects/chirality-piping/core/model_operations/operation_applier/src/lib.rs", "sha256": "22062ea42fd135a9dbefa0f7e09cf3a2feccc5193ff6028818fd1c6221a3f355"}
+      ],
+      "observation": "The shared types define EntityRef and EditorOperationIntent. Desktop routing invokes the Rust operation applier through Tauri and uses the same crate through wasm where applicable; batch outcomes distinguish validation, temporary-state simulation, atomic commit, diagnostics, submitted untrusted metadata and acceptance evidence."
+    },
+    {
+      "interface": "result_designation",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/results/HistoricalRunContext.tsx", "sha256": "03b3400909b1d2b980bdff5835c3ae58a47d404a24186803f66843c163c5bf0e"},
+        {"path": "projects/chirality-piping/apps/desktop/src/features/results/resultInterpretation.ts", "sha256": "df7887f62a7c79ea8f45840f062dbbf7f70a1918a1292e308282cbde415f0f0e"}
+      ],
+      "observation": "The historical context represents Current/Historical and match/mismatch/unverifiable compatibility findings. Historical evidence is restricted from driving current overlays, checks, comparisons or reports. Interpretation selects received_result for 0.2 and result_envelope for retained 0.1."
+    },
+    {
+      "interface": "record_revision_identity",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/services/analysisRunCompatibility.ts", "sha256": "0a4b55db37470511359169207c41b0892e7afaf58f41a86a14ecdad6c92da2a1"},
+        {"path": "projects/chirality-piping/apps/desktop/src/types.ts", "sha256": "7de6955c2c541557d988554132a58789081727c5ef9cfc1c4d3d7b0253deb409"}
+      ],
+      "observation": "Analysis record 0.2 binds the checked profile, semantic-contract reference and received-result evidence; the analysis_run_record checksum identifies an immutable record revision separately from mechanics run_id. Raw source rows are cloned and retained; semantic interpretation is carried beside them."
+    },
+    {
+      "interface": "current_result_export_composition",
+      "files": [
+        {"path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts", "sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf"}
+      ],
+      "observation": "At reviewed candidate 9d96, buildCurrentResultExport eagerly calls legacy source-dimension binding before 0.2 semantic qualification. Authentic modulus_basis_record rows have no raw dimension field and are rejected before the valid 0.2 constructor can complete.",
+      "status": "BLOCKED_BY_F09_ACTIVE_V15_REPAIR",
+      "repair_control": {"path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md", "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a"},
+      "refresh_requirement": "Rehash and reinspect this seam after the repair. The review of 9d96 does not cover a future change."
+    }
+  ],
+  "future_root_readiness_inputs": [
+    "accepted F09 source repair and review bound to the final source commit",
+    "final native save/quit/reopen/unchanged-save/re-solve and delivered-artifact evidence",
+    "complete registered DEC-025 sweep bound to the final source commit",
+    "Root combined acceptance",
+    "Root determination that production UI handoff gates are satisfied"
+  ]
+}

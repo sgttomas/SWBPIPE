@@ -1,0 +1,36 @@
+{
+  "adds_to": {
+    "bytes": 2318,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/STATUS.json",
+    "sha256": "e3d1cff8f4162fafbdd95978f5727ab1fc5a8bfa050e5ca4db28c52234e9ddaf"
+  },
+  "collision_disposition": {
+    "bytes": 2394,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V2.json",
+    "sha256": "0a665daf408835cc49e64100005ab4966ccc2e1e306493275df91da0ed8df1c4"
+  },
+  "created_utc": "2026-09-15T05:30:43.182085+00:00",
+  "delegation": false,
+  "git_actions": false,
+  "manager_backcheck_binding": {
+    "bytes": 939,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANAGER_BACKCHECK_BINDING_V1.json",
+    "sha256": "c4ef63c4ec139d3166ce6c741ada01a58ad73100ac8f24c810c270cb1bdec2ca"
+  },
+  "remaining_owner_actions": [
+    "root integration disposition",
+    "native lifecycle/full-sweep/CI/merge decisions remain owner-controlled"
+  ],
+  "schema": "compatibility-v15-task-writer-status-addendum-v1",
+  "source_checkpoint": {
+    "bytes": 34183,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736"
+  },
+  "source_checkpoint_revalidation": {
+    "files": 74,
+    "mismatches": 0
+  },
+  "source_frozen": true,
+  "status": "COMPLETE_MANAGER_BACKCHECK_PASS"
+}

@@ -1,0 +1,40 @@
+{
+  "app_absent": true,
+  "blocker": {
+    "bytes": 7175,
+    "path": "_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+    "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+  },
+  "browser_absent": true,
+  "build_absent": true,
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "created_unix": 1789448662.89984,
+  "exclusive_resources_released": [
+    "native/WASM/desktop builds",
+    "product browser/native GUI and owned servers"
+  ],
+  "git_writes": false,
+  "holder": "/root/foundation_native",
+  "normal_quit": true,
+  "owned_process_cleanup": {
+    "bytes": 324,
+    "path": "_run_records/process/final_owned_process_scan_v2.json",
+    "sha256": "9ecc9169f90d454fc02a57dad858ef1b60bceefd35c1086297176a3d724c7141"
+  },
+  "owned_process_count": 0,
+  "product_source_edits": false,
+  "release_note": "Compatibility writer may acquire a successor build/browser/native lease. This record does not accept native V3.",
+  "result": {
+    "bytes": 3150,
+    "path": "RESULT_V3.json",
+    "sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46"
+  },
+  "schema": "final-native-v3-exclusive-lease-release-v1",
+  "server_absent": true,
+  "source_after_gui": {
+    "bytes": 23771,
+    "path": "_run_records/bindings/source_after_gui.json",
+    "sha256": "cd71eb33d77d07df3dff9db6e4ba1145ebc70304b7af32b82ff4444282e29e9c"
+  },
+  "status": "RELEASED_BLOCKED_PRODUCT_DEFECT"
+}

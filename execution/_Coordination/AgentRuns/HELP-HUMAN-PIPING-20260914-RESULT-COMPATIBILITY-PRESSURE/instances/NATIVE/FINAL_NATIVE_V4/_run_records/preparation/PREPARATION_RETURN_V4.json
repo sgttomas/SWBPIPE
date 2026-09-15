@@ -1,0 +1,26 @@
+{
+  "brief_sha256": "997f29b1a53e64c26a354d784fc9d2238e7331b616e46b5d57f88c38856879f0",
+  "effects": {
+    "app": false,
+    "browser": false,
+    "builds": false,
+    "delegation": false,
+    "git": false,
+    "product_source_edits": false,
+    "servers": false,
+    "store": false,
+    "tests": false
+  },
+  "exclusive_lease_present": false,
+  "fresh_successor_app_build_required": true,
+  "full_native_lifecycle_required": true,
+  "genuine_coverage_gap": "eight signatures remain for fresh successor sparse/dense native routes",
+  "native_acceptance_claimed": false,
+  "readiness_claimed": false,
+  "runner_reuse": "conditional; baseline recorded, successor source release absent",
+  "schema": "final-native-v4-preparation-return-v1",
+  "source_release_present": false,
+  "status": "PREPARED_ONLY_NOT_READY_FOR_EXECUTION",
+  "v3_authentic_producers": "seven preserved, 52 signatures, hard 059 true",
+  "v3_fanin_sha256": "a4de6dd1e3c76843def77c18fcfc680074767b159ee0b4aa4075d1716a2b645a"
+}

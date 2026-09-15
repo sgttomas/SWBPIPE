@@ -1,0 +1,16 @@
+{
+  "schema": "root-final-compatibility-fanin-v3",
+  "created_utc": "2026-09-15T05:34:23.300212+00:00",
+  "verdict": "ACCEPT_SCOPED_IMPLEMENTATION_FOR_INDEPENDENT_REVIEW",
+  "manager_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/FINAL_MANAGER_RETURN_V15.json",
+    "sha256": "0e3f3c0e906041441599c8b1b470fae425433ea775396090f6e12441a978abfe"
+  },
+  "verified_manager_evidence_bindings": 23,
+  "source_integration": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/F09_F10_INTEGRATION_V1.json",
+    "sha256": "15a4e81da7842b1b9bce5c0db3056f2e7f1609abcfd44e097726ccbc2e792a92"
+  },
+  "scope": "Four maintained deltas within74 compatibility files; private pressure2files unchanged. F09 andF10 repaired with genuine7case composition and original830packet verification.",
+  "calibration": "52 genuine supplemental signatures; no60runtime claim. Wrong-checkout execution preserved with explicit recovery and unique successor log paths. All native/fullDEC025/combined acceptance/CI/merge gates remain pending."
+}

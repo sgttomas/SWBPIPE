@@ -1,0 +1,223 @@
+{
+  "acceptance_map": [
+    {
+      "note": "V13/V14 changed only the two Python stress paths.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/SOURCE_CHECKPOINT_V12.json"
+      ],
+      "status": "RETAINED_PASS_FROM_V12",
+      "surface": "analysis 0.2 construction and canonicalization"
+    },
+    {
+      "note": "Root owns final native lifecycle qualification.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json"
+      ],
+      "status": "RETAINED_PASS_FROM_V12",
+      "surface": "analysis Current/Historical in-memory lifecycle"
+    },
+    {
+      "note": "All 830 raw rows retained; 828 accepted witnesses and two explicit diagnostic-work withholdings.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/RESULT.json"
+      ],
+      "status": "PASS_AUTHENTIC_PACKET",
+      "surface": "strict stress 0.2 construction"
+    },
+    {
+      "note": "Blocked readiness is the truthful package state, not a schema failure.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/RESULT.json",
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json"
+      ],
+      "status": "PASS_SCHEMA_AND_RUNTIME_WITH_DISCLOSED_BLOCKED_READINESS",
+      "surface": "strict stress 0.2 in-memory validation"
+    },
+    {
+      "note": "Desktop delivery source is unchanged by V13/V14; Root owns any final rerun decision.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json"
+      ],
+      "status": "RETAINED_PASS_FROM_V12",
+      "surface": "actual controlled browser delivery"
+    },
+    {
+      "note": "Native raw carrier is Root-owned and was not duplicated. Native V3 owns actual final GUI/delivery qualification.",
+      "owning_evidence": [
+        "instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json"
+      ],
+      "status": "PENDING_ROOT_NATIVE_V3",
+      "surface": "native delivery"
+    },
+    {
+      "note": "Authentic plus three withholding packets each validated and wrote exactly nine checksum-bound members.",
+      "owning_evidence": [
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/PYTHON_CONSUMER_RESULT.json",
+        "instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json"
+      ],
+      "status": "PASS_ACTUAL_PACKETS",
+      "surface": "Python member materialization"
+    }
+  ],
+  "authorization": {
+    "brief": {
+      "path": "briefs/COMPATIBILITY_REVIEW_REPAIR_V14.md",
+      "sha256": "e06428df87018c9bedc1edcfc571cec850030fb728957557b8b68d8df1495f3d"
+    },
+    "execution": "nonbuild focused Python and evidence-local cached desktop producer probe only",
+    "source_paths": [
+      "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "projects/chirality-piping/tests/test_stress_neutral_export_package.py"
+    ],
+    "write_scope": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/WRITE_SCOPE.json",
+      "sha256": "d1c4c20a4607be75a78676f0a9d648f19c94a54609b99a09051ae41b6de17fe1"
+    }
+  },
+  "complete_source_manifest": {
+    "bytes": 18770,
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+    "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+    "source_file_count": 74,
+    "source_frozen": true,
+    "source_hash_mismatches": 0,
+    "source_hashes_checked": 74,
+    "source_length_mismatches": 0
+  },
+  "created_utc": "2026-09-15T04:54:08.613028Z",
+  "delta": {
+    "changed_path_count": 2,
+    "delta_from_accepted_64_file_checkpoint": {
+      "calibration": "Its complete 64-to-74 path inventory, tests, fixtures and nine locks remain incorporated; only the two paths above changed after that V10 snapshot.",
+      "incorporated_record": {
+        "path": "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+        "sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362"
+      }
+    },
+    "parent": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/SOURCE_CHECKPOINT_V13.json",
+      "sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949"
+    },
+    "paths": [
+      {
+        "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+        "v13_sha256": "10bcf745f316d97afab67b2849756b6cc14c2100eb5e3875131f788563ff8770",
+        "v14_bytes": 27397,
+        "v14_sha256": "3fc58b5a5753192dfee6380cb0d28d8c54f70e80cce88b985d342567a364f27e"
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+        "v13_sha256": "dbdb226ce0e04faa4452c4d3ff21b9af67d1f1162cc0518775989603772f4ac8",
+        "v14_bytes": 36271,
+        "v14_sha256": "c9e32e82274eac89fb8e3f72edcfa17d698b65333c254dd350acf5960c640e16"
+      }
+    ]
+  },
+  "governance_calibration": {
+    "formal_dag_or_lifecycle_status_changed": false,
+    "full_package_satisfaction_claimed": false,
+    "full_registered_sweep_claimed": false,
+    "git_actions": false,
+    "independent_v4_review_claimed": false,
+    "native_gui_acceptance_claimed": false
+  },
+  "integrated_candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "manager_backcheck": {
+    "packet_cases": 4,
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+    "recomputed_blank_record_rejections": 3,
+    "runtime_validation_passes": 4,
+    "schema_passes": 4,
+    "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+    "status": "PASS",
+    "validated_nine_member_writer_passes": 4
+  },
+  "manager_verdict": "The integrated V14 compatibility source and its bounded nonbuild qualification are internally coherent. F06-F08 are repaired in the exact two-file scope. Final tranche acceptance remains with Root after native, independent review, registered sweep and Git closeout.",
+  "parent": "HELP_HUMAN",
+  "raw_evidence_map": {
+    "analysis": {
+      "calibration": "Earlier immutable analysis records remain the owning evidence; V14 did not touch analysis source.",
+      "construction_and_lifecycle": "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json"
+    },
+    "stress": {
+      "actual_withholding_probes": {
+        "consumer_result_sha256": "a683db0ddbd5c35cbd11d6d2be1316360e6e1c9d8d89ec6a7a5642dee1dfe3d8",
+        "path_prefix": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets"
+      },
+      "authentic_strict_packet": {
+        "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+        "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87"
+      },
+      "root_native_raw_carrier": {
+        "duplicated": false,
+        "path_in_base": "instances/NATIVE/FINAL_NATIVE_V2/_run_records/store/after_first_save.mechanics_result_json.json",
+        "sha256": "c5d2f56bb4c30e9a0ff90ac1cb3412f480ab37d2134be576698c8578c62ac923"
+      }
+    }
+  },
+  "repair_disposition": {
+    "F06": "PASS: CSV text must already equal canonical LF normalization; strict csv.reader record width/count/field checks reject interior and terminal blank records after hashes are recomputed.",
+    "F07": "PASS: checksum-covered explicit unknown-kind and missing-component withholdings survive the reduced export and cannot be promoted to witnesses.",
+    "F08": "PASS: an exported dimension contradiction is preserved, explicitly withheld, and cannot be admitted as a unit witness."
+  },
+  "resource_state": {
+    "exclusive_build_browser_resources": "transferred by Root to foundation_native",
+    "prior_build_browser_lease": "released in V13",
+    "runtime_after_transfer": false,
+    "v14_nonbuild_execution": "complete"
+  },
+  "role": "WORKING_ITEMS / Type 1",
+  "root_owned_pending_acceptance": [
+    "native V3 qualification",
+    "independent V4 review disposition",
+    "full registered DEC-025 sweep",
+    "final acceptance, CI and Git closeout"
+  ],
+  "schema": "compatibility-manager-final-fanin-v14",
+  "status": "QUALIFIED_COMPLETE_INTEGRATED_RESOURCES_TRANSFERRED",
+  "verification_summary": {
+    "actual_producer_to_python_cases": "3/3 schema, runtime validation and validated write9 passed",
+    "artifact_manifest": "57/57 matched",
+    "authentic_native_carrier_packet": "830 rows, 828 witnesses, 50 witnessed other-family rows, two diagnostic-work withholdings, schema/runtime/write9 passed",
+    "desktop_producer_probe": "1 passed with one worker and existing cached artifacts; source unchanged",
+    "focused_python": "73 passed, 0 skipped, 30 deprecation warnings",
+    "source_manifest": "74/74 matched"
+  },
+  "writer": {
+    "delegation": false,
+    "identity": "/root/foundation_compatibility/compatibility_writer",
+    "model_effort": "gpt-5.6-sol / high",
+    "role": "TASK / Type 2",
+    "status": "COMPLETE"
+  },
+  "writer_seal": {
+    "final_evidence": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+      "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1"
+    },
+    "manifest": {
+      "artifact_count": 57,
+      "artifact_hashes_checked": 57,
+      "artifact_mismatches": 0,
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/MANIFEST.json",
+      "sha256": "a7deaf37cb6d18a074216026428926f9122296953477bc1f8601ecb626582577"
+    },
+    "preserved_failure": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/PRESERVED_FAILURES_V14.json",
+      "sha256": "fac52f4b041156d318f48b838a4def2826764b43c169dc21db64ec4cd10ec0b6"
+    },
+    "return": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/RETURN.md",
+      "sha256": "fb38d9498c22282de4644711ba6ad431b3339e58302060d18da3382d17532740"
+    },
+    "source_checkpoint": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+      "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022"
+    },
+    "status": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/STATUS.json",
+      "sha256": "dd45598224243b058ae458a33fed4b01732d26e1b8c8e459d48054bc0ef26e23"
+    }
+  }
+}

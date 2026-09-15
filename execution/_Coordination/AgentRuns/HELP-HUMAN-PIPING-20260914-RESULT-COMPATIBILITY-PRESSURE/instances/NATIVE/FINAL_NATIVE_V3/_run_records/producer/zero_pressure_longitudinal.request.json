@@ -1,0 +1,197 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_id": "manifest:native-producer-v3-zero_pressure_longitudinal",
+      "ref_type": "audit_manifest"
+    },
+    "load_basis_refs": [
+      {
+        "ref_id": "load:V3-P0",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:v3-zero-pressure-longitudinal",
+      "ref_type": "model"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_id": "project:v3-zero-pressure-longitudinal",
+      "ref_type": "project"
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "prepared_unexecuted",
+      "source_license": "project invented",
+      "source_location": "instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/models/zero_pressure_longitudinal.model.json",
+      "source_name": "Invented native producer V3 zero_pressure_longitudinal input"
+    },
+    "request_id": "native-producer-v3-zero_pressure_longitudinal",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "solve": {
+    "preview_model": {
+      "materials": [],
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "components": [],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "load:V3-P0",
+            "primitive_loads": [
+              {
+                "category": "pressure",
+                "dimension": "pressure",
+                "direction": "global_x",
+                "id": "load:V3-P0-ELEMENT",
+                "magnitude": {
+                  "unit": "Pa",
+                  "value": 0.0
+                },
+                "provenance": "invented_source_derived_native_producer_preparation_v3",
+                "target": {
+                  "pipe": "pipe:V3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 77000000000.0
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:V3-ROOT",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          },
+          {
+            "id": "node:V3-TIP",
+            "position": {
+              "x": 2.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "node:V3-ROOT",
+            "id": "pipe:V3",
+            "material": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.168
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.007
+              }
+            },
+            "to": "node:V3-TIP",
+            "y_reference": {
+              "x": 0.0,
+              "y": 1.0,
+              "z": 0.0
+            }
+          }
+        ],
+        "project": {
+          "id": "project:v3-zero-pressure-longitudinal",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "MPa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.1.0",
+        "sections": [],
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "support:V3-ROOT",
+            "node": "node:V3-ROOT",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

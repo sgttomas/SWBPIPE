@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+    "solve",
+    "--input",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/friction.request.json",
+    "--output",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/friction.output.json",
+    "--explicit-local-private-intent"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project",
+  "elapsed_seconds": 0.022732973098754883,
+  "ended_unix": 1789448160.611646,
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson"
+  },
+  "exit_code": 0,
+  "started_unix": 1789448160.588913,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/producer_friction.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/producer_friction.stdout.txt"
+}

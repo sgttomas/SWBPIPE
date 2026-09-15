@@ -1,0 +1,33 @@
+{
+  "schema": "compatibility-review-repair-v14-task-writer-status",
+  "updated_utc": "2026-09-15T04:51:34.884188Z",
+  "status": "QUALIFIED_COMPLETE_INTEGRATED_RESOURCES_TRANSFERRED",
+  "final_write_scope_sha256": "d1c4c20a4607be75a78676f0a9d648f19c94a54609b99a09051ae41b6de17fe1",
+  "source_checkpoint": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+    "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+    "bytes": 18770
+  },
+  "final_evidence": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+    "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+    "bytes": 7775
+  },
+  "manager_backcheck": {
+    "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+    "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+    "bytes": 6281
+  },
+  "results": {
+    "focused_python": "73 passed, 0 skipped",
+    "desktop_producer_probe": "1 passed; 3 packets captured",
+    "python_consumer": "3 packet cases schema/validate/write9 passed",
+    "exact_packet": "830/828/50 other/2 work/write9 passed",
+    "blank_record_negatives": "3/3 rejected as required"
+  },
+  "root_integration_candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "source_frozen": true,
+  "execution_resources": "transferred_to_native",
+  "git_actions": false,
+  "delegation": false
+}

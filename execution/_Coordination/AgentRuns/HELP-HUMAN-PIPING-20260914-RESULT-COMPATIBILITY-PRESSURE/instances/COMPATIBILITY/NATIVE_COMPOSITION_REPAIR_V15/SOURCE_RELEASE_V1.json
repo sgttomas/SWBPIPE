@@ -1,0 +1,63 @@
+{
+  "contract": {
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/CONTRACT_AND_SCOPE_V1.json",
+    "sha256": "6424149728b4196e5b1b6c818c32b2f6e2eee10ee730056176156cf04d50a5b2"
+  },
+  "created_utc": "2026-09-15T05:06:13.505431Z",
+  "native_v3": {
+    "evidence_manifest": {
+      "bytes": 19878,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/EVIDENCE_MANIFEST_V3.json",
+      "sha256": "6b2f4a6fe1b08b146bc00fd4f42e0657063baba4db7054cd9f0eaf80355970a3"
+    },
+    "f09_failure": {
+      "bytes": 7175,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+      "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+    },
+    "lease_release": {
+      "bytes": 1445,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/LEASE_RELEASE_V3.json",
+      "sha256": "faa4913f7af6549c0fc3ccc691dfd3d470b8bbe458fa4b9677d0e38adc4796de"
+    },
+    "result": {
+      "bytes": 3150,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/RESULT_V3.json",
+      "sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46"
+    },
+    "seven_signature_manifest": {
+      "bytes": 9620,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/validation/seven_producer_signatures.json",
+      "sha256": "f3fef6645c79fbfad954694d3576989e285af58e0e475a73ef729565a34316f3"
+    }
+  },
+  "permission": {
+    "browser_or_server": false,
+    "cargo": false,
+    "evidence_prefix": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/",
+    "focused_node_vitest": true,
+    "focused_python_composition": true,
+    "git": false,
+    "maintained_writes": [
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+    ],
+    "native_build_or_gui": false,
+    "typescript_no_emit": true,
+    "wasm_build": false
+  },
+  "schema": "compatibility-native-composition-repair-v15-source-release-v1",
+  "source_basis": {
+    "compatibility_v14_checkpoint_sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+    "integration_candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+    "integration_source_verified": "76/76 unchanged before V15"
+  },
+  "status": "SOURCE_AND_FOCUSED_NONBUILD_EXECUTION_RELEASED",
+  "writer_dispatch": {
+    "actual_continuation": true,
+    "delegation": false,
+    "identity": "/root/foundation_compatibility/compatibility_writer",
+    "model_effort": "gpt-5.6-sol / high",
+    "role": "TASK / Type 2"
+  }
+}

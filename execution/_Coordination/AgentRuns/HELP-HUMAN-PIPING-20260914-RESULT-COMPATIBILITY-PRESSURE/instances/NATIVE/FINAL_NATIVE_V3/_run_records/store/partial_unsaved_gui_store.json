@@ -1,0 +1,40 @@
+{
+  "evidence_copy": {
+    "bytes": 49152,
+    "path": "partial_unsaved_gui_store.sqlite3",
+    "sha256": "0c17212897dc9211dab4e24028caff521b70f54ea7e665cc7b96fb7013ac931f"
+  },
+  "exists": true,
+  "files": [
+    {
+      "bytes": 49152,
+      "path": "openpipestress-projects.sqlite3",
+      "sha256": "0c17212897dc9211dab4e24028caff521b70f54ea7e665cc7b96fb7013ac931f"
+    }
+  ],
+  "row_counts": {
+    "local_libraries": 0,
+    "local_project_fts": 1,
+    "local_project_fts_config": 1,
+    "local_project_fts_content": 1,
+    "local_project_fts_data": 3,
+    "local_project_fts_docsize": 1,
+    "local_project_fts_idx": 1,
+    "local_projects": 1,
+    "local_rule_packs": 0
+  },
+  "schema": "final-native-v3-partial-unsaved-gui-store-v1",
+  "scope": "partial blank authoring stopped before save; no lifecycle acceptance claimed",
+  "store_root": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-repaired-20260915",
+  "tables": [
+    "local_libraries",
+    "local_project_fts",
+    "local_project_fts_config",
+    "local_project_fts_content",
+    "local_project_fts_data",
+    "local_project_fts_docsize",
+    "local_project_fts_idx",
+    "local_projects",
+    "local_rule_packs"
+  ]
+}

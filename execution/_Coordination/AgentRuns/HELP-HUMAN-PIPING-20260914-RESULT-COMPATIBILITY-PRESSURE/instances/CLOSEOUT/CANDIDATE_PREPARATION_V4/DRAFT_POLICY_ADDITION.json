@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "project_root": "projects/chirality-piping",
+  "status": "DRAFT_ROOT_REVIEW",
+  "basis": {
+    "brief_sha256": "7dce2ea29950242466134ba306b7dc7d7d9df0540314b0d37b8590c463a6ec69",
+    "observed_candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+    "final_source_release_v4_sha256": "47e99e7f38c489768f3096f0aed9161bbf77fc55a35ecd58f2c54975c9191b85",
+    "portability_policy_sha256_before_draft": "a7dc91fb940f0c2f730c4ad0391176f01b25f39ed591ebcf668728b88f5d2aae"
+  },
+  "historical_role_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/FINAL_EVIDENCE_V13.json",
+      "sha256": "67e20be7c7fdffc318905225b22b29a3c310cc664501d8eb62f4ffb2b35f1eb3",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V13 writer evidence records the actual temporary Python interpreter used during execution. The V13 task status is complete and later V14/final fan-in artifacts own current conclusions; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN closeout portability disposition; applying this draft records that acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+      "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V14 manager backcheck records the actual temporary Python interpreter used to evaluate the sealed packet. FINAL_COMPATIBILITY_FANIN_V2 owns the accepted scoped conclusion; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN closeout portability disposition; applying this draft records that acceptance."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+      "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V14 writer evidence records the actual temporary Python interpreter used during execution. FINAL_COMPATIBILITY_FANIN_V2 owns the accepted scoped conclusion; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN closeout portability disposition; applying this draft records that acceptance."
+    }
+  ],
+  "control_path_exceptions": [],
+  "active_controls_excluded_from_draft": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+      "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a",
+      "reason": "Active repair direction; not historical."
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/RESULT_V3.json",
+      "sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46",
+      "reason": "Completed failure evidence already classified by its owning surface; it remains the live F09 basis and needs no added exception in this scan."
+    }
+  ]
+}

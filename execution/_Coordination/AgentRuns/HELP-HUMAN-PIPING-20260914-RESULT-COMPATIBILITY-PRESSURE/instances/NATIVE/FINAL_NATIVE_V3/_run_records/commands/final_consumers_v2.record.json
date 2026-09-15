@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/run_final_consumers_v2.py",
+    "--working-root",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+    "--checked-json-bin",
+    "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "--case-map",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/case_map_v3.json",
+    "--output-root",
+    "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/seven_cases"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+  "elapsed_seconds": 1.2541489601135254,
+  "ended_unix": 1789448291.290586,
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson"
+  },
+  "exit_code": 1,
+  "started_unix": 1789448290.036437,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stdout.txt"
+}

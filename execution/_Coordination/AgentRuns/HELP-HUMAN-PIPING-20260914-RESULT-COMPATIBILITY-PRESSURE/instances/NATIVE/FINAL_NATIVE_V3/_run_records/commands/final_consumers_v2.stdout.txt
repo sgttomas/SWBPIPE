@@ -1,0 +1,11 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop
+
+ ❯ ../../execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/compose_captured_outputs_v2.test.ts (1 test | 1 failed) 51ms
+     × composes all seven real outputs and preserves the source carrier 50ms
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  22:58:10
+   Duration  323ms (transform 118ms, setup 0ms, import 183ms, tests 51ms, environment 0ms)
+

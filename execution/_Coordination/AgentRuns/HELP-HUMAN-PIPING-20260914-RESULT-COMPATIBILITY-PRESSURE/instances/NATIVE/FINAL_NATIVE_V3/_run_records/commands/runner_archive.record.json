@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "archive",
+    "--format=tar",
+    "--output=/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project.tar",
+    "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+    "projects/chirality-piping"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "elapsed_seconds": 1.7391951084136963,
+  "ended_unix": 1789448024.850977,
+  "environment": {},
+  "exit_code": 0,
+  "started_unix": 1789448023.1117818,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/runner_archive.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/runner_archive.stdout.txt"
+}

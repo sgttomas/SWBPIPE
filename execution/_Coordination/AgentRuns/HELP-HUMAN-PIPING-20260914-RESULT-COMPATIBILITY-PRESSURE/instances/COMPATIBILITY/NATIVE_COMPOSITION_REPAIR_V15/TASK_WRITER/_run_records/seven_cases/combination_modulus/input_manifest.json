@@ -1,0 +1,416 @@
+{
+  "manifest": {
+    "schema_version": "1.0.0",
+    "document_kind": "openpipestress.current_session_input_manifest",
+    "model_basis": {
+      "model_ref": "project:invented-loop-01",
+      "model_payload": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [
+          {
+            "basis": "mechanics",
+            "id": "combination:R-sum",
+            "label": "Opposite equal loads sum",
+            "provenance": "invented_audit",
+            "terms": [
+              {
+                "factor": 1,
+                "load_case": "load:L-100"
+              },
+              {
+                "factor": 1,
+                "load_case": "load:R-negative"
+              }
+            ]
+          },
+          {
+            "basis": "result_state_subtraction",
+            "id": "combination:R-sub",
+            "label": "Result difference",
+            "minuend_id": "load:L-100",
+            "provenance": "invented_audit",
+            "subtrahend_id": "load:R-negative",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-min",
+            "label": "min",
+            "mode": "min",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-max",
+            "label": "max",
+            "mode": "max",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-min_abs",
+            "label": "min_abs",
+            "mode": "min_abs",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          },
+          {
+            "basis": "range_envelope",
+            "id": "combination:R-max_abs",
+            "label": "max_abs",
+            "mode": "max_abs",
+            "operand_ids": [
+              "load:L-100",
+              "load:R-negative"
+            ],
+            "provenance": "invented_audit",
+            "terms": []
+          }
+        ],
+        "components": [],
+        "data_boundary": {
+          "private_data_policy": "no_private_project_data",
+          "professional_boundary": "technical_preview_requires_human_engineering_review",
+          "protected_source_policy": "no_bundled_protected_owner_or_standards_data",
+          "public_examples_policy": "invented_or_cleared_data_only"
+        },
+        "diagnostics": [
+          {
+            "code": "RULE_INPUTS_MISSING",
+            "message": "Rule-check inputs are intentionally absent from this invented preview.",
+            "severity": "warning",
+            "source": "fixtures/product_preview/invented_preview_model.json"
+          }
+        ],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "load:L-100",
+            "kind": "primitive_user_load",
+            "label": "Invented operating gravity and pressure preview",
+            "primitive_loads": [
+              {
+                "category": "occasional",
+                "dimension": "force",
+                "direction": "global_y",
+                "id": "load:A2-invented",
+                "magnitude": {
+                  "unit": "N",
+                  "value": 350
+                },
+                "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+                "target": {
+                  "node": "node:N-110",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "invented_example_no_code_combination",
+            "status": "preview_only"
+          },
+          {
+            "id": "load:R-negative",
+            "kind": "primitive_user_load",
+            "label": "Invented operating gravity and pressure preview",
+            "primitive_loads": [
+              {
+                "category": "occasional",
+                "dimension": "force",
+                "direction": "global_y",
+                "id": "load:R-negative-input",
+                "magnitude": {
+                  "unit": "N",
+                  "value": -350
+                },
+                "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+                "target": {
+                  "node": "node:N-110",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "invented_example_no_code_combination",
+            "status": "preview_only"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000
+            },
+            "id": "material:invented-carbon-steel",
+            "label": "Invented carbon-steel-like material",
+            "provenance": "invented_example_no_material_standard",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 77000000000
+            },
+            "thermal_expansion_coefficient": {
+              "unit": "1/degC",
+              "value": 0.000012
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:N-100",
+            "label": "Pump nozzle",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_example"
+          },
+          {
+            "id": "node:N-110",
+            "label": "Low point elbow",
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_example"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "node:N-100",
+            "id": "pipe:P-100",
+            "label": "Pump discharge run",
+            "material": "material:invented-carbon-steel",
+            "provenance": "invented_example_no_standard_catalog",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.168
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.007
+              }
+            },
+            "to": "node:N-110",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            }
+          }
+        ],
+        "project": {
+          "description": "Small invented centerline model for desktop integration review.",
+          "id": "project:invented-loop-01",
+          "name": "Invented Utility Loop Preview",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "MPa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.1.0",
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "support:S-100",
+            "label": "Anchor at pump nozzle",
+            "node": "node:N-100",
+            "provenance": "invented_example",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          }
+        ]
+      }
+    },
+    "unit_basis": {
+      "project_units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "MPa",
+        "temperature": "degC"
+      }
+    },
+    "solver_basis": {
+      "settings": {},
+      "solver_build_ref": "open_pipe_stress_product_physics@0.1.0",
+      "solver_mode": "sparse_interactive",
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0"
+    },
+    "load_basis": {
+      "load_cases": [
+        {
+          "id": "load:L-100",
+          "kind": "primitive_user_load",
+          "label": "Invented operating gravity and pressure preview",
+          "primitive_loads": [
+            {
+              "category": "occasional",
+              "dimension": "force",
+              "direction": "global_y",
+              "id": "load:A2-invented",
+              "magnitude": {
+                "unit": "N",
+                "value": 350
+              },
+              "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+              "target": {
+                "node": "node:N-110",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_example_no_code_combination",
+          "status": "preview_only"
+        },
+        {
+          "id": "load:R-negative",
+          "kind": "primitive_user_load",
+          "label": "Invented operating gravity and pressure preview",
+          "primitive_loads": [
+            {
+              "category": "occasional",
+              "dimension": "force",
+              "direction": "global_y",
+              "id": "load:R-negative-input",
+              "magnitude": {
+                "unit": "N",
+                "value": -350
+              },
+              "provenance": "invented_example_A2_deterministic_witness_no_engineering_acceptance",
+              "target": {
+                "node": "node:N-110",
+                "type": "node"
+              }
+            }
+          ],
+          "provenance": "invented_example_no_code_combination",
+          "status": "preview_only"
+        }
+      ],
+      "combinations": [
+        {
+          "basis": "mechanics",
+          "id": "combination:R-sum",
+          "label": "Opposite equal loads sum",
+          "provenance": "invented_audit",
+          "terms": [
+            {
+              "factor": 1,
+              "load_case": "load:L-100"
+            },
+            {
+              "factor": 1,
+              "load_case": "load:R-negative"
+            }
+          ]
+        },
+        {
+          "basis": "result_state_subtraction",
+          "id": "combination:R-sub",
+          "label": "Result difference",
+          "minuend_id": "load:L-100",
+          "provenance": "invented_audit",
+          "subtrahend_id": "load:R-negative",
+          "terms": []
+        },
+        {
+          "basis": "range_envelope",
+          "id": "combination:R-min",
+          "label": "min",
+          "mode": "min",
+          "operand_ids": [
+            "load:L-100",
+            "load:R-negative"
+          ],
+          "provenance": "invented_audit",
+          "terms": []
+        },
+        {
+          "basis": "range_envelope",
+          "id": "combination:R-max",
+          "label": "max",
+          "mode": "max",
+          "operand_ids": [
+            "load:L-100",
+            "load:R-negative"
+          ],
+          "provenance": "invented_audit",
+          "terms": []
+        },
+        {
+          "basis": "range_envelope",
+          "id": "combination:R-min_abs",
+          "label": "min_abs",
+          "mode": "min_abs",
+          "operand_ids": [
+            "load:L-100",
+            "load:R-negative"
+          ],
+          "provenance": "invented_audit",
+          "terms": []
+        },
+        {
+          "basis": "range_envelope",
+          "id": "combination:R-max_abs",
+          "label": "max_abs",
+          "mode": "max_abs",
+          "operand_ids": [
+            "load:L-100",
+            "load:R-negative"
+          ],
+          "provenance": "invented_audit",
+          "terms": []
+        }
+      ]
+    },
+    "active_rule_packs": [],
+    "external_assets": [],
+    "identity_policy": {
+      "canonicalization": "rfc8785_jcs",
+      "hash_algorithm": "sha256",
+      "canonical_bytes_scope": "entire_input_manifest_object"
+    },
+    "replay_boundary": {
+      "included_as_package_member": false,
+      "portable_replay_claimed": false,
+      "current_session_ref_hash_integrity_only": true
+    }
+  },
+  "manifest_ref": {
+    "object_type": "InputManifest",
+    "ref": "input-manifest:project-invented-loop-01:da7003b90707b78a1d3f015965c072df9b4f8671b2c01421f4074694f39e68bc"
+  },
+  "manifest_sha256": "da7003b90707b78a1d3f015965c072df9b4f8671b2c01421f4074694f39e68bc",
+  "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[{\"basis\":\"mechanics\",\"id\":\"combination:R-sum\",\"label\":\"Opposite equal loads sum\",\"provenance\":\"invented_audit\",\"terms\":[{\"factor\":1,\"load_case\":\"load:L-100\"},{\"factor\":1,\"load_case\":\"load:R-negative\"}]},{\"basis\":\"result_state_subtraction\",\"id\":\"combination:R-sub\",\"label\":\"Result difference\",\"minuend_id\":\"load:L-100\",\"provenance\":\"invented_audit\",\"subtrahend_id\":\"load:R-negative\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-min\",\"label\":\"min\",\"mode\":\"min\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-max\",\"label\":\"max\",\"mode\":\"max\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-min_abs\",\"label\":\"min_abs\",\"mode\":\"min_abs\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-max_abs\",\"label\":\"max_abs\",\"mode\":\"max_abs\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]}],\"load_cases\":[{\"id\":\"load:L-100\",\"kind\":\"primitive_user_load\",\"label\":\"Invented operating gravity and pressure preview\",\"primitive_loads\":[{\"category\":\"occasional\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:A2-invented\",\"magnitude\":{\"unit\":\"N\",\"value\":350},\"provenance\":\"invented_example_A2_deterministic_witness_no_engineering_acceptance\",\"target\":{\"node\":\"node:N-110\",\"type\":\"node\"}}],\"provenance\":\"invented_example_no_code_combination\",\"status\":\"preview_only\"},{\"id\":\"load:R-negative\",\"kind\":\"primitive_user_load\",\"label\":\"Invented operating gravity and pressure preview\",\"primitive_loads\":[{\"category\":\"occasional\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:R-negative-input\",\"magnitude\":{\"unit\":\"N\",\"value\":-350},\"provenance\":\"invented_example_A2_deterministic_witness_no_engineering_acceptance\",\"target\":{\"node\":\"node:N-110\",\"type\":\"node\"}}],\"provenance\":\"invented_example_no_code_combination\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[{\"basis\":\"mechanics\",\"id\":\"combination:R-sum\",\"label\":\"Opposite equal loads sum\",\"provenance\":\"invented_audit\",\"terms\":[{\"factor\":1,\"load_case\":\"load:L-100\"},{\"factor\":1,\"load_case\":\"load:R-negative\"}]},{\"basis\":\"result_state_subtraction\",\"id\":\"combination:R-sub\",\"label\":\"Result difference\",\"minuend_id\":\"load:L-100\",\"provenance\":\"invented_audit\",\"subtrahend_id\":\"load:R-negative\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-min\",\"label\":\"min\",\"mode\":\"min\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-max\",\"label\":\"max\",\"mode\":\"max\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-min_abs\",\"label\":\"min_abs\",\"mode\":\"min_abs\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]},{\"basis\":\"range_envelope\",\"id\":\"combination:R-max_abs\",\"label\":\"max_abs\",\"mode\":\"max_abs\",\"operand_ids\":[\"load:L-100\",\"load:R-negative\"],\"provenance\":\"invented_audit\",\"terms\":[]}],\"components\":[],\"data_boundary\":{\"private_data_policy\":\"no_private_project_data\",\"professional_boundary\":\"technical_preview_requires_human_engineering_review\",\"protected_source_policy\":\"no_bundled_protected_owner_or_standards_data\",\"public_examples_policy\":\"invented_or_cleared_data_only\"},\"diagnostics\":[{\"code\":\"RULE_INPUTS_MISSING\",\"message\":\"Rule-check inputs are intentionally absent from this invented preview.\",\"severity\":\"warning\",\"source\":\"fixtures/product_preview/invented_preview_model.json\"}],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"load:L-100\",\"kind\":\"primitive_user_load\",\"label\":\"Invented operating gravity and pressure preview\",\"primitive_loads\":[{\"category\":\"occasional\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:A2-invented\",\"magnitude\":{\"unit\":\"N\",\"value\":350},\"provenance\":\"invented_example_A2_deterministic_witness_no_engineering_acceptance\",\"target\":{\"node\":\"node:N-110\",\"type\":\"node\"}}],\"provenance\":\"invented_example_no_code_combination\",\"status\":\"preview_only\"},{\"id\":\"load:R-negative\",\"kind\":\"primitive_user_load\",\"label\":\"Invented operating gravity and pressure preview\",\"primitive_loads\":[{\"category\":\"occasional\",\"dimension\":\"force\",\"direction\":\"global_y\",\"id\":\"load:R-negative-input\",\"magnitude\":{\"unit\":\"N\",\"value\":-350},\"provenance\":\"invented_example_A2_deterministic_witness_no_engineering_acceptance\",\"target\":{\"node\":\"node:N-110\",\"type\":\"node\"}}],\"provenance\":\"invented_example_no_code_combination\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material:invented-carbon-steel\",\"label\":\"Invented carbon-steel-like material\",\"provenance\":\"invented_example_no_material_standard\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":77000000000},\"thermal_expansion_coefficient\":{\"unit\":\"1/degC\",\"value\":0.000012}}],\"nodes\":[{\"id\":\"node:N-100\",\"label\":\"Pump nozzle\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_example\"},{\"id\":\"node:N-110\",\"label\":\"Low point elbow\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"invented_example\"}],\"pipe_segments\":[{\"from\":\"node:N-100\",\"id\":\"pipe:P-100\",\"label\":\"Pump discharge run\",\"material\":\"material:invented-carbon-steel\",\"provenance\":\"invented_example_no_standard_catalog\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.168},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.007}},\"to\":\"node:N-110\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"description\":\"Small invented centerline model for desktop integration review.\",\"id\":\"project:invented-loop-01\",\"name\":\"Invented Utility Loop Preview\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"MPa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.1.0\",\"supports\":[{\"family\":\"anchor\",\"id\":\"support:S-100\",\"label\":\"Anchor at pump nozzle\",\"node\":\"node:N-100\",\"provenance\":\"invented_example\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"project:invented-loop-01\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.1.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.1.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"MPa\",\"temperature\":\"degC\"}}}"
+}

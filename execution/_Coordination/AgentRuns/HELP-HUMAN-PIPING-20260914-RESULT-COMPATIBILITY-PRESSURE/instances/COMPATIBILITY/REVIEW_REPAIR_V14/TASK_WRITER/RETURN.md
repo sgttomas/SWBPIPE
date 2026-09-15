@@ -1,0 +1,9 @@
+# TASK return — compatibility review repair V14
+
+Status: **QUALIFIED COMPLETE; INTEGRATED; EXECUTION RESOURCES TRANSFERRED TO NATIVE**
+
+The two-file V14 repair is frozen in `SOURCE_CHECKPOINT_V14.json` (SHA-256 `8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022`) and Root integrated it as candidate `9d96e24ab45682ef9c0af6f8e8d463faf95a8796`. F06 now rejects noncanonical or blank CSV records while preserving legitimate exact binary64 decimal/exponent spellings and the received byte hash. F07 consumes explicit checksum-covered unknown, missing-component, and contradiction withholdings when reduced rows cannot reconstruct omitted source facts, without creating a witness. F08 rejects witness eligibility whenever the exported dimension contradicts the interpreted family and unit.
+
+Focused Python passed **73/73** with zero skips. The unchanged desktop producer probe passed **1/1** and emitted three actual withheld packets; each passed Python schema validation, runtime validation, and the validated nine-member writer. The exact captured packet SHA-256 `54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87` again passed validation and write9 with 830 rows, 828 witnesses, 50 witnessed `other` rows, and two diagnostic-work withholdings. The manager backcheck `629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c` independently repeated all four packet paths and rejected recomputed interior-empty, terminal-empty, and interior-space CSV records.
+
+Final evidence SHA-256 `e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1`. Prior V13 evidence and lease release remain immutable. Root transferred execution resources to native; no runtime followed that transfer. No native GUI, browser/server, Cargo/build, full App, dev/dist, Git, or delegation action occurred in V14 beyond the authorized nonbuild checks.

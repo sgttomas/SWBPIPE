@@ -1,0 +1,21 @@
+{
+  "created_utc": "2026-09-15T05:30:43.182085+00:00",
+  "maintained_source_changed_after_checkpoint": false,
+  "manager_backcheck": {
+    "bytes": 7028,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_INDEPENDENT_BACKCHECK_V1.json",
+    "sha256": "43459cd5eab551b77facd20e35ab3c87635268310fb4caa936464f115c32b016"
+  },
+  "qualified_claims": {
+    "original_830": "schema/runtime/write9 passed",
+    "seven_case_composition": "7/7 schema/runtime/write9 passed",
+    "source_checkpoint": "74/74 hashes matched; exact four-file delta verified"
+  },
+  "schema": "compatibility-v15-manager-backcheck-binding-v1",
+  "source_checkpoint": {
+    "bytes": 34183,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736"
+  },
+  "status": "MANAGER_INDEPENDENT_BACKCHECK_PASS"
+}

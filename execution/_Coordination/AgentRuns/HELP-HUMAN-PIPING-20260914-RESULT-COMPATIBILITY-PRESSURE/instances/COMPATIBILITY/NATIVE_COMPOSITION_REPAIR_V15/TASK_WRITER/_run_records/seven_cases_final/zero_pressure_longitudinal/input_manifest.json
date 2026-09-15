@@ -1,0 +1,194 @@
+{
+  "manifest": {
+    "schema_version": "1.0.0",
+    "document_kind": "openpipestress.current_session_input_manifest",
+    "model_basis": {
+      "model_ref": "project:v3-zero-pressure-longitudinal",
+      "model_payload": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "components": [],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "load:V3-P0",
+            "primitive_loads": [
+              {
+                "category": "pressure",
+                "dimension": "pressure",
+                "direction": "global_x",
+                "id": "load:V3-P0-ELEMENT",
+                "magnitude": {
+                  "unit": "Pa",
+                  "value": 0
+                },
+                "provenance": "invented_source_derived_native_producer_preparation_v3",
+                "target": {
+                  "pipe": "pipe:V3",
+                  "type": "element"
+                }
+              }
+            ],
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "kind": "primitive_user_load",
+            "status": "preview_only"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000
+            },
+            "id": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 77000000000
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:V3-ROOT",
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          },
+          {
+            "id": "node:V3-TIP",
+            "position": {
+              "x": 2,
+              "y": 0,
+              "z": 0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "node:V3-ROOT",
+            "id": "pipe:V3",
+            "material": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.168
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.007
+              }
+            },
+            "to": "node:V3-TIP",
+            "y_reference": {
+              "x": 0,
+              "y": 1,
+              "z": 0
+            }
+          }
+        ],
+        "project": {
+          "id": "project:v3-zero-pressure-longitudinal",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "MPa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.1.0",
+        "sections": [],
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "support:V3-ROOT",
+            "node": "node:V3-ROOT",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          }
+        ]
+      }
+    },
+    "unit_basis": {
+      "project_units": {
+        "angle": "rad",
+        "force": "N",
+        "length": "m",
+        "pressure": "Pa",
+        "stress": "MPa",
+        "temperature": "degC"
+      }
+    },
+    "solver_basis": {
+      "settings": {},
+      "solver_build_ref": "open_pipe_stress_product_physics@0.1.0",
+      "solver_mode": "sparse_interactive",
+      "solver_name": "open_pipe_stress_product_physics",
+      "solver_version": "0.1.0"
+    },
+    "load_basis": {
+      "load_cases": [
+        {
+          "id": "load:V3-P0",
+          "primitive_loads": [
+            {
+              "category": "pressure",
+              "dimension": "pressure",
+              "direction": "global_x",
+              "id": "load:V3-P0-ELEMENT",
+              "magnitude": {
+                "unit": "Pa",
+                "value": 0
+              },
+              "provenance": "invented_source_derived_native_producer_preparation_v3",
+              "target": {
+                "pipe": "pipe:V3",
+                "type": "element"
+              }
+            }
+          ],
+          "provenance": "invented_source_derived_native_producer_preparation_v3",
+          "kind": "primitive_user_load",
+          "status": "preview_only"
+        }
+      ],
+      "combinations": []
+    },
+    "active_rule_packs": [],
+    "external_assets": [],
+    "identity_policy": {
+      "canonicalization": "rfc8785_jcs",
+      "hash_algorithm": "sha256",
+      "canonical_bytes_scope": "entire_input_manifest_object"
+    },
+    "replay_boundary": {
+      "included_as_package_member": false,
+      "portable_replay_claimed": false,
+      "current_session_ref_hash_integrity_only": true
+    }
+  },
+  "manifest_ref": {
+    "object_type": "InputManifest",
+    "ref": "input-manifest:project-v3-zero-pressure-longitudinal:33452451eee33b36f0b10ac5e87055941d7eb97c34b52b639f64559ee82ec82f"
+  },
+  "manifest_sha256": "33452451eee33b36f0b10ac5e87055941d7eb97c34b52b639f64559ee82ec82f",
+  "canonical_bytes": "{\"active_rule_packs\":[],\"document_kind\":\"openpipestress.current_session_input_manifest\",\"external_assets\":[],\"identity_policy\":{\"canonical_bytes_scope\":\"entire_input_manifest_object\",\"canonicalization\":\"rfc8785_jcs\",\"hash_algorithm\":\"sha256\"},\"load_basis\":{\"combinations\":[],\"load_cases\":[{\"id\":\"load:V3-P0\",\"kind\":\"primitive_user_load\",\"primitive_loads\":[{\"category\":\"pressure\",\"dimension\":\"pressure\",\"direction\":\"global_x\",\"id\":\"load:V3-P0-ELEMENT\",\"magnitude\":{\"unit\":\"Pa\",\"value\":0},\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"target\":{\"pipe\":\"pipe:V3\",\"type\":\"element\"}}],\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"status\":\"preview_only\"}]},\"model_basis\":{\"model_payload\":{\"analysis_status\":{\"mechanics\":\"ready_for_preview_diagnostics\",\"professional_acceptance\":\"not_provided\",\"rule_check\":\"not_performed_user_rule_inputs_missing\"},\"combinations\":[],\"components\":[],\"document_kind\":\"openpipestress.product_preview.model\",\"load_cases\":[{\"id\":\"load:V3-P0\",\"kind\":\"primitive_user_load\",\"primitive_loads\":[{\"category\":\"pressure\",\"dimension\":\"pressure\",\"direction\":\"global_x\",\"id\":\"load:V3-P0-ELEMENT\",\"magnitude\":{\"unit\":\"Pa\",\"value\":0},\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"target\":{\"pipe\":\"pipe:V3\",\"type\":\"element\"}}],\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"status\":\"preview_only\"}],\"materials\":[{\"elastic_modulus\":{\"unit\":\"Pa\",\"value\":200000000000},\"id\":\"material:V3\",\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"shear_modulus\":{\"unit\":\"Pa\",\"value\":77000000000}}],\"nodes\":[{\"id\":\"node:V3-ROOT\",\"position\":{\"x\":0,\"y\":0,\"z\":0},\"provenance\":\"invented_source_derived_native_producer_preparation_v3\"},{\"id\":\"node:V3-TIP\",\"position\":{\"x\":2,\"y\":0,\"z\":0},\"provenance\":\"invented_source_derived_native_producer_preparation_v3\"}],\"pipe_segments\":[{\"from\":\"node:V3-ROOT\",\"id\":\"pipe:V3\",\"material\":\"material:V3\",\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"section\":{\"outside_diameter\":{\"unit\":\"m\",\"value\":0.168},\"wall_thickness\":{\"unit\":\"m\",\"value\":0.007}},\"to\":\"node:V3-TIP\",\"y_reference\":{\"x\":0,\"y\":1,\"z\":0}}],\"project\":{\"id\":\"project:v3-zero-pressure-longitudinal\",\"units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"MPa\",\"temperature\":\"degC\"}},\"schema_version\":\"0.1.0\",\"sections\":[],\"supports\":[{\"family\":\"anchor\",\"id\":\"support:V3-ROOT\",\"node\":\"node:V3-ROOT\",\"provenance\":\"invented_source_derived_native_producer_preparation_v3\",\"restraints\":[\"UX\",\"UY\",\"UZ\",\"RX\",\"RY\",\"RZ\"]}]},\"model_ref\":\"project:v3-zero-pressure-longitudinal\"},\"replay_boundary\":{\"current_session_ref_hash_integrity_only\":true,\"included_as_package_member\":false,\"portable_replay_claimed\":false},\"schema_version\":\"1.0.0\",\"solver_basis\":{\"settings\":{},\"solver_build_ref\":\"open_pipe_stress_product_physics@0.1.0\",\"solver_mode\":\"sparse_interactive\",\"solver_name\":\"open_pipe_stress_product_physics\",\"solver_version\":\"0.1.0\"},\"unit_basis\":{\"project_units\":{\"angle\":\"rad\",\"force\":\"N\",\"length\":\"m\",\"pressure\":\"Pa\",\"stress\":\"MPa\",\"temperature\":\"degC\"}}}"
+}

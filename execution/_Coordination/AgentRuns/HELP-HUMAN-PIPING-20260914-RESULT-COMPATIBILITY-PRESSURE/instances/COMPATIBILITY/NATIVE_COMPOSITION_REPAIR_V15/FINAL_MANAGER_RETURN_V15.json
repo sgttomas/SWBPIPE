@@ -1,0 +1,269 @@
+{
+  "acceptance_map": [
+    {
+      "owning_evidence": "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+      "status": "RETAINED_FROM_V14; V15 changes bounded Current result-export consumer only",
+      "surface": "analysis 0.2 construction/canonicalization and Current/Historical lifecycle"
+    },
+    {
+      "owning_evidence": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases_final/independent_verification_index.json",
+      "status": "PASS_SEVEN_ACTUAL_CASES",
+      "surface": "Current result-export composition"
+    },
+    {
+      "owning_evidence": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_INDEPENDENT_BACKCHECK_V1.json",
+      "status": "PASS_SEVEN_ACTUAL_CASES_PLUS_ORIGINAL830",
+      "surface": "strict stress 0.2 construction and in-memory validation"
+    },
+    {
+      "owning_evidence": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_INDEPENDENT_BACKCHECK_V1.json",
+      "status": "PASS_VALIDATED_NINE_MEMBERS_FOR_EIGHT_PACKETS",
+      "surface": "Python member materialization"
+    },
+    {
+      "owning_evidence": "instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
+      "status": "UNCHANGED_BY_V15; ROOT_OWNS_FINAL_ACCEPTANCE",
+      "surface": "actual controlled browser delivery"
+    },
+    {
+      "owning_evidence": "instances/NATIVE/FINAL_NATIVE_V3",
+      "status": "PENDING_ROOT_NATIVE_SUCCESSOR",
+      "surface": "native delivery/lifecycle"
+    }
+  ],
+  "authorization": {
+    "briefs": [
+      {
+        "bytes": 4471,
+        "path_in_integration": "briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+        "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a"
+      },
+      {
+        "bytes": 3020,
+        "path_in_integration": "briefs/V15_HEADLESS_INPUT_COMPLETION_ADDENDUM.md",
+        "sha256": "4759f8bf594d90449a7a5ce61b87b2500a877a5ceece73b1e3c81c0a92a2948c"
+      },
+      {
+        "bytes": 2776,
+        "path_in_integration": "briefs/V15_REACTION_PAIR_REPAIR_ADDENDUM.md",
+        "sha256": "6e864def7cb09cc12cc94d65428e6de3daa5c4e069082e7af7583bd137679bb3"
+      }
+    ],
+    "contract_and_scope": {
+      "bytes": 4545,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/CONTRACT_AND_SCOPE_V1.json",
+      "sha256": "6424149728b4196e5b1b6c818c32b2f6e2eee10ee730056176156cf04d50a5b2"
+    },
+    "f10_scope_addendum": {
+      "bytes": 1716,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/F10_SCOPE_ADDENDUM_V1.json",
+      "sha256": "6dacd3728fe70700e1583657b5ef69673ac341c5c36ec3c3b18eaa401025c97a"
+    },
+    "source_release": {
+      "bytes": 3590,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/SOURCE_RELEASE_V1.json",
+      "sha256": "9f90f6a684b277d92cbba45e3483198690e4a77dbc46c322ffa0847c18c74dfb"
+    }
+  },
+  "complete_source_manifest": {
+    "bytes": 34183,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736",
+    "source_file_count": 74,
+    "source_frozen": true,
+    "source_hash_mismatches": 0,
+    "source_hashes_checked": 74,
+    "source_length_mismatches": 0
+  },
+  "created_utc": "2026-09-15T05:32:34.085673+00:00",
+  "delta_from_v14": {
+    "all_other_maintained_paths_unchanged": true,
+    "changed_path_count": 4,
+    "parent": {
+      "bytes": 18770,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+      "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022"
+    },
+    "paths": [
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+        "v14_bytes": 10502,
+        "v14_sha256": "1787ae2835ba18ac2cce9a6b86e8a59c7fe69b1c48b45ec0016b26d20ea7da48",
+        "v15_bytes": 15651,
+        "v15_sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+      },
+      {
+        "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+        "v14_bytes": 29060,
+        "v14_sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf",
+        "v15_bytes": 29156,
+        "v15_sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+      },
+      {
+        "path": "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+        "v14_bytes": 27397,
+        "v14_sha256": "3fc58b5a5753192dfee6380cb0d28d8c54f70e80cce88b985d342567a364f27e",
+        "v15_bytes": 27576,
+        "v15_sha256": "f0c335e59dc9d12624ff1c7b400c160652db266e431ce024b98ec650bac05a1f"
+      },
+      {
+        "path": "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+        "v14_bytes": 36271,
+        "v14_sha256": "c9e32e82274eac89fb8e3f72edcfa17d698b65333c254dd350acf5960c640e16",
+        "v15_bytes": 39165,
+        "v15_sha256": "1679b078dd286e49057affa33b4a7f8c7e60e43d7212a1ba39f5db952ad7bc36"
+      }
+    ]
+  },
+  "evidence_control": {
+    "collision_disposition_v1": {
+      "bytes": 1847,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+      "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07",
+      "status": "PRESERVED_SUPERSEDED_TYPO"
+    },
+    "collision_disposition_v2": {
+      "bytes": 2394,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V2.json",
+      "sha256": "0a665daf408835cc49e64100005ab4966ccc2e1e306493275df91da0ed8df1c4"
+    },
+    "correct_compat_continuation": {
+      "bytes": 1528,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V3.json",
+      "sha256": "8713e50ccddb1d75c3237ca18ecc4f28241535b69cee386d7b12eef667549130"
+    },
+    "historical_integration_continuation": {
+      "path_in_integration": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V1.json",
+      "sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4",
+      "status": "PRESERVED_SUPERSEDED_LOCATION_CONTROL"
+    },
+    "location_deviation": {
+      "bytes": 4289,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+      "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6"
+    },
+    "writer_manifest": {
+      "bytes": 68317,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANIFEST.json",
+      "sha256": "a9e88c1b28ea5e5130acfce0ff11c1e0c91a3d08aa8da8e9fd2b5466d200893b"
+    },
+    "writer_manifest_addendum": {
+      "bytes": 3114,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/MANIFEST_ADDENDUM_V1.json",
+      "sha256": "d1b882b32e6e051bca4f72fd3da2bc4330e47ee59094e6f21ed271aa1e30b66e"
+    }
+  },
+  "governance_calibration": {
+    "browser_delivery_rerun_claimed": false,
+    "formal_dag_or_lifecycle_status_changed": false,
+    "full_package_satisfaction_claimed": false,
+    "full_registered_sweep_claimed": false,
+    "git_actions": false,
+    "native_gui_acceptance_claimed": false
+  },
+  "manager_verdict": "V15 F09/F10 repairs are internally coherent and qualified within the exact four-file source fence. The complete 74-file source checkpoint is frozen and ready for Root integration; terminal tranche acceptance remains Root-owned.",
+  "parent": "HELP_HUMAN",
+  "qualification": {
+    "authorized_successor_solves": "3/3 PASS after 125-file runner/source/lock preflight",
+    "focused_adapter": "12 passed",
+    "focused_python": "80 passed, 0 skipped",
+    "full_sixty_runtime_coverage_claimed": false,
+    "manager_independent_eight_packet_backcheck": {
+      "bytes": 7028,
+      "cases": 8,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_INDEPENDENT_BACKCHECK_V1.json",
+      "runtime_validator_passes": 8,
+      "schema_passes": 8,
+      "sha256": "43459cd5eab551b77facd20e35ab3c87635268310fb4caa936464f115c32b016",
+      "status": "PASS",
+      "validated_write9_passes": 8
+    },
+    "manager_source_revalidation": {
+      "bytes": 20384,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_SOURCE_REVALIDATION_V1.json",
+      "sha256": "cd01cac5c67340c53509b0c6f3125deb63f4b5276d970843f69f637ffe4c6bfd"
+    },
+    "observed_signature_count": 52,
+    "original_830": "PASS unchanged packet 54ef0b8c...; 830 rows, 828 witnesses, two diagnostic-work withholdings, schema/runtime/write9",
+    "seven_case_composition": "7/7 actual producer result -> TS analysis 0.2 -> Current result export -> strict stress 0.2 -> Python schema/runtime/validated write9 PASS",
+    "typescript": "PASS",
+    "writer_evidence": {
+      "bytes": 6042,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/FINAL_EVIDENCE_V15.json",
+      "sha256": "7cce665da19259fe4d6d209766e34f165fbba3161ca15a16915919058993e696"
+    },
+    "writer_final_seal": {
+      "bytes": 3466,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/FINAL_SEAL_ADDENDUM_V1.json",
+      "sha256": "31eb54dbb2ddb145c252b05cc78b9bb0c308d1299791a6c49ecc939e7069f3b1"
+    }
+  },
+  "raw_evidence_map": {
+    "F09_native_failure": {
+      "path_in_integration": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+      "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+    },
+    "F10_python_reaction_failure": {
+      "bytes": 4732,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/ADJACENT_PYTHON_REACTION_FINDING_V1.json",
+      "sha256": "f9083ce0fe92ad28aadfe4d9c1a175ce279900d681767115c72e45cf701b9f4a"
+    },
+    "original_830_backcheck": {
+      "bytes": 3361,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/original_830_backcheck/RESULT.json",
+      "sha256": "0e7d48f65d6eb66bb3d4f38826378e5ded07d659965426e4e76ccbd06ea81297"
+    },
+    "original_830_packet": {
+      "duplicated": false,
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+      "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87"
+    },
+    "runner_preflight": {
+      "bytes": 1989,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/MANAGER_RUNNER_REUSE_PREFLIGHT_V1.json",
+      "sha256": "df7a51de6c2ea317636f93f60b4d16c999fd62568b97dc3ebdcfd10405754a2d"
+    },
+    "seven_case_composition_index": {
+      "bytes": 17327,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases_final/composition_index.json",
+      "sha256": "dc572a8cecb3d8e394c569e77c4d77f4bfafc5c128a6c3c1327747a90b5c0d16"
+    },
+    "seven_case_verification_index": {
+      "bytes": 3371,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases_final/independent_verification_index.json",
+      "sha256": "5a76377d5c9812be3589175149c95b5ec9de9376f4a3aad21e2d486ff29c85da"
+    },
+    "successor_request_manifest": {
+      "bytes": 4393,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/PREPARED_REQUESTS.json",
+      "sha256": "66ff71fd866682f251d49a1bfc9c2cfff95d8548fac78536febcfe58e5f4f39e"
+    }
+  },
+  "repair_disposition": {
+    "F09": "PASS: strict analysis 0.2 Current export consumes the raw received result and checked 0.2 hashes without legacy dimension enrichment; established 0.1 retains its legacy binder/hash behavior.",
+    "F10": "PASS: Python admits reaction witnesses only for exact N/force and N*m/moment pairs; cross-pairs remain contradictions and diagnostic work remains separately withheld."
+  },
+  "resource_state": {
+    "bytes": 836,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/_run_records/MANAGER_RESOURCE_RELEASE_V1.json",
+    "sha256": "de61497f766ce4abb46a003082692b4587e471d012d671932518bbbf2ad68291",
+    "status": "RELEASED_NO_OWNED_RUNTIME"
+  },
+  "role": "WORKING_ITEMS / Type 1",
+  "root_owned_pending": [
+    "integrate exact four-file frozen delta",
+    "fresh independent review of integrated V15 delta",
+    "final native lifecycle/composition qualification",
+    "full registered DEC-025 sweep",
+    "candidate CI, acceptance and Git closeout"
+  ],
+  "schema": "compatibility-v15-final-manager-return-v1",
+  "status": "QUALIFIED_SOURCE_FROZEN_READY_FOR_ROOT_INTEGRATION",
+  "writer": {
+    "delegation": false,
+    "identity": "/root/foundation_compatibility/compatibility_writer",
+    "model_effort": "gpt-5.6-sol / high",
+    "role": "TASK / Type 2",
+    "status": "COMPLETE"
+  }
+}

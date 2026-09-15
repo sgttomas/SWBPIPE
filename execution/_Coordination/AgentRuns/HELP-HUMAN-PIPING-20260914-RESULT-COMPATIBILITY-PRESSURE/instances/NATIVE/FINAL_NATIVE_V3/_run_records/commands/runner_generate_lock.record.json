@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "cargo",
+    "generate-lockfile",
+    "--offline",
+    "--manifest-path",
+    "core/runner/headless/Cargo.toml"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project",
+  "elapsed_seconds": 0.06838703155517578,
+  "ended_unix": 1789448028.04571,
+  "environment": {
+    "CARGO_NET_OFFLINE": "true"
+  },
+  "exit_code": 0,
+  "started_unix": 1789448027.977323,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/runner_generate_lock.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/runner_generate_lock.stdout.txt"
+}

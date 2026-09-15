@@ -10,6 +10,11 @@ import {buildCurrentSessionInputManifest} from '../../services/inputManifestServ
 import {buildAnalysisRunPreview,bindSourceResultDimensions} from '../../services/previewService';
 import {buildCurrentResultExport,validateResultDocument,guardResultJson,resultDigest,resultSchemaVersion,deriveResultDocument,ref,derivativeProvenance,type JsonObject} from './resultExportAdapter';
 import {canonicalJsonString} from '../../services/hashService';
+import {verifyAnalysisRunRecord} from '../../services/analysisRunCompatibility';
+async function legacyDigest(value:unknown){
+ const sort=(item:any):any=>Array.isArray(item)?item.map(sort):item&&typeof item==='object'?Object.fromEntries(Object.entries(item).sort(([a],[b])=>a.localeCompare(b)).map(([key,child])=>[key,sort(child)])):item;
+ const digest=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(sort(value))));return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,'0')).join('');
+}
 async function current(){
  const model=structuredClone(modelJson) as PreviewModel,result=bindSourceResultDimensions(structuredClone(resultJson) as unknown as MechanicsResult);
  const inputManifest=await buildCurrentSessionInputManifest({model,solver:{solver_name:'open_pipe_stress_product_physics',solver_version:'0.1.0',solver_build_ref:'open_pipe_stress_product_physics@0.1.0',solver_mode:'sparse_interactive',settings:{}},active_rule_packs:[],external_assets:[]});
@@ -20,6 +25,15 @@ async function projection(row:any){
  const origin={origin_id:'synthetic-projection-unattested',origin_class:'received_current_dimension_absent',qualification_ref:ref('synthetic_fixture','not-Current'),authentic_producer_available:false,received_carrier_checksum:{algorithm:'sha256',canonicalization:'openpipestress_jcs_ijson_v1',payload_scope:'received_current_dimension_absent_carrier',payload_ref:ref('synthetic_received_carrier','fixture'),value:await resultDigest(source)},original_producer_checksum:null,origin_limit:'pure projection not authenticated Current',actual_model_ref:ref('model_payload','project:synthetic'),mechanics_run_ref:ref('mechanics_run','synthetic'),request_model_ref:null,request_run_ref:null,request_alias_disclosure:null};
  const base={schema_version:'0.2.0',result_envelope:{schema_version:'0.2.0',envelope_id:'synthetic',run_ref:ref('analysis_run','synthetic'),provenance:derivativeProvenance,unit_system_ref:ref('unit_system','fixture'),result_sets:[{values:[]}],reproducibility:{}}};
  return deriveResultDocument(base,model,source,origin);
+}
+async function legacyCurrent(){
+ const args=await current(),run=args.analysisRun.analysis_run,legacy=args.result,ruleStatus=run.analysis_status.find(status=>['RULE_INPUTS_INCOMPLETE','USER_RULE_CHECKED','USER_RULE_FAILED'].includes(status))!;
+ const recordPayload={run_id:legacy.run_id,model_ref:legacy.model_ref,status:{...legacy.status,rule_check:ruleStatus},load_basis_refs:run.load_basis_refs,result_ids:legacy.results.map(row=>row.id).sort(),diagnostic_ids:legacy.diagnostics.map(item=>item.id??'diagnostic:unknown').sort(),input_manifest_ref:args.inputManifest.manifest_ref,input_manifest_sha256:args.inputManifest.manifest_sha256,result_dimensions:legacy.results.map(row=>({result_id:row.id,dimension:row.dimension})).sort((a,b)=>a.result_id.localeCompare(b.result_id))};
+ args.analysisRun.schema_version='0.1.0';
+ run.hashes=[{algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_ref:{object_type:'AnalysisRun',ref:run.run_id},payload_scope:'analysis_run_record',value:await legacyDigest(recordPayload)},{algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_ref:{object_type:'ResultEnvelope',ref:`result-envelope:${legacy.run_id}`},payload_scope:'result_envelope',value:await legacyDigest(legacy)}];
+ run.result_refs=await Promise.all(legacy.results.map(async row=>({...run.result_refs.find(item=>item.result_ref.ref===row.id)!,hash_refs:[{algorithm:'sha256',canonicalization:'rfc8785_jcs',payload_ref:{object_type:'Result',ref:row.id},payload_scope:'result_value',value:await legacyDigest(row)}]})));
+ run.reproducibility.input_manifest_hashes[0].canonicalization='rfc8785_jcs';
+ return args;
 }
 describe('qualified Current derivative export',()=>{
  it('binds current payload/carrier and preserves old hashes and observed declarations',async()=>{
@@ -32,6 +46,14 @@ describe('qualified Current derivative export',()=>{
   const args=await current();args.result=structuredClone(resultJson) as unknown as MechanicsResult;args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await buildCurrentResultExport(args);expect(doc.result_envelope.reproducibility.source_origin_bindings[0].origin_class).toBe('received_current_dimension_absent');expect(doc.result_envelope.reproducibility.source_origin_bindings[0].authentic_producer_available).toBe(false);
   if(process.env.RESULTS_CONTRACT_OUTPUT_DIR){const dir=process.env.RESULTS_CONTRACT_OUTPUT_DIR;mkdirSync(dir,{recursive:true});writeFileSync(path.join(dir,'current-absent.document.json'),JSON.stringify(doc,null,2));writeFileSync(path.join(dir,'current-absent.received.json'),JSON.stringify(args.result,null,2));}
  });
+ it('dispatches raw 0.2 basis, discrete and diagnostic semantics without legacy enrichment',async()=>{
+  const args=await current(),kinds=['modulus_basis_record','linear_solver_mode_basis','nonlinear_support_free_dof_work_residual'];args.result=structuredClone(resultJson) as unknown as MechanicsResult;args.result.results=kinds.map(kind=>structuredClone(metadataFixtures.fixtures.find(f=>f.input_row.kind===kind)!.input_row)) as MechanicsResult['results'];args.analysisRun=await buildAnalysisRunPreview(args.result,{inputManifest:args.inputManifest});const before=JSON.stringify(args.result);
+  expect(await verifyAnalysisRunRecord(args.analysisRun)).toBe('match');expect(args.result.results.every(row=>!Object.hasOwn(row,'dimension'))).toBe(true);const doc=await buildCurrentResultExport(args);expect(JSON.stringify(args.result)).toBe(before);expect(doc.result_envelope.row_accounting).toHaveLength(3);expect(doc.result_envelope.row_accounting.map((row:any)=>row.source_result_id)).toEqual(args.result.results.map(row=>row.id));expect(doc.result_envelope.row_accounting.every((row:any)=>row.disposition==='disclosed')).toBe(true);expect(doc.result_envelope.unit_preservation_witnesses).toHaveLength(0);
+  const received=args.analysisRun.analysis_run.hashes.find(hash=>hash.payload_scope==='received_result')!;expect(received.value).toBe(await resultDigest(args.result));for(const [index,row] of args.result.results.entries()){expect(args.analysisRun.analysis_run.result_refs.find(item=>item.result_ref.ref===row.id)!.hash_refs[0].value).toBe(await resultDigest(row));expect(doc.result_envelope.source_annotations[index].observed_carrier_dimension).toEqual({present:false,value:null});}
+ });
+ it('preserves established 0.1 legacy enrichment and hash verification',async()=>{
+  const args=await legacyCurrent(),before=JSON.stringify(args),claims=JSON.stringify(args.analysisRun.analysis_run.hashes);const doc=await buildCurrentResultExport(args);expect(doc.schema_version).toBe('0.2.0');expect(JSON.stringify(args)).toBe(before);expect(JSON.stringify(args.analysisRun.analysis_run.hashes)).toBe(claims);expect(doc.result_envelope.row_accounting).toHaveLength(args.result.results.length);
+ });
  it('rejects missing proof, same-id changed model, stale run, changed value and mixed/null/empty/wrong dimensions',async()=>{
   const args=await current();await expect(buildCurrentResultExport({...args,inputManifest:null})).rejects.toThrow('UNAVAILABLE');
   const changed=structuredClone(args);(changed.model as any).unknown_authored_metadata='same-id-substitution';await expect(buildCurrentResultExport(changed)).rejects.toThrow('MODEL_PAYLOAD_MISMATCH');
@@ -43,6 +65,10 @@ describe('qualified Current derivative export',()=>{
  it('rejects checksum scope/type/algorithm/canonicalization/ref tampering',async()=>{
   const args=await current();const edits:Array<(a:typeof args)=>void>=[a=>{(a.analysisRun.analysis_run.hashes[0] as any).algorithm='TBD'},a=>{a.analysisRun.analysis_run.hashes[0].payload_ref.object_type='Wrong'},a=>{a.analysisRun.analysis_run.hashes[1].canonicalization='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_scope='wrong'},a=>{a.analysisRun.analysis_run.result_refs[0].hash_refs[0].payload_ref.ref='wrong'},a=>{(a.analysisRun.analysis_run.reproducibility.input_manifest_hashes[0] as any).payload_scope='wrong'},a=>{a.analysisRun.analysis_run.reproducibility.input_manifest_refs[0].object_type='Wrong'}];
   for(const edit of edits){const bad=structuredClone(args);edit(bad);await expect(buildCurrentResultExport(bad)).rejects.toThrow();}
+ });
+ it('rejects unknown analysis versions and strict known semantic contradictions',async()=>{
+  const args=await current();(args.analysisRun as any).schema_version='0.3.0';await expect(buildCurrentResultExport(args)).rejects.toThrow('CURRENT_ANALYSIS_VERSION_UNSUPPORTED');
+  for(const kind of ['modulus_basis_record','linear_solver_mode_basis','nonlinear_support_free_dof_work_residual']){const fixture=metadataFixtures.fixtures.find(f=>f.input_row.kind===kind)!;for(const [field,replacement] of [['unit',fixture.negative_unit.replacement],['component',fixture.negative_component!.replacement]] as const){const row=structuredClone(fixture.input_row) as any;if(field==='unit')row.unit=replacement;else row.metadata.component=replacement;await expect(projection(row)).rejects.toThrow('CONTRADICTION');}}
  });
 });
 describe('portable independent projection fixtures and strict serializer',()=>{

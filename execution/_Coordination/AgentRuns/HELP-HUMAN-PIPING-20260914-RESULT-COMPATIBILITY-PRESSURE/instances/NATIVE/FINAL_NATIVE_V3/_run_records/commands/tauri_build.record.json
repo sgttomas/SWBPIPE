@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "npm",
+    "run",
+    "tauri",
+    "--",
+    "build",
+    "--bundles",
+    "app",
+    "--ci",
+    "--no-sign",
+    "--config",
+    "/private/tmp/piping-foundation-native-repaired-20260915/config/tauri.final-native-v3.conf.json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop",
+  "elapsed_seconds": 29.834551095962524,
+  "ended_unix": 1789447992.3704891,
+  "environment": {
+    "CARGO_NET_OFFLINE": "true",
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson"
+  },
+  "exit_code": 0,
+  "started_unix": 1789447962.535938,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/tauri_build.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/tauri_build.stdout.txt"
+}

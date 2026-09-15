@@ -1,0 +1,26 @@
+{
+  "schema": "root-native-v3-fanin-v1",
+  "created_utc": "2026-09-15T05:05:43.343153+00:00",
+  "candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "verdict": "PRESERVED_FAILURE_NOT_NATIVE_ACCEPTANCE",
+  "native_result": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/RESULT_V3.json",
+    "sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46"
+  },
+  "manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/EVIDENCE_MANIFEST_V3.json",
+    "sha256": "6b2f4a6fe1b08b146bc00fd4f42e0657063baba4db7054cd9f0eaf80355970a3"
+  },
+  "verified_artifacts": 105,
+  "lease_release": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/LEASE_RELEASE_V3.json",
+    "sha256": "faa4913f7af6549c0fc3ccc691dfd3d470b8bbe458fa4b9677d0e38adc4796de"
+  },
+  "repair_routing": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/NATIVE_F09_ROUTING_V1.json",
+    "sha256": "1ce72baa31e512c4243db51a156907795fc725cc3c02f8caaec5009eabb172f4"
+  },
+  "resource_decision": "Native lease release verified. Compatibility V15 authorized two-file repair and focused nonbuild composition only. No broad build/browser/native activity until a successor Root lease.",
+  "source_decision": "9d96 scoped source review retained as history; F09 successor needs delta review. Authentic raw producer output reused only with explicit unchanged-dependency binding.",
+  "remaining": "All downstream native and tranche acceptance gates listed by native RESULT_V3 remain open."
+}

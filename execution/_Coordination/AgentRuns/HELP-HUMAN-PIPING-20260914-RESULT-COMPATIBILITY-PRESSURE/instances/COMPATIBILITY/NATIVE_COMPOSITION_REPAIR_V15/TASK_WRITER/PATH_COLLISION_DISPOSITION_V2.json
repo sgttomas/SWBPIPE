@@ -1,0 +1,43 @@
+{
+  "correction": {
+    "field": "renames[1].sha256",
+    "reason": "V1 transposed the verified SHA-256 of the zero-byte tsc successor log; V2 records the actual digest.",
+    "v1_recorded_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649c934ca495991b7852b855",
+    "verified_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "created_utc": "2026-09-15T05:30:43.182085+00:00",
+  "integration_originals_preserved": true,
+  "renames": [
+    {
+      "bytes": 294,
+      "colliding_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15.log",
+      "sha256": "574e4cce544db8acf2f0e5944325317de99243b50cd4745ad90188bcb645e2e1",
+      "unique_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_compat_successor.log"
+    },
+    {
+      "bytes": 0,
+      "colliding_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/tsc_v15.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "unique_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/tsc_v15_compat_successor.log"
+    },
+    {
+      "bytes": 19643,
+      "colliding_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15.log",
+      "sha256": "dcbd9e6e1c0695cf48b038901fdabab7bb76e8785bf35e19986365aa760b81d0",
+      "unique_compat_path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15_compat_pref10.log"
+    }
+  ],
+  "schema": "compatibility-v15-path-collision-disposition-v2",
+  "source_bytes_changed": false,
+  "source_checkpoint_preserved": {
+    "bytes": 34183,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736"
+  },
+  "status": "RESOLVED_WITH_VERIFIED_UNIQUE_COMPAT_SUCCESSOR_PATHS",
+  "supersedes": {
+    "bytes": 1847,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+    "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07"
+  }
+}

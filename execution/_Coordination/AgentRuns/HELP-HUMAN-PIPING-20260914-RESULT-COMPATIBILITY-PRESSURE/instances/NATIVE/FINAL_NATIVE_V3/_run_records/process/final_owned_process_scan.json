@@ -1,0 +1,15 @@
+{
+  "app_absent": true,
+  "browser_or_server_absent": true,
+  "captured_unix": 1789448531.6119459,
+  "normal_quit_ui_outcome": "Computer Use returned App quit after Command-Q",
+  "owned_matches": [
+    " 3410  3395 /Applications/Xcode.app/Contents/Developer/Library/Frameworks/Python3.framework/Versions/3.9/Resources/Python.app/Contents/MacOS/Python - /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping /private/tmp/piping-foundation-native-repaired-20260915"
+  ],
+  "owned_process_count": 1,
+  "schema": "final-native-v3-owned-process-cleanup-v1",
+  "store_exists": true,
+  "store_files": [
+    "openpipestress-projects.sqlite3"
+  ]
+}

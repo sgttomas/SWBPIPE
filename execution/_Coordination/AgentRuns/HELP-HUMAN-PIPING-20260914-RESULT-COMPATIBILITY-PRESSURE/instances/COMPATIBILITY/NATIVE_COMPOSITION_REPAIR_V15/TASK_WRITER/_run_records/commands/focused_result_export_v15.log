@@ -1,0 +1,25 @@
+
+ RUN  v4.1.10 /Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts (12 tests | 1 failed) 3752ms
+     × rejects unknown analysis versions and strict known semantic contradictions 79ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/features/result-export/resultExportAdapter.test.ts > qualified Current derivative export > rejects unknown analysis versions and strict known semantic contradictions
+AssertionError: expected [Function] to throw error including 'SEMANTIC_CONTRACT_CONTRADICTION' but got 'SOURCE_UNIT_CONTRADICTION: modulus_ba…'
+
+Expected: "SEMANTIC_CONTRACT_CONTRADICTION"
+Received: "SOURCE_UNIT_CONTRADICTION: modulus_basis_record"
+
+ ❯ src/features/result-export/resultExportAdapter.test.ts:71:491
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 11 passed (12)
+   Start at  23:08:28
+   Duration  4.30s (transform 110ms, setup 88ms, import 93ms, tests 3.75s, environment 276ms)
+

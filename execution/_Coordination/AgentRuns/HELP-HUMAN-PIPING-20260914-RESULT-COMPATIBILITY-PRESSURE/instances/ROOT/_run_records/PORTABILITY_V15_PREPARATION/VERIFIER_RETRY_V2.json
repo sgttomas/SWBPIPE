@@ -1,0 +1,16 @@
+{
+  "schema": "root-portability-verifier-retry-v2",
+  "created_utc": "2026-09-15T05:16:16.290368+00:00",
+  "prior_disposition_sha256": "e1ff86f2ccb411c68c171b54dd56463c1c895cb859fb41ecb8dc0e8fe5c5ac7b",
+  "prior_failure": "First invocation used the project cwd for a root-owned validator; no validator executed. stderr preserved. Policy disposition remains unchanged.",
+  "argv": [
+    "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "tools/validation/validate_path_anchors.py",
+    "--json"
+  ],
+  "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "exit_code": 1,
+  "stdout_sha256": "ed388889ce01f0bfc3ad4cb1b2903c72429e87e7d8de6922ca564e06851738e2",
+  "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "policy_sha256": "44e4ec871014f4196a179ebd509014d783762c63d383ba707cdd86a8747555d9"
+}

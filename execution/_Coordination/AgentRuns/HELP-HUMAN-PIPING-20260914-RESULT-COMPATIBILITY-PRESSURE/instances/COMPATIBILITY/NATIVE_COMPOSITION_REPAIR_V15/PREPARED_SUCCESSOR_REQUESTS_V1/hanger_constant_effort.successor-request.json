@@ -1,0 +1,268 @@
+{
+  "request": {
+    "input_manifest_ref": {
+      "ref_id": "manifest:native-producer-v3-hanger_constant_effort",
+      "ref_type": "audit_manifest"
+    },
+    "load_basis_refs": [
+      {
+        "ref_id": "load:V3-HANGER",
+        "ref_type": "load_case"
+      }
+    ],
+    "model_ref": {
+      "ref_id": "project:v3-hanger-constant-effort",
+      "ref_type": "model"
+    },
+    "operation": "solve",
+    "operation_ref": {
+      "ref_id": "solve",
+      "ref_type": "api_operation"
+    },
+    "privacy": {
+      "classification": "public_metadata",
+      "local_only": true,
+      "private_payload_redacted": true,
+      "telemetry_allowed": false
+    },
+    "professional_boundary": {
+      "human_review_required": true,
+      "software_makes_approval_claim": false,
+      "software_makes_authentication_claim": false,
+      "software_makes_certification_claim": false,
+      "software_makes_compliance_claim": false,
+      "software_makes_sealing_claim": false
+    },
+    "project_ref": {
+      "ref_id": "project:v3-hanger-constant-effort",
+      "ref_type": "project"
+    },
+    "provenance": {
+      "contributor": "OpenPipeStress",
+      "contributor_certification": "invented non-engineering example",
+      "redistribution_status": "invented_non_engineering_example",
+      "review_status": "prepared_unexecuted",
+      "source_license": "project invented",
+      "source_location": "instances/NATIVE/PRODUCER_INPUTS_PREPARATION_V3/models/hanger_constant_effort.model.json",
+      "source_name": "Invented native producer V3 hanger_constant_effort input"
+    },
+    "request_id": "native-producer-v3-hanger_constant_effort",
+    "requested_outputs": [
+      "result_envelope",
+      "audit_manifest",
+      "diagnostics"
+    ],
+    "tbd_decisions": {
+      "ci_provider": "TBD",
+      "external_adapter_formats": "TBD",
+      "filesystem_mutation_policy": "SETTLED_DEC_065",
+      "final_cli_command_syntax": "SETTLED_DEC_065",
+      "network_access": "SETTLED_DEC_065",
+      "package_scripts": "SETTLED_DEC_065",
+      "physical_project_container": "TBD",
+      "process_invocation": "SETTLED_DEC_065",
+      "public_transport_protocol": "TBD",
+      "release_matrix": "TBD"
+    },
+    "unit_system_ref": {
+      "ref_id": "invented-si",
+      "ref_type": "unit_system"
+    }
+  },
+  "solve": {
+    "preview_model": {
+      "materials": [],
+      "model": {
+        "analysis_status": {
+          "mechanics": "ready_for_preview_diagnostics",
+          "professional_acceptance": "not_provided",
+          "rule_check": "not_performed_user_rule_inputs_missing"
+        },
+        "combinations": [],
+        "components": [],
+        "document_kind": "openpipestress.product_preview.model",
+        "load_cases": [
+          {
+            "id": "load:V3-HANGER",
+            "primitive_loads": [
+              {
+                "category": "occasional",
+                "dimension": "force",
+                "direction": "global_y",
+                "id": "load:V3-TIP-FY",
+                "magnitude": {
+                  "unit": "N",
+                  "value": -350.0
+                },
+                "provenance": "invented_source_derived_native_producer_preparation_v3",
+                "target": {
+                  "node": "node:V3-TIP",
+                  "type": "node"
+                }
+              }
+            ],
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "kind": "primitive_user_load",
+            "status": "preview_only"
+          }
+        ],
+        "materials": [
+          {
+            "elastic_modulus": {
+              "unit": "Pa",
+              "value": 200000000000.0
+            },
+            "id": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "shear_modulus": {
+              "unit": "Pa",
+              "value": 77000000000.0
+            }
+          }
+        ],
+        "nodes": [
+          {
+            "id": "node:V3-ROOT",
+            "position": {
+              "x": 0.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          },
+          {
+            "id": "node:V3-TIP",
+            "position": {
+              "x": 2.0,
+              "y": 0.0,
+              "z": 0.0
+            },
+            "provenance": "invented_source_derived_native_producer_preparation_v3"
+          }
+        ],
+        "pipe_segments": [
+          {
+            "from": "node:V3-ROOT",
+            "id": "pipe:V3",
+            "material": "material:V3",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "section": {
+              "outside_diameter": {
+                "unit": "m",
+                "value": 0.168
+              },
+              "wall_thickness": {
+                "unit": "m",
+                "value": 0.007
+              }
+            },
+            "to": "node:V3-TIP",
+            "y_reference": {
+              "x": 0.0,
+              "y": 1.0,
+              "z": 0.0
+            }
+          }
+        ],
+        "project": {
+          "id": "project:v3-hanger-constant-effort",
+          "units": {
+            "angle": "rad",
+            "force": "N",
+            "length": "m",
+            "pressure": "Pa",
+            "stress": "MPa",
+            "temperature": "degC"
+          }
+        },
+        "schema_version": "0.1.0",
+        "sections": [],
+        "supports": [
+          {
+            "family": "anchor",
+            "id": "support:V3-ROOT",
+            "node": "node:V3-ROOT",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "restraints": [
+              "UX",
+              "UY",
+              "UZ",
+              "RX",
+              "RY",
+              "RZ"
+            ]
+          },
+          {
+            "family": "variable_spring_hanger",
+            "hanger": {
+              "cold_load": {
+                "unit": "N",
+                "value": 430.0
+              },
+              "hanger_type": "variable_spring_hanger",
+              "hot_load": {
+                "unit": "N",
+                "value": 390.0
+              },
+              "installed_load": {
+                "unit": "N",
+                "value": 460.0
+              },
+              "load_side_review_reference": "invented_v3_review_only",
+              "manufacturer_reference": "invented_v3_no_catalog",
+              "mechanics_consumption": "linear_spring_primitive_user_stiffness",
+              "movement_limit": {
+                "unit": "m",
+                "value": 0.01
+              },
+              "source_reference": "invented_v3_user_input",
+              "stiffness": {
+                "dof": "RZ",
+                "value": {
+                  "unit": "N*m/rad",
+                  "value": 100000.0
+                }
+              },
+              "travel_range": {
+                "unit": "m",
+                "value": 0.05
+              }
+            },
+            "id": "support:V3-SH-TIP",
+            "node": "node:V3-TIP",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "restraints": []
+          },
+          {
+            "family": "constant_effort_support",
+            "hanger": {
+              "constant_load": {
+                "unit": "N",
+                "value": 375.0
+              },
+              "hanger_type": "constant_effort_support",
+              "load_side_review_reference": "invented_v3_review_only",
+              "manufacturer_reference": "invented_v3_no_catalog",
+              "mechanics_consumption": "assembled_solve",
+              "movement_limit": {
+                "unit": "m",
+                "value": 1e-05
+              },
+              "source_reference": "invented_v3_user_input",
+              "travel_range": {
+                "unit": "m",
+                "value": 0.04
+              }
+            },
+            "id": "support:V3-CE-TIP",
+            "node": "node:V3-TIP",
+            "provenance": "invented_source_derived_native_producer_preparation_v3",
+            "restraints": [
+              "UY"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

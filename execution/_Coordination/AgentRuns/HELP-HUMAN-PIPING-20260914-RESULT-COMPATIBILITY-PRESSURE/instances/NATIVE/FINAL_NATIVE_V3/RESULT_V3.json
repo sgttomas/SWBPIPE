@@ -1,0 +1,71 @@
+{
+  "attempted_but_not_accepted": {
+    "consumer": "authentic modulus reached actual desktop result constructor and failed at declaredSourceResultDimension",
+    "gui": "partial blank project/root/tip authoring only; stopped before first save"
+  },
+  "blocker": {
+    "code": "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED",
+    "failure_record": {
+      "bytes": 7175,
+      "path": "_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+      "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+    },
+    "message": "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED: result:modulus-basis:load-L-100 (modulus_basis_record) has no source dimension declaration.",
+    "owning_route": [
+      "apps/desktop/src/features/result-export/resultExportAdapter.ts:151",
+      "apps/desktop/src/services/previewService.ts:263-267"
+    ],
+    "raw_dimension_field_count": 0,
+    "raw_row_count": 68
+  },
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "completed": {
+    "build_binding": {
+      "bytes": 6684,
+      "path": "_run_records/build/build_binding.json",
+      "sha256": "83e4a376ac9baa2ab975eb0d8b2da2299848bef830d0f94c91e57d6a2081b7e7"
+    },
+    "fresh_checked_json_tauri_bundle_and_archive_runner": "PASS",
+    "hard_gate_signature_059": true,
+    "normal_native_quit": true,
+    "owned_process_cleanup": "PASS_ZERO",
+    "process_record": {
+      "bytes": 324,
+      "path": "_run_records/process/final_owned_process_scan_v2.json",
+      "sha256": "9ecc9169f90d454fc02a57dad858ef1b60bceefd35c1086297176a3d724c7141"
+    },
+    "producer_evidence": {
+      "bytes": 11700,
+      "path": "_run_records/producer/REUSABLE_AUTHENTIC_PRODUCERS.json",
+      "sha256": "68c22a5c2c645fcc54eec4e5dfbb5dc1de27e881e99fac46423880538ee641a8"
+    },
+    "release_and_lease_hashes_verified": true,
+    "seven_authentic_producer_solves": "PASS",
+    "source_after_gui": {
+      "bytes": 23771,
+      "path": "_run_records/bindings/source_after_gui.json",
+      "sha256": "cd71eb33d77d07df3dff9db6e4ba1145ebc70304b7af32b82ff4444282e29e9c"
+    },
+    "source_before_build_after_build_after_gui": "76_OF_76_EXACT"
+  },
+  "created_unix": 1789448662.899615,
+  "effects": {
+    "delegation": false,
+    "git_writes": false,
+    "network": false,
+    "product_source_edits": false,
+    "raw_producer_dimension_augmentation": false
+  },
+  "reuse_boundary": "Seven authentic runner outputs and hard-059 evidence may be reused only where successor source dependencies are shown unchanged. Constructor and downstream acceptance must be rerun on repaired source.",
+  "schema": "final-native-v3-result-v1",
+  "unexecuted_due_blocker_and_root_stop": [
+    "first-save normalization/quit/reopen/unchanged-save witness",
+    "actual native sparse/dense JSON and CSV delivery",
+    "Python validated nine-member materialization on native package",
+    "completed all-60 constructor composition",
+    "complete cantilever 350-to-500 undo/redo/agent/hash/attachment lifecycle",
+    "seven malformed Historical carriers",
+    "legacy profile backchecks"
+  ],
+  "verdict": "BLOCKED_BY_AUTHENTIC_RAW_MODULUS_CONSTRUCTOR_DIMENSION_DECLARATION"
+}

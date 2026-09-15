@@ -1,0 +1,50 @@
+{
+  "actual_continuation": true,
+  "brief": {
+    "bytes": 4471,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+    "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a"
+  },
+  "constraints": {
+    "delegation": false,
+    "execution_after_release": [
+      "focused Node/Vitest",
+      "TypeScript",
+      "Python composition using existing artifacts"
+    ],
+    "maintained_write_scope": [
+      "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts"
+    ],
+    "prohibited": [
+      "Cargo",
+      "WASM build",
+      "browser",
+      "native",
+      "dev server",
+      "Git"
+    ]
+  },
+  "continued_at": "2026-09-15T05:10:58.402482+00:00",
+  "integration_checkout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914",
+  "native_release_bindings": [
+    {
+      "bytes": 1445,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/LEASE_RELEASE_V3.json",
+      "sha256": "faa4913f7af6549c0fc3ccc691dfd3d470b8bbe458fa4b9677d0e38adc4796de"
+    },
+    {
+      "bytes": 3150,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/RESULT_V3.json",
+      "sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46"
+    },
+    {
+      "bytes": 19878,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/EVIDENCE_MANIFEST_V3.json",
+      "sha256": "6b2f4a6fe1b08b146bc00fd4f42e0657063baba4db7054cd9f0eaf80355970a3"
+    }
+  ],
+  "schema_version": "1.0.0",
+  "task": "TASK/Type2 compatibility_writer V15",
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping"
+}

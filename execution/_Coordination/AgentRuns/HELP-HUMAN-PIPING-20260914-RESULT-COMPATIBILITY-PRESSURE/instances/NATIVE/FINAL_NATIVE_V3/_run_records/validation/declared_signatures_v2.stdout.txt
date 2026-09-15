@@ -1,0 +1,7 @@
+PASS: hanger_constant_effort: supported-source-052 ('constant_effort_support_applied_load', 'N', 'constant_effort_support_applied_load')
+PASS: hanger_constant_effort: supported-source-056 ('spring_hanger_user_input_review', 'm', 'variable_spring_hanger_movement_limit')
+PASS: hanger_constant_effort: supported-source-057 ('constant_effort_user_input_review', 'm', 'constant_effort_support_movement_limit')
+PASS: hanger_constant_effort: supported-source-058 ('spring_hanger_user_input_review', 'N*m/rad', 'variable_spring_hanger_stiffness')
+PASS: rotational_nonlinear: supported-source-053 ('nonlinear_support_final_displacement', 'rad', 'nonlinear_support_final_displacement')
+PASS: rotational_nonlinear: supported-source-054 ('nonlinear_support_final_reaction', 'N*m', 'nonlinear_support_final_reaction')
+PASS: zero_pressure_longitudinal: supported-source-059 ('pipe_section_pressure_longitudinal_stress', 'MPa', 'pressure_longitudinal_stress')

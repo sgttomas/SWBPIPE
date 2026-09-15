@@ -1,0 +1,51 @@
+{
+  "combination_modulus.output.json": {
+    "bytes": 8184802,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "b46256f8a2b84f880f8843f4acfa8019b415663894b9b2ccf993c1c1310d7027",
+    "signatures": []
+  },
+  "curved.output.json": {
+    "bytes": 1025242,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "19480957ce2c48d19c9d41f062784c2ca4a20ad3d3c68bf5c0807c24c0de086f",
+    "signatures": []
+  },
+  "friction.output.json": {
+    "bytes": 1204982,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "8932264305a5fe0fd158158ffb91c8da05effe350c45fba960ead69ecea29dcd",
+    "signatures": []
+  },
+  "hanger_constant_effort.output.json": {
+    "bytes": 1148674,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "a20a1779772e30a7c9c4d71cac87fc6db8b8a15aa12081d9b3b5d99648283737",
+    "signatures": []
+  },
+  "modulus.output_v2.json": {
+    "bytes": 999671,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "e9e5915316c2aea39160ecff2c2428568fbbbeec2e0bdc98fe98c951a3dc9bae",
+    "signatures": []
+  },
+  "rotational_nonlinear.output.json": {
+    "bytes": 1133379,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "bd2c14a6d5f7f9567995a398b408a0a92167430a7019819f259253f90ca26949",
+    "signatures": []
+  },
+  "zero_pressure_longitudinal.output.json": {
+    "bytes": 1122587,
+    "mechanics": null,
+    "rows": 0,
+    "sha256": "ad4505204482ef9a8c6f7ac364da335459c4fa543294441dbe029c9fc446354c",
+    "signatures": []
+  }
+}

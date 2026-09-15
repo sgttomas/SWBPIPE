@@ -1,0 +1,26 @@
+{
+  "schema": "root-final-manager-portability-disposition-v2",
+  "created_utc": "2026-09-15T05:36:07.258166+00:00",
+  "prior_disposition_sha256": "93276fcbefca4e522c992f92b2b3d8220a46b42bba6cc6ab4ff2286c02ec5e7d",
+  "new_observation": "Final manager return was imported after the preceding nine-file scan. Its historical parent-checkpoint path is the only remaining finding.",
+  "entry": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/FINAL_MANAGER_RETURN_V15.json",
+    "sha256": "0e3f3c0e906041441599c8b1b470fae425433ea775396090f6e12441a978abfe",
+    "entry_type": "historical_role_override",
+    "role": "EVIDENCE",
+    "reason": "Completed immutable V15 manager return records the observed historical V14 parent-checkpoint location. Root accepted scoped fan-in; this final return is evidence and gives no executable host-path direction.",
+    "authority": "HELP_HUMAN under standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V2.json"
+  },
+  "policy_before_sha256": "80fa4e800ce5eb3ae6773564c5c541b918223d75055b27f16ee15f05d21d8a63",
+  "policy_after_sha256": "d21a146142940b094767282969e83fa0d72d8762a0a3d85d254a03c08dd11851",
+  "verifier": {
+    "argv": [
+      "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "tools/validation/validate_path_anchors.py",
+      "--json"
+    ],
+    "exit_code": 0,
+    "stdout_sha256": "a3f18f8870756198fee9c9503d683a2625df102142a865b0144a1bd4c97f7f3b",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "schema": "root-completed-evidence-portability-disposition-v1",
+  "created_utc": "2026-09-15T05:15:36.190716+00:00",
+  "accepted_preparation_manifest": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CANDIDATE_PREPARATION_V4/MANIFEST.json",
+    "sha256": "5c370f2fe41afb75b1463428e750857975c4cb19f5ed4d9b8a7c5529ea2cf9c0"
+  },
+  "policy": {
+    "path": "projects/chirality-piping/validation/portability_policy.json",
+    "before_sha256": "a7dc91fb940f0c2f730c4ad0391176f01b25f39ed591ebcf668728b88f5d2aae",
+    "after_sha256": "44e4ec871014f4196a179ebd509014d783762c63d383ba707cdd86a8747555d9"
+  },
+  "accepted_exact_completed_evidence_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V13/TASK_WRITER/FINAL_EVIDENCE_V13.json",
+      "sha256": "67e20be7c7fdffc318905225b22b29a3c310cc664501d8eb62f4ffb2b35f1eb3",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V13 writer evidence records the actual temporary Python interpreter used during execution. The V13 task status is complete and later V14/final fan-in artifacts own current conclusions; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_V15_PREPARATION/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+      "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V14 manager backcheck records the actual temporary Python interpreter used to evaluate the sealed packet. FINAL_COMPATIBILITY_FANIN_V2 owns the accepted scoped conclusion; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_V15_PREPARATION/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+      "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Immutable completed V14 writer evidence records the actual temporary Python interpreter used during execution. FINAL_COMPATIBILITY_FANIN_V2 owns the accepted scoped conclusion; this file is evidence, not executable direction.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing routine coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_V15_PREPARATION/DISPOSITION_V1.json"
+    }
+  ],
+  "active_controls_excepted": false,
+  "verifier": {
+    "argv": [
+      "python3",
+      "tools/validation/validate_path_anchors.py",
+      "--json"
+    ],
+    "cwd": "projects/chirality-piping",
+    "exit_code": 2,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "445924711fdfc510667f985147d2a08c814eb130d6796f9a4542b8b54d11da56"
+  },
+  "limit": "Static portability only; no product/native/lifecycle acceptance. Later sealed evidence classified from actual execution state, never wildcard exemptions."
+}

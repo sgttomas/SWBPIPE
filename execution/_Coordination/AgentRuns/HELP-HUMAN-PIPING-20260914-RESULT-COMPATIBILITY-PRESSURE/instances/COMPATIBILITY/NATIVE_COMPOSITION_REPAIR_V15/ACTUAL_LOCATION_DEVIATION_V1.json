@@ -1,0 +1,62 @@
+{
+  "canonical_integration_evidence": [
+    {
+      "bytes": 2716,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V1.json",
+      "sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4"
+    },
+    {
+      "bytes": 2880,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/F09_PRE_REPAIR_V1.json",
+      "sha256": "fbab42f46fc2b94c190d78343cf6640f5f2ca9cf5c359013abea37ef9bd46883"
+    },
+    {
+      "bytes": 310,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_final.log",
+      "sha256": "ed6b899b2ce8a1659b6e26a2fcec882a1e1164d194383ab9ed1c1c1c41797e2a"
+    },
+    {
+      "bytes": 0,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/tsc_v15_rerun.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "bytes": 2038,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15.log",
+      "sha256": "a9f1217869bd2906cabe6f51784ea28d25820f06821583abea221d17df61485e"
+    }
+  ],
+  "compatibility_copies": [
+    {
+      "bytes": 29156,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+    },
+    {
+      "bytes": 15651,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+    }
+  ],
+  "copy_hash_match": true,
+  "created_utc": "2026-09-15T05:14:28.575541Z",
+  "deviation": "The TASK writer resolved the integration checkout from the externally located V15 brief and wrote the authorized two maintained files and evidence there instead of the instructed compatibility checkout.",
+  "evidence_duplicated": false,
+  "git_actions": false,
+  "integration_source": [
+    {
+      "bytes": 29156,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+    },
+    {
+      "bytes": 15651,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+    }
+  ],
+  "response": "Manager interrupted the writer, preserved integration WIP and raw evidence, copied only the exact two maintained source files into COMPAT under Root direction, and did not restore, discard, commit or otherwise alter the integration WIP.",
+  "runtime_after_interruption": false,
+  "schema": "compatibility-v15-actual-location-deviation-v1",
+  "status": "PRESERVED_AND_RECOVERED_TO_COMPATIBILITY_CHECKOUT"
+}

@@ -1,0 +1,43 @@
+{
+  "blocking_acceptance_gates": [
+    "seven authentic outputs pass repaired frontend constructors and independent validators",
+    "successor native sparse/dense union plus seven authentic outputs covers all 60, including 059",
+    "native 830 rows produce 828 witnesses and exactly two diagnostic-work withholds, raw rows unchanged, JSON/CSV receipts exact",
+    "validated Python writer produces exactly nine matching members",
+    "first-save normalized integrity, normal quit/reopen Historical, unchanged save and fresh Current solve pass",
+    "complete GUI-authored 3.2 m 350-to-500 lifecycle, undo/redo/agent equivalence/hashes/attachments passes",
+    "seven malformed Historical carriers pass safe open and unchanged preservation",
+    "desktop and Python legacy 0.1 profiles remain truthful and preserved",
+    "final normal quit, zero owned processes, source stability and explicit lease release"
+  ],
+  "native_acceptance_claimed": false,
+  "readiness_claimed": false,
+  "required_before_execution": [
+    {
+      "id": "P1",
+      "requirement": "Compatibility V15 manager fan-in proves the two-file adapter repair, pre-repair failure, complete seven-output constructor composition, strict validation and nine-file writer."
+    },
+    {
+      "id": "P2",
+      "requirement": "Root supplies immutable successor candidate/source release and independent delta review; all nonrepair paths match their accepted source baselines."
+    },
+    {
+      "id": "P3",
+      "requirement": "Root decides V3 raw-output reuse by RUNNER_REUSE_BASELINE_V4; otherwise exact successor runner rebuild and seven fresh solves are mandatory."
+    },
+    {
+      "id": "P4",
+      "requirement": "Root supplies a new exclusive native/build/browser/UI lease with a new unique temp root, product name, bundle identifier, bound app and isolated store. None is invented here."
+    },
+    {
+      "id": "P5",
+      "requirement": "Before build, after build and after GUI, every released source path matches exactly."
+    },
+    {
+      "id": "P6",
+      "requirement": "Fresh maintained beforeBuild creates checked JSON, WASM, dist and successor native app; prior V3 app/dist cannot support successor frontend claims."
+    }
+  ],
+  "schema": "final-native-v4-readiness-preconditions-v1",
+  "status": "NOT_READY_NO_SOURCE_RELEASE_OR_LEASE"
+}

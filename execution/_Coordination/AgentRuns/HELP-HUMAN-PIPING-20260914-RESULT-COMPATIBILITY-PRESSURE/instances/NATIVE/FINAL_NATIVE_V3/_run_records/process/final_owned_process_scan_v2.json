@@ -1,0 +1,11 @@
+{
+  "app_absent": true,
+  "browser_absent": true,
+  "build_absent": true,
+  "captured_unix": 1789448586.0134091,
+  "normal_quit_ui_outcome": "Computer Use returned App quit after Command-Q",
+  "owned_matches": [],
+  "owned_process_count": 0,
+  "schema": "final-native-v3-owned-process-cleanup-v2",
+  "server_absent": true
+}

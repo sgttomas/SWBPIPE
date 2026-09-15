@@ -1,0 +1,20 @@
+{
+  "schema": "root-native-f09-routing-v1",
+  "created_utc": "2026-09-15T05:03:34.275761+00:00",
+  "candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "prior_source_review": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V4/REVIEW_RETURN_V4.json",
+    "sha256": "31f93cfeea1b196409cf3ab98160cb7aba531327c23fea10c4dedff6dd648e8e"
+  },
+  "new_native_failure": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+    "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+  },
+  "repair_brief": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+    "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a"
+  },
+  "decision": "Bounded eager legacy binder isolation in two adapter/test files; actual raw producer source unchanged; native qualification deferred until repair and independent review.",
+  "authority": "User-approved foundation implementation and standing routine engineering authority.",
+  "repeat_failure_rule": "New concrete producer composition evidence; first repair cycle for F09. No repeated unsuccessful approach without new evidence."
+}

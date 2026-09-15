@@ -1,0 +1,53 @@
+{
+  "schema": "root-final-compatibility-fanin-v2",
+  "created_utc": "2026-09-15T04:55:58.112773+00:00",
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "manager_return": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/FINAL_MANAGER_FANIN_V14.json",
+    "sha256": "b1be9a87d1b6ae51082f76ec0277d0703307ca8c6cd9a7228b3b2f49a356cd72"
+  },
+  "evidence_imported": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/FINAL_MANAGER_FANIN_V14.json",
+      "sha256": "b1be9a87d1b6ae51082f76ec0277d0703307ca8c6cd9a7228b3b2f49a356cd72",
+      "bytes": 10462
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+      "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+      "bytes": 6281
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_RETURN_V14.md",
+      "sha256": "274fb2b09bdce1573040b0ca166efdd5e872c9b9fd2b25f46b5f9d82b40050b6",
+      "bytes": 1636
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+      "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+      "bytes": 7775
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/MANIFEST.json",
+      "sha256": "a7deaf37cb6d18a074216026428926f9122296953477bc1f8601ecb626582577",
+      "bytes": 15226
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/PRESERVED_FAILURES_V14.json",
+      "sha256": "fac52f4b041156d318f48b838a4def2826764b43c169dc21db64ec4cd10ec0b6",
+      "bytes": 1812
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/RETURN.md",
+      "sha256": "fb38d9498c22282de4644711ba6ad431b3339e58302060d18da3382d17532740",
+      "bytes": 1872
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/STATUS.json",
+      "sha256": "dd45598224243b058ae458a33fed4b01732d26e1b8c8e459d48054bc0ef26e23",
+      "bytes": 1464
+    }
+  ],
+  "source": "Unchanged frozen V14; all74source hashes checked at integration. Manager records74source+57artifacts verified.",
+  "authority": "Root accepts compatibility manager fan-in for scoped source/consumer qualification; native/sweep/CI/tranche closure pending."
+}

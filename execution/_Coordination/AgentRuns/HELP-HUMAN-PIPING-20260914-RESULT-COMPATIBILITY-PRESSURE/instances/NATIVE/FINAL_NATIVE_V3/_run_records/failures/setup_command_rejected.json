@@ -1,0 +1,8 @@
+{
+  "schema": "final-native-v3-evidence-command-failure-v1",
+  "stage": "temporary-root setup",
+  "executed": false,
+  "effects": false,
+  "reason": "shell safety layer rejected an rm -rf-bearing command before process creation",
+  "resolution": "used fail-if-present creation for the fresh lease-bound paths"
+}

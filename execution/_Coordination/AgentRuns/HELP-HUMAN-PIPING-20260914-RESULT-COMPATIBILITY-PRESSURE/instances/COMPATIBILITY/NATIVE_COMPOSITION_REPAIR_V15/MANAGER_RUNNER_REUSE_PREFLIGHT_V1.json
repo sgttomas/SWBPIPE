@@ -1,0 +1,37 @@
+{
+  "attribution": "The runner was built from the reviewed integration candidate and exact recorded 125-file local Rust dependency closure. COMPAT intentionally lacks the private pressure delta and does not claim to be the runner source authority.",
+  "baseline": {
+    "bytes": 7523,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/preparation/RUNNER_REUSE_BASELINE_V4.json",
+    "sha256": "2bc94b79d327a02ec2924c25f49cd8f24d6c970ff2a584fccec1172e74367d97"
+  },
+  "created_utc": "2026-09-15T05:16:06.943764Z",
+  "execution_performed": false,
+  "generated_lock": {
+    "bytes": 10169,
+    "match": true,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project/core/runner/headless/Cargo.lock",
+    "sha256": "c6991876fdd8d3e5fea06485c1a5ad10997dbe3fbd2ef24f6ef68824b1771470"
+  },
+  "generated_unrecorded_file": {
+    "classification": "post-baseline Python bytecode cache, excluded because it is not one of the 125 recorded source files",
+    "path": "core/serialization/canonical_json/__pycache__/adapter.cpython-313.pyc",
+    "source_hash_effect": false
+  },
+  "git_actions": false,
+  "runner": {
+    "bytes": 5517520,
+    "match": true,
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+    "sha256": "f8020aee734edf1a3ddd8ade0cb756e63442df97066440e9636a97775adb7897"
+  },
+  "schema": "compatibility-v15-manager-runner-reuse-preflight-v1",
+  "source": {
+    "actual_aggregate_tree_sha256": "f39da11f76a380f04241775eab4e7b61059a1bccc9187bc62c51f0c1007356c6",
+    "aggregate_tree_sha256": "f39da11f76a380f04241775eab4e7b61059a1bccc9187bc62c51f0c1007356c6",
+    "crate_count": 27,
+    "crate_mismatches": 0,
+    "recorded_files_checked": 125
+  },
+  "status": "PASS"
+}

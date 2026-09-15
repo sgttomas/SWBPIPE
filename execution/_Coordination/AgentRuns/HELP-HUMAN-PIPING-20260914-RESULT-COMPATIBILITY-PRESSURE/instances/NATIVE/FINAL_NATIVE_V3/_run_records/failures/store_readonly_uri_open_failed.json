@@ -1,0 +1,7 @@
+{
+  "schema": "final-native-v3-evidence-command-failure-v1",
+  "stage": "partial unsaved GUI store inventory",
+  "product_execution": false,
+  "reason": "Python SQLite read-only URI open failed on the Application Support path",
+  "resolution": "copied the closed store byte-for-byte into evidence scope and inspected the copy"
+}

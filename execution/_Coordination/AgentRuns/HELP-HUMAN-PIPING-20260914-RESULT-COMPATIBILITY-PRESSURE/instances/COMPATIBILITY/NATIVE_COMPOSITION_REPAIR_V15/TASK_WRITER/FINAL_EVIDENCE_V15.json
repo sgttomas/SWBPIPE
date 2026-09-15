@@ -1,0 +1,135 @@
+{
+  "claim_boundary": "52 distinct signatures were observed across the seven producer cases. This record does not claim all 60 runtime signatures, native lifecycle acceptance, full sweep, browser delivery, or final merge.",
+  "created_utc": "2026-09-15T05:27:38.087917+00:00",
+  "delegation": false,
+  "git_actions": false,
+  "maintained_delta": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/tests/test_stress_neutral_export_package.py"
+  ],
+  "portable_bindings": {
+    "command_evidence": {
+      "bytes": 7208,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/COMMAND_EVIDENCE_V15.json",
+      "sha256": "d91f946959e709375e9cd3ad64146a075a154c022dd59012be62c3ac64fdf7d3"
+    },
+    "correct_continuation": {
+      "bytes": 3819,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V2.json",
+      "sha256": "09d4fe5547448afccded3e41d4f230f9f25b8827a842825e5044663996794d99"
+    },
+    "f10_scope": {
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/F10_SCOPE_ADDENDUM_V1.json",
+      "sha256": "6dacd3728fe70700e1583657b5ef69673ac341c5c36ec3c3b18eaa401025c97a"
+    },
+    "historical_wrong_location_continuation": {
+      "path": "integration-checkout instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V1.json",
+      "sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4",
+      "status": "superseded location control"
+    },
+    "location_deviation": {
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+      "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6"
+    },
+    "parent_source_checkpoint": {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+      "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022"
+    },
+    "path_collision_disposition": {
+      "bytes": 1847,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+      "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07"
+    },
+    "runner_preflight": {
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/MANAGER_RUNNER_REUSE_PREFLIGHT_V1.json",
+      "sha256": "df7a51de6c2ea317636f93f60b4d16c999fd62568b97dc3ebdcfd10405754a2d"
+    },
+    "source_checkpoint": {
+      "bytes": 34183,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+      "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736"
+    },
+    "source_release": {
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/SOURCE_RELEASE_V1.json",
+      "sha256": "9f90f6a684b277d92cbba45e3483198690e4a77dbc46c322ffa0847c18c74dfb"
+    }
+  },
+  "preserved_failures": {
+    "f09_original": {
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+      "sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
+    },
+    "f10": {
+      "bytes": 4732,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/ADJACENT_PYTHON_REACTION_FINDING_V1.json",
+      "sha256": "f9083ce0fe92ad28aadfe4d9c1a175ce279900d681767115c72e45cf701b9f4a"
+    },
+    "location_deviation": {
+      "bytes": 4289,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+      "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6"
+    }
+  },
+  "qualification": {
+    "focused_adapter": {
+      "status": "PASS",
+      "tests": 12
+    },
+    "focused_python_stress": {
+      "skips": 0,
+      "status": "PASS",
+      "tests": 80
+    },
+    "original_830": {
+      "diagnostic_work_withholdings": 2,
+      "human_review_required": true,
+      "members": 9,
+      "record": {
+        "bytes": 3361,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/original_830_backcheck/RESULT.json",
+        "sha256": "0e7d48f65d6eb66bb3d4f38826378e5ded07d659965426e4e76ccbd06ea81297"
+      },
+      "rows": 830,
+      "status": "PASS",
+      "validation_ready": false,
+      "witnesses": 828
+    },
+    "process_cleanup": {
+      "bytes": 915,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/FINAL_PROCESS_SCAN_V15.json",
+      "sha256": "5be70a58cadcc5260e3e02e6242bdd15f2a107ab8ba5a49fea584ecc8a09d45b"
+    },
+    "seven_case_composition": {
+      "cases": 7,
+      "composition_index": {
+        "bytes": 17327,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases_final/composition_index.json",
+        "sha256": "dc572a8cecb3d8e394c569e77c4d77f4bfafc5c128a6c3c1327747a90b5c0d16"
+      },
+      "full_sixty_claimed": false,
+      "observed_signature_count": 52,
+      "python_schema_runtime_write9_cases": 7,
+      "status": "PASS",
+      "typescript_tests": 1,
+      "verification_index": {
+        "bytes": 3371,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/seven_cases_final/independent_verification_index.json",
+        "sha256": "5a76377d5c9812be3589175149c95b5ec9de9376f4a3aad21e2d486ff29c85da"
+      }
+    },
+    "successor_solves": {
+      "count": 3,
+      "status": "PASS"
+    },
+    "typescript": {
+      "status": "PASS"
+    }
+  },
+  "schema": "compatibility-v15-final-evidence-v1",
+  "scope": "F09 Current result-export profile dispatch plus F10 exact reaction unit/dimension pair validation",
+  "source_file_count": 74,
+  "source_hashes_revalidated": 74,
+  "status": "PASS"
+}

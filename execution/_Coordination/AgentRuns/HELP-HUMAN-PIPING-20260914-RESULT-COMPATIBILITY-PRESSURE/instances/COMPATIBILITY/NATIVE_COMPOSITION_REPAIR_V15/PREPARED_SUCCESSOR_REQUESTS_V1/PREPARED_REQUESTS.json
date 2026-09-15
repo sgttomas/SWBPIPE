@@ -1,0 +1,91 @@
+{
+  "created_utc": "2026-09-15T05:14:28.578918Z",
+  "git_actions": false,
+  "outputs_claimed": false,
+  "proposed_values_basis": "primitive_user_load and preview_only match the established complete invented preview load-case profile; the preserved original provenance field is unchanged.",
+  "reason": "Three authentic request models omit load_cases[0].kind and load_cases[0].status, so a complete Current input manifest cannot truthfully be constructed from those captured request bytes.",
+  "requests": [
+    {
+      "case": "hanger_constant_effort",
+      "exact_changes": [
+        {
+          "after": "primitive_user_load",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/kind"
+        },
+        {
+          "after": "preview_only",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/status"
+        }
+      ],
+      "execution_status": "PREPARED_NOT_EXECUTED",
+      "original": {
+        "bytes": 8154,
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/hanger_constant_effort.request.json",
+        "sha256": "ae7b7d1c01890cc3faa7a3a3f402cbfd317d49c5c02233237e6a851929d63184"
+      },
+      "successor": {
+        "bytes": 8235,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/hanger_constant_effort.successor-request.json",
+        "sha256": "e6dcaccfbefe6b1f18eab0e64b0ae5f0bcc8f6ed869fda312ce68ce7a2aaa62d"
+      }
+    },
+    {
+      "case": "rotational_nonlinear",
+      "exact_changes": [
+        {
+          "after": "primitive_user_load",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/kind"
+        },
+        {
+          "after": "preview_only",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/status"
+        }
+      ],
+      "execution_status": "PREPARED_NOT_EXECUTED",
+      "original": {
+        "bytes": 6236,
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/rotational_nonlinear.request.json",
+        "sha256": "c88a6288e157fcf3d535944081c69c57296e0365b62de505c2c5f2b6cfd9f2bd"
+      },
+      "successor": {
+        "bytes": 6317,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/rotational_nonlinear.successor-request.json",
+        "sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e"
+      }
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "exact_changes": [
+        {
+          "after": "primitive_user_load",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/kind"
+        },
+        {
+          "after": "preview_only",
+          "before": "<ABSENT>",
+          "json_pointer": "/solve/preview_model/model/load_cases/0/status"
+        }
+      ],
+      "execution_status": "PREPARED_NOT_EXECUTED",
+      "original": {
+        "bytes": 5841,
+        "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/zero_pressure_longitudinal.request.json",
+        "sha256": "c4f670047a5ac0ae5aface3e4294450bd88ddd27873a6c5d24535b94743fa013"
+      },
+      "successor": {
+        "bytes": 5922,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/zero_pressure_longitudinal.successor-request.json",
+        "sha256": "b5e307a4f6ca31c4ccf6c081bc5fd44946421e3e4c4946eaca83339e7646f9c2"
+      }
+    }
+  ],
+  "runner_execution": false,
+  "schema": "compatibility-v15-prepared-successor-requests-v1",
+  "status": "AWAITING_ROOT_AUTHORIZATION_FOR_GENUINE_RESOLVES",
+  "unchanged_fields": "Every field other than the two listed additions is deep-equal to the original request."
+}

@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/usr/bin/open",
+    "-n",
+    "/private/tmp/piping-foundation-native-repaired-20260915/bound/OpenPipeStress Foundation Repaired 20260915.app"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-repaired-20260915",
+  "elapsed_seconds": 0.06316995620727539,
+  "ended_unix": 1789448330.157461,
+  "environment": {},
+  "exit_code": 0,
+  "started_unix": 1789448330.094291,
+  "stderr": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/native_launch_first.stderr.txt",
+  "stdout": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/native_launch_first.stdout.txt"
+}

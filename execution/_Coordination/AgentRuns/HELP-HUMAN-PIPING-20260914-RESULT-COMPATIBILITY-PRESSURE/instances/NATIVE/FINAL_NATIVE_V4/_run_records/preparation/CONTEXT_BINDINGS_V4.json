@@ -1,0 +1,37 @@
+{
+  "brief": {
+    "bytes": 2568,
+    "path": "briefs/FINAL_NATIVE_V4_PREPARATION.md",
+    "sha256": "997f29b1a53e64c26a354d784fc9d2238e7331b616e46b5d57f88c38856879f0"
+  },
+  "f09_routing": {
+    "bytes": 1554,
+    "path": "instances/ROOT/_run_records/NATIVE_F09_ROUTING_V1.json",
+    "sha256": "1ce72baa31e512c4243db51a156907795fc725cc3c02f8caaec5009eabb172f4"
+  },
+  "repair_brief": {
+    "bytes": 4471,
+    "path": "briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+    "sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a"
+  },
+  "runtime_release_present": false,
+  "schema": "final-native-v4-preparation-context-v1",
+  "status": "PREPARATION_ONLY_NO_RUNTIME_RELEASE",
+  "successor_candidate": "UNRELEASED",
+  "successor_native_lease": "UNRELEASED",
+  "v3_fanin": {
+    "bytes": 1925,
+    "path": "instances/ROOT/_run_records/FINAL_NATIVE_V3_FANIN_V1.json",
+    "sha256": "a4de6dd1e3c76843def77c18fcfc680074767b159ee0b4aa4075d1716a2b645a"
+  },
+  "v3_lease_release": {
+    "bytes": 1445,
+    "path": "instances/NATIVE/FINAL_NATIVE_V3/LEASE_RELEASE_V3.json",
+    "sha256": "faa4913f7af6549c0fc3ccc691dfd3d470b8bbe458fa4b9677d0e38adc4796de"
+  },
+  "v3_manifest": {
+    "bytes": 19878,
+    "path": "instances/NATIVE/FINAL_NATIVE_V3/EVIDENCE_MANIFEST_V3.json",
+    "sha256": "6b2f4a6fe1b08b146bc00fd4f42e0657063baba4db7054cd9f0eaf80355970a3"
+  }
+}

@@ -10,7 +10,8 @@
     "brief_sha256": "f7b51cd10bb8a1019bb35210b24b6e86eeaed922e5d556b5bcd931fa6a21cdc4",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329287+00:00"
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00",
+    "status_updated_utc": "2026-09-15T05:03:34.275761+00:00"
   },
   {
     "agent": "/root/foundation_compatibility",
@@ -19,24 +20,28 @@
     "model": "gpt-5.6-sol",
     "reasoning": "high",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_MANAGER.md",
-    "status": "running F06-F08 Python consumer repair V14; nonbuild-only",
+    "status": "V15 qualified/frozen and integrated; source4file delta awaits independent V5 review",
     "brief_sha256": "6ac6f48e3d69d363fbfb20698f3c10bb6512d23e983e148a77b3b8b51431b4d2",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329476+00:00",
-    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_REVIEW_REPAIR_V14.md",
-    "latest_brief_sha256": "e06428df87018c9bedc1edcfc571cec850030fb728957557b8b68d8df1495f3d",
-    "status_updated_utc": "2026-09-15T04:41:45.390335+00:00",
-    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/FINAL_MANAGER_FANIN_V1.json",
-    "return_sha256": "fc535bb9a097080e3c21c3afd59549cc70e72d025204e4189d20d61c79781362",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/COMPATIBILITY_NATIVE_COMPOSITION_REPAIR_V15.md",
+    "latest_brief_sha256": "3e49db92593f41c51aad90eedbdd0c1634d7e7feaf3bd1fd1a62ed2d52ab130a",
+    "status_updated_utc": "2026-09-15T05:36:07.259048+00:00",
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/FINAL_MANAGER_RETURN_V15.json",
+    "return_sha256": "0e3f3c0e906041441599c8b1b470fae425433ea775396090f6e12441a978abfe",
     "actual_dispatch": "collaboration.followup_task returned successfully; existing Sol/high manager",
     "lease_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/COMPATIBILITY_REPAIR_BUILD_BROWSER_LEASE_V3.json",
     "lease_sha256": "861a43b39ff1c95f687bf1ee935a53bc4d417a104d83b10c37bd6dcde92b0a2c",
-    "latest_checkpoint": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/SOURCE_CHECKPOINT_V12.json",
-    "latest_checkpoint_sha256": "62bfa83e7533041cdba07b35655af787ce491e71873dc06717510fae95357edf",
-    "actual_continuation": "collaboration.followup_task succeeded after user resume",
+    "latest_checkpoint": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+    "latest_checkpoint_sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+    "actual_continuation": "collaboration.followup_task successfully dispatched to same Sol/high manager",
     "latest_source_checkpoint_sha256": "eb66959406b658d66ca84ba03b46bc0dae79a0e63f9e9bf432d673b2fe569949",
-    "lease_state": "Build/browser V3 released; V14 pure Python/Node/Vitest on existing checkedCLI/WASM only"
+    "lease_state": "All owned runtime released",
+    "latest_addendum": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/V15_HEADLESS_INPUT_COMPLETION_ADDENDUM.md",
+    "latest_addendum_sha256": "4759f8bf594d90449a7a5ce61b87b2500a877a5ceece73b1e3c81c0a92a2948c",
+    "execution_location_deviation": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/V15_CHECKOUT_ROUTING_V1.json",
+    "execution_location_deviation_sha256": "abe0c60d9c2505695ca8266345d59d7f37c21b030e7a8e498cab3805985cb11d"
   },
   {
     "agent": "/root/foundation_pressure_oracle",
@@ -51,8 +56,8 @@
     "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
     "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_IMPLEMENTATION_REFUTATION_V3.md",
     "latest_brief_sha256": "ee3bfd11c95ca53a0a85e6cbe0dc7bc0d175d6cd5b1fc3c83bcbddeb86386f6a",
-    "status_updated_utc": "2026-09-15T01:10:15.545696+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329478+00:00"
+    "status_updated_utc": "2026-09-15T05:03:34.275761+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00"
   },
   {
     "agent": "/root/foundation_pressure",
@@ -67,8 +72,8 @@
     "enforcement": "instruction-asserted role and Type-2 non-delegation; scoped filesystem not mechanically isolated by this host",
     "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/PRESSURE_SCALED_ARITHMETIC_REPAIR_V3.md",
     "latest_brief_sha256": "13a8e51d87efe1c31b34c9b09e5bbe598d48e9550c666db1924a35bc0ec10109",
-    "status_updated_utc": "2026-09-15T01:10:15.545917+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329480+00:00"
+    "status_updated_utc": "2026-09-15T05:03:34.275761+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00"
   },
   {
     "agent": "/root/foundation_native",
@@ -80,18 +85,20 @@
     "brief_sha256": "4120428aff2de3481394e5948ba6d169b8deb7693c40573f6e20c6deb3a0bbe3",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation",
-    "status": "returned pre-execution V3; rebind to final Python-repaired candidate before native lease",
-    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_REPAIR_PREPARATION_V5.md",
-    "latest_brief_sha256": "ceacfab621260f071eb80ee5397516a54a683c848b593c617c3516cc11ba5ada",
-    "status_updated_utc": "2026-09-15T04:41:45.390335+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329481+00:00",
-    "candidate_commit": "e244a2479207fa32db23e150d6cb41544ddc829f",
+    "status": "V4 preparation returned; idle without runtime lease pending repaired source and independent review",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_NATIVE_V4_PREPARATION.md",
+    "latest_brief_sha256": "997f29b1a53e64c26a354d784fc9d2238e7331b616e46b5d57f88c38856879f0",
+    "status_updated_utc": "2026-09-15T05:18:15.819620+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00",
+    "candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
     "actual_dispatch": "collaboration.followup_task returned successfully; existing Sol/high TASK, preparation only",
-    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/preparation/PREEXECUTION_RETURN_V3.json",
-    "return_sha256": "2849fbb7c8fb16f549b67705dcead4608cc6e508180607063a78624550effe1f",
-    "source_release_sha256": "e09d75d4f7f4c2621497103ac5e6a383e6df335aea25e0a0b4d9f52e2423ce0b",
-    "last_native_return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V2/FINAL_NATIVE_RESULT_V2.json",
-    "last_native_return_sha256": "3dda1b4db37fc07aedd53c0f7a111e24c002ebfb98e9ba108ed4e9152d41de23"
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V4/_run_records/preparation/PREPARATION_RETURN_V4.json",
+    "return_sha256": "f1e8f9ce7761d020688074049e54691c6241b7b0b6131b1480b51568efaf4ad7",
+    "source_release_sha256": "47e99e7f38c489768f3096f0aed9161bbf77fc55a35ecd58f2c54975c9191b85",
+    "last_native_return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/RESULT_V3.json",
+    "last_native_return_sha256": "0b3c65b16dbbb0551bef53615c14c9dcb6f294b797e966891a5348d131cd2b46",
+    "failure_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/failures/AUTHENTIC_MODULUS_CONSTRUCTOR_FAILURE.json",
+    "failure_sha256": "d253a86573a287a0c863ace89a5441504a27d617676411ba774a460b20e0dce8"
   },
   {
     "agent": "/root/foundation_compatibility/compatibility_writer",
@@ -99,14 +106,14 @@
     "role": "TASK",
     "model": "gpt-5.6-sol",
     "reasoning": "high",
-    "status": "running exact two-file V14 repair under manager; no builds/browser",
+    "status": "V15 returned; no owned runtime; source frozen",
     "owning_dispatch_record": "instances/COMPATIBILITY/CHILD_ACTUAL_DISPATCH_V1.json",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329482+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00",
     "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/TASK_WRITER/FINAL_SOURCE_CHECKPOINT_V10.json",
     "return_sha256": "e2ad899cb53aa8b0afbf17bdffbe634840a927e48e8a4a997ac738aefa45e832",
-    "status_updated_utc": "2026-09-15T04:41:45.390335+00:00"
+    "status_updated_utc": "2026-09-15T05:36:07.259053+00:00"
   },
   {
     "agent": "/root/foundation_closeout",
@@ -116,16 +123,17 @@
     "reasoning": "medium",
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_PREPARATION.md",
     "brief_sha256": "d0f0a6a79429c7a22de5208e1ed58858412ab5e0226755dad6be21af494d7583",
-    "status": "returned_CANDIDATE_PREPARATION_V3; final review repair/native acceptance pending",
+    "status": "V4 preparation returned; draft metadata/UI acceptance pending; three completed-evidence portability entries adopted by Root",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted role/non-delegation; host permissions broader than sealed scope",
-    "status_updated_utc": "2026-09-15T02:39:30.438831+00:00",
-    "status_index_checked_utc": "2026-09-15T01:23:26.329483+00:00",
-    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_CANDIDATE_PREPARATION_V3.md",
-    "latest_brief_sha256": "16d470d76714837e5643127992993c806bef2a5336304ac92ddc01ad075f5def",
+    "status_updated_utc": "2026-09-15T05:18:15.819620+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/CLOSEOUT_CANDIDATE_PREPARATION_V4.md",
+    "latest_brief_sha256": "7dce2ea29950242466134ba306b7dc7d7d9df0540314b0d37b8590c463a6ec69",
     "actual_dispatch": "collaboration.followup_task returned successfully; existing Sol/medium TASK",
-    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CANDIDATE_PREPARATION_V3/MANIFEST.json",
-    "return_sha256": "4491038057a898d5faa4cbfdcd649d32c46544be6d593396c7f05dc0b450c395"
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/CLOSEOUT/CANDIDATE_PREPARATION_V4/MANIFEST.json",
+    "return_sha256": "5c370f2fe41afb75b1463428e750857975c4cb19f5ed4d9b8a7c5529ea2cf9c0",
+    "actual_continuation": "collaboration.followup_task successfully dispatched to same Sol/medium TASK"
   },
   {
     "agent": "/root/legacy_profile_refutation",
@@ -139,12 +147,13 @@
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted scope/non-delegation; host permissions broader than declared read-only scope",
     "dispatched_during": "Compatibility implementation waiting on exact profile/evidence decisions; does not replace fresh final candidate review",
-    "status_updated_utc": "2026-09-15T02:19:28.086253+00:00",
+    "status_updated_utc": "2026-09-15T05:03:34.275761+00:00",
     "return_ref": "instances/MIGRATION_DIAGNOSIS_V1/RETURN.json",
     "return_sha256": "ca94e8a1eb567fa37c55070d7f34199b45f456afe7bb694bf4b6407b560d2c64",
     "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/NATIVE_MIGRATION_INTEGRITY_DIAGNOSIS_V1.md",
     "latest_brief_sha256": "4f9c299ac5b4aeb165ec89d43604bc30e3028e74a75429e6fee0200ec47e5cab",
-    "actual_dispatch": "collaboration.followup_task returned successfully; existing Astra/high ephemeral Agent 2"
+    "actual_dispatch": "collaboration.followup_task returned successfully; existing Astra/high ephemeral Agent 2",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00"
   },
   {
     "agent": "/root/foundation_final_review",
@@ -156,17 +165,18 @@
     "brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V1.md",
     "brief_sha256": "54dced9b2e213cd27a98fecd0128f53976c591ecb3de6afd363c4bfdd0615eca",
     "source_release_sha256": "ca586cbf4c8187c691c94eaa80742e3ca23e57a18472e7ac31842e5ba18af150",
-    "status": "returned V3 COMPLETE_WITH_FINDINGS F06-F08; F05 repaired; next review pending",
+    "status": "V4 returned PASS on9d96; successor V5 source freeze and dispatch being prepared",
     "actual_dispatch": "collaboration.spawn_agent returned /root/foundation_final_review",
     "mechanism": "delegated-harness-native",
     "enforcement": "instruction-asserted scope and Type-2 non-delegation; no mechanically isolated filesystem",
     "created_utc": "2026-09-15T03:32:27.688570+00:00",
-    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V3/REVIEW_RETURN_V3.json",
-    "return_sha256": "eb8a672c5a74f0f1a5fdd838c801d1af0ea8dc1a0fe947d88db370666881dba5",
-    "candidate_commit": "aa982902dab5147f7a33be8ac6693e50596616c9",
-    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V3.md",
-    "latest_brief_sha256": "9007477db1d2a8f251f4f81105eb00fee09f0830b40e565c8cd2a25f67e68012",
+    "return_ref": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_REVIEW_V4/REVIEW_RETURN_V4.json",
+    "return_sha256": "31f93cfeea1b196409cf3ab98160cb7aba531327c23fea10c4dedff6dd648e8e",
+    "candidate_commit": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+    "latest_brief": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/FINAL_CANDIDATE_REVIEW_V4.md",
+    "latest_brief_sha256": "b879f744c23bd8f3435a10701fd6f99dc7ca2d3ddc3671397a9a053df2652bb8",
     "actual_continuation": "collaboration.followup_task returned successfully after user resume; same independent Astra/high reviewer",
-    "status_updated_utc": "2026-09-15T04:41:45.390335+00:00"
+    "status_updated_utc": "2026-09-15T05:36:07.259057+00:00",
+    "status_index_checked_utc": "2026-09-15T05:03:34.275761+00:00"
   }
 ]

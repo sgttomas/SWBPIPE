@@ -1,0 +1,97 @@
+{
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "case_map": {
+    "bytes": 10659,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/case_map_v3.json",
+    "sha256": "7610483d92a5bcc7df9391dddecdd02b1a073657225ba44170857c52a988b595"
+  },
+  "code": "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED",
+  "executed_composer": {
+    "bytes": 8773,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/compose_captured_outputs_v2.test.ts",
+    "sha256": "8c0707e946a1a238ae9ec9b67b74ccc1614602eaf6eff45aba58735c1451f11e"
+  },
+  "failed_command_record": {
+    "bytes": 2265,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.record.json",
+    "sha256": "37ee8e03d5fe971750eb4c9a0f6ff745e5440d0913d82e5cb2ceafa9d3d1b1f0"
+  },
+  "failed_stderr": {
+    "bytes": 1669,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stderr.txt",
+    "sha256": "a2639fb8e671d125a70344fb9b68b4958a977303387447c5c7c3139e970dfb68"
+  },
+  "failed_stdout": {
+    "bytes": 600,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stdout.txt",
+    "sha256": "9a342fe7c96f66bcad978963413f832bf406b2f3a83d9f2a7c47cf3cf508cde4"
+  },
+  "first_authentic_output": {
+    "bytes": 999671,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/modulus.output_v2.json",
+    "sha256": "e9e5915316c2aea39160ecff2c2428568fbbbeec2e0bdc98fe98c951a3dc9bae"
+  },
+  "first_input": {
+    "bytes": 8220,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/modulus.request.json",
+    "sha256": "e2214a5b0c8d8dd40982c4a3b6e182fda93918611df227d6ed29c273586fc051"
+  },
+  "message": "ANALYSIS-RUN-RESULT-DIMENSION-UNDECLARED: result:modulus-basis:load-L-100 (modulus_basis_record) has no source dimension declaration.",
+  "minimal_repro_config_prepared_unexecuted": {
+    "bytes": 468,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/minimal_raw_modulus_constructor_repro.config.ts",
+    "sha256": "9dcf056d129ca0027115a380b16e72b6e40c6eae1247710735f32aa927d0bd50"
+  },
+  "minimal_repro_prepared_unexecuted": {
+    "bytes": 1711,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/minimal_raw_modulus_constructor_repro.test.ts",
+    "sha256": "a080f5eb6d5bcad74e55a65981bd92254c81a56a27cc3371d4a85a06b4255c79"
+  },
+  "owning_source": [
+    {
+      "bytes": 24546,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/services/previewService.ts",
+      "sha256": "9047e26a578d92f5dc986e1018b7945649b1d9cda662b131e53c4ca633ae10d7"
+    },
+    {
+      "bytes": 29060,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf"
+    }
+  ],
+  "product_source_edits_performed": false,
+  "raw_producer_dimension_augmentation_performed": false,
+  "reproduction": {
+    "argv": [
+      "npm",
+      "exec",
+      "--workspace",
+      "apps/desktop",
+      "--",
+      "vitest",
+      "run",
+      "--config",
+      "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/minimal_raw_modulus_constructor_repro.config.ts"
+    ],
+    "cwd": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+    "environment": {
+      "FINAL_CONSUMER_CASE_MAP": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/case_map_v3.json",
+      "FINAL_WORKING_ROOT": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+      "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson"
+    },
+    "expected_current_candidate": "fails with the exact message above",
+    "expected_repaired_candidate": "passes without adding or mutating dimension fields on the raw producer rows"
+  },
+  "schema": "final-native-v3-product-failure-v1",
+  "source_binding": {
+    "bytes": 23773,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/bindings/source_after_build.json",
+    "sha256": "efd5b410076c6c4bc76260252dee86cddd0fcac81b72be089e7340e6299c37b2"
+  },
+  "source_trace": {
+    "cause": "dimension-absent authentic modulus_basis_record reaches legacy bindSourceResultDimensions mapping, which has no declaration for that kind",
+    "result_constructor_call": "apps/desktop/src/features/result-export/resultExportAdapter.ts:151",
+    "throw_site": "apps/desktop/src/services/previewService.ts:263-267"
+  },
+  "status": "BLOCKING_PRODUCT_DEFECT"
+}

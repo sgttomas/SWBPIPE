@@ -1,0 +1,30 @@
+{
+  "schema": "compatibility-review-repair-v14-preserved-failures-v1",
+  "created_utc": "2026-09-15T04:49:55.874928Z",
+  "status": "PRESERVED_RESOLVED",
+  "failures": [
+    {
+      "id": "F06_REVIEW_REPRODUCTION",
+      "classification": "source validation defect",
+      "observed": "public validator accepted checksum-recomputed interior and terminal blank CSV records because DictReader skipped blank records",
+      "resolution": "require exact canonical_csv normalized text and parse explicit csv.reader records with exact width/count/order; maintained public-validator negatives now reject interior empty, terminal empty, and interior whitespace records"
+    },
+    {
+      "id": "V14_EVIDENCE_LOCAL_VITEST_DISCOVERY",
+      "classification": "evidence invocation error",
+      "record": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/vitest.log",
+      "sha256": "e9c61f9d43c5a3279f95a2817ec4d32633421fc26716e8e6478df23cdafeb9a8",
+      "bytes": 537,
+      "observed": "explicit evidence-local test path was excluded by maintained src/**/*.test include; no tests ran, exit 1",
+      "resolution": "evidence-local config inherited desktop settings and explicitly included the evidence-local probe; 1/1 passed"
+    },
+    {
+      "id": "V14_ACTUAL_PACKET_PREP_ENV",
+      "classification": "evidence invocation error",
+      "record": null,
+      "observed": "first fresh-directory prep referenced EVID before export; prep and tee path failed, while the following validator process independently passed and wrote RESULT/materialized files",
+      "resolution": "discarded that evidence directory and reran the full qualification from a fresh directory after exporting all absolute bindings; clean log and result preserved"
+    }
+  ],
+  "unresolved_source_failures": 0
+}

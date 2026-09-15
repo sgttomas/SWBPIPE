@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+    "solve",
+    "--input",
+    "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/rotational_nonlinear.successor-request.json",
+    "--output",
+    "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/successor_producers/rotational_nonlinear.successor-output.json",
+    "--explicit-local-private-intent"
+  ],
+  "cwd": "/private/tmp/piping-foundation-native-repaired-20260915/build/candidate-project",
+  "elapsed_seconds": 0.021927833557128906,
+  "ended_unix": 1789449399.9682848,
+  "environment": {
+    "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson"
+  },
+  "exit_code": 0,
+  "input": {
+    "bytes": 6317,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/rotational_nonlinear.successor-request.json",
+    "sha256": "6f428f1c81c5804860f58cc495cb76af53de414aea94acb296406aa67a35e62e"
+  },
+  "output": {
+    "bytes": 1133379,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/successor_producers/rotational_nonlinear.successor-output.json",
+    "sha256": "bd2c14a6d5f7f9567995a398b408a0a92167430a7019819f259253f90ca26949"
+  },
+  "started_unix": 1789449399.946357,
+  "stderr": {
+    "bytes": 0,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/producer_rotational_nonlinear.stderr.txt",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "stdout": {
+    "bytes": 1133379,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/producer_rotational_nonlinear.stdout.txt",
+    "sha256": "bd2c14a6d5f7f9567995a398b408a0a92167430a7019819f259253f90ca26949"
+  }
+}

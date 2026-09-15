@@ -1,0 +1,24 @@
+{
+  "schema": "root-execution-location-deviation-routing-v1",
+  "created_utc": "2026-09-15T05:13:05.650022+00:00",
+  "candidate_head": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "reported_condition": "The sole writer applied the authorized two-file F09 repair in integration instead of the declared compatibility worktree. Manager interrupted it. Focused evidence likewise ran against integration; no Git or native/browser effect reported.",
+  "observed_product_changes": [
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "committed_sha256": "a7fc5353c2173908d08c0dd59f92b61028d8295e881ee3ca41bac8c1fb7d3daf",
+      "integration_wip_sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf",
+      "bytes": 29156
+    },
+    {
+      "path": "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "committed_sha256": "1787ae2835ba18ac2cce9a6b86e8a59c7fe69b1c48b45ec0016b26d20ea7da48",
+      "integration_wip_sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7",
+      "bytes": 15651
+    }
+  ],
+  "disposition": "Preserve unaccepted integration WIP. Manager copies exact two maintained files to COMPAT, verifies hashes, re-establishes explicit COMPAT cwd and sole writer scope, then qualifies there. Existing raw evidence remains canonical at its actual integration location. Root reconciles final source only after fan-in.",
+  "authority": "Standing routine engineering authority and approved isolated workstream plan; no source acceptance or native gate waiver.",
+  "parallelism": "No other product writer and native lease released. Root leaves both maintained files untouched during the corrective handoff.",
+  "source_release": "9d96/V4 remains immutable reviewed history; current modified bytes need new source freeze and independent review."
+}

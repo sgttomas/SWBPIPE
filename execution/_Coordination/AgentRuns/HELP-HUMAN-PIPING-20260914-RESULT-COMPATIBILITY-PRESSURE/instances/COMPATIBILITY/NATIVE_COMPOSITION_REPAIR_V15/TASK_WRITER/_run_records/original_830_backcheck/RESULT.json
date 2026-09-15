@@ -1,0 +1,86 @@
+{
+  "accounting": {
+    "diagnostic_work_withholdings": 2,
+    "human_review_required": true,
+    "members": 9,
+    "rows": 830,
+    "validation_ready": false,
+    "witnesses": 828
+  },
+  "members": [
+    {
+      "bytes": 5883,
+      "claim_check": "manifest_seed",
+      "claim_value": "c8c7b1bb5b1d3fe9883aa7d66abba483d7da1b3a9013f80568648a34efbc23d0",
+      "filename": "manifest.json",
+      "sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479"
+    },
+    {
+      "bytes": 172162,
+      "claim_check": true,
+      "claim_value": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "filename": "stress_neutral_results.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a"
+    },
+    {
+      "bytes": 921611,
+      "claim_check": true,
+      "claim_value": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "filename": "result_rows.json",
+      "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b"
+    },
+    {
+      "bytes": 1412,
+      "claim_check": true,
+      "claim_value": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "filename": "unit_system_disclosure.json",
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450"
+    },
+    {
+      "bytes": 331939,
+      "claim_check": true,
+      "claim_value": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+      "filename": "unit_preservation_witnesses.json",
+      "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d"
+    },
+    {
+      "bytes": 656807,
+      "claim_check": true,
+      "claim_value": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "filename": "stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942"
+    },
+    {
+      "bytes": 3445,
+      "claim_check": true,
+      "claim_value": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+      "filename": "loss_report.json",
+      "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd"
+    },
+    {
+      "bytes": 4714,
+      "claim_check": true,
+      "claim_value": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+      "filename": "validation_report.json",
+      "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35"
+    },
+    {
+      "bytes": 3961,
+      "claim_check": true,
+      "claim_value": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+      "filename": "diagnostics.json",
+      "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e"
+    }
+  ],
+  "schema": "compatibility-v15-original-830-backcheck-v1",
+  "schema_validation": "PASS",
+  "source_packet": {
+    "bytes": 2107038,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "preserved_unchanged": true,
+    "sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87"
+  },
+  "status": "PASS",
+  "validated_writer": "PASS",
+  "validation": "PASS"
+}

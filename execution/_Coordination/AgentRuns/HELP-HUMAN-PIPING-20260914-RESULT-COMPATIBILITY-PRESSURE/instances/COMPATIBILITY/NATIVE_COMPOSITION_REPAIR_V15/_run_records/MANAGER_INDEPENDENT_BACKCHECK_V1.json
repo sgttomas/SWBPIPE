@@ -1,0 +1,238 @@
+{
+  "checked_authority": {
+    "path": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9"
+  },
+  "limits": {
+    "browser_or_native_execution": false,
+    "build_execution": false,
+    "full_sixty_signature_runtime_coverage_claimed": false
+  },
+  "original_830": {
+    "disk_write9": "PASS",
+    "members": 9,
+    "packet_path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/REVIEW_REPAIR_V10/TASK_WRITER/_run_records/V12_NATIVE_CARRIER/authentic-native-stress-neutral.packet.json",
+    "packet_sha256": "54ef0b8c3069e44b6e5ebbf6f908499b96919bc9c8caa297901c23ee9f27cd87",
+    "rows": 830,
+    "runtime_validator": "PASS",
+    "schema": "PASS",
+    "withholdings": 2,
+    "witnesses": 828
+  },
+  "schema": "compatibility-v15-manager-independent-backcheck-v1",
+  "seven_case_count": 7,
+  "seven_cases": [
+    {
+      "case": "modulus",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "f9cdd947ffb227d6990c06f4baa5dc29e56757be0528a6921a3bd347036b6c91",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 68,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 0,
+      "witnesses": 68
+    },
+    {
+      "case": "combination_modulus",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "bcf0987a06592315e7f3b869057bff17444429aa456d5c17e9500cfbf6f57166",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-max_abs:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-max:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-min_abs:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-min:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-sub:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:combination:combination-R-sum:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:loadcase:load-R-negative:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 534,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 0,
+      "witnesses": 534
+    },
+    {
+      "case": "curved",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "e848a0584837fb25b202e0cea7d5f180ed9401858e23453fe5ff94ac7c8dd7df",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 69,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 0,
+      "witnesses": 69
+    },
+    {
+      "case": "friction",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "10f3b32a383e4e4eda2b0d24aa0f32e6f50090699a6a1a312a4c6dff298b370f",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:nonlinear-support:support-NL-FRIC-110:ux-reaction",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-NL-FRIC-110",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-S-100",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 82,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 1,
+      "witnesses": 81
+    },
+    {
+      "case": "hanger_constant_effort",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "3ea870cded2594f624fb0bd4faa7722337539ce391ac4876fc294055a41eaf03",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-CE-TIP",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-ROOT",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-SH-TIP",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 79,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 0,
+      "witnesses": 79
+    },
+    {
+      "case": "rotational_nonlinear",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "05e3bc36c5f0fe5beb8a6605548c8f3b11c419ca6f39db55d32560ded57723c2",
+      "reaction_rows": [
+        {
+          "dimension": "moment",
+          "result_id": "result:nonlinear-support:support-V3-NL-RZ:rz-reaction",
+          "unit": "N*m",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-NL-RZ",
+          "unit": "N",
+          "witnessed": true
+        },
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-ROOT",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 77,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 1,
+      "witnesses": 76
+    },
+    {
+      "case": "zero_pressure_longitudinal",
+      "disk_write9": "PASS",
+      "members": 9,
+      "packet_sha256": "e54485cacaed95ff3194d1d0e3b6d90dd9f6c748e5a065bbf103759cde0354ae",
+      "reaction_rows": [
+        {
+          "dimension": "force",
+          "result_id": "result:reaction:support-V3-ROOT",
+          "unit": "N",
+          "witnessed": true
+        }
+      ],
+      "rows": 77,
+      "runtime_validator": "PASS",
+      "schema": "PASS",
+      "withholdings": 0,
+      "witnesses": 77
+    }
+  ],
+  "status": "PASS"
+}

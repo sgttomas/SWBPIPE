@@ -1,0 +1,299 @@
+{
+  "schema": "compatibility-review-repair-v14-task-writer-manifest",
+  "created_utc": "2026-09-15T04:51:34.884188Z",
+  "status": "QUALIFIED_COMPLETE_INTEGRATED_RESOURCES_TRANSFERRED",
+  "source_checkpoint_sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+  "final_evidence_sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+  "manager_backcheck_sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+  "artifact_count": 57,
+  "artifacts": [
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/CHILD_CONTINUATION.json",
+      "sha256": "e9fa4c829cc23acb01cfda23cc27c982d14f3ba3c5b80a05c6d102ccc7f4e51c",
+      "bytes": 400
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/MANAGER_PACKET_BACKCHECK_V1.json",
+      "sha256": "629eaabd3b709a4e8e84f2e14734b0b8f308b5fc83fa1d5f8bb1f5bb29fd282c",
+      "bytes": 6281
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/FINAL_EVIDENCE_V14.json",
+      "sha256": "e00bce56a9f4bbd209fb0028d9824b8ff77ad8ea48cd890df8c0bf120527e9a1",
+      "bytes": 7775
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/PRESERVED_FAILURES_V14.json",
+      "sha256": "fac52f4b041156d318f48b838a4def2826764b43c169dc21db64ec4cd10ec0b6",
+      "bytes": 1812
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/RETURN.md",
+      "sha256": "fb38d9498c22282de4644711ba6ad431b3339e58302060d18da3382d17532740",
+      "bytes": 1872
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/SOURCE_CHECKPOINT_V14.json",
+      "sha256": "8034c64da67d112fceaba7af3054c5c6f0c9609e93597890bb58e094979e2022",
+      "bytes": 18770
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/STATUS.json",
+      "sha256": "dd45598224243b058ae458a33fed4b01732d26e1b8c8e459d48054bc0ef26e23",
+      "bytes": 1464
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/RESULT.json",
+      "sha256": "d66307bbf6014e0cde40b0cebc09e2fbc3eb661846316205e01bc1bc7b0ee364",
+      "bytes": 3441
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/diagnostics.json",
+      "sha256": "53ff8c1f59dcbd0de6e7f75086c264652f0b49fc9ff303de5e1883ae46cf2f8e",
+      "bytes": 3961
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/loss_report.json",
+      "sha256": "1fe0f79404af94666387378658ac9bc6b69563bf0c910ad468d5ecad82748bfd",
+      "bytes": 3445
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/manifest.json",
+      "sha256": "ae0e8a34b4cf9fbd56a826e9b144876db1a953e91da49dc079e6c1f42488b479",
+      "bytes": 5883
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/result_rows.json",
+      "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "bytes": 921611
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "bytes": 656807
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/stress_neutral_results.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "bytes": 172162
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/unit_preservation_witnesses.json",
+      "sha256": "99842c4c3f8127613a6209ab9417b270447fe0fbccf67f68eaf9833b0e5ca83d",
+      "bytes": 331939
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/unit_system_disclosure.json",
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "bytes": 1412
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/materialized/validation_report.json",
+      "sha256": "9bb0b9311fddc7f66adae6d9e573791d181a873382de351bbb729bce3f42de35",
+      "bytes": 4714
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/ACTUAL_PACKET_V14/qualification.log",
+      "sha256": "ffa3886289bf74d0bfaae41b904fc62540b5ff783ad8d07b577dd699a7fd939f",
+      "bytes": 160
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/PYTHON_CONSUMER_RESULT.json",
+      "sha256": "a683db0ddbd5c35cbd11d6d2be1316360e6e1c9d8d89ec6a7a5642dee1dfe3d8",
+      "bytes": 1331
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/missing-component.packet.json",
+      "sha256": "e4f89cb75db3d9f4684d6a8f7f86666e3a726a4893eb8c77737bab8e829d7ce9",
+      "bytes": 2107755
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/producer-probes.summary.json",
+      "sha256": "2220793aa24fa071d3889aa107b5fbe6500067a4dd3de8f199696c1ec52d3750",
+      "bytes": 8323
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/unit-component-contradiction.packet.json",
+      "sha256": "e86310ba8a077aeceb36b5459effbec194bf23bf586d14a3f42c4feeb24a1a56",
+      "bytes": 2107804
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/packets/unknown-kind.packet.json",
+      "sha256": "6f06ae4d84c7d2a580c77afa897e559652bae0b06534461f0eb2f59ba865f36c",
+      "bytes": 2107803
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/producer-probes.test.ts",
+      "sha256": "615a1236e86b47b51e80fcc102e8447026cf452c3b8be28f8118cd35438fd85f",
+      "bytes": 3109
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-consumer.log",
+      "sha256": "74d1db1f1b500d8fa29677cc28685b09dea591b77dbd94ab165797c85fa96173",
+      "bytes": 135
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/diagnostics.json",
+      "sha256": "a652812b9fb64cba72c34f6cfb10b7467042d796a2d5e5fe4358c31816685c79",
+      "bytes": 5007
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/loss_report.json",
+      "sha256": "9eb228f3acc06ddc9a7398c57845def872d739adbd0026503379056a840a21e4",
+      "bytes": 3445
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/manifest.json",
+      "sha256": "fce2efee8191f3cbf2490f3bfc3a583df7cca1312c1f249cd7e1db73ce74e9d3",
+      "bytes": 5883
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/result_rows.json",
+      "sha256": "ba25be81b87f967b98c9aa54faa080c5e9ddbc9a0d28a7638f5136bec2e7e37b",
+      "bytes": 921611
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "bytes": 656807
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/stress_neutral_results.csv",
+      "sha256": "223599c8a577e522c197483e07c40c42cc07e0ed78717af90015abc8b7bfab5a",
+      "bytes": 172162
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/unit_preservation_witnesses.json",
+      "sha256": "c4cc7fb0d6cf6767defb0bbaae6eb89a303ac8963ccd8407d6c648f640cd49b1",
+      "bytes": 331610
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/unit_system_disclosure.json",
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "bytes": 1412
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/missing-component/validation_report.json",
+      "sha256": "03f0a515968ab28d6af190a444dc853acc7c754facb2aea17c8cd7c82fca04e6",
+      "bytes": 4714
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/diagnostics.json",
+      "sha256": "e669a9f031bcc6375d15838aea8dc481e24699dfcf00730cde6e733a4ebac5ec",
+      "bytes": 5001
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/loss_report.json",
+      "sha256": "9eb228f3acc06ddc9a7398c57845def872d739adbd0026503379056a840a21e4",
+      "bytes": 3445
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/manifest.json",
+      "sha256": "45a57c5e5af7fb4a420421f906b883b2b556cb519ba2bdd81201f456703e0947",
+      "bytes": 5883
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/result_rows.json",
+      "sha256": "7de6f69d060af2d81c24f5ddea31a9f8b7fc36f732a165230c3260ff6456eb92",
+      "bytes": 921636
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "bytes": 656807
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/stress_neutral_results.csv",
+      "sha256": "1839f6757bd89b8017298102de73a73ba3f21a6dfda3e0bcb3abb094871cc179",
+      "bytes": 172187
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/unit_preservation_witnesses.json",
+      "sha256": "c4cc7fb0d6cf6767defb0bbaae6eb89a303ac8963ccd8407d6c648f640cd49b1",
+      "bytes": 331610
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/unit_system_disclosure.json",
+      "sha256": "5b7db393e08f4fda1ecb374c5117a7107d9ef27c39c10f1301dc62ae03615e2e",
+      "bytes": 1417
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unit-component-contradiction/validation_report.json",
+      "sha256": "03f0a515968ab28d6af190a444dc853acc7c754facb2aea17c8cd7c82fca04e6",
+      "bytes": 4714
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/diagnostics.json",
+      "sha256": "e824b300fdfa1a27bb8b15d47cf53d5c6dcb6bdadb04ce90ffef302c6028618e",
+      "bytes": 5007
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/loss_report.json",
+      "sha256": "9eb228f3acc06ddc9a7398c57845def872d739adbd0026503379056a840a21e4",
+      "bytes": 3445
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/manifest.json",
+      "sha256": "418c2116a7e8e0e0c94cdf9023c4b8239c0b9c649d1063d25f0e8283fc902562",
+      "bytes": 5883
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/result_rows.json",
+      "sha256": "566e916a7bdb54768e0e601751d4dce14c130e7ff422ab0ab55c4ee3edd341df",
+      "bytes": 921635
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/stable_id_map.json",
+      "sha256": "77d3c026581b27c5ea1da857f88aa9dec068e821700910ffba39316c5a83b942",
+      "bytes": 656807
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/stress_neutral_results.csv",
+      "sha256": "7f590959feb34a12714fda66ab5979fe0792a2eca53fd9fa255eca6f8fb970c1",
+      "bytes": 172186
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/unit_preservation_witnesses.json",
+      "sha256": "c4cc7fb0d6cf6767defb0bbaae6eb89a303ac8963ccd8407d6c648f640cd49b1",
+      "bytes": 331610
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/unit_system_disclosure.json",
+      "sha256": "7712a1cfbccdab82aae026c5338008bb2f3a052509d78ee8ffd544315588f450",
+      "bytes": 1412
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/python-materialized/unknown-kind/validation_report.json",
+      "sha256": "03f0a515968ab28d6af190a444dc853acc7c754facb2aea17c8cd7c82fca04e6",
+      "bytes": 4714
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/vite-probe.config.ts",
+      "sha256": "6acc375189e00e486631c35f8e883ee785e21b5d1f2e14effe5fef0f32721a0f",
+      "bytes": 368
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/vitest-final.log",
+      "sha256": "18b0ade91f08f99b9608877f4c56ffa7f93a2084d0ec970ff90957ebe92a4ade",
+      "bytes": 293
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/PRODUCER_PROBES/vitest.log",
+      "sha256": "e9c61f9d43c5a3279f95a2817ec4d32633421fc26716e8e6478df23cdafeb9a8",
+      "bytes": 537
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/TASK_WRITER/_run_records/focused-python.log",
+      "sha256": "3fac1f140ec87d9118df9f7414e5c444e5805443ccff05c91230e82b78d784ee",
+      "bytes": 969
+    },
+    {
+      "path": "instances/COMPATIBILITY/REVIEW_REPAIR_V14/WRITE_SCOPE.json",
+      "sha256": "d1c4c20a4607be75a78676f0a9d648f19c94a54609b99a09051ae41b6de17fe1",
+      "bytes": 1859
+    }
+  ],
+  "source_manifest_paths": 74,
+  "source_delta_paths": 2,
+  "source_frozen": true
+}

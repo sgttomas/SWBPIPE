@@ -1,0 +1,13 @@
+{
+  "created_utc": "2026-09-15T05:27:38.087917+00:00",
+  "interpretation": "No openpipestress runner, Vitest, Vite, Playwright, Tauri, browser, server, or native GUI process owned by this task remained.",
+  "matching_process_lines": [
+    "621     1 /usr/libexec/centaurid",
+    "757     1 /System/Library/DriverExtensions/AppleCentauriAlpha.dext/AppleCentauriAlpha com.apple.driver.AppleCentauriAlpha 0x100001673 com.apple.driver.AppleCentauriAlpha",
+    "758     1 /System/Library/DriverExtensions/AppleCentauriBeta.dext/AppleCentauriBeta com.apple.driver.AppleCentauriBeta 0x100001674 com.apple.driver.AppleCentauriBeta",
+    "759     1 /System/Library/DriverExtensions/AppleCentauriControl.dext/AppleCentauriControl com.apple.driver.AppleCentauriControl 0x100001675 com.apple.driver.AppleCentauriControl"
+  ],
+  "owned_processes": [],
+  "schema": "compatibility-v15-final-process-scan-v1",
+  "status": "PASS"
+}

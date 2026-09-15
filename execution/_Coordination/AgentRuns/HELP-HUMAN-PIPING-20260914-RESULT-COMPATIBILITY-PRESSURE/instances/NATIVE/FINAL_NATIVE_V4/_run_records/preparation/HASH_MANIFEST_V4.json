@@ -1,0 +1,43 @@
+{
+  "file_count": 7,
+  "files": [
+    {
+      "bytes": 1376,
+      "path": "CONTEXT_BINDINGS_V4.json",
+      "sha256": "b0dc85fdaef6061db269470a709ddc11bd0df6638903381d8b0e7997699c3169"
+    },
+    {
+      "bytes": 4335,
+      "path": "GENUINE_PRODUCER_COVERAGE_V4.json",
+      "sha256": "5e1619414299a17f27869f5ec14ab185396d2e44da6b58e143a1436f4e8d4188"
+    },
+    {
+      "bytes": 4769,
+      "path": "HELPER_BINDINGS_V4.json",
+      "sha256": "d3770037260e9513b4a52ae33f1dcbe02d5c30169ca770bf2c6c23ad8d1cc361"
+    },
+    {
+      "bytes": 993,
+      "path": "PREPARATION_RETURN_V4.json",
+      "sha256": "f1e8f9ce7761d020688074049e54691c6241b7b0b6131b1480b51568efaf4ad7"
+    },
+    {
+      "bytes": 2328,
+      "path": "READINESS_PRECONDITIONS_V4.json",
+      "sha256": "d83779a4d53fc4d29e3b6a39cbf90e474116dc7effb28ef53a2c68624ee72d90"
+    },
+    {
+      "bytes": 7523,
+      "path": "RUNNER_REUSE_BASELINE_V4.json",
+      "sha256": "2bc94b79d327a02ec2924c25f49cd8f24d6c970ff2a584fccec1172e74367d97"
+    },
+    {
+      "bytes": 2645,
+      "path": "SUCCESSOR_EXECUTION_SEQUENCE_V4.json",
+      "sha256": "c051f0c9e0a020b739fd81fd9e83a90c9e137021552b8d66c4e396412f52fd7c"
+    }
+  ],
+  "schema": "final-native-v4-preparation-hash-manifest-v1",
+  "self_excluded": "HASH_MANIFEST_V4.json",
+  "status": "PREPARATION_ONLY"
+}

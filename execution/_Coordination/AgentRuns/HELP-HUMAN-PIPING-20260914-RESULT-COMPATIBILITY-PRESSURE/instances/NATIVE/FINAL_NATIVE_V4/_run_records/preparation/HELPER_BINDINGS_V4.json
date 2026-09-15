@@ -1,0 +1,114 @@
+{
+  "helpers": [
+    {
+      "bytes": 11700,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/REUSABLE_AUTHENTIC_PRODUCERS.json",
+      "sha256": "68c22a5c2c645fcc54eec4e5dfbb5dc1de27e881e99fac46423880538ee641a8"
+    },
+    {
+      "bytes": 10659,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/consumer/case_map_v3.json",
+      "sha256": "7610483d92a5bcc7df9391dddecdd02b1a073657225ba44170857c52a988b595"
+    },
+    {
+      "bytes": 8773,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/compose_captured_outputs_v2.test.ts",
+      "sha256": "8c0707e946a1a238ae9ec9b67b74ccc1614602eaf6eff45aba58735c1451f11e"
+    },
+    {
+      "bytes": 758,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/vitest.v2.config.ts",
+      "sha256": "f0416dd72ed38484cdd639cc0fa546c1e0342da09d73eea0863dbad7737b5f5f"
+    },
+    {
+      "bytes": 3047,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/run_final_consumers_v2.py",
+      "sha256": "6bf75d59f3cc684a4da38b877bb2eb92ace893c4824677e70e3ffc103c0a7ac5"
+    },
+    {
+      "bytes": 15552,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/verify_delivered_artifacts_v2.py",
+      "sha256": "3250a8911af0c209a3a0e4c2eae1542d4734f73a04fc3d450c0f8d581a8252c1"
+    },
+    {
+      "bytes": 1711,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/minimal_raw_modulus_constructor_repro.test.ts",
+      "sha256": "a080f5eb6d5bcad74e55a65981bd92254c81a56a27cc3371d4a85a06b4255c79"
+    },
+    {
+      "bytes": 468,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/minimal_raw_modulus_constructor_repro.config.ts",
+      "sha256": "9dcf056d129ca0027115a380b16e72b6e40c6eae1247710735f32aa927d0bd50"
+    },
+    {
+      "bytes": 8685,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/verify_f03_accounting_v6.py",
+      "sha256": "27d5f701dcf8caff4d5e7d173ae3ce97317ff800f443b52baf00609818321798"
+    },
+    {
+      "bytes": 3033,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/helpers/prepare_malformed_historical_row_v6.mjs",
+      "sha256": "ec91fceba427d58a694ec9888b0b3631a5d1da6924a09c45ffac3266062b5e0a"
+    },
+    {
+      "bytes": 2507,
+      "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/preparation/malformed_historical_cases_bound_v3.json",
+      "sha256": "2a46c259b13e854b8a6986678b6a66c8d9dbf90176f2d1dcaf77cf803c51f67e"
+    },
+    {
+      "bytes": 3163,
+      "path": "instances/NATIVE/REPAIR_PREPARATION_V5/restore_seed_and_capture_store_v5.py",
+      "sha256": "e63bc61fbb12d14478f709750b0da49d5116b19cf424f658e3d89ab754d3e110"
+    },
+    {
+      "bytes": 2765,
+      "path": "instances/NATIVE/REPAIR_PREPARATION_V5/verify_malformed_unchanged_save_v5.py",
+      "sha256": "d11b92b788e5a6c7ee8887415c324d09b70897d6f9e7ef5defc8684f03ae964e"
+    },
+    {
+      "bytes": 1132,
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/materialize_stress_members.py",
+      "sha256": "fd2f77193914333e50bb1936bcfb9c05daa8688d58f581c6c979e23ac2b433e9"
+    },
+    {
+      "bytes": 15478,
+      "path": "instances/NATIVE/FINAL_CONSUMER_PREPARATION_V4/verify_delivered_artifacts.py",
+      "sha256": "b7110b743318a33ca6ff22ce3488102392de74ce0a2244820b0f9dee3b90fe1b"
+    },
+    {
+      "bytes": 5263,
+      "path": "instances/NATIVE/FINAL_NATIVE_V2/validation/validate_stored_analysis_v3.py",
+      "sha256": "eb151cc8af7b0fc01936c73d2f594fa657193b5d49e9baa20cccc255d53d477c"
+    },
+    {
+      "bytes": 12455,
+      "path": "instances/NATIVE/NATIVE_QUALIFICATION_PROCEDURE_V1.md",
+      "sha256": "ddb5f92ef50eed2c66358262886e3c889c0742c1e69a75a6d3c9a397699430d8"
+    },
+    {
+      "bytes": 6425,
+      "path": "instances/NATIVE/FROZEN_SYNTHETIC_EXPECTATIONS_V1.json",
+      "sha256": "5c60f51fbb50c92405f1b13392e58e765d12c717df0202c26744fc8bf6a78f65"
+    }
+  ],
+  "product_inputs": [
+    {
+      "bytes": 37875,
+      "path": "fixtures/results/semantic_contract_v0_2.json",
+      "sha256": "4d6886d19e304db897e5e9f8f0054cbee91ba7795868f9698e2bbe070bde94da"
+    },
+    {
+      "bytes": 3777,
+      "path": "fixtures/analysis_runs/invented/legacy_desktop_v0_1.json",
+      "sha256": "b69214394e2f8183b50149aa0db0827bd5f94fee79f4dc2add00026ef9760860"
+    },
+    {
+      "bytes": 6716,
+      "path": "fixtures/analysis_runs/invented/legacy_python_v0_1.json",
+      "sha256": "03040257859d1a82b2a05166f743451e97266c5bfe897a8b75ae886a5b275ebc"
+    }
+  ],
+  "schema": "final-native-v4-helper-bindings-v1",
+  "status": "REFERENCE_ONLY_NOT_EXECUTED",
+  "successor_rule": "Use canonical helpers by these hashes. Rebind only candidate/source/bundle/store paths in a new execution record; any helper correction is evidence-local and versioned."
+}

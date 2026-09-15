@@ -1,0 +1,181 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "npm",
+        "exec",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "vitest",
+        "run",
+        "src/features/result-export/resultExportAdapter.test.ts",
+        "--maxWorkers=1"
+      ],
+      "exit_code": 0,
+      "log": {
+        "bytes": 294,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_compat_successor.log",
+        "sha256": "574e4cce544db8acf2f0e5944325317de99243b50cd4745ad90188bcb645e2e1"
+      },
+      "name": "focused_result_export",
+      "result": "12 passed"
+    },
+    {
+      "argv": [
+        "npm",
+        "exec",
+        "--workspace",
+        "apps/desktop",
+        "--",
+        "tsc",
+        "-b",
+        "--pretty",
+        "false"
+      ],
+      "exit_code": 0,
+      "log": {
+        "bytes": 0,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/tsc_v15_compat_successor.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "name": "typescript",
+      "result": "PASS; empty stdout/stderr"
+    },
+    {
+      "argv": [
+        "/private/tmp/piping-foundation-20260914-venv/bin/python",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_stress_neutral_export_package.py"
+      ],
+      "environment": {
+        "OPENPIPESTRESS_CHECKED_JSON_BIN": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+      "exit_code": 0,
+      "log": {
+        "bytes": 970,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_stress_python_v15.log",
+        "sha256": "f81848093d42f6c2b7b2ac758d9e16355051c6513bce1038e322b8bd5fbeaccc"
+      },
+      "name": "focused_python_stress",
+      "result": "80 passed, 0 skipped"
+    },
+    {
+      "count": 3,
+      "exit_codes": [
+        0,
+        0,
+        0
+      ],
+      "name": "successor_headless_solves",
+      "records": [
+        {
+          "bytes": 3085,
+          "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/producer_hanger_constant_effort.record.json",
+          "sha256": "f4f6f612ec3e0118c4435f52865ee0a703e29f3efc32c343425113d0f822c265"
+        },
+        {
+          "bytes": 3072,
+          "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/producer_rotational_nonlinear.record.json",
+          "sha256": "63cdda91e257ca24648dcc8f19f1e9c5dea4744ec8755766f7a691c6ec75fca7"
+        },
+        {
+          "bytes": 3107,
+          "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/producer_zero_pressure_longitudinal.record.json",
+          "sha256": "6253087d450f5dbd51f54f744670b54d410b0b59c92dbbf31ec8d3585e7872de"
+        }
+      ],
+      "runner": "/private/tmp/piping-foundation-native-repaired-20260915/build/headless-runner/release/openpipestress-runner",
+      "runner_sha256": "f8020aee734edf1a3ddd8ade0cb756e63442df97066440e9636a97775adb7897"
+    },
+    {
+      "exit_code": 0,
+      "log": {
+        "bytes": 25232,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15_final.log",
+        "sha256": "074024837b8d34572a8e335c4c2ae4437797d21f78c2b5f00928384391853625"
+      },
+      "name": "seven_case_composition",
+      "result": "1 TS composition test passed; 7 Python schema/runtime/write9 cases passed"
+    },
+    {
+      "exit_code": 0,
+      "kind": "evidence-local inline Python using public validator, project schema resolver, and write_materialized_members_v0_2",
+      "log": {
+        "bytes": 408,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/original_830_backcheck_v15.log",
+        "sha256": "17bdaca36ea26b1f826572df747d6c81871c1b6f22678a1cd80861aed81dbd11"
+      },
+      "name": "original_830_backcheck",
+      "record": {
+        "bytes": 3361,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/original_830_backcheck/RESULT.json",
+        "sha256": "0e7d48f65d6eb66bb3d4f38826378e5ded07d659965426e4e76ccbd06ea81297"
+      },
+      "result": "830 rows, 828 witnesses, 2 diagnostic-work withholdings, 9 members"
+    }
+  ],
+  "created_utc": "2026-09-15T05:27:38.087917+00:00",
+  "environment": {
+    "checked_json": "/private/tmp/piping-foundation-native-repaired-20260915/build/checked-json/release/openpipestress_jcs_ijson",
+    "checked_json_sha256": "d4373a33bf7c365a1b75146ecb232a03a3437fb722c49f006c121c4ac5bf5ec9",
+    "python": "/private/tmp/piping-foundation-20260914-venv/bin/python",
+    "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping"
+  },
+  "path_collision_disposition": {
+    "bytes": 1847,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+    "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07"
+  },
+  "preserved_failures": [
+    {
+      "binding": {
+        "bytes": 4289,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+        "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6"
+      },
+      "name": "integration-location initial assertion wording and TS nullability"
+    },
+    {
+      "error": "SN-UNIT-WITNESS-BINDING-MISMATCH",
+      "finding": {
+        "bytes": 4732,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/ADJACENT_PYTHON_REACTION_FINDING_V1.json",
+        "sha256": "f9083ce0fe92ad28aadfe4d9c1a175ce279900d681767115c72e45cf701b9f4a"
+      },
+      "log": {
+        "bytes": 19643,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/seven_case_composition_v15_compat_pref10.log",
+        "sha256": "dcbd9e6e1c0695cf48b038901fdabab7bb76e8785bf35e19986365aa760b81d0"
+      },
+      "name": "pre-F10 seven-case Python rotational reaction failure"
+    },
+    {
+      "name": "runner precheck accidentally counted generated pycache",
+      "record": {
+        "bytes": 9992,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/RUNNER_REUSE_PRECHECK_V15.json",
+        "sha256": "241c55bcddf5b9d4061b599946d0819472afc230a6c56be1dbf35342212ba3f4"
+      },
+      "resolved_by": {
+        "bytes": 1989,
+        "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/MANAGER_RUNNER_REUSE_PREFLIGHT_V1.json",
+        "sha256": "df7a51de6c2ea317636f93f60b4d16c999fd62568b97dc3ebdcfd10405754a2d"
+      }
+    }
+  ],
+  "prohibited_execution_performed": {
+    "browser": false,
+    "cargo": false,
+    "delegation": false,
+    "dev_server": false,
+    "git": false,
+    "native_gui_or_store": false,
+    "wasm_build": false
+  },
+  "schema": "compatibility-v15-command-evidence-v1",
+  "status": "PASS"
+}

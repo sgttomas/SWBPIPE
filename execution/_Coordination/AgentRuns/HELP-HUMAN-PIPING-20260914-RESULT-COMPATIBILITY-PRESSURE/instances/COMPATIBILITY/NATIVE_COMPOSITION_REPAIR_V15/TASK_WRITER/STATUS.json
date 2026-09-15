@@ -1,0 +1,53 @@
+{
+  "created_utc": "2026-09-15T05:27:38.087917+00:00",
+  "delegation": false,
+  "evidence": {
+    "commands": {
+      "bytes": 7208,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/COMMAND_EVIDENCE_V15.json",
+      "sha256": "d91f946959e709375e9cd3ad64146a075a154c022dd59012be62c3ac64fdf7d3"
+    },
+    "final": {
+      "bytes": 6042,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/FINAL_EVIDENCE_V15.json",
+      "sha256": "7cce665da19259fe4d6d209766e34f165fbba3161ca15a16915919058993e696"
+    },
+    "path_collision_disposition": {
+      "bytes": 1847,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/PATH_COLLISION_DISPOSITION_V1.json",
+      "sha256": "6aebcbd2e7b12391ded1a736fceed97f37d678c488a15365c8eefdc47932fb07"
+    },
+    "process_cleanup": {
+      "bytes": 915,
+      "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/FINAL_PROCESS_SCAN_V15.json",
+      "sha256": "5be70a58cadcc5260e3e02e6242bdd15f2a107ab8ba5a49fea584ecc8a09d45b"
+    }
+  },
+  "git_actions": false,
+  "historical_integration_continuation_sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4",
+  "historical_integration_continuation_status": "SUPERSEDED_BY_COMPAT_CONTINUATION_V2",
+  "pending": [
+    "manager independent 74-file/scope/evidence fan-in",
+    "root integration and independent source review",
+    "native qualification/lifecycle/full sweep/CI/merge"
+  ],
+  "qualification": {
+    "adapter": "12/12 PASS",
+    "observed_signatures": "52 distinct; full60 not claimed",
+    "original_830": "830/828/two-work/write9 PASS",
+    "python_stress": "80/80 PASS, 0 skipped",
+    "seven_case_composition": "7/7 TS-to-Python/schema/write9 PASS",
+    "successor_solves": "3/3 PASS",
+    "typescript": "PASS"
+  },
+  "schema": "compatibility-v15-task-writer-status-v1",
+  "source_checkpoint": {
+    "delta_files": 4,
+    "path": "instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+    "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736",
+    "source_files": 74
+  },
+  "source_frozen": true,
+  "status": "COMPLETE_AWAITING_MANAGER_FANIN",
+  "working_checkout": "chirality-compatibility-20260914"
+}

@@ -1,0 +1,140 @@
+{
+  "all60_gate": "Fresh successor native sparse/dense production and delivery must demonstrate the eight gaps and union exactly all 60. V3 seven-case output alone is not all-60 acceptance.",
+  "closure_route": {
+    "native_dense": [
+      "supported-source-037"
+    ],
+    "native_sparse": [
+      "supported-source-038",
+      "supported-source-039",
+      "supported-source-040",
+      "supported-source-041",
+      "supported-source-042",
+      "supported-source-043",
+      "supported-source-055"
+    ]
+  },
+  "contract_signature_count": 60,
+  "gap_count": 8,
+  "gaps_after_seven_cases": [
+    {
+      "category": "diagnostic_relative_ratio",
+      "component": "sparse_live_path",
+      "kind": "sparse_live_path_dense_parity_relative_delta",
+      "signature_id": "supported-source-037",
+      "unit": "unitless"
+    },
+    {
+      "category": "review_evidence",
+      "component": "expansion_joint_pressure_thrust",
+      "kind": "expansion_joint_pressure_thrust_load_review",
+      "signature_id": "supported-source-038",
+      "unit": "N"
+    },
+    {
+      "category": "review_evidence",
+      "component": "axial_user_stiffness",
+      "kind": "component_user_stiffness_macro_element_review",
+      "signature_id": "supported-source-039",
+      "unit": "N/m"
+    },
+    {
+      "category": "review_evidence",
+      "component": "lateral_user_stiffness",
+      "kind": "component_user_stiffness_macro_element_review",
+      "signature_id": "supported-source-040",
+      "unit": "N/m"
+    },
+    {
+      "category": "review_evidence",
+      "component": "angular_user_stiffness",
+      "kind": "component_user_stiffness_macro_element_review",
+      "signature_id": "supported-source-041",
+      "unit": "N*m/rad"
+    },
+    {
+      "category": "review_evidence",
+      "component": "torsional_user_stiffness",
+      "kind": "component_user_stiffness_macro_element_review",
+      "signature_id": "supported-source-042",
+      "unit": "N*m/rad"
+    },
+    {
+      "category": "review_evidence",
+      "component": "variable_spring_hanger_stiffness",
+      "kind": "spring_hanger_user_input_review",
+      "signature_id": "supported-source-043",
+      "unit": "N/m"
+    },
+    {
+      "category": "physical_quantity",
+      "component": "friction_normal_reaction_derived",
+      "kind": "nonlinear_support_friction_normal_reaction_derived",
+      "signature_id": "supported-source-055",
+      "unit": "N"
+    }
+  ],
+  "hard_gate_059_preserved": true,
+  "schema": "final-native-v4-genuine-producer-coverage-v1",
+  "seven_case_observed_signature_count": 52,
+  "seven_case_observed_signature_ids": [
+    "supported-source-000",
+    "supported-source-001",
+    "supported-source-002",
+    "supported-source-003",
+    "supported-source-004",
+    "supported-source-005",
+    "supported-source-006",
+    "supported-source-007",
+    "supported-source-008",
+    "supported-source-009",
+    "supported-source-010",
+    "supported-source-011",
+    "supported-source-012",
+    "supported-source-013",
+    "supported-source-014",
+    "supported-source-015",
+    "supported-source-016",
+    "supported-source-017",
+    "supported-source-018",
+    "supported-source-019",
+    "supported-source-020",
+    "supported-source-021",
+    "supported-source-022",
+    "supported-source-023",
+    "supported-source-024",
+    "supported-source-025",
+    "supported-source-026",
+    "supported-source-027",
+    "supported-source-028",
+    "supported-source-029",
+    "supported-source-030",
+    "supported-source-031",
+    "supported-source-032",
+    "supported-source-033",
+    "supported-source-034",
+    "supported-source-035",
+    "supported-source-036",
+    "supported-source-044",
+    "supported-source-045",
+    "supported-source-046",
+    "supported-source-047",
+    "supported-source-048",
+    "supported-source-049",
+    "supported-source-050",
+    "supported-source-051",
+    "supported-source-052",
+    "supported-source-053",
+    "supported-source-054",
+    "supported-source-056",
+    "supported-source-057",
+    "supported-source-058",
+    "supported-source-059"
+  ],
+  "status": "OPEN_NOT_ALL_60",
+  "v3_authentic_outputs": {
+    "bytes": 11700,
+    "path": "instances/NATIVE/FINAL_NATIVE_V3/_run_records/producer/REUSABLE_AUTHENTIC_PRODUCERS.json",
+    "sha256": "68c22a5c2c645fcc54eec4e5dfbb5dc1de27e881e99fac46423880538ee641a8"
+  }
+}

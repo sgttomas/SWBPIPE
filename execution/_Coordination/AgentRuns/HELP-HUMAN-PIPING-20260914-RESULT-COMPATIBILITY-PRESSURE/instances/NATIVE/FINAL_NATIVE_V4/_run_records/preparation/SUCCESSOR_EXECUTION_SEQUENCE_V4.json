@@ -1,0 +1,62 @@
+{
+  "schema": "final-native-v4-successor-execution-sequence-v1",
+  "status": "FROZEN_PLAN_NOT_EXECUTED",
+  "steps": [
+    {
+      "action": "Verify successor release/review/lease, helper hashes and before-build source binding.",
+      "gate": "release",
+      "order": 1
+    },
+    {
+      "action": "Apply conditional runner dependency decision; reuse exact V3 requests/raw outputs only on full match, else rebuild runner and re-solve seven. Hard-gate 059.",
+      "gate": "producer-reuse",
+      "order": 2
+    },
+    {
+      "action": "Run repaired one-case repro then complete seven-output constructors, schemas, public validators, validated nine-member writer and F03 supplemental verifier.",
+      "gate": "frontend-before-native-build",
+      "order": 3
+    },
+    {
+      "action": "Build checked authority, WASM/dist and unique successor app through maintained beforeBuild; bind and recheck source.",
+      "gate": "fresh-app",
+      "order": 4
+    },
+    {
+      "action": "Fresh isolated-store create/solve/first save, normal quit/reopen Historical before recovery, independently verify normalized model/envelope/result/record/rows, unchanged save, then fresh solve.",
+      "gate": "first-save",
+      "order": 5
+    },
+    {
+      "action": "Run shipped sparse 830 and dense 832 native routes; explicit local-private JSON/CSV delivery, typed receipts, F03 830/828/two validation, Python nine-member bytes, and exact all-60 union.",
+      "gate": "native-delivery",
+      "order": 6
+    },
+    {
+      "action": "GUI-author exact 3.2 m cantilever 350 N; inspect, edit/invalidate 500 N, exact undo/redo and reviewed agent-equivalent model hash, solve/save/quit/reopen Historical/unchanged save/fresh Current solve with exact attachments.",
+      "gate": "cantilever",
+      "order": 7
+    },
+    {
+      "action": "With app stopped between seeds, run seven disposable malformed carriers; then both frozen legacy 0.1 profiles with truthful match/unverifiable outcomes and unchanged saves.",
+      "gate": "historical",
+      "order": 8
+    },
+    {
+      "action": "Recheck released source, normal quit, clear owned processes, hash one canonical evidence set, return verdict and explicit lease release.",
+      "gate": "seal",
+      "order": 9
+    }
+  ],
+  "stop_conditions": [
+    "source mismatch",
+    "V15 constructor/validator failure",
+    "reuse dependency mismatch without fresh runner re-solve",
+    "absent 059",
+    "first-save inconsistency",
+    "F03 accounting mismatch",
+    "malformed carrier enters Current or changes raw bytes",
+    "missing delivered bytes/member",
+    "lifecycle hash or attachment mismatch"
+  ]
+}

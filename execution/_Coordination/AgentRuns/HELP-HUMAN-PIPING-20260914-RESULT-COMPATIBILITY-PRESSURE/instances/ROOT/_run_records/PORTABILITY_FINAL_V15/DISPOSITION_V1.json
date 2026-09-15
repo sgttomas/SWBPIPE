@@ -1,0 +1,96 @@
+{
+  "schema": "root-completed-v15-portability-disposition-v1",
+  "created_utc": "2026-09-15T05:34:28.745963+00:00",
+  "accepted_manager_fanin": {
+    "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/FINAL_COMPATIBILITY_FANIN_V3.json",
+    "sha256": "2b3c969da7e34ee2a1a8223a73d085f21a597cfad3b6addf77764ebbad885350"
+  },
+  "policy_before_sha256": "44e4ec871014f4196a179ebd509014d783762c63d383ba707cdd86a8747555d9",
+  "policy_after_sha256": "80fa4e800ce5eb3ae6773564c5c541b918223d75055b27f16ee15f05d21d8a63",
+  "exact_completed_evidence_overrides": [
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+      "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/CONTRACT_AND_SCOPE_V1.json",
+      "sha256": "6424149728b4196e5b1b6c818c32b2f6e2eee10ee730056176156cf04d50a5b2",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/F10_SCOPE_ADDENDUM_V1.json",
+      "sha256": "6dacd3728fe70700e1583657b5ef69673ac341c5c36ec3c3b18eaa401025c97a",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/MANAGER_RUNNER_REUSE_PREFLIGHT_V1.json",
+      "sha256": "df7a51de6c2ea317636f93f60b4d16c999fd62568b97dc3ebdcfd10405754a2d",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/PREPARED_SUCCESSOR_REQUESTS_V1/PREPARED_REQUESTS.json",
+      "sha256": "66ff71fd866682f251d49a1bfc9c2cfff95d8548fac78536febcfe58e5f4f39e",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/SOURCE_RELEASE_V1.json",
+      "sha256": "9f90f6a684b277d92cbba45e3483198690e4a77dbc46c322ffa0847c18c74dfb",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V1.json",
+      "sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V2.json",
+      "sha256": "09d4fe5547448afccded3e41d4f230f9f25b8827a842825e5044663996794d99",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    },
+    {
+      "path": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/SOURCE_CHECKPOINT_V15.json",
+      "sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736",
+      "entry_type": "historical_role_override",
+      "role": "EVIDENCE",
+      "reason": "Completed V15 implementation/source-transfer, request-preparation or execution record preserves observed host paths and prior scoped instructions. The four-file implementation is frozen and manager fan-in is complete; FINAL_CANDIDATE_REVIEW_V5 and FINAL_NATIVE_EXECUTION_V4 govern successor work. Original and corrected checkout evidence remain immutable.",
+      "authority": "HELP_HUMAN under approved foundation tranche and standing coordination authority; projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/ROOT/_run_records/PORTABILITY_FINAL_V15/DISPOSITION_V1.json"
+    }
+  ],
+  "active_future_control_exceptions": false,
+  "verifier": {
+    "argv": [
+      "/private/tmp/piping-foundation-20260914-venv/bin/python",
+      "tools/validation/validate_path_anchors.py",
+      "--json"
+    ],
+    "exit_code": 1,
+    "before_stdout_sha256": "fe2e256da74389cd083ec3918bf321301c53e49ab7cf18f9e82b4b008666d575",
+    "after_stdout_sha256": "3528dd37419b173cbdcbdd190c8101fb725ca7d092a27daca723874c5849337d",
+    "after_stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

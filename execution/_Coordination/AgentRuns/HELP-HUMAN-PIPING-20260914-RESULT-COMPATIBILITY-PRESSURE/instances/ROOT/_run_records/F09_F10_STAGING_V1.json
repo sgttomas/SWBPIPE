@@ -1,0 +1,27 @@
+{
+  "schema": "root-source-staging-v1",
+  "created_utc": "2026-09-15T05:37:11.816569+00:00",
+  "scoped_candidate": "Four maintained F09/F10 files, project portability policy and this run evidence only.",
+  "full_diff_check": {
+    "exit_code": 2,
+    "stdout": "projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15.log:25: new blank line at EOF.\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_compat_successor.log:9: new blank line at EOF.\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_final.log:9: new blank line at EOF.\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/_run_records/commands/focused_result_export_v15_rerun.log:9: new blank line at EOF.\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/final_consumers_v2.stdout.txt:11: new blank line at EOF.\nprojects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/NATIVE/FINAL_NATIVE_V3/_run_records/commands/tauri_build.stderr.txt:16: new blank line at EOF.\n",
+    "stderr": ""
+  },
+  "maintained_source_policy_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--cached",
+      "--check",
+      "--",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+      "projects/chirality-piping/tests/test_stress_neutral_export_package.py",
+      "projects/chirality-piping/validation/portability_policy.json"
+    ],
+    "exit_code": 0
+  },
+  "disposition": "Six EOF blank-line diagnostics are verbatim raw command logs. Preserve their bytes and hashes. Cosmetic raw whitespace is not a commit/merge blocker under .agents/skills/chirality-change/SKILL.md. No source whitespace issue exists.",
+  "remaining": "Independent V5 review, final nativeV4, full registered sweep, final acceptance/metadata/additive review/CI/merge."
+}

@@ -1,0 +1,24 @@
+{
+  "authority": "V15 used focused nonbuild execution and the bounded already-built headless runner grant; all owned commands are complete. Root owns future build/browser/native execution.",
+  "created_utc": "2026-09-15T05:31:24.663959+00:00",
+  "git_actions": false,
+  "process_scan": {
+    "excluded_from_count": [
+      "the process-list command itself",
+      "the rg filter process"
+    ],
+    "matching_owned_processes": 0
+  },
+  "resources": {
+    "browser": false,
+    "build": false,
+    "checked_adapter": false,
+    "headless_runner": false,
+    "native_gui": false,
+    "server": false,
+    "wasm_build": false
+  },
+  "schema": "compatibility-v15-manager-resource-release-v1",
+  "source_frozen_checkpoint_sha256": "36000289af72cd19c815d2ef08b57eeb164e01768374c515c7ac6fdd3826c736",
+  "status": "RELEASED_NO_OWNED_RUNTIME"
+}

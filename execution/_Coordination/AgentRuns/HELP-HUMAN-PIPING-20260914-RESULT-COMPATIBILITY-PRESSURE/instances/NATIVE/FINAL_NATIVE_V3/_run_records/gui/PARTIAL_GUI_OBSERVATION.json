@@ -1,0 +1,22 @@
+{
+  "bundle": "/private/tmp/piping-foundation-native-repaired-20260915/bound/OpenPipeStress Foundation Repaired 20260915.app",
+  "candidate": "9d96e24ab45682ef9c0af6f8e8d463faf95a8796",
+  "claim_boundary": "Stopped before material completion, solve, save, reopen, or lifecycle acceptance. The persisted row remains the initial blank create state; node edits were not saved.",
+  "isolated_store": "/Users/ryan/Library/Application Support/org.openpipestress.foundation-repaired-20260915",
+  "lifecycle_acceptance_claimed": false,
+  "normal_quit": true,
+  "observed": [
+    "fresh app opened with local store unopened",
+    "New blank created project:blank-local-20260915t045912z",
+    "root node node:ROOT reviewed and applied at [0,2.4,0] m",
+    "tip node node:TIP reviewed and applied at [3.2,2.4,0] m",
+    "material editor opened before Root stop direction",
+    "Command-Q returned App quit"
+  ],
+  "schema": "final-native-v3-partial-gui-observation-v1",
+  "store_snapshot": {
+    "bytes": 1208,
+    "path": "_run_records/store/partial_unsaved_gui_store.json",
+    "sha256": "9d4ee27535760b3d01f235dad00f3dca7779629d95c79533827ca18da3269855"
+  }
+}

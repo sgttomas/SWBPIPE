@@ -1,0 +1,35 @@
+{
+  "acceptance": [
+    "preserve exact real-packet failure",
+    "focused maintained regression for both legitimate pairs and contradictory cross-pairs",
+    "invalid supplied witness rejected after covered hashes are recomputed",
+    "focused Python package suite",
+    "seven TS-to-Python schema/validator/write9 cases",
+    "original 830/828/two-work packet backcheck",
+    "74-file checkpoint with exact four-file delta"
+  ],
+  "brief": {
+    "bytes": 2776,
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/V15_REACTION_PAIR_REPAIR_ADDENDUM.md",
+    "sha256": "6e864def7cb09cc12cc94d65428e6de3daa5c4e069082e7af7583bd137679bb3"
+  },
+  "created_utc": "2026-09-15T05:19:53.595788Z",
+  "excluded": [
+    "schema/profile/API/version changes",
+    "raw-field enrichment",
+    "numerical tolerance",
+    "legacy 0.1 changes",
+    "solver/pressure changes",
+    "build/browser/native/GUI/Git"
+  ],
+  "finding": "F10",
+  "maintained_write_scope": [
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+    "projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+    "projects/chirality-piping/core/handoff/stress_neutral/package_v0_2.py",
+    "projects/chirality-piping/tests/test_stress_neutral_export_package.py"
+  ],
+  "rule": "Reaction witnesses are accepted only for exact N/force or N*m/moment unit/dimension pairs; cross-pairs and diagnostic work remain rejected or withheld.",
+  "schema": "compatibility-v15-f10-scope-addendum-v1",
+  "status": "RELEASED"
+}

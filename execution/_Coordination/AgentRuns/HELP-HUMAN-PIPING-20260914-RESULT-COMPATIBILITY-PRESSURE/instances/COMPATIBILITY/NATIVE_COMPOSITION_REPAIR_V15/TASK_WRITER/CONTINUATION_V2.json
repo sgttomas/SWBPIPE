@@ -1,0 +1,67 @@
+{
+  "actual_continuation": true,
+  "bindings": {
+    "headless_addendum": {
+      "bytes": 3020,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/briefs/V15_HEADLESS_INPUT_COMPLETION_ADDENDUM.md",
+      "sha256": "4759f8bf594d90449a7a5ce61b87b2500a877a5ceece73b1e3c81c0a92a2948c"
+    },
+    "location_deviation": {
+      "bytes": 4289,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/ACTUAL_LOCATION_DEVIATION_V1.json",
+      "sha256": "8f0521724ef05248b33f224a40e1ad376477253b50ad3c7c3a59ad6dee6b19f6"
+    },
+    "runner_preflight": {
+      "bytes": 1989,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/MANAGER_RUNNER_REUSE_PREFLIGHT_V1.json",
+      "sha256": "df7a51de6c2ea317636f93f60b4d16c999fd62568b97dc3ebdcfd10405754a2d"
+    },
+    "source_release": {
+      "bytes": 3590,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/SOURCE_RELEASE_V1.json",
+      "sha256": "9f90f6a684b277d92cbba45e3483198690e4a77dbc46c322ffa0847c18c74dfb"
+    }
+  },
+  "created_utc": "2026-09-15T05:19:31.943149+00:00",
+  "delegation": false,
+  "execution_state": {
+    "focused_adapter": "12_pass",
+    "python_schema_write9": "6_pass_1_blocked_rotational_reaction_dimension_dispatch",
+    "successor_solves": "3_pass",
+    "typescript": "pass",
+    "typescript_seven_case_composition": "pass"
+  },
+  "git_actions": false,
+  "identity": "/root/foundation_compatibility/compatibility_writer",
+  "maintained_sources": [
+    {
+      "bytes": 29156,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.ts",
+      "sha256": "9660a2fa3d9730906e2c1eb610b54b832d666a10a5d2d6aa7588d18fe89e8fcf"
+    },
+    {
+      "bytes": 15651,
+      "path": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping/apps/desktop/src/features/result-export/resultExportAdapter.test.ts",
+      "sha256": "79cf87307740379a9f3056a5bbbbae710d5f82b62a5231b3f19142e8deaf7af7"
+    }
+  ],
+  "model_effort": "gpt-5.6-sol / high",
+  "prohibitions_observed": [
+    "no build",
+    "no Cargo",
+    "no WASM build",
+    "no browser/server",
+    "no native GUI/store",
+    "no Git",
+    "no delegation"
+  ],
+  "read_only_integration_root": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping",
+  "role": "TASK / Type 2",
+  "schema": "compatibility-v15-task-writer-continuation-v2",
+  "status": "ACTIVE_IN_CORRECT_COMPATIBILITY_CHECKOUT",
+  "supersedes_as_location_control_only": {
+    "path": "/Users/ryan/.codex/worktrees/8728/chirality-result-compatibility-pressure-20260914/projects/chirality-piping/execution/_Coordination/AgentRuns/HELP-HUMAN-PIPING-20260914-RESULT-COMPATIBILITY-PRESSURE/instances/COMPATIBILITY/NATIVE_COMPOSITION_REPAIR_V15/TASK_WRITER/CONTINUATION_V1.json",
+    "sha256": "a27136f0c67006eb1c0216138e4735cb26e858fdd9a76078dccb7aa0632ec1f4"
+  },
+  "working_root": "/Users/ryan/.codex/worktrees/8728/chirality-compatibility-20260914/projects/chirality-piping"
+}
